@@ -2,6 +2,81 @@
 
 module dragonBones 
 {
+    export module geom 
+    {
+        export class Point 
+        {
+            public x: number;
+            public y: number;
+
+            constructor(x:number, y:number) 
+            {
+                this.x = x;
+                this.y = y;
+            }
+        }
+
+        export class Matrix 
+        {
+            public a: number;
+            public b: number;
+            public c: number;
+            public d: number;
+            public tx: number;
+            public ty: number;
+            constructor() 
+            {
+                this.a = 1;
+                this.b = 0;
+                this.c = 0;
+                this.d = 1;
+                this.tx = 0;
+                this.ty = 0;
+            }
+
+            public invert(): void
+            {
+                var a1: number = this.a;
+                var b1: number = this.b;
+                var c1: number = this.c;
+                var d1: number = this.d;
+                var tx1: number = this.tx;
+                var n: number = a1 * d1 - b1 * c1;
+
+                this.a = d1 / n;
+                this.b = -b1 / n;
+                this.c = -c1 / n;
+                this.d = a1 / n;
+                this.tx = (c1 * this.ty - d1 * tx1) / n;
+                this.ty = -(a1 * this.ty - b1 * tx1) / n;
+            }
+        }
+
+        export class ColorTransform 
+        {
+            public alphaMultiplier: number;
+            public alphaOffset: number
+            public blueMultiplier: number;
+            public blueOffset: number;
+            public greenMultiplier: number;
+            public greenOffset: number;
+            public redMultiplier: number;
+            public redOffset: number;
+
+            constructor() 
+            {
+                this.alphaMultiplier = 0;
+                this.alphaOffset = 0;
+                this.blueMultiplier = 0;
+                this.blueOffset = 0;
+                this.greenMultiplier = 0;
+                this.greenOffset = 0;
+                this.redMultiplier = 0;
+                this.redOffset = 0;
+            }
+        }
+    }
+
     export module events 
     {
         export class Event 
@@ -370,72 +445,6 @@ module dragonBones
 
     export module objects 
     {
-        export class DisplayData
-        {
-            constructor() 
-            {
-            }
-        }
-
-        export class SlotData
-        {
-            constructor() 
-            {
-            }
-        }
-
-        export class BoneData
-        {
-            constructor() 
-            {
-            }
-        }
-
-        export class SkinData
-        {
-            constructor() 
-            {
-            }
-        }
-
-        export class ArmatureData
-        {
-            constructor() 
-            {
-            }
-        }
-
-        export class Timeline
-        {
-            constructor() 
-            {
-            }
-        }
-
-        export class Frame
-        {
-            constructor() 
-            {
-            }
-        }
-
-        export class TransformFrame extends Frame
-        {
-            constructor() 
-            {
-                super();
-            }
-        }
-
-        export class AnimationData extends Timeline
-        {
-            constructor() 
-            {
-                super();
-            }
-        }
-
-
         export class DBTransform 
         {
             public x: number;
@@ -474,6 +483,667 @@ module dragonBones
                 this.scaleY = transform.scaleY;
             }
         }
+
+        export class Frame
+        {
+		    public position: number;
+		    public duration: number;
+
+		    public action: string;
+		    public event: string;
+		    public sound: string;
+
+            constructor() 
+            {
+			    this.position = 0;
+			    this.duration = 0;
+            }
+		
+		    public dispose():void
+		    {
+		    }
+        }
+
+        export class TransformFrame extends Frame
+        {
+		    public tweenEasing:number;
+		    public tweenRotate:number;
+		    public displayIndex:number;
+		    public visible:boolean;
+		    public zOrder:number;
+		
+		    public global:DBTransform;
+		    public transform:DBTransform;
+		    public pivot:geom.Point;
+		    public color:geom.ColorTransform;
+
+            constructor() 
+            {
+                super();
+			
+			    this.tweenEasing = 0;
+			    this.tweenRotate = 0;
+			    this.displayIndex = 0;
+			    this.visible = true;
+			    this.zOrder = NaN;
+			
+			    this.global = new DBTransform();
+			    this.transform = new DBTransform();
+			    this.pivot = new geom.Point(0, 0);
+            }
+		
+		    public dispose():void
+		    {
+			    super.dispose();
+			    this.global = null;
+			    this.transform = null;
+			    //SkeletonData pivots
+			    this.pivot = null;
+			    this.color = null;
+		    }
+        }
+
+        export class Timeline
+        {
+            public duration: number;
+            public scale: number;
+
+            private _frameList: Array<Frame>;
+            public getFrameList(): Array<Frame>
+		    {
+			    return this._frameList;
+		    }
+		
+            constructor() 
+            {
+			    this._frameList = [];
+			    this.duration = 0;
+			    this.scale = 1;
+            }
+            
+		    public dispose():void
+		    {
+			    var i:number = this._frameList.length;
+			    while(i --)
+			    {
+				    this._frameList[i].dispose();
+			    }
+			    this._frameList.length = 0;
+			    this._frameList = null;
+		    }
+		
+		    public addFrame(frame:Frame):void
+		    {
+			    if(!frame)
+			    {
+				    throw new Error();
+			    }
+			
+			    if(this._frameList.indexOf(frame) < 0)
+			    {
+				    this._frameList[this._frameList.length] = frame;
+			    }
+			    else
+			    {
+				    throw new Error();
+			    }
+		    }
+        }
+
+        export class TransformTimeline extends Timeline
+        {
+            public static HIDE_TIMELINE:TransformTimeline = new TransformTimeline();
+		
+		    public transformed:boolean;
+		    public offset:number;
+		
+		    public originTransform:DBTransform;
+            public originPivot: geom.Point;
+
+
+            constructor() 
+            {
+                super();
+			    this.originTransform = new DBTransform();
+			    this.originPivot = new geom.Point(0, 0);
+			    this.offset = 0;
+            }
+		
+		    public dispose():void
+		    {
+			    if(this == TransformTimeline.HIDE_TIMELINE)
+			    {
+				    return;
+			    }
+			    super.dispose();
+			    this.originTransform = null;
+			    this.originPivot = null;
+		    }
+        }
+
+        export class AnimationData extends Timeline
+        {
+            public frameRate:number;
+		    public name:string;
+		    public loop:number;
+		    public tweenEasing:number;
+		    public fadeTime:number;
+		
+		    private _timelines:any;
+		    public getTimelines():any
+		    {
+			    return this._timelines;
+		    }
+
+            constructor() 
+            {
+                super();
+			    this.loop = 0;
+			    this.tweenEasing = NaN;
+			    this.fadeTime = 0;
+			
+			    this._timelines = {};
+            }
+            
+		    public dispose():void
+		    {
+			    super.dispose();
+			
+			    for(var timelineName in this._timelines)
+			    {
+				    (<TransformTimeline> this._timelines[timelineName]).dispose();
+			    }
+			    this._timelines = null;
+		    }
+		
+		    public getTimeline(timelineName:string):TransformTimeline
+		    {
+			    return <TransformTimeline> this._timelines[timelineName];
+		    }
+		
+		    public addTimeline(timeline:TransformTimeline, timelineName:string):void
+		    {
+			    if(!timeline)
+			    {
+				    throw new Error();
+			    }
+			
+			    this._timelines[timelineName] = timeline;
+		    }
+        }
+
+        export class DisplayData
+        {
+            public static ARMATURE: string = "armature";
+            public static IMAGE: string = "image";
+
+            public name: string;
+            public type: string;
+            public transform: DBTransform;
+            public pivot: geom.Point;
+
+            constructor() 
+            {
+			    this.transform = new DBTransform();
+            }
+
+            public dispose(): void
+            {
+                this.transform = null;
+                this.pivot = null;
+            }
+        }
+
+        export class SlotData
+        {
+            public name: string;
+            public parent: string;
+		    public zOrder: number;
+
+		    private _displayDataList: Array<DisplayData>;
+		    public getDisplayDataList():Array<DisplayData>
+		    {
+			    return this._displayDataList;
+		    }
+
+            constructor() 
+            {
+			    this._displayDataList = [];
+			    this.zOrder = 0;
+            }
+		
+		    public dispose():void
+		    {
+			    var i:number = this._displayDataList.length;
+			    while(i --)
+			    {
+				    this._displayDataList[i].dispose();
+			    }
+			    this._displayDataList.length = 0;
+			    this._displayDataList = null;
+		    }
+		
+		    public addDisplayData(displayData:DisplayData):void
+		    {
+			    if(!displayData)
+			    {
+				    throw new Error();
+			    }
+			    if (this._displayDataList.indexOf(displayData) < 0)
+			    {
+				    this._displayDataList[this._displayDataList.length] = displayData;
+			    }
+			    else
+			    {
+				    throw new Error();
+			    }
+		    }
+		
+		    public getDisplayData(displayName:string):DisplayData
+		    {
+			    var i:number = this._displayDataList.length;
+			    while(i --)
+			    {
+				    if(this._displayDataList[i].name == displayName)
+				    {
+					    return this._displayDataList[i];
+				    }
+			    }
+			
+			    return null;
+		    }
+        }
+
+        export class BoneData
+        {
+		    public name:string;
+		    public parent:string;
+		    public length:number;
+		
+		    public global:DBTransform;
+            public transform: DBTransform;
+
+            constructor() 
+            {
+			    this.length = 0;
+			    this.global = new DBTransform();
+			    this.transform = new DBTransform();
+            }
+		
+		    public dispose():void
+		    {
+			    this.global = null;
+			    this.transform = null;
+            }
+        }
+
+        export class SkinData
+        {
+		    public name:string;
+		
+		    private _slotDataList:Array<SlotData>;
+		    public getSlotDataList():Array<SlotData>
+		    {
+			    return this._slotDataList;
+		    }
+
+            constructor() 
+            {
+			    this._slotDataList = [];
+            }
+		
+		    public dispose():void
+		    {
+			    var i:number = this._slotDataList.length;
+			    while(i --)
+			    {
+				    this._slotDataList[i].dispose();
+			    }
+			    this._slotDataList.length = 0;
+			    this._slotDataList = null;
+		    }
+		
+		    public getSlotData(slotName:string):SlotData
+		    {
+			    var i:number = this._slotDataList.length;
+			    while(i --)
+			    {
+				    if(this._slotDataList[i].name == slotName)
+				    {
+					    return this._slotDataList[i];
+				    }
+			    }
+			    return null;
+		    }
+		
+		    public addSlotData(slotData:SlotData):void
+		    {
+			    if(!slotData)
+			    {
+				    throw new Error();
+			    }
+			
+			    if (this._slotDataList.indexOf(slotData) < 0)
+			    {
+				    this._slotDataList[this._slotDataList.length] = slotData;
+			    }
+			    else
+			    {
+				    throw new Error();
+			    }
+		    }
+        }
+
+        export class ArmatureData
+        {
+            public name:string;
+		
+		    private _boneDataList:Array<BoneData>;
+		    public getBoneDataList():Array<BoneData>
+		    {
+			    return this._boneDataList;
+		    }
+		
+		    private _skinDataList:Array<SkinData>;
+		    public getSkinDataList():Array<SkinData>
+		    {
+			    return this._skinDataList;
+		    }
+		
+		    private _animationDataList:Array<AnimationData>;
+		    public getAnimationDataList():Array<AnimationData>
+		    {
+			    return this._animationDataList;
+		    }
+
+            constructor() 
+            {
+			    this._boneDataList = [];
+			    this._skinDataList = [];
+			    this._animationDataList = [];
+            }
+
+            public dispose():void
+		    {
+			    var i:number = this._boneDataList.length;
+			    while(i --)
+			    {
+				    this._boneDataList[i].dispose();
+			    }
+			    i = this._skinDataList.length;
+			    while(i --)
+			    {
+				    this._skinDataList[i].dispose();
+			    }
+			    i = this._animationDataList.length;
+			    while(i --)
+			    {
+				    this._animationDataList[i].dispose();
+			    }
+			    this._boneDataList.length = 0;
+			    this._skinDataList.length = 0;
+			    this._animationDataList.length = 0;
+			    this._boneDataList = null;
+			    this._skinDataList = null;
+			    this._animationDataList = null;
+		    }
+		
+		    public getBoneData(boneName:string):BoneData
+		    {
+			    var i:number = this._boneDataList.length;
+			    while(i --)
+			    {
+				    if(this._boneDataList[i].name == boneName)
+				    {
+					    return this._boneDataList[i];
+				    }
+			    }
+			    return null;
+		    }
+		
+		    public getSkinData(skinName:string):SkinData
+		    {
+			    if(!skinName)
+			    {
+				    return this._skinDataList[0];
+			    }
+			    var i:number = this._skinDataList.length;
+			    while(i --)
+			    {
+				    if(this._skinDataList[i].name == skinName)
+				    {
+					    return this._skinDataList[i];
+				    }
+			    }
+			
+			    return null;
+		    }
+		
+		    public getAnimationData(animationName:string):AnimationData
+		    {
+			    var i:number = this._animationDataList.length;
+			    while(i --)
+			    {
+				    if(this._animationDataList[i].name == animationName)
+				    {
+					    return this._animationDataList[i];
+				    }
+			    }
+			    return null;
+		    }
+		
+		    public addBoneData(boneData:BoneData):void
+		    {
+			    if(!boneData)
+			    {
+				    throw new Error();
+			    }
+			
+			    if (this._boneDataList.indexOf(boneData) < 0)
+			    {
+				    this._boneDataList[this._boneDataList.length] = boneData;
+			    }
+			    else
+			    {
+				    throw new Error();
+			    }
+		    }
+		
+		    public addSkinData(skinData:SkinData):void
+		    {
+			    if(!skinData)
+			    {
+				    throw new Error();
+			    }
+			
+			    if(this._skinDataList.indexOf(skinData) < 0)
+			    {
+				    this._skinDataList[this._skinDataList.length] = skinData;
+			    }
+			    else
+			    {
+				    throw new Error();
+			    }
+		    }
+		
+		    public addAnimationData(animationData:AnimationData):void
+		    {
+			    if(!animationData)
+			    {
+				    throw new Error();
+			    }
+			
+			    if(this._animationDataList.indexOf(animationData) < 0)
+			    {
+				    this._animationDataList[this._animationDataList.length] = animationData;
+			    }
+		    }
+		
+		    public sortBoneDataList():void
+		    {
+			    var i:number = this._boneDataList.length;
+			    if(i == 0)
+			    {
+				    return;
+			    }
+			
+			    var helpArray:Array<any> = [];
+			    while(i --)
+			    {
+				    var boneData:BoneData = this._boneDataList[i];
+				    var level:number = 0;
+				    var parentData:BoneData = boneData;
+				    while(parentData && parentData.parent)
+				    {
+					    level ++;
+					    parentData = this.getBoneData(parentData.parent);
+				    }
+				    helpArray[i] = {level:level, boneData:boneData};
+			    }
+			
+			    helpArray.sort(this.sortBoneData);
+			
+			    i = helpArray.length;
+			    while(i --)
+			    {
+				    this._boneDataList[i] = helpArray[i].boneData;
+			    }
+            }
+
+            private sortBoneData(object1:any, object2:any): number
+            {
+                return object1.level > object1.level ? 1 : -1;
+            }
+        }
+
+        export class SkeletonData
+        {
+            public name:string;
+		
+		    private _subTexturePivots:any;
+		
+		    public getArmatureNames():Array<string>
+		    {
+			    var nameList:Array<string> = [];
+			    for(var armatureDataIndex in this._armatureDataList)
+			    {
+				    nameList[nameList.length] = this._armatureDataList[armatureDataIndex].name;
+			    }
+			    return nameList;
+		    }
+		
+		    private _armatureDataList:Array<ArmatureData>;
+		    public getArmatureDataList():Array<ArmatureData>
+		    {
+			    return this._armatureDataList;
+		    }
+
+            constructor() 
+            {
+                this._armatureDataList = [];
+			    this._subTexturePivots = {};
+            }
+            
+		    public dispose():void
+		    {
+			    for (var armatureDataIndex in this._armatureDataList)
+			    {
+				    this._armatureDataList[armatureDataIndex].dispose();
+			    }
+			    this._armatureDataList.length = 0;
+			
+			    this._armatureDataList = null;
+			    this._subTexturePivots = null;
+		    }
+		
+		    public getArmatureData(armatureName:string):ArmatureData
+		    {
+			    var i:number = this._armatureDataList.length;
+			    while(i --)
+			    {
+				    if(this._armatureDataList[i].name == armatureName)
+				    {
+					    return this._armatureDataList[i];
+				    }
+			    }
+			
+			    return null;
+		    }
+		
+		    public addArmatureData(armatureData:ArmatureData):void
+		    {
+			    if(!armatureData)
+			    {
+				    throw new Error();
+			    }
+			
+			    if(this._armatureDataList.indexOf(armatureData) < 0)
+			    {
+				    this._armatureDataList[this._armatureDataList.length] = armatureData;
+			    }
+			    else
+			    {
+				    throw new Error();
+			    }
+		    }
+		
+		    public removeArmatureData(armatureData:ArmatureData):void
+		    {
+			    var index:number = this._armatureDataList.indexOf(armatureData);
+			    if(index >= 0)
+			    {
+				    this._armatureDataList.splice(index, 1);
+			    }
+		    }
+		
+		    public removeArmatureDataByName(armatureName:string):void
+		    {
+			    var i:number = this._armatureDataList.length;
+			    while(i --)
+			    {
+				    if(this._armatureDataList[i].name == armatureName)
+				    {
+					    this._armatureDataList.splice(i, 1);
+				    }
+			    }
+		    }
+		
+		    public getSubTexturePivot(subTextureName:string):geom.Point
+		    {
+			    return this._subTexturePivots[subTextureName];
+		    }
+		
+		    public addSubTexturePivot(x:number, y:number, subTextureName:string):geom.Point
+		    {
+			    var point:geom.Point = this._subTexturePivots[subTextureName];
+			    if(point)
+			    {
+				    point.x = x;
+				    point.y = y;
+			    }
+			    else
+			    {
+				    this._subTexturePivots[subTextureName] = point = new geom.Point(x, y);
+			    }
+			
+			    return point;
+		    }
+		
+		    public removeSubTexturePivot(subTextureName:string):void
+		    {
+			    if(subTextureName)
+			    {
+				    delete this._subTexturePivots[subTextureName];
+			    }
+			    else
+			    {
+				    for(subTextureName in this._subTexturePivots)
+				    {
+					    delete this._subTexturePivots[subTextureName];
+				    }
+			    }
+		    }
+        }
     }
 
     export module textures 
@@ -486,40 +1156,6 @@ module dragonBones
         {
             constructor() 
             {
-            }
-        }
-    }
-
-    export module geom 
-    {
-        export class Point 
-        {
-            public x: number;
-            public y: number;
-
-            constructor() 
-            {
-                this.x = 0;
-                this.y = 0;
-            }
-        }
-
-        export class Matrix 
-        {
-            public a: number;
-            public b: number;
-            public c: number;
-            public d: number;
-            public tx: number;
-            public ty: number;
-            constructor() 
-            {
-                this.a = 1;
-                this.b = 0;
-                this.c = 0;
-                this.d = 1;
-                this.tx = 0;
-                this.ty = 0;
             }
         }
     }
@@ -587,10 +1223,299 @@ module dragonBones
 
         export class TransformUtil
         {
+		    private static DOUBLE_PI:number = Math.PI * 2;
+            private static _helpMatrix: geom.Matrix = new geom.Matrix();
+
+            public static transformPointWithParent(transform: objects.DBTransform, parent: objects.DBTransform): void
+            {
+                var helpMatrix: geom.Matrix = TransformUtil._helpMatrix;
+			    TransformUtil.transformToMatrix(parent, helpMatrix);
+                helpMatrix.invert();
+
+			    var x:number = transform.x;
+                var y: number = transform.y;
+
+			    transform.x = helpMatrix.a * x + helpMatrix.c * y + helpMatrix.tx;
+			    transform.y = helpMatrix.d * y + helpMatrix.b * x + helpMatrix.ty;
+			
+			    transform.skewX = TransformUtil.formatRadian(transform.skewX - parent.skewX);
+			    transform.skewY = TransformUtil.formatRadian(transform.skewY - parent.skewY);
+            }
+
+            public static transformToMatrix(transform:objects.DBTransform, matrix:geom.Matrix):void
+		    {
+			    matrix.a = transform.scaleX * Math.cos(transform.skewY)
+			    matrix.b = transform.scaleX * Math.sin(transform.skewY)
+			    matrix.c = -transform.scaleY * Math.sin(transform.skewX);
+			    matrix.d = transform.scaleY * Math.cos(transform.skewX);
+			    matrix.tx = transform.x;
+			    matrix.ty = transform.y;
+            }
+		
+		    public static formatRadian(radian:number):number
+		    {
+			    radian %= TransformUtil.DOUBLE_PI;
+			    if (radian > Math.PI)
+			    {
+				    radian -= TransformUtil.DOUBLE_PI;
+			    }
+			    if (radian < -Math.PI)
+			    {
+				    radian += TransformUtil.DOUBLE_PI;
+			    }
+			    return radian;
+		    }
         }
 
         export class DBDataUtil
         {
+            private static _helpTransform1: objects.DBTransform = new objects.DBTransform();
+            private static _helpTransform2: objects.DBTransform = new objects.DBTransform();
+
+		    public static transformArmatureData(armatureData:objects.ArmatureData):void
+            {
+                var boneDataList: Array<objects.BoneData> = armatureData.getBoneDataList();
+			    var i:number = boneDataList.length;
+			    var boneData:objects.BoneData;
+			    var parentBoneData:objects.BoneData;
+			    while(i --)
+			    {
+				    boneData = boneDataList[i];
+				    if(boneData.parent)
+				    {
+					    parentBoneData = armatureData.getBoneData(boneData.parent);
+					    if(parentBoneData)
+					    {
+						    boneData.transform.copy(boneData.global);
+						    TransformUtil.transformPointWithParent(boneData.transform, parentBoneData.global);
+					    }
+				    }
+			    }
+            }
+		
+		    public static transformArmatureDataAnimations(armatureData:objects.ArmatureData):void
+		    {
+			    var animationDataList:Array<objects.AnimationData> = armatureData.getAnimationDataList();
+			    var i:number = animationDataList.length;
+			    while(i --)
+			    {
+				    DBDataUtil.transformAnimationData(animationDataList[i], armatureData);
+			    }
+            }
+
+		    public static transformAnimationData(animationData:objects.AnimationData, armatureData:objects.ArmatureData):void
+		    {
+			    var skinData:objects.SkinData = armatureData.getSkinData(null);
+                var boneDataList: Array<objects.BoneData> = armatureData.getBoneDataList();
+                var slotDataList: Array<objects.SlotData> = skinData.getSlotDataList();
+			    var i:number = boneDataList.length;
+			
+			    var boneData:objects.BoneData;
+			    var timeline:objects.TransformTimeline;
+			    var slotData:objects.SlotData;
+			    var displayData:objects.DisplayData
+			    var parentTimeline:objects.TransformTimeline;
+			    var frameList:Array<objects.Frame>;
+			    var originTransform:objects.DBTransform;
+			    var originPivot:geom.Point;
+			    var prevFrame:objects.TransformFrame;
+			    var frameListLength:number;
+			    var frame:objects.TransformFrame;
+			
+			    while(i --)
+			    {
+				    boneData = boneDataList[i];
+				    timeline = animationData.getTimeline(boneData.name);
+				    if(!timeline)
+				    {
+					    continue;
+				    }
+				
+                    slotData = null;
+
+				    for(var slotIndex in slotDataList)
+                    {
+                        slotData = slotDataList[slotIndex];
+					    if(slotData.parent == boneData.name)
+					    {
+						    break;
+					    }
+				    }
+
+                    parentTimeline = boneData.parent ? animationData.getTimeline(boneData.parent) : null;
+
+                    frameList = timeline.getFrameList();
+				
+				    originTransform = null;
+				    originPivot = null;
+				    prevFrame = null;
+				    frameListLength = frameList.length;
+				    for(var j:number = 0;j < frameListLength;j ++)
+				    {
+					    frame = <objects.TransformFrame> frameList[j];
+					    if(parentTimeline)
+					    {
+						    //tweenValues to transform.
+						    DBDataUtil._helpTransform1.copy(frame.global);
+						
+						    //get transform from parent timeline.
+						    DBDataUtil.getTimelineTransform(parentTimeline, frame.position, DBDataUtil._helpTransform2);
+						    TransformUtil.transformPointWithParent(DBDataUtil._helpTransform1, DBDataUtil._helpTransform2);
+						
+						    //transform to tweenValues.
+						    frame.transform.copy(DBDataUtil._helpTransform1);
+					    }
+					    else
+					    {
+						    frame.transform.copy(frame.global);
+					    }
+					
+					    frame.transform.x -= boneData.transform.x;
+					    frame.transform.y -= boneData.transform.y;
+					    frame.transform.skewX -= boneData.transform.skewX;
+					    frame.transform.skewY -= boneData.transform.skewY;
+					    frame.transform.scaleX -= boneData.transform.scaleX;
+					    frame.transform.scaleY -= boneData.transform.scaleY;
+					
+					    if(!timeline.transformed)
+					    {
+						    if(slotData)
+						    {
+							    frame.zOrder -= slotData.zOrder;
+						    }
+					    }
+					
+					    if(!originTransform)
+					    {
+						    originTransform = timeline.originTransform;
+						    originTransform.copy(frame.transform);
+						    originTransform.skewX = TransformUtil.formatRadian(originTransform.skewX);
+						    originTransform.skewY = TransformUtil.formatRadian(originTransform.skewY);
+						    originPivot = timeline.originPivot;
+						    originPivot.x = frame.pivot.x;
+						    originPivot.y = frame.pivot.y;
+					    }
+					
+					    frame.transform.x -= originTransform.x;
+					    frame.transform.y -= originTransform.y;
+					    frame.transform.skewX = TransformUtil.formatRadian(frame.transform.skewX - originTransform.skewX);
+					    frame.transform.skewY = TransformUtil.formatRadian(frame.transform.skewY - originTransform.skewY);
+					    frame.transform.scaleX -= originTransform.scaleX;
+					    frame.transform.scaleY -= originTransform.scaleY;
+					
+					    if(!timeline.transformed)
+					    {
+						    frame.pivot.x -= originPivot.x;
+						    frame.pivot.y -= originPivot.y;
+					    }
+					
+					    if(prevFrame)
+					    {
+						    var dLX:number = frame.transform.skewX - prevFrame.transform.skewX;
+						
+						    if(prevFrame.tweenRotate)
+						    {
+							
+							    if(prevFrame.tweenRotate > 0)
+							    {
+								    if(dLX < 0)
+								    {
+									    frame.transform.skewX += Math.PI * 2;
+									    frame.transform.skewY += Math.PI * 2;
+								    }
+								
+								    if(prevFrame.tweenRotate > 1)
+								    {
+									    frame.transform.skewX += Math.PI * 2 * (prevFrame.tweenRotate - 1);
+									    frame.transform.skewY += Math.PI * 2 * (prevFrame.tweenRotate - 1);
+								    }
+							    }
+							    else
+							    {
+								    if(dLX > 0)
+								    {
+									    frame.transform.skewX -= Math.PI * 2;
+									    frame.transform.skewY -= Math.PI * 2;
+								    }
+								
+								    if(prevFrame.tweenRotate < 1)
+								    {
+									    frame.transform.skewX += Math.PI * 2 * (prevFrame.tweenRotate + 1);
+									    frame.transform.skewY += Math.PI * 2 * (prevFrame.tweenRotate + 1);
+								    }
+							    }
+						    }
+						    else
+						    {
+							    frame.transform.skewX = prevFrame.transform.skewX + TransformUtil.formatRadian(frame.transform.skewX - prevFrame.transform.skewX);
+							    frame.transform.skewY = prevFrame.transform.skewY + TransformUtil.formatRadian(frame.transform.skewY - prevFrame.transform.skewY);
+						    }
+					    }
+					
+					    prevFrame = frame;
+				    }
+				    timeline.transformed = true;
+			    }
+            }
+		
+		    public static getTimelineTransform(timeline:objects.TransformTimeline, position:number, retult:objects.DBTransform):void
+		    {
+			    var frameList:Array<objects.Frame> = timeline.getFrameList();
+			    var i:number = frameList.length;
+			
+			    var currentFrame:objects.TransformFrame;
+			    var tweenEasing:number;
+			    var progress:number;
+			    var nextFrame:objects.TransformFrame;
+			    while(i --)
+			    {
+				    currentFrame = <objects.TransformFrame> frameList[i];
+				    if(currentFrame.position <= position && currentFrame.position + currentFrame.duration > position)
+				    {
+					    tweenEasing = currentFrame.tweenEasing;
+					    if(i == frameList.length - 1 || isNaN(tweenEasing) || position == currentFrame.position)
+					    {
+						    retult.copy(currentFrame.global);
+					    }
+					    else
+					    {
+						    progress = (position - currentFrame.position) / currentFrame.duration;
+						    if(tweenEasing)
+						    {
+							    progress = animation.TimelineState.getEaseValue(progress, tweenEasing);
+						    }
+						
+						    nextFrame = <objects.TransformFrame> frameList[i + 1];
+						
+						    retult.x = currentFrame.global.x +  (nextFrame.global.x - currentFrame.global.x) * progress;
+						    retult.y = currentFrame.global.y +  (nextFrame.global.y - currentFrame.global.y) * progress;
+						    retult.skewX = TransformUtil.formatRadian(currentFrame.global.skewX +  (nextFrame.global.skewX - currentFrame.global.skewX) * progress);
+						    retult.skewY = TransformUtil.formatRadian(currentFrame.global.skewY +  (nextFrame.global.skewY - currentFrame.global.skewY) * progress);
+						    retult.scaleX = currentFrame.global.scaleX +  (nextFrame.global.scaleX - currentFrame.global.scaleX) * progress;
+						    retult.scaleY = currentFrame.global.scaleY +  (nextFrame.global.scaleY - currentFrame.global.scaleY) * progress;
+					    }
+					    break;
+				    }
+			    }
+		    }
+		
+		    public static addHideTimeline(animationData:objects.AnimationData, armatureData:objects.ArmatureData):void
+		    {
+                var boneDataList: Array<objects.BoneData> = armatureData.getBoneDataList();
+			    var i:number = boneDataList.length;
+			
+			    var boneData:objects.BoneData;
+			    var boneName:string;
+			    while(i --)
+			    {
+				    boneData = boneDataList[i];
+				    boneName = boneData.name;
+				    if(!animationData.getTimeline(boneName))
+				    {
+					    animationData.addTimeline(objects.TransformTimeline.HIDE_TIMELINE, boneName);
+				    }
+			    }
+		    }
         }
     }
     
@@ -1060,7 +1985,7 @@ module dragonBones
 			this._children = [];
 			this._scaleType = 2;
 			
-			this._tweenPivot = new geom.Point();
+			this._tweenPivot = new geom.Point(0, 0);
 			
 			this.scaleMode = 1;
         }

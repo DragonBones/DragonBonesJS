@@ -67,8 +67,8 @@ declare module createjs
 
     export class ColorFilter extends Filter 
     {
-        alphaOffset: number
         alphaMultiplier: number;
+        alphaOffset: number
         blueMultiplier: number;
         blueOffset: number;
         greenMultiplier: number;
