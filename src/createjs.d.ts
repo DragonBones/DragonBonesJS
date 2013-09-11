@@ -50,7 +50,7 @@ declare module createjs
     export class Graphics 
     {
         beginBitmapFill(image: Object, repetition: string, matrix: Matrix2D): Graphics;
-        endFill(): Graphics;
+        drawRect(x: number, y: number, width: number, height: number): Graphics;
     }
 
     export class Shape extends DisplayObject 
@@ -60,9 +60,14 @@ declare module createjs
         constructor (graphics: Graphics);
     }
 
+    export class Sprite extends Container
+    {
+        constructor ();
+    }
+
     export class Filter 
     {
-        
+        constructor ();
     }
 
     export class ColorFilter extends Filter 

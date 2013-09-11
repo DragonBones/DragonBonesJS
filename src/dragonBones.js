@@ -17,6 +17,17 @@ var dragonBones;
         })();
         geom.Point = Point;
 
+        var Rectangle = (function () {
+            function Rectangle(x, y, width, height) {
+                this.x = x;
+                this.y = y;
+                this.width = width;
+                this.height = height;
+            }
+            return Rectangle;
+        })();
+        geom.Rectangle = Rectangle;
+
         var Matrix = (function () {
             function Matrix() {
                 this.a = 1;
@@ -240,105 +251,6 @@ var dragonBones;
     })(dragonBones.animation || (dragonBones.animation = {}));
     var animation = dragonBones.animation;
 
-    (function (display) {
-        var CreateJSDisplayBridge = (function () {
-            function CreateJSDisplayBridge() {
-            }
-            CreateJSDisplayBridge.prototype.getVisible = function () {
-                return this._display ? this._display.visible : false;
-            };
-            CreateJSDisplayBridge.prototype.setVisible = function (value) {
-                if (this._display) {
-                    this._display.visible = value;
-                }
-            };
-
-            CreateJSDisplayBridge.prototype.getDisplay = function () {
-                return this._display;
-            };
-            CreateJSDisplayBridge.prototype.setDisplay = function (value) {
-                if (this._display == value) {
-                    return;
-                }
-                if (this._display) {
-                    var parent = this._display.parent;
-                    if (parent) {
-                        var index = this._display.parent.getChildIndex(this._display);
-                    }
-                    this.removeDisplay();
-                }
-                this._display = value;
-                this.addDisplay(parent, index);
-            };
-
-            CreateJSDisplayBridge.prototype.dispose = function () {
-                this._display = null;
-            };
-
-            CreateJSDisplayBridge.prototype.updateTransform = function (matrix, transform) {
-                /*var pivotX:number = this._display.regX;
-                var pivotY:number = this._display.regY;
-                matrix.tx -= matrix.a * pivotX + matrix.c * pivotY;
-                matrix.ty -= matrix.b * pivotX + matrix.d * pivotY;
-                
-                this._display._matrix.a = matrix.a;
-                this._display._matrix.b = matrix.b;
-                this._display._matrix.c = matrix.c;
-                this._display._matrix.d = matrix.d;
-                this._display._matrix.tx = matrix.tx;
-                this._display._matrix.ty = matrix.ty;*/
-                this._display.x = transform.x;
-                this._display.y = transform.y;
-                this._display.skewX = transform.skewX;
-                this._display.skewY = transform.skewY;
-                this._display.scaleX = transform.scaleX;
-                this._display.scaleY = transform.scaleY;
-            };
-
-            CreateJSDisplayBridge.prototype.updateColor = function (aOffset, rOffset, gOffset, bOffset, aMultiplier, rMultiplier, gMultiplier, bMultiplier) {
-            };
-
-            CreateJSDisplayBridge.prototype.addDisplay = function (container, index) {
-                var parent = container;
-                if (parent && this._display) {
-                    if (index < 0) {
-                        parent.addChild(this._display);
-                    } else {
-                        parent.addChildAt(this._display, Math.min(index, parent.getNumChildren()));
-                    }
-                }
-            };
-
-            CreateJSDisplayBridge.prototype.removeDisplay = function () {
-                if (this._display && this._display.parent) {
-                    this._display.parent.removeChild(this._display);
-                }
-            };
-            return CreateJSDisplayBridge;
-        })();
-        display.CreateJSDisplayBridge = CreateJSDisplayBridge;
-    })(dragonBones.display || (dragonBones.display = {}));
-    var display = dragonBones.display;
-
-    (function (factorys) {
-        var BaseFactory = (function () {
-            function BaseFactory() {
-            }
-            return BaseFactory;
-        })();
-        factorys.BaseFactory = BaseFactory;
-
-        var CreateJSFactory = (function (_super) {
-            __extends(CreateJSFactory, _super);
-            function CreateJSFactory() {
-                _super.call(this);
-            }
-            return CreateJSFactory;
-        })(BaseFactory);
-        factorys.CreateJSFactory = CreateJSFactory;
-    })(dragonBones.factorys || (dragonBones.factorys = {}));
-    var factorys = dragonBones.factorys;
-
     (function (objects) {
         var DBTransform = (function () {
             function DBTransform() {
@@ -468,7 +380,7 @@ var dragonBones;
                 _super.call(this);
                 this.loop = 0;
                 this.tweenEasing = NaN;
-                this.fadeTime = 0;
+                this.fadeInTime = 0;
 
                 this._timelines = {};
             }
@@ -847,18 +759,660 @@ var dragonBones;
             return SkeletonData;
         })();
         objects.SkeletonData = SkeletonData;
+
+        var DataParser = (function () {
+            function DataParser() {
+            }
+            DataParser.parseTextureAtlasData = function (rawData, scale) {
+                if (typeof scale === "undefined") { scale = 1; }
+                if (!rawData) {
+                    throw new Error();
+                }
+
+                var textureAtlasData = {};
+                textureAtlasData.__name = rawData[utils.ConstValues.A_NAME];
+                var subTextureList = rawData[utils.ConstValues.SUB_TEXTURE];
+                for (var index in subTextureList) {
+                    var subTextureObject = subTextureList[index];
+                    var subTextureName = subTextureObject[utils.ConstValues.A_NAME];
+                    var subTextureData = new geom.Rectangle(Number(subTextureObject[utils.ConstValues.A_X]) / scale, Number(subTextureObject[utils.ConstValues.A_Y]) / scale, Number(subTextureObject[utils.ConstValues.A_WIDTH]) / scale, Number(subTextureObject[utils.ConstValues.A_HEIGHT]) / scale);
+                    textureAtlasData[subTextureName] = subTextureData;
+                }
+
+                return textureAtlasData;
+            };
+
+            DataParser.parseSkeletonData = function (rawData) {
+                if (!rawData) {
+                    throw new Error();
+                }
+
+                /*var version:string = rawData[utils.ConstValues.A_VERSION];
+                switch (version)
+                {
+                case dragonBones:
+                break;
+                default:
+                throw new Error("Nonsupport version!");
+                }*/
+                var frameRate = Number(rawData[utils.ConstValues.A_FRAME_RATE]);
+
+                var data = new SkeletonData();
+                data.name = rawData[utils.ConstValues.A_NAME];
+
+                var armatureObjectList = rawData[utils.ConstValues.ARMATURE];
+                for (var index in armatureObjectList) {
+                    var armatureObject = armatureObjectList[index];
+                    data.addArmatureData(DataParser.parseArmatureData(armatureObject, data, frameRate));
+                }
+
+                return data;
+            };
+
+            DataParser.parseArmatureData = function (armatureObject, data, frameRate) {
+                var armatureData = new ArmatureData();
+                armatureData.name = armatureObject[utils.ConstValues.A_NAME];
+
+                var boneObjectList = armatureObject[utils.ConstValues.BONE];
+                for (var index in boneObjectList) {
+                    var boneObject = boneObjectList[index];
+                    armatureData.addBoneData(DataParser.parseBoneData(boneObject));
+                }
+
+                var skinObjectList = armatureObject[ConstValues.SKIN];
+                for (var index in skinObjectList) {
+                    var skinObject = skinObjectList[index];
+                    armatureData.addSkinData(DataParser.parseSkinData(skinObject, data));
+                }
+
+                utils.DBDataUtil.transformArmatureData(armatureData);
+                armatureData.sortBoneDataList();
+
+                var animationObjectList = armatureObject[utils.ConstValues.ANIMATION];
+
+                for (var index in animationObjectList) {
+                    var animationObject = animationObjectList[index];
+                    armatureData.addAnimationData(DataParser.parseAnimationData(animationObject, armatureData, frameRate));
+                }
+
+                return armatureData;
+            };
+
+            DataParser.parseBoneData = function (boneObject) {
+                var boneData = new BoneData();
+                boneData.name = boneObject[utils.ConstValues.A_NAME];
+                boneData.parent = boneObject[utils.ConstValues.A_PARENT];
+                boneData.length = Number(boneObject[utils.ConstValues.A_LENGTH]) || 0;
+
+                DataParser.parseTransform(boneObject[utils.ConstValues.TRANSFORM], boneData.global);
+                boneData.transform.copy(boneData.global);
+
+                return boneData;
+            };
+
+            DataParser.parseSkinData = function (skinObject, data) {
+                var skinData = new SkinData();
+                skinData.name = skinObject[utils.ConstValues.A_NAME];
+                var slotObjectList = skinObject[utils.ConstValues.SLOT];
+                for (var index in slotObjectList) {
+                    var slotObject = slotObjectList[index];
+                    skinData.addSlotData(DataParser.parseSlotData(slotObject, data));
+                }
+
+                return skinData;
+            };
+
+            DataParser.parseSlotData = function (slotObject, data) {
+                var slotData = new SlotData();
+                slotData.name = slotObject[utils.ConstValues.A_NAME];
+                slotData.parent = slotObject[utils.ConstValues.A_PARENT];
+                slotData.zOrder = Number(slotObject[utils.ConstValues.A_Z_ORDER]);
+
+                var displayObjectList = slotObject[utils.ConstValues.DISPLAY];
+                for (var index in displayObjectList) {
+                    var displayObject = displayObjectList[index];
+                    slotData.addDisplayData(DataParser.parseDisplayData(displayObject, data));
+                }
+
+                return slotData;
+            };
+
+            DataParser.parseDisplayData = function (displayObject, data) {
+                var displayData = new DisplayData();
+                displayData.name = displayObject[utils.ConstValues.A_NAME];
+                displayData.type = displayObject[utils.ConstValues.A_TYPE];
+
+                displayData.pivot = data.addSubTexturePivot(0, 0, displayData.name);
+
+                DataParser.parseTransform(displayObject[utils.ConstValues.TRANSFORM], displayData.transform, displayData.pivot);
+
+                return displayData;
+            };
+
+            DataParser.parseAnimationData = function (animationObject, armatureData, frameRate) {
+                var animationData = new AnimationData();
+                animationData.name = animationObject[utils.ConstValues.A_NAME];
+                animationData.frameRate = frameRate;
+                animationData.loop = Number(animationObject[utils.ConstValues.A_LOOP]);
+                animationData.fadeInTime = Number(animationObject[utils.ConstValues.A_FADE_IN_TIME]);
+                animationData.duration = Number(animationObject[utils.ConstValues.A_DURATION]) / frameRate;
+                animationData.scale = Number(animationObject[utils.ConstValues.A_SCALE]);
+
+                if (animationObject.hasOwnProperty(utils.ConstValues.A_TWEEN_EASING)) {
+                    var tweenEase = animationObject[utils.ConstValues.A_TWEEN_EASING];
+                    if (tweenEase == undefined || tweenEase == null) {
+                        animationData.tweenEasing = NaN;
+                    } else {
+                        animationData.tweenEasing = Number(tweenEase);
+                    }
+                } else {
+                    animationData.tweenEasing = NaN;
+                }
+
+                DataParser.parseTimeline(animationObject, animationData, DataParser.parseMainFrame, frameRate);
+
+                var timeline;
+                var timelineName;
+                var timelineObjectList = animationObject[ConstValues.TIMELINE];
+                for (var index in timelineObjectList) {
+                    var timelineObject = timelineObjectList[index];
+                    timeline = DataParser.parseTransformTimeline(timelineObject, animationData.duration, frameRate);
+                    timelineName = timelineObject[utils.ConstValues.A_NAME];
+                    animationData.addTimeline(timeline, timelineName);
+                }
+
+                utils.DBDataUtil.addHideTimeline(animationData, armatureData);
+                utils.DBDataUtil.transformAnimationData(animationData, armatureData);
+
+                return animationData;
+            };
+
+            DataParser.parseTimeline = function (timelineObject, timeline, frameParser, frameRate) {
+                var position = 0;
+                var frame;
+                var frameObjectList = timelineObject[utils.ConstValues.FRAME];
+                for (var index in frameObjectList) {
+                    var frameObject = frameObjectList[index];
+                    frame = frameParser(frameObject, frameRate);
+                    frame.position = position;
+                    timeline.addFrame(frame);
+                    position += frame.duration;
+                }
+                if (frame) {
+                    frame.duration = timeline.duration - frame.position;
+                }
+            };
+
+            DataParser.parseTransformTimeline = function (timelineObject, duration, frameRate) {
+                var timeline = new TransformTimeline();
+                timeline.duration = duration;
+
+                DataParser.parseTimeline(timelineObject, timeline, DataParser.parseTransformFrame, frameRate);
+
+                timeline.scale = Number(timelineObject[utils.ConstValues.A_SCALE]);
+                timeline.offset = Number(timelineObject[utils.ConstValues.A_OFFSET]);
+
+                return timeline;
+            };
+
+            DataParser.parseFrame = function (frameObject, frame, frameRate) {
+                frame.duration = Number(frameObject[utils.ConstValues.A_DURATION]) / frameRate;
+                frame.action = frameObject[utils.ConstValues.A_ACTION];
+                frame.event = frameObject[utils.ConstValues.A_EVENT];
+                frame.sound = frameObject[utils.ConstValues.A_SOUND];
+            };
+
+            DataParser.parseMainFrame = function (frameObject, frameRate) {
+                var frame = new Frame();
+                DataParser.parseFrame(frameObject, frame, frameRate);
+                return frame;
+            };
+
+            DataParser.parseTransformFrame = function (frameObject, frameRate) {
+                var frame = new TransformFrame();
+                DataParser.parseFrame(frameObject, frame, frameRate);
+
+                frame.visible = Number(frameObject[utils.ConstValues.A_HIDE]) != 1;
+
+                if (frameObject.hasOwnProperty(utils.ConstValues.A_TWEEN_EASING)) {
+                    var tweenEase = frameObject[utils.ConstValues.A_TWEEN_EASING];
+                    if (tweenEase == undefined || tweenEase == null) {
+                        frame.tweenEasing = NaN;
+                    } else {
+                        frame.tweenEasing = Number(tweenEase);
+                    }
+                } else {
+                    frame.tweenEasing = 0;
+                }
+
+                frame.tweenRotate = Number(frameObject[utils.ConstValues.A_TWEEN_ROTATE]);
+                frame.displayIndex = Number(frameObject[utils.ConstValues.A_DISPLAY_INDEX]);
+
+                //
+                frame.zOrder = Number(frameObject[utils.ConstValues.A_Z_ORDER]);
+
+                DataParser.parseTransform(frameObject[utils.ConstValues.TRANSFORM], frame.global, frame.pivot);
+                frame.transform.copy(frame.global);
+
+                var colorTransformObject = frameObject[utils.ConstValues.COLOR_TRANSFORM];
+                if (colorTransformObject) {
+                    frame.color = new geom.ColorTransform();
+                    frame.color.alphaOffset = Number(colorTransformObject[utils.ConstValues.A_ALPHA_OFFSET]);
+                    frame.color.redOffset = Number(colorTransformObject[utils.ConstValues.A_RED_OFFSET]);
+                    frame.color.greenOffset = Number(colorTransformObject[utils.ConstValues.A_GREEN_OFFSET]);
+                    frame.color.blueOffset = Number(colorTransformObject[utils.ConstValues.A_BLUE_OFFSET]);
+
+                    frame.color.alphaMultiplier = Number(colorTransformObject[utils.ConstValues.A_ALPHA_MULTIPLIER]) * 0.01;
+                    frame.color.redMultiplier = Number(colorTransformObject[utils.ConstValues.A_RED_MULTIPLIER]) * 0.01;
+                    frame.color.greenMultiplier = Number(colorTransformObject[utils.ConstValues.A_GREEN_MULTIPLIER]) * 0.01;
+                    frame.color.blueMultiplier = Number(colorTransformObject[utils.ConstValues.A_BLUE_MULTIPLIER]) * 0.01;
+                }
+
+                return frame;
+            };
+
+            DataParser.parseTransform = function (transformObject, transform, pivot) {
+                if (typeof pivot === "undefined") { pivot = null; }
+                if (transformObject) {
+                    if (transform) {
+                        transform.x = Number(transformObject[utils.ConstValues.A_X]);
+                        transform.y = Number(transformObject[utils.ConstValues.A_Y]);
+                        transform.skewX = Number(transformObject[utils.ConstValues.A_SKEW_X]) * utils.ConstValues.ANGLE_TO_RADIAN;
+                        transform.skewY = Number(transformObject[utils.ConstValues.A_SKEW_Y]) * utils.ConstValues.ANGLE_TO_RADIAN;
+                        transform.scaleX = Number(transformObject[utils.ConstValues.A_SCALE_X]);
+                        transform.scaleY = Number(transformObject[utils.ConstValues.A_SCALE_Y]);
+                    }
+                    if (pivot) {
+                        pivot.x = Number(transformObject[utils.ConstValues.A_PIVOT_X]);
+                        pivot.y = Number(transformObject[utils.ConstValues.A_PIVOT_Y]);
+                    }
+                }
+            };
+            return DataParser;
+        })();
+        objects.DataParser = DataParser;
     })(dragonBones.objects || (dragonBones.objects = {}));
     var objects = dragonBones.objects;
 
     (function (textures) {
         var CreateJSTextureAtlas = (function () {
-            function CreateJSTextureAtlas() {
+            function CreateJSTextureAtlas(image, textureAtlasRawData) {
+                this.image = image;
             }
+            CreateJSTextureAtlas.prototype.dispose = function () {
+                this.image = null;
+            };
+
+            CreateJSTextureAtlas.prototype.getRegion = function (name) {
+                return null;
+            };
             return CreateJSTextureAtlas;
         })();
         textures.CreateJSTextureAtlas = CreateJSTextureAtlas;
     })(dragonBones.textures || (dragonBones.textures = {}));
     var textures = dragonBones.textures;
+
+    (function (display) {
+        var CreateJSDisplayBridge = (function () {
+            function CreateJSDisplayBridge() {
+            }
+            CreateJSDisplayBridge.prototype.getVisible = function () {
+                return this._display ? this._display.visible : false;
+            };
+            CreateJSDisplayBridge.prototype.setVisible = function (value) {
+                if (this._display) {
+                    this._display.visible = value;
+                }
+            };
+
+            CreateJSDisplayBridge.prototype.getDisplay = function () {
+                return this._display;
+            };
+            CreateJSDisplayBridge.prototype.setDisplay = function (value) {
+                if (this._display == value) {
+                    return;
+                }
+                if (this._display) {
+                    var parent = this._display.parent;
+                    if (parent) {
+                        var index = this._display.parent.getChildIndex(this._display);
+                    }
+                    this.removeDisplay();
+                }
+                this._display = value;
+                this.addDisplay(parent, index);
+            };
+
+            CreateJSDisplayBridge.prototype.dispose = function () {
+                this._display = null;
+            };
+
+            CreateJSDisplayBridge.prototype.updateTransform = function (matrix, transform) {
+                /*var pivotX:number = this._display.regX;
+                var pivotY:number = this._display.regY;
+                matrix.tx -= matrix.a * pivotX + matrix.c * pivotY;
+                matrix.ty -= matrix.b * pivotX + matrix.d * pivotY;
+                
+                this._display._matrix.a = matrix.a;
+                this._display._matrix.b = matrix.b;
+                this._display._matrix.c = matrix.c;
+                this._display._matrix.d = matrix.d;
+                this._display._matrix.tx = matrix.tx;
+                this._display._matrix.ty = matrix.ty;*/
+                this._display.x = transform.x;
+                this._display.y = transform.y;
+                this._display.skewX = transform.skewX;
+                this._display.skewY = transform.skewY;
+                this._display.scaleX = transform.scaleX;
+                this._display.scaleY = transform.scaleY;
+            };
+
+            CreateJSDisplayBridge.prototype.updateColor = function (aOffset, rOffset, gOffset, bOffset, aMultiplier, rMultiplier, gMultiplier, bMultiplier) {
+            };
+
+            CreateJSDisplayBridge.prototype.addDisplay = function (container, index) {
+                var parent = container;
+                if (parent && this._display) {
+                    if (index < 0) {
+                        parent.addChild(this._display);
+                    } else {
+                        parent.addChildAt(this._display, Math.min(index, parent.getNumChildren()));
+                    }
+                }
+            };
+
+            CreateJSDisplayBridge.prototype.removeDisplay = function () {
+                if (this._display && this._display.parent) {
+                    this._display.parent.removeChild(this._display);
+                }
+            };
+            return CreateJSDisplayBridge;
+        })();
+        display.CreateJSDisplayBridge = CreateJSDisplayBridge;
+    })(dragonBones.display || (dragonBones.display = {}));
+    var display = dragonBones.display;
+
+    (function (factorys) {
+        var BaseFactory = (function (_super) {
+            __extends(BaseFactory, _super);
+            function BaseFactory() {
+                _super.call(this);
+
+                this._dataDic = {};
+                this._textureAtlasDic = {};
+                this._textureAtlasLoadingDic = {};
+            }
+            BaseFactory.prototype.getSkeletonData = function (name) {
+                return this._dataDic[name];
+            };
+
+            BaseFactory.prototype.addSkeletonData = function (data, name) {
+                if (!data) {
+                    throw new Error();
+                }
+                name = name || data.name;
+                if (!name) {
+                    throw new Error("Unnamed data!");
+                }
+                if (this._dataDic[name]) {
+                }
+                this._dataDic[name] = data;
+            };
+
+            BaseFactory.prototype.removeSkeletonData = function (name) {
+                delete this._dataDic[name];
+            };
+
+            BaseFactory.prototype.getTextureAtlas = function (name) {
+                return this._textureAtlasDic[name];
+            };
+
+            BaseFactory.prototype.addTextureAtlas = function (textureAtlas, name) {
+                if (!textureAtlas) {
+                    throw new Error();
+                }
+
+                name = name || textureAtlas.name;
+                if (!name) {
+                    throw new Error("Unnamed data!");
+                }
+                if (this._textureAtlasDic[name]) {
+                }
+                this._textureAtlasDic[name] = textureAtlas;
+            };
+
+            BaseFactory.prototype.removeTextureAtlas = function (name) {
+                delete this._textureAtlasDic[name];
+            };
+
+            BaseFactory.prototype.dispose = function (disposeData) {
+                if (typeof disposeData === "undefined") { disposeData = true; }
+                if (disposeData) {
+                    for (var i in this._dataDic) {
+                        this._dataDic[i].dispose();
+                    }
+                    for (var i in this._textureAtlasDic) {
+                        this._textureAtlasDic[i].dispose();
+                    }
+                }
+                this._dataDic = null;
+                this._textureAtlasDic = null;
+                this._textureAtlasLoadingDic = null;
+                this._currentDataName = null;
+                this._currentTextureAtlasName = null;
+            };
+
+            BaseFactory.prototype.buildArmature = function (armatureName, animationName, skeletonName, textureAtlasName, skinName) {
+                if (skeletonName) {
+                    var data = this._dataDic[skeletonName];
+                    if (data) {
+                        var armatureData = data.getArmatureData(armatureName);
+                    }
+                } else {
+                    for (skeletonName in this._dataDic) {
+                        data = this._dataDic[skeletonName];
+                        armatureData = data.getArmatureData(armatureName);
+                        if (armatureData) {
+                            break;
+                        }
+                    }
+                }
+
+                if (!armatureData) {
+                    return null;
+                }
+
+                this._currentDataName = skeletonName;
+                this._currentTextureAtlasName = textureAtlasName || skeletonName;
+
+                var armature = this._generateArmature();
+                armature.name = armatureName;
+                var bone;
+                var boneData;
+                var boneDataList = armatureData.getBoneDataList();
+                for (var index in boneDataList) {
+                    boneData = boneDataList[index];
+                    bone = new dragonBones.Bone();
+                    bone.name = boneData.name;
+                    bone.origin.copy(boneData.transform);
+                    if (armatureData.getBoneData(boneData.parent)) {
+                        armature.addChild(bone, boneData.parent);
+                    } else {
+                        armature.addChild(bone, null);
+                    }
+                }
+
+                if (animationName && animationName != armatureName) {
+                    var animationArmatureData = data.getArmatureData(animationName);
+                    if (!animationArmatureData) {
+                        for (skeletonName in this._dataDic) {
+                            data = this._dataDic[skeletonName];
+                            animationArmatureData = data.getArmatureData(animationName);
+                            if (animationArmatureData) {
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                if (animationArmatureData) {
+                    armature.animation.setAnimationDataList(animationArmatureData.getAnimationDataList());
+                } else {
+                    armature.animation.setAnimationDataList(armatureData.getAnimationDataList());
+                }
+
+                var skinData = armatureData.getSkinData(skinName);
+                if (!skinData) {
+                    throw new Error();
+                }
+
+                var slot;
+                var displayData;
+                var childArmature;
+                var i;
+                var helpArray = [];
+                var slotData;
+                var slotDataList = skinData.getSlotDataList();
+                var displayDataList;
+                for (var index in slotDataList) {
+                    slotData = slotDataList[index];
+                    bone = armature.getBone(slotData.parent);
+                    if (!bone) {
+                        continue;
+                    }
+                    displayDataList = slotData.getDisplayDataList();
+                    slot = this._generateSlot();
+                    slot.name = slotData.name;
+                    slot._originZOrder = slotData.zOrder;
+                    slot._dislayDataList = displayDataList;
+
+                    helpArray.length = 0;
+                    i = displayDataList.length;
+                    while (i--) {
+                        displayData = displayDataList[i];
+
+                        switch (displayData.type) {
+                            case objects.DisplayData.ARMATURE:
+                                childArmature = this.buildArmature(displayData.name, null, this._currentDataName, this._currentTextureAtlasName, null);
+                                if (childArmature) {
+                                    helpArray[i] = childArmature;
+                                }
+                                break;
+                            case objects.DisplayData.IMAGE:
+                            default:
+                                helpArray[i] = this._generateDisplay(this._textureAtlasDic[this._currentTextureAtlasName], displayData.name, displayData.pivot.x, displayData.pivot.y);
+                                break;
+                        }
+                    }
+                    slot.setDisplayList(helpArray);
+                    slot._changeDisplay(0);
+                    bone.addChild(slot);
+                }
+                armature._slotsZOrderChanged = true;
+                armature.advanceTime(0);
+                return armature;
+            };
+
+            BaseFactory.prototype.getTextureDisplay = function (textureName, textureAtlasName, pivotX, pivotY) {
+                if (textureAtlasName) {
+                    var textureAtlas = this._textureAtlasDic[textureAtlasName];
+                }
+                if (!textureAtlas && !textureAtlasName) {
+                    for (textureAtlasName in this._textureAtlasDic) {
+                        textureAtlas = this._textureAtlasDic[textureAtlasName];
+                        if (textureAtlas.getRegion(textureName)) {
+                            break;
+                        }
+                        textureAtlas = null;
+                    }
+                }
+                if (textureAtlas) {
+                    if (isNaN(pivotX) || isNaN(pivotY)) {
+                        var data = this._dataDic[textureAtlasName];
+                        if (data) {
+                            var pivot = data.getSubTexturePivot(textureName);
+                            if (pivot) {
+                                pivotX = pivot.x;
+                                pivotY = pivot.y;
+                            }
+                        }
+                    }
+
+                    return this._generateDisplay(textureAtlas, textureName, pivotX, pivotY);
+                }
+                return null;
+            };
+
+            /** @private */
+            BaseFactory.prototype._generateTextureAtlas = function (content, textureAtlasRawData) {
+                return null;
+            };
+
+            /** @private */
+            BaseFactory.prototype._generateArmature = function () {
+                return null;
+            };
+
+            /** @private */
+            BaseFactory.prototype._generateSlot = function () {
+                return null;
+            };
+
+            /** @private */
+            BaseFactory.prototype._generateDisplay = function (textureAtlas, fullName, pivotX, pivotY) {
+                return null;
+            };
+            return BaseFactory;
+        })(events.EventDispatcher);
+        factorys.BaseFactory = BaseFactory;
+
+        var CreateJSFactory = (function (_super) {
+            __extends(CreateJSFactory, _super);
+            function CreateJSFactory() {
+                _super.call(this);
+            }
+            /** @private */
+            CreateJSFactory.prototype._generateTextureAtlas = function (content, textureAtlasRawData) {
+                var textureAtlas = new textures.CreateJSTextureAtlas(content, textureAtlasRawData);
+                return textureAtlas;
+            };
+
+            /** @private */
+            CreateJSFactory.prototype._generateArmature = function () {
+                var armature = new dragonBones.Armature(new createjs.Sprite());
+                return armature;
+            };
+
+            /** @private */
+            CreateJSFactory.prototype._generateSlot = function () {
+                var slot = new dragonBones.Slot(new display.CreateJSDisplayBridge());
+                return slot;
+            };
+
+            /** @private */
+            CreateJSFactory.prototype._generateDisplay = function (textureAtlas, fullName, pivotX, pivotY) {
+                var rect = textureAtlas.getRegion(fullName);
+                if (rect) {
+                    var shape = new createjs.Shape(null);
+                    shape.graphics.beginBitmapFill(textureAtlas.image, null, null);
+                    shape.graphics.drawRect(rect.x, rect.y, rect.width, rect.height);
+                }
+
+                /*var subTexture:SubTexture = (textureAtlas as TextureAtlas).getTexture(fullName) as SubTexture;
+                if (subTexture)
+                {
+                var image:Image = new Image(subTexture);
+                image.pivotX = pivotX;
+                image.pivotY = pivotY;
+                return image;
+                }*/
+                return null;
+            };
+            return CreateJSFactory;
+        })(BaseFactory);
+        factorys.CreateJSFactory = CreateJSFactory;
+    })(dragonBones.factorys || (dragonBones.factorys = {}));
+    var factorys = dragonBones.factorys;
 
     (function (utils) {
         var ConstValues = (function () {
@@ -1332,8 +1886,9 @@ var dragonBones;
             }
 
             if (this._displayIndex >= 0) {
+                var displayIndexBackup = this._displayIndex;
                 this._displayIndex = -1;
-                this._changeDisplay(this._displayIndex);
+                this._changeDisplay(displayIndexBackup);
             }
         };
 
@@ -1633,10 +2188,11 @@ var dragonBones;
                 }
 
                 if (frame.action) {
-                    var childArmature = this.getChildArmature();
-                    if (childArmature) {
-                        childArmature.animation.gotoAndPlay(frame.action);
-                    }
+                    /*var childArmature:Armature = this.getChildArmature();
+                    if(childArmature)
+                    {
+                    childArmature.animation.gotoAndPlay(frame.action);
+                    }*/
                 }
             } else {
                 if (this.slot) {
@@ -1907,7 +2463,7 @@ var dragonBones;
             if (i == 0) {
                 return;
             }
-            var _helpArray = [];
+            var helpArray = [];
             var level;
             var bone;
             var boneParent;
@@ -1919,14 +2475,14 @@ var dragonBones;
                     level++;
                     boneParent = boneParent.parent;
                 }
-                _helpArray[i] = { level: level, bone: bone };
+                helpArray[i] = { level: level, bone: bone };
             }
 
-            _helpArray.sort(this.sortBone);
+            helpArray.sort(this.sortBone);
 
-            i = _helpArray.length;
+            i = helpArray.length;
             while (i--) {
-                this._boneList[i] = _helpArray[i].bone;
+                this._boneList[i] = helpArray[i].bone;
             }
         };
 

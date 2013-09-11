@@ -16,6 +16,22 @@ module dragonBones
             }
         }
 
+        export class Rectangle
+        {
+            public x: number;
+            public y: number;
+            public width: number;
+            public height: number;
+
+            constructor(x:number, y:number, width:number, height:number) 
+            {
+                this.x = x;
+                this.y = y;
+                this.width = width;
+                this.height = height;
+            }
+        }
+
         export class Matrix 
         {
             public a: number;
@@ -304,145 +320,6 @@ module dragonBones
         }
     }
 
-    export module display 
-    {
-        export interface IDisplayBridge
-        {
-            getVisible(): boolean;
-            setVisible(value: boolean): void;
-
-            getDisplay(): any;
-            setDisplay(value: any): void;
-
-            dispose(): void;
-
-            updateTransform(matrix: geom.Matrix, transform: objects.DBTransform): void;
-            updateColor(aOffset: number, rOffset: number, gOffset: number, bOffset: number, aMultiplier: number, rMultiplier: number, gMultiplier: number, bMultiplier: number): void;
-
-            addDisplay(container: any, index: number): void;
-            removeDisplay(): void;
-        }
-
-        export class CreateJSDisplayBridge implements IDisplayBridge
-        {
-            private _display: createjs.DisplayObject;
-            private _colorFilter: createjs.ColorFilter;
-
-            public getVisible(): boolean
-            {
-                return this._display ? this._display.visible : false;
-            }
-            public setVisible(value: boolean): void
-            {
-                if (this._display)
-                {
-                    this._display.visible = value;
-                }
-            }
-
-            public getDisplay(): any
-            {
-                return this._display;
-            }
-            public setDisplay(value:any): void
-            {
-                if (this._display == value)
-			    {
-				    return;
-			    }
-			    if (this._display)
-			    {
-				    var parent:createjs.Container = this._display.parent;
-				    if (parent)
-				    {
-					    var index:number = this._display.parent.getChildIndex(this._display);
-				    }
-				    this.removeDisplay();
-			    }
-			    this._display = <createjs.DisplayObject> value;
-			    this.addDisplay(parent, index);
-            }
-
-            constructor()
-            {
-            }
-
-            public dispose(): void
-            {
-			    this._display = null;
-            }
-
-            public updateTransform(matrix: geom.Matrix, transform: objects.DBTransform): void
-            {
-                /*var pivotX:number = this._display.regX;
-                var pivotY:number = this._display.regY;
-                matrix.tx -= matrix.a * pivotX + matrix.c * pivotY;
-                matrix.ty -= matrix.b * pivotX + matrix.d * pivotY;
-
-                this._display._matrix.a = matrix.a;
-                this._display._matrix.b = matrix.b;
-                this._display._matrix.c = matrix.c;
-                this._display._matrix.d = matrix.d;
-                this._display._matrix.tx = matrix.tx;
-                this._display._matrix.ty = matrix.ty;*/
-
-                this._display.x = transform.x;
-                this._display.y = transform.y;
-                this._display.skewX = transform.skewX;
-                this._display.skewY = transform.skewY;
-                this._display.scaleX = transform.scaleX;
-                this._display.scaleY = transform.scaleY;
-            }
-
-            public updateColor(aOffset: number, rOffset: number, gOffset: number, bOffset: number, aMultiplier: number, rMultiplier: number, gMultiplier: number, bMultiplier: number): void
-            {
-
-            }
-
-            public addDisplay(container: any, index: number): void
-            {
-                var parent: createjs.Container = <createjs.Container> container;
-                if (parent && this._display)
-			    {
-				    if (index < 0)
-				    {
-					    parent.addChild(this._display);
-				    }
-				    else
-				    {
-					    parent.addChildAt(this._display, Math.min(index, parent.getNumChildren()));
-				    }
-			    }
-            }
-
-            public removeDisplay(): void
-            {
-                if (this._display && this._display.parent)
-			    {
-				    this._display.parent.removeChild(this._display);
-			    }
-            }
-        }
-    }
-
-    export module factorys 
-    {
-        export class BaseFactory
-        {
-            constructor()
-            {
-            }
-        }
-
-        export class CreateJSFactory extends BaseFactory
-        {
-            constructor()
-            {
-                super();
-            }
-        }
-    }
-
     export module objects 
     {
         export class DBTransform 
@@ -627,7 +504,7 @@ module dragonBones
 		    public name:string;
 		    public loop:number;
 		    public tweenEasing:number;
-		    public fadeTime:number;
+		    public fadeInTime:number;
 		
 		    private _timelines:any;
 		    public getTimelines():any
@@ -640,7 +517,7 @@ module dragonBones
                 super();
 			    this.loop = 0;
 			    this.tweenEasing = NaN;
-			    this.fadeTime = 0;
+			    this.fadeInTime = 0;
 			
 			    this._timelines = {};
             }
@@ -1144,19 +1021,839 @@ module dragonBones
 			    }
 		    }
         }
+
+        export class DataParser
+        {
+            public static parseTextureAtlasData(rawData:any, scale:number = 1): any
+            {
+			    if(!rawData)
+			    {
+				    throw new Error();
+                }
+
+                var textureAtlasData:any = {};
+                textureAtlasData.__name = rawData[utils.ConstValues.A_NAME];
+                var subTextureList:Array<any> = rawData[utils.ConstValues.SUB_TEXTURE]
+			    for(var index in subTextureList)
+			    {
+                    var subTextureObject: any = subTextureList[index];
+                    var subTextureName: string = subTextureObject[utils.ConstValues.A_NAME];
+                    var subTextureData: geom.Rectangle = new geom.Rectangle(
+                            Number(subTextureObject[utils.ConstValues.A_X]) / scale,
+                            Number(subTextureObject[utils.ConstValues.A_Y]) / scale,
+                            Number(subTextureObject[utils.ConstValues.A_WIDTH]) / scale,
+                            Number(subTextureObject[utils.ConstValues.A_HEIGHT]) / scale
+                        );
+				    textureAtlasData[subTextureName] = subTextureData;
+			    }
+			    
+			    return textureAtlasData;
+            }
+
+            public static parseSkeletonData(rawData:any): SkeletonData
+            {
+                if(!rawData)
+                {
+				    throw new Error();
+                }
+			
+			    /*var version:string = rawData[utils.ConstValues.A_VERSION];
+			    switch (version)
+			    {
+				    case dragonBones:
+					    break;
+				    default:
+					    throw new Error("Nonsupport version!");
+			    }*/
+			
+			    var frameRate:number = Number(rawData[utils.ConstValues.A_FRAME_RATE]);
+			
+			    var data:SkeletonData = new SkeletonData();
+			    data.name = rawData[utils.ConstValues.A_NAME];
+
+                var armatureObjectList: Array<any> = rawData[utils.ConstValues.ARMATURE];
+			    for(var index in armatureObjectList)
+			    {
+                    var armatureObject: any = armatureObjectList[index];
+                    data.addArmatureData(DataParser.parseArmatureData(armatureObject, data, frameRate));
+			    }
+			
+			    return data;
+            }
+		
+		    private static parseArmatureData(armatureObject:any, data:SkeletonData, frameRate:number):ArmatureData
+		    {
+			    var armatureData:ArmatureData = new ArmatureData();
+			    armatureData.name = armatureObject[utils.ConstValues.A_NAME];
+
+                var boneObjectList: Array<any> = armatureObject[utils.ConstValues.BONE];
+			    for (var index in boneObjectList)
+			    {
+                    var boneObject: any = boneObjectList[index];
+                    armatureData.addBoneData(DataParser.parseBoneData(boneObject));
+                }
+
+                var skinObjectList: Array<any> = armatureObject[ConstValues.SKIN];
+			    for (var index in skinObjectList)
+			    {
+                    var skinObject: any = skinObjectList[index];
+                    armatureData.addSkinData(DataParser.parseSkinData(skinObject, data));
+			    }
+			
+			    utils.DBDataUtil.transformArmatureData(armatureData);
+                armatureData.sortBoneDataList();
+
+                var animationObjectList: Array<any> = armatureObject[utils.ConstValues.ANIMATION];
+			
+			    for (var index in animationObjectList)
+                {
+                    var animationObject: any = animationObjectList[index];
+				    armatureData.addAnimationData(DataParser.parseAnimationData(animationObject, armatureData, frameRate));
+			    }
+			
+			    return armatureData;
+            }
+
+		    private static parseBoneData(boneObject:any):BoneData
+		    {
+			    var boneData:BoneData = new BoneData();
+			    boneData.name = boneObject[utils.ConstValues.A_NAME];
+			    boneData.parent = boneObject[utils.ConstValues.A_PARENT];
+			    boneData.length = Number(boneObject[utils.ConstValues.A_LENGTH]) || 0;
+			
+			    DataParser.parseTransform(boneObject[utils.ConstValues.TRANSFORM], boneData.global);
+			    boneData.transform.copy(boneData.global);
+			
+			    return boneData;
+		    }
+		
+		    private static parseSkinData(skinObject:any, data:SkeletonData):SkinData
+		    {
+			    var skinData:SkinData = new SkinData();
+			    skinData.name = skinObject[utils.ConstValues.A_NAME];
+                var slotObjectList: Array<any> = skinObject[utils.ConstValues.SLOT];
+                for (var index in slotObjectList)
+			    {
+				    var slotObject:any = slotObjectList[index];
+                    skinData.addSlotData(DataParser.parseSlotData(slotObject, data));
+			    }
+			
+			    return skinData;
+		    }
+		
+		    private static parseSlotData(slotObject:any, data:SkeletonData):SlotData
+		    {
+			    var slotData:SlotData = new SlotData();
+			    slotData.name = slotObject[utils.ConstValues.A_NAME];
+			    slotData.parent = slotObject[utils.ConstValues.A_PARENT];
+                slotData.zOrder = Number(slotObject[utils.ConstValues.A_Z_ORDER]);
+
+                var displayObjectList: Array<any> = slotObject[utils.ConstValues.DISPLAY];
+                for (var index in displayObjectList)
+			    {
+                    var displayObject:any = displayObjectList[index];
+                    slotData.addDisplayData(DataParser.parseDisplayData(displayObject, data));
+			    }
+			
+			    return slotData;
+            }
+
+		    private static parseDisplayData(displayObject:any, data:SkeletonData):DisplayData
+		    {
+			    var displayData:DisplayData = new DisplayData();
+			    displayData.name = displayObject[utils.ConstValues.A_NAME];
+			    displayData.type = displayObject[utils.ConstValues.A_TYPE];
+			
+			    displayData.pivot = data.addSubTexturePivot(
+				    0, 
+				    0, 
+				    displayData.name
+			    );
+			
+			    DataParser.parseTransform(displayObject[utils.ConstValues.TRANSFORM], displayData.transform, displayData.pivot);
+			
+			    return displayData;
+		    }
+
+		    private static parseAnimationData(animationObject:any, armatureData:ArmatureData, frameRate:number):AnimationData
+		    {
+			    var animationData:AnimationData = new AnimationData();
+			    animationData.name = animationObject[utils.ConstValues.A_NAME];
+			    animationData.frameRate = frameRate;
+			    animationData.loop = Number(animationObject[utils.ConstValues.A_LOOP]);
+                animationData.fadeInTime = Number(animationObject[utils.ConstValues.A_FADE_IN_TIME]);
+			    animationData.duration = Number(animationObject[utils.ConstValues.A_DURATION]) / frameRate;
+			    animationData.scale = Number(animationObject[utils.ConstValues.A_SCALE]);
+			
+			    if(animationObject.hasOwnProperty(utils.ConstValues.A_TWEEN_EASING))
+			    {
+				    var tweenEase:any = animationObject[utils.ConstValues.A_TWEEN_EASING];
+				    if(
+					    tweenEase == undefined ||
+					    tweenEase == null
+				    )
+				    {
+					    animationData.tweenEasing = NaN;
+				    }
+				    else
+				    {
+					    animationData.tweenEasing = Number(tweenEase);
+				    }
+			    }
+			    else
+			    {
+				    animationData.tweenEasing = NaN;
+			    }
+			
+			    DataParser.parseTimeline(animationObject, animationData, DataParser.parseMainFrame, frameRate);
+			
+			    var timeline:TransformTimeline;
+                var timelineName: string;
+                var timelineObjectList: Array<any> = animationObject[ConstValues.TIMELINE];
+			    for (var index in timelineObjectList)
+			    {
+                    var timelineObject: any = timelineObjectList[index];
+                    timeline = DataParser.parseTransformTimeline(timelineObject, animationData.duration, frameRate);
+				    timelineName = timelineObject[utils.ConstValues.A_NAME];
+				    animationData.addTimeline(timeline, timelineName);
+			    }
+			
+			    utils.DBDataUtil.addHideTimeline(animationData, armatureData);
+			    utils.DBDataUtil.transformAnimationData(animationData, armatureData);
+			
+			    return animationData;
+		    }
+		
+		    private static parseTimeline(timelineObject:any, timeline:Timeline, frameParser:Function, frameRate:number):void
+		    {
+			    var position:number = 0;
+                var frame: Frame;
+                var frameObjectList: Array<any> = timelineObject[utils.ConstValues.FRAME];
+			    for (var index in frameObjectList)
+			    {
+                    var frameObject: any = frameObjectList[index];
+                    frame = frameParser(frameObject, frameRate);
+				    frame.position = position;
+				    timeline.addFrame(frame);
+				    position += frame.duration;
+			    }
+			    if(frame)
+			    {
+				    frame.duration = timeline.duration - frame.position;
+			    }
+		    }
+		
+		    private static parseTransformTimeline(timelineObject:any, duration:number, frameRate:number):TransformTimeline
+		    {
+			    var timeline:TransformTimeline = new TransformTimeline();
+			    timeline.duration = duration;
+			
+			    DataParser.parseTimeline(timelineObject, timeline, DataParser.parseTransformFrame, frameRate);
+			
+			    timeline.scale = Number(timelineObject[utils.ConstValues.A_SCALE]);
+			    timeline.offset = Number(timelineObject[utils.ConstValues.A_OFFSET]);
+			
+			    return timeline;
+		    }
+		
+		    private static parseFrame(frameObject:any, frame:Frame, frameRate:number):void
+		    {
+			    frame.duration = Number(frameObject[utils.ConstValues.A_DURATION]) / frameRate;
+			    frame.action = frameObject[utils.ConstValues.A_ACTION];
+			    frame.event = frameObject[utils.ConstValues.A_EVENT];
+			    frame.sound = frameObject[utils.ConstValues.A_SOUND];
+		    }
+		
+		    private static parseMainFrame(frameObject:any, frameRate:number):Frame
+		    {
+			    var frame:Frame = new Frame();
+			    DataParser.parseFrame(frameObject, frame, frameRate);
+			    return frame;
+		    }
+		
+		    private static parseTransformFrame(frameObject:any, frameRate:number):TransformFrame
+		    {
+			    var frame:TransformFrame = new TransformFrame();
+			    DataParser.parseFrame(frameObject, frame, frameRate);
+			
+			    frame.visible = Number(frameObject[utils.ConstValues.A_HIDE]) != 1;
+			
+                if (frameObject.hasOwnProperty(utils.ConstValues.A_TWEEN_EASING))
+			    {
+				    var tweenEase:any = frameObject[utils.ConstValues.A_TWEEN_EASING];
+				    if(
+					    tweenEase == undefined ||
+					    tweenEase == null
+				    )
+				    {
+					    frame.tweenEasing = NaN;
+				    }
+				    else
+				    {
+					    frame.tweenEasing = Number(tweenEase);
+				    }
+			    }
+			    else
+			    {
+				    frame.tweenEasing = 0;
+			    }
+			
+			    frame.tweenRotate = Number(frameObject[utils.ConstValues.A_TWEEN_ROTATE]);
+			    frame.displayIndex = Number(frameObject[utils.ConstValues.A_DISPLAY_INDEX]);
+			    //
+			    frame.zOrder = Number(frameObject[utils.ConstValues.A_Z_ORDER]);
+			
+			    DataParser.parseTransform(frameObject[utils.ConstValues.TRANSFORM], frame.global, frame.pivot);
+			    frame.transform.copy(frame.global);
+			
+			    var colorTransformObject:any = frameObject[utils.ConstValues.COLOR_TRANSFORM];
+			    if(colorTransformObject)
+			    {
+				    frame.color = new geom.ColorTransform();
+				    frame.color.alphaOffset = Number(colorTransformObject[utils.ConstValues.A_ALPHA_OFFSET]);
+				    frame.color.redOffset = Number(colorTransformObject[utils.ConstValues.A_RED_OFFSET]);
+				    frame.color.greenOffset = Number(colorTransformObject[utils.ConstValues.A_GREEN_OFFSET]);
+				    frame.color.blueOffset = Number(colorTransformObject[utils.ConstValues.A_BLUE_OFFSET]);
+				
+				    frame.color.alphaMultiplier = Number(colorTransformObject[utils.ConstValues.A_ALPHA_MULTIPLIER]) * 0.01;
+				    frame.color.redMultiplier = Number(colorTransformObject[utils.ConstValues.A_RED_MULTIPLIER]) * 0.01;
+				    frame.color.greenMultiplier = Number(colorTransformObject[utils.ConstValues.A_GREEN_MULTIPLIER]) * 0.01;
+				    frame.color.blueMultiplier = Number(colorTransformObject[utils.ConstValues.A_BLUE_MULTIPLIER]) * 0.01;
+			    }
+			
+			    return frame;
+		    }
+		
+		    private static parseTransform(transformObject:any, transform:DBTransform, pivot:geom.Point = null):void
+		    {
+			    if(transformObject)
+			    {
+				    if(transform)
+				    {
+					    transform.x = Number(transformObject[utils.ConstValues.A_X]);
+					    transform.y = Number(transformObject[utils.ConstValues.A_Y]);
+					    transform.skewX = Number(transformObject[utils.ConstValues.A_SKEW_X]) * utils.ConstValues.ANGLE_TO_RADIAN;
+					    transform.skewY = Number(transformObject[utils.ConstValues.A_SKEW_Y]) * utils.ConstValues.ANGLE_TO_RADIAN;
+					    transform.scaleX = Number(transformObject[utils.ConstValues.A_SCALE_X]);
+					    transform.scaleY = Number(transformObject[utils.ConstValues.A_SCALE_Y]);
+				    }
+				    if(pivot)
+				    {
+					    pivot.x = Number(transformObject[utils.ConstValues.A_PIVOT_X]);
+					    pivot.y = Number(transformObject[utils.ConstValues.A_PIVOT_Y]);
+				    }
+			    }
+		    }
+        }
     }
 
     export module textures 
     {
         export interface ITextureAtlas
         {
+            name: string;
+            dispose(): void;
+            getRegion(name: string): geom.Rectangle;
         }
 
         export class CreateJSTextureAtlas implements ITextureAtlas
         {
-            constructor() 
+            public name: string;
+            //{HTMLImageElement | HTMLCanvasElement | HTMLVideoElement}
+            public image: any;
+
+            constructor(image:any, textureAtlasRawData:any) 
+            {
+                this.image = image;
+            }
+
+            public dispose(): void
+            {
+
+                this.image = null;
+            }
+
+            public getRegion(name: string): geom.Rectangle
+            {
+                return null;
+            }
+        }
+    }
+
+    export module display 
+    {
+        export interface IDisplayBridge
+        {
+            getVisible(): boolean;
+            setVisible(value: boolean): void;
+
+            getDisplay(): any;
+            setDisplay(value: any): void;
+
+            dispose(): void;
+
+            updateTransform(matrix: geom.Matrix, transform: objects.DBTransform): void;
+            updateColor(aOffset: number, rOffset: number, gOffset: number, bOffset: number, aMultiplier: number, rMultiplier: number, gMultiplier: number, bMultiplier: number): void;
+
+            addDisplay(container: any, index: number): void;
+            removeDisplay(): void;
+        }
+
+        export class CreateJSDisplayBridge implements IDisplayBridge
+        {
+            private _display: createjs.DisplayObject;
+            private _colorFilter: createjs.ColorFilter;
+
+            public getVisible(): boolean
+            {
+                return this._display ? this._display.visible : false;
+            }
+            public setVisible(value: boolean): void
+            {
+                if (this._display)
+                {
+                    this._display.visible = value;
+                }
+            }
+
+            public getDisplay(): any
+            {
+                return this._display;
+            }
+            public setDisplay(value:any): void
+            {
+                if (this._display == value)
+			    {
+				    return;
+			    }
+			    if (this._display)
+			    {
+				    var parent:createjs.Container = this._display.parent;
+				    if (parent)
+				    {
+					    var index:number = this._display.parent.getChildIndex(this._display);
+				    }
+				    this.removeDisplay();
+			    }
+			    this._display = <createjs.DisplayObject> value;
+			    this.addDisplay(parent, index);
+            }
+
+            constructor()
             {
             }
+
+            public dispose(): void
+            {
+			    this._display = null;
+            }
+
+            public updateTransform(matrix: geom.Matrix, transform: objects.DBTransform): void
+            {
+                /*var pivotX:number = this._display.regX;
+                var pivotY:number = this._display.regY;
+                matrix.tx -= matrix.a * pivotX + matrix.c * pivotY;
+                matrix.ty -= matrix.b * pivotX + matrix.d * pivotY;
+
+                this._display._matrix.a = matrix.a;
+                this._display._matrix.b = matrix.b;
+                this._display._matrix.c = matrix.c;
+                this._display._matrix.d = matrix.d;
+                this._display._matrix.tx = matrix.tx;
+                this._display._matrix.ty = matrix.ty;*/
+
+                this._display.x = transform.x;
+                this._display.y = transform.y;
+                this._display.skewX = transform.skewX;
+                this._display.skewY = transform.skewY;
+                this._display.scaleX = transform.scaleX;
+                this._display.scaleY = transform.scaleY;
+            }
+
+            public updateColor(aOffset: number, rOffset: number, gOffset: number, bOffset: number, aMultiplier: number, rMultiplier: number, gMultiplier: number, bMultiplier: number): void
+            {
+
+            }
+
+            public addDisplay(container: any, index: number): void
+            {
+                var parent: createjs.Container = <createjs.Container> container;
+                if (parent && this._display)
+			    {
+				    if (index < 0)
+				    {
+					    parent.addChild(this._display);
+				    }
+				    else
+				    {
+					    parent.addChildAt(this._display, Math.min(index, parent.getNumChildren()));
+				    }
+			    }
+            }
+
+            public removeDisplay(): void
+            {
+                if (this._display && this._display.parent)
+			    {
+				    this._display.parent.removeChild(this._display);
+			    }
+            }
+        }
+    }
+
+    export module factorys
+    {
+        export class BaseFactory extends events.EventDispatcher
+        {
+            /** @private */
+		    public _dataDic:any;
+		    /** @private */
+		    public _textureAtlasDic:any;
+		    /** @private */
+		    public _textureAtlasLoadingDic:any;	
+		    /** @private */
+		    public _currentDataName:string;
+		    /** @private */
+		    public _currentTextureAtlasName:string;
+
+            constructor()
+            {
+                super();
+                
+			    this._dataDic = {};
+			    this._textureAtlasDic = {};
+			    this._textureAtlasLoadingDic = {};
+            }
+
+            
+		    public getSkeletonData(name:string):objects.SkeletonData
+		    {
+			    return this._dataDic[name];
+            }
+
+		    public addSkeletonData(data:objects.SkeletonData, name:string):void
+		    {
+			    if(!data)
+			    {
+				    throw new Error();
+			    }
+			    name = name || data.name;
+			    if(!name)
+			    {
+				    throw new Error("Unnamed data!");
+			    }
+			    if(this._dataDic[name])
+			    {
+				
+			    }
+			    this._dataDic[name] = data;
+		    }
+
+		    public removeSkeletonData(name:string):void
+		    {
+			    delete this._dataDic[name];
+		    }
+
+		    public getTextureAtlas(name:string):any
+		    {
+			    return this._textureAtlasDic[name];
+            }
+            
+		    public addTextureAtlas(textureAtlas:textures.ITextureAtlas, name:string):void
+		    {
+			    if(!textureAtlas)
+			    {
+				    throw new Error();
+			    }
+
+                name = name || textureAtlas.name;
+			    if(!name)
+			    {
+				    throw new Error("Unnamed data!");
+			    }
+			    if(this._textureAtlasDic[name])
+			    {
+				
+			    }
+			    this._textureAtlasDic[name] = textureAtlas;
+		    }
+
+		    public removeTextureAtlas(name:string):void
+		    {
+			    delete this._textureAtlasDic[name];
+            }
+
+            
+		    public dispose(disposeData:boolean = true):void
+		    {
+			    if(disposeData)
+			    {
+                    for (var i in this._dataDic)
+				    {
+					    this._dataDic[i].dispose();
+				    }
+                    for (var i in this._textureAtlasDic)
+				    {
+					    this._textureAtlasDic[i].dispose();
+				    }
+			    }
+			    this._dataDic = null
+			    this._textureAtlasDic = null;
+			    this._textureAtlasLoadingDic = null;		
+			    this._currentDataName = null;
+			    this._currentTextureAtlasName = null;
+            }
+
+            public buildArmature(armatureName:string, animationName:string, skeletonName:string, textureAtlasName:string, skinName:string):Armature
+		    {
+			    if(skeletonName)
+			    {
+				    var data:objects.SkeletonData = this._dataDic[skeletonName];
+				    if(data)
+				    {
+					    var armatureData:objects.ArmatureData = data.getArmatureData(armatureName);
+				    }
+			    }
+			    else
+			    {
+				    for (skeletonName in this._dataDic)
+				    {
+					    data = this._dataDic[skeletonName];
+					    armatureData = data.getArmatureData(armatureName);
+					    if(armatureData)
+					    {
+						    break;
+					    }
+				    }
+			    }
+			
+			    if(!armatureData)
+			    {
+				    return null;
+			    }
+			
+			    this._currentDataName = skeletonName;
+			    this._currentTextureAtlasName = textureAtlasName || skeletonName;
+			
+			    var armature:Armature = this._generateArmature();
+			    armature.name = armatureName;
+                var bone: Bone;
+                var boneData: objects.BoneData;
+                var boneDataList: Array<objects.BoneData> = armatureData.getBoneDataList();
+			    for(var index in boneDataList)
+			    {
+                    boneData = boneDataList[index];
+                    bone = new Bone();
+				    bone.name = boneData.name;
+				    bone.origin.copy(boneData.transform);
+				    if(armatureData.getBoneData(boneData.parent))
+				    {
+					    armature.addChild(bone, boneData.parent);
+				    }
+				    else
+				    {
+					    armature.addChild(bone, null);
+				    }
+			    }
+			
+			    if(animationName && animationName != armatureName)
+			    {
+				    var animationArmatureData:objects.ArmatureData = data.getArmatureData(animationName);
+				    if(!animationArmatureData)
+				    {
+					    for (skeletonName in this._dataDic)
+					    {
+						    data = this._dataDic[skeletonName];
+						    animationArmatureData = data.getArmatureData(animationName);
+						    if(animationArmatureData)
+						    {
+							    break;
+						    }
+					    }
+				    }
+			    }
+			
+			    if(animationArmatureData)
+			    {
+                    armature.animation.setAnimationDataList(animationArmatureData.getAnimationDataList());
+			    }
+			    else
+			    {
+				    armature.animation.setAnimationDataList(armatureData.getAnimationDataList());
+			    }
+			
+			    var skinData:objects.SkinData = armatureData.getSkinData(skinName);
+			    if(!skinData)
+			    {
+				    throw new Error();
+			    }
+			
+			    var slot:Slot;
+			    var displayData:objects.DisplayData;
+			    var childArmature:Armature;
+			    var i:number;
+                var helpArray: Array<any> = [];
+                var slotData: objects.SlotData;
+                var slotDataList: Array<objects.SlotData> = skinData.getSlotDataList();
+                var displayDataList: Array<objects.DisplayData>;
+			    for(var index in slotDataList)
+			    {
+                    slotData = slotDataList[index];
+                    bone = armature.getBone(slotData.parent);
+				    if(!bone)
+				    {
+					    continue;
+                    }
+                    displayDataList = slotData.getDisplayDataList();
+				    slot = this._generateSlot();
+				    slot.name = slotData.name;
+				    slot._originZOrder = slotData.zOrder;
+                    slot._dislayDataList = displayDataList;
+				
+				    helpArray.length = 0;
+				    i = displayDataList.length;
+				    while(i --)
+				    {
+					    displayData = displayDataList[i];
+					
+					    switch(displayData.type)
+					    {
+						    case objects.DisplayData.ARMATURE:
+                                childArmature = this.buildArmature(displayData.name, null, this._currentDataName, this._currentTextureAtlasName, null);
+							    if(childArmature)
+							    {
+								    helpArray[i] = childArmature;
+							    }
+							    break;
+						    case objects.DisplayData.IMAGE:
+						    default:
+							    helpArray[i] = this._generateDisplay(this._textureAtlasDic[this._currentTextureAtlasName], displayData.name, displayData.pivot.x, displayData.pivot.y);
+							    break;
+						
+					    }
+				    }
+				    slot.setDisplayList(helpArray);
+				    slot._changeDisplay(0);
+				    bone.addChild(slot);
+			    }
+			    armature._slotsZOrderChanged = true;
+			    armature.advanceTime(0);
+			    return armature;
+            }
+
+            public getTextureDisplay(textureName:string, textureAtlasName:string, pivotX:number, pivotY:number):Object
+		    {
+			    if(textureAtlasName)
+			    {
+				    var textureAtlas:textures.ITextureAtlas = this._textureAtlasDic[textureAtlasName];
+			    }
+			    if(!textureAtlas && !textureAtlasName)
+			    {
+				    for (textureAtlasName in this._textureAtlasDic)
+				    {
+					    textureAtlas = this._textureAtlasDic[textureAtlasName];
+					    if(textureAtlas.getRegion(textureName))
+					    {
+						    break;
+					    }
+					    textureAtlas = null;
+				    }
+			    }
+			    if(textureAtlas)
+			    {
+				    if(isNaN(pivotX) || isNaN(pivotY))
+				    {
+					    var data:objects.SkeletonData = this._dataDic[textureAtlasName];
+					    if(data)
+					    {
+						    var pivot:geom.Point = data.getSubTexturePivot(textureName);
+						    if(pivot)
+						    {
+							    pivotX = pivot.x;
+							    pivotY = pivot.y;
+						    }
+					    }
+				    }
+				
+				    return this._generateDisplay(textureAtlas, textureName, pivotX, pivotY);
+			    }
+			    return null;
+            }
+            
+		    /** @private */
+            public _generateTextureAtlas(content:any, textureAtlasRawData:any):textures.ITextureAtlas
+		    {
+			    return null;
+		    }
+		
+		    /** @private */
+		    public _generateArmature():Armature
+		    {
+			    return null;
+		    }
+		
+		    /** @private */
+		    public _generateSlot():Slot
+		    {
+			    return null;
+		    }
+		
+		    /** @private */
+		    public _generateDisplay(textureAtlas:textures.ITextureAtlas, fullName:string, pivotX:number, pivotY:number):any
+		    {
+			    return null;
+		    }
+        }
+
+        export class CreateJSFactory extends BaseFactory
+        {
+            constructor()
+            {
+                super();
+            }
+            
+		    /** @private */
+            public _generateTextureAtlas(content:any, textureAtlasRawData:any):textures.ITextureAtlas
+            {
+			    var textureAtlas:textures.CreateJSTextureAtlas = new textures.CreateJSTextureAtlas(content, textureAtlasRawData);			
+			    return textureAtlas;
+		    }
+		
+		    /** @private */
+		    public _generateArmature():Armature
+		    {
+			    var armature:Armature = new Armature(new createjs.Sprite());
+			    return armature;
+		    }
+		
+		    /** @private */
+		    public _generateSlot():Slot
+            {
+                var slot: Slot = new Slot(new display.CreateJSDisplayBridge());
+			    return slot;
+		    }
+		
+		    /** @private */
+		    public _generateDisplay(textureAtlas:textures.CreateJSTextureAtlas, fullName:string, pivotX:number, pivotY:number):any
+		    {
+                var rect: geom.Rectangle = textureAtlas.getRegion(fullName);
+                if (rect)
+                {
+                    var shape: createjs.Shape = new createjs.Shape(null);
+                    shape.graphics.beginBitmapFill(textureAtlas.image, null, null);
+                    shape.graphics.drawRect(rect.x, rect.y, rect.width, rect.height);
+                }
+
+                /*var subTexture:SubTexture = (textureAtlas as TextureAtlas).getTexture(fullName) as SubTexture;
+			    if (subTexture)
+			    {
+				    var image:Image = new Image(subTexture);
+				    image.pivotX = pivotX;
+				    image.pivotY = pivotY;
+				    return image;
+			    }*/
+			    return null;
+		    }
         }
     }
 
@@ -1727,9 +2424,10 @@ module dragonBones
             }
 
             if (this._displayIndex >= 0)
-			{
+            {
+                var displayIndexBackup: number = this._displayIndex;
                 this._displayIndex = -1;
-                this._changeDisplay(this._displayIndex);
+                this._changeDisplay(displayIndexBackup);
 			}
 		}
 
@@ -2149,11 +2847,11 @@ module dragonBones
 				
 				if(frame.action)
 				{
-					var childArmature:Armature = this.getChildArmature();
+					/*var childArmature:Armature = this.getChildArmature();
 					if(childArmature)
 					{
 						childArmature.animation.gotoAndPlay(frame.action);
-					}
+					}*/
 				}
 			}
 			else
@@ -2532,7 +3230,7 @@ module dragonBones
 			{
 				return;
 			}
-			var _helpArray:Array<Object> = [];
+			var helpArray:Array<any> = [];
 			var level:number;
 			var bone:Bone;
 			var boneParent:Bone;
@@ -2546,15 +3244,15 @@ module dragonBones
 					level ++;
 					boneParent = boneParent.parent;
 				}
-				_helpArray[i] = {level:level, bone:bone};
+				helpArray[i] = {level:level, bone:bone};
 			}
 			
-			_helpArray.sort(this.sortBone);
+			helpArray.sort(this.sortBone);
 			
-			i = _helpArray.length;
+			i = helpArray.length;
 			while(i --)
 			{
-				this._boneList[i] = _helpArray[i].bone;
+				this._boneList[i] = helpArray[i].bone;
 			}
         }
 
