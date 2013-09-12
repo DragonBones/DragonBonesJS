@@ -874,22 +874,22 @@ module dragonBones
 				    {
 					    level ++;
 					    parentData = this.getBoneData(parentData.parent);
-				    }
+                    }
 				    helpArray[i] = {level:level, boneData:boneData};
 			    }
 			
 			    helpArray.sort(this.sortBoneData);
-			
+			    
 			    i = helpArray.length;
 			    while(i --)
-			    {
+                {
 				    this._boneDataList[i] = helpArray[i].boneData;
 			    }
             }
 
             private sortBoneData(object1:any, object2:any): number
             {
-                return object1.level > object1.level ? 1 : -1;
+                return object1.level > object2.level ? 1 : -1;
             }
         }
 
@@ -1067,7 +1067,6 @@ module dragonBones
 			    }*/
 			
 			    var frameRate:number = Number(rawData[utils.ConstValues.A_FRAME_RATE]);
-			
 			    var data:SkeletonData = new SkeletonData();
 			    data.name = rawData[utils.ConstValues.A_NAME];
 
@@ -1092,8 +1091,8 @@ module dragonBones
                     var boneObject: any = boneObjectList[index];
                     armatureData.addBoneData(DataParser.parseBoneData(boneObject));
                 }
-
-                var skinObjectList: Array<any> = armatureObject[ConstValues.SKIN];
+                
+                var skinObjectList: Array<any> = armatureObject[utils.ConstValues.SKIN];
 			    for (var index in skinObjectList)
 			    {
                     var skinObject: any = skinObjectList[index];
@@ -1117,20 +1116,20 @@ module dragonBones
 		    private static parseBoneData(boneObject:any):BoneData
 		    {
 			    var boneData:BoneData = new BoneData();
-			    boneData.name = boneObject[utils.ConstValues.A_NAME];
+                boneData.name = boneObject[utils.ConstValues.A_NAME];
 			    boneData.parent = boneObject[utils.ConstValues.A_PARENT];
-			    boneData.length = Number(boneObject[utils.ConstValues.A_LENGTH]) || 0;
+                boneData.length = Number(boneObject[utils.ConstValues.A_LENGTH]) || 0;
 			
 			    DataParser.parseTransform(boneObject[utils.ConstValues.TRANSFORM], boneData.global);
-			    boneData.transform.copy(boneData.global);
-			
+                boneData.transform.copy(boneData.global);
+
 			    return boneData;
 		    }
 		
 		    private static parseSkinData(skinObject:any, data:SkeletonData):SkinData
 		    {
 			    var skinData:SkinData = new SkinData();
-			    skinData.name = skinObject[utils.ConstValues.A_NAME];
+                skinData.name = skinObject[utils.ConstValues.A_NAME];
                 var slotObjectList: Array<any> = skinObject[utils.ConstValues.SLOT];
                 for (var index in slotObjectList)
 			    {
@@ -1209,7 +1208,7 @@ module dragonBones
 			
 			    var timeline:TransformTimeline;
                 var timelineName: string;
-                var timelineObjectList: Array<any> = animationObject[ConstValues.TIMELINE];
+                var timelineObjectList: Array<any> = animationObject[utils.ConstValues.TIMELINE];
 			    for (var index in timelineObjectList)
 			    {
                     var timelineObject: any = timelineObjectList[index];
@@ -1353,7 +1352,7 @@ module dragonBones
         {
             name: string;
             dispose(): void;
-            getRegion(name: string): geom.Rectangle;
+            getRegion(subTextureName: string): geom.Rectangle;
         }
 
         export class CreateJSTextureAtlas implements ITextureAtlas
@@ -1362,21 +1361,39 @@ module dragonBones
             //{HTMLImageElement | HTMLCanvasElement | HTMLVideoElement}
             public image: any;
 
+            private _regions: any;
+
             constructor(image:any, textureAtlasRawData:any) 
             {
+                this._regions = {};
+
                 this.image = image;
+                
+                this.parseData(textureAtlasRawData);
             }
 
             public dispose(): void
             {
-
                 this.image = null;
+                this._regions = null;
             }
 
-            public getRegion(name: string): geom.Rectangle
+            public getRegion(subTextureName: string): geom.Rectangle
             {
-                return null;
+                return this._regions[subTextureName];
             }
+            
+		    private parseData(textureAtlasRawData:any):void
+		    {
+                var textureAtlasData: any = objects.DataParser.parseTextureAtlasData(textureAtlasRawData, 1);
+			    this.name = textureAtlasData.__name;
+                delete textureAtlasData.__name;
+
+			    for(var subTextureName in textureAtlasData)
+			    {
+                    this._regions[subTextureName] = textureAtlasData[subTextureName];
+			    }
+		    }
         }
     }
 
@@ -1634,9 +1651,9 @@ module dragonBones
 			
 			    this._currentDataName = skeletonName;
 			    this._currentTextureAtlasName = textureAtlasName || skeletonName;
-			
+
 			    var armature:Armature = this._generateArmature();
-			    armature.name = armatureName;
+                armature.name = armatureName;
                 var bone: Bone;
                 var boneData: objects.BoneData;
                 var boneDataList: Array<objects.BoneData> = armatureData.getBoneDataList();
@@ -1654,8 +1671,8 @@ module dragonBones
 				    {
 					    armature.addChild(bone, null);
 				    }
-			    }
-			
+                }
+
 			    if(animationName && animationName != armatureName)
 			    {
 				    var animationArmatureData:objects.ArmatureData = data.getArmatureData(animationName);
@@ -1672,15 +1689,15 @@ module dragonBones
 					    }
 				    }
 			    }
-			
-			    if(animationArmatureData)
+			    
+			    /*if(animationArmatureData)
 			    {
                     armature.animation.setAnimationDataList(animationArmatureData.getAnimationDataList());
 			    }
 			    else
 			    {
 				    armature.animation.setAnimationDataList(armatureData.getAnimationDataList());
-			    }
+			    }*/
 			
 			    var skinData:objects.SkinData = armatureData.getSkinData(skinName);
 			    if(!skinData)
@@ -1715,7 +1732,6 @@ module dragonBones
 				    while(i --)
 				    {
 					    displayData = displayDataList[i];
-					
 					    switch(displayData.type)
 					    {
 						    case objects.DisplayData.ARMATURE:
@@ -1728,16 +1744,17 @@ module dragonBones
 						    case objects.DisplayData.IMAGE:
 						    default:
 							    helpArray[i] = this._generateDisplay(this._textureAtlasDic[this._currentTextureAtlasName], displayData.name, displayData.pivot.x, displayData.pivot.y);
-							    break;
+                                break;
 						
 					    }
 				    }
-				    slot.setDisplayList(helpArray);
+                    slot.setDisplayList(helpArray);
 				    slot._changeDisplay(0);
 				    bone.addChild(slot);
-			    }
+                }
+
 			    armature._slotsZOrderChanged = true;
-			    armature.advanceTime(0);
+                armature.advanceTime(0);
 			    return armature;
             }
 
@@ -1779,12 +1796,6 @@ module dragonBones
 			    }
 			    return null;
             }
-            
-		    /** @private */
-            public _generateTextureAtlas(content:any, textureAtlasRawData:any):textures.ITextureAtlas
-		    {
-			    return null;
-		    }
 		
 		    /** @private */
 		    public _generateArmature():Armature
@@ -1811,18 +1822,11 @@ module dragonBones
             {
                 super();
             }
-            
-		    /** @private */
-            public _generateTextureAtlas(content:any, textureAtlasRawData:any):textures.ITextureAtlas
-            {
-			    var textureAtlas:textures.CreateJSTextureAtlas = new textures.CreateJSTextureAtlas(content, textureAtlasRawData);			
-			    return textureAtlas;
-		    }
 		
 		    /** @private */
 		    public _generateArmature():Armature
-		    {
-			    var armature:Armature = new Armature(new createjs.Sprite());
+            {
+			    var armature:Armature = new Armature(new createjs.Container());
 			    return armature;
 		    }
 		
@@ -1852,7 +1856,7 @@ module dragonBones
 				    image.pivotY = pivotY;
 				    return image;
 			    }*/
-			    return null;
+			    return shape;
 		    }
         }
     }
@@ -2179,7 +2183,7 @@ module dragonBones
 						    progress = (position - currentFrame.position) / currentFrame.duration;
 						    if(tweenEasing)
 						    {
-							    progress = animation.TimelineState.getEaseValue(progress, tweenEasing);
+							    //progress = animation.TimelineState.getEaseValue(progress, tweenEasing);
 						    }
 						
 						    nextFrame = <objects.TransformFrame> frameList[i + 1];
@@ -2379,7 +2383,7 @@ module dragonBones
 
         public getDisplay(): any
 		{
-            var display: Object = this._displayList[this._displayIndex];
+            var display: any = this._displayList[this._displayIndex];
             if (display instanceof Armature)
 			{
                 return (<Armature> display).display;
@@ -2393,8 +2397,9 @@ module dragonBones
 		}
 
         public getChildArmature(): Armature
-		{
-			return <Armature> this._displayList[this._displayIndex];
+        {
+            var display: any = this._displayList[this._displayIndex];
+			return (display instanceof Armature)?display:null;
 		}
         public setChildArmature(value: Armature): void
 		{
@@ -2422,7 +2427,6 @@ module dragonBones
             {
                 this._displayList[i] = value[i];
             }
-
             if (this._displayIndex >= 0)
             {
                 var displayIndexBackup: number = this._displayIndex;
@@ -2493,17 +2497,18 @@ module dragonBones
                 {
                     this._displayIndex = displayIndex;
 
-                    var content: Object = this._displayList[this._displayIndex];
-					if(content instanceof Armature)
+                    var display: any = this._displayList[this._displayIndex];
+					if(display instanceof Armature)
 					{
-                        this._setDisplay((<Armature> content).display);
+                        this._setDisplay((<Armature> display).display);
 					}
 					else
                     {
-                        this._setDisplay(content);
+                        this._setDisplay(display);
                     }
 
-                    if (this._dislayDataList && this._displayIndex <= this._dislayDataList.length) {
+                    if (this._dislayDataList && this._displayIndex <= this._dislayDataList.length) 
+                    {
                         this.origin.copy(this._dislayDataList[this._displayIndex].transform);
                     }
                 }
@@ -2583,7 +2588,6 @@ module dragonBones
         public _update(): void 
         {
             super._update();
-
             if (this._isDisplayOnStage) 
             {
                 var pivotX: number = this.parent._tweenPivot.x;
@@ -2609,7 +2613,7 @@ module dragonBones
 		{
 			var childArmature:Armature = this.getChildArmature();
 			
-			if(childArmature)
+			/*if(childArmature)
 			{
 				if(this._isHideDisplay)
 				{
@@ -2631,7 +2635,7 @@ module dragonBones
 						childArmature.animation.play();
 					}
 				}
-			}
+			}*/
 		}
     }
 
@@ -2734,8 +2738,7 @@ module dragonBones
 				throw new Error();
 			}
 			
-			var bone:Bone = <Bone> child;
-			if(child == this || (bone && bone.contains(this)))
+			if(child == this || (child instanceof Bone && (<Bone> child).contains(this)))
 			{
 				throw new Error("An Bone cannot be added as a child to itself or one of its children (or children's children, etc.)");
 			}
@@ -2796,7 +2799,7 @@ module dragonBones
 		/** @private */
         public _arriveAtFrame(frame: objects.Frame, timelineState: animation.TimelineState, animationState: animation.AnimationState, isCross: boolean): void
         {
-            if (frame)
+            /*if (frame)
 			{
 				var mixingType:number = animationState.getMixingTransform(name);
 				if(animationState.displayControl && (mixingType == 2 || mixingType == -1))
@@ -2847,11 +2850,11 @@ module dragonBones
 				
 				if(frame.action)
 				{
-					/*var childArmature:Armature = this.getChildArmature();
+					var childArmature:Armature = this.getChildArmature();
 					if(childArmature)
 					{
 						childArmature.animation.gotoAndPlay(frame.action);
-					}*/
+					}
 				}
 			}
 			else
@@ -2860,7 +2863,7 @@ module dragonBones
 				{
 					this.slot._changeDisplay(-1);
 				}
-			}
+			}*/
 		}
 		
 		/** @private */
@@ -2931,7 +2934,7 @@ module dragonBones
 				return;
 			}
 			
-			this.animation.dispose();
+			//this.animation.dispose();
             var i: number = this._slotList.length;
 
 			while(i --)
@@ -2959,19 +2962,18 @@ module dragonBones
 
         public advanceTime(passedTime: number): void
 		{
-			this.animation.advanceTime(passedTime);
+			//this.animation.advanceTime(passedTime);
 			
 			var i:number = this._boneList.length;
 			while(i --)
 			{
 				this._boneList[i]._update();
 			}
-			
 			i = this._slotList.length;
 			var slot:Slot;
 			while(i --)
 			{
-				slot = this._slotList[i];
+                slot = this._slotList[i];
 				slot._update();
 				if(slot._isDisplayOnStage)
 				{
@@ -2981,12 +2983,11 @@ module dragonBones
 						childArmature.advanceTime(passedTime);
 					}
 				}
-			}
-			
+            }
+
 			if(this._slotsZOrderChanged)
 			{
 				this.updateSlotsZOrder();
-				
 				if(this.hasEventListener(events.ArmatureEvent.Z_ORDER_UPDATED))
 				{
 					this.dispatchEvent(new events.ArmatureEvent(events.ArmatureEvent.Z_ORDER_UPDATED));
@@ -3137,7 +3138,6 @@ module dragonBones
 			{
 				throw new Error();
 			}
-			
 			if(parentName)
 			{
 				var boneParent:Bone = this.getBone(parentName);
@@ -3162,7 +3162,7 @@ module dragonBones
 
         public updateSlotsZOrder(): void
 		{
-			this._slotList.sort(this.sortSlot);
+            this._slotList.sort(this.sortSlot);
 			var i:number = this._slotList.length;
 			var slot:Slot;
 			while(i --)
@@ -3170,7 +3170,7 @@ module dragonBones
 				slot = this._slotList[i];
 				if(slot._isDisplayOnStage)
 				{
-					slot._displayBridge.addDisplay(display, -1);
+					slot._displayBridge.addDisplay(this.display, -1);
 				}
 			}
 			
@@ -3278,10 +3278,10 @@ module dragonBones
 			
 			if(frame.action)
 			{
-				if(animationState.isPlaying)
+				/*if(animationState.isPlaying)
 				{
 					this.animation.gotoAndPlay(frame.action);
-				}
+				}*/
 			}
 		}
 
@@ -3290,9 +3290,9 @@ module dragonBones
 			return slot1.getZOrder() < slot2.getZOrder()?1: -1;
         }
 
-        private sortBone(bone1: Bone, bone2: Bone): number
+        private sortBone(object1: any, object2: any): number
         {
-            return 1;
+            return object1.level > object2.level ? 1 : -1;
         }
     }
 }

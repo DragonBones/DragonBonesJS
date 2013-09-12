@@ -38,6 +38,8 @@ declare module createjs
     {
         children: DisplayObject[];
 
+        constructor ();
+
         addChild(...child: DisplayObject[]): DisplayObject;
         addChildAt(...childOrIndex: any[]): DisplayObject;
         getChildAt(index: number): DisplayObject;
@@ -63,6 +65,11 @@ declare module createjs
     export class Sprite extends Container
     {
         constructor ();
+    }
+
+    export class Stage extends Container
+    {
+        constructor(canvas: HTMLCanvasElement);
     }
 
     export class Filter 
