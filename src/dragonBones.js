@@ -1022,108 +1022,6 @@ var dragonBones;
     })(dragonBones.objects || (dragonBones.objects = {}));
     var objects = dragonBones.objects;
 
-    (function (textures) {
-        var CreateJSTextureAtlas = (function () {
-            function CreateJSTextureAtlas(image, textureAtlasRawData) {
-                this._regions = {};
-
-                this.image = image;
-
-                this.parseData(textureAtlasRawData);
-            }
-            CreateJSTextureAtlas.prototype.dispose = function () {
-                this.image = null;
-                this._regions = null;
-            };
-
-            CreateJSTextureAtlas.prototype.getRegion = function (subTextureName) {
-                return this._regions[subTextureName];
-            };
-
-            CreateJSTextureAtlas.prototype.parseData = function (textureAtlasRawData) {
-                var textureAtlasData = objects.DataParser.parseTextureAtlasData(textureAtlasRawData, 1);
-                this.name = textureAtlasData.__name;
-                delete textureAtlasData.__name;
-
-                for (var subTextureName in textureAtlasData) {
-                    this._regions[subTextureName] = textureAtlasData[subTextureName];
-                }
-            };
-            return CreateJSTextureAtlas;
-        })();
-        textures.CreateJSTextureAtlas = CreateJSTextureAtlas;
-    })(dragonBones.textures || (dragonBones.textures = {}));
-    var textures = dragonBones.textures;
-
-    (function (display) {
-        var CreateJSDisplayBridge = (function () {
-            function CreateJSDisplayBridge() {
-            }
-            CreateJSDisplayBridge.prototype.getVisible = function () {
-                return this._display ? this._display.visible : false;
-            };
-            CreateJSDisplayBridge.prototype.setVisible = function (value) {
-                if (this._display) {
-                    this._display.visible = value;
-                }
-            };
-
-            CreateJSDisplayBridge.prototype.getDisplay = function () {
-                return this._display;
-            };
-            CreateJSDisplayBridge.prototype.setDisplay = function (value) {
-                if (this._display == value) {
-                    return;
-                }
-                if (this._display) {
-                    var parent = this._display.parent;
-                    if (parent) {
-                        var index = this._display.parent.getChildIndex(this._display);
-                    }
-                    this.removeDisplay();
-                }
-                this._display = value;
-                this.addDisplay(parent, index);
-            };
-
-            CreateJSDisplayBridge.prototype.dispose = function () {
-                this._display = null;
-            };
-
-            CreateJSDisplayBridge.prototype.updateTransform = function (matrix, transform) {
-                this._display.x = transform.x;
-                this._display.y = transform.y;
-                this._display.skewX = transform.skewX;
-                this._display.skewY = transform.skewY;
-                this._display.scaleX = transform.scaleX;
-                this._display.scaleY = transform.scaleY;
-            };
-
-            CreateJSDisplayBridge.prototype.updateColor = function (aOffset, rOffset, gOffset, bOffset, aMultiplier, rMultiplier, gMultiplier, bMultiplier) {
-            };
-
-            CreateJSDisplayBridge.prototype.addDisplay = function (container, index) {
-                var parent = container;
-                if (parent && this._display) {
-                    if (index < 0) {
-                        parent.addChild(this._display);
-                    } else {
-                        parent.addChildAt(this._display, Math.min(index, parent.getNumChildren()));
-                    }
-                }
-            };
-
-            CreateJSDisplayBridge.prototype.removeDisplay = function () {
-                if (this._display && this._display.parent) {
-                    this._display.parent.removeChild(this._display);
-                }
-            };
-            return CreateJSDisplayBridge;
-        })();
-        display.CreateJSDisplayBridge = CreateJSDisplayBridge;
-    })(dragonBones.display || (dragonBones.display = {}));
-    var display = dragonBones.display;
-
     (function (factorys) {
         var BaseFactory = (function (_super) {
             __extends(BaseFactory, _super);
@@ -1343,35 +1241,6 @@ var dragonBones;
             return BaseFactory;
         })(events.EventDispatcher);
         factorys.BaseFactory = BaseFactory;
-
-        var CreateJSFactory = (function (_super) {
-            __extends(CreateJSFactory, _super);
-            function CreateJSFactory() {
-                _super.call(this);
-            }
-            CreateJSFactory.prototype._generateArmature = function () {
-                var armature = new dragonBones.Armature(new createjs.Container());
-                return armature;
-            };
-
-            CreateJSFactory.prototype._generateSlot = function () {
-                var slot = new dragonBones.Slot(new display.CreateJSDisplayBridge());
-                return slot;
-            };
-
-            CreateJSFactory.prototype._generateDisplay = function (textureAtlas, fullName, pivotX, pivotY) {
-                var rect = textureAtlas.getRegion(fullName);
-                if (rect) {
-                    var shape = new createjs.Shape(null);
-                    shape.graphics.beginBitmapFill(textureAtlas.image, null, null);
-                    shape.graphics.drawRect(rect.x, rect.y, rect.width, rect.height);
-                }
-
-                return shape;
-            };
-            return CreateJSFactory;
-        })(BaseFactory);
-        factorys.CreateJSFactory = CreateJSFactory;
     })(dragonBones.factorys || (dragonBones.factorys = {}));
     var factorys = dragonBones.factorys;
 
@@ -1818,7 +1687,10 @@ var dragonBones;
 
         Slot.prototype.getChildArmature = function () {
             var display = this._displayList[this._displayIndex];
-            return (display instanceof Armature) ? display : null;
+            if (display instanceof Armature) {
+                return display;
+            }
+            return null;
         };
         Slot.prototype.setChildArmature = function (value) {
             this._displayList[this._displayIndex] = value;
@@ -1984,9 +1856,9 @@ var dragonBones;
                 this._visible = value;
                 var i = this._children.length;
                 while (i--) {
-                    var slot = this._children[i];
-                    if (slot) {
-                        slot._updateVisible(this._visible);
+                    var child = this._children[i];
+                    if (child instanceof Slot) {
+                        (child)._updateVisible(this._visible);
                     }
                 }
             }
@@ -2386,7 +2258,7 @@ var dragonBones;
         };
 
         Armature.prototype.sortBone = function (object1, object2) {
-            return object1.level > object2.level ? 1 : -1;
+            return object1.level < object2.level ? 1 : -1;
         };
         Armature._soundManager = events.SoundEventManager.getInstance();
         return Armature;
