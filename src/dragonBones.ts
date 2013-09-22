@@ -287,34 +287,1607 @@ module dragonBones
     {
         export interface IAnimatable
         {
-        }
-
-        export class Animation
-        {
-            constructor(armature:Armature)
-            {
-            }
-        }
-
-        export class AnimationState
-        {
-            constructor()
-            {
-            }
-        }
-
-        export class TimelineState
-        {
-            constructor()
-            {
-            }
+            advanceTime(passedTime:number):void;
         }
 
         export class WorldClock implements IAnimatable
         {
+            public static clock: WorldClock = new WorldClock();
+            
+            public time: number;
+            public timeScale: number;
+
+		    private _animatableList: Array<IAnimatable>;
+
             constructor()
             {
+                this.timeScale = 1;
+                this.time = new Date().getTime() * 0.001;
+                this._animatableList = [];
             }
+
+		    public contains(animatable:IAnimatable):boolean
+		    {
+			    return this._animatableList.indexOf(animatable) >= 0;
+            }
+
+		    public add(animatable:IAnimatable):void
+		    {
+			    if (animatable && this._animatableList.indexOf(animatable) == -1)
+			    {
+				    this._animatableList.push(animatable);
+			    }
+		    }
+
+		    public remove(animatable:IAnimatable):void
+		    {
+			    var index:number = this._animatableList.indexOf(animatable);
+			    if (index >= 0)
+			    {
+				    this._animatableList[index] = null;
+			    }
+		    }
+
+		    public clear():void
+		    {
+			    this._animatableList.length = 0;
+            }
+            
+		    public advanceTime(passedTime:number):void
+		    {
+			    if(passedTime < 0)
+			    {
+				    var currentTime:number = new Date().getTime() * 0.001;
+				    passedTime = currentTime - this.time;
+				    this.time = currentTime;
+			    }
+			
+			    passedTime *= this.timeScale;
+			    
+			    var length:number = this._animatableList.length;
+			    if(length == 0)
+			    {
+				    return;
+			    }
+			    var currentIndex:number = 0;
+			
+			    for(var i:number = 0;i < length;i ++)
+			    {
+				    var animatable:IAnimatable = this._animatableList[i];
+				    if(animatable)
+				    {
+					    if(currentIndex != i)
+					    {
+						    this._animatableList[currentIndex] = animatable;
+						    this._animatableList[i] = null;
+					    }
+					    animatable.advanceTime(passedTime);
+					    currentIndex ++;
+				    }
+			    }
+			
+			    if (currentIndex != i)
+			    {
+				    length = this._animatableList.length;
+				    while(i < length)
+				    {
+					    this._animatableList[currentIndex ++] = this._animatableList[i ++];
+				    }
+				    this._animatableList.length = currentIndex;
+			    }
+		    }
+        }
+
+        export class TimelineState
+        {
+            private static HALF_PI: number = Math.PI * 0.5;
+            private static DOUBLE_PI: number = Math.PI * 2;
+
+		    private static _pool:Array<TimelineState> = [];
+		
+		    /** @private */
+		    public static _borrowObject():TimelineState
+		    {
+			    if(TimelineState._pool.length == 0)
+			    {
+				    return new TimelineState();
+			    }
+			    return TimelineState._pool.pop();
+		    }
+		
+		    /** @private */
+		    public static _returnObject(timeline:TimelineState):void
+		    {
+			    if(TimelineState._pool.indexOf(timeline) < 0)
+			    {
+				    TimelineState._pool[TimelineState._pool.length] = timeline;
+			    }
+			
+			    timeline.clear();
+		    }
+		
+		    /** @private */
+		    public static _clear():void
+		    {
+			    var i:number = TimelineState._pool.length;
+			    while(i --)
+			    {
+				    TimelineState._pool[i].clear();
+			    }
+			    TimelineState._pool.length = 0;
+            }
+		
+		    public static getEaseValue(value:number, easing:number):number
+		    {
+			    if (easing > 1)
+			    {
+				    var valueEase:number = 0.5 * (1 - Math.cos(value * Math.PI )) - value;
+				    easing -= 1;
+			    }
+			    else if (easing > 0)
+			    {
+				    valueEase = Math.sin(value * TimelineState.HALF_PI) - value;
+			    }
+			    else if (easing < 0)
+			    {
+				    valueEase = 1 - Math.cos(value * TimelineState.HALF_PI) - value;
+				    easing *= -1;
+			    }
+			    return valueEase * easing + value;
+            }
+		
+		    public transform:objects.DBTransform;
+		    public pivot:geom.Point;
+		    public tweenActive:boolean;
+		
+		    private _updateState:number;
+		
+		    private _animationState:AnimationState;
+		    private _bone:Bone;
+		    private _timeline:objects.TransformTimeline;
+		    private _currentFrame:objects.TransformFrame;
+		    private _currentFramePosition:number;
+		    private _currentFrameDuration:number;
+		    private _durationTransform:objects.DBTransform;
+		    private _durationPivot:geom.Point;
+		    private _durationColor:geom.ColorTransform;
+		    private _originTransform:objects.DBTransform;
+		    private _originPivot:geom.Point;
+		
+		    private _tweenEasing:number;
+		    private _tweenTransform:boolean;
+		    private _tweenColor:boolean;
+		
+		    private _totalTime:number;
+
+            constructor()
+            {
+                this.transform = new objects.DBTransform();
+			    this.pivot = new geom.Point(0, 0);
+			
+			    this._durationTransform = new objects.DBTransform();
+			    this._durationPivot = new geom.Point(0, 0);
+			    this._durationColor = new geom.ColorTransform();
+            }
+		
+		    public fadeIn(bone:Bone, animationState:AnimationState, timeline:objects.TransformTimeline):void
+		    {
+			    this._bone = bone;
+			    this._animationState = animationState;
+			    this._timeline = timeline;
+			
+			    this._originTransform = this._timeline.originTransform;
+			    this._originPivot = this._timeline.originPivot;
+			
+			    this._tweenTransform = false;
+			    this._tweenColor = false;
+			
+			    this._totalTime = this._animationState.totalTime;
+			
+			    this.transform.x = 0;
+			    this.transform.y = 0;
+			    this.transform.scaleX = 0;
+			    this.transform.scaleY = 0;
+			    this.transform.skewX = 0;
+			    this.transform.skewY = 0;
+			    this.pivot.x = 0;
+			    this.pivot.y = 0;
+			
+			    this._durationTransform.x = 0;
+			    this._durationTransform.y = 0;
+			    this._durationTransform.scaleX = 0;
+			    this._durationTransform.scaleY = 0;
+			    this._durationTransform.skewX = 0;
+			    this._durationTransform.skewY = 0;
+			    this._durationPivot.x = 0;
+			    this._durationPivot.y = 0;
+			
+			    switch(this._timeline.getFrameList().length)
+			    {
+				    case 0:
+					    this._bone._arriveAtFrame(null, this, this._animationState, false);
+					    this._updateState = 0;
+					    break;
+				    case 1:
+					    this._updateState = -1;
+					    break;
+				    default:
+					    this._updateState = 1;
+					    break;
+			    }
+		    }
+		
+		    public fadeOut():void
+		    {
+			    this.transform.skewX = utils.TransformUtil.formatRadian(this.transform.skewX);
+			    this.transform.skewY = utils.TransformUtil.formatRadian(this.transform.skewY);
+            }
+		
+		    public update(progress:number):void
+		    {
+			    if(this._updateState)
+                {
+				    if(this._updateState > 0)
+				    {
+					    if(this._timeline.scale == 0)
+					    {
+						    progress = 1;
+					    }
+					    else
+					    {
+						    progress /= this._timeline.scale;
+					    }
+					
+					    if(progress == 1)
+					    {
+						    progress = 0.99999999;
+					    }
+					
+					    progress += this._timeline.offset;
+					    var loopCount:number = Math.floor(progress);
+                        progress -= loopCount;
+					    //
+					    var playedTime:number = this._totalTime * progress;
+					    var isArrivedFrame:boolean = false;
+                        var frameIndex: number;
+					    while (!this._currentFrame || playedTime > this._currentFramePosition + this._currentFrameDuration || playedTime < this._currentFramePosition)
+					    {
+						    if(isArrivedFrame)
+						    {
+							    //this._bone._arriveAtFrame(this._currentFrame, this, this._animationState, true);
+						    }
+						    isArrivedFrame = true;
+						    if(this._currentFrame)
+						    {
+							    frameIndex = this._timeline.getFrameList().indexOf(this._currentFrame) + 1;
+							    if(frameIndex >= this._timeline.getFrameList().length)
+							    {
+								    frameIndex = 0;
+							    }
+							    this._currentFrame = <objects.TransformFrame> this._timeline.getFrameList()[frameIndex];
+						    }
+						    else
+						    {
+							    frameIndex = 0;
+							    this._currentFrame = <objects.TransformFrame> this._timeline.getFrameList()[0];
+						    }
+						    this._currentFrameDuration = this._currentFrame.duration;
+						    this._currentFramePosition = this._currentFrame.position;
+					    }
+					
+					    if(isArrivedFrame)
+					    {
+						    this.tweenActive = this._currentFrame.displayIndex >= 0;
+						    frameIndex ++;
+						    if(frameIndex >= this._timeline.getFrameList().length)
+						    {
+							    frameIndex = 0;
+						    }
+						    var nextFrame:objects.TransformFrame = <objects.TransformFrame> this._timeline.getFrameList()[frameIndex];
+						
+						    if(
+							    frameIndex == 0 && 
+							    this._animationState.loop && 
+							    this._animationState.loopCount >= Math.abs(this._animationState.loop) - 1 && 
+							    ((this._currentFramePosition + this._currentFrameDuration) / this._totalTime + loopCount - this._timeline.offset) * this._timeline.scale > 0.99999999
+						    )
+						    {
+							    this._updateState = 0;
+							    this._tweenEasing = NaN;
+						    }
+						    else if(this._currentFrame.displayIndex < 0 || nextFrame.displayIndex < 0 || !this._animationState.tweenEnabled)
+						    {
+							    this._tweenEasing = NaN;
+						    }
+						    else if(isNaN(this._animationState.clip.tweenEasing))
+						    {
+							    this._tweenEasing = this._currentFrame.tweenEasing;
+						    }
+						    else
+						    {
+							    this._tweenEasing = this._animationState.clip.tweenEasing;
+						    }
+						
+						    if(isNaN(this._tweenEasing))
+						    {
+							    this._tweenTransform = false;
+							    this._tweenColor = false;
+						    }
+						    else
+						    {
+							    this._durationTransform.x = nextFrame.transform.x - this._currentFrame.transform.x;
+							    this._durationTransform.y = nextFrame.transform.y - this._currentFrame.transform.y;
+							    this._durationTransform.skewX = nextFrame.transform.skewX - this._currentFrame.transform.skewX;
+							    this._durationTransform.skewY = nextFrame.transform.skewY - this._currentFrame.transform.skewY;
+							    this._durationTransform.scaleX = nextFrame.transform.scaleX - this._currentFrame.transform.scaleX;
+							    this._durationTransform.scaleY = nextFrame.transform.scaleY - this._currentFrame.transform.scaleY;
+							
+							    if(frameIndex == 0)
+							    {
+								    this._durationTransform.skewX = utils.TransformUtil.formatRadian(this._durationTransform.skewX);
+								    this._durationTransform.skewY = utils.TransformUtil.formatRadian(this._durationTransform.skewY);
+							    }
+							
+							    this._durationPivot.x = nextFrame.pivot.x - this._currentFrame.pivot.x;
+							    this._durationPivot.y = nextFrame.pivot.y - this._currentFrame.pivot.y;
+							
+							    if(
+								    this._durationTransform.x != 0 ||
+								    this._durationTransform.y != 0 ||
+								    this._durationTransform.skewX != 0 ||
+								    this._durationTransform.skewY != 0 ||
+								    this._durationTransform.scaleX != 0 ||
+								    this._durationTransform.scaleY != 0 ||
+								    this._durationPivot.x != 0 ||
+								    this._durationPivot.y != 0
+							    )
+							    {
+								    this._tweenTransform = true;
+							    }
+							    else
+							    {
+								    this._tweenTransform = false;
+							    }
+							
+							    if(this._currentFrame.color && nextFrame.color)
+							    {
+								    this._durationColor.alphaOffset = nextFrame.color.alphaOffset - this._currentFrame.color.alphaOffset;
+								    this._durationColor.redOffset = nextFrame.color.redOffset - this._currentFrame.color.redOffset;
+								    this._durationColor.greenOffset = nextFrame.color.greenOffset - this._currentFrame.color.greenOffset;
+								    this._durationColor.blueOffset = nextFrame.color.blueOffset - this._currentFrame.color.blueOffset;
+								
+								    this._durationColor.alphaMultiplier = nextFrame.color.alphaMultiplier - this._currentFrame.color.alphaMultiplier;
+								    this._durationColor.redMultiplier = nextFrame.color.redMultiplier - this._currentFrame.color.redMultiplier;
+								    this._durationColor.greenMultiplier = nextFrame.color.greenMultiplier - this._currentFrame.color.greenMultiplier;
+								    this._durationColor.blueMultiplier = nextFrame.color.blueMultiplier - this._currentFrame.color.blueMultiplier;
+								
+								    if(
+									    this._durationColor.alphaOffset != 0 ||
+									    this._durationColor.redOffset != 0 ||
+									    this._durationColor.greenOffset != 0 ||
+									    this._durationColor.blueOffset != 0 ||
+									    this._durationColor.alphaMultiplier != 0 ||
+									    this._durationColor.redMultiplier != 0 ||
+									    this._durationColor.greenMultiplier != 0 ||
+									    this._durationColor.blueMultiplier != 0 
+								    )
+								    {
+									    this._tweenColor = true;
+								    }
+								    else
+								    {
+									    this._tweenColor = false;
+								    }
+							    }
+							    else if(this._currentFrame.color)
+							    {
+								    this._tweenColor = true;
+								    this._durationColor.alphaOffset = -this._currentFrame.color.alphaOffset;
+								    this._durationColor.redOffset = -this._currentFrame.color.redOffset;
+								    this._durationColor.greenOffset = -this._currentFrame.color.greenOffset;
+								    this._durationColor.blueOffset = -this._currentFrame.color.blueOffset;
+								
+								    this._durationColor.alphaMultiplier = 1 - this._currentFrame.color.alphaMultiplier;
+								    this._durationColor.redMultiplier = 1 - this._currentFrame.color.redMultiplier;
+								    this._durationColor.greenMultiplier = 1 - this._currentFrame.color.greenMultiplier;
+								    this._durationColor.blueMultiplier = 1 - this._currentFrame.color.blueMultiplier;
+							    }
+							    else if(nextFrame.color)
+							    {
+								    this._tweenColor = true;
+								    this._durationColor.alphaOffset = nextFrame.color.alphaOffset;
+								    this._durationColor.redOffset = nextFrame.color.redOffset;
+								    this._durationColor.greenOffset = nextFrame.color.greenOffset;
+								    this._durationColor.blueOffset = nextFrame.color.blueOffset;
+								
+								    this._durationColor.alphaMultiplier = nextFrame.color.alphaMultiplier - 1;
+								    this._durationColor.redMultiplier = nextFrame.color.redMultiplier - 1;
+								    this._durationColor.greenMultiplier = nextFrame.color.greenMultiplier - 1;
+								    this._durationColor.blueMultiplier = nextFrame.color.blueMultiplier - 1;
+							    }
+							    else
+							    {
+								    this._tweenColor = false;
+							    }
+						    }
+						
+						    if(!this._tweenTransform)
+						    {
+							    if(this._animationState.blend)
+							    {
+								    this.transform.x = this._originTransform.x + this._currentFrame.transform.x;
+								    this.transform.y = this._originTransform.y + this._currentFrame.transform.y;
+								    this.transform.skewX = this._originTransform.skewX + this._currentFrame.transform.skewX;
+								    this.transform.skewY = this._originTransform.skewY + this._currentFrame.transform.skewY;
+								    this.transform.scaleX = this._originTransform.scaleX + this._currentFrame.transform.scaleX;
+								    this.transform.scaleY = this._originTransform.scaleY + this._currentFrame.transform.scaleY;
+								
+								    this.pivot.x = this._originPivot.x + this._currentFrame.pivot.x;
+								    this.pivot.y = this._originPivot.y + this._currentFrame.pivot.y;
+							    }
+							    else
+							    {
+								    this.transform.x = this._currentFrame.transform.x;
+								    this.transform.y = this._currentFrame.transform.y;
+								    this.transform.skewX = this._currentFrame.transform.skewX;
+								    this.transform.skewY = this._currentFrame.transform.skewY;
+								    this.transform.scaleX = this._currentFrame.transform.scaleX;
+								    this.transform.scaleY = this._currentFrame.transform.scaleY;
+								
+								    this.pivot.x = this._currentFrame.pivot.x;
+								    this.pivot.y = this._currentFrame.pivot.y;
+							    }
+						    }
+						
+						    if(!this._tweenColor)
+						    {
+							    if(this._currentFrame.color)
+							    {
+								    this._bone._updateColor(
+									    this._currentFrame.color.alphaOffset, 
+									    this._currentFrame.color.redOffset, 
+									    this._currentFrame.color.greenOffset, 
+									    this._currentFrame.color.blueOffset, 
+									    this._currentFrame.color.alphaMultiplier, 
+									    this._currentFrame.color.redMultiplier, 
+									    this._currentFrame.color.greenMultiplier, 
+									    this._currentFrame.color.blueMultiplier, 
+									    true
+								    );
+							    }
+							    else if(this._bone._isColorChanged)
+							    {
+								    this._bone._updateColor(0, 0, 0, 0, 1, 1, 1, 1, false);
+							    }
+						    }
+						    //this._bone._arriveAtFrame(this._currentFrame, this, this._animationState, false);
+					    }
+					
+					    if(this._tweenTransform || this._tweenColor)
+					    {
+						    progress = (playedTime - this._currentFramePosition) / this._currentFrameDuration;
+						    if(this._tweenEasing)
+						    {
+							    progress = TimelineState.getEaseValue(progress, this._tweenEasing);
+						    }
+                        }
+					
+					    if(this._tweenTransform)
+					    {
+						    var currentTransform:objects.DBTransform = this._currentFrame.transform;
+						    var currentPivot:geom.Point = this._currentFrame.pivot;
+						    if(this._animationState.blend)
+						    {
+							    this.transform.x = this._originTransform.x + currentTransform.x + this._durationTransform.x * progress;
+							    this.transform.y = this._originTransform.y + currentTransform.y + this._durationTransform.y * progress;
+							    this.transform.skewX = this._originTransform.skewX + currentTransform.skewX + this._durationTransform.skewX * progress;
+							    this.transform.skewY = this._originTransform.skewY + currentTransform.skewY + this._durationTransform.skewY * progress;
+							    this.transform.scaleX = this._originTransform.scaleX + currentTransform.scaleX + this._durationTransform.scaleX * progress;
+							    this.transform.scaleY = this._originTransform.scaleY + currentTransform.scaleY + this._durationTransform.scaleY * progress;
+							
+							    this.pivot.x = this._originPivot.x + currentPivot.x + this._durationPivot.x * progress;
+							    this.pivot.y = this._originPivot.y + currentPivot.y + this._durationPivot.y * progress;
+						    }
+						    else
+						    {
+							    this.transform.x = currentTransform.x + this._durationTransform.x * progress;
+							    this.transform.y = currentTransform.y + this._durationTransform.y * progress;
+							    this.transform.skewX = currentTransform.skewX + this._durationTransform.skewX * progress;
+							    this.transform.skewY = currentTransform.skewY + this._durationTransform.skewY * progress;
+							    this.transform.scaleX = currentTransform.scaleX + this._durationTransform.scaleX * progress;
+							    this.transform.scaleY = currentTransform.scaleY + this._durationTransform.scaleY * progress;
+							
+							    this.pivot.x = currentPivot.x + this._durationPivot.x * progress;
+							    this.pivot.y = currentPivot.y + this._durationPivot.y * progress;
+						    }
+					    }
+					
+					    if(this._tweenColor)
+					    {
+						    if(this._currentFrame.color)
+						    {
+							    this._bone._updateColor(
+								    this._currentFrame.color.alphaOffset + this._durationColor.alphaOffset * progress,
+								    this._currentFrame.color.redOffset + this._durationColor.redOffset * progress,
+								    this._currentFrame.color.greenOffset + this._durationColor.greenOffset * progress,
+								    this._currentFrame.color.blueOffset + this._durationColor.blueOffset * progress,
+								    this._currentFrame.color.alphaMultiplier + this._durationColor.alphaMultiplier * progress,
+								    this._currentFrame.color.redMultiplier + this._durationColor.redMultiplier * progress,
+								    this._currentFrame.color.greenMultiplier + this._durationColor.greenMultiplier * progress,
+								    this._currentFrame.color.blueMultiplier + this._durationColor.blueMultiplier * progress,
+								    true
+							    );
+						    }
+						    else
+						    {
+							    this._bone._updateColor(
+								    this._durationColor.alphaOffset * progress,
+								    this._durationColor.redOffset * progress,
+								    this._durationColor.greenOffset * progress,
+								    this._durationColor.blueOffset * progress,
+								    1 + this._durationColor.alphaMultiplier * progress,
+								    1 + this._durationColor.redMultiplier * progress,
+								    1 + this._durationColor.greenMultiplier * progress,
+								    1 + this._durationColor.blueMultiplier * progress,
+								    true
+							    );
+						    }
+					    }
+				    }
+				    else
+				    {
+					    this._updateState = 0;
+					    if(this._animationState.blend)
+					    {
+						    this.transform.copy(this._originTransform);
+						
+						    this.pivot.x = this._originPivot.x;
+						    this.pivot.y = this._originPivot.y;
+					    }
+					    else
+					    {
+						    this.transform.x = 
+							    this.transform.y = 
+							    this.transform.skewX = 
+							    this.transform.skewY = 
+							    this.transform.scaleX = 
+							    this.transform.scaleY = 0;
+						
+						    this.pivot.x = 0;
+                            this.pivot.y = 0;
+					    }
+					
+					    this._currentFrame = <objects.TransformFrame> this._timeline.getFrameList()[0];
+					
+					    this.tweenActive = this._currentFrame.displayIndex >= 0;
+					
+					    if(this._currentFrame.color)
+					    {
+						    this._bone._updateColor(
+							    this._currentFrame.color.alphaOffset, 
+							    this._currentFrame.color.redOffset, 
+							    this._currentFrame.color.greenOffset, 
+							    this._currentFrame.color.blueOffset, 
+							    this._currentFrame.color.alphaMultiplier, 
+							    this._currentFrame.color.redMultiplier, 
+							    this._currentFrame.color.greenMultiplier, 
+							    this._currentFrame.color.blueMultiplier,
+							    true
+						    );
+					    }
+					    else
+					    {
+						    this._bone._updateColor(0, 0, 0, 0, 1, 1, 1, 1, false);
+					    }
+					
+					    //this._bone._arriveAtFrame(this._currentFrame, this, this._animationState, false);
+                    }
+                }
+		    }
+		
+		    private clear():void
+		    {
+			    this._updateState = 0;
+			    this._bone = null;
+			    this._animationState = null;
+			    this._timeline = null;
+			    this._currentFrame = null;
+			    this._originTransform = null;
+			    this._originPivot = null;
+		    }
+        }
+
+        export class AnimationState
+        {
+            private static _pool:Array<AnimationState> = [];
+		
+		    /** @private */
+		    public static _borrowObject():AnimationState
+		    {
+			    if(AnimationState._pool.length == 0)
+			    {
+				    return new AnimationState();
+			    }
+			    return AnimationState._pool.pop();
+		    }
+		
+		    /** @private */
+		    public static _returnObject(animationState:AnimationState):void
+		    {
+			    if(AnimationState._pool.indexOf(animationState) < 0)
+			    {
+				    AnimationState._pool[AnimationState._pool.length] = animationState;
+			    }
+			
+			    animationState.clear();
+		    }
+		
+		    /** @private */
+		    public static _clear():void
+		    {
+			    var i:number = AnimationState._pool.length;
+			    while(i --)
+			    {
+				    AnimationState._pool[i].clear();
+			    }
+			    AnimationState._pool.length = 0;
+            }
+
+            public enabled: boolean;
+            public tweenEnabled: boolean;
+            public blend: boolean;
+            public group: string;
+            public weight: number;
+
+		    public name:string;
+		    public clip:objects.AnimationData;
+		    public loopCount: number;
+
+            public loop: number;
+            public layer: number;
+
+            public isPlaying: boolean;
+            public isComplete: boolean;
+            public fadeInTime: number;
+            public totalTime: number;
+		    public currentTime: number;
+		    public timeScale: number;
+		    public displayControl:boolean;
+
+            /** @private */
+            public _timelineStates: any;
+            /** @private */
+            public _fadeWeight: number;
+            
+            private _armature: Armature;
+            private _currentFrame: objects.Frame;
+            private _mixingTransforms: any;
+            private _fadeState: number;
+            private _fadeOutTime: number;
+            private _fadeOutBeginTime: number;
+            private _fadeOutWeight: number;
+            private _fadeIn: boolean;
+            private _fadeOut: boolean;
+		    private _pauseBeforeFadeInComplete: boolean;
+
+            constructor()
+            {
+			    this._timelineStates = {};
+            }
+
+		    public fadeIn(armature:Armature, clip:objects.AnimationData, fadeInTime:number, timeScale:number, loop:number, layer:number, displayControl:boolean, pauseBeforeFadeInComplete:boolean):void
+		    {
+                this.layer = layer;
+			    this.clip = clip;
+			    this.name = this.clip.name;
+			    this.totalTime = this.clip.duration;
+
+			    this._armature = armature;
+			
+                //||this.timeScale == Infinity
+			    if(Math.round(this.clip.duration * this.clip.frameRate) < 2)
+			    {
+				    this.timeScale = 1;
+				    this.currentTime = this.totalTime;
+				    if(this.loop >= 0)
+				    {
+					    this.loop = 1;
+				    }
+				    else
+				    {
+					    this.loop = -1;
+				    }
+			    }
+			    else
+			    {
+				    this.timeScale = timeScale;
+				    this.currentTime = 0;
+				    this.loop = loop;
+			    }
+			    this._pauseBeforeFadeInComplete = pauseBeforeFadeInComplete;
+			
+			    this._fadeState = 1;
+			    this._fadeOutBeginTime = 0;
+			    this._fadeOutWeight = NaN;
+			    this._fadeWeight = 0;
+			    this._fadeIn = true;
+                this._fadeOut = false;
+
+			    this.fadeInTime = fadeInTime * this.timeScale;
+
+			    this.loopCount = -1;
+			    this.displayControl = displayControl;
+			    this.isPlaying = true;
+			    this.isComplete = false;
+			
+			    this.weight = 1;
+			    this.blend = true;
+			    this.enabled = true;
+			    this.tweenEnabled = true;
+			
+			    this.updateTimelineStates();
+		    }
+		
+		    public fadeOut(fadeOutTime:number, pause:boolean = false):void
+		    {
+			    if(!isNaN(this._fadeOutWeight))
+			    {
+				    return;
+			    }
+			    this._fadeState = -1;
+			    this._fadeOutWeight = this._fadeWeight;
+			    this._fadeOutTime = fadeOutTime * this.timeScale;
+			    this._fadeOutBeginTime = this.currentTime;
+                this._fadeOut = true;
+
+			    this.isPlaying = !pause;
+			    this.displayControl = false;
+			
+			    for(var index in  this._timelineStates)
+			    {
+                    (<TimelineState> this._timelineStates[index]).fadeOut();
+			    }
+			
+			    this.enabled = true;
+		    }
+		
+		    public play():void
+		    {
+			    this.isPlaying = true;
+		    }
+		
+		    public stop():void
+		    {
+			    this.isPlaying = false;
+		    }
+		
+		    public getMixingTransform(timelineName:string):number
+		    {
+			    if(this._mixingTransforms)
+			    {
+				    return Number(this._mixingTransforms[timelineName]);
+			    }
+			    return -1;
+		    }
+		
+		    public addMixingTransform(timelineName:string, type:number = 2, recursive:boolean = true):void
+		    {
+			    if(this.clip && this.clip.getTimeline(timelineName))
+			    {
+				    if(!this._mixingTransforms)
+				    {
+					    this._mixingTransforms = {};
+				    }
+				    if(recursive)
+				    {
+					    var i:number = this._armature._boneList.length;
+					    var bone:Bone;
+					    var currentBone:Bone;
+					    while(i --)
+					    {
+						    bone = this._armature._boneList[i];
+						    if(bone.name == timelineName)
+						    {
+							    currentBone = bone;
+						    }
+						    if(currentBone && (currentBone == bone || currentBone.contains(bone)))
+						    {
+							    this._mixingTransforms[bone.name] = type;
+						    }
+					    }
+				    }
+				    else
+				    {
+					    this._mixingTransforms[timelineName] = type;
+				    }
+				
+				    this.updateTimelineStates();
+			    }
+			    else
+			    {
+				    throw new Error();
+			    }
+		    }
+		
+		    public removeMixingTransform(timelineName:string = null, recursive:Boolean = true):void
+		    {
+			    if(timelineName)
+			    {
+				    if(recursive)
+				    {
+					    var i:number = this._armature._boneList.length;
+					    var bone:Bone;
+					    var currentBone:Bone;
+					    while(i --)
+					    {
+						    bone = this._armature._boneList[i];
+						    if(bone.name == timelineName)
+						    {
+							    currentBone = bone;
+						    }
+						    if(currentBone && (currentBone == bone || currentBone.contains(bone)))
+						    {
+							    delete this._mixingTransforms[bone.name];
+						    }
+					    }
+				    }
+				    else
+				    {
+					    delete this._mixingTransforms[timelineName];
+				    }
+				
+				    for(var index in this._mixingTransforms)
+				    {
+					    var hasMixing:Boolean = true;
+					    break;
+				    }
+				    if(!hasMixing)
+				    {
+					    this._mixingTransforms = null;
+				    }
+			    }
+			    else
+			    {
+				    this._mixingTransforms = null;
+			    }
+			
+			    this.updateTimelineStates();
+            }
+
+		    public advanceTime(passedTime:number):boolean
+            {
+			    if(!this.enabled)
+			    {
+				    return false;
+			    }
+			    var event:events.AnimationEvent;
+			    var isComplete:boolean;
+			
+			    if(this._fadeIn)
+			    {	
+				    this._fadeIn = false;
+				    if(this._armature.hasEventListener(events.AnimationEvent.FADE_IN))
+				    {
+					    event = new events.AnimationEvent(events.AnimationEvent.FADE_IN);
+					    event.animationState = this;
+					    this._armature._eventList.push(event);
+				    };
+			    }
+			
+			    if(this._fadeOut)
+			    {	
+				    this._fadeOut = false;
+				    if(this._armature.hasEventListener(events.AnimationEvent.FADE_OUT))
+				    {
+					    event = new events.AnimationEvent(events.AnimationEvent.FADE_OUT);
+					    event.animationState = this;
+					    this._armature._eventList.push(event);
+				    }
+			    }
+			
+                this.currentTime += passedTime * this.timeScale;
+
+			    if(this.isPlaying && !this.isComplete)
+			    {
+				    if(this._pauseBeforeFadeInComplete)
+				    {
+					    this._pauseBeforeFadeInComplete = false;
+					    this.isPlaying = false;
+					    var progress:number = 0;
+                        var currentLoopCount: number = Math.floor(progress);
+				    }
+				    else
+				    {
+                        progress = this.currentTime / this.totalTime;
+					    //update loopCount
+					    currentLoopCount = progress;
+					    if(currentLoopCount != this.loopCount)
+					    {
+						    if(this.loopCount == -1)
+						    {
+							    if(this._armature.hasEventListener(events.AnimationEvent.START))
+							    {
+								    event = new events.AnimationEvent(events.AnimationEvent.START);
+								    event.animationState = this;
+								    this._armature._eventList.push(event);
+							    }
+						    }
+						    this.loopCount = currentLoopCount;
+						    if(this.loopCount)
+						    {
+							    if(this.loop && this.loopCount * this.loopCount >= this.loop * this.loop - 1)
+							    {
+								    isComplete = true;
+								    progress = 1;
+								    currentLoopCount = 0;
+								    if(this._armature.hasEventListener(events.AnimationEvent.COMPLETE))
+								    {
+									    event = new events.AnimationEvent(events.AnimationEvent.COMPLETE);
+									    event.animationState = this;
+									    this._armature._eventList.push(event);
+								    }
+							    }
+							    else
+							    {
+								    if(this._armature.hasEventListener(events.AnimationEvent.LOOP_COMPLETE))
+								    {
+									    event = new events.AnimationEvent(events.AnimationEvent.LOOP_COMPLETE);
+									    event.animationState = this;
+									    this._armature._eventList.push(event);
+								    }
+							    }
+						    }
+					    }
+				    }
+
+				    for(var index in this._timelineStates)
+				    {
+                        (<TimelineState> this._timelineStates[index]).update(progress);
+                    }
+                    var frameList: Array<objects.Frame> = this.clip.getFrameList();
+				    if(frameList.length > 0)
+				    {
+					    var playedTime:number = this.totalTime * (progress - currentLoopCount);
+					    var isArrivedFrame:boolean = false;
+					    var frameIndex:number;
+					    while(!this._currentFrame || playedTime > this._currentFrame.position + this._currentFrame.duration || playedTime < this._currentFrame.position)
+					    {
+						    if(isArrivedFrame)
+						    {
+							    this._armature._arriveAtFrame(this._currentFrame, null, this, true);
+						    }
+						    isArrivedFrame = true;
+						    if(this._currentFrame)
+						    {
+							    frameIndex = frameList.indexOf(this._currentFrame);
+							    frameIndex ++;
+							    if(frameIndex >= frameList.length)
+							    {
+								    frameIndex = 0;
+							    }
+							    this._currentFrame = frameList[frameIndex];
+						    }
+						    else
+						    {
+							    this._currentFrame = frameList[0];
+						    }
+					    }
+					
+					    if(isArrivedFrame)
+					    {
+						    this._armature._arriveAtFrame(this._currentFrame, null, this, false);
+					    }
+				    }
+			    }
+			
+			    //update weight and fadeState
+			    if(this._fadeState > 0)
+			    {
+				    if(this.fadeInTime == 0)
+				    {
+					    this._fadeWeight = 1;
+					    this._fadeState = 0;
+					    this.isPlaying = true;
+					    if(this._armature.hasEventListener(events.AnimationEvent.FADE_IN_COMPLETE))
+					    {
+						    event = new events.AnimationEvent(events.AnimationEvent.FADE_IN_COMPLETE);
+						    event.animationState = this;
+						    this._armature._eventList.push(event);
+					    }
+				    }
+				    else
+				    {
+					    this._fadeWeight = this.currentTime / this.fadeInTime;
+					    if(this._fadeWeight >= 1)
+					    {
+						    this._fadeWeight = 1;
+						    this._fadeState = 0;
+						    if(!this.isPlaying)
+						    {
+							    this.currentTime -= this.fadeInTime;
+						    }
+						    this.isPlaying = true;
+						    if(this._armature.hasEventListener(events.AnimationEvent.FADE_IN_COMPLETE))
+						    {
+							    event = new events.AnimationEvent(events.AnimationEvent.FADE_IN_COMPLETE);
+							    event.animationState = this;
+							    this._armature._eventList.push(event);
+						    }
+					    }
+				    }
+			    }
+			    else if(this._fadeState < 0)
+			    {
+				    if(this._fadeOutTime == 0)
+				    {
+					    this._fadeWeight = 0;
+					    this._fadeState = 0;
+					    if(this._armature.hasEventListener(events.AnimationEvent.FADE_OUT_COMPLETE))
+					    {
+						    event = new events.AnimationEvent(events.AnimationEvent.FADE_OUT_COMPLETE);
+						    event.animationState = this;
+						    this._armature._eventList.push(event);
+					    }
+					    return true;
+				    }
+				    else
+				    {
+					    this._fadeWeight = (1 - (this.currentTime - this._fadeOutBeginTime) / this._fadeOutTime) * this._fadeOutWeight;
+					    if(this._fadeWeight <= 0)
+					    {
+						    this._fadeWeight = 0;
+						    this._fadeState = 0;
+						    if(this._armature.hasEventListener(events.AnimationEvent.FADE_OUT_COMPLETE))
+						    {
+							    event = new events.AnimationEvent(events.AnimationEvent.FADE_OUT_COMPLETE);
+							    event.animationState = this;
+							    this._armature._eventList.push(event);
+						    }
+						    return true;
+					    }
+				    }
+			    }
+			
+			    if(isComplete)
+			    {
+				    this.isComplete = true;
+				    if(this.loop < 0)
+				    {
+					    this.fadeOut((this._fadeOutWeight || this.fadeInTime) / this.timeScale, true);
+				    }
+			    }
+			
+			    return false;
+		    }
+		
+		    private updateTimelineStates():void
+		    {
+			    if(this._mixingTransforms)
+			    {
+				    for(var timelineName in this._timelineStates)
+				    {
+					    if(this._mixingTransforms[timelineName] == null)
+					    {
+						    this.removeTimelineState(timelineName);
+					    }
+				    }
+				
+				    for(timelineName in this._mixingTransforms)
+				    {
+					    if(!this._timelineStates[timelineName])
+					    {
+						    this.addTimelineState(timelineName);
+					    }
+				    }
+			    }
+			    else
+			    {
+				    for(timelineName in this.clip.getTimelines())
+				    {
+					    if(!this._timelineStates[timelineName])
+					    {
+						    this.addTimelineState(timelineName);
+					    }
+				    }
+			    }
+		    }
+		
+		    private addTimelineState(timelineName:string):void
+		    {
+			    var bone:Bone = this._armature.getBone(timelineName);
+			    if(bone)
+			    {
+				    var timelineState:TimelineState = TimelineState._borrowObject();
+				    var timeline:objects.TransformTimeline = this.clip.getTimeline(timelineName);
+				    timelineState.fadeIn(bone, this, timeline);
+				    this._timelineStates[timelineName] = timelineState;
+			    }
+		    }
+		
+		    private removeTimelineState(timelineName:string):void
+		    {
+			    TimelineState._returnObject(<TimelineState> this._timelineStates[timelineName]);
+			    delete this._timelineStates[timelineName];
+		    }
+		
+		    private clear():void
+		    {
+			    this._armature = null;
+			    this.clip = null;
+                this.enabled = false;
+
+			    this._currentFrame = null;
+			    this._mixingTransforms = null;
+			
+			    for(var timelineName in this._timelineStates)
+			    {
+				    this.removeTimelineState(timelineName);
+			    }
+		    }
+        }
+
+        export class Animation
+        {
+		    public static NONE:string = "none";
+		    public static SAME_LAYER:string = "sameLayer";
+		    public static SAME_GROUP:string = "sameGroup";
+		    public static SAME_LAYER_AND_GROUP:string = "sameLayerAndGroup";
+            public static ALL: string = "all";
+
+            public tweenEnabled: boolean;
+            public timeScale: number;
+
+		    public animationList: Array<string>;
+		
+		    /** @private */
+		    public _animationLayer:Array<Array<AnimationState>>;
+		    /** @private */
+            public _lastAnimationState: AnimationState;
+
+            private _armature: Armature;
+            private _isPlaying: boolean;
+
+            public getLastAnimationName():string
+		    {
+			    return this._lastAnimationState?this._lastAnimationState.name:null;
+            }
+
+		    public getLastAnimationState():AnimationState
+		    {
+			    return this._lastAnimationState;
+		    }
+		
+		    private _animationDataList:Array<objects.AnimationData>;
+		    public getAnimationDataList():Array<objects.AnimationData>
+		    {
+			    return this._animationDataList;
+		    }
+		    public setAnimationDataList(value:Array<objects.AnimationData>):void
+		    {
+			    this._animationDataList = value;
+			    this.animationList.length = 0;
+			    for(var index in this._animationDataList)
+			    {
+				    this.animationList[this.animationList.length] = this._animationDataList[index].name;
+			    }
+            }
+
+		    /*
+		    public function get isPlaying():Boolean
+		    {
+			    return _isPlaying && !isComplete;
+		    }
+		
+		    public function get isComplete():Boolean
+		    {
+			    if(_lastAnimationState)
+			    {
+				    if(!_lastAnimationState.isComplete)
+				    {
+					    return false;
+				    }
+				    var j:int = _animationLayer.length;
+				    while(j --)
+				    {
+					    var animationStateList:Vector.<AnimationState> = _animationLayer[j];
+					    var i:int = animationStateList.length;
+					    while(i --)
+					    {
+						    if(!animationStateList[i].isComplete)
+						    {
+							    return false;
+						    }
+					    }
+				    }
+				    return true;
+			    }
+			    return false;
+		    }
+            */
+
+            constructor(armature:Armature)
+            {
+			    this._armature = armature;
+                this._animationLayer = [];
+
+			    this.animationList = [];
+			
+			    this.tweenEnabled = true;
+                this.timeScale = 1;
+            }
+            
+		    public dispose():void
+		    {
+			    if(!this._armature)
+			    {
+				    return;
+			    }
+			    this.stop();
+			    var i:number = this._animationLayer.length;
+			    while(i --)
+			    {
+				    var animationStateList:Array<AnimationState> = this._animationLayer[i];
+				    var j:number = animationStateList.length;
+				    while(j --)
+				    {
+					    AnimationState._returnObject(animationStateList[j]);
+				    }
+				    animationStateList.length = 0;
+			    }
+			    this._animationLayer.length = 0;
+			    this.animationList.length = 0;
+			
+			    this._armature = null;
+			    this._animationLayer = null;
+			    this._animationDataList = null;
+			    this.animationList = null;
+            }
+            
+		    public gotoAndPlay(
+			    animationName:string, 
+			    fadeInTime:number = -1, 
+			    duration:number = -1, 
+			    loop:number = NaN, 
+			    layer:number = 0, 
+			    group:string = null,
+			    fadeOutMode:string = Animation.SAME_LAYER_AND_GROUP,
+			    displayControl:boolean = true,
+			    pauseFadeOut:boolean = true,
+			    pauseFadeIn:boolean = true
+		    ):AnimationState
+            {
+			    if (!this._animationDataList)
+			    {
+				    return null;
+			    }
+			    var i:number = this._animationDataList.length;
+			    var animationData:objects.AnimationData;
+                while (i --)
+                {
+				    if(this._animationDataList[i].name == animationName)
+				    {
+					    animationData = this._animationDataList[i];
+					    break;
+				    }
+			    }
+			    if (!animationData)
+			    {
+				    return null;
+			    }
+			
+			    this._isPlaying = true;
+			
+			    //
+			    fadeInTime = fadeInTime < 0?(animationData.fadeInTime < 0?0.3:animationData.fadeInTime):fadeInTime;
+			
+			    var durationScale:number;
+			    if(duration < 0)
+			    {
+				    durationScale = animationData.scale < 0?1:animationData.scale;
+			    }
+			    else
+			    {
+				    durationScale = duration / animationData.duration;
+			    }
+
+                loop = isNaN(loop) ? animationData.loop : loop;
+                layer = this.addLayer(layer);
+			
+			    //autoSync = autoSync && !pauseFadeOut && !pauseFadeIn;
+			    var animationState:AnimationState;
+			    var animationStateList:Array<AnimationState>;
+			    switch(fadeOutMode)
+			    {
+				    case Animation.NONE:
+					    break;
+				    case Animation.SAME_LAYER:
+					    animationStateList = this._animationLayer[layer];
+					    i = animationStateList.length;
+                        while (i --)
+					    {
+						    animationState = animationStateList[i];
+						    animationState.fadeOut(fadeInTime, pauseFadeOut);
+					    }
+					    break;
+				    case Animation.SAME_GROUP:
+					    j = this._animationLayer.length;
+                        while (j --)
+					    {
+						    animationStateList = this._animationLayer[j];
+						    i = animationStateList.length;
+						    while (i --)
+						    {
+							    animationState = animationStateList[i];
+							    if(animationState.group == group)
+							    {
+								    animationState.fadeOut(fadeInTime, pauseFadeOut);
+							    }
+						    }
+					    }
+					    break;
+				    case Animation.ALL:
+					    var j:number = this._animationLayer.length;
+					    while(j --)
+					    {
+						    animationStateList = this._animationLayer[j];
+						    i = animationStateList.length;
+						    while(i --)
+						    {
+							    animationState = animationStateList[i];
+							    animationState.fadeOut(fadeInTime, pauseFadeOut);
+						    }
+					    }
+					    break;
+				    case Animation.SAME_LAYER_AND_GROUP:
+				    default:
+					    animationStateList = this._animationLayer[layer];
+					    i = animationStateList.length;
+					    while(i --)
+					    {
+						    animationState = animationStateList[i];
+						    if(animationState.group == group)
+						    {
+							    animationState.fadeOut(fadeInTime, pauseFadeOut);
+						    }
+					    }
+					    break;
+			    }
+			
+			    this._lastAnimationState = AnimationState._borrowObject();
+			    this._lastAnimationState.group = group;
+			    this._lastAnimationState.tweenEnabled = this.tweenEnabled;
+			    this._lastAnimationState.fadeIn(this._armature, animationData, fadeInTime, 1 / durationScale, loop, layer, displayControl, pauseFadeIn);
+			
+			    this.addState(this._lastAnimationState);
+
+                var slotList: Array<Slot> = this._armature._slotList;
+                var slot: Slot;
+                var childArmature: Armature;
+			    i = slotList.length;
+                while (i --)
+			    {
+                    slot = slotList[i];
+                    childArmature = slot.getChildArmature();
+				    if(childArmature)
+				    {
+					    childArmature.animation.gotoAndPlay(animationName, fadeInTime);
+				    }
+			    }
+			
+			    this._lastAnimationState.advanceTime(0);
+			
+			    return this._lastAnimationState;
+            }
+
+		    public play():void
+		    {
+			    if (!this._animationDataList || this._animationDataList.length == 0)
+			    {
+				    return;
+			    }
+			    if(!this._lastAnimationState)
+			    {
+				    this.gotoAndPlay(this._animationDataList[0].name);
+			    }
+			    else if (!this._isPlaying)
+			    {
+				    this._isPlaying = true;
+			    }
+			    else
+			    {
+				    this.gotoAndPlay(this._lastAnimationState.name);
+			    }
+		    }
+		
+		    public stop():void
+		    {
+			    this._isPlaying = false;
+		    }
+
+		    public getState(name:string, layer:number = 0):AnimationState
+		    {
+			    var l:number = this._animationLayer.length;
+			    if(l == 0)
+			    {
+				    return null;
+			    }
+			    else if(layer >= l)
+			    {
+				    layer = l - 1;
+			    }
+			
+			    var animationStateList:Array<AnimationState> = this._animationLayer[layer];
+			    if(!animationStateList)
+			    {
+				    return null;
+			    }
+			    var i:number = animationStateList.length;
+			    while(i --)
+			    {
+				    if(animationStateList[i].name == name)
+				    {
+					    return animationStateList[i];
+				    }
+			    }
+			
+			    return null;
+		    }
+		
+		    public hasAnimation(animationName:string):boolean
+		    {
+			    var i:number = this._animationDataList.length;
+			    while(i --)
+			    {
+				    if(this._animationDataList[i].name == animationName)
+				    {
+					    return true;
+				    }
+			    }
+			
+			    return false;
+            }
+
+		    public advanceTime(passedTime:number):void
+            {
+			    if(!this._isPlaying)
+			    {
+				    return;
+			    }
+			    passedTime *= this.timeScale;
+			
+			    var l:number = this._armature._boneList.length;
+			    var i:number;
+			    var j:number;
+			    var k:number = l;
+			    var stateListLength:number;
+			    var bone:Bone;
+			    var boneName:string;
+			    var weigthLeft:number;
+			
+			    var x:number;
+			    var y:number;
+			    var skewX:number;
+			    var skewY:number;
+			    var scaleX:number;
+			    var scaleY:number;
+			    var pivotX:number;
+			    var pivotY:number;
+			
+			    var layerTotalWeight:number;
+			    var animationStateList:Array<AnimationState>;
+			    var animationState:AnimationState;
+			    var timelineState:TimelineState;
+			    var weight:number;
+			    var transform:objects.DBTransform;
+			    var pivot:geom.Point;
+			
+			    l --;
+			    while(k --)
+			    {
+				    bone = this._armature._boneList[k];
+				    boneName = bone.name;
+				    weigthLeft = 1;
+				
+				    x = 0;
+				    y = 0;
+				    skewX = 0;
+				    skewY = 0;
+				    scaleX = 0;
+				    scaleY = 0;
+				    pivotX = 0;
+				    pivotY = 0;
+				
+				    i = this._animationLayer.length;
+				    while(i --)
+				    {
+					    layerTotalWeight = 0;
+					    animationStateList = this._animationLayer[i];
+					    stateListLength = animationStateList.length;
+					    for(j = 0;j < stateListLength;j ++)
+					    {
+						    animationState = animationStateList[j];
+						    if(k == l)
+						    {
+							    if(animationState.advanceTime(passedTime))
+							    {
+								    this.removeState(animationState);
+								    j --;
+								    stateListLength --;
+								    continue;
+							    }
+						    }
+						
+						    timelineState = animationState._timelineStates[boneName];
+						    if(timelineState && timelineState.tweenActive)
+						    {
+							    weight = animationState._fadeWeight * animationState.weight * weigthLeft;
+                                transform = timelineState.transform;
+							    pivot = timelineState.pivot;
+							    x += transform.x * weight;
+							    y += transform.y * weight;
+							    skewX += transform.skewX * weight;
+							    skewY += transform.skewY * weight;
+							    scaleX += transform.scaleX * weight;
+							    scaleY += transform.scaleY * weight;
+							    pivotX += pivot.x * weight;
+							    pivotY += pivot.y * weight;
+							
+							    layerTotalWeight += weight;
+						    }
+					    }
+					
+					    if(layerTotalWeight >= weigthLeft)
+					    {
+						    break;
+					    }
+					    else
+					    {
+						    weigthLeft -= layerTotalWeight;
+					    }
+				    }
+				    transform = bone.tween;
+				    pivot = bone._tweenPivot;
+				
+				    transform.x = x;
+				    transform.y = y;
+				    transform.skewX = skewX;
+				    transform.skewY = skewY;
+				    transform.scaleX = scaleX;
+				    transform.scaleY = scaleY;
+				    pivot.x = pivotX;
+                    pivot.y = pivotY;
+			    }
+            }
+            
+		    private addLayer(layer:number):number
+		    {
+			    if(layer >= this._animationLayer.length)
+			    {
+				    layer = this._animationLayer.length;
+				    this._animationLayer[layer] = [];
+			    }
+			    return layer;
+		    }
+		
+		    private addState(animationState:AnimationState):void
+		    {
+			    var animationStateList:Array<AnimationState> = this._animationLayer[animationState.layer];
+			    animationStateList.push(animationState);
+		    }
+		
+		    private removeState(animationState:AnimationState):void
+		    {
+			    var layer:number = animationState.layer;
+			    var animationStateList:Array<AnimationState> = this._animationLayer[layer];
+			    animationStateList.splice(animationStateList.indexOf(animationState), 1);
+			
+			    AnimationState._returnObject(animationState);
+			
+			    if(animationStateList.length == 0 && layer == this._animationLayer.length - 1)
+			    {
+				    this._animationLayer.length --;
+			    }
+		    }
         }
     }
 
@@ -356,6 +1929,18 @@ module dragonBones
                 this.skewY = transform.skewY;
                 this.scaleX = transform.scaleX;
                 this.scaleY = transform.scaleY;
+            }
+
+            public toString(): string
+            {
+                return "[DBTransform (x=" +
+                    this.x +
+                    " y=" + this.y +
+                    " skewX=" + this.skewX +
+                    " skewY=" + this.skewY +
+                    " scaleX=" + this.scaleX +
+                    " scaleY=" + this.scaleY +
+                    ")]";
             }
         }
 
@@ -1295,10 +2880,10 @@ module dragonBones
 				    frame.tweenEasing = 0;
 			    }
 			
-			    frame.tweenRotate = Number(frameObject[utils.ConstValues.A_TWEEN_ROTATE]);
-			    frame.displayIndex = Number(frameObject[utils.ConstValues.A_DISPLAY_INDEX]);
+			    frame.tweenRotate = Number(frameObject[utils.ConstValues.A_TWEEN_ROTATE]) || 0;
+			    frame.displayIndex = Number(frameObject[utils.ConstValues.A_DISPLAY_INDEX]) || 0;
 			    //
-			    frame.zOrder = Number(frameObject[utils.ConstValues.A_Z_ORDER]);
+			    frame.zOrder = Number(frameObject[utils.ConstValues.A_Z_ORDER]) || 0;
 			
 			    DataParser.parseTransform(frameObject[utils.ConstValues.TRANSFORM], frame.global, frame.pivot);
 			    frame.transform.copy(frame.global);
@@ -1546,14 +3131,14 @@ module dragonBones
 				    }
 			    }
 			    
-			    /*if(animationArmatureData)
+			    if(animationArmatureData)
 			    {
                     armature.animation.setAnimationDataList(animationArmatureData.getAnimationDataList());
 			    }
 			    else
 			    {
 				    armature.animation.setAnimationDataList(armatureData.getAnimationDataList());
-			    }*/
+			    }
 			
 			    var skinData:objects.SkinData = armatureData.getSkinData(skinName);
 			    if(!skinData)
@@ -1995,7 +3580,7 @@ module dragonBones
 						    progress = (position - currentFrame.position) / currentFrame.duration;
 						    if(tweenEasing)
 						    {
-							    //progress = animation.TimelineState.getEaseValue(progress, tweenEasing);
+							    progress = animation.TimelineState.getEaseValue(progress, tweenEasing);
 						    }
 						
 						    nextFrame = <objects.TransformFrame> frameList[i + 1];
@@ -2151,7 +3736,6 @@ module dragonBones
                 this.global.skewX = this.origin.skewX + this.offset.skewX + this.tween.skewX;
                 this.global.skewY = this.origin.skewY + this.offset.skewY + this.tween.skewY;
             }
-
             this._globalTransformMatrix.a = this.global.scaleX * Math.cos(this.global.skewY);
             this._globalTransformMatrix.b = this.global.scaleX * Math.sin(this.global.skewY);
             this._globalTransformMatrix.c = -this.global.scaleY * Math.sin(this.global.skewX);
@@ -2429,7 +4013,7 @@ module dragonBones
 		{
 			var childArmature:Armature = this.getChildArmature();
 			
-			/*if(childArmature)
+			if(childArmature)
 			{
 				if(this._isHideDisplay)
 				{
@@ -2440,18 +4024,18 @@ module dragonBones
 				{
 					if(
 						this.armature &&
-						this.armature.animation.lastAnimationState &&
-						childArmature.animation.hasAnimation(this.armature.animation.lastAnimationState.name)
+						this.armature.animation.getLastAnimationName() &&
+						childArmature.animation.hasAnimation(this.armature.animation.getLastAnimationName())
 					)
 					{
-						childArmature.animation.gotoAndPlay(this.armature.animation.lastAnimationState.name);
+						childArmature.animation.gotoAndPlay(this.armature.animation.getLastAnimationName());
 					}
 					else
 					{
 						childArmature.animation.play();
 					}
 				}
-			}*/
+			}
 		}
     }
 
@@ -2615,7 +4199,7 @@ module dragonBones
 		/** @private */
         public _arriveAtFrame(frame: objects.Frame, timelineState: animation.TimelineState, animationState: animation.AnimationState, isCross: boolean): void
         {
-            /*if (frame)
+            if (frame)
 			{
 				var mixingType:number = animationState.getMixingTransform(name);
 				if(animationState.displayControl && (mixingType == 2 || mixingType == -1))
@@ -2665,12 +4249,18 @@ module dragonBones
 				}
 				
 				if(frame.action)
-				{
-					var childArmature:Armature = this.getChildArmature();
-					if(childArmature)
-					{
-						childArmature.animation.gotoAndPlay(frame.action);
-					}
+                {
+					for(var index in this._children)
+                    {
+                        if (this._children[index] instanceof Slot)
+                        {
+                            var childArmature: Armature = (<Slot> this._children[index]).getChildArmature();
+                            if (childArmature)
+					        {
+						        childArmature.animation.gotoAndPlay(frame.action);
+					        }
+                        }
+                    }
 				}
 			}
 			else
@@ -2679,7 +4269,7 @@ module dragonBones
 				{
 					this.slot._changeDisplay(-1);
 				}
-			}*/
+			}
 		}
 		
 		/** @private */
@@ -2712,7 +4302,7 @@ module dragonBones
 		}
 	}
 
-    export class Armature extends events.EventDispatcher
+    export class Armature extends events.EventDispatcher implements animation.IAnimatable
     {
 		private static _soundManager: events.SoundEventManager = events.SoundEventManager.getInstance();
 
@@ -2750,7 +4340,7 @@ module dragonBones
 				return;
 			}
 			
-			//this.animation.dispose();
+			this.animation.dispose();
             var i: number = this._slotList.length;
 
 			while(i --)
@@ -2778,7 +4368,7 @@ module dragonBones
 
         public advanceTime(passedTime: number): void
 		{
-			//this.animation.advanceTime(passedTime);
+			this.animation.advanceTime(passedTime);
 			
 			var i:number = this._boneList.length;
 			while(i --)
@@ -3073,7 +4663,7 @@ module dragonBones
         }
 
 		/** @private */
-        private arriveAtFrame(frame: objects.Frame, timelineState: animation.TimelineState, animationState: animation.AnimationState, isCross: boolean): void
+        public _arriveAtFrame(frame: objects.Frame, timelineState: animation.TimelineState, animationState: animation.AnimationState, isCross: boolean): void
         {
 			if(frame.event && this.hasEventListener(events.FrameEvent.ANIMATION_FRAME_EVENT))
 			{
@@ -3094,10 +4684,10 @@ module dragonBones
 			
 			if(frame.action)
 			{
-				/*if(animationState.isPlaying)
+				if(animationState.isPlaying)
 				{
 					this.animation.gotoAndPlay(frame.action);
-				}*/
+				}
 			}
 		}
 

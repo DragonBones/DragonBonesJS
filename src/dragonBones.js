@@ -220,33 +220,1146 @@ var dragonBones;
     var events = dragonBones.events;
 
     (function (animation) {
-        var Animation = (function () {
-            function Animation(armature) {
+        var WorldClock = (function () {
+            function WorldClock() {
+                this.timeScale = 1;
+                this.time = new Date().getTime() * 0.001;
+                this._animatableList = [];
             }
-            return Animation;
-        })();
-        animation.Animation = Animation;
+            WorldClock.prototype.contains = function (animatable) {
+                return this._animatableList.indexOf(animatable) >= 0;
+            };
 
-        var AnimationState = (function () {
-            function AnimationState() {
-            }
-            return AnimationState;
+            WorldClock.prototype.add = function (animatable) {
+                if (animatable && this._animatableList.indexOf(animatable) == -1) {
+                    this._animatableList.push(animatable);
+                }
+            };
+
+            WorldClock.prototype.remove = function (animatable) {
+                var index = this._animatableList.indexOf(animatable);
+                if (index >= 0) {
+                    this._animatableList[index] = null;
+                }
+            };
+
+            WorldClock.prototype.clear = function () {
+                this._animatableList.length = 0;
+            };
+
+            WorldClock.prototype.advanceTime = function (passedTime) {
+                if (passedTime < 0) {
+                    var currentTime = new Date().getTime() * 0.001;
+                    passedTime = currentTime - this.time;
+                    this.time = currentTime;
+                }
+
+                passedTime *= this.timeScale;
+
+                var length = this._animatableList.length;
+                if (length == 0) {
+                    return;
+                }
+                var currentIndex = 0;
+
+                for (var i = 0; i < length; i++) {
+                    var animatable = this._animatableList[i];
+                    if (animatable) {
+                        if (currentIndex != i) {
+                            this._animatableList[currentIndex] = animatable;
+                            this._animatableList[i] = null;
+                        }
+                        animatable.advanceTime(passedTime);
+                        currentIndex++;
+                    }
+                }
+
+                if (currentIndex != i) {
+                    length = this._animatableList.length;
+                    while (i < length) {
+                        this._animatableList[currentIndex++] = this._animatableList[i++];
+                    }
+                    this._animatableList.length = currentIndex;
+                }
+            };
+            WorldClock.clock = new WorldClock();
+            return WorldClock;
         })();
-        animation.AnimationState = AnimationState;
+        animation.WorldClock = WorldClock;
 
         var TimelineState = (function () {
             function TimelineState() {
+                this.transform = new objects.DBTransform();
+                this.pivot = new geom.Point(0, 0);
+
+                this._durationTransform = new objects.DBTransform();
+                this._durationPivot = new geom.Point(0, 0);
+                this._durationColor = new geom.ColorTransform();
             }
+            TimelineState._borrowObject = function () {
+                if (TimelineState._pool.length == 0) {
+                    return new TimelineState();
+                }
+                return TimelineState._pool.pop();
+            };
+
+            TimelineState._returnObject = function (timeline) {
+                if (TimelineState._pool.indexOf(timeline) < 0) {
+                    TimelineState._pool[TimelineState._pool.length] = timeline;
+                }
+
+                timeline.clear();
+            };
+
+            TimelineState._clear = function () {
+                var i = TimelineState._pool.length;
+                while (i--) {
+                    TimelineState._pool[i].clear();
+                }
+                TimelineState._pool.length = 0;
+            };
+
+            TimelineState.getEaseValue = function (value, easing) {
+                if (easing > 1) {
+                    var valueEase = 0.5 * (1 - Math.cos(value * Math.PI)) - value;
+                    easing -= 1;
+                } else if (easing > 0) {
+                    valueEase = Math.sin(value * TimelineState.HALF_PI) - value;
+                } else if (easing < 0) {
+                    valueEase = 1 - Math.cos(value * TimelineState.HALF_PI) - value;
+                    easing *= -1;
+                }
+                return valueEase * easing + value;
+            };
+
+            TimelineState.prototype.fadeIn = function (bone, animationState, timeline) {
+                this._bone = bone;
+                this._animationState = animationState;
+                this._timeline = timeline;
+
+                this._originTransform = this._timeline.originTransform;
+                this._originPivot = this._timeline.originPivot;
+
+                this._tweenTransform = false;
+                this._tweenColor = false;
+
+                this._totalTime = this._animationState.totalTime;
+
+                this.transform.x = 0;
+                this.transform.y = 0;
+                this.transform.scaleX = 0;
+                this.transform.scaleY = 0;
+                this.transform.skewX = 0;
+                this.transform.skewY = 0;
+                this.pivot.x = 0;
+                this.pivot.y = 0;
+
+                this._durationTransform.x = 0;
+                this._durationTransform.y = 0;
+                this._durationTransform.scaleX = 0;
+                this._durationTransform.scaleY = 0;
+                this._durationTransform.skewX = 0;
+                this._durationTransform.skewY = 0;
+                this._durationPivot.x = 0;
+                this._durationPivot.y = 0;
+
+                switch (this._timeline.getFrameList().length) {
+                    case 0:
+                        this._bone._arriveAtFrame(null, this, this._animationState, false);
+                        this._updateState = 0;
+                        break;
+                    case 1:
+                        this._updateState = -1;
+                        break;
+                    default:
+                        this._updateState = 1;
+                        break;
+                }
+            };
+
+            TimelineState.prototype.fadeOut = function () {
+                this.transform.skewX = utils.TransformUtil.formatRadian(this.transform.skewX);
+                this.transform.skewY = utils.TransformUtil.formatRadian(this.transform.skewY);
+            };
+
+            TimelineState.prototype.update = function (progress) {
+                if (this._updateState) {
+                    if (this._updateState > 0) {
+                        if (this._timeline.scale == 0) {
+                            progress = 1;
+                        } else {
+                            progress /= this._timeline.scale;
+                        }
+
+                        if (progress == 1) {
+                            progress = 0.99999999;
+                        }
+
+                        progress += this._timeline.offset;
+                        var loopCount = Math.floor(progress);
+                        progress -= loopCount;
+
+                        var playedTime = this._totalTime * progress;
+                        var isArrivedFrame = false;
+                        var frameIndex;
+                        while (!this._currentFrame || playedTime > this._currentFramePosition + this._currentFrameDuration || playedTime < this._currentFramePosition) {
+                            if (isArrivedFrame) {
+                            }
+                            isArrivedFrame = true;
+                            if (this._currentFrame) {
+                                frameIndex = this._timeline.getFrameList().indexOf(this._currentFrame) + 1;
+                                if (frameIndex >= this._timeline.getFrameList().length) {
+                                    frameIndex = 0;
+                                }
+                                this._currentFrame = this._timeline.getFrameList()[frameIndex];
+                            } else {
+                                frameIndex = 0;
+                                this._currentFrame = this._timeline.getFrameList()[0];
+                            }
+                            this._currentFrameDuration = this._currentFrame.duration;
+                            this._currentFramePosition = this._currentFrame.position;
+                        }
+
+                        if (isArrivedFrame) {
+                            this.tweenActive = this._currentFrame.displayIndex >= 0;
+                            frameIndex++;
+                            if (frameIndex >= this._timeline.getFrameList().length) {
+                                frameIndex = 0;
+                            }
+                            var nextFrame = this._timeline.getFrameList()[frameIndex];
+
+                            if (frameIndex == 0 && this._animationState.loop && this._animationState.loopCount >= Math.abs(this._animationState.loop) - 1 && ((this._currentFramePosition + this._currentFrameDuration) / this._totalTime + loopCount - this._timeline.offset) * this._timeline.scale > 0.99999999) {
+                                this._updateState = 0;
+                                this._tweenEasing = NaN;
+                            } else if (this._currentFrame.displayIndex < 0 || nextFrame.displayIndex < 0 || !this._animationState.tweenEnabled) {
+                                this._tweenEasing = NaN;
+                            } else if (isNaN(this._animationState.clip.tweenEasing)) {
+                                this._tweenEasing = this._currentFrame.tweenEasing;
+                            } else {
+                                this._tweenEasing = this._animationState.clip.tweenEasing;
+                            }
+
+                            if (isNaN(this._tweenEasing)) {
+                                this._tweenTransform = false;
+                                this._tweenColor = false;
+                            } else {
+                                this._durationTransform.x = nextFrame.transform.x - this._currentFrame.transform.x;
+                                this._durationTransform.y = nextFrame.transform.y - this._currentFrame.transform.y;
+                                this._durationTransform.skewX = nextFrame.transform.skewX - this._currentFrame.transform.skewX;
+                                this._durationTransform.skewY = nextFrame.transform.skewY - this._currentFrame.transform.skewY;
+                                this._durationTransform.scaleX = nextFrame.transform.scaleX - this._currentFrame.transform.scaleX;
+                                this._durationTransform.scaleY = nextFrame.transform.scaleY - this._currentFrame.transform.scaleY;
+
+                                if (frameIndex == 0) {
+                                    this._durationTransform.skewX = utils.TransformUtil.formatRadian(this._durationTransform.skewX);
+                                    this._durationTransform.skewY = utils.TransformUtil.formatRadian(this._durationTransform.skewY);
+                                }
+
+                                this._durationPivot.x = nextFrame.pivot.x - this._currentFrame.pivot.x;
+                                this._durationPivot.y = nextFrame.pivot.y - this._currentFrame.pivot.y;
+
+                                if (this._durationTransform.x != 0 || this._durationTransform.y != 0 || this._durationTransform.skewX != 0 || this._durationTransform.skewY != 0 || this._durationTransform.scaleX != 0 || this._durationTransform.scaleY != 0 || this._durationPivot.x != 0 || this._durationPivot.y != 0) {
+                                    this._tweenTransform = true;
+                                } else {
+                                    this._tweenTransform = false;
+                                }
+
+                                if (this._currentFrame.color && nextFrame.color) {
+                                    this._durationColor.alphaOffset = nextFrame.color.alphaOffset - this._currentFrame.color.alphaOffset;
+                                    this._durationColor.redOffset = nextFrame.color.redOffset - this._currentFrame.color.redOffset;
+                                    this._durationColor.greenOffset = nextFrame.color.greenOffset - this._currentFrame.color.greenOffset;
+                                    this._durationColor.blueOffset = nextFrame.color.blueOffset - this._currentFrame.color.blueOffset;
+
+                                    this._durationColor.alphaMultiplier = nextFrame.color.alphaMultiplier - this._currentFrame.color.alphaMultiplier;
+                                    this._durationColor.redMultiplier = nextFrame.color.redMultiplier - this._currentFrame.color.redMultiplier;
+                                    this._durationColor.greenMultiplier = nextFrame.color.greenMultiplier - this._currentFrame.color.greenMultiplier;
+                                    this._durationColor.blueMultiplier = nextFrame.color.blueMultiplier - this._currentFrame.color.blueMultiplier;
+
+                                    if (this._durationColor.alphaOffset != 0 || this._durationColor.redOffset != 0 || this._durationColor.greenOffset != 0 || this._durationColor.blueOffset != 0 || this._durationColor.alphaMultiplier != 0 || this._durationColor.redMultiplier != 0 || this._durationColor.greenMultiplier != 0 || this._durationColor.blueMultiplier != 0) {
+                                        this._tweenColor = true;
+                                    } else {
+                                        this._tweenColor = false;
+                                    }
+                                } else if (this._currentFrame.color) {
+                                    this._tweenColor = true;
+                                    this._durationColor.alphaOffset = -this._currentFrame.color.alphaOffset;
+                                    this._durationColor.redOffset = -this._currentFrame.color.redOffset;
+                                    this._durationColor.greenOffset = -this._currentFrame.color.greenOffset;
+                                    this._durationColor.blueOffset = -this._currentFrame.color.blueOffset;
+
+                                    this._durationColor.alphaMultiplier = 1 - this._currentFrame.color.alphaMultiplier;
+                                    this._durationColor.redMultiplier = 1 - this._currentFrame.color.redMultiplier;
+                                    this._durationColor.greenMultiplier = 1 - this._currentFrame.color.greenMultiplier;
+                                    this._durationColor.blueMultiplier = 1 - this._currentFrame.color.blueMultiplier;
+                                } else if (nextFrame.color) {
+                                    this._tweenColor = true;
+                                    this._durationColor.alphaOffset = nextFrame.color.alphaOffset;
+                                    this._durationColor.redOffset = nextFrame.color.redOffset;
+                                    this._durationColor.greenOffset = nextFrame.color.greenOffset;
+                                    this._durationColor.blueOffset = nextFrame.color.blueOffset;
+
+                                    this._durationColor.alphaMultiplier = nextFrame.color.alphaMultiplier - 1;
+                                    this._durationColor.redMultiplier = nextFrame.color.redMultiplier - 1;
+                                    this._durationColor.greenMultiplier = nextFrame.color.greenMultiplier - 1;
+                                    this._durationColor.blueMultiplier = nextFrame.color.blueMultiplier - 1;
+                                } else {
+                                    this._tweenColor = false;
+                                }
+                            }
+
+                            if (!this._tweenTransform) {
+                                if (this._animationState.blend) {
+                                    this.transform.x = this._originTransform.x + this._currentFrame.transform.x;
+                                    this.transform.y = this._originTransform.y + this._currentFrame.transform.y;
+                                    this.transform.skewX = this._originTransform.skewX + this._currentFrame.transform.skewX;
+                                    this.transform.skewY = this._originTransform.skewY + this._currentFrame.transform.skewY;
+                                    this.transform.scaleX = this._originTransform.scaleX + this._currentFrame.transform.scaleX;
+                                    this.transform.scaleY = this._originTransform.scaleY + this._currentFrame.transform.scaleY;
+
+                                    this.pivot.x = this._originPivot.x + this._currentFrame.pivot.x;
+                                    this.pivot.y = this._originPivot.y + this._currentFrame.pivot.y;
+                                } else {
+                                    this.transform.x = this._currentFrame.transform.x;
+                                    this.transform.y = this._currentFrame.transform.y;
+                                    this.transform.skewX = this._currentFrame.transform.skewX;
+                                    this.transform.skewY = this._currentFrame.transform.skewY;
+                                    this.transform.scaleX = this._currentFrame.transform.scaleX;
+                                    this.transform.scaleY = this._currentFrame.transform.scaleY;
+
+                                    this.pivot.x = this._currentFrame.pivot.x;
+                                    this.pivot.y = this._currentFrame.pivot.y;
+                                }
+                            }
+
+                            if (!this._tweenColor) {
+                                if (this._currentFrame.color) {
+                                    this._bone._updateColor(this._currentFrame.color.alphaOffset, this._currentFrame.color.redOffset, this._currentFrame.color.greenOffset, this._currentFrame.color.blueOffset, this._currentFrame.color.alphaMultiplier, this._currentFrame.color.redMultiplier, this._currentFrame.color.greenMultiplier, this._currentFrame.color.blueMultiplier, true);
+                                } else if (this._bone._isColorChanged) {
+                                    this._bone._updateColor(0, 0, 0, 0, 1, 1, 1, 1, false);
+                                }
+                            }
+                        }
+
+                        if (this._tweenTransform || this._tweenColor) {
+                            progress = (playedTime - this._currentFramePosition) / this._currentFrameDuration;
+                            if (this._tweenEasing) {
+                                progress = TimelineState.getEaseValue(progress, this._tweenEasing);
+                            }
+                        }
+
+                        if (this._tweenTransform) {
+                            var currentTransform = this._currentFrame.transform;
+                            var currentPivot = this._currentFrame.pivot;
+                            if (this._animationState.blend) {
+                                this.transform.x = this._originTransform.x + currentTransform.x + this._durationTransform.x * progress;
+                                this.transform.y = this._originTransform.y + currentTransform.y + this._durationTransform.y * progress;
+                                this.transform.skewX = this._originTransform.skewX + currentTransform.skewX + this._durationTransform.skewX * progress;
+                                this.transform.skewY = this._originTransform.skewY + currentTransform.skewY + this._durationTransform.skewY * progress;
+                                this.transform.scaleX = this._originTransform.scaleX + currentTransform.scaleX + this._durationTransform.scaleX * progress;
+                                this.transform.scaleY = this._originTransform.scaleY + currentTransform.scaleY + this._durationTransform.scaleY * progress;
+
+                                this.pivot.x = this._originPivot.x + currentPivot.x + this._durationPivot.x * progress;
+                                this.pivot.y = this._originPivot.y + currentPivot.y + this._durationPivot.y * progress;
+                            } else {
+                                this.transform.x = currentTransform.x + this._durationTransform.x * progress;
+                                this.transform.y = currentTransform.y + this._durationTransform.y * progress;
+                                this.transform.skewX = currentTransform.skewX + this._durationTransform.skewX * progress;
+                                this.transform.skewY = currentTransform.skewY + this._durationTransform.skewY * progress;
+                                this.transform.scaleX = currentTransform.scaleX + this._durationTransform.scaleX * progress;
+                                this.transform.scaleY = currentTransform.scaleY + this._durationTransform.scaleY * progress;
+
+                                this.pivot.x = currentPivot.x + this._durationPivot.x * progress;
+                                this.pivot.y = currentPivot.y + this._durationPivot.y * progress;
+                            }
+                        }
+
+                        if (this._tweenColor) {
+                            if (this._currentFrame.color) {
+                                this._bone._updateColor(this._currentFrame.color.alphaOffset + this._durationColor.alphaOffset * progress, this._currentFrame.color.redOffset + this._durationColor.redOffset * progress, this._currentFrame.color.greenOffset + this._durationColor.greenOffset * progress, this._currentFrame.color.blueOffset + this._durationColor.blueOffset * progress, this._currentFrame.color.alphaMultiplier + this._durationColor.alphaMultiplier * progress, this._currentFrame.color.redMultiplier + this._durationColor.redMultiplier * progress, this._currentFrame.color.greenMultiplier + this._durationColor.greenMultiplier * progress, this._currentFrame.color.blueMultiplier + this._durationColor.blueMultiplier * progress, true);
+                            } else {
+                                this._bone._updateColor(this._durationColor.alphaOffset * progress, this._durationColor.redOffset * progress, this._durationColor.greenOffset * progress, this._durationColor.blueOffset * progress, 1 + this._durationColor.alphaMultiplier * progress, 1 + this._durationColor.redMultiplier * progress, 1 + this._durationColor.greenMultiplier * progress, 1 + this._durationColor.blueMultiplier * progress, true);
+                            }
+                        }
+                    } else {
+                        this._updateState = 0;
+                        if (this._animationState.blend) {
+                            this.transform.copy(this._originTransform);
+
+                            this.pivot.x = this._originPivot.x;
+                            this.pivot.y = this._originPivot.y;
+                        } else {
+                            this.transform.x = this.transform.y = this.transform.skewX = this.transform.skewY = this.transform.scaleX = this.transform.scaleY = 0;
+
+                            this.pivot.x = 0;
+                            this.pivot.y = 0;
+                        }
+
+                        this._currentFrame = this._timeline.getFrameList()[0];
+
+                        this.tweenActive = this._currentFrame.displayIndex >= 0;
+
+                        if (this._currentFrame.color) {
+                            this._bone._updateColor(this._currentFrame.color.alphaOffset, this._currentFrame.color.redOffset, this._currentFrame.color.greenOffset, this._currentFrame.color.blueOffset, this._currentFrame.color.alphaMultiplier, this._currentFrame.color.redMultiplier, this._currentFrame.color.greenMultiplier, this._currentFrame.color.blueMultiplier, true);
+                        } else {
+                            this._bone._updateColor(0, 0, 0, 0, 1, 1, 1, 1, false);
+                        }
+                    }
+                }
+            };
+
+            TimelineState.prototype.clear = function () {
+                this._updateState = 0;
+                this._bone = null;
+                this._animationState = null;
+                this._timeline = null;
+                this._currentFrame = null;
+                this._originTransform = null;
+                this._originPivot = null;
+            };
+            TimelineState.HALF_PI = Math.PI * 0.5;
+            TimelineState.DOUBLE_PI = Math.PI * 2;
+
+            TimelineState._pool = [];
             return TimelineState;
         })();
         animation.TimelineState = TimelineState;
 
-        var WorldClock = (function () {
-            function WorldClock() {
+        var AnimationState = (function () {
+            function AnimationState() {
+                this._timelineStates = {};
             }
-            return WorldClock;
+            AnimationState._borrowObject = function () {
+                if (AnimationState._pool.length == 0) {
+                    return new AnimationState();
+                }
+                return AnimationState._pool.pop();
+            };
+
+            AnimationState._returnObject = function (animationState) {
+                if (AnimationState._pool.indexOf(animationState) < 0) {
+                    AnimationState._pool[AnimationState._pool.length] = animationState;
+                }
+
+                animationState.clear();
+            };
+
+            AnimationState._clear = function () {
+                var i = AnimationState._pool.length;
+                while (i--) {
+                    AnimationState._pool[i].clear();
+                }
+                AnimationState._pool.length = 0;
+            };
+
+            AnimationState.prototype.fadeIn = function (armature, clip, fadeInTime, timeScale, loop, layer, displayControl, pauseBeforeFadeInComplete) {
+                this.layer = layer;
+                this.clip = clip;
+                this.name = this.clip.name;
+                this.totalTime = this.clip.duration;
+
+                this._armature = armature;
+
+                if (Math.round(this.clip.duration * this.clip.frameRate) < 2) {
+                    this.timeScale = 1;
+                    this.currentTime = this.totalTime;
+                    if (this.loop >= 0) {
+                        this.loop = 1;
+                    } else {
+                        this.loop = -1;
+                    }
+                } else {
+                    this.timeScale = timeScale;
+                    this.currentTime = 0;
+                    this.loop = loop;
+                }
+                this._pauseBeforeFadeInComplete = pauseBeforeFadeInComplete;
+
+                this._fadeState = 1;
+                this._fadeOutBeginTime = 0;
+                this._fadeOutWeight = NaN;
+                this._fadeWeight = 0;
+                this._fadeIn = true;
+                this._fadeOut = false;
+
+                this.fadeInTime = fadeInTime * this.timeScale;
+
+                this.loopCount = -1;
+                this.displayControl = displayControl;
+                this.isPlaying = true;
+                this.isComplete = false;
+
+                this.weight = 1;
+                this.blend = true;
+                this.enabled = true;
+                this.tweenEnabled = true;
+
+                this.updateTimelineStates();
+            };
+
+            AnimationState.prototype.fadeOut = function (fadeOutTime, pause) {
+                if (typeof pause === "undefined") { pause = false; }
+                if (!isNaN(this._fadeOutWeight)) {
+                    return;
+                }
+                this._fadeState = -1;
+                this._fadeOutWeight = this._fadeWeight;
+                this._fadeOutTime = fadeOutTime * this.timeScale;
+                this._fadeOutBeginTime = this.currentTime;
+                this._fadeOut = true;
+
+                this.isPlaying = !pause;
+                this.displayControl = false;
+
+                for (var index in this._timelineStates) {
+                    (this._timelineStates[index]).fadeOut();
+                }
+
+                this.enabled = true;
+            };
+
+            AnimationState.prototype.play = function () {
+                this.isPlaying = true;
+            };
+
+            AnimationState.prototype.stop = function () {
+                this.isPlaying = false;
+            };
+
+            AnimationState.prototype.getMixingTransform = function (timelineName) {
+                if (this._mixingTransforms) {
+                    return Number(this._mixingTransforms[timelineName]);
+                }
+                return -1;
+            };
+
+            AnimationState.prototype.addMixingTransform = function (timelineName, type, recursive) {
+                if (typeof type === "undefined") { type = 2; }
+                if (typeof recursive === "undefined") { recursive = true; }
+                if (this.clip && this.clip.getTimeline(timelineName)) {
+                    if (!this._mixingTransforms) {
+                        this._mixingTransforms = {};
+                    }
+                    if (recursive) {
+                        var i = this._armature._boneList.length;
+                        var bone;
+                        var currentBone;
+                        while (i--) {
+                            bone = this._armature._boneList[i];
+                            if (bone.name == timelineName) {
+                                currentBone = bone;
+                            }
+                            if (currentBone && (currentBone == bone || currentBone.contains(bone))) {
+                                this._mixingTransforms[bone.name] = type;
+                            }
+                        }
+                    } else {
+                        this._mixingTransforms[timelineName] = type;
+                    }
+
+                    this.updateTimelineStates();
+                } else {
+                    throw new Error();
+                }
+            };
+
+            AnimationState.prototype.removeMixingTransform = function (timelineName, recursive) {
+                if (typeof timelineName === "undefined") { timelineName = null; }
+                if (typeof recursive === "undefined") { recursive = true; }
+                if (timelineName) {
+                    if (recursive) {
+                        var i = this._armature._boneList.length;
+                        var bone;
+                        var currentBone;
+                        while (i--) {
+                            bone = this._armature._boneList[i];
+                            if (bone.name == timelineName) {
+                                currentBone = bone;
+                            }
+                            if (currentBone && (currentBone == bone || currentBone.contains(bone))) {
+                                delete this._mixingTransforms[bone.name];
+                            }
+                        }
+                    } else {
+                        delete this._mixingTransforms[timelineName];
+                    }
+
+                    for (var index in this._mixingTransforms) {
+                        var hasMixing = true;
+                        break;
+                    }
+                    if (!hasMixing) {
+                        this._mixingTransforms = null;
+                    }
+                } else {
+                    this._mixingTransforms = null;
+                }
+
+                this.updateTimelineStates();
+            };
+
+            AnimationState.prototype.advanceTime = function (passedTime) {
+                if (!this.enabled) {
+                    return false;
+                }
+                var event;
+                var isComplete;
+
+                if (this._fadeIn) {
+                    this._fadeIn = false;
+                    if (this._armature.hasEventListener(events.AnimationEvent.FADE_IN)) {
+                        event = new events.AnimationEvent(events.AnimationEvent.FADE_IN);
+                        event.animationState = this;
+                        this._armature._eventList.push(event);
+                    }
+                    ;
+                }
+
+                if (this._fadeOut) {
+                    this._fadeOut = false;
+                    if (this._armature.hasEventListener(events.AnimationEvent.FADE_OUT)) {
+                        event = new events.AnimationEvent(events.AnimationEvent.FADE_OUT);
+                        event.animationState = this;
+                        this._armature._eventList.push(event);
+                    }
+                }
+
+                this.currentTime += passedTime * this.timeScale;
+
+                if (this.isPlaying && !this.isComplete) {
+                    if (this._pauseBeforeFadeInComplete) {
+                        this._pauseBeforeFadeInComplete = false;
+                        this.isPlaying = false;
+                        var progress = 0;
+                        var currentLoopCount = Math.floor(progress);
+                    } else {
+                        progress = this.currentTime / this.totalTime;
+
+                        currentLoopCount = progress;
+                        if (currentLoopCount != this.loopCount) {
+                            if (this.loopCount == -1) {
+                                if (this._armature.hasEventListener(events.AnimationEvent.START)) {
+                                    event = new events.AnimationEvent(events.AnimationEvent.START);
+                                    event.animationState = this;
+                                    this._armature._eventList.push(event);
+                                }
+                            }
+                            this.loopCount = currentLoopCount;
+                            if (this.loopCount) {
+                                if (this.loop && this.loopCount * this.loopCount >= this.loop * this.loop - 1) {
+                                    isComplete = true;
+                                    progress = 1;
+                                    currentLoopCount = 0;
+                                    if (this._armature.hasEventListener(events.AnimationEvent.COMPLETE)) {
+                                        event = new events.AnimationEvent(events.AnimationEvent.COMPLETE);
+                                        event.animationState = this;
+                                        this._armature._eventList.push(event);
+                                    }
+                                } else {
+                                    if (this._armature.hasEventListener(events.AnimationEvent.LOOP_COMPLETE)) {
+                                        event = new events.AnimationEvent(events.AnimationEvent.LOOP_COMPLETE);
+                                        event.animationState = this;
+                                        this._armature._eventList.push(event);
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    for (var index in this._timelineStates) {
+                        (this._timelineStates[index]).update(progress);
+                    }
+                    var frameList = this.clip.getFrameList();
+                    if (frameList.length > 0) {
+                        var playedTime = this.totalTime * (progress - currentLoopCount);
+                        var isArrivedFrame = false;
+                        var frameIndex;
+                        while (!this._currentFrame || playedTime > this._currentFrame.position + this._currentFrame.duration || playedTime < this._currentFrame.position) {
+                            if (isArrivedFrame) {
+                                this._armature._arriveAtFrame(this._currentFrame, null, this, true);
+                            }
+                            isArrivedFrame = true;
+                            if (this._currentFrame) {
+                                frameIndex = frameList.indexOf(this._currentFrame);
+                                frameIndex++;
+                                if (frameIndex >= frameList.length) {
+                                    frameIndex = 0;
+                                }
+                                this._currentFrame = frameList[frameIndex];
+                            } else {
+                                this._currentFrame = frameList[0];
+                            }
+                        }
+
+                        if (isArrivedFrame) {
+                            this._armature._arriveAtFrame(this._currentFrame, null, this, false);
+                        }
+                    }
+                }
+
+                if (this._fadeState > 0) {
+                    if (this.fadeInTime == 0) {
+                        this._fadeWeight = 1;
+                        this._fadeState = 0;
+                        this.isPlaying = true;
+                        if (this._armature.hasEventListener(events.AnimationEvent.FADE_IN_COMPLETE)) {
+                            event = new events.AnimationEvent(events.AnimationEvent.FADE_IN_COMPLETE);
+                            event.animationState = this;
+                            this._armature._eventList.push(event);
+                        }
+                    } else {
+                        this._fadeWeight = this.currentTime / this.fadeInTime;
+                        if (this._fadeWeight >= 1) {
+                            this._fadeWeight = 1;
+                            this._fadeState = 0;
+                            if (!this.isPlaying) {
+                                this.currentTime -= this.fadeInTime;
+                            }
+                            this.isPlaying = true;
+                            if (this._armature.hasEventListener(events.AnimationEvent.FADE_IN_COMPLETE)) {
+                                event = new events.AnimationEvent(events.AnimationEvent.FADE_IN_COMPLETE);
+                                event.animationState = this;
+                                this._armature._eventList.push(event);
+                            }
+                        }
+                    }
+                } else if (this._fadeState < 0) {
+                    if (this._fadeOutTime == 0) {
+                        this._fadeWeight = 0;
+                        this._fadeState = 0;
+                        if (this._armature.hasEventListener(events.AnimationEvent.FADE_OUT_COMPLETE)) {
+                            event = new events.AnimationEvent(events.AnimationEvent.FADE_OUT_COMPLETE);
+                            event.animationState = this;
+                            this._armature._eventList.push(event);
+                        }
+                        return true;
+                    } else {
+                        this._fadeWeight = (1 - (this.currentTime - this._fadeOutBeginTime) / this._fadeOutTime) * this._fadeOutWeight;
+                        if (this._fadeWeight <= 0) {
+                            this._fadeWeight = 0;
+                            this._fadeState = 0;
+                            if (this._armature.hasEventListener(events.AnimationEvent.FADE_OUT_COMPLETE)) {
+                                event = new events.AnimationEvent(events.AnimationEvent.FADE_OUT_COMPLETE);
+                                event.animationState = this;
+                                this._armature._eventList.push(event);
+                            }
+                            return true;
+                        }
+                    }
+                }
+
+                if (isComplete) {
+                    this.isComplete = true;
+                    if (this.loop < 0) {
+                        this.fadeOut((this._fadeOutWeight || this.fadeInTime) / this.timeScale, true);
+                    }
+                }
+
+                return false;
+            };
+
+            AnimationState.prototype.updateTimelineStates = function () {
+                if (this._mixingTransforms) {
+                    for (var timelineName in this._timelineStates) {
+                        if (this._mixingTransforms[timelineName] == null) {
+                            this.removeTimelineState(timelineName);
+                        }
+                    }
+
+                    for (timelineName in this._mixingTransforms) {
+                        if (!this._timelineStates[timelineName]) {
+                            this.addTimelineState(timelineName);
+                        }
+                    }
+                } else {
+                    for (timelineName in this.clip.getTimelines()) {
+                        if (!this._timelineStates[timelineName]) {
+                            this.addTimelineState(timelineName);
+                        }
+                    }
+                }
+            };
+
+            AnimationState.prototype.addTimelineState = function (timelineName) {
+                var bone = this._armature.getBone(timelineName);
+                if (bone) {
+                    var timelineState = TimelineState._borrowObject();
+                    var timeline = this.clip.getTimeline(timelineName);
+                    timelineState.fadeIn(bone, this, timeline);
+                    this._timelineStates[timelineName] = timelineState;
+                }
+            };
+
+            AnimationState.prototype.removeTimelineState = function (timelineName) {
+                TimelineState._returnObject(this._timelineStates[timelineName]);
+                delete this._timelineStates[timelineName];
+            };
+
+            AnimationState.prototype.clear = function () {
+                this._armature = null;
+                this.clip = null;
+                this.enabled = false;
+
+                this._currentFrame = null;
+                this._mixingTransforms = null;
+
+                for (var timelineName in this._timelineStates) {
+                    this.removeTimelineState(timelineName);
+                }
+            };
+            AnimationState._pool = [];
+            return AnimationState;
         })();
-        animation.WorldClock = WorldClock;
+        animation.AnimationState = AnimationState;
+
+        var Animation = (function () {
+            function Animation(armature) {
+                this._armature = armature;
+                this._animationLayer = [];
+
+                this.animationList = [];
+
+                this.tweenEnabled = true;
+                this.timeScale = 1;
+            }
+            Animation.prototype.getLastAnimationName = function () {
+                return this._lastAnimationState ? this._lastAnimationState.name : null;
+            };
+
+            Animation.prototype.getLastAnimationState = function () {
+                return this._lastAnimationState;
+            };
+
+            Animation.prototype.getAnimationDataList = function () {
+                return this._animationDataList;
+            };
+            Animation.prototype.setAnimationDataList = function (value) {
+                this._animationDataList = value;
+                this.animationList.length = 0;
+                for (var index in this._animationDataList) {
+                    this.animationList[this.animationList.length] = this._animationDataList[index].name;
+                }
+            };
+
+            Animation.prototype.dispose = function () {
+                if (!this._armature) {
+                    return;
+                }
+                this.stop();
+                var i = this._animationLayer.length;
+                while (i--) {
+                    var animationStateList = this._animationLayer[i];
+                    var j = animationStateList.length;
+                    while (j--) {
+                        AnimationState._returnObject(animationStateList[j]);
+                    }
+                    animationStateList.length = 0;
+                }
+                this._animationLayer.length = 0;
+                this.animationList.length = 0;
+
+                this._armature = null;
+                this._animationLayer = null;
+                this._animationDataList = null;
+                this.animationList = null;
+            };
+
+            Animation.prototype.gotoAndPlay = function (animationName, fadeInTime, duration, loop, layer, group, fadeOutMode, displayControl, pauseFadeOut, pauseFadeIn) {
+                if (typeof fadeInTime === "undefined") { fadeInTime = -1; }
+                if (typeof duration === "undefined") { duration = -1; }
+                if (typeof loop === "undefined") { loop = NaN; }
+                if (typeof layer === "undefined") { layer = 0; }
+                if (typeof group === "undefined") { group = null; }
+                if (typeof fadeOutMode === "undefined") { fadeOutMode = Animation.SAME_LAYER_AND_GROUP; }
+                if (typeof displayControl === "undefined") { displayControl = true; }
+                if (typeof pauseFadeOut === "undefined") { pauseFadeOut = true; }
+                if (typeof pauseFadeIn === "undefined") { pauseFadeIn = true; }
+                if (!this._animationDataList) {
+                    return null;
+                }
+                var i = this._animationDataList.length;
+                var animationData;
+                while (i--) {
+                    if (this._animationDataList[i].name == animationName) {
+                        animationData = this._animationDataList[i];
+                        break;
+                    }
+                }
+                if (!animationData) {
+                    return null;
+                }
+
+                this._isPlaying = true;
+
+                fadeInTime = fadeInTime < 0 ? (animationData.fadeInTime < 0 ? 0.3 : animationData.fadeInTime) : fadeInTime;
+
+                var durationScale;
+                if (duration < 0) {
+                    durationScale = animationData.scale < 0 ? 1 : animationData.scale;
+                } else {
+                    durationScale = duration / animationData.duration;
+                }
+
+                loop = isNaN(loop) ? animationData.loop : loop;
+                layer = this.addLayer(layer);
+
+                var animationState;
+                var animationStateList;
+                switch (fadeOutMode) {
+                    case Animation.NONE:
+                        break;
+                    case Animation.SAME_LAYER:
+                        animationStateList = this._animationLayer[layer];
+                        i = animationStateList.length;
+                        while (i--) {
+                            animationState = animationStateList[i];
+                            animationState.fadeOut(fadeInTime, pauseFadeOut);
+                        }
+                        break;
+                    case Animation.SAME_GROUP:
+                        j = this._animationLayer.length;
+                        while (j--) {
+                            animationStateList = this._animationLayer[j];
+                            i = animationStateList.length;
+                            while (i--) {
+                                animationState = animationStateList[i];
+                                if (animationState.group == group) {
+                                    animationState.fadeOut(fadeInTime, pauseFadeOut);
+                                }
+                            }
+                        }
+                        break;
+                    case Animation.ALL:
+                        var j = this._animationLayer.length;
+                        while (j--) {
+                            animationStateList = this._animationLayer[j];
+                            i = animationStateList.length;
+                            while (i--) {
+                                animationState = animationStateList[i];
+                                animationState.fadeOut(fadeInTime, pauseFadeOut);
+                            }
+                        }
+                        break;
+                    case Animation.SAME_LAYER_AND_GROUP:
+                    default:
+                        animationStateList = this._animationLayer[layer];
+                        i = animationStateList.length;
+                        while (i--) {
+                            animationState = animationStateList[i];
+                            if (animationState.group == group) {
+                                animationState.fadeOut(fadeInTime, pauseFadeOut);
+                            }
+                        }
+                        break;
+                }
+
+                this._lastAnimationState = AnimationState._borrowObject();
+                this._lastAnimationState.group = group;
+                this._lastAnimationState.tweenEnabled = this.tweenEnabled;
+                this._lastAnimationState.fadeIn(this._armature, animationData, fadeInTime, 1 / durationScale, loop, layer, displayControl, pauseFadeIn);
+
+                this.addState(this._lastAnimationState);
+
+                var slotList = this._armature._slotList;
+                var slot;
+                var childArmature;
+                i = slotList.length;
+                while (i--) {
+                    slot = slotList[i];
+                    childArmature = slot.getChildArmature();
+                    if (childArmature) {
+                        childArmature.animation.gotoAndPlay(animationName, fadeInTime);
+                    }
+                }
+
+                this._lastAnimationState.advanceTime(0);
+
+                return this._lastAnimationState;
+            };
+
+            Animation.prototype.play = function () {
+                if (!this._animationDataList || this._animationDataList.length == 0) {
+                    return;
+                }
+                if (!this._lastAnimationState) {
+                    this.gotoAndPlay(this._animationDataList[0].name);
+                } else if (!this._isPlaying) {
+                    this._isPlaying = true;
+                } else {
+                    this.gotoAndPlay(this._lastAnimationState.name);
+                }
+            };
+
+            Animation.prototype.stop = function () {
+                this._isPlaying = false;
+            };
+
+            Animation.prototype.getState = function (name, layer) {
+                if (typeof layer === "undefined") { layer = 0; }
+                var l = this._animationLayer.length;
+                if (l == 0) {
+                    return null;
+                } else if (layer >= l) {
+                    layer = l - 1;
+                }
+
+                var animationStateList = this._animationLayer[layer];
+                if (!animationStateList) {
+                    return null;
+                }
+                var i = animationStateList.length;
+                while (i--) {
+                    if (animationStateList[i].name == name) {
+                        return animationStateList[i];
+                    }
+                }
+
+                return null;
+            };
+
+            Animation.prototype.hasAnimation = function (animationName) {
+                var i = this._animationDataList.length;
+                while (i--) {
+                    if (this._animationDataList[i].name == animationName) {
+                        return true;
+                    }
+                }
+
+                return false;
+            };
+
+            Animation.prototype.advanceTime = function (passedTime) {
+                if (!this._isPlaying) {
+                    return;
+                }
+                passedTime *= this.timeScale;
+
+                var l = this._armature._boneList.length;
+                var i;
+                var j;
+                var k = l;
+                var stateListLength;
+                var bone;
+                var boneName;
+                var weigthLeft;
+
+                var x;
+                var y;
+                var skewX;
+                var skewY;
+                var scaleX;
+                var scaleY;
+                var pivotX;
+                var pivotY;
+
+                var layerTotalWeight;
+                var animationStateList;
+                var animationState;
+                var timelineState;
+                var weight;
+                var transform;
+                var pivot;
+
+                l--;
+                while (k--) {
+                    bone = this._armature._boneList[k];
+                    boneName = bone.name;
+                    weigthLeft = 1;
+
+                    x = 0;
+                    y = 0;
+                    skewX = 0;
+                    skewY = 0;
+                    scaleX = 0;
+                    scaleY = 0;
+                    pivotX = 0;
+                    pivotY = 0;
+
+                    i = this._animationLayer.length;
+                    while (i--) {
+                        layerTotalWeight = 0;
+                        animationStateList = this._animationLayer[i];
+                        stateListLength = animationStateList.length;
+                        for (j = 0; j < stateListLength; j++) {
+                            animationState = animationStateList[j];
+                            if (k == l) {
+                                if (animationState.advanceTime(passedTime)) {
+                                    this.removeState(animationState);
+                                    j--;
+                                    stateListLength--;
+                                    continue;
+                                }
+                            }
+
+                            timelineState = animationState._timelineStates[boneName];
+                            if (timelineState && timelineState.tweenActive) {
+                                weight = animationState._fadeWeight * animationState.weight * weigthLeft;
+                                transform = timelineState.transform;
+                                pivot = timelineState.pivot;
+                                x += transform.x * weight;
+                                y += transform.y * weight;
+                                skewX += transform.skewX * weight;
+                                skewY += transform.skewY * weight;
+                                scaleX += transform.scaleX * weight;
+                                scaleY += transform.scaleY * weight;
+                                pivotX += pivot.x * weight;
+                                pivotY += pivot.y * weight;
+
+                                layerTotalWeight += weight;
+                            }
+                        }
+
+                        if (layerTotalWeight >= weigthLeft) {
+                            break;
+                        } else {
+                            weigthLeft -= layerTotalWeight;
+                        }
+                    }
+                    transform = bone.tween;
+                    pivot = bone._tweenPivot;
+
+                    transform.x = x;
+                    transform.y = y;
+                    transform.skewX = skewX;
+                    transform.skewY = skewY;
+                    transform.scaleX = scaleX;
+                    transform.scaleY = scaleY;
+                    pivot.x = pivotX;
+                    pivot.y = pivotY;
+                }
+            };
+
+            Animation.prototype.addLayer = function (layer) {
+                if (layer >= this._animationLayer.length) {
+                    layer = this._animationLayer.length;
+                    this._animationLayer[layer] = [];
+                }
+                return layer;
+            };
+
+            Animation.prototype.addState = function (animationState) {
+                var animationStateList = this._animationLayer[animationState.layer];
+                animationStateList.push(animationState);
+            };
+
+            Animation.prototype.removeState = function (animationState) {
+                var layer = animationState.layer;
+                var animationStateList = this._animationLayer[layer];
+                animationStateList.splice(animationStateList.indexOf(animationState), 1);
+
+                AnimationState._returnObject(animationState);
+
+                if (animationStateList.length == 0 && layer == this._animationLayer.length - 1) {
+                    this._animationLayer.length--;
+                }
+            };
+            Animation.NONE = "none";
+            Animation.SAME_LAYER = "sameLayer";
+            Animation.SAME_GROUP = "sameGroup";
+            Animation.SAME_LAYER_AND_GROUP = "sameLayerAndGroup";
+            Animation.ALL = "all";
+            return Animation;
+        })();
+        animation.Animation = Animation;
     })(dragonBones.animation || (dragonBones.animation = {}));
     var animation = dragonBones.animation;
 
@@ -274,6 +1387,10 @@ var dragonBones;
                 this.skewY = transform.skewY;
                 this.scaleX = transform.scaleX;
                 this.scaleY = transform.scaleY;
+            };
+
+            DBTransform.prototype.toString = function () {
+                return "[DBTransform (x=" + this.x + " y=" + this.y + " skewX=" + this.skewX + " skewY=" + this.skewY + " scaleX=" + this.scaleX + " scaleY=" + this.scaleY + ")]";
             };
             return DBTransform;
         })();
@@ -974,10 +2091,10 @@ var dragonBones;
                     frame.tweenEasing = 0;
                 }
 
-                frame.tweenRotate = Number(frameObject[utils.ConstValues.A_TWEEN_ROTATE]);
-                frame.displayIndex = Number(frameObject[utils.ConstValues.A_DISPLAY_INDEX]);
+                frame.tweenRotate = Number(frameObject[utils.ConstValues.A_TWEEN_ROTATE]) || 0;
+                frame.displayIndex = Number(frameObject[utils.ConstValues.A_DISPLAY_INDEX]) || 0;
 
-                frame.zOrder = Number(frameObject[utils.ConstValues.A_Z_ORDER]);
+                frame.zOrder = Number(frameObject[utils.ConstValues.A_Z_ORDER]) || 0;
 
                 DataParser.parseTransform(frameObject[utils.ConstValues.TRANSFORM], frame.global, frame.pivot);
                 frame.transform.copy(frame.global);
@@ -1143,6 +2260,12 @@ var dragonBones;
                             }
                         }
                     }
+                }
+
+                if (animationArmatureData) {
+                    armature.animation.setAnimationDataList(animationArmatureData.getAnimationDataList());
+                } else {
+                    armature.animation.setAnimationDataList(armatureData.getAnimationDataList());
                 }
 
                 var skinData = armatureData.getSkinData(skinName);
@@ -1522,6 +2645,7 @@ var dragonBones;
                         } else {
                             progress = (position - currentFrame.position) / currentFrame.duration;
                             if (tweenEasing) {
+                                progress = animation.TimelineState.getEaseValue(progress, tweenEasing);
                             }
 
                             nextFrame = frameList[i + 1];
@@ -1634,7 +2758,6 @@ var dragonBones;
                 this.global.skewX = this.origin.skewX + this.offset.skewX + this.tween.skewX;
                 this.global.skewY = this.origin.skewY + this.offset.skewY + this.tween.skewY;
             }
-
             this._globalTransformMatrix.a = this.global.scaleX * Math.cos(this.global.skewY);
             this._globalTransformMatrix.b = this.global.scaleX * Math.sin(this.global.skewY);
             this._globalTransformMatrix.c = -this.global.scaleY * Math.sin(this.global.skewX);
@@ -1835,6 +2958,19 @@ var dragonBones;
 
         Slot.prototype.updateChildArmatureAnimation = function () {
             var childArmature = this.getChildArmature();
+
+            if (childArmature) {
+                if (this._isHideDisplay) {
+                    childArmature.animation.stop();
+                    childArmature.animation._lastAnimationState = null;
+                } else {
+                    if (this.armature && this.armature.animation.getLastAnimationName() && childArmature.animation.hasAnimation(this.armature.animation.getLastAnimationName())) {
+                        childArmature.animation.gotoAndPlay(this.armature.animation.getLastAnimationName());
+                    } else {
+                        childArmature.animation.play();
+                    }
+                }
+            }
         };
         return Slot;
     })(DBObject);
@@ -1956,6 +3092,56 @@ var dragonBones;
         };
 
         Bone.prototype._arriveAtFrame = function (frame, timelineState, animationState, isCross) {
+            if (frame) {
+                var mixingType = animationState.getMixingTransform(name);
+                if (animationState.displayControl && (mixingType == 2 || mixingType == -1)) {
+                    if (!this.displayController || this.displayController == animationState.name) {
+                        var tansformFrame = frame;
+                        if (this.slot) {
+                            var displayIndex = tansformFrame.displayIndex;
+                            if (displayIndex >= 0) {
+                                if (!isNaN(tansformFrame.zOrder) && tansformFrame.zOrder != this.slot._tweenZorder) {
+                                    this.slot._tweenZorder = tansformFrame.zOrder;
+                                    this.armature._slotsZOrderChanged = true;
+                                }
+                            }
+                            this.slot._changeDisplay(displayIndex);
+                            this.slot._updateVisible(tansformFrame.visible);
+                        }
+                    }
+                }
+
+                if (frame.event && this.armature.hasEventListener(events.FrameEvent.BONE_FRAME_EVENT)) {
+                    var frameEvent = new events.FrameEvent(events.FrameEvent.BONE_FRAME_EVENT);
+                    frameEvent.bone = this;
+                    frameEvent.animationState = animationState;
+                    frameEvent.frameLabel = frame.event;
+                    this.armature._eventList.push(frameEvent);
+                }
+
+                if (frame.sound && Bone._soundManager.hasEventListener(events.SoundEvent.SOUND)) {
+                    var soundEvent = new events.SoundEvent(events.SoundEvent.SOUND);
+                    soundEvent.armature = this.armature;
+                    soundEvent.animationState = animationState;
+                    soundEvent.sound = frame.sound;
+                    Bone._soundManager.dispatchEvent(soundEvent);
+                }
+
+                if (frame.action) {
+                    for (var index in this._children) {
+                        if (this._children[index] instanceof Slot) {
+                            var childArmature = (this._children[index]).getChildArmature();
+                            if (childArmature) {
+                                childArmature.animation.gotoAndPlay(frame.action);
+                            }
+                        }
+                    }
+                }
+            } else {
+                if (this.slot) {
+                    this.slot._changeDisplay(-1);
+                }
+            }
         };
 
         Bone.prototype._updateColor = function (aOffset, rOffset, gOffset, bOffset, aMultiplier, rMultiplier, gMultiplier, bMultiplier, isColorChanged) {
@@ -1987,6 +3173,7 @@ var dragonBones;
                 return;
             }
 
+            this.animation.dispose();
             var i = this._slotList.length;
 
             while (i--) {
@@ -2011,6 +3198,8 @@ var dragonBones;
         };
 
         Armature.prototype.advanceTime = function (passedTime) {
+            this.animation.advanceTime(passedTime);
+
             var i = this._boneList.length;
             while (i--) {
                 this._boneList[i]._update();
@@ -2233,7 +3422,7 @@ var dragonBones;
             }
         };
 
-        Armature.prototype.arriveAtFrame = function (frame, timelineState, animationState, isCross) {
+        Armature.prototype._arriveAtFrame = function (frame, timelineState, animationState, isCross) {
             if (frame.event && this.hasEventListener(events.FrameEvent.ANIMATION_FRAME_EVENT)) {
                 var frameEvent = new events.FrameEvent(events.FrameEvent.ANIMATION_FRAME_EVENT);
                 frameEvent.animationState = animationState;
@@ -2250,6 +3439,9 @@ var dragonBones;
             }
 
             if (frame.action) {
+                if (animationState.isPlaying) {
+                    this.animation.gotoAndPlay(frame.action);
+                }
             }
         };
 
