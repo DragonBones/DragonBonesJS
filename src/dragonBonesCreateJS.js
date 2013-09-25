@@ -42,8 +42,8 @@ var dragonBones;
             };
 
             CreateJSDisplayBridge.prototype.updateTransform = function (matrix, transform) {
-                this._display.x = transform.x;
-                this._display.y = transform.y;
+                this._display.x = matrix.tx;
+                this._display.y = matrix.ty;
                 this._display.skewX = transform.skewX * CreateJSDisplayBridge.RADIAN_TO_ANGLE;
                 this._display.skewY = transform.skewY * CreateJSDisplayBridge.RADIAN_TO_ANGLE;
                 this._display.scaleX = transform.scaleX;
@@ -51,6 +51,9 @@ var dragonBones;
             };
 
             CreateJSDisplayBridge.prototype.updateColor = function (aOffset, rOffset, gOffset, bOffset, aMultiplier, rMultiplier, gMultiplier, bMultiplier) {
+                if (this._display) {
+                    this._display.alpha = aMultiplier;
+                }
             };
 
             CreateJSDisplayBridge.prototype.addDisplay = function (container, index) {
@@ -78,10 +81,12 @@ var dragonBones;
 
     (function (textures) {
         var CreateJSTextureAtlas = (function () {
-            function CreateJSTextureAtlas(image, textureAtlasRawData) {
+            function CreateJSTextureAtlas(image, textureAtlasRawData, scale) {
+                if (typeof scale === "undefined") { scale = 1; }
                 this._regions = {};
 
                 this.image = image;
+                this.scale = scale;
 
                 this.parseData(textureAtlasRawData);
             }
@@ -95,7 +100,7 @@ var dragonBones;
             };
 
             CreateJSTextureAtlas.prototype.parseData = function (textureAtlasRawData) {
-                var textureAtlasData = dragonBones.objects.DataParser.parseTextureAtlasData(textureAtlasRawData, 1);
+                var textureAtlasData = dragonBones.objects.DataParser.parseTextureAtlasData(textureAtlasRawData, this.scale);
                 this.name = textureAtlasData.__name;
                 delete textureAtlasData.__name;
 
@@ -133,7 +138,7 @@ var dragonBones;
                     CreateJSFactory._helpMatrix.b = 0;
                     CreateJSFactory._helpMatrix.c = 0;
                     CreateJSFactory._helpMatrix.d = 1;
-
+                    CreateJSFactory._helpMatrix.scale(1 / textureAtlas.scale, 1 / textureAtlas.scale);
                     CreateJSFactory._helpMatrix.tx = -pivotX - rect.x;
                     CreateJSFactory._helpMatrix.ty = -pivotY - rect.y;
                     shape.graphics.beginBitmapFill(textureAtlas.image, null, CreateJSFactory._helpMatrix);

@@ -7,10 +7,15 @@ module dragonBones
             public x: number;
             public y: number;
 
-            constructor(x:number, y:number) 
+            constructor(x:number = 0, y:number = 0) 
             {
                 this.x = x;
                 this.y = y;
+            }
+
+            public toString(): string
+            {
+                return "[Point (x=" + this.x + " y=" + this.y + ")]";
             }
         }
 
@@ -21,7 +26,7 @@ module dragonBones
             public width: number;
             public height: number;
 
-            constructor(x:number, y:number, width:number, height:number) 
+            constructor(x:number = 0, y:number = 0, width:number = 0, height:number = 0) 
             {
                 this.x = x;
                 this.y = y;
@@ -210,12 +215,14 @@ module dragonBones
                     return;
                 }
                 var listeners: Array<Function> = this._listenersMap[type];
-                if (listeners) {
-                    for (var i: number = 0, l = listeners.length; i < length; i++) 
+                if (listeners) 
+                {
+                    var length: number = listeners.length;
+                    for (var i: number = 0;i < length; i++) 
                     {
                         if (listeners[i] == listener) 
                         {
-                            if (l == 1) 
+                            if (length == 1) 
                             {
                                 listeners.length = 0;
                                 delete this._listenersMap[type];
@@ -250,7 +257,8 @@ module dragonBones
                     {
                         event.target = this;
                         var listenersCopy: Array<Function> = listeners.concat();
-                        for (var i: number = 0, l = listenersCopy.length; i < l; i++) 
+                        var length: number = listeners.length;
+                        for (var i: number = 0; i < length; i++) 
                         {
                             listenersCopy[i](event);
                         }
@@ -381,7 +389,6 @@ module dragonBones
         export class TimelineState
         {
             private static HALF_PI: number = Math.PI * 0.5;
-            private static DOUBLE_PI: number = Math.PI * 2;
 
 		    private static _pool:Array<TimelineState> = [];
 		
@@ -463,10 +470,10 @@ module dragonBones
             constructor()
             {
                 this.transform = new objects.DBTransform();
-			    this.pivot = new geom.Point(0, 0);
+			    this.pivot = new geom.Point();
 			
 			    this._durationTransform = new objects.DBTransform();
-			    this._durationPivot = new geom.Point(0, 0);
+			    this._durationPivot = new geom.Point();
 			    this._durationColor = new geom.ColorTransform();
             }
 		
@@ -500,13 +507,15 @@ module dragonBones
 			    this._durationTransform.skewX = 0;
 			    this._durationTransform.skewY = 0;
 			    this._durationPivot.x = 0;
-			    this._durationPivot.y = 0;
+                this._durationPivot.y = 0;
+
+                this._currentFrame = null;
 			
 			    switch(this._timeline.getFrameList().length)
 			    {
 				    case 0:
 					    this._bone._arriveAtFrame(null, this, this._animationState, false);
-					    this._updateState = 0;
+                        this._updateState = 0;
 					    break;
 				    case 1:
 					    this._updateState = -1;
@@ -554,7 +563,7 @@ module dragonBones
 					    {
 						    if(isArrivedFrame)
 						    {
-							    //this._bone._arriveAtFrame(this._currentFrame, this, this._animationState, true);
+							    this._bone._arriveAtFrame(this._currentFrame, this, this._animationState, true);
 						    }
 						    isArrivedFrame = true;
 						    if(this._currentFrame)
@@ -760,7 +769,7 @@ module dragonBones
 								    this._bone._updateColor(0, 0, 0, 0, 1, 1, 1, 1, false);
 							    }
 						    }
-						    //this._bone._arriveAtFrame(this._currentFrame, this, this._animationState, false);
+						    this._bone._arriveAtFrame(this._currentFrame, this, this._animationState, false);
 					    }
 					
 					    if(this._tweenTransform || this._tweenColor)
@@ -835,7 +844,7 @@ module dragonBones
 					    }
 				    }
 				    else
-				    {
+                    {
 					    this._updateState = 0;
 					    if(this._animationState.blend)
 					    {
@@ -880,7 +889,7 @@ module dragonBones
 						    this._bone._updateColor(0, 0, 0, 0, 1, 1, 1, 1, false);
 					    }
 					
-					    //this._bone._arriveAtFrame(this._currentFrame, this, this._animationState, false);
+					    this._bone._arriveAtFrame(this._currentFrame, this, this._animationState, false);
                     }
                 }
 		    }
@@ -939,20 +948,19 @@ module dragonBones
             public group: string;
             public weight: number;
 
-		    public name:string;
-		    public clip:objects.AnimationData;
-		    public loopCount: number;
+            public name: string;
+            public clip: objects.AnimationData;
+            public loopCount: number;
 
             public loop: number;
             public layer: number;
 
             public isPlaying: boolean;
             public isComplete: boolean;
-            public fadeInTime: number;
             public totalTime: number;
-		    public currentTime: number;
-		    public timeScale: number;
-		    public displayControl:boolean;
+            public currentTime: number;
+            public timeScale: number;
+            public displayControl: boolean;
 
             /** @private */
             public _timelineStates: any;
@@ -963,6 +971,7 @@ module dragonBones
             private _currentFrame: objects.Frame;
             private _mixingTransforms: any;
             private _fadeState: number;
+            private _fadeInTime: number;
             private _fadeOutTime: number;
             private _fadeOutBeginTime: number;
             private _fadeOutWeight: number;
@@ -972,6 +981,8 @@ module dragonBones
 
             constructor()
             {
+                this.loop = 0;
+                this.layer = 0;
 			    this._timelineStates = {};
             }
 
@@ -982,13 +993,12 @@ module dragonBones
 			    this.name = this.clip.name;
 			    this.totalTime = this.clip.duration;
 
-			    this._armature = armature;
-			
-                //||this.timeScale == Infinity
-			    if(Math.round(this.clip.duration * this.clip.frameRate) < 2)
+                this._armature = armature;
+
+			    if(Math.round(this.clip.duration * this.clip.frameRate) < 2 || timeScale == Infinity)
 			    {
 				    this.timeScale = 1;
-				    this.currentTime = this.totalTime;
+                    this.currentTime = this.totalTime;
 				    if(this.loop >= 0)
 				    {
 					    this.loop = 1;
@@ -1003,22 +1013,23 @@ module dragonBones
 				    this.timeScale = timeScale;
 				    this.currentTime = 0;
 				    this.loop = loop;
-			    }
+                }
+
+
 			    this._pauseBeforeFadeInComplete = pauseBeforeFadeInComplete;
 			
+			    this._fadeInTime = fadeInTime * this.timeScale;
 			    this._fadeState = 1;
 			    this._fadeOutBeginTime = 0;
-			    this._fadeOutWeight = NaN;
+			    this._fadeOutWeight = -1;
 			    this._fadeWeight = 0;
 			    this._fadeIn = true;
                 this._fadeOut = false;
 
-			    this.fadeInTime = fadeInTime * this.timeScale;
-
 			    this.loopCount = -1;
 			    this.displayControl = displayControl;
 			    this.isPlaying = true;
-			    this.isComplete = false;
+                this.isComplete = false;
 			
 			    this.weight = 1;
 			    this.blend = true;
@@ -1030,10 +1041,10 @@ module dragonBones
 		
 		    public fadeOut(fadeOutTime:number, pause:boolean = false):void
 		    {
-			    if(!isNaN(this._fadeOutWeight))
+			    if(!this._armature || this._fadeOutWeight >= 0)
 			    {
 				    return;
-			    }
+                }
 			    this._fadeState = -1;
 			    this._fadeOutWeight = this._fadeWeight;
 			    this._fadeOutTime = fadeOutTime * this.timeScale;
@@ -1167,11 +1178,11 @@ module dragonBones
 			    {	
 				    this._fadeIn = false;
 				    if(this._armature.hasEventListener(events.AnimationEvent.FADE_IN))
-				    {
+                    {
 					    event = new events.AnimationEvent(events.AnimationEvent.FADE_IN);
 					    event.animationState = this;
 					    this._armature._eventList.push(event);
-				    };
+				    }
 			    }
 			
 			    if(this._fadeOut)
@@ -1186,21 +1197,23 @@ module dragonBones
 			    }
 			
                 this.currentTime += passedTime * this.timeScale;
-
+                
 			    if(this.isPlaying && !this.isComplete)
 			    {
+                    var progress: number;
+                    var currentLoopCount: number;
 				    if(this._pauseBeforeFadeInComplete)
 				    {
 					    this._pauseBeforeFadeInComplete = false;
 					    this.isPlaying = false;
-					    var progress:number = 0;
-                        var currentLoopCount: number = Math.floor(progress);
+                        progress = 0;
+                        currentLoopCount = Math.floor(progress);
 				    }
 				    else
 				    {
                         progress = this.currentTime / this.totalTime;
 					    //update loopCount
-					    currentLoopCount = progress;
+					    currentLoopCount = Math.floor(progress);
 					    if(currentLoopCount != this.loopCount)
 					    {
 						    if(this.loopCount == -1)
@@ -1214,7 +1227,7 @@ module dragonBones
 						    }
 						    this.loopCount = currentLoopCount;
 						    if(this.loopCount)
-						    {
+                            {
 							    if(this.loop && this.loopCount * this.loopCount >= this.loop * this.loop - 1)
 							    {
 								    isComplete = true;
@@ -1283,9 +1296,9 @@ module dragonBones
 			    //update weight and fadeState
 			    if(this._fadeState > 0)
 			    {
-				    if(this.fadeInTime == 0)
+				    if(this._fadeInTime == 0)
 				    {
-					    this._fadeWeight = 1;
+                        this._fadeWeight = 1;
 					    this._fadeState = 0;
 					    this.isPlaying = true;
 					    if(this._armature.hasEventListener(events.AnimationEvent.FADE_IN_COMPLETE))
@@ -1297,14 +1310,14 @@ module dragonBones
 				    }
 				    else
 				    {
-					    this._fadeWeight = this.currentTime / this.fadeInTime;
+					    this._fadeWeight = this.currentTime / this._fadeInTime;
 					    if(this._fadeWeight >= 1)
 					    {
 						    this._fadeWeight = 1;
 						    this._fadeState = 0;
 						    if(!this.isPlaying)
 						    {
-							    this.currentTime -= this.fadeInTime;
+							    this.currentTime -= this._fadeInTime;
 						    }
 						    this.isPlaying = true;
 						    if(this._armature.hasEventListener(events.AnimationEvent.FADE_IN_COMPLETE))
@@ -1350,12 +1363,12 @@ module dragonBones
 			
 			    if(isComplete)
 			    {
-				    this.isComplete = true;
+                    this.isComplete = true;
 				    if(this.loop < 0)
 				    {
-					    this.fadeOut((this._fadeOutWeight || this.fadeInTime) / this.timeScale, true);
+					    this.fadeOut((this._fadeOutWeight || this._fadeInTime) / this.timeScale, true);
 				    }
-			    }
+                }
 			
 			    return false;
 		    }
@@ -1412,10 +1425,10 @@ module dragonBones
 		
 		    private clear():void
 		    {
-			    this._armature = null;
 			    this.clip = null;
                 this.enabled = false;
-
+                
+			    this._armature = null;
 			    this._currentFrame = null;
 			    this._mixingTransforms = null;
 			
@@ -1437,7 +1450,7 @@ module dragonBones
             public tweenEnabled: boolean;
             public timeScale: number;
 
-		    public animationList: Array<string>;
+		    public animationNameList: Array<string>;
 		
 		    /** @private */
 		    public _animationLayer:Array<Array<AnimationState>>;
@@ -1465,32 +1478,32 @@ module dragonBones
 		    public setAnimationDataList(value:Array<objects.AnimationData>):void
 		    {
 			    this._animationDataList = value;
-			    this.animationList.length = 0;
+			    this.animationNameList.length = 0;
 			    for(var index in this._animationDataList)
 			    {
-				    this.animationList[this.animationList.length] = this._animationDataList[index].name;
+				    this.animationNameList[this.animationNameList.length] = this._animationDataList[index].name;
 			    }
             }
 
-		    /*
-		    public function get isPlaying():Boolean
+		    
+		    public getIsPlaying():boolean
 		    {
-			    return _isPlaying && !isComplete;
+			    return this._isPlaying && !this.getIsComplete();
 		    }
-		
-		    public function get isComplete():Boolean
+
+		    public getIsComplete():boolean
 		    {
-			    if(_lastAnimationState)
+			    if(this._lastAnimationState)
 			    {
-				    if(!_lastAnimationState.isComplete)
+				    if(!this._lastAnimationState.isComplete)
 				    {
 					    return false;
 				    }
-				    var j:int = _animationLayer.length;
+				    var j:number = this._animationLayer.length;
 				    while(j --)
 				    {
-					    var animationStateList:Vector.<AnimationState> = _animationLayer[j];
-					    var i:int = animationStateList.length;
+					    var animationStateList:Array<AnimationState> = this._animationLayer[j];
+					    var i:number = animationStateList.length;
 					    while(i --)
 					    {
 						    if(!animationStateList[i].isComplete)
@@ -1503,15 +1516,14 @@ module dragonBones
 			    }
 			    return false;
 		    }
-            */
 
             constructor(armature:Armature)
             {
 			    this._armature = armature;
                 this._animationLayer = [];
+                this._isPlaying = false;
 
-			    this.animationList = [];
-			
+			    this.animationNameList = [];
 			    this.tweenEnabled = true;
                 this.timeScale = 1;
             }
@@ -1535,12 +1547,12 @@ module dragonBones
 				    animationStateList.length = 0;
 			    }
 			    this._animationLayer.length = 0;
-			    this.animationList.length = 0;
+			    this.animationNameList.length = 0;
 			
 			    this._armature = null;
 			    this._animationLayer = null;
 			    this._animationDataList = null;
-			    this.animationList = null;
+			    this.animationNameList = null;
             }
             
 		    public gotoAndPlay(
@@ -1673,8 +1685,6 @@ module dragonBones
 					    childArmature.animation.gotoAndPlay(animationName, fadeInTime);
 				    }
 			    }
-			
-			    this._lastAnimationState.advanceTime(0);
 			
 			    return this._lastAnimationState;
             }
@@ -1969,8 +1979,8 @@ module dragonBones
 		    public tweenEasing:number;
 		    public tweenRotate:number;
 		    public displayIndex:number;
-		    public visible:boolean;
 		    public zOrder:number;
+		    public visible:boolean;
 		
 		    public global:DBTransform;
 		    public transform:DBTransform;
@@ -1984,12 +1994,12 @@ module dragonBones
 			    this.tweenEasing = 0;
 			    this.tweenRotate = 0;
 			    this.displayIndex = 0;
-			    this.visible = true;
 			    this.zOrder = NaN;
+			    this.visible = true;
 			
 			    this.global = new DBTransform();
 			    this.transform = new DBTransform();
-			    this.pivot = new geom.Point(0, 0);
+			    this.pivot = new geom.Point();
             }
 		
 		    public dispose():void
@@ -2065,8 +2075,9 @@ module dragonBones
             {
                 super();
 			    this.originTransform = new DBTransform();
-			    this.originPivot = new geom.Point(0, 0);
-			    this.offset = 0;
+			    this.originPivot = new geom.Point();
+                this.offset = 0;
+                this.transformed = false;
             }
 		
 		    public dispose():void
@@ -2098,6 +2109,7 @@ module dragonBones
             constructor() 
             {
                 super();
+                this.frameRate = 0;
 			    this.loop = 0;
 			    this.tweenEasing = NaN;
 			    this.fadeInTime = 0;
@@ -2762,7 +2774,7 @@ module dragonBones
 			    var animationData:AnimationData = new AnimationData();
 			    animationData.name = animationObject[utils.ConstValues.A_NAME];
 			    animationData.frameRate = frameRate;
-			    animationData.loop = Number(animationObject[utils.ConstValues.A_LOOP]);
+			    animationData.loop = Number(animationObject[utils.ConstValues.A_LOOP]) || 0;
                 animationData.fadeInTime = Number(animationObject[utils.ConstValues.A_FADE_IN_TIME]);
 			    animationData.duration = Number(animationObject[utils.ConstValues.A_DURATION]) / frameRate;
 			    animationData.scale = Number(animationObject[utils.ConstValues.A_SCALE]);
@@ -3330,7 +3342,7 @@ module dragonBones
 			    TransformUtil.transformToMatrix(parent, helpMatrix);
                 helpMatrix.invert();
 
-			    var x:number = transform.x;
+                var x: number = transform.x;
                 var y: number = transform.y;
 
 			    transform.x = helpMatrix.a * x + helpMatrix.c * y + helpMatrix.tx;
@@ -3417,8 +3429,8 @@ module dragonBones
 			    var originTransform:objects.DBTransform;
 			    var originPivot:geom.Point;
 			    var prevFrame:objects.TransformFrame;
-			    var frameListLength:number;
 			    var frame:objects.TransformFrame;
+			    var frameListLength:number;
 			
 			    while(i --)
 			    {
@@ -3683,6 +3695,11 @@ module dragonBones
             this._globalTransformMatrix = new geom.Matrix();
 
             this._visible = true;
+            this._isColorChanged = false;
+            this._isDisplayOnStage = false;
+            this._scaleType = 0;
+
+            this.fixedRotation = false;
         }
 
         public dispose(): void 
@@ -3750,11 +3767,11 @@ module dragonBones
         /** @private */
         public _displayBridge: display.IDisplayBridge;
 		/** @private */
+        public _isDisplayOnStage: boolean;
+		/** @private */
 		public _originZOrder: number;
 		/** @private */
         public _tweenZorder: number;
-		/** @private */
-        public _isDisplayOnStage: boolean;
 
         private _isHideDisplay: boolean;
         private _offsetZOrder: number;
@@ -3782,7 +3799,7 @@ module dragonBones
             var display: any = this._displayList[this._displayIndex];
             if (display instanceof Armature)
 			{
-                return (<Armature> display).display;
+                return (<Armature> display).getDisplay();
             }
             return display;
 		}
@@ -3806,7 +3823,7 @@ module dragonBones
 			this._displayList[this._displayIndex] = value;
             if (value)
             {
-                this._setDisplay(value.display);
+                this._setDisplay(value.getDisplay());
             }
         }
 
@@ -3846,7 +3863,7 @@ module dragonBones
                 this._displayBridge.setDisplay(display);
                 if (this.armature) 
                 {
-                    this._displayBridge.addDisplay(this.armature.display, -1);
+                    this._displayBridge.addDisplay(this.armature.getDisplay(), -1);
                     this.armature._slotsZOrderChanged = true;
                 }
             }
@@ -3883,7 +3900,7 @@ module dragonBones
                     var changeShowState: boolean = true;
                     if (this.armature) 
                     {
-                        this._displayBridge.addDisplay(this.armature.display, -1);
+                        this._displayBridge.addDisplay(this.armature.getDisplay(), -1);
                         this.armature._slotsZOrderChanged = true;
                     }
                 }
@@ -3900,7 +3917,7 @@ module dragonBones
                     var display: any = this._displayList[this._displayIndex];
 					if(display instanceof Armature)
 					{
-                        this._setDisplay((<Armature> display).display);
+                        this._setDisplay((<Armature> display).getDisplay());
 					}
 					else
                     {
@@ -3944,7 +3961,7 @@ module dragonBones
             if (this.armature) 
             {
                 this.armature._slotsZOrderChanged = true;
-                this._displayBridge.addDisplay(this.armature.display, -1);
+                this._displayBridge.addDisplay(this.armature.getDisplay(), -1);
             }
             else
             {
@@ -4021,14 +4038,11 @@ module dragonBones
 					childArmature.animation._lastAnimationState = null;
 				}
 				else
-				{
-					if(
-						this.armature &&
-						this.armature.animation.getLastAnimationName() &&
-						childArmature.animation.hasAnimation(this.armature.animation.getLastAnimationName())
-					)
+                {
+                    var lastAnimationName: string = this.armature?this.armature.animation.getLastAnimationName():null;
+					if(lastAnimationName && childArmature.animation.hasAnimation(lastAnimationName))
 					{
-						childArmature.animation.gotoAndPlay(this.armature.animation.getLastAnimationName());
+						childArmature.animation.gotoAndPlay(lastAnimationName);
 					}
 					else
 					{
@@ -4087,7 +4101,7 @@ module dragonBones
 			this._children = [];
 			this._scaleType = 2;
 			
-			this._tweenPivot = new geom.Point(0, 0);
+			this._tweenPivot = new geom.Point();
 			
 			this.scaleMode = 1;
         }
@@ -4171,7 +4185,7 @@ module dragonBones
 				child._setParent(null);
 				child._setArmature(null);
 				
-				if(this.slot && child == this.slot)
+				if(child == this.slot)
 				{
 					this.slot = null;
 				}
@@ -4308,7 +4322,6 @@ module dragonBones
 
         public name: string;
 
-        public display: any;
         public animation: animation.Animation;
 
         /** @private */
@@ -4320,13 +4333,19 @@ module dragonBones
 		/** @private */
         public _eventList: Array<events.Event>;
 
+        private _display: any;
+        public getDisplay(): any
+        {
+            return this._display;
+        }
+
         constructor(display:any) 
         {
             super();
 
-			this.display = display;
             this.animation = new animation.Animation(this);
-
+            
+			this._display = display;
 			this._slotsZOrderChanged = false;
             this._slotList = [];
             this._boneList = [];
@@ -4340,9 +4359,9 @@ module dragonBones
 				return;
 			}
 			
-			this.animation.dispose();
-            var i: number = this._slotList.length;
+            this.animation.dispose();
 
+            var i: number = this._slotList.length;
 			while(i --)
 			{
 				this._slotList[i].dispose();
@@ -4358,18 +4377,19 @@ module dragonBones
 			this._boneList.length = 0;
 			this._eventList.length = 0;
 			
-			this.animation = null;
 			this._slotList = null;
 			this._boneList = null;
 			this._eventList = null;
+			this._display = null;
 			
-			this.display = null;
+			this.animation = null;
         }
 
         public advanceTime(passedTime: number): void
 		{
 			this.animation.advanceTime(passedTime);
-			
+            passedTime *= this.animation.timeScale;
+
 			var i:number = this._boneList.length;
 			while(i --)
             {
@@ -4402,8 +4422,8 @@ module dragonBones
 			
 			if(this._eventList.length)
 			{
-			    i = this._eventList.length;
-				while(i --)
+                var length = this._eventList.length;
+                for (i = 0;i < length;i ++)
 				{
                     this.dispatchEvent(this._eventList[i]);
 				}
@@ -4576,7 +4596,7 @@ module dragonBones
 				slot = this._slotList[i];
 				if(slot._isDisplayOnStage)
 				{
-					slot._displayBridge.addDisplay(this.display, -1);
+					slot._displayBridge.addDisplay(this._display, -1);
 				}
 			}
 			

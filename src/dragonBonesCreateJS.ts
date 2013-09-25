@@ -10,7 +10,6 @@ module dragonBones
             private static RADIAN_TO_ANGLE: number = 180 / Math.PI;
 
             private _display: createjs.DisplayObject;
-            private _colorFilter: createjs.ColorFilter;
 
             public getVisible(): boolean
             {
@@ -58,7 +57,8 @@ module dragonBones
 
             public updateTransform(matrix: geom.Matrix, transform: objects.DBTransform): void
             {
-                /*var pivotX:number = this._display.regX;
+                /*
+                var pivotX:number = this._display.regX;
                 var pivotY:number = this._display.regY;
                 matrix.tx -= matrix.a * pivotX + matrix.c * pivotY;
                 matrix.ty -= matrix.b * pivotX + matrix.d * pivotY;
@@ -68,10 +68,11 @@ module dragonBones
                 this._display._matrix.c = matrix.c;
                 this._display._matrix.d = matrix.d;
                 this._display._matrix.tx = matrix.tx;
-                this._display._matrix.ty = matrix.ty;*/
+                this._display._matrix.ty = matrix.ty;
+                */
 
-                this._display.x = transform.x;
-                this._display.y = transform.y;
+                this._display.x = matrix.tx;
+                this._display.y = matrix.ty;
                 this._display.skewX = transform.skewX * CreateJSDisplayBridge.RADIAN_TO_ANGLE;
                 this._display.skewY = transform.skewY * CreateJSDisplayBridge.RADIAN_TO_ANGLE;
                 this._display.scaleX = transform.scaleX;
@@ -80,7 +81,46 @@ module dragonBones
 
             public updateColor(aOffset: number, rOffset: number, gOffset: number, bOffset: number, aMultiplier: number, rMultiplier: number, gMultiplier: number, bMultiplier: number): void
             {
+                if(this._display)
+                {
+                    /*var filters: Array<createjs.Filter> = this._display.filters;
+                    if(!filters)
+                    {
+                        this._display.filters = filters = [];
+                    }
+                    var colorFilter: createjs.ColorFilter;
+                    if (filters.length > 0)
+                    {
+                        for (var index in filters)
+                        {
+                            if (filters[index] instanceof createjs.ColorFilter)
+                            {
+                                colorFilter = <createjs.ColorFilter> filters[index];
+                                break;
+                            }
+                        }
+                    }
+                    if (colorFilter)
+                    {
+                        colorFilter.alphaMultiplier = aMultiplier;
+                        colorFilter.redMultiplier = rMultiplier;
+                        colorFilter.greenMultiplier = gMultiplier;
+                        colorFilter.blueMultiplier = bMultiplier;
+                        colorFilter.alphaOffset = aOffset;
+                        colorFilter.redOffset = rOffset;
+                        colorFilter.greenOffset = gOffset;
+                        colorFilter.blueOffset = bOffset;
+                    }
+                    else
+                    {
+                        colorFilter = new createjs.ColorFilter(rMultiplier, gMultiplier, bMultiplier, aMultiplier, rOffset, gOffset, bOffset, aOffset);
+                        filters.push(colorFilter);
+                    }
+                    this._display.updateCache();*/
 
+                    //
+                    this._display.alpha = aMultiplier;
+                }
             }
 
             public addDisplay(container: any, index: number): void
@@ -116,14 +156,16 @@ module dragonBones
             public name: string;
             //{HTMLImageElement | HTMLCanvasElement | HTMLVideoElement}
             public image: any;
+            public scale: number;
 
             private _regions: any;
 
-            constructor(image:any, textureAtlasRawData:any) 
+            constructor(image:any, textureAtlasRawData:any, scale:number = 1) 
             {
                 this._regions = {};
 
                 this.image = image;
+                this.scale = scale;
                 
                 this.parseData(textureAtlasRawData);
             }
@@ -141,7 +183,7 @@ module dragonBones
             
 		    private parseData(textureAtlasRawData:any):void
 		    {
-                var textureAtlasData: any = objects.DataParser.parseTextureAtlasData(textureAtlasRawData, 1);
+                var textureAtlasData: any = objects.DataParser.parseTextureAtlasData(textureAtlasRawData, this.scale);
 			    this.name = textureAtlasData.__name;
                 delete textureAtlasData.__name;
 
@@ -189,7 +231,7 @@ module dragonBones
                     CreateJSFactory._helpMatrix.b = 0;
                     CreateJSFactory._helpMatrix.c = 0;
                     CreateJSFactory._helpMatrix.d = 1;
-					//_helpMatirx.scale(nativeTextureAtlas.scale, nativeTextureAtlas.scale);
+					CreateJSFactory._helpMatrix.scale(1 / textureAtlas.scale, 1 / textureAtlas.scale);
                     CreateJSFactory._helpMatrix.tx = -pivotX - rect.x;
                     CreateJSFactory._helpMatrix.ty = -pivotY - rect.y;
                     shape.graphics.beginBitmapFill(textureAtlas.image, null, CreateJSFactory._helpMatrix);

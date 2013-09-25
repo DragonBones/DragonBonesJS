@@ -22,6 +22,7 @@ declare module createjs
         y: number;
 
         setTransform(x: number, y: number, scaleX: number, scaleY: number, rotation: number, skewX: number, skewY: number, regX: number, regY: number): DisplayObject;
+        updateCache(): void;
     }
 
     export class Bitmap extends DisplayObject 
