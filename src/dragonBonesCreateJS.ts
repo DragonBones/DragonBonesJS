@@ -1,5 +1,5 @@
 /// <reference path="createjs.d.ts"/>
-/// <reference path="dragonBones.d.ts">
+/// <reference path="dragonBones.ts">
 
 module dragonBones
 {
@@ -83,7 +83,7 @@ module dragonBones
             {
                 if(this._display)
                 {
-                    /*var filters: Array<createjs.Filter> = this._display.filters;
+                    var filters: Array<createjs.Filter> = this._display.filters;
                     if(!filters)
                     {
                         this._display.filters = filters = [];
@@ -116,10 +116,17 @@ module dragonBones
                         colorFilter = new createjs.ColorFilter(rMultiplier, gMultiplier, bMultiplier, aMultiplier, rOffset, gOffset, bOffset, aOffset);
                         filters.push(colorFilter);
                     }
-                    this._display.updateCache();*/
 
-                    //
-                    this._display.alpha = aMultiplier;
+					if(this._display.cacheCanvas)
+                    {
+						this._display.updateCache();
+					}
+					else
+					{
+						this._display.cache(0, 0, (<any> this._display).width, (<any> this._display).height);
+                    }
+
+                    //this._display.alpha = aMultiplier;
                 }
             }
 
@@ -236,6 +243,9 @@ module dragonBones
                     CreateJSFactory._helpMatrix.ty = -pivotY - rect.y;
                     shape.graphics.beginBitmapFill(textureAtlas.image, null, CreateJSFactory._helpMatrix);
                     shape.graphics.drawRect(-pivotX, -pivotY, rect.width, rect.height);
+
+                    (<any> shape).width = rect.width;
+                    (<any> shape).height = rect.height;
                 }
 			    return shape;
 		    }

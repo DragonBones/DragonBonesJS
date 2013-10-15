@@ -199,7 +199,7 @@ var dragonBones;
                     if (listeners) {
                         event.target = this;
                         var listenersCopy = listeners.concat();
-                        var length = listeners.length;
+                        var length = listenersCopy.length;
                         for (var i = 0; i < length; i++) {
                             listenersCopy[i](event);
                         }
@@ -1213,6 +1213,8 @@ var dragonBones;
                         childArmature.animation.gotoAndPlay(animationName, fadeInTime);
                     }
                 }
+
+                this._lastAnimationState.advanceTime(0);
 
                 return this._lastAnimationState;
             };
@@ -3142,7 +3144,7 @@ var dragonBones;
 
         Bone.prototype._arriveAtFrame = function (frame, timelineState, animationState, isCross) {
             if (frame) {
-                var mixingType = animationState.getMixingTransform(name);
+                var mixingType = animationState.getMixingTransform(this.name);
                 if (animationState.displayControl && (mixingType == 2 || mixingType == -1)) {
                     if (!this.displayController || this.displayController == animationState.name) {
                         var tansformFrame = frame;
@@ -3279,8 +3281,7 @@ var dragonBones;
             }
 
             if (this._eventList.length) {
-                var length = this._eventList.length;
-                for (i = 0; i < length; i++) {
+                for (i = 0; i < this._eventList.length; i++) {
                     this.dispatchEvent(this._eventList[i]);
                 }
                 this._eventList.length = 0;
