@@ -257,7 +257,7 @@ module dragonBones
                     {
                         event.target = this;
                         var listenersCopy: Array<Function> = listeners.concat();
-                        var length: number = listeners.length;
+                        var length: number = listenersCopy.length;
                         for (var i: number = 0; i < length; i++) 
                         {
                             listenersCopy[i](event);
@@ -1685,6 +1685,8 @@ module dragonBones
 					    childArmature.animation.gotoAndPlay(animationName, fadeInTime);
 				    }
 			    }
+				
+				this._lastAnimationState.advanceTime(0);
 			
 			    return this._lastAnimationState;
             }
@@ -4215,7 +4217,7 @@ module dragonBones
         {
             if (frame)
 			{
-				var mixingType:number = animationState.getMixingTransform(name);
+				var mixingType:number = animationState.getMixingTransform(this.name);
 				if(animationState.displayControl && (mixingType == 2 || mixingType == -1))
 				{
 					if(
@@ -4422,8 +4424,8 @@ module dragonBones
 			
 			if(this._eventList.length)
 			{
-                var length = this._eventList.length;
-                for (i = 0;i < length;i ++)
+                //var length = this._eventList.length;
+                for (i = 0;i < this._eventList.length;i ++)
 				{
                     this.dispatchEvent(this._eventList[i]);
 				}

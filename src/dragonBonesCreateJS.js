@@ -1,155 +1,298 @@
-var __extends = this.__extends || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
-};
-var dragonBones;
-(function (dragonBones) {
-    (function (display) {
-        var CreateJSDisplayBridge = (function () {
-            function CreateJSDisplayBridge() {
-            }
-            CreateJSDisplayBridge.prototype.getVisible = function () {
-                return this._display ? this._display.visible : false;
-            };
-            CreateJSDisplayBridge.prototype.setVisible = function (value) {
-                if (this._display) {
-                    this._display.visible = value;
-                }
-            };
-
-            CreateJSDisplayBridge.prototype.getDisplay = function () {
-                return this._display;
-            };
-            CreateJSDisplayBridge.prototype.setDisplay = function (value) {
-                if (this._display == value) {
-                    return;
-                }
-                if (this._display) {
-                    var parent = this._display.parent;
-                    if (parent) {
-                        var index = this._display.parent.getChildIndex(this._display);
-                    }
-                    this.removeDisplay();
-                }
-                this._display = value;
-                this.addDisplay(parent, index);
-            };
-
-            CreateJSDisplayBridge.prototype.dispose = function () {
-                this._display = null;
-            };
-
-            CreateJSDisplayBridge.prototype.updateTransform = function (matrix, transform) {
-                this._display.x = matrix.tx;
-                this._display.y = matrix.ty;
-                this._display.skewX = transform.skewX * CreateJSDisplayBridge.RADIAN_TO_ANGLE;
-                this._display.skewY = transform.skewY * CreateJSDisplayBridge.RADIAN_TO_ANGLE;
-                this._display.scaleX = transform.scaleX;
-                this._display.scaleY = transform.scaleY;
-            };
-
-            CreateJSDisplayBridge.prototype.updateColor = function (aOffset, rOffset, gOffset, bOffset, aMultiplier, rMultiplier, gMultiplier, bMultiplier) {
-                if (this._display) {
-                    this._display.alpha = aMultiplier;
-                }
-            };
-
-            CreateJSDisplayBridge.prototype.addDisplay = function (container, index) {
-                var parent = container;
-                if (parent && this._display) {
-                    if (index < 0) {
-                        parent.addChild(this._display);
-                    } else {
-                        parent.addChildAt(this._display, Math.min(index, parent.getNumChildren()));
-                    }
-                }
-            };
-
-            CreateJSDisplayBridge.prototype.removeDisplay = function () {
-                if (this._display && this._display.parent) {
-                    this._display.parent.removeChild(this._display);
-                }
-            };
-            CreateJSDisplayBridge.RADIAN_TO_ANGLE = 180 / Math.PI;
-            return CreateJSDisplayBridge;
-        })();
-        display.CreateJSDisplayBridge = CreateJSDisplayBridge;
-    })(dragonBones.display || (dragonBones.display = {}));
-    var display = dragonBones.display;
-
-    (function (textures) {
-        var CreateJSTextureAtlas = (function () {
-            function CreateJSTextureAtlas(image, textureAtlasRawData, scale) {
-                if (typeof scale === "undefined") { scale = 1; }
-                this._regions = {};
-
-                this.image = image;
-                this.scale = scale;
-
-                this.parseData(textureAtlasRawData);
-            }
-            CreateJSTextureAtlas.prototype.dispose = function () {
-                this.image = null;
-                this._regions = null;
-            };
-
-            CreateJSTextureAtlas.prototype.getRegion = function (subTextureName) {
-                return this._regions[subTextureName];
-            };
-
-            CreateJSTextureAtlas.prototype.parseData = function (textureAtlasRawData) {
-                var textureAtlasData = dragonBones.objects.DataParser.parseTextureAtlasData(textureAtlasRawData, this.scale);
-                this.name = textureAtlasData.__name;
-                delete textureAtlasData.__name;
-
-                for (var subTextureName in textureAtlasData) {
-                    this._regions[subTextureName] = textureAtlasData[subTextureName];
-                }
-            };
-            return CreateJSTextureAtlas;
-        })();
-        textures.CreateJSTextureAtlas = CreateJSTextureAtlas;
-    })(dragonBones.textures || (dragonBones.textures = {}));
-    var textures = dragonBones.textures;
-
-    (function (factorys) {
-        var CreateJSFactory = (function (_super) {
-            __extends(CreateJSFactory, _super);
-            function CreateJSFactory() {
-                _super.call(this);
-            }
-            CreateJSFactory.prototype._generateArmature = function () {
-                var armature = new dragonBones.Armature(new createjs.Container());
-                return armature;
-            };
-
-            CreateJSFactory.prototype._generateSlot = function () {
-                var slot = new dragonBones.Slot(new display.CreateJSDisplayBridge());
-                return slot;
-            };
-
-            CreateJSFactory.prototype._generateDisplay = function (textureAtlas, fullName, pivotX, pivotY) {
-                var rect = textureAtlas.getRegion(fullName);
-                if (rect) {
-                    var shape = new createjs.Shape(null);
-                    CreateJSFactory._helpMatrix.a = 1;
-                    CreateJSFactory._helpMatrix.b = 0;
-                    CreateJSFactory._helpMatrix.c = 0;
-                    CreateJSFactory._helpMatrix.d = 1;
-                    CreateJSFactory._helpMatrix.scale(1 / textureAtlas.scale, 1 / textureAtlas.scale);
-                    CreateJSFactory._helpMatrix.tx = -pivotX - rect.x;
-                    CreateJSFactory._helpMatrix.ty = -pivotY - rect.y;
-                    shape.graphics.beginBitmapFill(textureAtlas.image, null, CreateJSFactory._helpMatrix);
-                    shape.graphics.drawRect(-pivotX, -pivotY, rect.width, rect.height);
-                }
-                return shape;
-            };
-            CreateJSFactory._helpMatrix = new createjs.Matrix2D(1, 0, 0, 1, 0, 0);
-            return CreateJSFactory;
-        })(factorys.BaseFactory);
-        factorys.CreateJSFactory = CreateJSFactory;
-    })(dragonBones.factorys || (dragonBones.factorys = {}));
-    var factorys = dragonBones.factorys;
-})(dragonBones || (dragonBones = {}));
+﻿package light.managers 
+{
+	import flash.display.InteractiveObject;
+	import flash.display.MovieClip;
+	import flash.display.Sprite;
+	import flash.display.Stage;
+	import flash.events.Event;
+	import flash.events.MouseEvent;
+	import flash.geom.Point;
+	import flash.utils.Dictionary;
+	import flash.utils.clearInterval;
+	import flash.utils.setInterval;
+	
+	import light.core.LightFrameWork;
+	import light.events.LightTouchEvent;
+	
+	public class NativeTouchManager extends BaseManager 
+	{
+		baseManager_internal static var _instance:NativeTouchManager;
+		public static function getInstance():NativeTouchManager 
+		{
+			return BaseManager.createConstructor(NativeTouchManager) as NativeTouchManager;
+		}
+		
+		public function NativeTouchManager()
+		{
+			super(this);
+			
+			_touchTargets = new Dictionary();
+			_touchTargetsOver = new Dictionary();
+			_touchTargetsPress = new Dictionary();
+			_touchTargetsTouchRelease = new Dictionary();
+			
+			_intervalID = setInterval(checkStage, 500);
+		}
+		
+		public const pressPoint:Point = new Point();
+		public const currentPoint:Point = new Point();
+		public const speed:Point = new Point();
+		
+		public var moveAccuracy:int;
+		
+		private var _isDraged:Boolean;
+		public function get isDraged():Boolean
+		{
+			return _isDraged;
+		}
+		
+		private var _touchMode:Boolean;
+		public function get touchMode():Boolean
+		{
+			return _touchMode;
+		}
+		public function set touchMode(value:Boolean):void
+		{
+			if(_touchMode != value)
+			{
+				_touchMode = value;
+				for each(var touchTarget:InteractiveObject in _touchTargetsTouchRelease)
+				{
+					delete _touchTargetsTouchRelease[touchTarget];
+				}
+			}
+		}
+		
+		private var _touchTargets:Dictionary;
+		private var _touchTargetsOver:Dictionary;
+		private var _touchTargetsPress:Dictionary;
+		private var _touchTargetsTouchRelease:Dictionary;
+		
+		private var _intervalID:uint;
+		
+		private function checkStage():void 
+		{
+			for each(var touchTarget:InteractiveObject in _touchTargets)
+			{
+				if(touchTarget.stage)
+				{
+					LightFrameWork.stage = touchTarget.stage;
+					LightFrameWork.stage.addEventListener(MouseEvent.MOUSE_UP, stageMouseUpHandler);
+					LightFrameWork.stage.addEventListener(MouseEvent.MOUSE_DOWN, stageMouseDownHandler);
+					clearInterval(_intervalID);
+					break;
+				}
+			}
+		}
+		
+		public function registerTouchTarget(touchTarget:InteractiveObject):void
+		{
+			if(!touchTarget)
+			{
+				throw new ArgumentError();
+			}
+			if(_touchTargets[touchTarget])
+			{
+				return;
+			}
+			_touchTargets[touchTarget] = touchTarget;
+			touchTarget.addEventListener(MouseEvent.ROLL_OVER, rollOverHandler);
+			
+			if(touchTarget is MovieClip)
+			{
+				(touchTarget as MovieClip).mouseChildren = false;
+			}
+			
+			changeTouchTargetStyle(touchTarget);
+		}
+		
+		public function unregisterTouchTarget(touchTarget:InteractiveObject):void 
+		{
+			touchTarget.removeEventListener(MouseEvent.ROLL_OVER, rollOverHandler);
+			touchTarget.removeEventListener(MouseEvent.ROLL_OUT, rollOutHandler);
+			
+			delete _touchTargets[touchTarget];
+			delete _touchTargetsOver[touchTarget];
+			delete _touchTargetsPress[touchTarget];
+			delete _touchTargetsTouchRelease[touchTarget];
+		}
+		
+		private function rollOverHandler(e:Object):void 
+		{
+			var touchTarget:InteractiveObject = (e is MouseEvent?e.currentTarget:e) as InteractiveObject;
+			
+			if(_touchTargetsOver[touchTarget])
+			{
+				
+			}
+			else 
+			{
+				_touchTargetsOver[touchTarget] = touchTarget;
+				touchTarget.addEventListener(MouseEvent.ROLL_OUT, rollOutHandler);
+				var isDragOver:Boolean = (e is MouseEvent?e.buttonDown:false);
+				if(isDragOver)
+				{
+					if(touchTarget.hasEventListener(LightTouchEvent.DRAG_OVER))
+					{
+						touchTarget.dispatchEvent(new LightTouchEvent(LightTouchEvent.DRAG_OVER, true, e?e.target:touchTarget));
+					}
+					changeTouchTargetStyle(touchTarget, _touchTargetsPress[touchTarget]);
+				}
+				else 
+				{
+					if(touchTarget.hasEventListener(LightTouchEvent.ROLL_OVER))
+					{
+						touchTarget.dispatchEvent(new LightTouchEvent(LightTouchEvent.ROLL_OVER, true, e?e.target:touchTarget));
+					}
+					changeTouchTargetStyle(touchTarget);
+				}
+			}
+		}
+		
+		private function rollOutHandler(e:Object):void 
+		{
+			var touchTarget:InteractiveObject = (e is MouseEvent?e.currentTarget:e) as InteractiveObject;
+			
+			if(_touchTargetsOver[touchTarget])
+			{
+				delete _touchTargetsOver[touchTarget];
+				touchTarget.removeEventListener(MouseEvent.ROLL_OUT, rollOutHandler);
+				if(e.buttonDown)
+				{
+					if(touchTarget.hasEventListener(LightTouchEvent.DRAG_OUT))
+					{
+						touchTarget.dispatchEvent(new LightTouchEvent(LightTouchEvent.DRAG_OUT, false, e?e.target:touchTarget));
+					}
+				}
+				else 
+				{
+					if(touchTarget.hasEventListener(LightTouchEvent.ROLL_OUT))
+					{
+						touchTarget.dispatchEvent(new LightTouchEvent(LightTouchEvent.ROLL_OUT, false, e?e.target:touchTarget));
+					}
+				}
+				
+				changeTouchTargetStyle(touchTarget);
+			}
+		}
+		
+		private function mouseMoveHandler(e:Event):void 
+		{
+			speed.setTo(LightFrameWork.stage.mouseX - currentPoint.x, LightFrameWork.stage.mouseY - currentPoint.y);
+			currentPoint.setTo(LightFrameWork.stage.mouseX, LightFrameWork.stage.mouseY);
+			
+			if(Math.abs(speed.x) > moveAccuracy || Math.abs(speed.y) > moveAccuracy)
+			{
+				for each(var touchTarget:InteractiveObject in _touchTargetsPress)
+				{
+					if(touchTarget.hasEventListener(LightTouchEvent.DRAG_MOVE))
+					{
+						touchTarget.dispatchEvent(new LightTouchEvent(LightTouchEvent.DRAG_MOVE, false, e?e.target:touchTarget));
+					}
+				}
+				_isDraged = true;
+			}
+		}
+		
+		private function stageMouseDownHandler(e:Event):void 
+		{
+			pressPoint.setTo(LightFrameWork.stage.mouseX, LightFrameWork.stage.mouseY);
+			currentPoint.setTo(LightFrameWork.stage.mouseX, LightFrameWork.stage.mouseY);
+			
+			if(_touchMode)
+			{
+				var touchTarget:InteractiveObject = e.target as InteractiveObject;
+				while(touchTarget)
+				{
+					if(_touchTargetsTouchRelease[touchTarget])
+					{
+						delete _touchTargetsTouchRelease[touchTarget];
+						rollOverHandler(touchTarget);
+					}
+					touchTarget = touchTarget.parent;
+				}
+			}
+			
+			for each(touchTarget in _touchTargetsOver)
+			{
+				if(_touchTargetsPress[touchTarget])
+				{
+					
+				}
+				else 
+				{
+					_touchTargetsPress[touchTarget] = touchTarget;
+					if(touchTarget.hasEventListener(LightTouchEvent.PRESS))
+					{
+						touchTarget.dispatchEvent(new LightTouchEvent(LightTouchEvent.PRESS, true, e?e.target:touchTarget));
+					}
+					changeTouchTargetStyle(touchTarget);
+				}
+			}
+			
+			LightFrameWork.stage.addEventListener(Event.ENTER_FRAME, mouseMoveHandler);
+		}
+		
+		private function stageMouseUpHandler(e:Event):void 
+		{
+			LightFrameWork.stage.removeEventListener(Event.ENTER_FRAME, mouseMoveHandler);
+			
+			var touchTarget:InteractiveObject;
+			
+			for each(touchTarget in _touchTargetsPress)
+			{
+				if(_touchTargetsOver[touchTarget])
+				{
+					if(touchTarget.hasEventListener(LightTouchEvent.RELEASE))
+					{
+						touchTarget.dispatchEvent(new LightTouchEvent(LightTouchEvent.RELEASE, false, e?e.target:touchTarget));
+					}
+				}
+				else
+				{
+					if(touchTarget.hasEventListener(LightTouchEvent.RELEASE_OUTSIDE))
+					{
+						touchTarget.dispatchEvent(new LightTouchEvent(LightTouchEvent.RELEASE_OUTSIDE, false, e?e.target:touchTarget));
+					}
+				}
+			}
+				
+			if(e && e.target != LightFrameWork.stage)
+			{
+				touchTarget = e.target as InteractiveObject;
+				while(touchTarget)
+				{
+					if(_touchTargetsOver[touchTarget] && !_touchTargetsPress[touchTarget])
+					{
+						if(_touchMode)
+						{
+							rollOutHandler(touchTarget);
+							_touchTargetsTouchRelease[touchTarget] = touchTarget;
+						}
+						else
+						{
+							delete _touchTargetsOver[touchTarget];
+							rollOverHandler(touchTarget);
+						}
+					}
+					touchTarget = touchTarget.parent;
+				}
+			}
+			
+			for each(touchTarget in _touchTargetsPress)
+			{
+				delete _touchTargetsPress[touchTarget];
+				
+				if(_touchMode)
+				{
+					rollOutHandler(touchTarget);
+					_touchTargetsTouchRelease[touchTarget] = touchTarget;
+				}
+				
+				changeTouchTargetStyle(touchTarget);
+			}
+			
+			_isDraged = false;
+		}
+		
+		public function changeTouchTargetStyle(touchTarget:Object, isActive:Boolean = tr

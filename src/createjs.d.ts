@@ -20,8 +20,10 @@ declare module createjs
         visible: boolean;
         x: number;
         y: number;
+        cacheCanvas: HTMLCanvasElement;
 
         setTransform(x: number, y: number, scaleX: number, scaleY: number, rotation: number, skewX: number, skewY: number, regX: number, regY: number): DisplayObject;
+        cache(x: number, y: number, width: number, height: number, scale?: number): void;
         updateCache(): void;
     }
 
@@ -40,7 +42,7 @@ declare module createjs
         children: DisplayObject[];
 
         constructor ();
-
+        
         addChild(...child: DisplayObject[]): DisplayObject;
         addChildAt(...childOrIndex: any[]): DisplayObject;
         getChildAt(index: number): DisplayObject;
