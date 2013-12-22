@@ -125,8 +125,6 @@ module dragonBones
 					{
 						this._display.cache(0, 0, (<any> this._display).width, (<any> this._display).height);
                     }
-
-                    //this._display.alpha = aMultiplier;
                 }
             }
 
