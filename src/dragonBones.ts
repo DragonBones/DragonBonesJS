@@ -3001,7 +3001,7 @@ module dragonBones
 			    return this._dataDic[name];
             }
 
-		    public addSkeletonData(data:objects.SkeletonData, name:string):void
+		    public addSkeletonData(data:objects.SkeletonData, name:string = null):void
 		    {
 			    if(!data)
 			    {
@@ -3029,7 +3029,7 @@ module dragonBones
 			    return this._textureAtlasDic[name];
             }
             
-		    public addTextureAtlas(textureAtlas:textures.ITextureAtlas, name:string):void
+		    public addTextureAtlas(textureAtlas:textures.ITextureAtlas, name:string = null):void
 		    {
 			    if(!textureAtlas)
 			    {
