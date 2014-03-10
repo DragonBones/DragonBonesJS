@@ -2171,7 +2171,7 @@ module dragonBones
             public name: string;
             public parent: string;
             public zOrder: number;
-
+            public blendMode:string;
             private _displayDataList: Array<DisplayData>;
             public getDisplayDataList():Array<DisplayData>
             {
@@ -2182,6 +2182,7 @@ module dragonBones
             {
                 this._displayDataList = [];
                 this.zOrder = 0;
+                this.blendMode = "normal";
             }
 
             public dispose():void
@@ -2235,16 +2236,16 @@ module dragonBones
             public global:DBTransform;
             public transform: DBTransform;
 
-            public var scaleMode:int;
-            public var fixedRotation:Boolean;
+            public scaleMode:number;
+            public fixedRotation:boolean;
 
             constructor()
             {
                 this.length = 0;
                 this.global = new DBTransform();
                 this.transform = new DBTransform();
-                scaleMode = 1;
-                fixedRotation = false;
+                this.scaleMode = 1;
+                this.fixedRotation = false;
             }
 
             public dispose():void
@@ -2719,12 +2720,12 @@ module dragonBones
                 boneData.name = boneObject[utils.ConstValues.A_NAME];
                 boneData.parent = boneObject[utils.ConstValues.A_PARENT];
                 boneData.length = Number(boneObject[utils.ConstValues.A_LENGTH]) || 0;
-                var scaleMode = Number(boneObject[ConstValues.A_SCALE_MODE]);
+                var scaleMode = Number(boneObject[utils.ConstValues.A_SCALE_MODE]);
                 if (!isNaN(scaleMode) && scaleMode)
                 {
                     boneData.scaleMode = scaleMode;
                 }
-                var inheritRotation:Boolean = Boolean(boneObject[ConstValues.A_FIXED_ROTATION]);
+                var inheritRotation:boolean = boolean(boneObject[utils.ConstValues.A_FIXED_ROTATION]);
                 if (inheritRotation)
                 {
                     boneData.fixedRotation = inheritRotation;
@@ -2756,6 +2757,12 @@ module dragonBones
                 slotData.name = slotObject[utils.ConstValues.A_NAME];
                 slotData.parent = slotObject[utils.ConstValues.A_PARENT];
                 slotData.zOrder = Number(slotObject[utils.ConstValues.A_Z_ORDER]);
+
+                slotData.blendMode = slotObject[utils.ConstValues.A_BLENDMODE];
+                if(!slotData.blendMode)
+                {
+                    slotData.blendMode = "normal";
+                }
 
                 var displayObjectList: Array<any> = slotObject[utils.ConstValues.DISPLAY];
                 for (var index in displayObjectList)
@@ -2973,6 +2980,9 @@ module dragonBones
 
             addDisplay(container: any, index: number): void;
             removeDisplay(): void;
+
+
+            updateBlendMode(blendMode:string):void;
         }
     }
 
@@ -3194,6 +3204,7 @@ module dragonBones
                     displayDataList = slotData.getDisplayDataList();
                     slot = this._generateSlot();
                     slot.name = slotData.name;
+                    slot._blendMode = slotData.blendMode;
                     slot._originZOrder = slotData.zOrder;
                     slot._dislayDataList = displayDataList;
 
@@ -3328,10 +3339,11 @@ module dragonBones
             public static A_TWEEN_ROTATE:string = "tweenRotate";
             public static A_DISPLAY_INDEX:string = "displayIndex";
             public static A_Z_ORDER:string = "z";
+            public static A_BLENDMODE:string = "blendMode";
             public static A_WIDTH:string = "width";
             public static A_HEIGHT:string = "height";
-            public static const A_SCALE_MODE:String = "scaleMode";
-            public static const A_FIXED_ROTATION:String = "fixedRotation";
+            public static A_SCALE_MODE:string = "scaleMode";
+            public static A_FIXED_ROTATION:string = "fixedRotation";
             public static A_X:string = "x";
             public static A_Y:string = "y";
             public static A_SKEW_X:string = "skX";
@@ -3795,6 +3807,7 @@ module dragonBones
         private _isHideDisplay: boolean;
         private _offsetZOrder: number;
         private _displayIndex: number;
+        private _blendMode:string;
 
         public getZOrder(): number
         {
@@ -3826,6 +3839,23 @@ module dragonBones
         {
             this._displayList[this._displayIndex] = value;
             this._setDisplay(value);
+        }
+
+        public getBlendMode():string
+        {
+            return this._blendMode;
+        }
+
+        public setBlendMode(value:string):void
+        {
+            if(this._blendMode != value)
+            {
+                this._blendMode = value;
+                if (this._displayBridge.getDisplay())
+                {
+                    this._displayBridge.updateBlendMode(this._blendMode);
+                }
+            }
         }
 
         public getChildArmature(): Armature
@@ -3888,6 +3918,10 @@ module dragonBones
             }
 
             this.updateChildArmatureAnimation();
+            if (display)
+            {
+                this._displayBridge.updateBlendMode(this._blendMode);
+            }
 
             if (!this._isHideDisplay && this._displayBridge.getDisplay())
             {
@@ -4002,6 +4036,9 @@ module dragonBones
 
             this._isDisplayOnStage = false;
             this._isHideDisplay = false;
+
+            this._blendMode = "normal";
+            this._displayBridge.updateBlendMode(this._blendMode);
         }
 
         public dispose(): void
