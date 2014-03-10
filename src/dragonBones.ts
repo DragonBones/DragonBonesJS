@@ -2720,7 +2720,7 @@ module dragonBones
                 boneData.parent = boneObject[utils.ConstValues.A_PARENT];
                 boneData.length = Number(boneObject[utils.ConstValues.A_LENGTH]) || 0;
                 var scaleMode = Number(boneObject[ConstValues.A_SCALE_MODE]);
-                if (scaleMode)
+                if (!isNaN(scaleMode) && scaleMode)
                 {
                     boneData.scaleMode = scaleMode;
                 }
