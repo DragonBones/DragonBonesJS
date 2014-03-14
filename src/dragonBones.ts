@@ -2725,7 +2725,7 @@ module dragonBones
                 {
                     boneData.scaleMode = scaleMode;
                 }
-                var inheritRotation:boolean = boolean(boneObject[utils.ConstValues.A_FIXED_ROTATION]);
+                var inheritRotation:boolean = boneObject[utils.ConstValues.A_FIXED_ROTATION];
                 if (inheritRotation)
                 {
                     boneData.fixedRotation = inheritRotation;
