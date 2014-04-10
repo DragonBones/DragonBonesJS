@@ -66,7 +66,11 @@ var dragonBones;
                 if (parent && this._display) {
                     this._display.removeFromParent();
                     if (index < 0) {
-                        parent.addChild(this._display);
+                        if(this._display._zOrder > 0) {
+							parent.addChild(this._display, this._display._zOrder);
+						} else {
+							parent.addChild(this._display, parent.getChildrenCount()+1);
+						}
                     } else {
                         parent.addChild(this._display, Math.min(index, parent.getChildrenCount()));
                     }
