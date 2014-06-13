@@ -28,9 +28,9 @@ var dragonBones;
                     return;
                 }
                 if (this._display) {
-                    var parent = this._display._parent;
+                    var parent = this._display.getParent();
                     if (parent) {
-                        var children = this._display._parent.getChildren();
+                        var children = parent.getChildren();
                         var index = children.indexOf(this._display);
                     }
                     this.removeDisplay();
@@ -78,8 +78,8 @@ var dragonBones;
             };
 
             Cocos2DDisplayBridge.prototype.removeDisplay = function () {
-                if (this._display && this._display._parent) {
-                    this._display._parent.removeChild(this._display, true);
+                if (this._display && this._display.getParent()) {
+                    this._display.getParent().removeChild(this._display, true);
                 }
             };
             Cocos2DDisplayBridge.RADIAN_TO_ANGLE = 180 / Math.PI;
