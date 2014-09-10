@@ -195,6 +195,7 @@ var dragonBones;
 
                     (shape).width = rect.width;
                     (shape).height = rect.height;
+                    (shape).cache(-pivotX, -pivotY, rect.width, rect.height);
                 }
                 return shape;
             };
