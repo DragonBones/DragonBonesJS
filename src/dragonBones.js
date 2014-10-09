@@ -1064,6 +1064,7 @@ var dragonBones;
                 this._animationDataList = value;
                 this.animationNameList.length = 0;
                 for (var index in this._animationDataList) {
+                    if (!this._animationDataList.hasOwnProperty(index)) continue;
                     this.animationNameList[this.animationNameList.length] = this._animationDataList[index].name;
                 }
             };
@@ -1946,6 +1947,7 @@ var dragonBones;
                 textureAtlasData.__name = rawData[utils.ConstValues.A_NAME];
                 var subTextureList = rawData[utils.ConstValues.SUB_TEXTURE];
                 for (var index in subTextureList) {
+                    if (!subTextureList.hasOwnProperty(index)) continue;
                     var subTextureObject = subTextureList[index];
                     var subTextureName = subTextureObject[utils.ConstValues.A_NAME];
                     var subTextureData = new geom.Rectangle(Number(subTextureObject[utils.ConstValues.A_X]) / scale, Number(subTextureObject[utils.ConstValues.A_Y]) / scale, Number(subTextureObject[utils.ConstValues.A_WIDTH]) / scale, Number(subTextureObject[utils.ConstValues.A_HEIGHT]) / scale);
@@ -1974,6 +1976,7 @@ var dragonBones;
 
                 var armatureObjectList = rawData[utils.ConstValues.ARMATURE];
                 for (var index in armatureObjectList) {
+                    if (!armatureObjectList.hasOwnProperty(index)) continue;
                     var armatureObject = armatureObjectList[index];
                     data.addArmatureData(DataParser.parseArmatureData(armatureObject, data, frameRate));
                 }
@@ -1987,12 +1990,14 @@ var dragonBones;
 
                 var boneObjectList = armatureObject[utils.ConstValues.BONE];
                 for (var index in boneObjectList) {
+                    if (!boneObjectList.hasOwnProperty(index)) continue;
                     var boneObject = boneObjectList[index];
                     armatureData.addBoneData(DataParser.parseBoneData(boneObject));
                 }
 
                 var skinObjectList = armatureObject[utils.ConstValues.SKIN];
                 for (var index in skinObjectList) {
+                    if (!skinObjectList.hasOwnProperty(index)) continue;
                     var skinObject = skinObjectList[index];
                     armatureData.addSkinData(DataParser.parseSkinData(skinObject, data));
                 }
@@ -2003,6 +2008,7 @@ var dragonBones;
                 var animationObjectList = armatureObject[utils.ConstValues.ANIMATION];
 
                 for (var index in animationObjectList) {
+                    if (!animationObjectList.hasOwnProperty(index)) continue;
                     var animationObject = animationObjectList[index];
                     armatureData.addAnimationData(DataParser.parseAnimationData(animationObject, armatureData, frameRate));
                 }
@@ -2035,6 +2041,7 @@ var dragonBones;
                 skinData.name = skinObject[utils.ConstValues.A_NAME];
                 var slotObjectList = skinObject[utils.ConstValues.SLOT];
                 for (var index in slotObjectList) {
+                    if (!slotObjectList.hasOwnProperty(index)) continue;
                     var slotObject = slotObjectList[index];
                     skinData.addSlotData(DataParser.parseSlotData(slotObject, data));
                 }
@@ -2055,6 +2062,7 @@ var dragonBones;
 
                 var displayObjectList = slotObject[utils.ConstValues.DISPLAY];
                 for (var index in displayObjectList) {
+                    if (!displayObjectList.hasOwnProperty(index)) continue;
                     var displayObject = displayObjectList[index];
                     slotData.addDisplayData(DataParser.parseDisplayData(displayObject, data));
                 }
@@ -2100,6 +2108,7 @@ var dragonBones;
                 var timelineName;
                 var timelineObjectList = animationObject[utils.ConstValues.TIMELINE];
                 for (var index in timelineObjectList) {
+                    if (!timelineObjectList.hasOwnProperty(index)) continue;
                     var timelineObject = timelineObjectList[index];
                     timeline = DataParser.parseTransformTimeline(timelineObject, animationData.duration, frameRate);
                     timelineName = timelineObject[utils.ConstValues.A_NAME];
@@ -2117,6 +2126,7 @@ var dragonBones;
                 var frame;
                 var frameObjectList = timelineObject[utils.ConstValues.FRAME];
                 for (var index in frameObjectList) {
+                    if (!frameObjectList.hasOwnProperty(index)) continue;
                     var frameObject = frameObjectList[index];
                     frame = frameParser(frameObject, frameRate);
                     frame.position = position;
@@ -2320,6 +2330,7 @@ var dragonBones;
                 var boneData;
                 var boneDataList = armatureData.getBoneDataList();
                 for (var index in boneDataList) {
+                    if (!boneDataList.hasOwnProperty(index)) continue;
                     boneData = boneDataList[index];
                     bone = new dragonBones.Bone();
                     bone.name = boneData.name;
@@ -2366,6 +2377,7 @@ var dragonBones;
                 var slotDataList = skinData.getSlotDataList();
                 var displayDataList;
                 for (var index in slotDataList) {
+                    if (!slotDataList.hasOwnProperty(index)) continue;
                     slotData = slotDataList[index];
                     bone = armature.getBone(slotData.parent);
                     if (!bone) {
