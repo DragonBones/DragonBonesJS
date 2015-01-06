@@ -1,4 +1,4 @@
-﻿DragonBones AS Lib V3.0.1 Release Notes
+﻿DragonBones JS Lib V3.0.1 Release Notes
 ======================
 中文版往后看
 
