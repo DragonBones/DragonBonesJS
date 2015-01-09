@@ -56,7 +56,7 @@ armature.animation.gotoAndPlay("someLoopAnimation").setTimeScale(-1);
 * 对静止的动画的播放进行智能优化，提升动画计算性能40%。
 * 将DisplayBridge 的功能合并进Slot,提升渲染效率15%
 
-### 从3.0.1到3.0.1的更新内容  
+### 从3.0.0到3.0.1的更新内容  
 ##### 支持3.0数据格式标准  
 * 支持基于父坐标系的数据格式
 * 数据的默认值和3.0数据格式标准中保持统一
