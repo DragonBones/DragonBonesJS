@@ -1,0 +1,25 @@
+{
+    "resources": [
+        {
+            "name": "dragonBonesData",
+            "type": "json",
+            "url": "assets/AnimationBaseTest/AnimationBaseTest.json"
+        },
+        {
+            "name": "textureDataA",
+            "type": "json",
+            "url": "assets/AnimationBaseTest/texture.json"
+        },
+        {
+            "name": "textureA",
+            "type": "image",
+            "url": "assets/AnimationBaseTest/texture.png"
+        }
+    ],
+    "groups": [
+        {
+            "name": "preload",
+            "keys": "dragonBonesData,textureDataA,textureA"
+        }
+    ]
+}

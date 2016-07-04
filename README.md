@@ -1,12 +1,20 @@
-SkeletonAnimationLibraryJS
-==========================
+DragonBones JavaScript / TypeScript Runtime
+=========================
+* [DragonBones source code][10]
 
-http://dragonbones.github.io/  
+# Supported engines
+* [Egret][2] / [DragonBones egret Library][11]
 
-In this project you can find the JavaScript source code of DragonBones library, which is a framework support rendering characters with skeleton animation by parsing assets exported from [SkeletonAnimationDesignPanel](https://github.com/DragonBones/SkeletonAnimationDesignPanel).
+# How to use
+1. Make sure you have installed some JavaScript IDE.
+2. Create a JavaScript project and include the [DragonBones source code][10].
+3. Import engine source code such as [Egret source code][111] and [DragonBones egret source code][11].
+4. Build project and have fun.
 
-There are some demos in [SkeletonAnimationDemos](https://github.com/DragonBones/SkeletonAnimationDemos) project, which can guild you how to use the library  
+Copyright 2012-2016 The DragonBones Team
 
-**All things you need to download can be found [here](http://dragonbones.github.io/download.html)**  
-
-Copyright 2012-2013 the DragonBones Team
+[1]: http://dragonbones.github.com/
+[2]: http://www.egret.com/
+[10]: ./DragonBones/
+[11]: ./Egret/
+[111]: https://github.com/egret-labs/egret-core/
