@@ -53,10 +53,12 @@ namespace dragonBones {
 
             for (let i in this.skins) {
                 this.skins[i].returnToPool();
+                delete this.skins[i];
             }
 
             for (let i in this.animations) {
                 this.animations[i].returnToPool();
+                delete this.animations[i];
             }
 
             this._boneDirty = false;
@@ -112,7 +114,7 @@ namespace dragonBones {
                 } else {
                     this._sortedBones.push(bone);
                 }
-                
+
                 count++;
             }
         }
@@ -151,7 +153,7 @@ namespace dragonBones {
 
                 const children = this._bonesChildren[value.name];
                 if (children) {
-                    for (let i in children) {
+                    for (let i = 0, l = children.length; i < l; ++i) {
                         children[i].parent = value;
                     }
 
@@ -427,7 +429,7 @@ namespace dragonBones {
             this.slot = null;
 
             if (this.displays.length) {
-                for (let i in this.displays) {
+                for (let i = 0, l = this.displays.length; i < l; ++i) {
                     this.displays[i].returnToPool();
                 }
 

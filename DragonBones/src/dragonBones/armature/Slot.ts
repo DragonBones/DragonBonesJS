@@ -563,7 +563,7 @@ namespace dragonBones {
 				this._update(-1);
 			}
 
-			for (let i in backupDisplayList) {
+            for (let i = 0, l = backupDisplayList.length; i < l; ++i) {
 				let eachDisplay = backupDisplayList[i];
 				if (eachDisplay != this._rawDisplay && this._displayList.indexOf(eachDisplay) < 0) {
 					if (disposeDisplayList.indexOf(eachDisplay) < 0) {
@@ -572,7 +572,7 @@ namespace dragonBones {
 				}
 			}
 
-			for (let i in disposeDisplayList) {
+            for (let i = 0, l = disposeDisplayList.length; i < l; ++i) {
 				let eachDisplay = disposeDisplayList[i];
 				if (eachDisplay instanceof Armature) {
 					<Armature>(eachDisplay).returnToPool();

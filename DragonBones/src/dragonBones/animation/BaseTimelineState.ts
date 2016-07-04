@@ -75,7 +75,7 @@ namespace dragonBones {
                     }
                 } else if (actionData.bone) {
                     const slots = this._armature.getSlots();
-                    for (let i in slots) {
+                    for (let i = 0, l = slots.length; i < l; ++i) {
                         const eachChildArmature = slots[i].childArmature;
                         if (eachChildArmature) {
                             eachChildArmature._action = actionData;
@@ -90,7 +90,7 @@ namespace dragonBones {
             const events = frame.events;
             for (let i = 0, l = events.length; i < l; ++i) {
                 const eventData = events[i];
-                
+
                 let eventType = "";
                 switch (eventData.type) {
                     case EventType.Frame:
@@ -297,7 +297,7 @@ namespace dragonBones {
 
             return (value - progress) * easing + progress;
         }
-        
+
         public static _getCurveEasingValue(progress: number, sampling: Array<number>): number {
             let x = 0;
             let y = 0;

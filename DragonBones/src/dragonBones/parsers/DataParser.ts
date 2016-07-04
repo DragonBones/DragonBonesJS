@@ -267,7 +267,7 @@ namespace dragonBones {
 
 		protected _globalToLocal(armature: ArmatureData): void {
 			const bones = armature.sortedBones.reverse();
-			for (let i in bones) {
+			for (let i = 0, l = bones.length; i < l; ++i) {
 				const bone = bones[i];
 
 				if (bone.parent) {

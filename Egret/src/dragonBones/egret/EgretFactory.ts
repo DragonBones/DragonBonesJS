@@ -54,7 +54,7 @@ namespace dragonBones {
             slot._rawDisplay = new egret.Bitmap();
             slot._meshDisplay = new egret.Mesh();
 
-            for (let i in slotDisplayDataSet.displays) {
+            for (let i = 0, l = slotDisplayDataSet.displays.length; i < l; ++i) {
                 const displayData = slotDisplayDataSet.displays[i];
                 switch (displayData.type) {
                     case DisplayType.Image:

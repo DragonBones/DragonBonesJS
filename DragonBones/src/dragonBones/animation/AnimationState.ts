@@ -542,11 +542,11 @@ namespace dragonBones {
                     this._fadeProgress = 0.000001;
                 }
 
-                for (let i in this._boneTimelines) {
+                for (let i = 0, l = this._boneTimelines.length; i < l; ++i) {
                     this._boneTimelines[i].fadeOut();
                 }
 
-                for (let i in this._slotTimelines) {
+                for (let i = 0, l = this._slotTimelines.length; i < l; ++i) {
                     this._slotTimelines[i].fadeOut();
                 }
             }
@@ -586,7 +586,7 @@ namespace dragonBones {
 
             if (recursive) {
                 const bones = this._armature.getBones();
-                for (let i in bones) {
+                for (let i = 0, l = bones.length; i < l; ++i) {
                     const bone = bones[i];
                     const boneName = bone.name;
                     if (
@@ -618,7 +618,7 @@ namespace dragonBones {
                 const currentBone = this._armature.getBone(name);
                 if (currentBone) {
                     const bones = this._armature.getBones();
-                    for (let i in bones) {
+                    for (let i = 0, l = bones.length; i < l; ++i) {
                         const bone = bones[i];
                         const boneName = bone.name;
                         const index = this._boneMask.indexOf(boneName);
@@ -758,7 +758,7 @@ namespace dragonBones {
                 }
             }
         }
-        
+
         /**
          * 不推荐使用
          */

@@ -118,7 +118,7 @@ namespace dragonBones {
             this._slotsDirty = false;
 
             if (this._bones.length) {
-                for (let i in this._bones) {
+                for (let i = 0, l = this._bones.length; i < l; ++i) {
                     this._bones[i].returnToPool();
                 }
 
@@ -126,7 +126,7 @@ namespace dragonBones {
             }
 
             if (this._slots.length) {
-                for (let i in this._slots) {
+                for (let i = 0, l = this._slots.length; i < l; ++i) {
                     this._slots[i].returnToPool();
                 }
 
@@ -134,7 +134,7 @@ namespace dragonBones {
             }
 
             if (this._events.length) {
-                for (let i in this._events) {
+                for (let i = 0, l = this._events.length; i < l; ++i) {
                     this._events[i].returnToPool();
                 }
 
@@ -360,7 +360,7 @@ namespace dragonBones {
                     bone.invalidUpdate();
 
                     if (updateSlotDisplay) {
-                        for (let i in this._slots) {
+                        for (let i = 0, l = this._slots.length; i < l; ++i) {
                             const slot = this._slots[i];
                             if (slot.parent == bone) {
                                 slot.invalidUpdate();
@@ -369,12 +369,12 @@ namespace dragonBones {
                     }
                 }
             } else {
-                for (let i in this._bones) {
+                for (let i = 0, l = this._bones.length; i < l; ++i) {
                     this._bones[i].invalidUpdate();
                 }
 
                 if (updateSlotDisplay) {
-                    for (let i in this._slots) {
+                    for (let i = 0, l = this._slots.length; i < l; ++i) {
                         this._slots[i].invalidUpdate();
                     }
                 }
@@ -387,7 +387,7 @@ namespace dragonBones {
 		 * @see dragonBones.Slot
 		 */
         public getSlot(name: string): Slot {
-            for (let i in this._slots) {
+            for (let i = 0, l = this._slots.length; i < l; ++i) {
                 const slot = this._slots[i];
                 if (slot.name == name) {
                     return slot;
@@ -404,7 +404,7 @@ namespace dragonBones {
 		 */
         public getSlotByDisplay(display: any): Slot {
             if (display) {
-                for (let i in this._slots) {
+                for (let i = 0, l = this._slots.length; i < l; ++i) {
                     const slot = this._slots[i];
                     if (slot.display == display) {
                         return slot;
@@ -449,7 +449,7 @@ namespace dragonBones {
 		 * @see dragonBones.Bone
 		 */
         public getBone(name: string): Bone {
-            for (let i in this._bones) {
+            for (let i = 0, l = this._bones.length; i < l; ++i) {
                 const bone = this._bones[i];
                 if (bone.name == name) {
                     return bone;
@@ -509,7 +509,7 @@ namespace dragonBones {
         public setReplaceTexture(texture: any): void {
             this._replaceTexture = texture;
 
-            for (let i in this._slots) {
+            for (let i = 0, l = this._slots.length; i < l; ++i) {
                 this._slots[i].invalidUpdate();
             }
         }

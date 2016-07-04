@@ -84,8 +84,8 @@ namespace dragonBones {
             this._rawBones.length = 0;
 
             if (ObjectDataParser.BONE in rawData) {
-                const bones = rawData[ObjectDataParser.BONE];
-                for (let i in bones) {
+                const bones = <Array<any>>rawData[ObjectDataParser.BONE];
+                for (let i = 0, l = bones.length; i < l; ++i) {
                     const boneObject = bones[i];
                     const bone = this._parseBone(boneObject);
                     armature.addBone(bone, ObjectDataParser._getString(boneObject, ObjectDataParser.PARENT, null));
@@ -94,29 +94,29 @@ namespace dragonBones {
             }
 
             if (ObjectDataParser.IK in rawData) {
-                const iks = rawData[ObjectDataParser.IK];
-                for (let i in iks) {
+                const iks = <Array<any>>rawData[ObjectDataParser.IK];
+                for (let i = 0, l = iks.length; i < l; ++i) {
                     this._parseIK(iks[i]);
                 }
             }
 
             if (ObjectDataParser.SLOT in rawData) {
-                const slots = rawData[ObjectDataParser.SLOT];
-                for (let i in slots) {
+                const slots = <Array<any>>rawData[ObjectDataParser.SLOT];
+                for (let i = 0, l = slots.length; i < l; ++i) {
                     armature.addSlot(this._parseSlot(slots[i]));
                 }
             }
 
             if (ObjectDataParser.SKIN in rawData) {
-                const skins = rawData[ObjectDataParser.SKIN];
-                for (let i in skins) {
+                const skins = <Array<any>>rawData[ObjectDataParser.SKIN];
+                for (let i = 0, l = skins.length; i < l; ++i) {
                     armature.addSkin(this._parseSkin(skins[i]));
                 }
             }
 
             if (ObjectDataParser.ANIMATION in rawData) {
-                const animations = rawData[ObjectDataParser.ANIMATION];
-                for (let i in animations) {
+                const animations = <Array<any>>rawData[ObjectDataParser.ANIMATION];
+                for (let i = 0, l = animations.length; i < l; ++i) {
                     armature.addAnimation(this._parseAnimation(animations[i]));
                 }
             }
@@ -218,9 +218,8 @@ namespace dragonBones {
             if (ObjectDataParser.SLOT in rawData) {
                 this._skin = skin;
 
-                const slots = rawData[ObjectDataParser.SLOT];
-                for (let i in slots) {
-
+                const slots = <Array<any>>rawData[ObjectDataParser.SLOT];
+                for (let i = 0, l = slots.length; i < l; ++i) {
                     if (this._isParentCooriinate) {
                         this._armature.addSlot(this._parseSlot(slots[i]));
                     }
@@ -241,12 +240,12 @@ namespace dragonBones {
             slotDisplayDataSet.slot = this._armature.getSlot(ObjectDataParser._getString(rawData, ObjectDataParser.NAME, null));
 
             if (ObjectDataParser.DISPLAY in rawData) {
-                const displayObjectSet = rawData[ObjectDataParser.DISPLAY];
+                const displayObjectSet = <Array<any>>rawData[ObjectDataParser.DISPLAY];
                 const displayDataSet = slotDisplayDataSet.displays;
 
                 this._slotDisplayDataSet = slotDisplayDataSet;
 
-                for (let i in displayObjectSet) {
+                for (let i = 0, l = displayObjectSet.length; i < l; ++i) {
                     displayDataSet.push(this._parseDisplay(displayObjectSet[i]));
                 }
 
@@ -432,22 +431,22 @@ namespace dragonBones {
             this._parseTimeline(rawData, animation, this._parseAnimationFrame);
 
             if (ObjectDataParser.BONE in rawData) {
-                const boneTimelines = rawData[ObjectDataParser.BONE];
-                for (let i in boneTimelines) {
+                const boneTimelines = <Array<any>>rawData[ObjectDataParser.BONE];
+                for (let i = 0, l = boneTimelines.length; i < l; ++i) {
                     animation.addBoneTimeline(this._parseBoneTimeline(boneTimelines[i]));
                 }
             }
 
             if (ObjectDataParser.SLOT in rawData) {
-                const slotTimelines = rawData[ObjectDataParser.SLOT];
-                for (let i in slotTimelines) {
+                const slotTimelines = <Array<any>>rawData[ObjectDataParser.SLOT];
+                for (let i = 0, l = slotTimelines.length; i < l; ++i) {
                     animation.addSlotTimeline(this._parseSlotTimeline(slotTimelines[i]));
                 }
             }
 
             if (ObjectDataParser.FFD in rawData) {
-                const ffdTimelines = rawData[ObjectDataParser.FFD];
-                for (let i in ffdTimelines) {
+                const ffdTimelines = <Array<any>>rawData[ObjectDataParser.FFD];
+                for (let i = 0, l = ffdTimelines.length; i < l; ++i) {
                     animation.addFFDTimeline(this._parseFFDTimeline(ffdTimelines[i]));
                 }
             }
@@ -458,12 +457,12 @@ namespace dragonBones {
                 animation.playTimes = ObjectDataParser._getNumber(rawData, ObjectDataParser.LOOP, 1);
 
                 if (ObjectDataParser.TIMELINE in rawData) {
-                    const timelines = rawData[ObjectDataParser.TIMELINE];
-                    for (let i in timelines) {
+                    const timelines = <Array<any>>rawData[ObjectDataParser.TIMELINE];
+                    for (let i = 0, l = timelines.length; i < l; ++i) {
                         animation.addBoneTimeline(this._parseBoneTimeline(timelines[i]));
                     }
 
-                    for (let i in timelines) {
+                    for (let i = 0, l = timelines.length; i < l; ++i) {
                         animation.addSlotTimeline(this._parseSlotTimeline(timelines[i]));
                     }
                 }
@@ -802,7 +801,7 @@ namespace dragonBones {
                 actionData.slot = slot;
                 actions.push(actionData);
             } else if (actionsObject instanceof Array) {
-                for (let i in actionsObject) {
+                for (let i = 0, l = actionsObject.length; i < l; ++i) {
                     const actionObject = <Array<any>>actionsObject[i];
                     const actionData = BaseObject.borrowObject(ActionData);
                     const actionType = actionObject[0];
@@ -930,8 +929,8 @@ namespace dragonBones {
 
                     if (ObjectDataParser.ARMATURE in rawData) {
                         this._data = data;
-                        const armatures = rawData[ObjectDataParser.ARMATURE];
-                        for (let i in armatures) {
+                        const armatures = <Array<any>>rawData[ObjectDataParser.ARMATURE];
+                        for (let i = 0, l = armatures.length; i < l; ++i) {
                             data.addArmature(this._parseArmature(armatures[i]));
                         }
 
@@ -966,8 +965,8 @@ namespace dragonBones {
                 scale = 1 / scale;
 
                 if (ObjectDataParser.SUB_TEXTURE in rawData) {
-                    const textures = rawData[ObjectDataParser.SUB_TEXTURE];
-                    for (let i in textures) {
+                    const textures = <Array<any>>rawData[ObjectDataParser.SUB_TEXTURE];
+                    for (let i = 0, l = textures.length; i < l; ++i) {
                         const textureObject = textures[i];
                         const textureData = textureAtlasData.generateTextureData();
                         textureData.name = ObjectDataParser._getString(textureObject, ObjectDataParser.NAME, null);

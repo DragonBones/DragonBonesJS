@@ -259,7 +259,7 @@ namespace dragonBones {
 			}
 
 			if (oldSlots) {
-				for (let i in oldSlots) {
+				for (let i = 0, l = oldSlots.length; i < l; ++i) {
 					const slot = oldSlots[i];
 					if (slot.parent == this) {
 						slot._setArmature(this._armature);
@@ -268,7 +268,7 @@ namespace dragonBones {
 			}
 
 			if (oldBones) {
-				for (let i in oldBones) {
+				for (let i = 0, l = oldBones.length; i < l; ++i) {
 					const bone = oldBones[i];
 					if (bone.parent == this) {
 						bone._setArmature(this._armature);
@@ -427,7 +427,7 @@ namespace dragonBones {
 			this._bones.length = 0;
 
 			const bones = this._armature.getBones();
-			for (let i in bones) {
+			for (let i = 0, l = bones.length; i < l; ++i) {
 				const bone = bones[i];
 				if (bone.parent == this) {
 					this._bones.push(bone);
@@ -443,7 +443,7 @@ namespace dragonBones {
 			this._slots.length = 0;
 
 			const slots = this._armature.getSlots();
-			for (let i in slots) {
+			for (let i = 0, l = slots.length; i < l; ++i) {
 				const slot = slots[i];
 				if (slot.parent == this) {
 					this._slots.push(slot);
@@ -483,7 +483,7 @@ namespace dragonBones {
 
 			this._visible = value;
 			const slots = this._armature.getSlots();
-			for (let i in slots) {
+			for (let i = 0, l = slots.length; i < l; ++i) {
 				const slot = slots[i];
 				if (slot._parent == this) {
 					slot._updateVisible();
@@ -497,7 +497,7 @@ namespace dragonBones {
 		 */
 		public get slot(): Slot {
 			const slots = this._armature.getSlots();
-			for (let i in slots) {
+			for (let i = 0, l = slots.length; i < l; ++i) {
 				const slot = slots[i];
 				if (slot.parent == this) {
 					this._slots.push(slot);

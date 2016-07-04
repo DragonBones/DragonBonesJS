@@ -94,7 +94,7 @@ namespace dragonBones {
             }
 
             if (this._animationStates.length) {
-                for (let i in this._animationStates) {
+                for (let i = 0, l = this._animationStates.length; i < l; ++i) {
                     this._animationStates[i].returnToPool();
                 }
 
@@ -151,7 +151,7 @@ namespace dragonBones {
 		 * @private
 		 */
         public _updateFFDTimelineStates(): void {
-            for (let i in this._animationStates) {
+            for (let i = 0, l = this._animationStates.length; i < l; ++i) {
                 this._animationStates[i]._updateFFDTimelineStates();
             }
         }
@@ -497,10 +497,10 @@ namespace dragonBones {
             return this._animationNames;
         }
 
-        public get animations(): Object {
+        public get animations(): Map<AnimationData> {
             return this._animations;
         }
-        public set animations(value: Object) {
+        public set animations(value: Map<AnimationData>) {
             if (this._animations == value) {
                 return;
             }
@@ -512,9 +512,9 @@ namespace dragonBones {
             this._animationNames.length = 0;
 
             if (value) {
-                for (let animationName in value) {
-                    this._animations[animationName] = value[animationName];
-                    this._animationNames.push(animationName);
+                for (let i in value) {
+                    this._animations[i] = value[i];
+                    this._animationNames.push(i);
                 }
             }
         }
@@ -561,7 +561,7 @@ namespace dragonBones {
 		 */
         public get animationDataList(): Array<AnimationData> {
             const list: AnimationData[] = [];
-            for (let i in this._animationNames) { 
+            for (let i = 0, l = this._animationNames.length; i < l; ++i) {
                 list.push(this._animations[this._animationNames[i]]);
             }
 

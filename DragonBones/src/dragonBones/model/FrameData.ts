@@ -66,7 +66,7 @@ namespace dragonBones {
             this.next = null;
 
             if (this.actions.length) {
-                for (let i in this.actions) {
+                for (let i = 0, l = this.actions.length; i < l; ++i) {
                     this.actions[i].returnToPool();
                 }
 
@@ -74,7 +74,7 @@ namespace dragonBones {
             }
 
             if (this.events.length) {
-                for (let i in this.events) {
+                for (let i = 0, l = this.events.length; i < l; ++i) {
                     this.events[i].returnToPool();
                 }
 

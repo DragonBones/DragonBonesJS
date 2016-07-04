@@ -37,7 +37,7 @@ namespace dragonBones {
                 for (let i in this._textureAtlasDataMap) {
                     textureAtlasDataList = this._textureAtlasDataMap[i];
                     for (let j = 0, lJ = textureAtlasDataList.length; j < lJ; ++j) {
-                        const textureAtlasData = textureAtlasDataList[i];
+                        const textureAtlasData = textureAtlasDataList[j];
                         if (textureAtlasData.autoSearch) {
                             const textureData = textureAtlasData.getTextureData(textureName);
                             if (textureData) {
@@ -145,7 +145,7 @@ namespace dragonBones {
             }
 
             const slots = dataPackage.armature.sortedSlots;
-            for (let i in slots) {
+            for (let i = 0, l = slots.length; i < l; ++i) {
                 const slotData = slots[i];
                 const slotDisplayDataSet = slotDisplayDataSetMap[slotData.name];
                 if (!slotDisplayDataSet) {
@@ -280,7 +280,7 @@ namespace dragonBones {
             const textureAtlasDataList = this._textureAtlasDataMap[dragonBonesName];
             if (textureAtlasDataList) {
                 if (disposeData) {
-                    for (let i in textureAtlasDataList) {
+                    for (let i = 0, l = textureAtlasDataList.length; i < l; ++i) {
                         textureAtlasDataList[i].returnToPool();
                     }
                 }
@@ -301,8 +301,8 @@ namespace dragonBones {
 
             for (let i in this._textureAtlasDataMap) {
                 if (disposeData) {
-                    const textureAtlasDataList = this._dragonBonesDataMap[i];
-                    for (let i in textureAtlasDataList) {
+                    const textureAtlasDataList = this._textureAtlasDataMap[i];
+                    for (let i = 0, l = textureAtlasDataList.length; i < l; ++i) {
                         textureAtlasDataList[i].returnToPool();
                     }
                 }
@@ -353,7 +353,7 @@ namespace dragonBones {
 
                 if (dataPackage.skin) {
                     const slots = toArmature.getSlots();
-                    for (let i in slots) {
+                    for (let i = 0, l = slots.length; i < l; ++i) {
                         const toSlot = slots[i];
                         const toSlotDisplayList = toSlot.displayList;
                         for (let i = 0, l = toSlotDisplayList.length; i < l; ++i) {
@@ -382,7 +382,7 @@ namespace dragonBones {
             if (this._fillBuildArmaturePackage(dragonBonesName, armatureName, null, dataPackage)) {
                 const slotDisplayDataSet = dataPackage.skin.getSlot(slotName);
                 if (slotDisplayDataSet) {
-                    for (let i in slotDisplayDataSet.displays) {
+                    for (let i = 0, l = slotDisplayDataSet.displays.length; i < l; ++i) {
                         const displayData = slotDisplayDataSet.displays[i];
                         if (displayData.name == displayName) {
                             this._replaceSlotDisplay(dataPackage, displayData, slot, displayIndex);
