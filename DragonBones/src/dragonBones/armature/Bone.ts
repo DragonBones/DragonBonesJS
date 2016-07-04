@@ -1,511 +1,518 @@
 namespace dragonBones {
-	/**
-	 * @private
-	 */
-	export const enum BoneTransformDirty {
+    /**
+     * @private
+     */
+    export const enum BoneTransformDirty {
         None = 0,
         Self = 1,
         All = 2
-	}
+    }
 
     export class Bone extends TransformObject {
-		/**
-		 * 
-		 */
-		public inheritTranslation: boolean;
-		/**
-		 * 
-		 */
-		public inheritRotation: boolean;
-		/**
-		 * 
-		 */
-		public inheritScale: boolean;
-		/**
-		 * 
-		 */
-		public ikBendPositive: boolean;
-		/**
-		 * 
-		 */
-		public ikWeight: number;
-		/**
-		 * 
-		 */
-		public length: number;
-		/**
-		 * @private [0: update self, 1: update children, ik, mesh, ...]
-		 */
-		public _transformDirty: BoneTransformDirty;
-		/**
-		 * @private
-		 */
-		public _blendIndex: number;
-		/**
-		 * @private
-		 */
-		public _cacheFrames: Array<Matrix>;
-		/**
-		 * @private
-		 */
-		public _animationPose: Transform = new Transform();
-		/**
-		 * @private
-		 */
-		private _visible: boolean;
-		/**
-		 * @private
-		 */
-		private _ikChain: number;
-		/**
-		 * @private
-		 */
-		private _ikChainIndex: number;
-		/**
-		 * @private
-		 */
-		private _ik: Bone;
-		/**
-		 * @private
-		 */
-		private _bones: Array<Bone> = [];
-		/**
-		 * @private
-		 */
-		private _slots: Array<Slot> = [];
-		/**
-		 * @private
-		 */
+        /**
+         * @private
+         */
+        public static toString(): string {
+            return "[Class dragonBones.Bone]";
+        }
+
+        /**
+         * 
+         */
+        public inheritTranslation: boolean;
+        /**
+         * 
+         */
+        public inheritRotation: boolean;
+        /**
+         * 
+         */
+        public inheritScale: boolean;
+        /**
+         * 
+         */
+        public ikBendPositive: boolean;
+        /**
+         * 
+         */
+        public ikWeight: number;
+        /**
+         * 
+         */
+        public length: number;
+        /**
+         * @private [0: update self, 1: update children, ik, mesh, ...]
+         */
+        public _transformDirty: BoneTransformDirty;
+        /**
+         * @private
+         */
+        public _blendIndex: number;
+        /**
+         * @private
+         */
+        public _cacheFrames: Array<Matrix>;
+        /**
+         * @private
+         */
+        public _animationPose: Transform = new Transform();
+        /**
+         * @private
+         */
+        private _visible: boolean;
+        /**
+         * @private
+         */
+        private _ikChain: number;
+        /**
+         * @private
+         */
+        private _ikChainIndex: number;
+        /**
+         * @private
+         */
+        private _ik: Bone;
+        /**
+         * @private
+         */
+        private _bones: Array<Bone> = [];
+        /**
+         * @private
+         */
+        private _slots: Array<Slot> = [];
+        /**
+         * @private
+         */
         public constructor() {
             super();
         }
-		/**
-		 * @inheritDoc
-		 */
-		protected _onClear(): void {
-			super._onClear();
+        /**
+         * @inheritDoc
+         */
+        protected _onClear(): void {
+            super._onClear();
 
-			this.inheritTranslation = false;
-			this.inheritRotation = false;
-			this.inheritScale = false;
-			this.ikBendPositive = false;
-			this.ikWeight = 0;
-			this.length = 0;
+            this.inheritTranslation = false;
+            this.inheritRotation = false;
+            this.inheritScale = false;
+            this.ikBendPositive = false;
+            this.ikWeight = 0;
+            this.length = 0;
 
-			this._transformDirty = BoneTransformDirty.All; // Update
-			this._blendIndex = 0;
-			this._cacheFrames = null;
-			this._animationPose.identity();
+            this._transformDirty = BoneTransformDirty.All; // Update
+            this._blendIndex = 0;
+            this._cacheFrames = null;
+            this._animationPose.identity();
 
-			this._visible = true;
-			this._ikChain = 0;
-			this._ikChainIndex = 0;
-			this._ik = null;
+            this._visible = true;
+            this._ikChain = 0;
+            this._ikChainIndex = 0;
+            this._ik = null;
 
-			if (this._bones.length) {
-				this._bones.length = 0;
-			}
+            if (this._bones.length) {
+                this._bones.length = 0;
+            }
 
-			if (this._slots.length) {
-				this._slots.length = 0;
-			}
-		}
+            if (this._slots.length) {
+                this._slots.length = 0;
+            }
+        }
 
-		private _updateGlobalTransformMatrix(): void {
-			if (this._parent) {
-				const parentRotation = this._parent.global.skewY; // Only inherit skew y
-				const parentMatrix = this._parent.globalTransformMatrix;
+        private _updateGlobalTransformMatrix(): void {
+            if (this._parent) {
+                const parentRotation = this._parent.global.skewY; // Only inherit skew y
+                const parentMatrix = this._parent.globalTransformMatrix;
 
-				if (this.inheritScale) {
-					if (!this.inheritRotation) {
-						this.global.skewX -= parentRotation;
-						this.global.skewY -= parentRotation;
-					}
+                if (this.inheritScale) {
+                    if (!this.inheritRotation) {
+                        this.global.skewX -= parentRotation;
+                        this.global.skewY -= parentRotation;
+                    }
 
-					this.global.toMatrix(this.globalTransformMatrix);
-					this.globalTransformMatrix.concat(parentMatrix);
+                    this.global.toMatrix(this.globalTransformMatrix);
+                    this.globalTransformMatrix.concat(parentMatrix);
 
-					if (!this.inheritTranslation) {
-						this.globalTransformMatrix.tx = this.global.x;
-						this.globalTransformMatrix.ty = this.global.y;
-					}
+                    if (!this.inheritTranslation) {
+                        this.globalTransformMatrix.tx = this.global.x;
+                        this.globalTransformMatrix.ty = this.global.y;
+                    }
 
-					this.global.fromMatrix(this.globalTransformMatrix);
-				} else {
-					if (this.inheritTranslation) {
-						const x = this.global.x;
-						const y = this.global.y;
-						this.global.x = parentMatrix.a * x + parentMatrix.c * y + parentMatrix.tx;
-						this.global.y = parentMatrix.d * y + parentMatrix.b * x + parentMatrix.ty;
-					}
+                    this.global.fromMatrix(this.globalTransformMatrix);
+                } else {
+                    if (this.inheritTranslation) {
+                        const x = this.global.x;
+                        const y = this.global.y;
+                        this.global.x = parentMatrix.a * x + parentMatrix.c * y + parentMatrix.tx;
+                        this.global.y = parentMatrix.d * y + parentMatrix.b * x + parentMatrix.ty;
+                    }
 
-					if (this.inheritRotation) {
-						this.global.skewX += parentRotation;
-						this.global.skewY += parentRotation;
-					}
+                    if (this.inheritRotation) {
+                        this.global.skewX += parentRotation;
+                        this.global.skewY += parentRotation;
+                    }
 
-					this.global.toMatrix(this.globalTransformMatrix);
-				}
-			} else {
-				this.global.toMatrix(this.globalTransformMatrix);
-			}
-		}
+                    this.global.toMatrix(this.globalTransformMatrix);
+                }
+            } else {
+                this.global.toMatrix(this.globalTransformMatrix);
+            }
+        }
 
-		private _computeIKA(): void {
-			const ikGlobal = this._ik.global;
-			const x = this.globalTransformMatrix.a * this.length;
-			const y = this.globalTransformMatrix.b * this.length;
+        private _computeIKA(): void {
+            const ikGlobal = this._ik.global;
+            const x = this.globalTransformMatrix.a * this.length;
+            const y = this.globalTransformMatrix.b * this.length;
 
-			const ikRadian =
-				(
-					Math.atan2(ikGlobal.y - this.global.y, ikGlobal.x - this.global.x) +
-					this.offset.skewY -
-					this.global.skewY * 2 +
-					Math.atan2(y, x)
-				) * this.ikWeight; // Support offset.
+            const ikRadian =
+                (
+                    Math.atan2(ikGlobal.y - this.global.y, ikGlobal.x - this.global.x) +
+                    this.offset.skewY -
+                    this.global.skewY * 2 +
+                    Math.atan2(y, x)
+                ) * this.ikWeight; // Support offset.
 
-			this.global.skewX += ikRadian;
-			this.global.skewY += ikRadian;
-			this.global.toMatrix(this.globalTransformMatrix);
-		}
+            this.global.skewX += ikRadian;
+            this.global.skewY += ikRadian;
+            this.global.toMatrix(this.globalTransformMatrix);
+        }
 
-		private _computeIKB(): void {
-			const parentGlobal = this._parent.global;
-			const ikGlobal = this._ik.global;
+        private _computeIKB(): void {
+            const parentGlobal = this._parent.global;
+            const ikGlobal = this._ik.global;
 
-			const x = this.globalTransformMatrix.a * this.length;
-			const y = this.globalTransformMatrix.b * this.length;
+            const x = this.globalTransformMatrix.a * this.length;
+            const y = this.globalTransformMatrix.b * this.length;
 
-			const lLL = x * x + y * y;
-			const lL = Math.sqrt(lLL);
+            const lLL = x * x + y * y;
+            const lL = Math.sqrt(lLL);
 
-			let dX = this.global.x - parentGlobal.x;
-			let dY = this.global.y - parentGlobal.y;
-			const lPP = dX * dX + dY * dY;
-			const lP = Math.sqrt(lPP);
+            let dX = this.global.x - parentGlobal.x;
+            let dY = this.global.y - parentGlobal.y;
+            const lPP = dX * dX + dY * dY;
+            const lP = Math.sqrt(lPP);
 
-			dX = ikGlobal.x - parentGlobal.x;
-			dY = ikGlobal.y - parentGlobal.y;
-			const lTT = dX * dX + dY * dY;
-			const lT = Math.sqrt(lTT);
+            dX = ikGlobal.x - parentGlobal.x;
+            dY = ikGlobal.y - parentGlobal.y;
+            const lTT = dX * dX + dY * dY;
+            const lT = Math.sqrt(lTT);
 
-			let ikRadianA = 0;
-			if (lL + lP <= lT || lT + lL <= lP || lT + lP <= lL) {
-				ikRadianA = Math.atan2(ikGlobal.y - parentGlobal.y, ikGlobal.x - parentGlobal.x) + this._parent.offset.skewY; // Support offset.
-				if (lL + lP <= lT) {
-				} else if (lP < lL) {
-					ikRadianA += Math.PI;
-				}
-			} else {
-				const h = (lPP - lLL + lTT) / (2 * lTT);
-				const r = Math.sqrt(lPP - h * h * lTT) / lT;
-				const hX = parentGlobal.x + (dX * h);
-				const hY = parentGlobal.y + (dY * h);
-				const rX = -dY * r;
-				const rY = dX * r;
+            let ikRadianA = 0;
+            if (lL + lP <= lT || lT + lL <= lP || lT + lP <= lL) {
+                ikRadianA = Math.atan2(ikGlobal.y - parentGlobal.y, ikGlobal.x - parentGlobal.x) + this._parent.offset.skewY; // Support offset.
+                if (lL + lP <= lT) {
+                } else if (lP < lL) {
+                    ikRadianA += Math.PI;
+                }
+            } else {
+                const h = (lPP - lLL + lTT) / (2 * lTT);
+                const r = Math.sqrt(lPP - h * h * lTT) / lT;
+                const hX = parentGlobal.x + (dX * h);
+                const hY = parentGlobal.y + (dY * h);
+                const rX = -dY * r;
+                const rY = dX * r;
 
-				if (this.ikBendPositive) {
-					this.global.x = hX - rX;
-					this.global.y = hY - rY;
-				} else {
-					this.global.x = hX + rX;
-					this.global.y = hY + rY;
-				}
+                if (this.ikBendPositive) {
+                    this.global.x = hX - rX;
+                    this.global.y = hY - rY;
+                } else {
+                    this.global.x = hX + rX;
+                    this.global.y = hY + rY;
+                }
 
-				ikRadianA = Math.atan2(this.global.y - parentGlobal.y, this.global.x - parentGlobal.x) + this._parent.offset.skewY; // Support offset.
-			}
+                ikRadianA = Math.atan2(this.global.y - parentGlobal.y, this.global.x - parentGlobal.x) + this._parent.offset.skewY; // Support offset.
+            }
 
-			ikRadianA = (ikRadianA - parentGlobal.skewY) * this.ikWeight;
+            ikRadianA = (ikRadianA - parentGlobal.skewY) * this.ikWeight;
 
-			parentGlobal.skewX += ikRadianA;
-			parentGlobal.skewY += ikRadianA;
-			parentGlobal.toMatrix(this._parent.globalTransformMatrix);
+            parentGlobal.skewX += ikRadianA;
+            parentGlobal.skewY += ikRadianA;
+            parentGlobal.toMatrix(this._parent.globalTransformMatrix);
 
-			const ikRadianB =
-				(
-					Math.atan2(ikGlobal.y - this.global.y, ikGlobal.x - this.global.x) + this.offset.skewY -
-					this.global.skewY * 2 + Math.atan2(y, x)
-				) * this.ikWeight; // Support offset.
+            const ikRadianB =
+                (
+                    Math.atan2(ikGlobal.y - this.global.y, ikGlobal.x - this.global.x) + this.offset.skewY -
+                    this.global.skewY * 2 + Math.atan2(y, x)
+                ) * this.ikWeight; // Support offset.
 
-			this.global.skewX += ikRadianB;
-			this.global.skewY += ikRadianB;
-			this.global.x = parentGlobal.x + Math.cos(parentGlobal.skewY) * lP;
-			this.global.y = parentGlobal.y + Math.sin(parentGlobal.skewY) * lP;
-			this.global.toMatrix(this.globalTransformMatrix);
-		}
-		/**
-		 * @inheritDoc
-		 */
-		public _setArmature(value: Armature): void {
-			if (this._armature == value) {
-				return;
-			}
+            this.global.skewX += ikRadianB;
+            this.global.skewY += ikRadianB;
+            this.global.x = parentGlobal.x + Math.cos(parentGlobal.skewY) * lP;
+            this.global.y = parentGlobal.y + Math.sin(parentGlobal.skewY) * lP;
+            this.global.toMatrix(this.globalTransformMatrix);
+        }
+        /**
+         * @inheritDoc
+         */
+        public _setArmature(value: Armature): void {
+            if (this._armature == value) {
+                return;
+            }
 
-			this._ik = null;
+            this._ik = null;
 
-			let oldSlots: Array<Slot> = null;
-			let oldBones: Array<Bone> = null;
+            let oldSlots: Array<Slot> = null;
+            let oldBones: Array<Bone> = null;
 
-			if (this._armature) {
-				oldSlots = this.getSlots();
-				oldBones = this.getBones();
-				this._armature._removeBoneFromBoneList(this);
-			}
+            if (this._armature) {
+                oldSlots = this.getSlots();
+                oldBones = this.getBones();
+                this._armature._removeBoneFromBoneList(this);
+            }
 
-			this._armature = value;
+            this._armature = value;
 
-			if (this._armature) {
-				this._armature._addBoneToBoneList(this);
-			}
+            if (this._armature) {
+                this._armature._addBoneToBoneList(this);
+            }
 
-			if (oldSlots) {
-				for (let i = 0, l = oldSlots.length; i < l; ++i) {
-					const slot = oldSlots[i];
-					if (slot.parent == this) {
-						slot._setArmature(this._armature);
-					}
-				}
-			}
+            if (oldSlots) {
+                for (let i = 0, l = oldSlots.length; i < l; ++i) {
+                    const slot = oldSlots[i];
+                    if (slot.parent == this) {
+                        slot._setArmature(this._armature);
+                    }
+                }
+            }
 
-			if (oldBones) {
-				for (let i = 0, l = oldBones.length; i < l; ++i) {
-					const bone = oldBones[i];
-					if (bone.parent == this) {
-						bone._setArmature(this._armature);
-					}
-				}
-			}
-		}
+            if (oldBones) {
+                for (let i = 0, l = oldBones.length; i < l; ++i) {
+                    const bone = oldBones[i];
+                    if (bone.parent == this) {
+                        bone._setArmature(this._armature);
+                    }
+                }
+            }
+        }
 
-		/**
-		 * @private
-		 */
-		public _setIK(value: Bone, chain: number, chainIndex: number): void {
-			if (value) {
-				if (chain == chainIndex) {
-					let chainEnd = this._parent;
-					if (chain && chainEnd) {
-						chain = 1;
-					} else {
-						chain = 0;
-						chainIndex = 0;
-						chainEnd = this;
-					}
+        /**
+         * @private
+         */
+        public _setIK(value: Bone, chain: number, chainIndex: number): void {
+            if (value) {
+                if (chain == chainIndex) {
+                    let chainEnd = this._parent;
+                    if (chain && chainEnd) {
+                        chain = 1;
+                    } else {
+                        chain = 0;
+                        chainIndex = 0;
+                        chainEnd = this;
+                    }
 
-					if (chainEnd == value || chainEnd.contains(value)) {
-						value = null;
-						chain = 0;
-						chainIndex = 0;
-					} else {
-						let ancestor = value;
-						while (ancestor.ik && ancestor.ikChain) {
-							if (chainEnd.contains(ancestor.ik)) {
-								value = null;
-								chain = 0;
-								chainIndex = 0;
-								break;
-							}
+                    if (chainEnd == value || chainEnd.contains(value)) {
+                        value = null;
+                        chain = 0;
+                        chainIndex = 0;
+                    } else {
+                        let ancestor = value;
+                        while (ancestor.ik && ancestor.ikChain) {
+                            if (chainEnd.contains(ancestor.ik)) {
+                                value = null;
+                                chain = 0;
+                                chainIndex = 0;
+                                break;
+                            }
 
-							ancestor = ancestor.parent;
-						}
-					}
-				}
-			} else {
-				chain = 0;
-				chainIndex = 0;
-			}
+                            ancestor = ancestor.parent;
+                        }
+                    }
+                }
+            } else {
+                chain = 0;
+                chainIndex = 0;
+            }
 
-			this._ik = value;
-			this._ikChain = chain;
-			this._ikChainIndex = chainIndex;
+            this._ik = value;
+            this._ikChain = chain;
+            this._ikChainIndex = chainIndex;
 
-			if (this._armature) {
-				this._armature._bonesDirty = true;
-			}
-		}
+            if (this._armature) {
+                this._armature._bonesDirty = true;
+            }
+        }
 
-		/**
-		 * @private
-		 */
-		public _update(cacheFrameIndex: number): void {
-			this._blendIndex = 0;
+        /**
+         * @private
+         */
+        public _update(cacheFrameIndex: number): void {
+            this._blendIndex = 0;
 
-			if (cacheFrameIndex >= 0) {
-				const cacheFrame = this._cacheFrames[cacheFrameIndex];
+            if (cacheFrameIndex >= 0) {
+                const cacheFrame = this._cacheFrames[cacheFrameIndex];
 
-				if (this.globalTransformMatrix == cacheFrame) // Same cache.
-				{
-					this._transformDirty = BoneTransformDirty.None;
-				} else if (cacheFrame) { // Has been Cached.
-					this._transformDirty = BoneTransformDirty.All; // For update children and ik children.
-					this.globalTransformMatrix = cacheFrame;
-				} else if (
-					this._transformDirty == BoneTransformDirty.All ||
-					(this._parent && this._parent._transformDirty != BoneTransformDirty.None) ||
-					(this._ik && this.ikWeight > 0 && this._ik._transformDirty != BoneTransformDirty.None)
-				) {
-					this._transformDirty = BoneTransformDirty.All; // For update children and ik children.
-					this.globalTransformMatrix = this._globalTransformMatrix;
-				} else if (this.globalTransformMatrix != this._globalTransformMatrix) { // Same cache but not cached yet.
-					this._transformDirty = BoneTransformDirty.None;
-					this._cacheFrames[cacheFrameIndex] = this.globalTransformMatrix;
-				} else {
-					this._transformDirty = BoneTransformDirty.Self;
-					this.globalTransformMatrix = this._globalTransformMatrix;
-				}
-			} else if (
-				this._transformDirty == BoneTransformDirty.All ||
-				(this._parent && this._parent._transformDirty) ||
-				(this._ik && this.ikWeight > 0 && this._ik._transformDirty != BoneTransformDirty.None)
-			) {
-				this._transformDirty = BoneTransformDirty.All; // For update children and ik children.
-				this.globalTransformMatrix = this._globalTransformMatrix;
-			}
+                if (this.globalTransformMatrix == cacheFrame) // Same cache.
+                {
+                    this._transformDirty = BoneTransformDirty.None;
+                } else if (cacheFrame) { // Has been Cached.
+                    this._transformDirty = BoneTransformDirty.All; // For update children and ik children.
+                    this.globalTransformMatrix = cacheFrame;
+                } else if (
+                    this._transformDirty == BoneTransformDirty.All ||
+                    (this._parent && this._parent._transformDirty != BoneTransformDirty.None) ||
+                    (this._ik && this.ikWeight > 0 && this._ik._transformDirty != BoneTransformDirty.None)
+                ) {
+                    this._transformDirty = BoneTransformDirty.All; // For update children and ik children.
+                    this.globalTransformMatrix = this._globalTransformMatrix;
+                } else if (this.globalTransformMatrix != this._globalTransformMatrix) { // Same cache but not cached yet.
+                    this._transformDirty = BoneTransformDirty.None;
+                    this._cacheFrames[cacheFrameIndex] = this.globalTransformMatrix;
+                } else {
+                    this._transformDirty = BoneTransformDirty.Self;
+                    this.globalTransformMatrix = this._globalTransformMatrix;
+                }
+            } else if (
+                this._transformDirty == BoneTransformDirty.All ||
+                (this._parent && this._parent._transformDirty) ||
+                (this._ik && this.ikWeight > 0 && this._ik._transformDirty != BoneTransformDirty.None)
+            ) {
+                this._transformDirty = BoneTransformDirty.All; // For update children and ik children.
+                this.globalTransformMatrix = this._globalTransformMatrix;
+            }
 
-			if (this._transformDirty != BoneTransformDirty.None) {
-				if (this._transformDirty == BoneTransformDirty.All) {
-					this._transformDirty = BoneTransformDirty.Self;
-				} else {
-					this._transformDirty = BoneTransformDirty.None;
-				}
+            if (this._transformDirty != BoneTransformDirty.None) {
+                if (this._transformDirty == BoneTransformDirty.All) {
+                    this._transformDirty = BoneTransformDirty.Self;
+                } else {
+                    this._transformDirty = BoneTransformDirty.None;
+                }
 
-				if (this.globalTransformMatrix == this._globalTransformMatrix) {
-					/*this.global.copyFrom(this.origin).add(this.offset).add(this._animationPose);*/
-					this.global.x = this.origin.x + this.offset.x + this._animationPose.x;
-					this.global.y = this.origin.y + this.offset.y + this._animationPose.y;
-					this.global.skewX = this.origin.skewX + this.offset.skewX + this._animationPose.skewX;
-					this.global.skewY = this.origin.skewY + this.offset.skewY + this._animationPose.skewY;
-					this.global.scaleX = this.origin.scaleX * this.offset.scaleX * this._animationPose.scaleX;
-					this.global.scaleY = this.origin.scaleY * this.offset.scaleY * this._animationPose.scaleY;
+                if (this.globalTransformMatrix == this._globalTransformMatrix) {
+                    /*this.global.copyFrom(this.origin).add(this.offset).add(this._animationPose);*/
+                    this.global.x = this.origin.x + this.offset.x + this._animationPose.x;
+                    this.global.y = this.origin.y + this.offset.y + this._animationPose.y;
+                    this.global.skewX = this.origin.skewX + this.offset.skewX + this._animationPose.skewX;
+                    this.global.skewY = this.origin.skewY + this.offset.skewY + this._animationPose.skewY;
+                    this.global.scaleX = this.origin.scaleX * this.offset.scaleX * this._animationPose.scaleX;
+                    this.global.scaleY = this.origin.scaleY * this.offset.scaleY * this._animationPose.scaleY;
 
-					this._updateGlobalTransformMatrix();
+                    this._updateGlobalTransformMatrix();
 
-					if (this._ik && this._ikChainIndex == this._ikChain && this.ikWeight > 0) {
-						if (this.inheritTranslation && this._ikChain > 0 && this._parent) {
-							this._computeIKB();
-						} else {
-							this._computeIKA();
-						}
-					}
+                    if (this._ik && this._ikChainIndex == this._ikChain && this.ikWeight > 0) {
+                        if (this.inheritTranslation && this._ikChain > 0 && this._parent) {
+                            this._computeIKB();
+                        } else {
+                            this._computeIKA();
+                        }
+                    }
 
-					if (cacheFrameIndex >= 0) {
-						this.globalTransformMatrix = BoneTimelineData.cacheFrame(this._cacheFrames, cacheFrameIndex, this._globalTransformMatrix);
-					}
-				}
-			}
-		}
+                    if (cacheFrameIndex >= 0) {
+                        this.globalTransformMatrix = BoneTimelineData.cacheFrame(this._cacheFrames, cacheFrameIndex, this._globalTransformMatrix);
+                    }
+                }
+            }
+        }
 
-		/**
-		 *
-		 */
-		public invalidUpdate(): void {
-			this._transformDirty = BoneTransformDirty.All;
-		}
-		/**
-		 *
-		 */
-		public contains(child: TransformObject): boolean {
-			if (child) {
-				if (child == this) {
-					return false;
-				}
+        /**
+         *
+         */
+        public invalidUpdate(): void {
+            this._transformDirty = BoneTransformDirty.All;
+        }
+        /**
+         *
+         */
+        public contains(child: TransformObject): boolean {
+            if (child) {
+                if (child == this) {
+                    return false;
+                }
 
-				let ancestor = child;
-				while (ancestor != this && ancestor) {
-					ancestor = ancestor.parent;
-				}
+                let ancestor = child;
+                while (ancestor != this && ancestor) {
+                    ancestor = ancestor.parent;
+                }
 
-				return ancestor == this;
-			}
+                return ancestor == this;
+            }
 
-			return false;
-		}
-		/**
-		 *
-		 */
-		public getBones(): Array<Bone> {
-			this._bones.length = 0;
+            return false;
+        }
+        /**
+         *
+         */
+        public getBones(): Array<Bone> {
+            this._bones.length = 0;
 
-			const bones = this._armature.getBones();
-			for (let i = 0, l = bones.length; i < l; ++i) {
-				const bone = bones[i];
-				if (bone.parent == this) {
-					this._bones.push(bone);
-				}
-			}
+            const bones = this._armature.getBones();
+            for (let i = 0, l = bones.length; i < l; ++i) {
+                const bone = bones[i];
+                if (bone.parent == this) {
+                    this._bones.push(bone);
+                }
+            }
 
-			return this._bones;
-		}
-		/**
-		 *
-		 */
-		public getSlots(): Array<Slot> {
-			this._slots.length = 0;
+            return this._bones;
+        }
+        /**
+         *
+         */
+        public getSlots(): Array<Slot> {
+            this._slots.length = 0;
 
-			const slots = this._armature.getSlots();
-			for (let i = 0, l = slots.length; i < l; ++i) {
-				const slot = slots[i];
-				if (slot.parent == this) {
-					this._slots.push(slot);
-				}
-			}
+            const slots = this._armature.getSlots();
+            for (let i = 0, l = slots.length; i < l; ++i) {
+                const slot = slots[i];
+                if (slot.parent == this) {
+                    this._slots.push(slot);
+                }
+            }
 
-			return this._slots;
-		}
-		/**
-		 * @private
-		 */
-		public get ikChain(): number {
-			return this._ikChain;
-		}
-		/**
-		 * @private
-		 */
-		public get ikChainIndex(): number {
-			return this._ikChainIndex;
-		}
-		/**
-		 *
-		 */
-		public get ik(): Bone {
-			return this._ik;
-		}
-		/**
-		 *
-		 */
-		public get visible(): boolean {
-			return this._visible;
-		}
-		public set visible(value: boolean) {
-			if (this._visible == value) {
-				return;
-			}
+            return this._slots;
+        }
+        /**
+         * @private
+         */
+        public get ikChain(): number {
+            return this._ikChain;
+        }
+        /**
+         * @private
+         */
+        public get ikChainIndex(): number {
+            return this._ikChainIndex;
+        }
+        /**
+         *
+         */
+        public get ik(): Bone {
+            return this._ik;
+        }
+        /**
+         *
+         */
+        public get visible(): boolean {
+            return this._visible;
+        }
+        public set visible(value: boolean) {
+            if (this._visible == value) {
+                return;
+            }
 
-			this._visible = value;
-			const slots = this._armature.getSlots();
-			for (let i = 0, l = slots.length; i < l; ++i) {
-				const slot = slots[i];
-				if (slot._parent == this) {
-					slot._updateVisible();
-				}
-			}
-		}
+            this._visible = value;
+            const slots = this._armature.getSlots();
+            for (let i = 0, l = slots.length; i < l; ++i) {
+                const slot = slots[i];
+                if (slot._parent == this) {
+                    slot._updateVisible();
+                }
+            }
+        }
 
-		/**
-		 * 不推荐使用
-		 * @see #dragonBones.Armature.getSlot()
-		 */
-		public get slot(): Slot {
-			const slots = this._armature.getSlots();
-			for (let i = 0, l = slots.length; i < l; ++i) {
-				const slot = slots[i];
-				if (slot.parent == this) {
-					this._slots.push(slot);
-					return slot;
-				}
-			}
+        /**
+         * 不推荐使用
+         * @see #dragonBones.Armature.getSlot()
+         */
+        public get slot(): Slot {
+            const slots = this._armature.getSlots();
+            for (let i = 0, l = slots.length; i < l; ++i) {
+                const slot = slots[i];
+                if (slot.parent == this) {
+                    this._slots.push(slot);
+                    return slot;
+                }
+            }
 
-			return null;
-		}
+            return null;
+        }
     }
 }

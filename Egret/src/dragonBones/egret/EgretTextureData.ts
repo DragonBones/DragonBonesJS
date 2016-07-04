@@ -1,5 +1,12 @@
 namespace dragonBones {
     export class EgretTextureAtlasData extends TextureAtlasData {
+        /**
+         * @private
+         */
+        public static toString(): string {
+            return "[Class dragonBones.EgretTextureAtlasData]";
+        }
+
         public texture: egret.Texture;
 
         public constructor() {
@@ -21,6 +28,13 @@ namespace dragonBones {
     }
 
     export class EgretTextureData extends TextureData {
+        /**
+         * @private
+         */
+        public static toString(): string {
+            return "[Class dragonBones.EgretTextureData]";
+        }
+
         public texture: egret.Texture;
 
         public constructor() {

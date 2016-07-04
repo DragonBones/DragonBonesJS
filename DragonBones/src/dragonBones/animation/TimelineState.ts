@@ -3,14 +3,21 @@ namespace dragonBones {
      * @private
      */
     export class AnimationTimelineState extends TimelineState<AnimationFrameData, AnimationData> {
+        /**
+         * @private
+         */
+        public static toString(): string {
+            return "[Class dragonBones.AnimationTimelineState]";
+        }
+
         private _isStarted: boolean;
 
         public constructor() {
             super();
         }
-		/**
-		 * @inheritDoc
-		 */
+        /**
+         * @inheritDoc
+         */
         protected _onClear(): void {
             super._onClear();
 
@@ -48,6 +55,13 @@ namespace dragonBones {
      * @private
      */
     export class BoneTimelineState extends TweenTimelineState<BoneFrameData, BoneTimelineData> {
+        /**
+         * @private
+         */
+        public static toString(): string {
+            return "[Class dragonBones.BoneTimelineState]";
+        }
+
         public bone: Bone;
 
         private _tweenTransform: number;
@@ -62,9 +76,9 @@ namespace dragonBones {
         public constructor() {
             super();
         }
-		/**
-		 * @inheritDoc
-		 */
+        /**
+         * @inheritDoc
+         */
         protected _onClear(): void {
             super._onClear();
 
@@ -242,6 +256,13 @@ namespace dragonBones {
      * @private
      */
     export class SlotTimelineState extends TweenTimelineState<SlotFrameData, SlotTimelineData> {
+        /**
+         * @private
+         */
+        public static toString(): string {
+            return "[Class dragonBones.SlotTimelineState]";
+        }
+
         public slot: Slot;
 
         private _colorDirty: boolean;
@@ -253,9 +274,9 @@ namespace dragonBones {
         public constructor() {
             super();
         }
-		/**
-		 * @inheritDoc
-		 */
+        /**
+         * @inheritDoc
+         */
         protected _onClear(): void {
             super._onClear();
 
@@ -436,6 +457,13 @@ namespace dragonBones {
      * @private
      */
     export class FFDTimelineState extends TweenTimelineState<ExtensionFrameData, FFDTimelineData> {
+        /**
+         * @private
+         */
+        public static toString(): string {
+            return "[Class dragonBones.FFDTimelineState]";
+        }
+
         public slot: Slot;
 
         private _tweenFFD: number;
@@ -446,9 +474,9 @@ namespace dragonBones {
         public constructor() {
             super();
         }
-		/**
-		 * @inheritDoc
-		 */
+        /**
+         * @inheritDoc
+         */
         protected _onClear(): void {
             super._onClear();
 

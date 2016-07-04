@@ -3,20 +3,20 @@ namespace dragonBones {
      *
      */
     export interface IArmatureDisplayContainer extends IEventDispatcher {
-		/**
-		 * @private
-		 */
+        /**
+         * @private
+         */
         _init(): void;
 
         advanceTimeBySelf(on: boolean): void;
         dispose(): void;
-		/**
-		 * readonly
-		 */
+        /**
+         * readonly
+         */
         armature: Armature;
-		/**
-		 * readonly
-		 */
+        /**
+         * readonly
+         */
         animation: Animation;
     }
 }

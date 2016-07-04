@@ -1,7 +1,7 @@
 namespace dragonBones {
-	/**
-	 * @private
-	 */
+    /**
+     * @private
+     */
     export class ColorTransform {
         public constructor(
             public alphaMultiplier: number = 1,

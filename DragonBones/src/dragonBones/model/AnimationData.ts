@@ -1,8 +1,17 @@
 namespace dragonBones {
-	/**
-	 * 
-	 */
+    /**
+     * @language zh_CN
+     * 动画数据。
+     * @version DragonBones 3.0
+     */
     export class AnimationData extends TimelineData<AnimationFrameData> {
+        /**
+         * @private
+         */
+        public static toString(): string {
+            return "[Class dragonBones.AnimationData]";
+        }
+        
         /**
          * @private
          */
@@ -11,15 +20,45 @@ namespace dragonBones {
          * @private
          */
         public hasBoneTimelineEvent: boolean;
+        /**
+         * @language zh_CN
+         * 持续的帧数。
+         * @version DragonBones 3.0
+         */
         public frameCount: number;
+        /**
+         * @language zh_CN
+         * 循环播放的次数。 [0: 无限循环播放, [1~N]: 循环播放 N 次]
+         * @version DragonBones 3.0
+         */
         public playTimes: number;
+        /**
+         * @language zh_CN
+         * 开始的时间。 (以秒为单位)
+         * @version DragonBones 3.0
+         */
         public position: number;
+        /**
+         * @language zh_CN
+         * 持续的时间。 (以秒为单位)
+         * @version DragonBones 3.0
+         */
         public duration: number;
+        /**
+         * @language zh_CN
+         * 淡入混合的时间。 (以秒为单位)
+         * @version DragonBones 3.0
+         */
         public fadeInTime: number;
         /**
          * @private
          */
         public cacheTimeToFrameScale: number;
+        /**
+         * @language zh_CN
+         * 数据名称。
+         * @version DragonBones 3.0
+         */
         public name: string;
         /**
          * @private
@@ -47,9 +86,9 @@ namespace dragonBones {
         public constructor() {
             super();
         }
-		/**
-		 * @inheritDoc
-		 */
+        /**
+         * @inheritDoc
+         */
         protected _onClear(): void {
             super._onClear();
 
@@ -86,9 +125,9 @@ namespace dragonBones {
                 this.cachedFrames.length = 0;
             }
         }
-		/**
-		 * @private
-		 */
+        /**
+         * @private
+         */
         public cacheFrames(value: number): void {
             if (this.animation) {
                 return;

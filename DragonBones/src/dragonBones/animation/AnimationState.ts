@@ -3,144 +3,151 @@ namespace dragonBones {
      *
      */
     export class AnimationState extends BaseObject {
-		/**
-		 * @language zh_CN
-		 * 是否对插槽的颜色，显示序列索引，深度排序，行为等拥有控制的权限。 (默认: true)
-		 * @see dragonBones.Slot#displayController
-		 * @version DragonBones 3.0
-		 */
+        /**
+         * @private
+         */
+        public static toString(): string {
+            return "[Class dragonBones.AnimationState]";
+        }
+        
+        /**
+         * @language zh_CN
+         * 是否对插槽的颜色，显示序列索引，深度排序，行为等拥有控制的权限。 (默认: true)
+         * @see dragonBones.Slot#displayController
+         * @version DragonBones 3.0
+         */
         public displayControl: boolean;
-		/**
-		 * @language zh_CN
-		 * 是否以叠加的方式混合动画。 (默认: false)
-		 * @version DragonBones 3.0
-		 */
+        /**
+         * @language zh_CN
+         * 是否以叠加的方式混合动画。 (默认: false)
+         * @version DragonBones 3.0
+         */
         public additiveBlending: boolean;
-		/**
-		 * @language zh_CN
-		 * 需要播放的次数。 [0: 无限循环播放, [1~N]: 循环播放 N 次]
-		 * @version DragonBones 3.0
-		 */
+        /**
+         * @language zh_CN
+         * 需要播放的次数。 [0: 无限循环播放, [1~N]: 循环播放 N 次]
+         * @version DragonBones 3.0
+         */
         public playTimes: number;
-		/**
-		 * @language zh_CN
-		 * 播放速度。 [(-N~0): 倒转播放, 0: 停止播放, (0~1): 慢速播放, 1: 正常播放, (1~N): 快速播放] (默认: 1)
-		 * @version DragonBones 3.0
-		 */
+        /**
+         * @language zh_CN
+         * 播放速度。 [(-N~0): 倒转播放, 0: 停止播放, (0~1): 慢速播放, 1: 正常播放, (1~N): 快速播放] (默认: 1)
+         * @version DragonBones 3.0
+         */
         public timeScale: number;
-		/**
-		 * @language zh_CN
-		 * 进行动画混合时的权重。 (默认: 1)
-		 * @version DragonBones 3.0
-		 */
+        /**
+         * @language zh_CN
+         * 进行动画混合时的权重。 (默认: 1)
+         * @version DragonBones 3.0
+         */
         public weight: number;
-		/**
-		 * @language zh_CN
-		 * 自动淡出时需要的时间。 (以秒为单位，默认: -1)
-		 * @version DragonBones 3.0
-		 */
+        /**
+         * @language zh_CN
+         * 自动淡出时需要的时间。 (以秒为单位，默认: -1)
+         * @version DragonBones 3.0
+         */
         public autoFadeOutTime: number;
-		/**
-		 * @private
-		 */
+        /**
+         * @private
+         */
         public fadeTotalTime: number;
-		/**
-		 * @private Animation
-		 */
+        /**
+         * @private Animation
+         */
         public _isFadeOutComplete: boolean;
-		/**
-		 * @private Animation
-		 */
+        /**
+         * @private Animation
+         */
         public _layer: number;
-		/**
-		 * @private TimelineState
-		 */
+        /**
+         * @private TimelineState
+         */
         public _position: number;
-		/**
-		 * @private TimelineState
-		 */
+        /**
+         * @private TimelineState
+         */
         public _duration: number;
-		/**
-		 * @private TimelineState
-		 */
+        /**
+         * @private TimelineState
+         */
         public _clipDutation: number;
-		/**
-		 * @private Animation, TimelineState
-		 */
+        /**
+         * @private Animation, TimelineState
+         */
         public _weightResult: number;
-		/**
-		 * @private Animation, TimelineState
-		 */
+        /**
+         * @private Animation, TimelineState
+         */
         public _fadeProgress: number;
-		/**
-		 * @private Animation TimelineState
-		 */
+        /**
+         * @private Animation TimelineState
+         */
         public _group: string;
-		/**
-		 * @private TimelineState
-		 */
+        /**
+         * @private TimelineState
+         */
         public _timeline: AnimationTimelineState;
-		/**
-		 * @private
-		 */
+        /**
+         * @private
+         */
         private _isPlaying: boolean;
-		/**
-		 * @private
-		 */
+        /**
+         * @private
+         */
         private _isPausePlayhead: boolean;
-		/**
-		 * @private
-		 */
+        /**
+         * @private
+         */
         private _isFadeOut: boolean;
-		/**
-		 * @private
-		 */
+        /**
+         * @private
+         */
         private _currentPlayTimes: number;
-		/**
-		 * @private
-		 */
+        /**
+         * @private
+         */
         private _fadeTime: number;
-		/**
-		 * @private
-		 */
+        /**
+         * @private
+         */
         private _time: number;
-		/**
-		 * @private
-		 */
+        /**
+         * @private
+         */
         private _name: string;
-		/**
-		 * @private
-		 */
+        /**
+         * @private
+         */
         private _armature: Armature;
-		/**
-		 * @private
-		 */
+        /**
+         * @private
+         */
         private _animationData: AnimationData;
-		/**
-		 * @private
-		 */
+        /**
+         * @private
+         */
         private _boneMask: Array<string> = [];
-		/**
-		 * @private
-		 */
+        /**
+         * @private
+         */
         private _boneTimelines: Array<BoneTimelineState> = [];
-		/**
-		 * @private
-		 */
+        /**
+         * @private
+         */
         private _slotTimelines: Array<SlotTimelineState> = [];
-		/**
-		 * @private
-		 */
+        /**
+         * @private
+         */
         private _ffdTimelines: Array<FFDTimelineState> = [];
-		/**
-		 * @private
-		 */
+        /**
+         * @private
+         */
         public constructor() {
             super();
         }
-		/**
-		 * @inheritDoc
-		 */
+        /**
+         * @inheritDoc
+         */
         protected _onClear(): void {
             this.displayControl = true;
             this.additiveBlending = false;
@@ -194,9 +201,9 @@ namespace dragonBones {
             this._slotTimelines.length = 0;
             this._ffdTimelines.length = 0;
         }
-		/**
-		 * @private
-		 */
+        /**
+         * @private
+         */
         private _advanceFadeTime(passedTime: number): void {
             if (passedTime < 0) {
                 passedTime = -passedTime;
@@ -255,9 +262,9 @@ namespace dragonBones {
                 }
             }
         }
-		/**
-		 * @private
-		 */
+        /**
+         * @private
+         */
         public _isDisabled(slot: Slot): boolean {
             if (
                 this.displayControl &&
@@ -272,9 +279,9 @@ namespace dragonBones {
 
             return true;
         }
-		/**
-		 * @private
-		 */
+        /**
+         * @private
+         */
         public _fadeIn(
             armature: Armature, clip: AnimationData, animationName: string,
             playTimes: number, position: number, duration: number, time: number, timeScale: number, fadeInTime: number,
@@ -302,9 +309,9 @@ namespace dragonBones {
 
             this._updateTimelineStates();
         }
-		/**
-		 * @private
-		 */
+        /**
+         * @private
+         */
         public _updateTimelineStates(): void {
             let time = this._time;
             if (!this._animationData.hasAsynchronyTimeline) {
@@ -379,9 +386,9 @@ namespace dragonBones {
 
             this._updateFFDTimelineStates();
         }
-		/**
-		 * @private
-		 */
+        /**
+         * @private
+         */
         public _updateFFDTimelineStates(): void {
             let time = this._time;
             if (!this._animationData.hasAsynchronyTimeline) {
@@ -430,9 +437,9 @@ namespace dragonBones {
                 ffdTimelineState.returnToPool();
             }
         }
-		/**
-		 * @private
-		 */
+        /**
+         * @private
+         */
         public _advanceTime(passedTime: number, weightLeft: number, index: number): void {
             if (passedTime != 0) {
                 this._advanceFadeTime(passedTime);
@@ -499,30 +506,30 @@ namespace dragonBones {
                 }
             }
         }
-		/**
-		 * @language zh_CN
-		 * 继续播放。
-		 * @version DragonBones 3.0
-		 */
+        /**
+         * @language zh_CN
+         * 继续播放。
+         * @version DragonBones 3.0
+         */
         public play(): void {
             this._isPlaying = true;
         }
-		/**
-		 * @language zh_CN
-		 * 暂停播放。
-		 * @version DragonBones 3.0
-		 */
+        /**
+         * @language zh_CN
+         * 暂停播放。
+         * @version DragonBones 3.0
+         */
         public stop(): void {
             this._isPlaying = false;
         }
 
-		/**
-		 * @language zh_CN
-		 * 淡出动画。
-		 * @param fadeTotalTime 淡出时间。 (以秒为单位)
-		 * @param pausePlayhead 淡出时是否暂停动画。 [<code>true</code>: 暂停, <code>false</code>: 不暂停] (默认: <code>true</code>)
-		 * @version DragonBones 3.0
-		 */
+        /**
+         * @language zh_CN
+         * 淡出动画。
+         * @param fadeTotalTime 淡出时间。 (以秒为单位)
+         * @param pausePlayhead 淡出时是否暂停动画。 [<code>true</code>: 暂停, <code>false</code>: 不暂停] (默认: <code>true</code>)
+         * @version DragonBones 3.0
+         */
         public fadeOut(fadeOutTime: number, pausePlayhead: boolean = true): void {
             if (fadeOutTime < 0 || fadeOutTime != fadeOutTime) {
                 fadeOutTime = 0;
@@ -555,22 +562,22 @@ namespace dragonBones {
             this.fadeTotalTime = this._fadeProgress > 0.000001 ? fadeOutTime / this._fadeProgress : 0;
             this._fadeTime = this.fadeTotalTime * (1 - this._fadeProgress);
         }
-		/**
-		 * @language zh_CN
-		 * 是否包含指定的骨骼遮罩。
-		 * @param name 指定的骨骼名称。
-		 * @version DragonBones 3.0
-		 */
+        /**
+         * @language zh_CN
+         * 是否包含指定的骨骼遮罩。
+         * @param name 指定的骨骼名称。
+         * @version DragonBones 3.0
+         */
         public containsBoneMask(name: string): boolean {
             return !this._boneMask.length || this._boneMask.indexOf(name) >= 0;
         }
-		/**
-		 * @language zh_CN
-		 * 添加指定的骨骼遮罩。
-		 * @param boneName 指定的骨骼名称。
-		 * @param recursive 是否为该骨骼的子骨骼遮罩。 (默认: <code>true</code>)
-		 * @version DragonBones 3.0
-		 */
+        /**
+         * @language zh_CN
+         * 添加指定的骨骼遮罩。
+         * @param boneName 指定的骨骼名称。
+         * @param recursive 是否为该骨骼的子骨骼遮罩。 (默认: <code>true</code>)
+         * @version DragonBones 3.0
+         */
         public addBoneMask(name: string, recursive: boolean = true): void {
             const currentBone = this._armature.getBone(name);
             if (!currentBone) {
@@ -601,13 +608,13 @@ namespace dragonBones {
 
             this._updateTimelineStates();
         }
-		/**
-		 * @language zh_CN
-		 * 删除指定的骨骼遮罩。
-		 * @param boneName 指定的骨骼名称。
-		 * @param recursive 是否删除该骨骼的子骨骼遮罩。 (默认: <code>true</code>)
-		 * @version DragonBones 3.0
-		 */
+        /**
+         * @language zh_CN
+         * 删除指定的骨骼遮罩。
+         * @param boneName 指定的骨骼名称。
+         * @param recursive 是否删除该骨骼的子骨骼遮罩。 (默认: <code>true</code>)
+         * @version DragonBones 3.0
+         */
         public removeBoneMask(name: string, recursive: boolean = true): void {
             const index = this._boneMask.indexOf(name);
             if (index >= 0) { // Remove mixing
@@ -634,100 +641,100 @@ namespace dragonBones {
 
             this._updateTimelineStates();
         }
-		/**
-		 * @language zh_CN
-		 * 删除所有骨骼遮罩。
-		 * @version DragonBones 3.0
-		 */
+        /**
+         * @language zh_CN
+         * 删除所有骨骼遮罩。
+         * @version DragonBones 3.0
+         */
         public removeAllBoneMask(): void {
             this._boneMask.length = 0;
             this._updateTimelineStates();
         }
-		/**
-		 * @language zh_CN
-		 * 动画图层。
-		 * @see dragonBones.animation.Animation#fadeIn
-		 * @version DragonBones 3.0
-		 */
+        /**
+         * @language zh_CN
+         * 动画图层。
+         * @see dragonBones.animation.Animation#fadeIn
+         * @version DragonBones 3.0
+         */
         public get layer(): number {
             return this._layer;
         }
-		/**
-		 * @language zh_CN
-		 * 动画组。
-		 * @see dragonBones.animation.Animation#fadeIn
-		 * @version DragonBones 3.0
-		 */
+        /**
+         * @language zh_CN
+         * 动画组。
+         * @see dragonBones.animation.Animation#fadeIn
+         * @version DragonBones 3.0
+         */
         public get group(): string {
             return this._group;
         }
-		/**
-		 * @language zh_CN
-		 * 动画名称。
-		 * @see dragonBones.objects.AnimationData#name
-		 * @version DragonBones 3.0
-		 */
+        /**
+         * @language zh_CN
+         * 动画名称。
+         * @see dragonBones.objects.AnimationData#name
+         * @version DragonBones 3.0
+         */
         public get name(): string {
             return this._name;
         }
-		/**
-		 * @language zh_CN
-		 * 动画数据。
-		 * @see dragonBones.objects.AnimationData
-		 * @version DragonBones 3.0
-		 */
+        /**
+         * @language zh_CN
+         * 动画数据。
+         * @see dragonBones.objects.AnimationData
+         * @version DragonBones 3.0
+         */
         public get clip(): AnimationData {
             return this._animationData;
         }
-		/**
-		 * @language zh_CN
-		 * 动画数据。
-		 * @see dragonBones.objects.AnimationData
-		 * @version DragonBones 3.0
-		 */
+        /**
+         * @language zh_CN
+         * 动画数据。
+         * @see dragonBones.objects.AnimationData
+         * @version DragonBones 3.0
+         */
         public get animationData(): AnimationData {
             return this._animationData;
         }
-		/**
-		 * @language zh_CN
-		 * 是否播放完毕。
-		 * @version DragonBones 3.0
-		 */
+        /**
+         * @language zh_CN
+         * 是否播放完毕。
+         * @version DragonBones 3.0
+         */
         public get isCompleted(): Boolean {
             return this._timeline._isCompleted;
         }
 
-		/**
-		 * @language zh_CN
-		 * 是否正在播放。
-		 * @version DragonBones 3.0
-		 */
+        /**
+         * @language zh_CN
+         * 是否正在播放。
+         * @version DragonBones 3.0
+         */
         public get isPlaying(): Boolean {
             return (this._isPlaying && !this._timeline._isCompleted);
         }
 
-		/**
-		 * @language zh_CN
-		 * 当前动画的播放次数。
-		 * @version DragonBones 3.0
-		 */
+        /**
+         * @language zh_CN
+         * 当前动画的播放次数。
+         * @version DragonBones 3.0
+         */
         public get currentPlayTimes(): number {
             return this._currentPlayTimes;
         }
 
-		/**
-		 * @language zh_CN
-		 * 当前动画的总时间。 (以秒为单位)
-		 * @version DragonBones 3.0
-		 */
+        /**
+         * @language zh_CN
+         * 当前动画的总时间。 (以秒为单位)
+         * @version DragonBones 3.0
+         */
         public get totalTime(): number {
             return this._duration;
         }
-		/**
-		 * @language zh_CN
-		 * 当前动画的播放时间。 (以秒为单位)
-		 * @version DragonBones 3.0
-		 */
+        /**
+         * @language zh_CN
+         * 当前动画的播放时间。 (以秒为单位)
+         * @version DragonBones 3.0
+         */
         public get currentTime(): number {
             return this._timeline._currentTime;
         }

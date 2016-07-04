@@ -1,5 +1,12 @@
 namespace dragonBones {
     export class EgretSlot extends Slot {
+        /**
+         * @private
+         */
+        public static toString(): string {
+            return "[Class dragonBones.EgretSlot]";
+        }
+
         public transformEnabled: boolean;
 
         private _renderDisplay: egret.DisplayObject;
@@ -8,9 +15,9 @@ namespace dragonBones {
         public constructor() {
             super();
         }
-		/**
-		 * @inheritDoc
-		 */
+        /**
+         * @inheritDoc
+         */
         protected _onClear(): void {
             super._onClear();
 
@@ -21,9 +28,9 @@ namespace dragonBones {
         }
 
         // Abstract method
-		/**
-		 * @private
-		 */
+        /**
+         * @private
+         */
         protected _onUpdateDisplay(): void {
             if (!this._rawDisplay) {
                 this._rawDisplay = new egret.Bitmap();
@@ -31,21 +38,21 @@ namespace dragonBones {
 
             this._renderDisplay = <egret.DisplayObject>(this._display || this._rawDisplay);
         }
-		/**
-		 * @private
-		 */
+        /**
+         * @private
+         */
         protected _initDisplay(value: Object): void {
         }
-		/**
-		 * @private
-		 */
+        /**
+         * @private
+         */
         protected _addDisplay(): void {
             const container = <EgretArmatureDisplayContainer>this._armature._display;
             container.addChild(this._renderDisplay);
         }
-		/**
-		 * @private
-		 */
+        /**
+         * @private
+         */
         protected _replaceDisplay(value: Object): void {
             const container = <EgretArmatureDisplayContainer>this._armature._display;
             const prevDisplay = <egret.DisplayObject>value;
@@ -53,26 +60,26 @@ namespace dragonBones {
             container.swapChildren(this._renderDisplay, prevDisplay);
             container.removeChild(prevDisplay);
         }
-		/**
-		 * @private
-		 */
+        /**
+         * @private
+         */
         protected _removeDisplay(): void {
             this._renderDisplay.parent.removeChild(this._renderDisplay);
         }
-		/**
-		 * @private
-		 */
+        /**
+         * @private
+         */
         protected _disposeDisplay(value: Object): void {
         }
-		/**
-		 * @private
-		 */
+        /**
+         * @private
+         */
         public _updateVisible(): void {
             this._renderDisplay.visible = this._parent.visible;
         }
-		/**
-		 * @private
-		 */
+        /**
+         * @private
+         */
         private static BLEND_MODE_LIST: Array<string> =
         [
             egret.BlendMode.NORMAL,
@@ -90,9 +97,9 @@ namespace dragonBones {
             null,
             null
         ];
-		/**
-		 * @private
-		 */
+        /**
+         * @private
+         */
         protected _updateBlendMode(): void {
             if (this._blendMode < EgretSlot.BLEND_MODE_LIST.length) {
                 const blendMode = EgretSlot.BLEND_MODE_LIST[this._blendMode];
@@ -102,9 +109,9 @@ namespace dragonBones {
             }
         }
 
-		/**
-		 * @private
-		 */
+        /**
+         * @private
+         */
         protected _updateColor(): void {
             if (
                 this._colorTransform.redMultiplier != 1 ||
@@ -147,13 +154,13 @@ namespace dragonBones {
                 this._renderDisplay.$setAlpha(this._colorTransform.alphaMultiplier);
             }
         }
-		/**
-		 * @private
-		 */
+        /**
+         * @private
+         */
         protected _updateFilters(): void { }
-		/**
-		 * @private
-		 */
+        /**
+         * @private
+         */
         protected _updateFrame(): void {
             const frameDisplay = <egret.Bitmap>this._renderDisplay;
 
@@ -251,9 +258,9 @@ namespace dragonBones {
             frameDisplay.$setAnchorOffsetY(0);
             frameDisplay.visible = false;
         }
-		/**
-		 * @private
-		 */
+        /**
+         * @private
+         */
         protected _updateMesh(): void {
             const meshDisplay = <egret.Mesh>this._meshDisplay;
             const meshNode = <egret.sys.MeshNode>meshDisplay.$renderNode;
@@ -308,9 +315,9 @@ namespace dragonBones {
                 meshDisplay.$invalidateTransform();
             }
         }
-		/**
-		 * @private
-		 */
+        /**
+         * @private
+         */
         protected _updateTransform(): void {
             this._renderDisplay.$setMatrix(<egret.Matrix><any>this.globalTransformMatrix, this.transformEnabled);
         }

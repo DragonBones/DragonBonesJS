@@ -1,8 +1,11 @@
 namespace dragonBones {
+    /**
+     * @private
+     */
     export class ObjectDataParser extends DataParser {
-		/**
-		 * @private
-		 */
+        /**
+         * @private
+         */
         protected static _getBoolean(rawData: any, key: string, defaultValue: boolean): boolean {
             if (key in rawData) {
                 const value = rawData[key];
@@ -29,9 +32,9 @@ namespace dragonBones {
 
             return defaultValue;
         }
-		/**
-		 * @private
-		 */
+        /**
+         * @private
+         */
         protected static _getNumber(rawData: any, key: string, defaultValue: number): number {
             if (key in rawData) {
                 const value = rawData[key];
@@ -40,9 +43,9 @@ namespace dragonBones {
 
             return defaultValue;
         }
-		/**
-		 * @private
-		 */
+        /**
+         * @private
+         */
         protected static _getString(rawData: any, key: string, defaultValue: string): string {
             if (key in rawData) {
                 return String(rawData[key]);
@@ -50,9 +53,9 @@ namespace dragonBones {
 
             return defaultValue;
         }
-		/**
-		 * @private
-		 */
+        /**
+         * @private
+         */
         protected static _getParameter(rawData: Array<any>, index: number, defaultValue: any): any {
             if (rawData.length > index) {
                 return rawData[index];
@@ -60,15 +63,15 @@ namespace dragonBones {
 
             return defaultValue;
         }
-		/**
-		 * @private
-		 */
+        /**
+         * @private
+         */
         public constructor() {
             super();
         }
-		/**
-		 * @private
-		 */
+        /**
+         * @private
+         */
         protected _parseArmature(rawData: any): ArmatureData {
             const armature = BaseObject.borrowObject(ArmatureData);
             armature.name = ObjectDataParser._getString(rawData, ObjectDataParser.NAME, null);
@@ -130,9 +133,9 @@ namespace dragonBones {
 
             return armature;
         }
-		/**
-		 * @private
-		 */
+        /**
+         * @private
+         */
         protected _parseBone(rawData: any): BoneData {
             const bone = BaseObject.borrowObject(BoneData);
             bone.name = ObjectDataParser._getString(rawData, ObjectDataParser.NAME, null);
@@ -152,9 +155,9 @@ namespace dragonBones {
 
             return bone;
         }
-		/**
-		 * @private
-		 */
+        /**
+         * @private
+         */
         protected _parseIK(rawData: any): void {
             const bone = this._armature.getBone(ObjectDataParser._getString(rawData, (ObjectDataParser.BONE in rawData) ? ObjectDataParser.BONE : ObjectDataParser.NAME, null));
             if (bone) {
@@ -174,9 +177,9 @@ namespace dragonBones {
                 }
             }
         }
-		/**
-		 * @private
-		 */
+        /**
+         * @private
+         */
         protected _parseSlot(rawData: any): SlotData {
             const slot = BaseObject.borrowObject(SlotData);
             slot.name = ObjectDataParser._getString(rawData, ObjectDataParser.NAME, null);
@@ -208,9 +211,9 @@ namespace dragonBones {
 
             return slot;
         }
-		/**
-		 * @private
-		 */
+        /**
+         * @private
+         */
         protected _parseSkin(rawData: any): SkinData {
             const skin = BaseObject.borrowObject(SkinData);
             skin.name = ObjectDataParser._getString(rawData, ObjectDataParser.NAME, "__default") || "__default";
@@ -232,9 +235,9 @@ namespace dragonBones {
 
             return skin;
         }
-		/**
-		 * @private
-		 */
+        /**
+         * @private
+         */
         protected _parseSlotDisplaySet(rawData: any): SlotDisplayDataSet {
             const slotDisplayDataSet = BaseObject.borrowObject(SlotDisplayDataSet);
             slotDisplayDataSet.slot = this._armature.getSlot(ObjectDataParser._getString(rawData, ObjectDataParser.NAME, null));
@@ -254,9 +257,9 @@ namespace dragonBones {
 
             return slotDisplayDataSet;
         }
-		/**
-		 * @private
-		 */
+        /**
+         * @private
+         */
         protected _parseDisplay(rawData: any): DisplayData {
             const display = BaseObject.borrowObject(DisplayData);
             display.name = ObjectDataParser._getString(rawData, ObjectDataParser.NAME, null);
@@ -301,9 +304,9 @@ namespace dragonBones {
 
             return display;
         }
-		/**
-		 * @private
-		 */
+        /**
+         * @private
+         */
         protected _parseMesh(rawData: any): MeshData {
             const mesh = BaseObject.borrowObject(MeshData);
 
@@ -352,9 +355,7 @@ namespace dragonBones {
                 }
             }
 
-            let iW = 0;
-
-            for (let i = 0, l = rawVertices.length; i < l; i += 2) {
+            for (let i = 0, iW = 0, l = rawVertices.length; i < l; i += 2) {
                 const iN = i + 1;
                 const vertexIndex = i / 2;
 
@@ -404,9 +405,9 @@ namespace dragonBones {
 
             return mesh;
         }
-		/**
-		 * @private
-		 */
+        /**
+         * @private
+         */
         protected _parseAnimation(rawData: any): AnimationData {
             const animation = BaseObject.borrowObject(AnimationData);
             animation.name = ObjectDataParser._getString(rawData, ObjectDataParser.NAME, "__default") || "__default";
@@ -513,9 +514,9 @@ namespace dragonBones {
 
             return animation;
         }
-		/**
-		 * @private
-		 */
+        /**
+         * @private
+         */
         protected _parseBoneTimeline(rawData: any): BoneTimelineData {
             const timeline = BaseObject.borrowObject(BoneTimelineData);
             timeline.bone = this._armature.getBone(ObjectDataParser._getString(rawData, ObjectDataParser.NAME, null));
@@ -543,9 +544,9 @@ namespace dragonBones {
 
             return timeline;
         }
-		/**
-		 * @private
-		 */
+        /**
+         * @private
+         */
         protected _parseSlotTimeline(rawData: any): SlotTimelineData {
             const timeline = BaseObject.borrowObject(SlotTimelineData);
             timeline.slot = this._armature.getSlot(ObjectDataParser._getString(rawData, ObjectDataParser.NAME, null));
@@ -558,9 +559,9 @@ namespace dragonBones {
 
             return timeline;
         }
-		/**
-		 * @private
-		 */
+        /**
+         * @private
+         */
         protected _parseFFDTimeline(rawData: any): FFDTimelineData {
             const timeline = BaseObject.borrowObject(FFDTimelineData);
             timeline.skin = this._armature.getSkin(ObjectDataParser._getString(rawData, ObjectDataParser.SKIN, null));
@@ -582,9 +583,9 @@ namespace dragonBones {
 
             return timeline;
         }
-		/**
-		 * @private
-		 */
+        /**
+         * @private
+         */
         protected _parseAnimationFrame(rawData: any, frameStart: number, frameCount: number): AnimationFrameData {
             const frame = BaseObject.borrowObject(AnimationFrameData);
 
@@ -600,10 +601,9 @@ namespace dragonBones {
 
             return frame;
         }
-
-		/**
-		 * @private
-		 */
+        /**
+         * @private
+         */
         protected _parseBoneFrame(rawData: Object, frameStart: number, frameCount: number): BoneFrameData {
             const frame = BaseObject.borrowObject(BoneFrameData);
             frame.parent = this._armature.getBone(ObjectDataParser._getString(rawData, ObjectDataParser.PARENT, null));
@@ -631,10 +631,9 @@ namespace dragonBones {
 
             return frame;
         }
-
-		/**
-		 * @private
-		 */
+        /**
+         * @private
+         */
         protected _parseSlotFrame(rawData: any, frameStart: number, frameCount: number): SlotFrameData {
             const frame = BaseObject.borrowObject(SlotFrameData);
             frame.displayIndex = ObjectDataParser._getNumber(rawData, ObjectDataParser.DISPLAY_INDEX, 0);
@@ -660,10 +659,9 @@ namespace dragonBones {
 
             return frame;
         }
-
-		/**
-		 * @private
-		 */
+        /**
+         * @private
+         */
         protected _parseFFDFrame(rawData: any, frameStart: number, frameCount: number): ExtensionFrameData {
             const frame = BaseObject.borrowObject(ExtensionFrameData);
             frame.type = ObjectDataParser._getNumber(rawData, ObjectDataParser.TYPE, ExtensionType.FFD);
@@ -701,10 +699,9 @@ namespace dragonBones {
 
             return frame;
         }
-
-		/**
-		 * @private
-		 */
+        /**
+         * @private
+         */
         protected _parseTweenFrame<T extends TweenFrameData<T>>(rawData: any, frame: T, frameStart: number, frameCount: number): void {
             this._parseFrame(rawData, frame, frameStart, frameCount);
 
@@ -718,15 +715,16 @@ namespace dragonBones {
                 frame.curve = TweenFrameData.samplingCurve(rawData[ObjectDataParser.CURVE], frameCount);
             }
         }
-
+        /**
+         * @private
+         */
         protected _parseFrame<T extends FrameData<T>>(rawData: any, frame: T, frameStart: number, frameCount: number): void {
             frame.position = frameStart / this._armature.frameRate;
             frame.duration = frameCount / this._armature.frameRate;
         }
-
-		/**
-		 * @private
-		 */
+        /**
+         * @private
+         */
         protected _parseTimeline<T extends FrameData<T>>(rawData: Object, timeline: TimelineData<T>, frameParser: (rawData: any, frameStart: number, frameCount: number) => T): void {
             timeline.scale = ObjectDataParser._getNumber(rawData, ObjectDataParser.SCALE, 1);
             timeline.offset = ObjectDataParser._getNumber(rawData, ObjectDataParser.OFFSET, 0);
@@ -788,9 +786,9 @@ namespace dragonBones {
 
             this._timeline = null;
         }
-		/**
-		 * @private
-		 */
+        /**
+         * @private
+         */
         protected _parseActionData(rawData: any, actions: Array<ActionData>, bone: BoneData, slot: SlotData): void {
             const actionsObject = rawData[ObjectDataParser.ACTION];
             if (typeof actionsObject == "string") {
@@ -862,9 +860,9 @@ namespace dragonBones {
                 }
             }
         }
-		/**
-		 * @private
-		 */
+        /**
+         * @private
+         */
         protected _parseEventData(rawData: any, events: Array<EventData>, bone: BoneData, slot: SlotData): void {
             if (ObjectDataParser.SOUND in rawData) {
                 const soundEventData = BaseObject.borrowObject(EventData);
@@ -889,9 +887,9 @@ namespace dragonBones {
                 events.push(eventData);
             }
         }
-		/**
-		 * @private
-		 */
+        /**
+         * @private
+         */
         protected _parseTransform(rawData: Object, transform: Transform): void {
             transform.x = ObjectDataParser._getNumber(rawData, ObjectDataParser.X, 0) * this._armatureScale;
             transform.y = ObjectDataParser._getNumber(rawData, ObjectDataParser.Y, 0) * this._armatureScale;
@@ -900,9 +898,9 @@ namespace dragonBones {
             transform.scaleX = ObjectDataParser._getNumber(rawData, ObjectDataParser.SCALE_X, 1);
             transform.scaleY = ObjectDataParser._getNumber(rawData, ObjectDataParser.SCALE_Y, 1);
         }
-		/**
-		 * @private
-		 */
+        /**
+         * @private
+         */
         protected _parseColorTransform(rawData: Object, color: ColorTransform): void {
             color.alphaMultiplier = ObjectDataParser._getNumber(rawData, ObjectDataParser.ALPHA_MULTIPLIER, 100) * 0.01;
             color.redMultiplier = ObjectDataParser._getNumber(rawData, ObjectDataParser.RED_MULTIPLIER, 100) * 0.01;
@@ -913,9 +911,9 @@ namespace dragonBones {
             color.greenOffset = ObjectDataParser._getNumber(rawData, ObjectDataParser.GREEN_OFFSET, 0);
             color.blueOffset = ObjectDataParser._getNumber(rawData, ObjectDataParser.BLUE_OFFSET, 0);
         }
-		/**
-		 * @inheritDoc
-		 */
+        /**
+         * @inheritDoc
+         */
         public parseDragonBonesData(rawData: any, scale: number = 1): DragonBonesData {
             if (rawData) {
                 const version = ObjectDataParser._getString(rawData, ObjectDataParser.VERSION, null);
@@ -947,9 +945,9 @@ namespace dragonBones {
 
             // return null;
         }
-		/**
-		 * @inheritDoc
-		 */
+        /**
+         * @inheritDoc
+         */
         public parseTextureAtlasData(rawData: any, textureAtlasData: TextureAtlasData, scale: number = 0): TextureAtlasData {
             if (rawData) {
                 // format
@@ -998,6 +996,9 @@ namespace dragonBones {
             // return null;
         }
 
+        /**
+         * @private
+         */
         private static _instance: ObjectDataParser = null;
         /**
          * @private

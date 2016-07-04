@@ -9,9 +9,9 @@ namespace dragonBones {
                 Armature._soundEventManager = new EgretArmatureDisplayContainer();
             }
         }
-		/**
-		 * @private
-		 */
+        /**
+         * @private
+         */
         protected _generateTextureAtlasData(textureAtlasData: TextureAtlasData, textureAtlas: any): TextureAtlasData {
             if (textureAtlasData) {
                 (<EgretTextureAtlasData>textureAtlasData).texture = <egret.Texture>textureAtlas;
@@ -21,9 +21,9 @@ namespace dragonBones {
 
             return textureAtlasData;
         }
-		/**
-		 * @private
-		 */
+        /**
+         * @private
+         */
         protected _generateArmature(dataPackage: BuildArmaturePackage): Armature {
             const armature = BaseObject.borrowObject(Armature);
             const armatureDisplayContainer = this._armatureDisplayClass ? new this._armatureDisplayClass() : new EgretArmatureDisplayContainer();
@@ -42,9 +42,9 @@ namespace dragonBones {
 
             return armature;
         }
-		/**
-		 * @private
-		 */
+        /**
+         * @private
+         */
         protected _generateSlot(dataPackage: BuildArmaturePackage, slotDisplayDataSet: SlotDisplayDataSet): Slot {
             const slot = BaseObject.borrowObject(EgretSlot);
             const slotData = slotDisplayDataSet.slot;
@@ -92,9 +92,9 @@ namespace dragonBones {
 
             return slot;
         }
-		/**
-		 * 
-		 */
+        /**
+         * 
+         */
         public buildArmatureDisplay<T extends EgretArmatureDisplayContainer>(armatureName: string, dragonBonesName: string = null, skinName: string = null, displayClass: { new (): T; } = null): T {
             this._armatureDisplayClass = displayClass;
 
@@ -107,7 +107,10 @@ namespace dragonBones {
             return armatureDisplay;
         }
 
-        public getSoundEventManater(): EgretArmatureDisplayContainer {
+        /**
+         * 
+         */
+        public get soundEventManater(): EgretArmatureDisplayContainer {
             return <EgretArmatureDisplayContainer>Armature._soundEventManager;
         }
 
@@ -153,10 +156,10 @@ namespace dragonBones {
         public removeTextureAtlas(dragonBonesName: string): void {
             this.removeTextureAtlasData(dragonBonesName);
         }
-		/**
+        /**
          * 不推荐使用
-		 * @see #dragonBones.BaseFactory.buildArmature()
-		 */
+         * @see #dragonBones.BaseFactory.buildArmature()
+         */
         public buildFastArmature(armatureName: string, dragonBonesName: string = null, skinName: string = null): FastArmature {
             return this.buildArmature(armatureName, dragonBonesName, skinName);
         }

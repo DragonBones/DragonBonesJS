@@ -74,32 +74,32 @@ namespace dragonBones {
         public contains(value: IAnimateble): boolean {
             return this._animatebles.indexOf(value) >= 0;
         }
-		/**
-		 * @language zh_CN
+        /**
+         * @language zh_CN
          * 添加指定的 IAnimatable 实例。
-		 * @param value IAnimatable 实例。
-		 * @version DragonBones 3.0
-		 */
+         * @param value IAnimatable 实例。
+         * @version DragonBones 3.0
+         */
         public add(value: IAnimateble): void {
             if (value && this._animatebles.indexOf(value) < 0) {
                 this._animatebles.push(value);
             }
         }
-		/**
-		 * @language zh_CN
+        /**
+         * @language zh_CN
          * 移除指定的 IAnimatable 实例。
-		 * @param value IAnimatable 实例。
-		 * @version DragonBones 3.0
-		 */
+         * @param value IAnimatable 实例。
+         * @version DragonBones 3.0
+         */
         public remove(value: IAnimateble): void {
             let index = this._animatebles.indexOf(value);
             if (index >= 0) {
                 this._animatebles[index] = null;
             }
         }
-		/**
-		 *
-		 */
+        /**
+         *
+         */
         public clear(): void {
             for (let i = 0, l = this._animatebles.length; i < l; ++i) {
                 this._animatebles[i] = null;

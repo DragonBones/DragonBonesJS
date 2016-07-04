@@ -1,9 +1,9 @@
 namespace dragonBones {
-	/**
-	 * @language zh_CN
-	 * 2D 矩阵。
-	 * @version DragonBones 3.0
-	 */
+    /**
+     * @language zh_CN
+     * 2D 矩阵。
+     * @version DragonBones 3.0
+     */
     export class Matrix {
         public constructor(
             public a: number = 1, public b: number = 0,
@@ -13,7 +13,8 @@ namespace dragonBones {
         }
         /**
          * @language zh_CN
-         * 矩阵复制。
+         * 复制矩阵。
+         * @param value 需要复制的矩阵。
          * @version DragonBones 3.0
          */
         public copyFrom(value: Matrix): void {
@@ -36,7 +37,8 @@ namespace dragonBones {
         }
         /**
          * @language zh_CN
-         * 将两个矩阵相乘。
+         * 将当前矩阵与另一个矩阵相乘。
+         * @param value 需要相乘的矩阵。
          * @version DragonBones 3.0
          */
         public concat(value: Matrix): void {
@@ -59,7 +61,7 @@ namespace dragonBones {
             this.d = cA * bB + dA * dB;
             this.tx = aB * txA + cB * tyA + txB;
             this.ty = dB * tyA + bB * txA + tyB;
-            
+
             /*
             [
                 this.a,
@@ -102,10 +104,10 @@ namespace dragonBones {
         /**
          * @language zh_CN
          * 将矩阵转换应用于指定点。
-		 * @param x 横坐标。
-		 * @param y 纵坐标。
-		 * @param result 应用转换之后的坐标。
-		 * @params delta 是否忽略 tx，ty 对坐标的转换。 (默认: false)
+         * @param x 横坐标。
+         * @param y 纵坐标。
+         * @param result 应用转换之后的坐标。
+         * @params delta 是否忽略 tx，ty 对坐标的转换。 (默认: false)
          * @version DragonBones 3.0
          */
         public transformPoint(x: number, y: number, result: { x: number, y: number }, delta: boolean = false): void {

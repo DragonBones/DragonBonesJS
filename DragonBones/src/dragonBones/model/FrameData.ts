@@ -1,8 +1,12 @@
 namespace dragonBones {
-	/**
-	 * @private
-	 */
+    /**
+     * @private
+     */
     export class ActionData extends BaseObject {
+        public static toString(): string {
+            return "[Class dragonBones.ActionData]";
+        }
+
         public type: ActionType;
         public data: Array<any>;
         public bone: BoneData;
@@ -19,10 +23,14 @@ namespace dragonBones {
             this.slot = null;
         }
     }
-	/**
-	 * @private
-	 */
+    /**
+     * @private
+     */
     export class EventData extends BaseObject {
+        public static toString(): string {
+            return "[Class dragonBones.EventData]";
+        }
+
         public type: EventType;
         public name: string;
         public data: any;
@@ -41,9 +49,9 @@ namespace dragonBones {
             this.slot = null;
         }
     }
-	/**
-	 * @private
-	 */
+    /**
+     * @private
+     */
     export abstract class FrameData<T> extends BaseObject {
         public position: number;
         public duration: number;
@@ -56,9 +64,9 @@ namespace dragonBones {
         public constructor() {
             super();
         }
-		/**
-		 * @inheritDoc
-		 */
+        /**
+         * @inheritDoc
+         */
         protected _onClear(): void {
             this.position = 0;
             this.duration = 0;
@@ -82,9 +90,9 @@ namespace dragonBones {
             }
         }
     }
-	/**
-	 * @private
-	 */
+    /**
+     * @private
+     */
     export abstract class TweenFrameData<T> extends FrameData<T> {
         public static samplingCurve(curve: Array<number>, frameCount: number): Array<number> {
             if (curve.length == 0 || frameCount == 0) {
@@ -93,7 +101,7 @@ namespace dragonBones {
 
             const samplingTimes = frameCount + 2;
             const samplingStep = 1 / samplingTimes;
-            const sampling: Array<number> = new Array((samplingTimes - 1) * 2);
+            const sampling = new Array<number>((samplingTimes - 1) * 2);
 
             //
             curve.unshift(0, 0);
@@ -134,9 +142,9 @@ namespace dragonBones {
         public constructor() {
             super();
         }
-		/**
-		 * @inheritDoc
-		 */
+        /**
+         * @inheritDoc
+         */
         protected _onClear(): void {
             super._onClear();
 
@@ -145,24 +153,32 @@ namespace dragonBones {
         }
     }
 
-	/**
-	 * @private
-	 */
+    /**
+     * @private
+     */
     export class AnimationFrameData extends FrameData<AnimationFrameData> {
+        public static toString(): string {
+            return "[Class dragonBones.AnimationFrameData]";
+        }
+
         public constructor() {
             super();
         }
-		/**
-		 * @inheritDoc
-		 */
+        /**
+         * @inheritDoc
+         */
         protected _onClear(): void {
             super._onClear();
         }
     }
-	/**
-	 * @private
-	 */
+    /**
+     * @private
+     */
     export class BoneFrameData extends TweenFrameData<BoneFrameData> {
+        public static toString(): string {
+            return "[Class dragonBones.BoneFrameData]";
+        }
+
         public tweenScale: boolean;
         public tweenRotate: number;
         public parent: BoneData;
@@ -171,9 +187,9 @@ namespace dragonBones {
         public constructor() {
             super();
         }
-		/**
-		 * @inheritDoc
-		 */
+        /**
+         * @inheritDoc
+         */
         protected _onClear(): void {
             super._onClear();
 
@@ -183,14 +199,16 @@ namespace dragonBones {
             this.transform.identity();
         }
     }
-	/**
-	 * @private
-	 */
+    /**
+     * @private
+     */
     export class SlotFrameData extends TweenFrameData<SlotFrameData> {
         public static DEFAULT_COLOR: ColorTransform = new ColorTransform();
-
         public static generateColor(): ColorTransform {
             return new ColorTransform();
+        }
+        public static toString(): string {
+            return "[Class dragonBones.SlotFrameData]";
         }
 
         public displayIndex: number;
@@ -200,9 +218,9 @@ namespace dragonBones {
         public constructor() {
             super();
         }
-		/**
-		 * @inheritDoc
-		 */
+        /**
+         * @inheritDoc
+         */
         protected _onClear(): void {
             super._onClear();
 
@@ -211,10 +229,14 @@ namespace dragonBones {
             this.color = null;
         }
     }
-	/**
-	 * @private
-	 */
+    /**
+     * @private
+     */
     export class ExtensionFrameData extends TweenFrameData<ExtensionFrameData> {
+        public static toString(): string {
+            return "[Class dragonBones.ExtensionFrameData]";
+        }
+
         public type: ExtensionType;
         public tweens: Array<number> = [];
         public keys: Array<number> = [];
@@ -222,9 +244,9 @@ namespace dragonBones {
         public constructor() {
             super();
         }
-		/**
-		 * @inheritDoc
-		 */
+        /**
+         * @inheritDoc
+         */
         protected _onClear(): void {
             super._onClear();
 

@@ -1,22 +1,71 @@
 namespace dragonBones {
-	/**
-	 * 
-	 */
+    /**
+     * @language zh_CN
+     * 骨架数据。
+     * @see dragonBones.Armature
+     * @version DragonBones 3.0
+     */
     export class ArmatureData extends BaseObject {
         private static _onSortSlots(a: SlotData, b: SlotData): number {
             return a.zOrder > b.zOrder ? 1 : -1;
         }
-        public frameRate: number;
-		/**
-		 * @private
-		 */
-        public cacheFrameRate: number;
-        public type: ArmatureType;
-        public name: string;
+        /**
+         * @private
+         */
+        public static toString(): string {
+            return "[Class dragonBones.ArmatureData]";
+        }
 
+        /**
+         * @language zh_CN
+         * 动画帧率。
+         * @version DragonBones 3.0
+         */
+        public frameRate: number;
+        /**
+         * @private
+         */
+        public cacheFrameRate: number;
+        /**
+         * @language zh_CN
+         * 骨架类型。
+         * @see dragonBones.ArmatureType
+         * @version DragonBones 3.0
+         */
+        public type: ArmatureType;
+        /**
+         * @language zh_CN
+         * 数据名称。
+         * @version DragonBones 3.0
+         */
+        public name: string;
+        /**
+         * @language zh_CN
+         * 所有的骨骼数据。
+         * @see dragonBones.BoneData
+         * @version DragonBones 3.0
+         */
         public bones: Map<BoneData> = {};
+        /**
+         * @language zh_CN
+         * 所有的插槽数据。
+         * @see dragonBones.SlotData
+         * @version DragonBones 3.0
+         */
         public slots: Map<SlotData> = {};
+        /**
+         * @language zh_CN
+         * 所有的皮肤数据。
+         * @see dragonBones.SkinData
+         * @version DragonBones 3.0
+         */
         public skins: Map<SkinData> = {};
+        /**
+         * @language zh_CN
+         * 所有的动画数据。
+         * @see dragonBones.AnimationData
+         * @version DragonBones 3.0
+         */
         public animations: Map<AnimationData> = {};
 
         private _boneDirty: boolean;
@@ -32,9 +81,9 @@ namespace dragonBones {
         public constructor() {
             super();
         }
-		/**
-		 * @inheritDoc
-		 */
+        /**
+         * @inheritDoc
+         */
         protected _onClear(): void {
             this.frameRate = 0;
             this.cacheFrameRate = 0;
@@ -122,9 +171,9 @@ namespace dragonBones {
         private _sortSlots(): void {
             this._sortedSlots.sort(ArmatureData._onSortSlots);
         }
-		/**
-		 * @private
-		 */
+        /**
+         * @private
+         */
         public cacheFrames(value: number): void {
             if (this.cacheFrameRate == value) {
                 return;
@@ -206,22 +255,52 @@ namespace dragonBones {
             }
         }
 
+        /**
+         * @language zh_CN
+         * 获取指定名称的骨骼数据。
+         * @param name 骨骼数据名称。
+         * @see dragonBones.BoneData
+         * @version DragonBones 3.0
+         */
         public getBone(name: string): BoneData {
             return this.bones[name];
         }
 
+        /**
+         * @language zh_CN
+         * 获取指定名称的插槽数据。
+         * @param name 插槽数据名称。
+         * @see dragonBones.SlotData
+         * @version DragonBones 3.0
+         */
         public getSlot(name: string): SlotData {
             return this.slots[name];
         }
 
+        /**
+         * @language zh_CN
+         * 获取指定名称的皮肤数据。
+         * @param name 皮肤数据名称。
+         * @see dragonBones.SkinData
+         * @version DragonBones 3.0
+         */
         public getSkin(name: string): SkinData {
             return name ? this.skins[name] : this._defaultSkin;
         }
 
+        /**
+         * @language zh_CN
+         * 获取指定名称的动画数据。
+         * @param name 动画数据名称。
+         * @see dragonBones.AnimationData
+         * @version DragonBones 3.0
+         */
         public getAnimation(name: string): AnimationData {
             return name ? this.animations[name] : this._defaultAnimation;
         }
-
+        /**
+         * @private
+         */
         public get sortedBones(): Array<BoneData> {
             if (this._boneDirty) {
                 this._boneDirty = false;
@@ -230,7 +309,9 @@ namespace dragonBones {
 
             return this._sortedBones;
         }
-
+        /**
+         * @private
+         */
         public get sortedSlots(): Array<SlotData> {
             if (this._slotDirty) {
                 this._slotDirty = false;
@@ -239,19 +320,39 @@ namespace dragonBones {
 
             return this._sortedSlots;
         }
-
+        /**
+         * @language zh_CN
+         * 获取默认的皮肤数据。
+         * @see dragonBones.SkinData
+         * @version DragonBones 4.5
+         */
         public get defaultSkin(): SkinData {
             return this._defaultSkin;
         }
-
+        /**
+         * @language zh_CN
+         * 获取默认的动画数据。
+         * @see dragonBones.AnimationData
+         * @version DragonBones 4.5
+         */
         public get defaultAnimation(): AnimationData {
             return this._defaultAnimation;
         }
     }
-	/**
-	 * 
-	 */
+    /**
+     * @language zh_CN
+     * 骨骼数据。
+     * @see dragonBones.Bone
+     * @version DragonBones 3.0
+     */
     export class BoneData extends BaseObject {
+        /**
+         * @private
+         */
+        public static toString(): string {
+            return "[Class dragonBones.BoneData]";
+        }
+
         /**
          * @private
          */
@@ -284,7 +385,17 @@ namespace dragonBones {
          * @private
          */
         public length: number;
+        /**
+         * @language zh_CN
+         * 数据名称。
+         * @version DragonBones 3.0
+         */
         public name: string;
+        /**
+         * @language zh_CN
+         * 父骨骼数据。
+         * @version DragonBones 3.0
+         */
         public parent: BoneData;
         /**
          * @private
@@ -300,9 +411,9 @@ namespace dragonBones {
         public constructor() {
             super();
         }
-		/**
-		 * @inheritDoc
-		 */
+        /**
+         * @inheritDoc
+         */
         protected _onClear(): void {
             this.inheritTranslation = false;
             this.inheritRotation = false;
@@ -318,19 +429,28 @@ namespace dragonBones {
             this.transform.identity();
         }
     }
-	/**
-	 * 
-	 */
+    /**
+     * @language zh_CN
+     * 插槽数据。
+     * @see dragonBones.Slot
+     * @version DragonBones 3.0
+     */
     export class SlotData extends BaseObject {
-		/**
-		 * @private
-		 */
+        /**
+         * @private
+         */
         public static DEFAULT_COLOR: ColorTransform = new ColorTransform();
-		/**
-		 * @private
-		 */
+        /**
+         * @private
+         */
         public static generateColor(): ColorTransform {
             return new ColorTransform();
+        }
+        /**
+         * @private
+         */
+        public static toString(): string {
+            return "[Class dragonBones.SlotData]";
         }
 
         /**
@@ -345,7 +465,18 @@ namespace dragonBones {
          * @private
          */
         public blendMode: BlendMode;
+        /**
+         * @language zh_CN
+         * 数据名称。
+         * @version DragonBones 3.0
+         */
         public name: string;
+        /**
+         * @language zh_CN
+         * 父骨骼数据。
+         * @see dragonBones.BoneData
+         * @version DragonBones 3.0
+         */
         public parent: BoneData;
         /**
          * @private
@@ -357,9 +488,9 @@ namespace dragonBones {
         public constructor() {
             super();
         }
-		/**
-		 * @inheritDoc
-		 */
+        /**
+         * @inheritDoc
+         */
         protected _onClear(): void {
             this.displayIndex = 0;
             this.zOrder = 0;
@@ -369,10 +500,23 @@ namespace dragonBones {
             this.color = null;
         }
     }
-	/**
-	 * 
-	 */
+    /**
+     * @language zh_CN
+     * 皮肤数据。
+     * @version DragonBones 3.0
+     */
     export class SkinData extends BaseObject {
+        /**
+         * @private
+         */
+        public static toString(): string {
+            return "[Class dragonBones.SkinData]";
+        }
+        /**
+         * @language zh_CN
+         * 数据名称。
+         * @version DragonBones 3.0
+         */
         public name: string = null;
         /**
          * @private
@@ -384,9 +528,9 @@ namespace dragonBones {
         public constructor() {
             super();
         }
-		/**
-		 * @inheritDoc
-		 */
+        /**
+         * @inheritDoc
+         */
         protected _onClear(): void {
             this.name = null;
 
@@ -395,9 +539,9 @@ namespace dragonBones {
                 delete this.slots[i];
             }
         }
-		/**
-		 * @private
-		 */
+        /**
+         * @private
+         */
         public addSlot(value: SlotDisplayDataSet): void {
             if (value && value.slot && !this.slots[value.slot.name]) {
                 this.slots[value.slot.name] = value;
@@ -405,26 +549,30 @@ namespace dragonBones {
                 //throw new Error();
             }
         }
-		/**
-		 * @private
-		 */
+        /**
+         * @private
+         */
         public getSlot(name: string): SlotDisplayDataSet {
             return this.slots[name];
         }
     }
-	/**
-	 * @private
-	 */
+    /**
+     * @private
+     */
     export class SlotDisplayDataSet extends BaseObject {
+        public static toString(): string {
+            return "[Class dragonBones.SlotDisplayDataSet]";
+        }
+
         public slot: SlotData;
         public displays: Array<DisplayData> = [];
 
         public constructor() {
             super();
         }
-		/**
-		 * @inheritDoc
-		 */
+        /**
+         * @inheritDoc
+         */
         protected _onClear(): void {
             this.slot = null;
 
@@ -437,10 +585,14 @@ namespace dragonBones {
             }
         }
     }
-	/**
-	 * @private
-	 */
+    /**
+     * @private
+     */
     export class DisplayData extends BaseObject {
+        public static toString(): string {
+            return "[Class dragonBones.DisplayData]";
+        }
+
         public isRelativePivot: boolean;
         public type: DisplayType;
         public name: string;
@@ -453,9 +605,9 @@ namespace dragonBones {
         public constructor() {
             super();
         }
-		/**
-		 * @inheritDoc
-		 */
+        /**
+         * @inheritDoc
+         */
         protected _onClear(): void {
             this.isRelativePivot = false;
             this.type = DisplayType.Image;
@@ -472,10 +624,14 @@ namespace dragonBones {
             this.transform.identity();
         }
     }
-	/**
-	 * @private
-	 */
+    /**
+     * @private
+     */
     export class MeshData extends BaseObject {
+        public static toString(): string {
+            return "[Class dragonBones.MeshData]";
+        }
+
         public skinned: boolean;
         public slotPose: Matrix = new Matrix();
 
@@ -493,9 +649,9 @@ namespace dragonBones {
         public constructor() {
             super();
         }
-		/**
-		 * @inheritDoc
-		 */
+        /**
+         * @inheritDoc
+         */
         protected _onClear(): void {
             this.skinned = false;
             this.slotPose.identity();
