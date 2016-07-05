@@ -1,4 +1,9 @@
 namespace dragonBones {
+    /**
+     * @language zh_CN
+     * Egret 插槽。
+     * @version DragonBones 3.0
+     */
     export class EgretSlot extends Slot {
         /**
          * @private
@@ -7,11 +12,22 @@ namespace dragonBones {
             return "[Class dragonBones.EgretSlot]";
         }
 
-        public transformEnabled: boolean;
+        /**
+         * @language zh_CN
+         * 是否更新显示对象的变换属性。 (默认: false)
+         * 为了更好的性能, 并不会更新 display 的变换属性 (x, y, rotation, scaleX, scaleX), 如果需要正确访问这些属性, 则需要设置为 true
+         * @version DragonBones 3.0
+         */
+        public transformUpdateEnabled: boolean;
 
         private _renderDisplay: egret.DisplayObject;
         private _colorFilter: egret.ColorMatrixFilter;
 
+        /**
+         * @language zh_CN
+         * 创建一个空的插槽。
+         * @version DragonBones 3.0
+         */
         public constructor() {
             super();
         }
@@ -21,13 +37,12 @@ namespace dragonBones {
         protected _onClear(): void {
             super._onClear();
 
-            this.transformEnabled = false;
+            this.transformUpdateEnabled = false;
 
             this._renderDisplay = null;
             this._colorFilter = null;
         }
 
-        // Abstract method
         /**
          * @private
          */
@@ -319,7 +334,7 @@ namespace dragonBones {
          * @private
          */
         protected _updateTransform(): void {
-            this._renderDisplay.$setMatrix(<egret.Matrix><any>this.globalTransformMatrix, this.transformEnabled);
+            this._renderDisplay.$setMatrix(<egret.Matrix><any>this.globalTransformMatrix, this.transformUpdateEnabled);
         }
     }
 }

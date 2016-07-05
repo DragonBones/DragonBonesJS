@@ -1,5 +1,15 @@
 namespace dragonBones {
+    /**
+     * @language zh_CN
+     * Egret 事件。
+     * @version DragonBones 4.5
+     */
     export class EgretEvent extends egret.Event {
+        /**
+         * @language zh_CN
+         * 事件对象。
+         * @version DragonBones 4.5
+         */
         public get eventObject(): EventObject {
             return this.data;
         }
@@ -10,43 +20,43 @@ namespace dragonBones {
             super(type, bubbles, cancelable, data);
         }
         /**
-         * @see this.eventObject.name
+         * @see dragonBones.EventObject#name
          */
         public get frameLabel(): string {
             return this.eventObject.name;
         }
         /**
-         * @see this.eventObject.name
+         * @see dragonBones.EventObject#name
          */
         public get sound(): string {
             return this.eventObject.name;
         }
         /**
-         * @see this.eventObject.animationState.name
+         * @see dragonBones.EventObject#animationState
          */
         public get animationName(): string {
             return this.eventObject.animationState.name;
         }
         /**
-         * @see this.eventObject.armature
+         * @see dragonBones.EventObject#armature
          */
         public get armature(): Armature {
             return this.eventObject.armature;
         }
         /**
-         * @see this.eventObject.bone
+         * @see dragonBones.EventObject#bone
          */
         public get bone(): Bone {
             return this.eventObject.bone;
         }
         /**
-         * @see this.eventObject.slot
+         * @see dragonBones.EventObject#slot
          */
         public get slot(): Slot {
             return this.eventObject.slot;
         }
         /**
-         * @see this.eventObject.animationState
+         * @see dragonBones.EventObject#animationState
          */
         public get animationState(): AnimationState {
             return this.eventObject.animationState;
@@ -63,7 +73,6 @@ namespace dragonBones {
          * @see dragonBones.EventObject.COMPLETE
          */
         public static COMPLETE: string = EventObject.COMPLETE;
-
         /**
          * @see dragonBones.EventObject.FADE_IN
          */
@@ -98,6 +107,9 @@ namespace dragonBones {
         public static BONE_FRAME_EVENT: string = EventObject.FRAME_EVENT;
     }
 
+    /**
+     * @inheritDoc
+     */
     export class EgretArmatureDisplayContainer extends egret.DisplayObjectContainer implements IArmatureDisplayContainer {
         /**
          * @private
@@ -136,11 +148,6 @@ namespace dragonBones {
             this._passedTime = 0;
 
             this._time = 0;
-        }
-        /**
-         * @inheritDoc
-         */
-        public _init(): void {
         }
         /**
          * @inheritDoc
@@ -204,42 +211,47 @@ namespace dragonBones {
 
     /**
      * 不推荐使用
+     * @see dragonBones.Armature
      */
     export type FastArmature = Armature;
     /**
      * 不推荐使用
+     * @see dragonBones.Bone
      */
     export type FastBone = Bone;
     /**
      * 不推荐使用
+     * @see dragonBones.Slot
      */
     export type FastSlot = Slot;
     /**
      * 不推荐使用
+     * @see dragonBones.Animation
      */
     export type FastAnimation = Animation;
     /**
      * 不推荐使用
+     * @see dragonBones.AnimationState
      */
     export type FastAnimationState = AnimationState;
     /**
      * 不推荐使用
-     * @see #dragonBones.EgretEvent
+     * @see dragonBones.EgretEvent
      */
     export class AnimationEvent extends EgretEvent { }
     /**
      * 不推荐使用
-     * @see #dragonBones.EgretEvent
+     * @see dragonBones.EgretEvent
      */
     export class FrameEvent extends EgretEvent { }
     /**
      * 不推荐使用
-     * @see #dragonBones.EgretEvent
+     * @see dragonBones.EgretEvent
      */
     export class SoundEvent extends EgretEvent { }
     /**
      * 不推荐使用
-     * @see #dragonBones.EgretTextureAtlasData
+     * @see dragonBones.EgretTextureAtlasData
      */
     export class EgretTextureAtlas extends EgretTextureAtlasData {
         /**
@@ -264,12 +276,12 @@ namespace dragonBones {
     }
     /**
      * 不推荐使用
-     * @see #dragonBones.EgretFactory.soundEventManater
+     * @see dragonBones.EgretFactory#soundEventManater
      */
     export class SoundEventManager {
         /**
          * 不推荐使用
-         * @see #dragonBones.EgretFactory.soundEventManater
+         * @see dragonBones.EgretFactory#soundEventManater
          */
         public static getInstance(): EgretArmatureDisplayContainer {
             return <EgretArmatureDisplayContainer>Armature._soundEventManager;

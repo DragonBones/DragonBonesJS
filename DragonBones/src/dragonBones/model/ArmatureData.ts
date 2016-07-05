@@ -393,7 +393,7 @@ namespace dragonBones {
         public name: string;
         /**
          * @language zh_CN
-         * 父骨骼数据。
+         * 所属的父骨骼数据。
          * @version DragonBones 3.0
          */
         public parent: BoneData;
@@ -473,7 +473,7 @@ namespace dragonBones {
         public name: string;
         /**
          * @language zh_CN
-         * 父骨骼数据。
+         * 所属的父骨骼数据。
          * @see dragonBones.BoneData
          * @version DragonBones 3.0
          */

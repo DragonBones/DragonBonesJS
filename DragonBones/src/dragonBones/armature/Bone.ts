@@ -8,6 +8,15 @@ namespace dragonBones {
         All = 2
     }
 
+    /**
+     * @language zh_CN
+     * 骨骼，一个骨架中可以包含多个骨骼，骨骼以树状结构组成骨架。
+     * 骨骼在骨骼动画体系中是最重要的逻辑单元之一，负责动画中的平移旋转缩放的实现。
+     * @see dragonBones.BoneData
+     * @see dragonBones.Armature
+     * @see dragonBones.Slot
+     * @version DragonBones 3.0
+     */
     export class Bone extends TransformObject {
         /**
          * @private
@@ -17,31 +26,43 @@ namespace dragonBones {
         }
 
         /**
-         * 
+         * @language zh_CN
+         * 是否继承父骨骼的平移。 [true: 继承, false: 不继承] (默认: true)
+         * @version DragonBones 3.0
          */
         public inheritTranslation: boolean;
         /**
-         * 
+         * @language zh_CN
+         * 是否继承父骨骼的旋转。 [true: 继承, false: 不继承] (默认: true)
+         * @version DragonBones 3.0
          */
         public inheritRotation: boolean;
         /**
-         * 
+         * @language zh_CN
+         * 是否继承父骨骼的缩放。 [true: 继承, false: 不继承] (默认: true)
+         * @version DragonBones 4.5
          */
         public inheritScale: boolean;
         /**
-         * 
+         * @language zh_CN
+         * IK 约束时骨骼方向是否为顺时针方向。 [true: 顺时针, false: 逆时针]  (默认: true)
+         * @version DragonBones 4.5
          */
         public ikBendPositive: boolean;
         /**
-         * 
+         * @language zh_CN
+         * IK 约束的权重。 (默认: 1)
+         * @version DragonBones 4.5
          */
         public ikWeight: number;
         /**
-         * 
+         * @language zh_CN
+         * 骨骼长度。 (默认: 0)
+         * @version DragonBones 4.5
          */
         public length: number;
         /**
-         * @private [0: update self, 1: update children, ik, mesh, ...]
+         * @private
          */
         public _transformDirty: BoneTransformDirty;
         /**
@@ -117,7 +138,9 @@ namespace dragonBones {
                 this._slots.length = 0;
             }
         }
-
+        /**
+         * @private
+         */
         private _updateGlobalTransformMatrix(): void {
             if (this._parent) {
                 const parentRotation = this._parent.global.skewY; // Only inherit skew y
@@ -157,7 +180,9 @@ namespace dragonBones {
                 this.global.toMatrix(this.globalTransformMatrix);
             }
         }
-
+        /**
+         * @private
+         */
         private _computeIKA(): void {
             const ikGlobal = this._ik.global;
             const x = this.globalTransformMatrix.a * this.length;
@@ -175,7 +200,9 @@ namespace dragonBones {
             this.global.skewY += ikRadian;
             this.global.toMatrix(this.globalTransformMatrix);
         }
-
+        /**
+         * @private
+         */
         private _computeIKB(): void {
             const parentGlobal = this._parent.global;
             const ikGlobal = this._ik.global;
@@ -283,7 +310,6 @@ namespace dragonBones {
                 }
             }
         }
-
         /**
          * @private
          */
@@ -330,7 +356,6 @@ namespace dragonBones {
                 this._armature._bonesDirty = true;
             }
         }
-
         /**
          * @private
          */
@@ -401,15 +426,20 @@ namespace dragonBones {
                 }
             }
         }
-
         /**
-         *
+         * @language zh_CN
+         * 下一帧更新变换。 (当骨骼没有动画状态或动画状态播放完成时，骨骼将不在更新)
+         * @version DragonBones 3.0
          */
         public invalidUpdate(): void {
             this._transformDirty = BoneTransformDirty.All;
         }
         /**
-         *
+         * @language zh_CN
+         * 是否包含某个指定的骨骼或插槽。
+         * @return [true: 包含，false: 不包含]
+         * @see dragonBones.TransformObject
+         * @version DragonBones 3.0
          */
         public contains(child: TransformObject): boolean {
             if (child) {
@@ -428,7 +458,9 @@ namespace dragonBones {
             return false;
         }
         /**
-         *
+         * @language zh_CN
+         * 所有的子骨骼。
+         * @version DragonBones 3.0
          */
         public getBones(): Array<Bone> {
             this._bones.length = 0;
@@ -444,7 +476,10 @@ namespace dragonBones {
             return this._bones;
         }
         /**
-         *
+         * @language zh_CN
+         * 所有的插槽。
+         * @see dragonBones.Slot
+         * @version DragonBones 3.0
          */
         public getSlots(): Array<Slot> {
             this._slots.length = 0;
@@ -472,13 +507,18 @@ namespace dragonBones {
             return this._ikChainIndex;
         }
         /**
-         *
+         * @language zh_CN
+         * 当前的 IK 约束目标。
+         * @version DragonBones 4.5
          */
         public get ik(): Bone {
             return this._ik;
         }
         /**
-         *
+         * @language zh_CN
+         * 控制此骨骼所有插槽的显示。 (默认: true)
+         * @see dragonBones.Slot
+         * @version DragonBones 3.0
          */
         public get visible(): boolean {
             return this._visible;
@@ -500,14 +540,13 @@ namespace dragonBones {
 
         /**
          * 不推荐使用
-         * @see #dragonBones.Armature.getSlot()
+         * @see dragonBones.Armature#getSlot()
          */
         public get slot(): Slot {
             const slots = this._armature.getSlots();
             for (let i = 0, l = slots.length; i < l; ++i) {
                 const slot = slots[i];
                 if (slot.parent == this) {
-                    this._slots.push(slot);
                     return slot;
                 }
             }

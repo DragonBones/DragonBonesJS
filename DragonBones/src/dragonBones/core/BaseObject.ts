@@ -1,6 +1,8 @@
 namespace dragonBones {
     /**
-     * 
+     * @language zh_CN
+     * 基础对象。
+     * @version DragonBones 4.5
      */
     export abstract class BaseObject {
         /**
@@ -39,12 +41,14 @@ namespace dragonBones {
         /**
          * @private
          */
-		public static toString(): string {
-			throw new Error();
-		}
+        public static toString(): string {
+            throw new Error();
+        }
 
         /**
-         * 
+         * @language zh_CN
+         * 设置每种对象池的最大缓存数量。
+         * @version DragonBones 4.5
          */
         public static setMaxCount(objectConstructor: typeof BaseObject, maxCount: number): void {
             if (objectConstructor) {
@@ -72,7 +76,9 @@ namespace dragonBones {
             }
         }
         /**
-         * clearPool
+         * @language zh_CN
+         * 清除所有对象池缓存的对象。
+         * @version DragonBones 4.5
          */
         public static clearPool(objectConstructor: typeof BaseObject = null): void {
             if (objectConstructor) {
@@ -88,7 +94,9 @@ namespace dragonBones {
             }
         }
         /**
-         * borrowObject
+         * @language zh_CN
+         * 从对象池中创建指定对象。
+         * @version DragonBones 4.5
          */
         public static borrowObject<T extends BaseObject>(objectConstructor: { new (): T; }): T {
             const pool = BaseObject._poolsMap[String(objectConstructor)];
@@ -101,7 +109,9 @@ namespace dragonBones {
             }
         }
         /**
-         * 
+         * @language zh_CN
+         * 对象的唯一标识。
+         * @version DragonBones 4.5
          */
         public hashCode: number = BaseObject._hashCode++;
         /**
@@ -113,7 +123,9 @@ namespace dragonBones {
          */
         protected abstract _onClear(): void;
         /**
-         * 
+         * @language zh_CN
+         * 清除数据并返还对象池。
+         * @version DragonBones 4.5
          */
         public returnToPool(): void {
             this._onClear();

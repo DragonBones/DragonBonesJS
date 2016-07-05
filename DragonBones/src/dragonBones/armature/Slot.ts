@@ -1,11 +1,29 @@
 namespace dragonBones {
+    /**
+     * @language zh_CN
+     * 插槽，附着在骨骼上，控制显示对象的显示状态和属性。
+     * 一个骨骼上可以包含多个插槽。
+     * 一个插槽中可以包含多个显示对象，同一时间只能显示其中的一个显示对象，但可以在动画播放的过程中切换显示对象实现帧动画。
+     * 显示对象可以是普通的图片纹理，也可以是子骨架的显示容器，网格显示对象，还可以是自定义的其他显示对象。
+     * @see dragonBones.Armature
+     * @see dragonBones.Bone
+     * @see dragonBones.SlotData
+     * @version DragonBones 3.0
+     */
     export abstract class Slot extends TransformObject {
         /**
-         * 
+         * @language zh_CN
+         * 子骨架是否继承父骨架的动画。 [true: 继承, false: 不继承] (默认: true，仅在显示对象中包含子骨架时有效)
+         * @version DragonBones 4.5
          */
         public inheritAnimation: boolean;
         /**
-         * 
+         * @language zh_CN
+         * 显示对象受到控制的对象，应设置为动画状态的名称或组名称。 (默认: null，受所有的动画状态控制)
+         * @see dragonBones.AnimationState#displayControl
+         * @see dragonBones.AnimationState#name
+         * @see dragonBones.AnimationState#group
+         * @version DragonBones 4.5
          */
         public displayController: string;
         /**
@@ -152,7 +170,7 @@ namespace dragonBones {
                 this._meshBones.length = 0;
             }
         }
-        // Abstract method
+
         /**
          * @private
          */
@@ -516,7 +534,7 @@ namespace dragonBones {
         }
         /**
          * @language zh_CN
-         * 
+         * 在下一帧更新显示对象的状态。
          * @version DragonBones 4.5
          */
         public invalidUpdate(): void {
@@ -630,14 +648,14 @@ namespace dragonBones {
 
         /**
          * 不推荐使用
-         * @see #dragonBones.Slot.display
+         * @see dragonBones.Slot#display
          */
         public getDisplay(): any {
             return this._display;
         }
         /**
          * 不推荐使用
-         * @see #dragonBones.Slot.display
+         * @see dragonBones.Slot#display
          */
         public setDisplay(value: any) {
             this.display = value;

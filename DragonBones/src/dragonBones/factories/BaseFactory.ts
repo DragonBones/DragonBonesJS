@@ -448,8 +448,6 @@ namespace dragonBones {
                 // Update armature pose
                 armature.advanceTime(0);
 
-                //
-                armature._display._init();
                 return armature;
             }
 

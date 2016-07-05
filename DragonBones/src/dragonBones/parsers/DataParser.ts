@@ -231,13 +231,13 @@ namespace dragonBones {
         protected _rawBones: Array<BoneData> = [];
 
         public constructor() { }
-		/**
-		 * @private
-		 */
+        /**
+         * @private
+         */
         public abstract parseDragonBonesData(rawData: any, scale: number): DragonBonesData;
-		/**
-		 * @private
-		 */
+        /**
+         * @private
+         */
         public abstract parseTextureAtlasData(rawData: any, textureAtlasData: TextureAtlasData, scale: number): void;
 
         private _getTimelineFrameMatrix(animation: AnimationData, timeline: BoneTimelineData, position: number, transform: Transform): void {
