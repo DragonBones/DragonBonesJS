@@ -1,144 +1,150 @@
-class CoreElement extends BaseTest {
-    public static GROUND: number = 300;
-    public static G: number = 0.6;
-    public static instance: CoreElement = null;
+namespace coreElement {
 
-    public factory: dragonBones.EgretFactory = new dragonBones.EgretFactory();
+    export class Game extends BaseTest {
+        public static GROUND: number = 300;
+        public static G: number = 0.6;
+        public static instance: Game = null;
 
-    private _left: boolean = false;
-    private _right: boolean = false;
-    private _player: coreElement.Mecha = null;
-    private _bullets: Array<coreElement.Bullet> = [];
+        public factory: dragonBones.EgretFactory = new dragonBones.EgretFactory();
 
-    public constructor() {
-        super();
+        private _left: boolean = false;
+        private _right: boolean = false;
+        private _player: Mecha = null;
+        private _bullets: Array<Bullet> = [];
 
-        CoreElement.instance = this;
+        public constructor() {
+            super();
 
-        this._resourceConfigURL = "resource/CoreElement.json";
-    }
+            Game.instance = this;
 
-    protected createGameScene(): void {
-        CoreElement.GROUND = this.stage.stageHeight - 100;
-
-        this.factory.parseDragonBonesData(RES.getRes("dragonBonesData"));
-        this.factory.parseTextureAtlasData(RES.getRes("textureDataA"), RES.getRes("textureA"));
-
-        this.stage.addEventListener(egret.Event.ENTER_FRAME, this._enterFrameHandler, this);
-        this.stage.addEventListener(egret.TouchEvent.TOUCH_BEGIN, this._touchHandler, this);
-        this.stage.addEventListener(egret.TouchEvent.TOUCH_END, this._touchHandler, this);
-        this.stage.addEventListener(egret.TouchEvent.TOUCH_CANCEL, this._touchHandler, this);
-        this.stage.addEventListener(egret.TouchEvent.TOUCH_RELEASE_OUTSIDE, this._touchHandler, this);
-
-        document.addEventListener("keydown", this._keyHandler);
-        document.addEventListener("keyup", this._keyHandler);
-        document.addEventListener("mousemove", this._mouseHandler);
-
-        this._player = new coreElement.Mecha();
-
-        const text = new egret.TextField();
-        text.x = 0;
-        text.y = this.stage.stageHeight - 60;
-        text.width = this.stage.stageWidth;
-        text.textAlign = egret.HorizontalAlign.CENTER;
-        text.size = 20;
-        text.text = "Press W/A/S/D to move. Press Q/E/SPACE to switch weapons.\nMouse Move to aim. Click to fire.";
-        this.addChild(text);
-    }
-
-    public addBullet(bullet: coreElement.Bullet): void {
-        this._bullets.push(bullet);
-    }
-
-    private _touchHandler(event: egret.TouchEvent): void {
-        if (event.type == egret.TouchEvent.TOUCH_BEGIN) {
-            this._player.attack(true);
-        } else {
-            this._player.attack(false);
+            this._resourceConfigURL = "resource/CoreElement.json";
         }
-    }
 
-    private _mouseHandler(event: MouseEvent): void {
-        CoreElement.instance._player.aim(event.x, event.y);
-    }
+        protected createGameScene(): void {
+            Game.GROUND = this.stage.stageHeight - 100;
 
-    private _keyHandler(event: KeyboardEvent): void {
-        const isDown: boolean = event.type == "keydown";
-        switch (event.keyCode) {
-            case 37:
-            case 65:
-                CoreElement.instance._left = isDown;
-                CoreElement.instance._updateMove(-1);
-                break;
+            this.factory.parseDragonBonesData(RES.getRes("dragonBonesData"));
+            this.factory.parseTextureAtlasData(RES.getRes("textureDataA"), RES.getRes("textureA"));
 
-            case 39:
-            case 68:
-                CoreElement.instance._right = isDown;
-                CoreElement.instance._updateMove(1);
-                break;
+            this.stage.addEventListener(egret.Event.ENTER_FRAME, this._enterFrameHandler, this);
+            this.stage.addEventListener(egret.TouchEvent.TOUCH_BEGIN, this._touchHandler, this);
+            this.stage.addEventListener(egret.TouchEvent.TOUCH_END, this._touchHandler, this);
+            this.stage.addEventListener(egret.TouchEvent.TOUCH_CANCEL, this._touchHandler, this);
+            this.stage.addEventListener(egret.TouchEvent.TOUCH_RELEASE_OUTSIDE, this._touchHandler, this);
 
-            case 38:
-            case 87:
-                if (isDown) {
-                    CoreElement.instance._player.jump();
-                }
-                break;
+            document.addEventListener("keydown", this._keyHandler);
+            document.addEventListener("keyup", this._keyHandler);
 
-            case 83:
-            case 40:
-                CoreElement.instance._player.squat(isDown);
-                break;
+            // mouse move        
+            let onTouchMove = egret.sys.TouchHandler.prototype.onTouchMove;
+            egret.sys.TouchHandler.prototype.onTouchMove = function (x: number, y: number, touchPointID: number): void {
+                onTouchMove.call(this, x, y, touchPointID);
 
-            case 81:
-                if (isDown) {
-                    CoreElement.instance._player.switchWeaponR();
-                }
-                break;
+                Game.instance._player.aim(x, y);
+            }
 
-            case 69:
-                if (isDown) {
-                    CoreElement.instance._player.switchWeaponL();
-                }
-                break;
+            this._player = new Mecha();
 
-            case 32:
-                if (isDown) {
-                    CoreElement.instance._player.switchWeaponR();
-                    CoreElement.instance._player.switchWeaponL();
-                }
-                break;
+            const text = new egret.TextField();
+            text.x = 0;
+            text.y = this.stage.stageHeight - 60;
+            text.width = this.stage.stageWidth;
+            text.textAlign = egret.HorizontalAlign.CENTER;
+            text.size = 20;
+            text.text = "Press W/A/S/D to move. Press Q/E/SPACE to switch weapons.\nMouse Move to aim. Click to fire.";
+            this.addChild(text);
         }
-    }
 
-    private _enterFrameHandler(event: dragonBones.EgretEvent): void {
-        this._player.update();
+        public addBullet(bullet: Bullet): void {
+            this._bullets.push(bullet);
+        }
 
-        let i = this._bullets.length;
-        while (i--) {
-            const bullet = this._bullets[i];
-            if (bullet.update()) {
-                this._bullets.splice(i, 1);
+        private _touchHandler(event: egret.TouchEvent): void {
+            this._player.aim(event.stageX, event.stageY);
+
+            if (event.type == egret.TouchEvent.TOUCH_BEGIN) {
+                this._player.attack(true);
+            } else {
+                this._player.attack(false);
             }
         }
 
-        dragonBones.WorldClock.clock.advanceTime(-1);
-    }
+        private _keyHandler(event: KeyboardEvent): void {
+            const isDown: boolean = event.type == "keydown";
+            switch (event.keyCode) {
+                case 37:
+                case 65:
+                    Game.instance._left = isDown;
+                    Game.instance._updateMove(-1);
+                    break;
 
-    private _updateMove(dir: number): void {
-        if (this._left && this._right) {
-            this._player.move(dir);
-        } else if (this._left) {
-            this._player.move(-1);
-        } else if (this._right) {
-            this._player.move(1);
-        } else {
-            this._player.move(0);
+                case 39:
+                case 68:
+                    Game.instance._right = isDown;
+                    Game.instance._updateMove(1);
+                    break;
+
+                case 38:
+                case 87:
+                    if (isDown) {
+                        Game.instance._player.jump();
+                    }
+                    break;
+
+                case 83:
+                case 40:
+                    Game.instance._player.squat(isDown);
+                    break;
+
+                case 81:
+                    if (isDown) {
+                        Game.instance._player.switchWeaponR();
+                    }
+                    break;
+
+                case 69:
+                    if (isDown) {
+                        Game.instance._player.switchWeaponL();
+                    }
+                    break;
+
+                case 32:
+                    if (isDown) {
+                        Game.instance._player.switchWeaponR();
+                        Game.instance._player.switchWeaponL();
+                    }
+                    break;
+            }
+        }
+
+        private _enterFrameHandler(event: dragonBones.EgretEvent): void {
+            this._player.update();
+
+            let i = this._bullets.length;
+            while (i--) {
+                const bullet = this._bullets[i];
+                if (bullet.update()) {
+                    this._bullets.splice(i, 1);
+                }
+            }
+
+            dragonBones.WorldClock.clock.advanceTime(-1);
+        }
+
+        private _updateMove(dir: number): void {
+            if (this._left && this._right) {
+                this._player.move(dir);
+            } else if (this._left) {
+                this._player.move(-1);
+            } else if (this._right) {
+                this._player.move(1);
+            } else {
+                this._player.move(0);
+            }
         }
     }
-}
 
-namespace coreElement {
-    export class Mecha {
+    class Mecha {
         private static NORMAL_ANIMATION_GROUP: string = "normal";
         private static AIM_ANIMATION_GROUP: string = "aim";
         private static ATTACK_ANIMATION_GROUP: string = "attack";
@@ -172,10 +178,10 @@ namespace coreElement {
         private _target: egret.Point = new egret.Point();
 
         public constructor() {
-            this._armature = CoreElement.instance.factory.buildArmature("mecha_1502b");
+            this._armature = Game.instance.factory.buildArmature("mecha_1502b");
             this._armatureDisplay = <dragonBones.EgretArmatureDisplayContainer>this._armature.display;
-            this._armatureDisplay.x = CoreElement.instance.stage.stageWidth * 0.5;
-            this._armatureDisplay.y = CoreElement.GROUND;
+            this._armatureDisplay.x = Game.instance.stage.stageWidth * 0.5;
+            this._armatureDisplay.y = Game.GROUND;
             this._armatureDisplay.scaleX = this._armatureDisplay.scaleY = 1;
             this._armatureDisplay.addEventListener(dragonBones.EventObject.FADE_IN_COMPLETE, this._animationEventHandler, this);
             this._armatureDisplay.addEventListener(dragonBones.EventObject.FADE_OUT_COMPLETE, this._animationEventHandler, this);
@@ -192,7 +198,7 @@ namespace coreElement {
 
             this._updateAnimation();
 
-            CoreElement.instance.addChild(this._armatureDisplay);
+            Game.instance.addChild(this._armatureDisplay);
             dragonBones.WorldClock.clock.add(this._armature);
         }
 
@@ -241,7 +247,7 @@ namespace coreElement {
             this._weaponR.removeEventListener(dragonBones.EventObject.FRAME_EVENT, this._frameEventHandler, this);
 
             const weaponName = Mecha.WEAPON_R_LIST[this._weaponRIndex];
-            this._weaponR = CoreElement.instance.factory.buildArmature(weaponName);
+            this._weaponR = Game.instance.factory.buildArmature(weaponName);
             this._armature.getSlot("weapon_r").childArmature = this._weaponR;
             this._weaponR.addEventListener(dragonBones.EventObject.FRAME_EVENT, this._frameEventHandler, this);
         }
@@ -255,7 +261,7 @@ namespace coreElement {
             this._weaponL.removeEventListener(dragonBones.EventObject.FRAME_EVENT, this._frameEventHandler, this);
 
             const weaponName = Mecha.WEAPON_L_LIST[this._weaponLIndex];
-            this._weaponL = CoreElement.instance.factory.buildArmature(weaponName);
+            this._weaponL = Game.instance.factory.buildArmature(weaponName);
             this._armature.getSlot("weapon_l").childArmature = this._weaponL;
             this._weaponL.addEventListener(dragonBones.EventObject.FRAME_EVENT, this._frameEventHandler, this);
         }
@@ -312,7 +318,7 @@ namespace coreElement {
             const radian = this._faceDir < 0 ? Math.PI - this._aimRadian : this._aimRadian;
             const bullet = new Bullet("bullet_01", "fireEffect_01", radian + Math.random() * 0.02 - 0.01, 40, firePoint);
 
-            CoreElement.instance.addBullet(bullet);
+            Game.instance.addBullet(bullet);
         }
 
         private _updateAnimation(): void {
@@ -355,21 +361,21 @@ namespace coreElement {
                 this._armatureDisplay.x += this._speedX;
                 if (this._armatureDisplay.x < 0) {
                     this._armatureDisplay.x = 0;
-                } else if (this._armatureDisplay.x > CoreElement.instance.stage.stageWidth) {
-                    this._armatureDisplay.x = CoreElement.instance.stage.stageWidth;
+                } else if (this._armatureDisplay.x > Game.instance.stage.stageWidth) {
+                    this._armatureDisplay.x = Game.instance.stage.stageWidth;
                 }
             }
 
             if (this._speedY != 0) {
-                if (this._speedY < 5 && this._speedY + CoreElement.G >= 5) {
+                if (this._speedY < 5 && this._speedY + Game.G >= 5) {
                     this._armature.animation.fadeIn("jump_3", -1, -1, 0, Mecha.NORMAL_ANIMATION_GROUP);
                 }
 
-                this._speedY += CoreElement.G;
+                this._speedY += Game.G;
 
                 this._armatureDisplay.y += this._speedY;
-                if (this._armatureDisplay.y > CoreElement.GROUND) {
-                    this._armatureDisplay.y = CoreElement.GROUND;
+                if (this._armatureDisplay.y > Game.GROUND) {
+                    this._armatureDisplay.y = Game.GROUND;
                     this._isJumpingA = false;
                     this._isJumpingB = false;
                     this._speedY = 0;
@@ -395,7 +401,7 @@ namespace coreElement {
                 }
             }
 
-            const aimOffsetY = this._armature.getBone("chest").global.y;
+            const aimOffsetY = this._armature.getBone("chest").global.y * this._armatureDisplay.scaleY;
 
             if (this._faceDir > 0) {
                 this._aimRadian = Math.atan2(this._target.y - this._armatureDisplay.y - aimOffsetY, this._target.x - this._armatureDisplay.x);
@@ -457,7 +463,7 @@ namespace coreElement {
         }
     }
 
-    export class Bullet {
+    class Bullet {
         private _speedX: number = 0;
         private _speedY: number = 0;
 
@@ -469,7 +475,7 @@ namespace coreElement {
             this._speedX = Math.cos(radian) * speed;
             this._speedY = Math.sin(radian) * speed;
 
-            this._armature = CoreElement.instance.factory.buildArmature(armatureName);
+            this._armature = Game.instance.factory.buildArmature(armatureName);
             this._armatureDisplay = <dragonBones.EgretArmatureDisplayContainer>this._armature.display;
             this._armatureDisplay.x = position.x;
             this._armatureDisplay.y = position.y;
@@ -477,7 +483,7 @@ namespace coreElement {
             this._armature.animation.play("idle");
 
             if (effectArmatureName) {
-                this._effect = CoreElement.instance.factory.buildArmature(effectArmatureName);
+                this._effect = Game.instance.factory.buildArmature(effectArmatureName);
                 const effectDisplay = <dragonBones.EgretArmatureDisplayContainer>this._effect.display;
                 effectDisplay.rotation = radian * dragonBones.DragonBones.RADIAN_TO_ANGLE;
                 effectDisplay.x = position.x;
@@ -491,11 +497,11 @@ namespace coreElement {
                 this._effect.animation.play("idle");
 
                 dragonBones.WorldClock.clock.add(this._effect);
-                CoreElement.instance.addChild(effectDisplay);
+                Game.instance.addChild(effectDisplay);
             }
 
             dragonBones.WorldClock.clock.add(this._armature);
-            CoreElement.instance.addChild(this._armatureDisplay);
+            Game.instance.addChild(this._armatureDisplay);
         }
 
         public update(): Boolean {
@@ -503,16 +509,16 @@ namespace coreElement {
             this._armatureDisplay.y += this._speedY;
 
             if (
-                this._armatureDisplay.x < -100 || this._armatureDisplay.x >= CoreElement.instance.stage.stageWidth + 100 ||
-                this._armatureDisplay.y < -100 || this._armatureDisplay.y >= CoreElement.instance.stage.stageHeight + 100
+                this._armatureDisplay.x < -100 || this._armatureDisplay.x >= Game.instance.stage.stageWidth + 100 ||
+                this._armatureDisplay.y < -100 || this._armatureDisplay.y >= Game.instance.stage.stageHeight + 100
             ) {
                 dragonBones.WorldClock.clock.remove(this._armature);
-                CoreElement.instance.removeChild(this._armatureDisplay);
+                Game.instance.removeChild(this._armatureDisplay);
                 this._armature.dispose();
 
                 if (this._effect) {
                     dragonBones.WorldClock.clock.remove(this._effect);
-                    CoreElement.instance.removeChild(<dragonBones.EgretArmatureDisplayContainer>this._effect.display);
+                    Game.instance.removeChild(<dragonBones.EgretArmatureDisplayContainer>this._effect.display);
                     this._effect.dispose();
                 }
 

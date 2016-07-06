@@ -276,6 +276,12 @@ namespace dragonBones {
     }
     /**
      * 不推荐使用
+     * @see dragonBones.EgretTextureAtlasData
+     */
+    export class EgretSheetAtlas extends EgretTextureAtlas { 
+    }
+    /**
+     * 不推荐使用
      * @see dragonBones.EgretFactory#soundEventManater
      */
     export class SoundEventManager {

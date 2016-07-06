@@ -237,24 +237,27 @@ namespace dragonBones {
                 if (this._currentFrame != currentFrame) {
                     if (this._keyFrameCount > 1) {
                         let crossedFrame = this._currentFrame;
-                        if (!crossedFrame) {
-                            if (prevTime <= currentFrame.position) {
-                                crossedFrame = currentFrame.prev;
-                            } else {
-                                crossedFrame = currentFrame;
-                            }
-                        }
-
                         this._currentFrame = currentFrame;
 
                         if (this._isReverse) {
                             while (crossedFrame != currentFrame) {
+                                if (!crossedFrame) {
+                                    const prevFrameIndex = Math.floor(prevTime * this._timeToFrameSccale);
+                                    crossedFrame = this._timeline.frames[prevFrameIndex];
+                                }
+
                                 this._onCrossFrame(crossedFrame);
                                 crossedFrame = crossedFrame.prev;
                             }
                         } else {
                             while (crossedFrame != currentFrame) {
-                                crossedFrame = crossedFrame.next;
+                                if (crossedFrame) {
+                                    crossedFrame = crossedFrame.next;
+                                } else {
+                                    const prevFrameIndex = Math.floor(prevTime * this._timeToFrameSccale);
+                                    crossedFrame = this._timeline.frames[prevFrameIndex];
+                                }
+
                                 this._onCrossFrame(crossedFrame);
                             }
                         }

@@ -313,21 +313,6 @@ namespace dragonBones {
             if (!this._lockActionAndEvent) {
                 this._lockActionAndEvent = true;
 
-                if (this._events.length > 0) {
-                    for (let i = 0, l = this._events.length; i < l; ++i) {
-                        const event = this._events[i];
-                        if (Armature._soundEventManager && event.type == EventObject.SOUND_EVENT) {
-                            Armature._soundEventManager._dispatchEvent(event);
-                        } else {
-                            this._display._dispatchEvent(event);
-                        }
-
-                        event.returnToPool();
-                    }
-
-                    this._events.length = 0;
-                }
-
                 if (this._action) {
                     switch (this._action.type) {
                         case ActionType.Play:
@@ -356,6 +341,21 @@ namespace dragonBones {
                     }
 
                     this._action = null;
+                }
+
+                if (this._events.length > 0) {
+                    for (let i = 0, l = this._events.length; i < l; ++i) {
+                        const event = this._events[i];
+                        if (Armature._soundEventManager && event.type == EventObject.SOUND_EVENT) {
+                            Armature._soundEventManager._dispatchEvent(event);
+                        } else {
+                            this._display._dispatchEvent(event);
+                        }
+
+                        event.returnToPool();
+                    }
+
+                    this._events.length = 0;
                 }
 
                 this._lockActionAndEvent = false;

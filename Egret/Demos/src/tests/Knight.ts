@@ -1,130 +1,131 @@
-class Knight extends BaseTest {
-    public static GROUND: number = 300;
-    public static G: number = 0.6;
-    public static instance: Knight = null;
+namespace knight {
 
-    public factory: dragonBones.EgretFactory = new dragonBones.EgretFactory();
+    export class Game extends BaseTest {
+        public static GROUND: number = 300;
+        public static G: number = 0.6;
+        public static instance: Game = null;
 
-    private _left: boolean = false;
-    private _right: boolean = false;
-    private _player: knight.Hero = null;
-    private _bullets: Array<knight.Bullet> = [];
+        public factory: dragonBones.EgretFactory = new dragonBones.EgretFactory();
 
-    public constructor() {
-        super();
+        private _left: boolean = false;
+        private _right: boolean = false;
+        private _player: Hero = null;
+        private _bullets: Array<Bullet> = [];
 
-        Knight.instance = this;
+        public constructor() {
+            super();
 
-        this._resourceConfigURL = "resource/Knight.json";
-    }
+            Game.instance = this;
 
-    protected createGameScene(): void {
-        Knight.GROUND = this.stage.stageHeight - 100;
-
-        this.factory.parseDragonBonesData(RES.getRes("dragonBonesData"));
-        this.factory.parseTextureAtlasData(RES.getRes("textureDataA"), RES.getRes("textureA"));
-
-        this.stage.addEventListener(egret.Event.ENTER_FRAME, this._enterFrameHandler, this);
-        this.stage.addEventListener(egret.TouchEvent.TOUCH_BEGIN, this._touchHandler, this);
-
-        document.addEventListener("keydown", this._keyHandler);
-        document.addEventListener("keyup", this._keyHandler);
-
-        this._player = new knight.Hero();
-
-        const text = new egret.TextField();
-        text.x = 0;
-        text.y = this.stage.stageHeight - 60;
-        text.width = this.stage.stageWidth;
-        text.textAlign = egret.HorizontalAlign.CENTER;
-        text.size = 20;
-        text.text = "Press W/A/S/D to move. Press SPACE to switch weapons. Press Q/E to upgrade weapon. \nClick to attack.";
-        this.addChild(text);
-    }
-
-    public addBullet(bullet: knight.Bullet): void {
-        this._bullets.push(bullet);
-    }
-
-    private _touchHandler(event: egret.TouchEvent): void {
-        this._player.attack();
-    }
-
-    private _keyHandler(event: KeyboardEvent): void {
-        const isDown: boolean = event.type == "keydown";
-        switch (event.keyCode) {
-            case 37:
-            case 65:
-                Knight.instance._left = isDown;
-                Knight.instance._updateMove(-1);
-                break;
-
-            case 39:
-            case 68:
-                Knight.instance._right = isDown;
-                Knight.instance._updateMove(1);
-                break;
-
-            case 38:
-            case 87:
-                if (isDown) {
-                    Knight.instance._player.jump();
-                }
-                break;
-
-            case 83:
-            case 40:
-                break;
-
-            case 81:
-                if (isDown) {
-                    Knight.instance._player.upgradeWeapon(-1);
-                }
-                break;
-
-            case 69:
-                if (isDown) {
-                    Knight.instance._player.upgradeWeapon(1);
-                }
-                break;
-
-            case 32:
-                if (isDown) {
-                    Knight.instance._player.switchWeapon();
-                }
-                break;
+            this._resourceConfigURL = "resource/Knight.json";
         }
-    }
 
-    private _enterFrameHandler(event: dragonBones.EgretEvent): void {
-        this._player.update();
+        protected createGameScene(): void {
+            Game.GROUND = this.stage.stageHeight - 100;
 
-        let i = this._bullets.length;
-        while (i--) {
-            const bullet = this._bullets[i];
-            if (bullet.update()) {
-                this._bullets.splice(i, 1);
+            this.factory.parseDragonBonesData(RES.getRes("dragonBonesData"));
+            this.factory.parseTextureAtlasData(RES.getRes("textureDataA"), RES.getRes("textureA"));
+
+            this.stage.addEventListener(egret.Event.ENTER_FRAME, this._enterFrameHandler, this);
+            this.stage.addEventListener(egret.TouchEvent.TOUCH_BEGIN, this._touchHandler, this);
+
+            document.addEventListener("keydown", this._keyHandler);
+            document.addEventListener("keyup", this._keyHandler);
+
+            this._player = new Hero();
+
+            const text = new egret.TextField();
+            text.x = 0;
+            text.y = this.stage.stageHeight - 60;
+            text.width = this.stage.stageWidth;
+            text.textAlign = egret.HorizontalAlign.CENTER;
+            text.size = 20;
+            text.text = "Press W/A/S/D to move. Press SPACE to switch weapons. Press Q/E to upgrade weapon. \nClick to attack.";
+            this.addChild(text);
+        }
+
+        public addBullet(bullet: Bullet): void {
+            this._bullets.push(bullet);
+        }
+
+        private _touchHandler(event: egret.TouchEvent): void {
+            this._player.attack();
+        }
+
+        private _keyHandler(event: KeyboardEvent): void {
+            const isDown: boolean = event.type == "keydown";
+            switch (event.keyCode) {
+                case 37:
+                case 65:
+                    Game.instance._left = isDown;
+                    Game.instance._updateMove(-1);
+                    break;
+
+                case 39:
+                case 68:
+                    Game.instance._right = isDown;
+                    Game.instance._updateMove(1);
+                    break;
+
+                case 38:
+                case 87:
+                    if (isDown) {
+                        Game.instance._player.jump();
+                    }
+                    break;
+
+                case 83:
+                case 40:
+                    break;
+
+                case 81:
+                    if (isDown) {
+                        Game.instance._player.upgradeWeapon(-1);
+                    }
+                    break;
+
+                case 69:
+                    if (isDown) {
+                        Game.instance._player.upgradeWeapon(1);
+                    }
+                    break;
+
+                case 32:
+                    if (isDown) {
+                        Game.instance._player.switchWeapon();
+                    }
+                    break;
             }
         }
 
-        dragonBones.WorldClock.clock.advanceTime(-1);
-    }
+        private _enterFrameHandler(event: dragonBones.EgretEvent): void {
+            this._player.update();
 
-    private _updateMove(dir: number): void {
-        if (this._left && this._right) {
-            this._player.move(dir);
-        } else if (this._left) {
-            this._player.move(-1);
-        } else if (this._right) {
-            this._player.move(1);
-        } else {
-            this._player.move(0);
+            let i = this._bullets.length;
+            while (i--) {
+                const bullet = this._bullets[i];
+                if (bullet.update()) {
+                    this._bullets.splice(i, 1);
+                }
+            }
+
+            dragonBones.WorldClock.clock.advanceTime(-1);
+        }
+
+        private _updateMove(dir: number): void {
+            if (this._left && this._right) {
+                this._player.move(dir);
+            } else if (this._left) {
+                this._player.move(-1);
+            } else if (this._right) {
+                this._player.move(1);
+            } else {
+                this._player.move(0);
+            }
         }
     }
-}
 
-namespace knight {
-    export class Hero {
+    class Hero {
         private static MAX_WEAPON_LEVEL: number = 3;
         private static JUMP_SPEED: number = -20;
         private static MOVE_SPEED: number = 4;
@@ -145,10 +146,10 @@ namespace knight {
         private _armArmature: dragonBones.Armature = null;
 
         public constructor() {
-            this._armature = Knight.instance.factory.buildArmature("knight");
+            this._armature = Game.instance.factory.buildArmature("knight");
             this._armatureDisplay = <dragonBones.EgretArmatureDisplayContainer>this._armature.display;
-            this._armatureDisplay.x = Knight.instance.stage.stageWidth * 0.5;
-            this._armatureDisplay.y = Knight.GROUND;
+            this._armatureDisplay.x = Game.instance.stage.stageWidth * 0.5;
+            this._armatureDisplay.y = Game.GROUND;
             this._armatureDisplay.scaleX = this._armatureDisplay.scaleY = 1;
 
             this._armArmature = this._armature.getSlot("armOutside").childArmature;
@@ -157,7 +158,7 @@ namespace knight {
 
             this._updateAnimation();
 
-            Knight.instance.addChild(this._armatureDisplay);
+            Game.instance.addChild(this._armatureDisplay);
             dragonBones.WorldClock.clock.add(this._armature);
         }
 
@@ -223,10 +224,9 @@ namespace knight {
 
             // Replace display.
             if (this._weaponName == "bow") {
-                this._armArmature.getSlot("bow").childArmature = Knight.instance.factory.buildArmature("knightFolder/" + this._weaponName + "_" + (weaponLevel + 1));
-            }
-            else {
-                Knight.instance.factory.replaceSlotDisplay(
+                this._armArmature.getSlot("bow").childArmature = Game.instance.factory.buildArmature("knightFolder/" + this._weaponName + "_" + (weaponLevel + 1));
+            } else {
+                Game.instance.factory.replaceSlotDisplay(
                     null, "weapons", "weapon",
                     "knightFolder/" + this._weaponName + "_" + (weaponLevel + 1),
                     this._armArmature.getSlot("weapon")
@@ -252,8 +252,7 @@ namespace knight {
                     if (event.eventObject.name == "ready") {
                         this._isAttacking = false;
                         this._hitCount++;
-                    }
-                    else if (event.eventObject.name == "fire") {
+                    } else if (event.eventObject.name == "fire") {
                         const firePointBone = event.eventObject.armature.getBone("bow");
 
                         (<dragonBones.EgretArmatureDisplayContainer>event.eventObject.armature.display).localToGlobal(firePointBone.global.x, firePointBone.global.y, Hero._globalPoint);
@@ -261,8 +260,7 @@ namespace knight {
                         let radian = 0;
                         if (this._faceDir > 0) {
                             radian = firePointBone.global.rotation + (<dragonBones.EgretArmatureDisplayContainer>event.eventObject.armature.display).rotation * dragonBones.DragonBones.ANGLE_TO_RADIAN;
-                        }
-                        else {
+                        } else {
                             radian = Math.PI - (firePointBone.global.rotation + (<dragonBones.EgretArmatureDisplayContainer>event.eventObject.armature.display).rotation) * dragonBones.DragonBones.ANGLE_TO_RADIAN;
                         }
 
@@ -288,8 +286,8 @@ namespace knight {
         }
 
         private _fire(firePoint: egret.Point, radian: number): void {
-            const bullet = new knight.Bullet("arrow", radian, 20, firePoint);
-            Knight.instance.addBullet(bullet);
+            const bullet = new Bullet("arrow", radian, 20, firePoint);
+            Game.instance.addBullet(bullet);
         }
 
         private _updateAnimation(): void {
@@ -311,21 +309,21 @@ namespace knight {
                 this._armatureDisplay.x += this._speedX;
                 if (this._armatureDisplay.x < 0) {
                     this._armatureDisplay.x = 0;
-                } else if (this._armatureDisplay.x > Knight.instance.stage.stageWidth) {
-                    this._armatureDisplay.x = Knight.instance.stage.stageWidth;
+                } else if (this._armatureDisplay.x > Game.instance.stage.stageWidth) {
+                    this._armatureDisplay.x = Game.instance.stage.stageWidth;
                 }
             }
 
             if (this._speedY != 0) {
-                if (this._speedY < 0 && this._speedY + Knight.G >= 0) {
+                if (this._speedY < 0 && this._speedY + Game.G >= 0) {
                     this._armature.animation.fadeIn("fall");
                 }
 
-                this._speedY += Knight.G;
+                this._speedY += Game.G;
 
                 this._armatureDisplay.y += this._speedY;
-                if (this._armatureDisplay.y > Knight.GROUND) {
-                    this._armatureDisplay.y = Knight.GROUND;
+                if (this._armatureDisplay.y > Game.GROUND) {
+                    this._armatureDisplay.y = Game.GROUND;
                     this._isJumping = false;
                     this._speedY = 0;
                     this._speedX = 0;
@@ -335,7 +333,7 @@ namespace knight {
         }
     }
 
-    export class Bullet {
+    class Bullet {
         private _speedX: number = 0;
         private _speedY: number = 0;
 
@@ -346,7 +344,7 @@ namespace knight {
             this._speedX = Math.cos(radian) * speed;
             this._speedY = Math.sin(radian) * speed;
 
-            this._armature = Knight.instance.factory.buildArmature(armatureName);
+            this._armature = Game.instance.factory.buildArmature(armatureName);
             this._armatureDisplay = <dragonBones.EgretArmatureDisplayContainer>this._armature.display;
             this._armatureDisplay.x = position.x;
             this._armatureDisplay.y = position.y;
@@ -354,22 +352,22 @@ namespace knight {
             this._armature.animation.play("idle");
 
             dragonBones.WorldClock.clock.add(this._armature);
-            Knight.instance.addChild(this._armatureDisplay);
+            Game.instance.addChild(this._armatureDisplay);
         }
 
         public update(): Boolean {
-            this._speedY += Knight.G;
+            this._speedY += Game.G;
 
             this._armatureDisplay.x += this._speedX;
             this._armatureDisplay.y += this._speedY;
             this._armatureDisplay.rotation = Math.atan2(this._speedY, this._speedX) * dragonBones.DragonBones.RADIAN_TO_ANGLE;
 
             if (
-                this._armatureDisplay.x < -100 || this._armatureDisplay.x >= Knight.instance.stage.stageWidth + 100 ||
-                this._armatureDisplay.y < -100 || this._armatureDisplay.y >= Knight.instance.stage.stageHeight + 100
+                this._armatureDisplay.x < -100 || this._armatureDisplay.x >= Game.instance.stage.stageWidth + 100 ||
+                this._armatureDisplay.y < -100 || this._armatureDisplay.y >= Game.instance.stage.stageHeight + 100
             ) {
                 dragonBones.WorldClock.clock.remove(this._armature);
-                Knight.instance.removeChild(this._armatureDisplay);
+                Game.instance.removeChild(this._armatureDisplay);
                 this._armature.dispose();
 
                 return true;

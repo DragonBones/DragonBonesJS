@@ -34,10 +34,12 @@ class Main extends egret.DisplayObjectContainer {
     }
 
     private onAddToStage(event: egret.Event) {
+        this.stage.dirtyRegionPolicy = "off";
+
         //this.addChild(new HelloDragonBones());
         //this.addChild(new AnimationBaseTest());
-        this.addChild(new PerformanceTest());
-        //this.addChild(new CoreElement());
-        //this.addChild(new Knight());
+        //this.addChild(new PerformanceTest());
+        //this.addChild(new knight.Game());
+        this.addChild(new coreElement.Game());
     }
 }

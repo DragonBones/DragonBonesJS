@@ -145,9 +145,9 @@ class HelloDragonBones extends BaseTest {
         this._armature = this._armatureDisplay.armature;
 
         // b. Build Armature. (Factory.buildArmature() will update Armature Animation by clock)
-		/*this._armature = this._factory.buildArmature(armatureName);
-		this._armatureDisplay = <dragonBones.EgretArmatureDisplayContainer>this._armature.display;
-		dragonBones.WorldClock.clock.add(this._armature);*/
+        /*this._armature = this._factory.buildArmature(armatureName);
+        this._armatureDisplay = <dragonBones.EgretArmatureDisplayContainer>this._armature.display;
+        dragonBones.WorldClock.clock.add(this._armature);*/
 
         // Add FrameEvent listener.
         this._armatureDisplay.addEventListener(dragonBones.EventObject.FRAME_EVENT, this._frameEventHandler, this);

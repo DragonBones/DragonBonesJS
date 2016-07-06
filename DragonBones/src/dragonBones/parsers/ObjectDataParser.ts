@@ -38,7 +38,11 @@ namespace dragonBones {
         protected static _getNumber(rawData: any, key: string, defaultValue: number): number {
             if (key in rawData) {
                 const value = rawData[key];
-                return value == null ? defaultValue : Number(value);
+                if (value == null || value == "NaN") {
+                    return defaultValue;
+                }
+
+                return Number(value);
             }
 
             return defaultValue;
