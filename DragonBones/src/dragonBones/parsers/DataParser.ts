@@ -223,8 +223,8 @@ namespace dragonBones {
 
         protected _isParentCooriinate: boolean = false;
         protected _isAutoTween: boolean = false;
-        protected _armatureScale: number = 1;
         protected _animationTweenEasing: number = 0;
+        protected _armatureScale: number = 1;
         protected _helpPoint: Point = new Point();
         protected _helpTransform: Transform = new Transform();
         protected _helpMatrix: Matrix = new Matrix();
@@ -296,10 +296,10 @@ namespace dragonBones {
                         for (let i = 0, l = timeline.frames.length; i < l; ++i) {
                             const frame = timeline.frames[i];
                             this._getTimelineFrameMatrix(animation, parentTimeline, frame.position, this._helpTransform);
-                            this._helpTransform.toMatrix(this._helpMatrix);
                             frame.transform.add(timeline.originTransform);
+                            this._helpTransform.toMatrix(this._helpMatrix);
                             this._helpMatrix.transformPoint(frame.transform.x, frame.transform.y, frame.transform);
-                            frame.transform.rotation += frame.transform.rotation - frame.parent.transform.rotation;
+                            frame.transform.rotation += frame.transform.rotation - this._helpTransform.rotation;
                         }
                     }
 

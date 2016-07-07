@@ -280,11 +280,9 @@ namespace dragonBones {
                 display.pivot.y = ObjectDataParser._getNumber(pivotObject, ObjectDataParser.Y, 0);
             } else if (this._isParentCooriinate) {
                 const transformObject = rawData[ObjectDataParser.TRANSFORM];
-                if ((ObjectDataParser.PIVOT_X in transformObject) || (ObjectDataParser.PIVOT_Y in transformObject)) {
-                    display.isRelativePivot = false;
-                    display.pivot.x = ObjectDataParser._getNumber(transformObject, ObjectDataParser.PIVOT_X, 0) * this._armatureScale;
-                    display.pivot.y = ObjectDataParser._getNumber(transformObject, ObjectDataParser.PIVOT_Y, 0) * this._armatureScale;
-                }
+                display.isRelativePivot = false;
+                display.pivot.x = ObjectDataParser._getNumber(transformObject, ObjectDataParser.PIVOT_X, 0) * this._armatureScale;
+                display.pivot.y = ObjectDataParser._getNumber(transformObject, ObjectDataParser.PIVOT_Y, 0) * this._armatureScale;
             } else {
                 display.pivot.x = 0.5;
                 display.pivot.y = 0.5;
@@ -643,10 +641,6 @@ namespace dragonBones {
             frame.displayIndex = ObjectDataParser._getNumber(rawData, ObjectDataParser.DISPLAY_INDEX, 0);
             //frame.zOrder = _getNumber(rawData, Z_ORDER, -1); // TODO zorder
 
-            if (this._isParentCooriinate && ObjectDataParser._getBoolean(rawData, ObjectDataParser.HIDE, false)) {
-                frame.displayIndex = -1;
-            }
-
             this._parseTweenFrame(rawData, frame, frameStart, frameCount);
 
             if (ObjectDataParser.COLOR in rawData || ObjectDataParser.COLOR_TRANSFORM in rawData) {
@@ -656,7 +650,11 @@ namespace dragonBones {
                 frame.color = SlotFrameData.DEFAULT_COLOR;
             }
 
-            if (!this._isParentCooriinate && ObjectDataParser.ACTION in rawData) {
+            if (this._isParentCooriinate) {
+                if (ObjectDataParser._getBoolean(rawData, ObjectDataParser.HIDE, false)) {
+                    frame.displayIndex = -1;
+                }
+            } else if (ObjectDataParser.ACTION in rawData) {
                 const slot = (<SlotTimelineData>this._timeline).slot;
                 this._parseActionData(rawData, frame.actions, slot.parent, slot);
             }

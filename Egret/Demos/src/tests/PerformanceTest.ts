@@ -84,7 +84,7 @@ class PerformanceTest extends BaseTest {
 
     private _addArmature(): void {
         const armature = this._factory.buildArmature(this._dragonBonesData.armatureNames[0]);
-        const armatureDisplay = <dragonBones.EgretArmatureDisplayContainer>armature.display;
+        const armatureDisplay = <dragonBones.EgretArmatureDisplay>armature.display;
 
         armatureDisplay.scaleX = armatureDisplay.scaleY = 0.7;
         this.addChild(armatureDisplay);
@@ -103,7 +103,7 @@ class PerformanceTest extends BaseTest {
         }
 
         const armature = this._armatures.pop();
-        const armatureDisplay = <dragonBones.EgretArmatureDisplayContainer>armature.display;
+        const armatureDisplay = <dragonBones.EgretArmatureDisplay>armature.display;
         this.removeChild(armatureDisplay);
         dragonBones.WorldClock.clock.remove(armature);
         armature.dispose();
@@ -130,7 +130,7 @@ class PerformanceTest extends BaseTest {
 
         for (let i = 0, l = this._armatures.length; i < l; ++i) {
             const armature = this._armatures[i];
-            const armatureDisplay = <dragonBones.EgretArmatureDisplayContainer>armature.display;
+            const armatureDisplay = <dragonBones.EgretArmatureDisplay>armature.display;
             const lineY = Math.floor(i / columnCount);
 
             armatureDisplay.x = (i % columnCount) * dX + paddingHModify;

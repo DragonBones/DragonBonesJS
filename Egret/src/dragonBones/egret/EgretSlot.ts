@@ -62,14 +62,14 @@ namespace dragonBones {
          * @private
          */
         protected _addDisplay(): void {
-            const container = <EgretArmatureDisplayContainer>this._armature._display;
+            const container = <EgretArmatureDisplay>this._armature._display;
             container.addChild(this._renderDisplay);
         }
         /**
          * @private
          */
         protected _replaceDisplay(value: Object): void {
-            const container = <EgretArmatureDisplayContainer>this._armature._display;
+            const container = <EgretArmatureDisplay>this._armature._display;
             const prevDisplay = <egret.DisplayObject>value;
             container.addChild(this._renderDisplay);
             container.swapChildren(this._renderDisplay, prevDisplay);
@@ -201,7 +201,7 @@ namespace dragonBones {
                         }
                     }
 
-                    const texture = (<egret.Texture>this._armature._replaceTexture) || currentTextureData.texture;
+                    const texture = (<egret.Texture>this._armature._replacedTexture) || currentTextureData.texture;
 
                     if (texture) {
                         if (this._meshData && this._display == this._meshDisplay) {

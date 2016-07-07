@@ -5,7 +5,7 @@ class AnimationBaseTest extends BaseTest {
         this._resourceConfigURL = "resource/AnimationBaseTest.json";
     }
 
-    private _armatureDisplay: dragonBones.EgretArmatureDisplayContainer = null;
+    private _armatureDisplay: dragonBones.EgretArmatureDisplay = null;
     private _factory: dragonBones.EgretFactory = new dragonBones.EgretFactory();
 
     protected createGameScene(): void {

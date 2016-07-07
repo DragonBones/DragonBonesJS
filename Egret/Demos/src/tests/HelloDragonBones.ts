@@ -15,7 +15,7 @@ class HelloDragonBones extends BaseTest {
 
     private _dragonBonesData: dragonBones.DragonBonesData = null;
     private _armature: dragonBones.Armature = null;
-    private _armatureDisplay: dragonBones.EgretArmatureDisplayContainer = null;
+    private _armatureDisplay: dragonBones.EgretArmatureDisplay = null;
     private _factory: dragonBones.EgretFactory = new dragonBones.EgretFactory();
     /** 
      * Init.
@@ -146,7 +146,7 @@ class HelloDragonBones extends BaseTest {
 
         // b. Build Armature. (Factory.buildArmature() will update Armature Animation by clock)
         /*this._armature = this._factory.buildArmature(armatureName);
-        this._armatureDisplay = <dragonBones.EgretArmatureDisplayContainer>this._armature.display;
+        this._armatureDisplay = <dragonBones.EgretArmatureDisplay>this._armature.display;
         dragonBones.WorldClock.clock.add(this._armature);*/
 
         // Add FrameEvent listener.

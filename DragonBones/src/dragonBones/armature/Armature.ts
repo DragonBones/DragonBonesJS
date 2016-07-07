@@ -54,7 +54,7 @@ namespace dragonBones {
         /**
          * @private
          */
-        public _display: IArmatureDisplayContainer;
+        public _display: IArmatureDisplay;
         /**
          * @private
          */
@@ -66,7 +66,7 @@ namespace dragonBones {
         /**
          * @private
          */
-        public _replaceTexture: any;
+        public _replacedTexture: any;
         /**
          * @private
          */
@@ -125,7 +125,7 @@ namespace dragonBones {
 
             this._parent = null;
             this._action = null;
-            this._replaceTexture = null;
+            this._replacedTexture = null;
 
             this._delayDispose = false;
             this._lockDispose = false;
@@ -544,8 +544,8 @@ namespace dragonBones {
          * 替换骨架的主贴图，根据渲染引擎的不同，提供不同的贴图数据。
          * @version DragonBones 4.5
          */
-        public setReplaceTexture(texture: any): void {
-            this._replaceTexture = texture;
+        public replaceTexture(texture: any): void {
+            this._replacedTexture = texture;
 
             for (let i = 0, l = this._slots.length; i < l; ++i) {
                 this._slots[i].invalidUpdate();

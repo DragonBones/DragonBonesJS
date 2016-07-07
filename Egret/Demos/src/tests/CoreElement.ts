@@ -169,7 +169,7 @@ namespace coreElement {
         private _speedX: number = 0;
         private _speedY: number = 0;
         private _armature: dragonBones.Armature = null;
-        private _armatureDisplay: dragonBones.EgretArmatureDisplayContainer = null;
+        private _armatureDisplay: dragonBones.EgretArmatureDisplay = null;
         private _weaponR: dragonBones.Armature = null;
         private _weaponL: dragonBones.Armature = null;
         private _aimState: dragonBones.AnimationState = null;
@@ -179,7 +179,7 @@ namespace coreElement {
 
         public constructor() {
             this._armature = Game.instance.factory.buildArmature("mecha_1502b");
-            this._armatureDisplay = <dragonBones.EgretArmatureDisplayContainer>this._armature.display;
+            this._armatureDisplay = <dragonBones.EgretArmatureDisplay>this._armature.display;
             this._armatureDisplay.x = Game.instance.stage.stageWidth * 0.5;
             this._armatureDisplay.y = Game.GROUND;
             this._armatureDisplay.scaleX = this._armatureDisplay.scaleY = 1;
@@ -305,7 +305,7 @@ namespace coreElement {
         private _frameEventHandler(event: dragonBones.EgretEvent): void {
             if (event.eventObject.name == "onFire") {
                 const firePointBone = event.eventObject.armature.getBone("firePoint");
-                (<dragonBones.EgretArmatureDisplayContainer>event.eventObject.armature.display).localToGlobal(firePointBone.global.x, firePointBone.global.y, Mecha._globalPoint);
+                (<dragonBones.EgretArmatureDisplay>event.eventObject.armature.display).localToGlobal(firePointBone.global.x, firePointBone.global.y, Mecha._globalPoint);
 
                 this._fire(Mecha._globalPoint);
             }
@@ -468,7 +468,7 @@ namespace coreElement {
         private _speedY: number = 0;
 
         private _armature: dragonBones.Armature = null;
-        private _armatureDisplay: dragonBones.EgretArmatureDisplayContainer = null;
+        private _armatureDisplay: dragonBones.EgretArmatureDisplay = null;
         private _effect: dragonBones.Armature = null;
 
         public constructor(armatureName: string, effectArmatureName: string, radian: number, speed: number, position: egret.Point) {
@@ -476,7 +476,7 @@ namespace coreElement {
             this._speedY = Math.sin(radian) * speed;
 
             this._armature = Game.instance.factory.buildArmature(armatureName);
-            this._armatureDisplay = <dragonBones.EgretArmatureDisplayContainer>this._armature.display;
+            this._armatureDisplay = <dragonBones.EgretArmatureDisplay>this._armature.display;
             this._armatureDisplay.x = position.x;
             this._armatureDisplay.y = position.y;
             this._armatureDisplay.rotation = radian * dragonBones.DragonBones.RADIAN_TO_ANGLE;
@@ -484,7 +484,7 @@ namespace coreElement {
 
             if (effectArmatureName) {
                 this._effect = Game.instance.factory.buildArmature(effectArmatureName);
-                const effectDisplay = <dragonBones.EgretArmatureDisplayContainer>this._effect.display;
+                const effectDisplay = <dragonBones.EgretArmatureDisplay>this._effect.display;
                 effectDisplay.rotation = radian * dragonBones.DragonBones.RADIAN_TO_ANGLE;
                 effectDisplay.x = position.x;
                 effectDisplay.y = position.y;
@@ -518,7 +518,7 @@ namespace coreElement {
 
                 if (this._effect) {
                     dragonBones.WorldClock.clock.remove(this._effect);
-                    Game.instance.removeChild(<dragonBones.EgretArmatureDisplayContainer>this._effect.display);
+                    Game.instance.removeChild(<dragonBones.EgretArmatureDisplay>this._effect.display);
                     this._effect.dispose();
                 }
 

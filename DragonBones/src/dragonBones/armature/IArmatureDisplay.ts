@@ -5,7 +5,7 @@ namespace dragonBones {
      * @see dragonBones.Armature#display
      * @version DragonBones 4.5
      */
-    export interface IArmatureDisplayContainer extends IEventDispatcher {
+    export interface IArmatureDisplay extends IEventDispatcher {
         /**
          * @language zh_CN
          * 由显示容器来更新骨架和动画。

@@ -142,12 +142,12 @@ namespace knight {
         private _speedX: number = 0;
         private _speedY: number = 0;
         private _armature: dragonBones.Armature = null;
-        private _armatureDisplay: dragonBones.EgretArmatureDisplayContainer = null;
+        private _armatureDisplay: dragonBones.EgretArmatureDisplay = null;
         private _armArmature: dragonBones.Armature = null;
 
         public constructor() {
             this._armature = Game.instance.factory.buildArmature("knight");
-            this._armatureDisplay = <dragonBones.EgretArmatureDisplayContainer>this._armature.display;
+            this._armatureDisplay = <dragonBones.EgretArmatureDisplay>this._armature.display;
             this._armatureDisplay.x = Game.instance.stage.stageWidth * 0.5;
             this._armatureDisplay.y = Game.GROUND;
             this._armatureDisplay.scaleX = this._armatureDisplay.scaleY = 1;
@@ -255,13 +255,13 @@ namespace knight {
                     } else if (event.eventObject.name == "fire") {
                         const firePointBone = event.eventObject.armature.getBone("bow");
 
-                        (<dragonBones.EgretArmatureDisplayContainer>event.eventObject.armature.display).localToGlobal(firePointBone.global.x, firePointBone.global.y, Hero._globalPoint);
+                        (<dragonBones.EgretArmatureDisplay>event.eventObject.armature.display).localToGlobal(firePointBone.global.x, firePointBone.global.y, Hero._globalPoint);
 
                         let radian = 0;
                         if (this._faceDir > 0) {
-                            radian = firePointBone.global.rotation + (<dragonBones.EgretArmatureDisplayContainer>event.eventObject.armature.display).rotation * dragonBones.DragonBones.ANGLE_TO_RADIAN;
+                            radian = firePointBone.global.rotation + (<dragonBones.EgretArmatureDisplay>event.eventObject.armature.display).rotation * dragonBones.DragonBones.ANGLE_TO_RADIAN;
                         } else {
-                            radian = Math.PI - (firePointBone.global.rotation + (<dragonBones.EgretArmatureDisplayContainer>event.eventObject.armature.display).rotation) * dragonBones.DragonBones.ANGLE_TO_RADIAN;
+                            radian = Math.PI - (firePointBone.global.rotation + (<dragonBones.EgretArmatureDisplay>event.eventObject.armature.display).rotation) * dragonBones.DragonBones.ANGLE_TO_RADIAN;
                         }
 
                         switch (this._weaponsLevel[this._weaponIndex]) {
@@ -338,14 +338,14 @@ namespace knight {
         private _speedY: number = 0;
 
         private _armature: dragonBones.Armature = null;
-        private _armatureDisplay: dragonBones.EgretArmatureDisplayContainer = null;
+        private _armatureDisplay: dragonBones.EgretArmatureDisplay = null;
 
         public constructor(armatureName: string, radian: number, speed: number, position: egret.Point) {
             this._speedX = Math.cos(radian) * speed;
             this._speedY = Math.sin(radian) * speed;
 
             this._armature = Game.instance.factory.buildArmature(armatureName);
-            this._armatureDisplay = <dragonBones.EgretArmatureDisplayContainer>this._armature.display;
+            this._armatureDisplay = <dragonBones.EgretArmatureDisplay>this._armature.display;
             this._armatureDisplay.x = position.x;
             this._armatureDisplay.y = position.y;
             this._armatureDisplay.rotation = radian * dragonBones.DragonBones.RADIAN_TO_ANGLE;

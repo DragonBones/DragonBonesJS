@@ -4,7 +4,7 @@ namespace dragonBones {
             super();
 
             if (!Armature._soundEventManager) {
-                Armature._soundEventManager = new EgretArmatureDisplayContainer();
+                Armature._soundEventManager = new EgretArmatureDisplay();
             }
         }
         /**
@@ -24,7 +24,7 @@ namespace dragonBones {
          */
         protected _generateArmature(dataPackage: BuildArmaturePackage): Armature {
             const armature = BaseObject.borrowObject(Armature);
-            const armatureDisplayContainer = new EgretArmatureDisplayContainer();
+            const armatureDisplayContainer = new EgretArmatureDisplay();
 
             armature._armatureData = dataPackage.armature;
             armature._skinData = dataPackage.skin;
@@ -98,7 +98,7 @@ namespace dragonBones {
          * @see dragonBones.IArmatureDisplayContainer
          * @version DragonBones 4.5
          */
-        public buildArmatureDisplay<T extends EgretArmatureDisplayContainer>(armatureName: string, dragonBonesName: string = null, skinName: string = null): T {
+        public buildArmatureDisplay<T extends EgretArmatureDisplay>(armatureName: string, dragonBonesName: string = null, skinName: string = null): T {
             const armature = this.buildArmature(armatureName, dragonBonesName, skinName);
             const armatureDisplay = armature ? <T>armature._display : null;
             if (armatureDisplay) {
@@ -112,8 +112,8 @@ namespace dragonBones {
          * 获取全局声音事件管理器。
          * @version DragonBones 4.5
          */
-        public get soundEventManater(): EgretArmatureDisplayContainer {
-            return <EgretArmatureDisplayContainer>Armature._soundEventManager;
+        public get soundEventManater(): EgretArmatureDisplay {
+            return <EgretArmatureDisplay>Armature._soundEventManager;
         }
 
         /**

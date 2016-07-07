@@ -11,7 +11,7 @@ namespace dragonBones {
         public static toString(): string {
             return "[Class dragonBones.AnimationData]";
         }
-        
+
         /**
          * @private
          */

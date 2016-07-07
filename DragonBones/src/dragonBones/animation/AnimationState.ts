@@ -9,7 +9,7 @@ namespace dragonBones {
         public static toString(): string {
             return "[Class dragonBones.AnimationState]";
         }
-        
+
         /**
          * @language zh_CN
          * 是否对插槽的颜色，显示序列索引，深度排序，行为等拥有控制的权限。 (默认: true)
