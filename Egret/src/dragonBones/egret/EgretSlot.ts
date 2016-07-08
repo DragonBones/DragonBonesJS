@@ -14,8 +14,9 @@ namespace dragonBones {
 
         /**
          * @language zh_CN
-         * 是否更新显示对象的变换属性。 (默认: false)
-         * 为了更好的性能, 并不会更新 display 的变换属性 (x, y, rotation, scaleX, scaleX), 如果需要正确访问这些属性, 则需要设置为 true
+         * 是否更新显示对象的变换属性。
+         * 为了更好的性能, 并不会更新 display 的变换属性 (x, y, rotation, scaleX, scaleX), 如果需要正确访问这些属性, 则需要设置为 true 。
+         * @default false
          * @version DragonBones 3.0
          */
         public transformUpdateEnabled: boolean;
@@ -181,8 +182,8 @@ namespace dragonBones {
 
             if (this._display && this._displayIndex >= 0) {
                 const rawDisplayData = this._displayIndex < this._displayDataSet.displays.length ? this._displayDataSet.displays[this._displayIndex] : null;
-                const replaceDisplayData = this._displayIndex < this._replaceDisplayDataSet.length ? this._replaceDisplayDataSet[this._displayIndex] : null;
-                const currentDisplayData = replaceDisplayData || rawDisplayData;
+                const replacedDisplayData = this._displayIndex < this._replacedDisplayDataSet.length ? this._replacedDisplayDataSet[this._displayIndex] : null;
+                const currentDisplayData = replacedDisplayData || rawDisplayData;
                 const currentTextureData = <EgretTextureData>currentDisplayData.textureData;
                 if (currentTextureData) {
                     if (!currentTextureData.texture) {
@@ -243,9 +244,9 @@ namespace dragonBones {
                                 pivotY += currentTextureData.frame.y;
                             }
 
-                            if (rawDisplayData && replaceDisplayData) {
-                                pivotX += replaceDisplayData.transform.x - rawDisplayData.transform.x;
-                                pivotY += replaceDisplayData.transform.y - rawDisplayData.transform.y;
+                            if (rawDisplayData && replacedDisplayData) {
+                                pivotX += replacedDisplayData.transform.x - rawDisplayData.transform.x;
+                                pivotY += replacedDisplayData.transform.y - rawDisplayData.transform.y;
                             }
 
                             if (currentTextureData.rotated) {
