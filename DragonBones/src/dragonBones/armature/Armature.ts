@@ -672,7 +672,14 @@ namespace dragonBones {
         public removeEventListener(type: string, listener: Function, target: any): void {
             this._display.removeEvent(type, listener, target);
         }
-
+        
+        /**
+         * @deprecated
+         * @see #display
+         */
+        public getDisplay(): any {
+            return this._display;
+        }
         /**
          * @deprecated
          * @see #cacheFrameRate
