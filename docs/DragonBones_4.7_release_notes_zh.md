@@ -1,7 +1,6 @@
 DragonBones 4.7 的运行库，相对之前的版本有较大的功能增加和改进，同时保证完美的向下兼容。
 全新的 TypeScript / JavaScript、ActionScript、C++ 的运行库支持，支持 DragonBones Pro 的全部功能。
 * [DragonBones Github](https://github.com/DragonBones)
-* [DragonBones Data Format](./DragonBones%204.5%20data%20format_zh.md)
  
 #### 增强了局部换装功能，解决轴点错位问题，支持一键整体换装，支持纹理延迟加载。
 * 增加 Factory.replaceSlotDisplay()、Factory.replaceSlotDisplayList() 接口用于解决局部换种轴点错位的问题。
