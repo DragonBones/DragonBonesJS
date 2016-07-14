@@ -54,7 +54,7 @@ namespace dragonBones {
                 }
             }
 
-            if (this.autoSearch) {
+            if (this.autoSearch) { // Will be search all data, if the autoSearch is true.
                 for (let i in this._textureAtlasDataMap) {
                     textureAtlasDataList = this._textureAtlasDataMap[i];
                     for (let j = 0, lJ = textureAtlasDataList.length; j < lJ; ++j) {
@@ -93,7 +93,7 @@ namespace dragonBones {
                 }
             }
 
-            if (!dragonBonesName || this.autoSearch) {
+            if (!dragonBonesName || this.autoSearch) { // Will be search all data, if do not give a data name or the autoSearch is true.
                 for (let eachDragonBonesName in this._dragonBonesDataMap) {
                     const dragonBonesData = this._dragonBonesDataMap[eachDragonBonesName];
                     if (!dragonBonesName || dragonBonesData.autoSearch) {
@@ -445,8 +445,11 @@ namespace dragonBones {
                 this._buildBones(dataPackage, armature);
                 this._buildSlots(dataPackage, armature);
 
-                // Update armature pose
-                armature.advanceTime(0);
+                if (armature.armatureData.actions.length > 0) { // Add default action.
+                    armature._action = armature.armatureData.actions[armature.armatureData.actions.length - 1];
+                }
+
+                armature.advanceTime(0); // Update armature pose.
 
                 return armature;
             }
@@ -459,7 +462,7 @@ namespace dragonBones {
          * @param toArmature 指定的骨架。
          * @param fromArmatreName 其他骨架的名称。
          * @param fromSkinName 其他骨架的皮肤名称，如果未设置，则使用默认皮肤。
-         * @param fromDragonBonesDataName 其他骨架属于的龙骨数据名称，如果未设置，则检索所有龙骨数据寻找其他骨架。
+         * @param fromDragonBonesDataName 其他骨架属于的龙骨数据名称，如果未设置，则检索所有的龙骨数据。
          * @param ifRemoveOriginalAnimationList 是否移除原有的动画。 [true: 移除, false: 不移除]
          * @returns 是否替换成功。 [true: 成功, false: 不成功]
          * @see dragonBones.Armature

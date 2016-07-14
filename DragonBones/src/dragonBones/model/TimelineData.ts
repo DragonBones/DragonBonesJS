@@ -28,7 +28,7 @@ namespace dragonBones {
 
             if (this.frames.length) {
                 let prevFrame: T = null;
-                for (let i = 0, l = this.frames.length; i < l; ++i) {
+                for (let i = 0, l = this.frames.length; i < l; ++i) { // Find key frame data.
                     const frame: T = this.frames[i];
                     if (prevFrame && frame != prevFrame) {
                         prevFrame.returnToPool();

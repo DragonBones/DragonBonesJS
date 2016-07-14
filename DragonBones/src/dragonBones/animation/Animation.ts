@@ -498,6 +498,7 @@ namespace dragonBones {
         public gotoAndStopByTime(animationName: string, time: number = 0): AnimationState {
             const animationState = this.gotoAndPlayByTime(animationName, time, 1);
             if (animationState) {
+                this._isPlaying = false;
                 animationState.stop();
             }
 
@@ -515,6 +516,7 @@ namespace dragonBones {
         public gotoAndStopByFrame(animationName: string, frame: number = 0): AnimationState {
             const animationState = this.gotoAndPlayByFrame(animationName, frame, 1);
             if (animationState) {
+                this._isPlaying = false;
                 animationState.stop();
             }
 
@@ -532,6 +534,7 @@ namespace dragonBones {
         public gotoAndStopByProgress(animationName: string, progress: number = 0): AnimationState {
             const animationState = this.gotoAndPlayByProgress(animationName, progress, 1);
             if (animationState) {
+                this._isPlaying = false;
                 animationState.stop();
             }
 

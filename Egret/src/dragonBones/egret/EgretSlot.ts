@@ -186,7 +186,7 @@ namespace dragonBones {
                 const currentDisplayData = replacedDisplayData || rawDisplayData;
                 const currentTextureData = <EgretTextureData>currentDisplayData.textureData;
                 if (currentTextureData) {
-                    if (!currentTextureData.texture) {
+                    if (!currentTextureData.texture) { // Create and cache render texture.
                         const textureAtlasTexture = (<EgretTextureAtlasData>currentTextureData.parent).texture;
                         if (textureAtlasTexture) {
                             currentTextureData.texture = new egret.Texture();
@@ -205,7 +205,7 @@ namespace dragonBones {
                     const texture = (<egret.Texture>this._armature._replacedTexture) || currentTextureData.texture;
 
                     if (texture) {
-                        if (this._meshData && this._display == this._meshDisplay) {
+                        if (this._meshData && this._display == this._meshDisplay) { // Mesh.
                             const meshDisplay = <egret.Mesh>this._meshDisplay;
                             const meshNode = <egret.sys.MeshNode>meshDisplay.$renderNode;
 
@@ -221,7 +221,7 @@ namespace dragonBones {
                             meshDisplay.$setBitmapData(texture);
                             meshDisplay.$updateVertices();
                             meshDisplay.$invalidateTransform();
-                        } else {
+                        } else { // Normal texture.
                             const rect = currentTextureData.frame || currentTextureData.region;
 
                             let width = rect.width;
@@ -261,10 +261,12 @@ namespace dragonBones {
                 }
             }
 
+            frameDisplay.visible = false;
             frameDisplay.$setBitmapData(null);
             frameDisplay.$setAnchorOffsetX(0);
             frameDisplay.$setAnchorOffsetY(0);
-            frameDisplay.visible = false;
+            frameDisplay.x = 0;
+            frameDisplay.y = 0;
         }
         /**
          * @private

@@ -61,6 +61,15 @@ namespace dragonBones {
         public get animationState(): AnimationState {
             return this.eventObject.animationState;
         }
+
+        /**
+         * @deprecated
+         * @see #animationName
+         */
+        public get movementID(): string {
+            return this.animationName;
+        }
+
         /**
          * @see dragonBones.EventObject.START
          */
@@ -299,5 +308,12 @@ namespace dragonBones {
         public static getInstance(): EgretArmatureDisplay {
             return <EgretArmatureDisplay>Armature._soundEventManager;
         }
+    }
+    /**
+     * @deprecated
+     * @see dragonBones.Armature#cacheFrameRate
+     * @see dragonBones.Armature#enableAnimationCache()
+     */
+    export class AnimationCacheManager {
     }
 }

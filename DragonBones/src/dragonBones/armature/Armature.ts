@@ -276,10 +276,10 @@ namespace dragonBones {
 
             const scaledPassedTime = passedTime * this._animation.timeScale;
 
-            //
+            // Animations.
             this._animation._advanceTime(scaledPassedTime);
 
-            //
+            // Bones and slots.
             if (this._bonesDirty) {
                 this._bonesDirty = false;
                 this._sortBones();
@@ -309,7 +309,7 @@ namespace dragonBones {
                 }
             }
 
-            //
+            // Actions and events.
             if (!this._lockActionAndEvent) {
                 this._lockActionAndEvent = true;
 
@@ -362,7 +362,7 @@ namespace dragonBones {
             }
 
             this._lockDispose = false;
-
+            
             if (this._delayDispose) {
                 this.returnToPool();
             } else if (this._delayAdvanceTime >= 0) {
