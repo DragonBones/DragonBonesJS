@@ -61,7 +61,7 @@ namespace dragonBones {
          * @private
          */
         protected static _getParameter(rawData: Array<any>, index: number, defaultValue: any): any {
-            if (rawData.length > index) {
+            if (rawData && rawData.length > index) {
                 return rawData[index];
             }
 
@@ -637,15 +637,6 @@ namespace dragonBones {
             if (ObjectDataParser.TRANSFORM in rawData) {
                 const transformObject = rawData[ObjectDataParser.TRANSFORM];
                 this._parseTransform(transformObject, frame.transform);
-
-                if (this._isParentCooriinate) { // Support 2.x ~ 3.x data.
-                    this._helpPoint.x = ObjectDataParser._getNumber(transformObject, ObjectDataParser.PIVOT_X, 0);
-                    this._helpPoint.y = ObjectDataParser._getNumber(transformObject, ObjectDataParser.PIVOT_Y, 0);
-                    frame.transform.toMatrix(this._helpMatrix);
-                    this._helpMatrix.transformPoint(this._helpPoint.x, this._helpPoint.x, this._helpPoint, true);
-                    frame.transform.x += this._helpPoint.x;
-                    frame.transform.y += this._helpPoint.y;
-                }
             }
 
             const bone = (<BoneTimelineData>this._timeline).bone;
@@ -751,7 +742,11 @@ namespace dragonBones {
             if (ObjectDataParser.TWEEN_EASING in rawData) {
                 frame.tweenEasing = ObjectDataParser._getNumber(rawData, ObjectDataParser.TWEEN_EASING, DragonBones.NO_TWEEN);
             } else if (this._isParentCooriinate) { // Support 2.x ~ 3.x data.
-                frame.tweenEasing = this._isAutoTween ? this._animationTweenEasing : DragonBones.NO_TWEEN;
+                if (this._animation.scale == 1 && (<TimelineData<T>>this._timeline).scale == 1 && frame.duration * this._armature.frameRate < 2) {
+                    frame.tweenEasing = DragonBones.NO_TWEEN;
+                } else {
+                    frame.tweenEasing = this._isAutoTween ? this._animationTweenEasing : DragonBones.NO_TWEEN;
+                }
             }
 
             if (ObjectDataParser.CURVE in rawData) {
