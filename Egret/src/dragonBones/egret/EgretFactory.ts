@@ -20,9 +20,9 @@ namespace dragonBones {
         /**
          * @private
          */
-        protected _generateTextureAtlasData(textureAtlasData: TextureAtlasData, textureAtlas: any): TextureAtlasData {
+        protected _generateTextureAtlasData(textureAtlasData: EgretTextureAtlasData, textureAtlas: egret.Texture): EgretTextureAtlasData {
             if (textureAtlasData) {
-                (<EgretTextureAtlasData>textureAtlasData).texture = <egret.Texture>textureAtlas;
+                textureAtlasData.texture = textureAtlas;
             } else {
                 textureAtlasData = BaseObject.borrowObject(EgretTextureAtlasData);
             }

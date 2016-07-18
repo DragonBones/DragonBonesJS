@@ -186,7 +186,7 @@ namespace dragonBones {
                 const currentDisplayData = replacedDisplayData || rawDisplayData;
                 const currentTextureData = <EgretTextureData>currentDisplayData.textureData;
                 if (currentTextureData) {
-                    if (!currentTextureData.texture) { // Create and cache render texture.
+                    if (!currentTextureData.texture) { // Create and cache texture.
                         const textureAtlasTexture = (<EgretTextureAtlasData>currentTextureData.parent).texture;
                         if (textureAtlasTexture) {
                             currentTextureData.texture = new egret.Texture();

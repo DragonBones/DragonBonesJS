@@ -4,11 +4,12 @@
 
 ## Supported engines
 * [Egret](http://www.egret.com/) / [DragonBones Egret Library](./Egret/)
+* [Pixi](http://www.pixijs.com/) / [DragonBones Pixi Library](./Pixi/)
 
 ## How to use
-1. Make sure you have installed some JavaScript IDE.
-2. Create a JavaScript project and include the [DragonBones common source code](./DragonBones/src/).
-3. Import engine source code such as [Egret source code]( https://github.com/egret-labs/egret-core/) and [DragonBones Egret source code](./Egret/src).
+1. Make sure you have installed some JavaScript / TypeScript IDE.
+2. Create a JavaScript / TypeScript project and include the [DragonBones common source code](./DragonBones/src/).
+3. Import engine source code such as [Egret source code](https://github.com/egret-labs/egret-core/) and [DragonBones Egret source code](./Egret/src).
 4. Build project and have fun.
 
 ## To learn more about
