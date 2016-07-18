@@ -50,7 +50,7 @@ namespace demosEgret {
                 text.width = this.stage.stageWidth;
                 text.textAlign = egret.HorizontalAlign.CENTER;
                 text.size = 20;
-                text.text = "Touch screen left to change Armature / right to change Animation.";
+                text.text = "Touch screen left to change Armature / right to change Animation.\nTouch move to scale Armatrue and Animation.";
                 this.addChild(text);
             } else {
                 throw new Error();

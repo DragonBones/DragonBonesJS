@@ -26,8 +26,7 @@ var demosPixi;
             this._factory = new dragonBones.PixiFactory();
             this._init();
         }
-        var d = __define,c=HelloDragonBones,p=c.prototype;
-        p._init = function () {
+        HelloDragonBones.prototype._init = function () {
             document.body.appendChild(this._renderer.view);
             PIXI.ticker.shared.add(this._renderHandler, this);
             // Load data.
@@ -38,10 +37,10 @@ var demosPixi;
             PIXI.loader.once("complete", this._loadComplateHandler, this);
             PIXI.loader.load();
         };
-        p._renderHandler = function (deltaTime) {
+        HelloDragonBones.prototype._renderHandler = function (deltaTime) {
             this._renderer.render(this._stage);
         };
-        p._loadComplateHandler = function (loader, object) {
+        HelloDragonBones.prototype._loadComplateHandler = function (loader, object) {
             // Parse data.
             this._dragonBonesData = this._factory.parseDragonBonesData(object["dragonBonesData"].data);
             this._factory.parseTextureAtlasData(object["textureDataA"].data, object["textureA"].texture);
@@ -78,7 +77,7 @@ var demosPixi;
          * Touch to change Armature and Animation.
          * Touch move to change Armature and Animation scale.
          */
-        p._touchHandler = function (event) {
+        HelloDragonBones.prototype._touchHandler = function (event) {
             switch (event.type) {
                 case 'touchstart':
                 case 'mousedown':
@@ -131,7 +130,7 @@ var demosPixi;
         /**
          * Change Armature.
          */
-        p._changeArmature = function () {
+        HelloDragonBones.prototype._changeArmature = function () {
             var armatureNames = this._dragonBonesData.armatureNames;
             if (armatureNames.length == 0) {
                 return;
@@ -160,7 +159,7 @@ var demosPixi;
         /**
          * Change Armature animation.
          */
-        p._changeAnimation = function () {
+        HelloDragonBones.prototype._changeAnimation = function () {
             if (!this._armatureDisplay) {
                 return;
             }
@@ -180,12 +179,10 @@ var demosPixi;
         /**
          * FrameEvent listener. (If animation has FrameEvent)
          */
-        p._frameEventHandler = function (event) {
+        HelloDragonBones.prototype._frameEventHandler = function (event) {
             console.log(event.animationState.name, event.name);
         };
         return HelloDragonBones;
     }());
     demosPixi.HelloDragonBones = HelloDragonBones;
-    egret.registerClass(HelloDragonBones,'demosPixi.HelloDragonBones');
 })(demosPixi || (demosPixi = {}));
-//# sourceMappingURL=HelloDragonBones.js.map

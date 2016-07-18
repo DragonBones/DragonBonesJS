@@ -1,5 +1,534 @@
 declare namespace dragonBones {
     /**
+     * @private
+     */
+    const enum ArmatureType {
+        Armature = 0,
+        MovieClip = 1,
+        Stage = 2,
+    }
+    /**
+     * @private
+     */
+    const enum DisplayType {
+        Image = 0,
+        Armature = 1,
+        Mesh = 2,
+    }
+    /**
+     * @private
+     */
+    const enum ExtensionType {
+        FFD = 0,
+        AdjustColor = 10,
+        BevelFilter = 11,
+        BlurFilter = 12,
+        DropShadowFilter = 13,
+        GlowFilter = 14,
+        GradientBevelFilter = 15,
+        GradientGlowFilter = 16,
+    }
+    /**
+     * @private
+     */
+    const enum EventType {
+        Frame = 0,
+        Sound = 1,
+    }
+    /**
+     * @private
+     */
+    const enum ActionType {
+        Play = 0,
+        Stop = 1,
+        GotoAndPlay = 2,
+        GotoAndStop = 3,
+        FadeIn = 4,
+        FadeOut = 5,
+    }
+    /**
+     * @private
+     */
+    const enum BlendMode {
+        Normal = 0,
+        Add = 1,
+        Alpha = 2,
+        Darken = 3,
+        Difference = 4,
+        Erase = 5,
+        HardLight = 6,
+        Invert = 7,
+        Layer = 8,
+        Lighten = 9,
+        Multiply = 10,
+        Overlay = 11,
+        Screen = 12,
+        Subtract = 13,
+    }
+    /**
+     * @private
+     */
+    interface Map<T> {
+        [key: string]: T;
+    }
+    /**
+     * DragonBones
+     */
+    class DragonBones {
+        static PI_D: number;
+        static PI_H: number;
+        static PI_Q: number;
+        static ANGLE_TO_RADIAN: number;
+        static RADIAN_TO_ANGLE: number;
+        static SECOND_TO_MILLISECOND: number;
+        static NO_TWEEN: number;
+        static VERSION: string;
+        constructor();
+    }
+}
+declare namespace dragonBones {
+    /**
+     * @language zh_CN
+     * 基础对象。
+     * @version DragonBones 4.5
+     */
+    abstract class BaseObject {
+        /**
+         * @private
+         */
+        private static _hashCode;
+        /**
+         * @private
+         */
+        private static _defaultMaxCount;
+        /**
+         * @private
+         */
+        private static _maxCountMap;
+        /**
+         * @private
+         */
+        private static _poolsMap;
+        /**
+         * @private
+         */
+        private static _returnObject(object);
+        /**
+         * @private
+         */
+        static toString(): string;
+        /**
+         * @language zh_CN
+         * 设置每种对象池的最大缓存数量。
+         * @param objectConstructor 对象类。
+         * @param maxCount 最大缓存数量。 (设置为 0 则不缓存)
+         * @version DragonBones 4.5
+         */
+        static setMaxCount(objectConstructor: typeof BaseObject, maxCount: number): void;
+        /**
+         * @language zh_CN
+         * 清除对象池缓存的对象。
+         * @param objectConstructor 对象类。 (不设置则清除所有缓存)
+         * @version DragonBones 4.5
+         */
+        static clearPool(objectConstructor?: typeof BaseObject): void;
+        /**
+         * @language zh_CN
+         * 从对象池中创建指定对象。
+         * @param objectConstructor 对象类。
+         * @version DragonBones 4.5
+         */
+        static borrowObject<T extends BaseObject>(objectConstructor: {
+            new (): T;
+        }): T;
+        /**
+         * @language zh_CN
+         * 对象的唯一标识。
+         * @version DragonBones 4.5
+         */
+        hashCode: number;
+        /**
+         * @private
+         */
+        constructor();
+        /**
+         * @private
+         */
+        protected abstract _onClear(): void;
+        /**
+         * @language zh_CN
+         * 清除数据并返还对象池。
+         * @version DragonBones 4.5
+         */
+        returnToPool(): void;
+    }
+}
+declare namespace dragonBones {
+    /**
+     * @private
+     */
+    const enum TweenType {
+        None = 0,
+        Once = 1,
+        Always = 2,
+    }
+    /**
+     * @private
+     */
+    abstract class TimelineState<T extends FrameData<T>, M extends TimelineData<T>> extends BaseObject {
+        _isCompleted: boolean;
+        _currentPlayTimes: number;
+        _currentTime: number;
+        _timeline: M;
+        protected _isReverse: boolean;
+        protected _hasAsynchronyTimeline: boolean;
+        protected _frameRate: number;
+        protected _keyFrameCount: number;
+        protected _frameCount: number;
+        protected _position: number;
+        protected _duration: number;
+        protected _animationDutation: number;
+        protected _timeScale: number;
+        protected _timeOffset: number;
+        protected _currentFrame: T;
+        protected _armature: Armature;
+        protected _animationState: AnimationState;
+        constructor();
+        /**
+         * @inheritDoc
+         */
+        protected _onClear(): void;
+        protected _onFadeIn(): void;
+        protected _onUpdateFrame(isUpdate: boolean): void;
+        protected _onArriveAtFrame(isUpdate: boolean): void;
+        protected _onCrossFrame(frame: T): void;
+        protected _setCurrentTime(value: number): boolean;
+        setCurrentTime(value: number): void;
+        fadeIn(armature: Armature, animationState: AnimationState, timelineData: M, time: number): void;
+        fadeOut(): void;
+        update(time: number): void;
+    }
+    /**
+     * @private
+     */
+    abstract class TweenTimelineState<T extends TweenFrameData<T>, M extends TimelineData<T>> extends TimelineState<T, M> {
+        static _getEasingValue(progress: number, easing: number): number;
+        static _getCurveEasingValue(progress: number, sampling: Array<number>): number;
+        protected _tweenProgress: number;
+        protected _tweenEasing: number;
+        protected _curve: Array<number>;
+        constructor();
+        /**
+         * @inheritDoc
+         */
+        protected _onClear(): void;
+        protected _onArriveAtFrame(isUpdate: boolean): void;
+        protected _onUpdateFrame(isUpdate: boolean): void;
+        protected _updateExtensionKeyFrame(current: ExtensionFrameData, next: ExtensionFrameData, result: ExtensionFrameData): number;
+    }
+}
+declare namespace dragonBones {
+    /**
+     * @language zh_CN
+     * 基础变换对象。
+     * @version DragonBones 4.5
+     */
+    abstract class TransformObject extends BaseObject {
+        /**
+         * @language zh_CN
+         * 可以用于存储临时数据。
+         * @version DragonBones 3.0
+         */
+        userData: any;
+        /**
+         * @language zh_CN
+         * 对象的名称。
+         * @version DragonBones 3.0
+         */
+        name: string;
+        /**
+         * @language zh_CN
+         * 相对于骨架坐标系的矩阵。
+         * @version DragonBones 3.0
+         */
+        globalTransformMatrix: Matrix;
+        /**
+         * @language zh_CN
+         * 相对于骨架坐标系的变换。
+         * @see dragonBones.Transform
+         * @version DragonBones 3.0
+         */
+        global: Transform;
+        /**
+         * @language zh_CN
+         * 相对于骨架或父骨骼坐标系的绑定变换。
+         * @see dragonBones.Transform
+         * @version DragonBones 3.0
+         */
+        origin: Transform;
+        /**
+         * @language zh_CN
+         * 相对于骨架或父骨骼坐标系的偏移变换。
+         * @see dragonBones.Transform
+         * @version DragonBones 3.0
+         */
+        offset: Transform;
+        /**
+         * @private
+         */
+        _armature: Armature;
+        /**
+         * @private
+         */
+        _parent: Bone;
+        /**
+         * @private
+         */
+        protected _globalTransformMatrix: Matrix;
+        /**
+         * @private
+         */
+        constructor();
+        /**
+         * @inheritDoc
+         */
+        protected _onClear(): void;
+        /**
+         * @private
+         */
+        _setArmature(value: Armature): void;
+        /**
+         * @private
+         */
+        _setParent(value: Bone): void;
+        /**
+         * @language zh_CN
+         * 所属的骨架。
+         * @see dragonBones.Armature
+         * @version DragonBones 3.0
+         */
+        armature: Armature;
+        /**
+         * @language zh_CN
+         * 所属的父骨骼。
+         * @see dragonBones.Bone
+         * @version DragonBones 3.0
+         */
+        parent: Bone;
+    }
+}
+declare namespace dragonBones {
+    /**
+     * @private
+     */
+    abstract class TimelineData<T extends FrameData<T>> extends BaseObject {
+        /**
+         * @private
+         */
+        scale: number;
+        /**
+         * @private
+         */
+        offset: number;
+        /**
+         * @private
+         */
+        frames: Array<T>;
+        constructor();
+        /**
+         * @inheritDoc
+         */
+        protected _onClear(): void;
+    }
+    /**
+     * @private
+     */
+    class BoneTimelineData extends TimelineData<BoneFrameData> {
+        static cacheFrame(cacheFrames: Array<Matrix>, cacheFrameIndex: number, globalTransformMatrix: Matrix): Matrix;
+        static toString(): string;
+        bone: BoneData;
+        originTransform: Transform;
+        cachedFrames: Array<Matrix>;
+        constructor();
+        /**
+         * @inheritDoc
+         */
+        protected _onClear(): void;
+        cacheFrames(cacheFrameCount: number): void;
+    }
+    /**
+     * @private
+     */
+    class SlotTimelineData extends TimelineData<SlotFrameData> {
+        static cacheFrame(cacheFrames: Array<Matrix>, cacheFrameIndex: number, globalTransformMatrix: Matrix): Matrix;
+        static toString(): string;
+        slot: SlotData;
+        cachedFrames: Array<Matrix>;
+        constructor();
+        /**
+         * @inheritDoc
+         */
+        protected _onClear(): void;
+        cacheFrames(cacheFrameCount: number): void;
+    }
+    /**
+     * @private
+     */
+    class FFDTimelineData extends TimelineData<ExtensionFrameData> {
+        static toString(): string;
+        displayIndex: number;
+        skin: SkinData;
+        slot: SlotDisplayDataSet;
+        constructor();
+        /**
+         * @inheritDoc
+         */
+        protected _onClear(): void;
+    }
+}
+declare namespace dragonBones {
+    /**
+     * @private
+     */
+    abstract class DataParser {
+        protected static DATA_VERSION_2_3: string;
+        protected static DATA_VERSION_3_0: string;
+        protected static DATA_VERSION_4_0: string;
+        protected static DATA_VERSION: string;
+        protected static TEXTURE_ATLAS: string;
+        protected static SUB_TEXTURE: string;
+        protected static FORMAT: string;
+        protected static IMAGE_PATH: string;
+        protected static WIDTH: string;
+        protected static HEIGHT: string;
+        protected static ROTATED: string;
+        protected static FRAME_X: string;
+        protected static FRAME_Y: string;
+        protected static FRAME_WIDTH: string;
+        protected static FRAME_HEIGHT: string;
+        protected static DRADON_BONES: string;
+        protected static ARMATURE: string;
+        protected static BONE: string;
+        protected static IK: string;
+        protected static SLOT: string;
+        protected static SKIN: string;
+        protected static DISPLAY: string;
+        protected static ANIMATION: string;
+        protected static FFD: string;
+        protected static FRAME: string;
+        protected static PIVOT: string;
+        protected static TRANSFORM: string;
+        protected static COLOR: string;
+        protected static FILTER: string;
+        protected static VERSION: string;
+        protected static IS_GLOBAL: string;
+        protected static FRAME_RATE: string;
+        protected static TYPE: string;
+        protected static NAME: string;
+        protected static PARENT: string;
+        protected static LENGTH: string;
+        protected static DATA: string;
+        protected static DISPLAY_INDEX: string;
+        protected static Z_ORDER: string;
+        protected static BLEND_MODE: string;
+        protected static INHERIT_TRANSLATION: string;
+        protected static INHERIT_ROTATION: string;
+        protected static INHERIT_SCALE: string;
+        protected static TARGET: string;
+        protected static BEND_POSITIVE: string;
+        protected static CHAIN: string;
+        protected static WEIGHT: string;
+        protected static FADE_IN_TIME: string;
+        protected static PLAY_TIMES: string;
+        protected static SCALE: string;
+        protected static OFFSET: string;
+        protected static POSITION: string;
+        protected static DURATION: string;
+        protected static TWEEN_EASING: string;
+        protected static TWEEN_ROTATE: string;
+        protected static TWEEN_SCALE: string;
+        protected static CURVE: string;
+        protected static EVENT: string;
+        protected static SOUND: string;
+        protected static ACTION: string;
+        protected static ACTIONS: string;
+        protected static DEFAULT_ACTIONS: string;
+        protected static X: string;
+        protected static Y: string;
+        protected static SKEW_X: string;
+        protected static SKEW_Y: string;
+        protected static SCALE_X: string;
+        protected static SCALE_Y: string;
+        protected static ALPHA_OFFSET: string;
+        protected static RED_OFFSET: string;
+        protected static GREEN_OFFSET: string;
+        protected static BLUE_OFFSET: string;
+        protected static ALPHA_MULTIPLIER: string;
+        protected static RED_MULTIPLIER: string;
+        protected static GREEN_MULTIPLIER: string;
+        protected static BLUE_MULTIPLIER: string;
+        protected static UVS: string;
+        protected static VERTICES: string;
+        protected static TRIANGLES: string;
+        protected static WEIGHTS: string;
+        protected static SLOT_POSE: string;
+        protected static BONE_POSE: string;
+        protected static TWEEN: string;
+        protected static KEY: string;
+        protected static COLOR_TRANSFORM: string;
+        protected static TIMELINE: string;
+        protected static PIVOT_X: string;
+        protected static PIVOT_Y: string;
+        protected static LOOP: string;
+        protected static AUTO_TWEEN: string;
+        protected static HIDE: string;
+        protected static RECTANGLE: string;
+        protected static ELLIPSE: string;
+        protected static _getArmatureType(value: string): ArmatureType;
+        protected static _getDisplayType(value: string): DisplayType;
+        protected static _getBlendMode(value: string): BlendMode;
+        protected static _getActionType(value: string): ActionType;
+        protected _data: DragonBonesData;
+        protected _armature: ArmatureData;
+        protected _skin: SkinData;
+        protected _slotDisplayDataSet: SlotDisplayDataSet;
+        protected _mesh: MeshData;
+        protected _animation: AnimationData;
+        protected _timeline: any;
+        protected _isParentCooriinate: boolean;
+        protected _isAutoTween: boolean;
+        protected _animationTweenEasing: number;
+        protected _armatureScale: number;
+        protected _helpPoint: Point;
+        protected _helpTransform: Transform;
+        protected _helpMatrix: Matrix;
+        protected _rawBones: Array<BoneData>;
+        constructor();
+        /**
+         * @private
+         */
+        abstract parseDragonBonesData(rawData: any, scale: number): DragonBonesData;
+        /**
+         * @private
+         */
+        abstract parseTextureAtlasData(rawData: any, textureAtlasData: TextureAtlasData, scale: number): void;
+        private _getTimelineFrameMatrix(animation, timeline, position, transform);
+        protected _mergeFrameToAnimationTimeline<T extends FrameData<T>>(frame: T, actions: Array<ActionData>, events: Array<EventData>): void;
+        protected _globalToLocal(armature: ArmatureData): void;
+        /**
+         * @deprecated
+         * @see dragonBones.BaseFactory#parseDragonBonesData()
+         */
+        static parseDragonBonesData(rawData: any): DragonBonesData;
+        /**
+         * @deprecated
+         * @see dragonBones.BaseFactory#parsetTextureAtlasData()
+         */
+        static parseTextureAtlasData(rawData: any, scale?: number): any;
+    }
+}
+declare namespace dragonBones {
+    /**
      * @language zh_CN
      * 动画混合时，使用的淡出方式。
      * @see dragonBones.Animation#fadeIn()
@@ -620,70 +1149,6 @@ declare namespace dragonBones {
          * @version DragonBones 3.0
          */
         clip: AnimationData;
-    }
-}
-declare namespace dragonBones {
-    /**
-     * @private
-     */
-    const enum TweenType {
-        None = 0,
-        Once = 1,
-        Always = 2,
-    }
-    /**
-     * @private
-     */
-    abstract class TimelineState<T extends FrameData<T>, M extends TimelineData<T>> extends BaseObject {
-        _isCompleted: boolean;
-        _currentPlayTimes: number;
-        _currentTime: number;
-        _timeline: M;
-        protected _isReverse: boolean;
-        protected _hasAsynchronyTimeline: boolean;
-        protected _frameRate: number;
-        protected _keyFrameCount: number;
-        protected _frameCount: number;
-        protected _position: number;
-        protected _duration: number;
-        protected _animationDutation: number;
-        protected _timeScale: number;
-        protected _timeOffset: number;
-        protected _currentFrame: T;
-        protected _armature: Armature;
-        protected _animationState: AnimationState;
-        constructor();
-        /**
-         * @inheritDoc
-         */
-        protected _onClear(): void;
-        protected _onFadeIn(): void;
-        protected _onUpdateFrame(isUpdate: boolean): void;
-        protected _onArriveAtFrame(isUpdate: boolean): void;
-        protected _onCrossFrame(frame: T): void;
-        protected _setCurrentTime(value: number): boolean;
-        setCurrentTime(value: number): void;
-        fadeIn(armature: Armature, animationState: AnimationState, timelineData: M, time: number): void;
-        fadeOut(): void;
-        update(time: number): void;
-    }
-    /**
-     * @private
-     */
-    abstract class TweenTimelineState<T extends TweenFrameData<T>, M extends TimelineData<T>> extends TimelineState<T, M> {
-        static _getEasingValue(progress: number, easing: number): number;
-        static _getCurveEasingValue(progress: number, sampling: Array<number>): number;
-        protected _tweenProgress: number;
-        protected _tweenEasing: number;
-        protected _curve: Array<number>;
-        constructor();
-        /**
-         * @inheritDoc
-         */
-        protected _onClear(): void;
-        protected _onArriveAtFrame(isUpdate: boolean): void;
-        protected _onUpdateFrame(isUpdate: boolean): void;
-        protected _updateExtensionKeyFrame(current: ExtensionFrameData, next: ExtensionFrameData, result: ExtensionFrameData): number;
     }
 }
 declare namespace dragonBones {
@@ -1682,261 +2147,6 @@ declare namespace dragonBones {
 }
 declare namespace dragonBones {
     /**
-     * @language zh_CN
-     * 基础变换对象。
-     * @version DragonBones 4.5
-     */
-    abstract class TransformObject extends BaseObject {
-        /**
-         * @language zh_CN
-         * 可以用于存储临时数据。
-         * @version DragonBones 3.0
-         */
-        userData: any;
-        /**
-         * @language zh_CN
-         * 对象的名称。
-         * @version DragonBones 3.0
-         */
-        name: string;
-        /**
-         * @language zh_CN
-         * 相对于骨架坐标系的矩阵。
-         * @version DragonBones 3.0
-         */
-        globalTransformMatrix: Matrix;
-        /**
-         * @language zh_CN
-         * 相对于骨架坐标系的变换。
-         * @see dragonBones.Transform
-         * @version DragonBones 3.0
-         */
-        global: Transform;
-        /**
-         * @language zh_CN
-         * 相对于骨架或父骨骼坐标系的绑定变换。
-         * @see dragonBones.Transform
-         * @version DragonBones 3.0
-         */
-        origin: Transform;
-        /**
-         * @language zh_CN
-         * 相对于骨架或父骨骼坐标系的偏移变换。
-         * @see dragonBones.Transform
-         * @version DragonBones 3.0
-         */
-        offset: Transform;
-        /**
-         * @private
-         */
-        _armature: Armature;
-        /**
-         * @private
-         */
-        _parent: Bone;
-        /**
-         * @private
-         */
-        protected _globalTransformMatrix: Matrix;
-        /**
-         * @private
-         */
-        constructor();
-        /**
-         * @inheritDoc
-         */
-        protected _onClear(): void;
-        /**
-         * @private
-         */
-        _setArmature(value: Armature): void;
-        /**
-         * @private
-         */
-        _setParent(value: Bone): void;
-        /**
-         * @language zh_CN
-         * 所属的骨架。
-         * @see dragonBones.Armature
-         * @version DragonBones 3.0
-         */
-        armature: Armature;
-        /**
-         * @language zh_CN
-         * 所属的父骨骼。
-         * @see dragonBones.Bone
-         * @version DragonBones 3.0
-         */
-        parent: Bone;
-    }
-}
-declare namespace dragonBones {
-    /**
-     * @language zh_CN
-     * 基础对象。
-     * @version DragonBones 4.5
-     */
-    abstract class BaseObject {
-        /**
-         * @private
-         */
-        private static _hashCode;
-        /**
-         * @private
-         */
-        private static _defaultMaxCount;
-        /**
-         * @private
-         */
-        private static _maxCountMap;
-        /**
-         * @private
-         */
-        private static _poolsMap;
-        /**
-         * @private
-         */
-        private static _returnObject(object);
-        /**
-         * @private
-         */
-        static toString(): string;
-        /**
-         * @language zh_CN
-         * 设置每种对象池的最大缓存数量。
-         * @param objectConstructor 对象类。
-         * @param maxCount 最大缓存数量。 (设置为 0 则不缓存)
-         * @version DragonBones 4.5
-         */
-        static setMaxCount(objectConstructor: typeof BaseObject, maxCount: number): void;
-        /**
-         * @language zh_CN
-         * 清除对象池缓存的对象。
-         * @param objectConstructor 对象类。 (不设置则清除所有缓存)
-         * @version DragonBones 4.5
-         */
-        static clearPool(objectConstructor?: typeof BaseObject): void;
-        /**
-         * @language zh_CN
-         * 从对象池中创建指定对象。
-         * @param objectConstructor 对象类。
-         * @version DragonBones 4.5
-         */
-        static borrowObject<T extends BaseObject>(objectConstructor: {
-            new (): T;
-        }): T;
-        /**
-         * @language zh_CN
-         * 对象的唯一标识。
-         * @version DragonBones 4.5
-         */
-        hashCode: number;
-        /**
-         * @private
-         */
-        constructor();
-        /**
-         * @private
-         */
-        protected abstract _onClear(): void;
-        /**
-         * @language zh_CN
-         * 清除数据并返还对象池。
-         * @version DragonBones 4.5
-         */
-        returnToPool(): void;
-    }
-}
-declare namespace dragonBones {
-    /**
-     * @private
-     */
-    const enum ArmatureType {
-        Armature = 0,
-        MovieClip = 1,
-        Stage = 2,
-    }
-    /**
-     * @private
-     */
-    const enum DisplayType {
-        Image = 0,
-        Armature = 1,
-        Mesh = 2,
-    }
-    /**
-     * @private
-     */
-    const enum ExtensionType {
-        FFD = 0,
-        AdjustColor = 10,
-        BevelFilter = 11,
-        BlurFilter = 12,
-        DropShadowFilter = 13,
-        GlowFilter = 14,
-        GradientBevelFilter = 15,
-        GradientGlowFilter = 16,
-    }
-    /**
-     * @private
-     */
-    const enum EventType {
-        Frame = 0,
-        Sound = 1,
-    }
-    /**
-     * @private
-     */
-    const enum ActionType {
-        Play = 0,
-        Stop = 1,
-        GotoAndPlay = 2,
-        GotoAndStop = 3,
-        FadeIn = 4,
-        FadeOut = 5,
-    }
-    /**
-     * @private
-     */
-    const enum BlendMode {
-        Normal = 0,
-        Add = 1,
-        Alpha = 2,
-        Darken = 3,
-        Difference = 4,
-        Erase = 5,
-        HardLight = 6,
-        Invert = 7,
-        Layer = 8,
-        Lighten = 9,
-        Multiply = 10,
-        Overlay = 11,
-        Screen = 12,
-        Subtract = 13,
-    }
-    /**
-     * @private
-     */
-    interface Map<T> {
-        [key: string]: T;
-    }
-    /**
-     * DragonBones
-     */
-    class DragonBones {
-        static PI_D: number;
-        static PI_H: number;
-        static PI_Q: number;
-        static ANGLE_TO_RADIAN: number;
-        static RADIAN_TO_ANGLE: number;
-        static SECOND_TO_MILLISECOND: number;
-        static NO_TWEEN: number;
-        static VERSION: string;
-        constructor();
-    }
-}
-declare namespace dragonBones {
-    /**
      * @private
      */
     type EventStringType = string | 'start' | 'loopComplete' | 'complete' | 'fadeIn' | 'fadeInComplete' | 'fadeOut' | 'fadeOutComplete' | 'frameEvent' | 'soundEvent';
@@ -2335,6 +2545,235 @@ declare namespace dragonBones {
          * @version DragonBones 4.5
          */
         replaceSlotDisplayList(dragonBonesName: string, armatureName: string, slotName: string, slot: Slot): void;
+    }
+}
+declare namespace dragonBones {
+    /**
+     * @private
+     */
+    class ColorTransform {
+        alphaMultiplier: number;
+        redMultiplier: number;
+        greenMultiplier: number;
+        blueMultiplier: number;
+        alphaOffset: number;
+        redOffset: number;
+        greenOffset: number;
+        blueOffset: number;
+        constructor(alphaMultiplier?: number, redMultiplier?: number, greenMultiplier?: number, blueMultiplier?: number, alphaOffset?: number, redOffset?: number, greenOffset?: number, blueOffset?: number);
+        copyFrom(value: ColorTransform): void;
+        identity(): void;
+    }
+}
+declare namespace dragonBones {
+    /**
+     * @language zh_CN
+     * 2D 矩阵。
+     * @version DragonBones 3.0
+     */
+    class Matrix {
+        a: number;
+        b: number;
+        c: number;
+        d: number;
+        tx: number;
+        ty: number;
+        constructor(a?: number, b?: number, c?: number, d?: number, tx?: number, ty?: number);
+        /**
+         * @language zh_CN
+         * 复制矩阵。
+         * @param value 需要复制的矩阵。
+         * @version DragonBones 3.0
+         */
+        copyFrom(value: Matrix): void;
+        /**
+         * @language zh_CN
+         * 转换为恒等矩阵。
+         * @version DragonBones 3.0
+         */
+        identity(): void;
+        /**
+         * @language zh_CN
+         * 将当前矩阵与另一个矩阵相乘。
+         * @param value 需要相乘的矩阵。
+         * @version DragonBones 3.0
+         */
+        concat(value: Matrix): void;
+        /**
+         * @language zh_CN
+         * 转换为逆矩阵。
+         * @version DragonBones 3.0
+         */
+        invert(): void;
+        /**
+         * @language zh_CN
+         * 将矩阵转换应用于指定点。
+         * @param x 横坐标。
+         * @param y 纵坐标。
+         * @param result 应用转换之后的坐标。
+         * @params delta 是否忽略 tx，ty 对坐标的转换。
+         * @version DragonBones 3.0
+         */
+        transformPoint(x: number, y: number, result: {
+            x: number;
+            y: number;
+        }, delta?: boolean): void;
+    }
+}
+declare namespace dragonBones {
+    /**
+     * @private
+     */
+    class Point {
+        x: number;
+        y: number;
+        constructor(x?: number, y?: number);
+        copyFrom(value: Point): void;
+        clear(): void;
+    }
+}
+declare namespace dragonBones {
+    /**
+     * @private
+     */
+    class Rectangle {
+        x: number;
+        y: number;
+        width: number;
+        height: number;
+        constructor(x?: number, y?: number, width?: number, height?: number);
+        copyFrom(value: Rectangle): void;
+        clear(): void;
+    }
+}
+declare namespace dragonBones {
+    /**
+     * @language zh_CN
+     * 2D 变换。
+     * @version DragonBones 3.0
+     */
+    class Transform {
+        /**
+         * @language zh_CN
+         * 水平位移。
+         * @version DragonBones 3.0
+         */
+        x: number;
+        /**
+         * @language zh_CN
+         * 垂直位移。
+         * @version DragonBones 3.0
+         */
+        y: number;
+        /**
+         * @language zh_CN
+         * 水平倾斜。 (以弧度为单位)
+         * @version DragonBones 3.0
+         */
+        skewX: number;
+        /**
+         * @language zh_CN
+         * 垂直倾斜。 (以弧度为单位)
+         * @version DragonBones 3.0
+         */
+        skewY: number;
+        /**
+         * @language zh_CN
+         * 水平缩放。
+         * @version DragonBones 3.0
+         */
+        scaleX: number;
+        /**
+         * @language zh_CN
+         * 垂直缩放。
+         * @version DragonBones 3.0
+         */
+        scaleY: number;
+        /**
+         * @private
+         */
+        static normalizeRadian(value: number): number;
+        /**
+         * @private
+         */
+        constructor(
+            /**
+             * @language zh_CN
+             * 水平位移。
+             * @version DragonBones 3.0
+             */
+            x?: number, 
+            /**
+             * @language zh_CN
+             * 垂直位移。
+             * @version DragonBones 3.0
+             */
+            y?: number, 
+            /**
+             * @language zh_CN
+             * 水平倾斜。 (以弧度为单位)
+             * @version DragonBones 3.0
+             */
+            skewX?: number, 
+            /**
+             * @language zh_CN
+             * 垂直倾斜。 (以弧度为单位)
+             * @version DragonBones 3.0
+             */
+            skewY?: number, 
+            /**
+             * @language zh_CN
+             * 水平缩放。
+             * @version DragonBones 3.0
+             */
+            scaleX?: number, 
+            /**
+             * @language zh_CN
+             * 垂直缩放。
+             * @version DragonBones 3.0
+             */
+            scaleY?: number);
+        /**
+         * @private
+         */
+        toString(): string;
+        /**
+         * @private
+         */
+        copyFrom(value: Transform): Transform;
+        /**
+         * @private
+         */
+        clone(): Transform;
+        /**
+         * @private
+         */
+        identity(): Transform;
+        /**
+         * @private
+         */
+        add(value: Transform): Transform;
+        /**
+         * @private
+         */
+        minus(value: Transform): Transform;
+        /**
+         * @private
+         */
+        fromMatrix(matrix: Matrix): Transform;
+        /**
+         * @language zh_CN
+         * 转换为矩阵。
+         * @param 矩阵。
+         * @version DragonBones 3.0
+         */
+        toMatrix(matrix: Matrix): void;
+        /**
+         * @language zh_CN
+         * 旋转。 (以弧度为单位)
+         * @version DragonBones 3.0
+         */
+        rotation: number;
     }
 }
 declare namespace dragonBones {
@@ -3013,445 +3452,6 @@ declare namespace dragonBones {
          * @inheritDoc
          */
         protected _onClear(): void;
-    }
-}
-declare namespace dragonBones {
-    /**
-     * @private
-     */
-    abstract class TimelineData<T extends FrameData<T>> extends BaseObject {
-        /**
-         * @private
-         */
-        scale: number;
-        /**
-         * @private
-         */
-        offset: number;
-        /**
-         * @private
-         */
-        frames: Array<T>;
-        constructor();
-        /**
-         * @inheritDoc
-         */
-        protected _onClear(): void;
-    }
-    /**
-     * @private
-     */
-    class BoneTimelineData extends TimelineData<BoneFrameData> {
-        static cacheFrame(cacheFrames: Array<Matrix>, cacheFrameIndex: number, globalTransformMatrix: Matrix): Matrix;
-        static toString(): string;
-        bone: BoneData;
-        originTransform: Transform;
-        cachedFrames: Array<Matrix>;
-        constructor();
-        /**
-         * @inheritDoc
-         */
-        protected _onClear(): void;
-        cacheFrames(cacheFrameCount: number): void;
-    }
-    /**
-     * @private
-     */
-    class SlotTimelineData extends TimelineData<SlotFrameData> {
-        static cacheFrame(cacheFrames: Array<Matrix>, cacheFrameIndex: number, globalTransformMatrix: Matrix): Matrix;
-        static toString(): string;
-        slot: SlotData;
-        cachedFrames: Array<Matrix>;
-        constructor();
-        /**
-         * @inheritDoc
-         */
-        protected _onClear(): void;
-        cacheFrames(cacheFrameCount: number): void;
-    }
-    /**
-     * @private
-     */
-    class FFDTimelineData extends TimelineData<ExtensionFrameData> {
-        static toString(): string;
-        displayIndex: number;
-        skin: SkinData;
-        slot: SlotDisplayDataSet;
-        constructor();
-        /**
-         * @inheritDoc
-         */
-        protected _onClear(): void;
-    }
-}
-declare namespace dragonBones {
-    /**
-     * @private
-     */
-    class ColorTransform {
-        alphaMultiplier: number;
-        redMultiplier: number;
-        greenMultiplier: number;
-        blueMultiplier: number;
-        alphaOffset: number;
-        redOffset: number;
-        greenOffset: number;
-        blueOffset: number;
-        constructor(alphaMultiplier?: number, redMultiplier?: number, greenMultiplier?: number, blueMultiplier?: number, alphaOffset?: number, redOffset?: number, greenOffset?: number, blueOffset?: number);
-        copyFrom(value: ColorTransform): void;
-        identity(): void;
-    }
-}
-declare namespace dragonBones {
-    /**
-     * @language zh_CN
-     * 2D 矩阵。
-     * @version DragonBones 3.0
-     */
-    class Matrix {
-        a: number;
-        b: number;
-        c: number;
-        d: number;
-        tx: number;
-        ty: number;
-        constructor(a?: number, b?: number, c?: number, d?: number, tx?: number, ty?: number);
-        /**
-         * @language zh_CN
-         * 复制矩阵。
-         * @param value 需要复制的矩阵。
-         * @version DragonBones 3.0
-         */
-        copyFrom(value: Matrix): void;
-        /**
-         * @language zh_CN
-         * 转换为恒等矩阵。
-         * @version DragonBones 3.0
-         */
-        identity(): void;
-        /**
-         * @language zh_CN
-         * 将当前矩阵与另一个矩阵相乘。
-         * @param value 需要相乘的矩阵。
-         * @version DragonBones 3.0
-         */
-        concat(value: Matrix): void;
-        /**
-         * @language zh_CN
-         * 转换为逆矩阵。
-         * @version DragonBones 3.0
-         */
-        invert(): void;
-        /**
-         * @language zh_CN
-         * 将矩阵转换应用于指定点。
-         * @param x 横坐标。
-         * @param y 纵坐标。
-         * @param result 应用转换之后的坐标。
-         * @params delta 是否忽略 tx，ty 对坐标的转换。
-         * @version DragonBones 3.0
-         */
-        transformPoint(x: number, y: number, result: {
-            x: number;
-            y: number;
-        }, delta?: boolean): void;
-    }
-}
-declare namespace dragonBones {
-    /**
-     * @private
-     */
-    class Point {
-        x: number;
-        y: number;
-        constructor(x?: number, y?: number);
-        copyFrom(value: Point): void;
-        clear(): void;
-    }
-}
-declare namespace dragonBones {
-    /**
-     * @private
-     */
-    class Rectangle {
-        x: number;
-        y: number;
-        width: number;
-        height: number;
-        constructor(x?: number, y?: number, width?: number, height?: number);
-        copyFrom(value: Rectangle): void;
-        clear(): void;
-    }
-}
-declare namespace dragonBones {
-    /**
-     * @language zh_CN
-     * 2D 变换。
-     * @version DragonBones 3.0
-     */
-    class Transform {
-        /**
-         * @language zh_CN
-         * 水平位移。
-         * @version DragonBones 3.0
-         */
-        x: number;
-        /**
-         * @language zh_CN
-         * 垂直位移。
-         * @version DragonBones 3.0
-         */
-        y: number;
-        /**
-         * @language zh_CN
-         * 水平倾斜。 (以弧度为单位)
-         * @version DragonBones 3.0
-         */
-        skewX: number;
-        /**
-         * @language zh_CN
-         * 垂直倾斜。 (以弧度为单位)
-         * @version DragonBones 3.0
-         */
-        skewY: number;
-        /**
-         * @language zh_CN
-         * 水平缩放。
-         * @version DragonBones 3.0
-         */
-        scaleX: number;
-        /**
-         * @language zh_CN
-         * 垂直缩放。
-         * @version DragonBones 3.0
-         */
-        scaleY: number;
-        /**
-         * @private
-         */
-        static normalizeRadian(value: number): number;
-        /**
-         * @private
-         */
-        constructor(
-            /**
-             * @language zh_CN
-             * 水平位移。
-             * @version DragonBones 3.0
-             */
-            x?: number, 
-            /**
-             * @language zh_CN
-             * 垂直位移。
-             * @version DragonBones 3.0
-             */
-            y?: number, 
-            /**
-             * @language zh_CN
-             * 水平倾斜。 (以弧度为单位)
-             * @version DragonBones 3.0
-             */
-            skewX?: number, 
-            /**
-             * @language zh_CN
-             * 垂直倾斜。 (以弧度为单位)
-             * @version DragonBones 3.0
-             */
-            skewY?: number, 
-            /**
-             * @language zh_CN
-             * 水平缩放。
-             * @version DragonBones 3.0
-             */
-            scaleX?: number, 
-            /**
-             * @language zh_CN
-             * 垂直缩放。
-             * @version DragonBones 3.0
-             */
-            scaleY?: number);
-        /**
-         * @private
-         */
-        toString(): string;
-        /**
-         * @private
-         */
-        copyFrom(value: Transform): Transform;
-        /**
-         * @private
-         */
-        clone(): Transform;
-        /**
-         * @private
-         */
-        identity(): Transform;
-        /**
-         * @private
-         */
-        add(value: Transform): Transform;
-        /**
-         * @private
-         */
-        minus(value: Transform): Transform;
-        /**
-         * @private
-         */
-        fromMatrix(matrix: Matrix): Transform;
-        /**
-         * @language zh_CN
-         * 转换为矩阵。
-         * @param 矩阵。
-         * @version DragonBones 3.0
-         */
-        toMatrix(matrix: Matrix): void;
-        /**
-         * @language zh_CN
-         * 旋转。 (以弧度为单位)
-         * @version DragonBones 3.0
-         */
-        rotation: number;
-    }
-}
-declare namespace dragonBones {
-    /**
-     * @private
-     */
-    abstract class DataParser {
-        protected static DATA_VERSION_2_3: string;
-        protected static DATA_VERSION_3_0: string;
-        protected static DATA_VERSION_4_0: string;
-        protected static DATA_VERSION: string;
-        protected static TEXTURE_ATLAS: string;
-        protected static SUB_TEXTURE: string;
-        protected static FORMAT: string;
-        protected static IMAGE_PATH: string;
-        protected static WIDTH: string;
-        protected static HEIGHT: string;
-        protected static ROTATED: string;
-        protected static FRAME_X: string;
-        protected static FRAME_Y: string;
-        protected static FRAME_WIDTH: string;
-        protected static FRAME_HEIGHT: string;
-        protected static DRADON_BONES: string;
-        protected static ARMATURE: string;
-        protected static BONE: string;
-        protected static IK: string;
-        protected static SLOT: string;
-        protected static SKIN: string;
-        protected static DISPLAY: string;
-        protected static ANIMATION: string;
-        protected static FFD: string;
-        protected static FRAME: string;
-        protected static PIVOT: string;
-        protected static TRANSFORM: string;
-        protected static COLOR: string;
-        protected static FILTER: string;
-        protected static VERSION: string;
-        protected static IS_GLOBAL: string;
-        protected static FRAME_RATE: string;
-        protected static TYPE: string;
-        protected static NAME: string;
-        protected static PARENT: string;
-        protected static LENGTH: string;
-        protected static DATA: string;
-        protected static DISPLAY_INDEX: string;
-        protected static Z_ORDER: string;
-        protected static BLEND_MODE: string;
-        protected static INHERIT_TRANSLATION: string;
-        protected static INHERIT_ROTATION: string;
-        protected static INHERIT_SCALE: string;
-        protected static TARGET: string;
-        protected static BEND_POSITIVE: string;
-        protected static CHAIN: string;
-        protected static WEIGHT: string;
-        protected static FADE_IN_TIME: string;
-        protected static PLAY_TIMES: string;
-        protected static SCALE: string;
-        protected static OFFSET: string;
-        protected static POSITION: string;
-        protected static DURATION: string;
-        protected static TWEEN_EASING: string;
-        protected static TWEEN_ROTATE: string;
-        protected static TWEEN_SCALE: string;
-        protected static CURVE: string;
-        protected static EVENT: string;
-        protected static SOUND: string;
-        protected static ACTION: string;
-        protected static ACTIONS: string;
-        protected static DEFAULT_ACTIONS: string;
-        protected static X: string;
-        protected static Y: string;
-        protected static SKEW_X: string;
-        protected static SKEW_Y: string;
-        protected static SCALE_X: string;
-        protected static SCALE_Y: string;
-        protected static ALPHA_OFFSET: string;
-        protected static RED_OFFSET: string;
-        protected static GREEN_OFFSET: string;
-        protected static BLUE_OFFSET: string;
-        protected static ALPHA_MULTIPLIER: string;
-        protected static RED_MULTIPLIER: string;
-        protected static GREEN_MULTIPLIER: string;
-        protected static BLUE_MULTIPLIER: string;
-        protected static UVS: string;
-        protected static VERTICES: string;
-        protected static TRIANGLES: string;
-        protected static WEIGHTS: string;
-        protected static SLOT_POSE: string;
-        protected static BONE_POSE: string;
-        protected static TWEEN: string;
-        protected static KEY: string;
-        protected static COLOR_TRANSFORM: string;
-        protected static TIMELINE: string;
-        protected static PIVOT_X: string;
-        protected static PIVOT_Y: string;
-        protected static LOOP: string;
-        protected static AUTO_TWEEN: string;
-        protected static HIDE: string;
-        protected static RECTANGLE: string;
-        protected static ELLIPSE: string;
-        protected static _getArmatureType(value: string): ArmatureType;
-        protected static _getDisplayType(value: string): DisplayType;
-        protected static _getBlendMode(value: string): BlendMode;
-        protected static _getActionType(value: string): ActionType;
-        protected _data: DragonBonesData;
-        protected _armature: ArmatureData;
-        protected _skin: SkinData;
-        protected _slotDisplayDataSet: SlotDisplayDataSet;
-        protected _mesh: MeshData;
-        protected _animation: AnimationData;
-        protected _timeline: any;
-        protected _isParentCooriinate: boolean;
-        protected _isAutoTween: boolean;
-        protected _animationTweenEasing: number;
-        protected _armatureScale: number;
-        protected _helpPoint: Point;
-        protected _helpTransform: Transform;
-        protected _helpMatrix: Matrix;
-        protected _rawBones: Array<BoneData>;
-        constructor();
-        /**
-         * @private
-         */
-        abstract parseDragonBonesData(rawData: any, scale: number): DragonBonesData;
-        /**
-         * @private
-         */
-        abstract parseTextureAtlasData(rawData: any, textureAtlasData: TextureAtlasData, scale: number): void;
-        private _getTimelineFrameMatrix(animation, timeline, position, transform);
-        protected _mergeFrameToAnimationTimeline<T extends FrameData<T>>(frame: T, actions: Array<ActionData>, events: Array<EventData>): void;
-        protected _globalToLocal(armature: ArmatureData): void;
-        /**
-         * @deprecated
-         * @see dragonBones.BaseFactory#parseDragonBonesData()
-         */
-        static parseDragonBonesData(rawData: any): DragonBonesData;
-        /**
-         * @deprecated
-         * @see dragonBones.BaseFactory#parsetTextureAtlasData()
-         */
-        static parseTextureAtlasData(rawData: any, scale?: number): any;
     }
 }
 declare namespace dragonBones {

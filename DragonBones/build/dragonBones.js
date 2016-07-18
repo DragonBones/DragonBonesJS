@@ -6,6 +6,1057 @@ var __extends = (this && this.__extends) || function (d, b) {
 var dragonBones;
 (function (dragonBones) {
     /**
+     * DragonBones
+     */
+    var DragonBones = (function () {
+        function DragonBones() {
+        }
+        DragonBones.PI_D = Math.PI * 2;
+        DragonBones.PI_H = Math.PI / 2;
+        DragonBones.PI_Q = Math.PI / 4;
+        DragonBones.ANGLE_TO_RADIAN = Math.PI / 180;
+        DragonBones.RADIAN_TO_ANGLE = 180 / Math.PI;
+        DragonBones.SECOND_TO_MILLISECOND = 1000;
+        DragonBones.NO_TWEEN = 100;
+        DragonBones.VERSION = "4.7.1";
+        return DragonBones;
+    }());
+    dragonBones.DragonBones = DragonBones;
+})(dragonBones || (dragonBones = {}));
+var dragonBones;
+(function (dragonBones) {
+    /**
+     * @language zh_CN
+     * 基础对象。
+     * @version DragonBones 4.5
+     */
+    var BaseObject = (function () {
+        /**
+         * @private
+         */
+        function BaseObject() {
+            /**
+             * @language zh_CN
+             * 对象的唯一标识。
+             * @version DragonBones 4.5
+             */
+            this.hashCode = BaseObject._hashCode++;
+        }
+        /**
+         * @private
+         */
+        BaseObject._returnObject = function (object) {
+            var objectConstructor = object.constructor;
+            var classType = String(objectConstructor);
+            var maxCount = BaseObject._maxCountMap[classType] == null ? BaseObject._defaultMaxCount : BaseObject._maxCountMap[classType];
+            var pool = BaseObject._poolsMap[classType] = BaseObject._poolsMap[classType] || [];
+            if (pool.length < maxCount) {
+                if (pool.indexOf(object) < 0) {
+                    pool.push(object);
+                }
+                else {
+                    throw new Error();
+                }
+            }
+        };
+        /**
+         * @private
+         */
+        BaseObject.toString = function () {
+            throw new Error();
+        };
+        /**
+         * @language zh_CN
+         * 设置每种对象池的最大缓存数量。
+         * @param objectConstructor 对象类。
+         * @param maxCount 最大缓存数量。 (设置为 0 则不缓存)
+         * @version DragonBones 4.5
+         */
+        BaseObject.setMaxCount = function (objectConstructor, maxCount) {
+            if (maxCount < 0 || maxCount != maxCount) {
+                maxCount = 0;
+            }
+            if (objectConstructor) {
+                var classType = String(objectConstructor);
+                BaseObject._maxCountMap[classType] = maxCount;
+                var pool = BaseObject._poolsMap[classType];
+                if (pool && pool.length > maxCount) {
+                    pool.length = maxCount;
+                }
+            }
+            else {
+                BaseObject._defaultMaxCount = maxCount;
+                for (var classType in BaseObject._poolsMap) {
+                    if (BaseObject._maxCountMap[classType] == null) {
+                        continue;
+                    }
+                    var pool = BaseObject._poolsMap[classType];
+                    if (pool.length > maxCount) {
+                        pool.length = maxCount;
+                    }
+                }
+            }
+        };
+        /**
+         * @language zh_CN
+         * 清除对象池缓存的对象。
+         * @param objectConstructor 对象类。 (不设置则清除所有缓存)
+         * @version DragonBones 4.5
+         */
+        BaseObject.clearPool = function (objectConstructor) {
+            if (objectConstructor === void 0) { objectConstructor = null; }
+            if (objectConstructor) {
+                var pool = BaseObject._poolsMap[String(objectConstructor)];
+                if (pool && pool.length) {
+                    pool.length = 0;
+                }
+            }
+            else {
+                for (var iP in BaseObject._poolsMap) {
+                    var pool = BaseObject._poolsMap[iP];
+                    pool.length = 0;
+                }
+            }
+        };
+        /**
+         * @language zh_CN
+         * 从对象池中创建指定对象。
+         * @param objectConstructor 对象类。
+         * @version DragonBones 4.5
+         */
+        BaseObject.borrowObject = function (objectConstructor) {
+            var pool = BaseObject._poolsMap[String(objectConstructor)];
+            if (pool && pool.length) {
+                return pool.pop();
+            }
+            else {
+                var object = new objectConstructor();
+                object._onClear();
+                return object;
+            }
+        };
+        /**
+         * @language zh_CN
+         * 清除数据并返还对象池。
+         * @version DragonBones 4.5
+         */
+        BaseObject.prototype.returnToPool = function () {
+            this._onClear();
+            BaseObject._returnObject(this);
+        };
+        /**
+         * @private
+         */
+        BaseObject._hashCode = 0;
+        /**
+         * @private
+         */
+        BaseObject._defaultMaxCount = 5000;
+        /**
+         * @private
+         */
+        BaseObject._maxCountMap = {};
+        /**
+         * @private
+         */
+        BaseObject._poolsMap = {};
+        return BaseObject;
+    }());
+    dragonBones.BaseObject = BaseObject;
+})(dragonBones || (dragonBones = {}));
+var dragonBones;
+(function (dragonBones) {
+    /**
+     * @private
+     */
+    var TimelineState = (function (_super) {
+        __extends(TimelineState, _super);
+        function TimelineState() {
+            _super.call(this);
+        }
+        /**
+         * @inheritDoc
+         */
+        TimelineState.prototype._onClear = function () {
+            this._isCompleted = false;
+            this._currentPlayTimes = 0;
+            this._currentTime = 0;
+            this._timeline = null;
+            this._isReverse = false;
+            this._hasAsynchronyTimeline = false;
+            this._frameRate = 0;
+            this._keyFrameCount = 0;
+            this._frameCount = 0;
+            this._position = 0;
+            this._duration = 0;
+            this._animationDutation = 0;
+            this._timeScale = 1;
+            this._timeOffset = 0;
+            this._currentFrame = null;
+            this._armature = null;
+            this._animationState = null;
+        };
+        TimelineState.prototype._onFadeIn = function () { };
+        TimelineState.prototype._onUpdateFrame = function (isUpdate) { };
+        TimelineState.prototype._onArriveAtFrame = function (isUpdate) { };
+        TimelineState.prototype._onCrossFrame = function (frame) {
+        };
+        TimelineState.prototype._setCurrentTime = function (value) {
+            var currentPlayTimes = 0;
+            if (this._hasAsynchronyTimeline) {
+                var playTimes = this._animationState.playTimes;
+                var totalTimes = playTimes * this._duration;
+                value *= this._timeScale;
+                if (this._timeOffset != 0) {
+                    value += this._timeOffset * this._animationDutation;
+                }
+                if (playTimes > 0 && (value >= totalTimes || value <= -totalTimes)) {
+                    this._isCompleted = true;
+                    currentPlayTimes = playTimes;
+                    if (value < 0) {
+                        value = 0;
+                    }
+                    else {
+                        value = this._duration;
+                    }
+                }
+                else {
+                    this._isCompleted = false;
+                    if (value < 0) {
+                        currentPlayTimes = Math.floor(-value / this._duration);
+                        value = this._duration - (-value % this._duration);
+                    }
+                    else {
+                        currentPlayTimes = Math.floor(value / this._duration);
+                        value %= this._duration;
+                    }
+                    if (playTimes > 0 && currentPlayTimes > playTimes) {
+                        currentPlayTimes = playTimes;
+                    }
+                }
+                value += this._position;
+            }
+            else {
+                this._isCompleted = this._animationState._timeline._isCompleted;
+                currentPlayTimes = this._animationState._timeline._currentPlayTimes;
+            }
+            if (this._currentTime == value) {
+                return false;
+            }
+            if (this._keyFrameCount == 1 && value > this._position && this != this._animationState._timeline) {
+                this._isCompleted = true;
+            }
+            this._isReverse = this._currentTime > value && this._currentPlayTimes == currentPlayTimes;
+            this._currentTime = value;
+            this._currentPlayTimes = currentPlayTimes;
+            return true;
+        };
+        TimelineState.prototype.setCurrentTime = function (value) {
+            this._setCurrentTime(value);
+            switch (this._keyFrameCount) {
+                case 0:
+                    break;
+                case 1:
+                    this._currentFrame = this._timeline.frames[0];
+                    this._onArriveAtFrame(false);
+                    this._onUpdateFrame(false);
+                    break;
+                default:
+                    this._currentFrame = this._timeline.frames[Math.floor(this._currentTime * this._frameRate)];
+                    this._onArriveAtFrame(false);
+                    this._onUpdateFrame(false);
+                    break;
+            }
+            this._currentFrame = null;
+        };
+        TimelineState.prototype.fadeIn = function (armature, animationState, timelineData, time) {
+            this._armature = armature;
+            this._animationState = animationState;
+            this._timeline = timelineData;
+            var isMainTimeline = this == this._animationState._timeline;
+            this._hasAsynchronyTimeline = isMainTimeline || this._animationState.animationData.hasAsynchronyTimeline;
+            this._frameRate = this._armature.armatureData.frameRate;
+            this._keyFrameCount = this._timeline.frames.length;
+            this._frameCount = this._animationState.animationData.frameCount;
+            this._position = this._animationState._position;
+            this._duration = this._animationState._duration;
+            this._animationDutation = this._animationState.animationData.duration;
+            this._timeScale = isMainTimeline ? 1 : (1 / this._timeline.scale);
+            this._timeOffset = isMainTimeline ? 0 : this._timeline.offset;
+            this._onFadeIn();
+            this.setCurrentTime(time);
+        };
+        TimelineState.prototype.fadeOut = function () {
+        };
+        TimelineState.prototype.update = function (time) {
+            var prevTime = this._currentTime;
+            if (!this._isCompleted && this._setCurrentTime(time) && this._keyFrameCount) {
+                var currentFrameIndex = this._keyFrameCount > 1 ? Math.floor(this._currentTime * this._frameRate) : 0;
+                var currentFrame = this._timeline.frames[currentFrameIndex];
+                if (this._currentFrame != currentFrame) {
+                    if (this._keyFrameCount > 1) {
+                        var crossedFrame = this._currentFrame;
+                        this._currentFrame = currentFrame;
+                        if (!crossedFrame) {
+                            var prevFrameIndex = Math.floor(prevTime * this._frameRate);
+                            crossedFrame = this._timeline.frames[prevFrameIndex];
+                            if (!this._isReverse && prevTime <= crossedFrame.position) {
+                                crossedFrame = crossedFrame.prev;
+                            }
+                        }
+                        if (this._isReverse) {
+                            while (crossedFrame != currentFrame) {
+                                this._onCrossFrame(crossedFrame);
+                                crossedFrame = crossedFrame.prev;
+                            }
+                        }
+                        else {
+                            while (crossedFrame != currentFrame) {
+                                crossedFrame = crossedFrame.next;
+                                this._onCrossFrame(crossedFrame);
+                            }
+                        }
+                        this._onArriveAtFrame(true);
+                    }
+                    else {
+                        this._currentFrame = currentFrame;
+                        this._onCrossFrame(this._currentFrame);
+                        this._onArriveAtFrame(true);
+                    }
+                }
+                this._onUpdateFrame(true);
+            }
+        };
+        return TimelineState;
+    }(dragonBones.BaseObject));
+    dragonBones.TimelineState = TimelineState;
+    /**
+     * @private
+     */
+    var TweenTimelineState = (function (_super) {
+        __extends(TweenTimelineState, _super);
+        function TweenTimelineState() {
+            _super.call(this);
+        }
+        TweenTimelineState._getEasingValue = function (progress, easing) {
+            var value = 1;
+            if (easing > 2) {
+                return progress;
+            }
+            else if (easing > 1) {
+                value = 0.5 * (1 - Math.cos(progress * Math.PI));
+                easing -= 1;
+            }
+            else if (easing > 0) {
+                value = 1 - Math.pow(1 - progress, 2);
+            }
+            else if (easing >= -1) {
+                easing *= -1;
+                value = Math.pow(progress, 2);
+            }
+            else if (easing >= -2) {
+                easing *= -1;
+                value = Math.acos(1 - progress * 2) / Math.PI;
+                easing -= 1;
+            }
+            else {
+                return progress;
+            }
+            return (value - progress) * easing + progress;
+        };
+        TweenTimelineState._getCurveEasingValue = function (progress, sampling) {
+            var x = 0;
+            var y = 0;
+            for (var i = 0, l = sampling.length; i < l; i += 2) {
+                x = sampling[i];
+                y = sampling[i + 1];
+                if (x >= progress) {
+                    if (i == 0) {
+                        return y * progress / x;
+                    }
+                    else {
+                        var xP = sampling[i - 2];
+                        var yP = sampling[i - 1]; // i - 2 + 1
+                        return yP + (y - yP) * (progress - xP) / (x - xP);
+                    }
+                }
+            }
+            return y + (1 - y) * (progress - x) / (1 - x);
+        };
+        /**
+         * @inheritDoc
+         */
+        TweenTimelineState.prototype._onClear = function () {
+            _super.prototype._onClear.call(this);
+            this._tweenProgress = 0;
+            this._tweenEasing = dragonBones.DragonBones.NO_TWEEN;
+            this._curve = null;
+        };
+        TweenTimelineState.prototype._onArriveAtFrame = function (isUpdate) {
+            this._tweenEasing = this._currentFrame.tweenEasing;
+            this._curve = this._currentFrame.curve;
+            if (this._keyFrameCount == 1 ||
+                (this._currentFrame.next == this._timeline.frames[0] &&
+                    (this._tweenEasing != dragonBones.DragonBones.NO_TWEEN || this._curve) &&
+                    this._animationState.playTimes > 0 &&
+                    this._animationState.currentPlayTimes == this._animationState.playTimes - 1)) {
+                this._tweenEasing = dragonBones.DragonBones.NO_TWEEN;
+                this._curve = null;
+            }
+        };
+        TweenTimelineState.prototype._onUpdateFrame = function (isUpdate) {
+            if (this._tweenEasing != dragonBones.DragonBones.NO_TWEEN && this._currentFrame.duration > 0) {
+                this._tweenProgress = (this._currentTime - this._currentFrame.position + this._position) / this._currentFrame.duration;
+                if (this._tweenEasing != 0) {
+                    this._tweenProgress = TweenTimelineState._getEasingValue(this._tweenProgress, this._tweenEasing);
+                }
+            }
+            else if (this._curve) {
+                this._tweenProgress = (this._currentTime - this._currentFrame.position + this._position) / this._currentFrame.duration;
+                this._tweenProgress = TweenTimelineState._getCurveEasingValue(this._tweenProgress, this._curve);
+            }
+            else {
+                this._tweenProgress = 0;
+            }
+        };
+        TweenTimelineState.prototype._updateExtensionKeyFrame = function (current, next, result) {
+            var tweenType = 0 /* None */;
+            if (current.type == next.type) {
+                for (var i = 0, l = current.tweens.length; i < l; ++i) {
+                    var tweenDuration = next.tweens[i] - current.tweens[i];
+                    result.tweens[i] = tweenDuration;
+                    if (tweenDuration != 0) {
+                        tweenType = 2 /* Always */;
+                    }
+                }
+            }
+            if (tweenType == 0 /* None */) {
+                if (result.type != current.type) {
+                    tweenType = 1 /* Once */;
+                    result.type = current.type;
+                }
+                if (result.tweens.length != current.tweens.length) {
+                    tweenType = 1 /* Once */;
+                    result.tweens.length = current.tweens.length;
+                }
+                if (result.keys.length != current.keys.length) {
+                    tweenType = 1 /* Once */;
+                    result.keys.length = current.keys.length;
+                }
+                for (var i = 0, l = current.keys.length; i < l; ++i) {
+                    var key = current.keys[i];
+                    if (result.keys[i] != key) {
+                        tweenType = 1 /* Once */;
+                        result.keys[i] = key;
+                    }
+                }
+            }
+            return tweenType;
+        };
+        return TweenTimelineState;
+    }(TimelineState));
+    dragonBones.TweenTimelineState = TweenTimelineState;
+})(dragonBones || (dragonBones = {}));
+var dragonBones;
+(function (dragonBones) {
+    /**
+     * @language zh_CN
+     * 基础变换对象。
+     * @version DragonBones 4.5
+     */
+    var TransformObject = (function (_super) {
+        __extends(TransformObject, _super);
+        /**
+         * @private
+         */
+        function TransformObject() {
+            _super.call(this);
+            /**
+             * @language zh_CN
+             * 相对于骨架坐标系的变换。
+             * @see dragonBones.Transform
+             * @version DragonBones 3.0
+             */
+            this.global = new dragonBones.Transform();
+            /**
+             * @language zh_CN
+             * 相对于骨架或父骨骼坐标系的绑定变换。
+             * @see dragonBones.Transform
+             * @version DragonBones 3.0
+             */
+            this.origin = new dragonBones.Transform();
+            /**
+             * @language zh_CN
+             * 相对于骨架或父骨骼坐标系的偏移变换。
+             * @see dragonBones.Transform
+             * @version DragonBones 3.0
+             */
+            this.offset = new dragonBones.Transform();
+            /**
+             * @private
+             */
+            this._globalTransformMatrix = new dragonBones.Matrix();
+        }
+        /**
+         * @inheritDoc
+         */
+        TransformObject.prototype._onClear = function () {
+            this.userData = null;
+            this.name = null;
+            this.globalTransformMatrix = this._globalTransformMatrix;
+            this.global.identity();
+            this.origin.identity();
+            this.offset.identity();
+            this._armature = null;
+            this._parent = null;
+            this._globalTransformMatrix.identity();
+        };
+        /**
+         * @private
+         */
+        TransformObject.prototype._setArmature = function (value) {
+            this._armature = value;
+        };
+        /**
+         * @private
+         */
+        TransformObject.prototype._setParent = function (value) {
+            this._parent = value;
+        };
+        Object.defineProperty(TransformObject.prototype, "armature", {
+            /**
+             * @language zh_CN
+             * 所属的骨架。
+             * @see dragonBones.Armature
+             * @version DragonBones 3.0
+             */
+            get: function () {
+                return this._armature;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(TransformObject.prototype, "parent", {
+            /**
+             * @language zh_CN
+             * 所属的父骨骼。
+             * @see dragonBones.Bone
+             * @version DragonBones 3.0
+             */
+            get: function () {
+                return this._parent;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        return TransformObject;
+    }(dragonBones.BaseObject));
+    dragonBones.TransformObject = TransformObject;
+})(dragonBones || (dragonBones = {}));
+var dragonBones;
+(function (dragonBones) {
+    /**
+     * @private
+     */
+    var TimelineData = (function (_super) {
+        __extends(TimelineData, _super);
+        function TimelineData() {
+            _super.call(this);
+            /**
+             * @private
+             */
+            this.frames = [];
+        }
+        /**
+         * @inheritDoc
+         */
+        TimelineData.prototype._onClear = function () {
+            this.scale = 1;
+            this.offset = 0;
+            if (this.frames.length) {
+                var prevFrame = null;
+                for (var i = 0, l = this.frames.length; i < l; ++i) {
+                    var frame = this.frames[i];
+                    if (prevFrame && frame != prevFrame) {
+                        prevFrame.returnToPool();
+                    }
+                    prevFrame = frame;
+                }
+                this.frames.length = 0;
+            }
+        };
+        return TimelineData;
+    }(dragonBones.BaseObject));
+    dragonBones.TimelineData = TimelineData;
+    /**
+     * @private
+     */
+    var BoneTimelineData = (function (_super) {
+        __extends(BoneTimelineData, _super);
+        function BoneTimelineData() {
+            _super.call(this);
+            this.bone = null;
+            this.originTransform = new dragonBones.Transform();
+            this.cachedFrames = [];
+        }
+        BoneTimelineData.cacheFrame = function (cacheFrames, cacheFrameIndex, globalTransformMatrix) {
+            var cacheMatrix = cacheFrames[cacheFrameIndex] = new dragonBones.Matrix();
+            cacheMatrix.copyFrom(globalTransformMatrix);
+            return cacheMatrix;
+        };
+        BoneTimelineData.toString = function () {
+            return "[Class dragonBones.BoneTimelineData]";
+        };
+        /**
+         * @inheritDoc
+         */
+        BoneTimelineData.prototype._onClear = function () {
+            _super.prototype._onClear.call(this);
+            this.bone = null;
+            this.originTransform.identity();
+            if (this.cachedFrames.length) {
+                this.cachedFrames.length = 0;
+            }
+        };
+        BoneTimelineData.prototype.cacheFrames = function (cacheFrameCount) {
+            this.cachedFrames.length = 0;
+            this.cachedFrames.length = cacheFrameCount;
+        };
+        return BoneTimelineData;
+    }(TimelineData));
+    dragonBones.BoneTimelineData = BoneTimelineData;
+    /**
+     * @private
+     */
+    var SlotTimelineData = (function (_super) {
+        __extends(SlotTimelineData, _super);
+        function SlotTimelineData() {
+            _super.call(this);
+            this.slot = null;
+            this.cachedFrames = [];
+        }
+        SlotTimelineData.cacheFrame = function (cacheFrames, cacheFrameIndex, globalTransformMatrix) {
+            var cacheMatrix = cacheFrames[cacheFrameIndex] = new dragonBones.Matrix();
+            cacheMatrix.copyFrom(globalTransformMatrix);
+            return cacheMatrix;
+        };
+        SlotTimelineData.toString = function () {
+            return "[Class dragonBones.SlotTimelineData]";
+        };
+        /**
+         * @inheritDoc
+         */
+        SlotTimelineData.prototype._onClear = function () {
+            _super.prototype._onClear.call(this);
+            this.slot = null;
+            if (this.cachedFrames) {
+                this.cachedFrames.length = 0;
+            }
+        };
+        SlotTimelineData.prototype.cacheFrames = function (cacheFrameCount) {
+            this.cachedFrames.length = 0;
+            this.cachedFrames.length = cacheFrameCount;
+        };
+        return SlotTimelineData;
+    }(TimelineData));
+    dragonBones.SlotTimelineData = SlotTimelineData;
+    /**
+     * @private
+     */
+    var FFDTimelineData = (function (_super) {
+        __extends(FFDTimelineData, _super);
+        function FFDTimelineData() {
+            _super.call(this);
+            this.displayIndex = 0;
+            this.skin = null;
+            this.slot = null;
+        }
+        FFDTimelineData.toString = function () {
+            return "[Class dragonBones.FFDTimelineData]";
+        };
+        /**
+         * @inheritDoc
+         */
+        FFDTimelineData.prototype._onClear = function () {
+            _super.prototype._onClear.call(this);
+            this.displayIndex = 0;
+            this.skin = null;
+            this.slot = null;
+        };
+        return FFDTimelineData;
+    }(TimelineData));
+    dragonBones.FFDTimelineData = FFDTimelineData;
+})(dragonBones || (dragonBones = {}));
+var dragonBones;
+(function (dragonBones) {
+    /**
+     * @private
+     */
+    var DataParser = (function () {
+        function DataParser() {
+            this._data = null;
+            this._armature = null;
+            this._skin = null;
+            this._slotDisplayDataSet = null;
+            this._mesh = null;
+            this._animation = null;
+            this._timeline = null;
+            this._isParentCooriinate = false;
+            this._isAutoTween = false;
+            this._animationTweenEasing = 0;
+            this._armatureScale = 1;
+            this._helpPoint = new dragonBones.Point();
+            this._helpTransform = new dragonBones.Transform();
+            this._helpMatrix = new dragonBones.Matrix();
+            this._rawBones = [];
+        }
+        DataParser._getArmatureType = function (value) {
+            switch (value.toLowerCase()) {
+                case "stage":
+                    return 0 /* Armature */;
+                case "armature":
+                    return 0 /* Armature */;
+                case "movieClip":
+                    return 1 /* MovieClip */;
+                default:
+                    return 0 /* Armature */;
+            }
+        };
+        DataParser._getDisplayType = function (value) {
+            switch (value.toLowerCase()) {
+                case "image":
+                    return 0 /* Image */;
+                case "armature":
+                    return 1 /* Armature */;
+                case "mesh":
+                    return 2 /* Mesh */;
+                default:
+                    return 0 /* Image */;
+            }
+        };
+        DataParser._getBlendMode = function (value) {
+            switch (value.toLowerCase()) {
+                case "normal":
+                    return 0 /* Normal */;
+                case "add":
+                    return 1 /* Add */;
+                case "alpha":
+                    return 2 /* Alpha */;
+                case "darken":
+                    return 3 /* Darken */;
+                case "difference":
+                    return 4 /* Difference */;
+                case "erase":
+                    return 5 /* Erase */;
+                case "hardlight":
+                    return 6 /* HardLight */;
+                case "invert":
+                    return 7 /* Invert */;
+                case "layer":
+                    return 8 /* Layer */;
+                case "lighten":
+                    return 9 /* Lighten */;
+                case "multiply":
+                    return 10 /* Multiply */;
+                case "overlay":
+                    return 11 /* Overlay */;
+                case "screen":
+                    return 12 /* Screen */;
+                case "subtract":
+                    return 13 /* Subtract */;
+                default:
+                    return 0 /* Normal */;
+            }
+        };
+        DataParser._getActionType = function (value) {
+            switch (value.toLowerCase()) {
+                case "play":
+                    return 0 /* Play */;
+                case "stop":
+                    return 1 /* Stop */;
+                case "gotoandplay":
+                    return 2 /* GotoAndPlay */;
+                case "gotoandstop":
+                    return 3 /* GotoAndStop */;
+                case "fadein":
+                    return 4 /* FadeIn */;
+                case "fadeout":
+                    return 5 /* FadeOut */;
+                default:
+                    return 4 /* FadeIn */;
+            }
+        };
+        DataParser.prototype._getTimelineFrameMatrix = function (animation, timeline, position, transform) {
+            var frameIndex = Math.floor(position * animation.frameCount / animation.duration); // uint()
+            if (timeline.frames.length == 1 || frameIndex >= timeline.frames.length) {
+                transform.copyFrom(timeline.frames[0].transform);
+            }
+            else {
+                var frame = timeline.frames[frameIndex];
+                var tweenProgress = 0;
+                if (frame.duration > 0 && frame.tweenEasing != dragonBones.DragonBones.NO_TWEEN) {
+                    tweenProgress = (position - frame.position) / frame.duration;
+                    if (frame.tweenEasing != 0) {
+                        tweenProgress = dragonBones.TweenTimelineState._getEasingValue(tweenProgress, frame.tweenEasing);
+                    }
+                }
+                else if (frame.curve) {
+                    tweenProgress = (position - frame.position) / frame.duration;
+                    tweenProgress = dragonBones.TweenTimelineState._getCurveEasingValue(tweenProgress, frame.curve);
+                }
+                transform.copyFrom(frame.next.transform);
+                transform.minus(frame.transform);
+                transform.x = frame.transform.x + transform.x * tweenProgress;
+                transform.y = frame.transform.y + transform.y * tweenProgress;
+                transform.skewX = frame.transform.skewX + transform.skewX * tweenProgress;
+                transform.skewY = frame.transform.skewY + transform.skewY * tweenProgress;
+                transform.scaleX = frame.transform.scaleX + transform.scaleX * tweenProgress;
+                transform.scaleY = frame.transform.scaleY + transform.scaleY * tweenProgress;
+                transform.add(timeline.originTransform);
+            }
+        };
+        DataParser.prototype._mergeFrameToAnimationTimeline = function (frame, actions, events) {
+            var frameStart = Math.floor(frame.position * this._armature.frameRate); // uint()
+            var frames = this._animation.frames;
+            if (frames.length == 0) {
+                var startFrame = dragonBones.BaseObject.borrowObject(dragonBones.AnimationFrameData); // Add start frame.
+                startFrame.position = 0;
+                if (this._animation.frameCount > 1) {
+                    frames.length = this._animation.frameCount + 1; // One more count for zero duration frame.
+                    var endFrame = dragonBones.BaseObject.borrowObject(dragonBones.AnimationFrameData); // Add end frame to keep animation timeline has two different frames atleast.
+                    endFrame.position = this._animation.frameCount / this._armature.frameRate;
+                    frames[0] = startFrame;
+                    frames[this._animation.frameCount] = endFrame;
+                }
+            }
+            var insertedFrame = null;
+            var replacedFrame = frames[frameStart];
+            if (replacedFrame && (frameStart == 0 || frames[frameStart - 1] == replacedFrame.prev)) {
+                insertedFrame = replacedFrame;
+            }
+            else {
+                insertedFrame = dragonBones.BaseObject.borrowObject(dragonBones.AnimationFrameData); // Create frame.
+                insertedFrame.position = frameStart / this._armature.frameRate;
+                frames[frameStart] = insertedFrame;
+                for (var i = frameStart + 1, l = frames.length; i < l; ++i) {
+                    if (replacedFrame && frames[i] == replacedFrame) {
+                        frames[i] = null;
+                    }
+                }
+            }
+            if (actions) {
+                for (var i = 0, l = actions.length; i < l; ++i) {
+                    insertedFrame.actions.push(actions[i]);
+                }
+            }
+            if (events) {
+                for (var i = 0, l = events.length; i < l; ++i) {
+                    insertedFrame.events.push(events[i]);
+                }
+            }
+            // Modify frame link and duration.
+            var prevFrame = null;
+            var nextFrame = null;
+            for (var i = 0, l = frames.length; i < l; ++i) {
+                var currentFrame = frames[i];
+                if (currentFrame && nextFrame != currentFrame) {
+                    nextFrame = currentFrame;
+                    if (prevFrame) {
+                        nextFrame.prev = prevFrame;
+                        prevFrame.next = nextFrame;
+                        prevFrame.duration = nextFrame.position - prevFrame.position;
+                    }
+                    prevFrame = nextFrame;
+                }
+                else {
+                    frames[i] = prevFrame;
+                }
+            }
+            nextFrame.duration = this._animation.duration - nextFrame.position;
+            nextFrame = frames[0];
+            prevFrame.next = nextFrame;
+            nextFrame.prev = prevFrame;
+        };
+        DataParser.prototype._globalToLocal = function (armature) {
+            var bones = armature.sortedBones.reverse();
+            for (var i = 0, l = bones.length; i < l; ++i) {
+                var bone = bones[i];
+                if (bone.parent) {
+                    bone.parent.transform.toMatrix(this._helpMatrix);
+                    this._helpMatrix.transformPoint(bone.transform.x, bone.transform.y, bone.transform);
+                    bone.transform.rotation += bone.transform.rotation - bone.parent.transform.rotation;
+                }
+            }
+            for (var i in armature.animations) {
+                var animation = armature.animations[i];
+                var timelines = animation.boneTimelines;
+                for (var i_1 in timelines) {
+                    var timeline = timelines[i_1];
+                    if (timeline.bone.parent) {
+                        var parentTimeline = animation.getBoneTimeline(timeline.bone.parent.name);
+                        for (var i_2 = 0, l = timeline.frames.length; i_2 < l; ++i_2) {
+                            var frame = timeline.frames[i_2];
+                            this._getTimelineFrameMatrix(animation, parentTimeline, frame.position, this._helpTransform);
+                            frame.transform.add(timeline.originTransform);
+                            this._helpTransform.toMatrix(this._helpMatrix);
+                            this._helpMatrix.transformPoint(frame.transform.x, frame.transform.y, frame.transform);
+                            frame.transform.rotation += frame.transform.rotation - this._helpTransform.rotation;
+                        }
+                    }
+                    this._helpTransform.copyFrom(timeline.originTransform);
+                    for (var i_3 = 0, l = timeline.frames.length; i_3 < l; ++i_3) {
+                        var frame = timeline.frames[i_3];
+                        frame.transform.add(this._helpTransform);
+                        frame.transform.minus(timeline.bone.transform);
+                        if (i_3 == 0) {
+                            timeline.originTransform.copyFrom(frame.transform);
+                            frame.transform.identity();
+                        }
+                        else {
+                            frame.transform.minus(timeline.originTransform);
+                        }
+                    }
+                }
+            }
+        };
+        /**
+         * @deprecated
+         * @see dragonBones.BaseFactory#parseDragonBonesData()
+         */
+        DataParser.parseDragonBonesData = function (rawData) {
+            return dragonBones.ObjectDataParser.getInstance().parseDragonBonesData(rawData);
+        };
+        /**
+         * @deprecated
+         * @see dragonBones.BaseFactory#parsetTextureAtlasData()
+         */
+        DataParser.parseTextureAtlasData = function (rawData, scale) {
+            if (scale === void 0) { scale = 1; }
+            var textureAtlasData = {};
+            var subTextureFrame = null;
+            var subTextureList = rawData[DataParser.SUB_TEXTURE];
+            for (var i = 0, len = subTextureList.length; i < len; i++) {
+                var subTextureObject = subTextureList[i];
+                var subTextureName = subTextureObject[DataParser.NAME];
+                var subTextureRegion = new dragonBones.Rectangle();
+                subTextureRegion.x = subTextureObject[DataParser.X] / scale;
+                subTextureRegion.y = subTextureObject[DataParser.Y] / scale;
+                subTextureRegion.width = subTextureObject[DataParser.WIDTH] / scale;
+                subTextureRegion.height = subTextureObject[DataParser.HEIGHT] / scale;
+                if (DataParser.FRAME_WIDTH in subTextureObject) {
+                    subTextureFrame = new dragonBones.Rectangle();
+                    subTextureFrame.x = subTextureObject[DataParser.FRAME_X] / scale;
+                    subTextureFrame.y = subTextureObject[DataParser.FRAME_Y] / scale;
+                    subTextureFrame.width = subTextureObject[DataParser.FRAME_WIDTH] / scale;
+                    subTextureFrame.height = subTextureObject[DataParser.FRAME_HEIGHT] / scale;
+                }
+                else {
+                    subTextureFrame = null;
+                }
+                textureAtlasData[subTextureName] = { region: subTextureRegion, frame: subTextureFrame, rotated: false };
+            }
+            return textureAtlasData;
+        };
+        DataParser.DATA_VERSION_2_3 = "2.3";
+        DataParser.DATA_VERSION_3_0 = "3.0";
+        DataParser.DATA_VERSION_4_0 = "4.0";
+        DataParser.DATA_VERSION = "4.5";
+        DataParser.TEXTURE_ATLAS = "TextureAtlas";
+        DataParser.SUB_TEXTURE = "SubTexture";
+        DataParser.FORMAT = "format";
+        DataParser.IMAGE_PATH = "imagePath";
+        DataParser.WIDTH = "width";
+        DataParser.HEIGHT = "height";
+        DataParser.ROTATED = "rotated";
+        DataParser.FRAME_X = "frameX";
+        DataParser.FRAME_Y = "frameY";
+        DataParser.FRAME_WIDTH = "frameWidth";
+        DataParser.FRAME_HEIGHT = "frameHeight";
+        DataParser.DRADON_BONES = "dragonBones";
+        DataParser.ARMATURE = "armature";
+        DataParser.BONE = "bone";
+        DataParser.IK = "ik";
+        DataParser.SLOT = "slot";
+        DataParser.SKIN = "skin";
+        DataParser.DISPLAY = "display";
+        DataParser.ANIMATION = "animation";
+        DataParser.FFD = "ffd";
+        DataParser.FRAME = "frame";
+        DataParser.PIVOT = "pivot";
+        DataParser.TRANSFORM = "transform";
+        DataParser.COLOR = "color";
+        DataParser.FILTER = "filter";
+        DataParser.VERSION = "version";
+        DataParser.IS_GLOBAL = "isGlobal";
+        DataParser.FRAME_RATE = "frameRate";
+        DataParser.TYPE = "type";
+        DataParser.NAME = "name";
+        DataParser.PARENT = "parent";
+        DataParser.LENGTH = "length";
+        DataParser.DATA = "data";
+        DataParser.DISPLAY_INDEX = "displayIndex";
+        DataParser.Z_ORDER = "z";
+        DataParser.BLEND_MODE = "blendMode";
+        DataParser.INHERIT_TRANSLATION = "inheritTranslation";
+        DataParser.INHERIT_ROTATION = "inheritRotation";
+        DataParser.INHERIT_SCALE = "inheritScale";
+        DataParser.TARGET = "target";
+        DataParser.BEND_POSITIVE = "bendPositive";
+        DataParser.CHAIN = "chain";
+        DataParser.WEIGHT = "weight";
+        DataParser.FADE_IN_TIME = "fadeInTime";
+        DataParser.PLAY_TIMES = "playTimes";
+        DataParser.SCALE = "scale";
+        DataParser.OFFSET = "offset";
+        DataParser.POSITION = "position";
+        DataParser.DURATION = "duration";
+        DataParser.TWEEN_EASING = "tweenEasing";
+        DataParser.TWEEN_ROTATE = "tweenRotate";
+        DataParser.TWEEN_SCALE = "tweenScale";
+        DataParser.CURVE = "curve";
+        DataParser.EVENT = "event";
+        DataParser.SOUND = "sound";
+        DataParser.ACTION = "action";
+        DataParser.ACTIONS = "actions";
+        DataParser.DEFAULT_ACTIONS = "defaultActions";
+        DataParser.X = "x";
+        DataParser.Y = "y";
+        DataParser.SKEW_X = "skX";
+        DataParser.SKEW_Y = "skY";
+        DataParser.SCALE_X = "scX";
+        DataParser.SCALE_Y = "scY";
+        DataParser.ALPHA_OFFSET = "aO";
+        DataParser.RED_OFFSET = "rO";
+        DataParser.GREEN_OFFSET = "gO";
+        DataParser.BLUE_OFFSET = "bO";
+        DataParser.ALPHA_MULTIPLIER = "aM";
+        DataParser.RED_MULTIPLIER = "rM";
+        DataParser.GREEN_MULTIPLIER = "gM";
+        DataParser.BLUE_MULTIPLIER = "bM";
+        DataParser.UVS = "uvs";
+        DataParser.VERTICES = "vertices";
+        DataParser.TRIANGLES = "triangles";
+        DataParser.WEIGHTS = "weights";
+        DataParser.SLOT_POSE = "slotPose";
+        DataParser.BONE_POSE = "bonePose";
+        DataParser.TWEEN = "tween";
+        DataParser.KEY = "key";
+        DataParser.COLOR_TRANSFORM = "colorTransform";
+        DataParser.TIMELINE = "timeline";
+        DataParser.PIVOT_X = "pX";
+        DataParser.PIVOT_Y = "pY";
+        DataParser.LOOP = "loop";
+        DataParser.AUTO_TWEEN = "autoTween";
+        DataParser.HIDE = "hide";
+        DataParser.RECTANGLE = "rectangle";
+        DataParser.ELLIPSE = "ellipse";
+        return DataParser;
+    }());
+    dragonBones.DataParser = DataParser;
+})(dragonBones || (dragonBones = {}));
+var dragonBones;
+(function (dragonBones) {
+    /**
      * @language zh_CN
      * 动画控制器，用来播放动画数据，管理动画状态。
      * @see dragonBones.AnimationData
@@ -1284,299 +2335,6 @@ var dragonBones;
     /**
      * @private
      */
-    var TimelineState = (function (_super) {
-        __extends(TimelineState, _super);
-        function TimelineState() {
-            _super.call(this);
-        }
-        /**
-         * @inheritDoc
-         */
-        TimelineState.prototype._onClear = function () {
-            this._isCompleted = false;
-            this._currentPlayTimes = 0;
-            this._currentTime = 0;
-            this._timeline = null;
-            this._isReverse = false;
-            this._hasAsynchronyTimeline = false;
-            this._frameRate = 0;
-            this._keyFrameCount = 0;
-            this._frameCount = 0;
-            this._position = 0;
-            this._duration = 0;
-            this._animationDutation = 0;
-            this._timeScale = 1;
-            this._timeOffset = 0;
-            this._currentFrame = null;
-            this._armature = null;
-            this._animationState = null;
-        };
-        TimelineState.prototype._onFadeIn = function () { };
-        TimelineState.prototype._onUpdateFrame = function (isUpdate) { };
-        TimelineState.prototype._onArriveAtFrame = function (isUpdate) { };
-        TimelineState.prototype._onCrossFrame = function (frame) {
-        };
-        TimelineState.prototype._setCurrentTime = function (value) {
-            var currentPlayTimes = 0;
-            if (this._hasAsynchronyTimeline) {
-                var playTimes = this._animationState.playTimes;
-                var totalTimes = playTimes * this._duration;
-                value *= this._timeScale;
-                if (this._timeOffset != 0) {
-                    value += this._timeOffset * this._animationDutation;
-                }
-                if (playTimes > 0 && (value >= totalTimes || value <= -totalTimes)) {
-                    this._isCompleted = true;
-                    currentPlayTimes = playTimes;
-                    if (value < 0) {
-                        value = 0;
-                    }
-                    else {
-                        value = this._duration;
-                    }
-                }
-                else {
-                    this._isCompleted = false;
-                    if (value < 0) {
-                        currentPlayTimes = Math.floor(-value / this._duration);
-                        value = this._duration - (-value % this._duration);
-                    }
-                    else {
-                        currentPlayTimes = Math.floor(value / this._duration);
-                        value %= this._duration;
-                    }
-                    if (playTimes > 0 && currentPlayTimes > playTimes) {
-                        currentPlayTimes = playTimes;
-                    }
-                }
-                value += this._position;
-            }
-            else {
-                this._isCompleted = this._animationState._timeline._isCompleted;
-                currentPlayTimes = this._animationState._timeline._currentPlayTimes;
-            }
-            if (this._currentTime == value) {
-                return false;
-            }
-            if (this._keyFrameCount == 1 && value > this._position && this != this._animationState._timeline) {
-                this._isCompleted = true;
-            }
-            this._isReverse = this._currentTime > value && this._currentPlayTimes == currentPlayTimes;
-            this._currentTime = value;
-            this._currentPlayTimes = currentPlayTimes;
-            return true;
-        };
-        TimelineState.prototype.setCurrentTime = function (value) {
-            this._setCurrentTime(value);
-            switch (this._keyFrameCount) {
-                case 0:
-                    break;
-                case 1:
-                    this._currentFrame = this._timeline.frames[0];
-                    this._onArriveAtFrame(false);
-                    this._onUpdateFrame(false);
-                    break;
-                default:
-                    this._currentFrame = this._timeline.frames[Math.floor(this._currentTime * this._frameRate)];
-                    this._onArriveAtFrame(false);
-                    this._onUpdateFrame(false);
-                    break;
-            }
-            this._currentFrame = null;
-        };
-        TimelineState.prototype.fadeIn = function (armature, animationState, timelineData, time) {
-            this._armature = armature;
-            this._animationState = animationState;
-            this._timeline = timelineData;
-            var isMainTimeline = this == this._animationState._timeline;
-            this._hasAsynchronyTimeline = isMainTimeline || this._animationState.animationData.hasAsynchronyTimeline;
-            this._frameRate = this._armature.armatureData.frameRate;
-            this._keyFrameCount = this._timeline.frames.length;
-            this._frameCount = this._animationState.animationData.frameCount;
-            this._position = this._animationState._position;
-            this._duration = this._animationState._duration;
-            this._animationDutation = this._animationState.animationData.duration;
-            this._timeScale = isMainTimeline ? 1 : (1 / this._timeline.scale);
-            this._timeOffset = isMainTimeline ? 0 : this._timeline.offset;
-            this._onFadeIn();
-            this.setCurrentTime(time);
-        };
-        TimelineState.prototype.fadeOut = function () {
-        };
-        TimelineState.prototype.update = function (time) {
-            var prevTime = this._currentTime;
-            if (!this._isCompleted && this._setCurrentTime(time) && this._keyFrameCount) {
-                var currentFrameIndex = this._keyFrameCount > 1 ? Math.floor(this._currentTime * this._frameRate) : 0;
-                var currentFrame = this._timeline.frames[currentFrameIndex];
-                if (this._currentFrame != currentFrame) {
-                    if (this._keyFrameCount > 1) {
-                        var crossedFrame = this._currentFrame;
-                        this._currentFrame = currentFrame;
-                        if (!crossedFrame) {
-                            var prevFrameIndex = Math.floor(prevTime * this._frameRate);
-                            crossedFrame = this._timeline.frames[prevFrameIndex];
-                            if (!this._isReverse && prevTime <= crossedFrame.position) {
-                                crossedFrame = crossedFrame.prev;
-                            }
-                        }
-                        if (this._isReverse) {
-                            while (crossedFrame != currentFrame) {
-                                this._onCrossFrame(crossedFrame);
-                                crossedFrame = crossedFrame.prev;
-                            }
-                        }
-                        else {
-                            while (crossedFrame != currentFrame) {
-                                crossedFrame = crossedFrame.next;
-                                this._onCrossFrame(crossedFrame);
-                            }
-                        }
-                        this._onArriveAtFrame(true);
-                    }
-                    else {
-                        this._currentFrame = currentFrame;
-                        this._onCrossFrame(this._currentFrame);
-                        this._onArriveAtFrame(true);
-                    }
-                }
-                this._onUpdateFrame(true);
-            }
-        };
-        return TimelineState;
-    }(dragonBones.BaseObject));
-    dragonBones.TimelineState = TimelineState;
-    /**
-     * @private
-     */
-    var TweenTimelineState = (function (_super) {
-        __extends(TweenTimelineState, _super);
-        function TweenTimelineState() {
-            _super.call(this);
-        }
-        TweenTimelineState._getEasingValue = function (progress, easing) {
-            var value = 1;
-            if (easing > 2) {
-                return progress;
-            }
-            else if (easing > 1) {
-                value = 0.5 * (1 - Math.cos(progress * Math.PI));
-                easing -= 1;
-            }
-            else if (easing > 0) {
-                value = 1 - Math.pow(1 - progress, 2);
-            }
-            else if (easing >= -1) {
-                easing *= -1;
-                value = Math.pow(progress, 2);
-            }
-            else if (easing >= -2) {
-                easing *= -1;
-                value = Math.acos(1 - progress * 2) / Math.PI;
-                easing -= 1;
-            }
-            else {
-                return progress;
-            }
-            return (value - progress) * easing + progress;
-        };
-        TweenTimelineState._getCurveEasingValue = function (progress, sampling) {
-            var x = 0;
-            var y = 0;
-            for (var i = 0, l = sampling.length; i < l; i += 2) {
-                x = sampling[i];
-                y = sampling[i + 1];
-                if (x >= progress) {
-                    if (i == 0) {
-                        return y * progress / x;
-                    }
-                    else {
-                        var xP = sampling[i - 2];
-                        var yP = sampling[i - 1]; // i - 2 + 1
-                        return yP + (y - yP) * (progress - xP) / (x - xP);
-                    }
-                }
-            }
-            return y + (1 - y) * (progress - x) / (1 - x);
-        };
-        /**
-         * @inheritDoc
-         */
-        TweenTimelineState.prototype._onClear = function () {
-            _super.prototype._onClear.call(this);
-            this._tweenProgress = 0;
-            this._tweenEasing = dragonBones.DragonBones.NO_TWEEN;
-            this._curve = null;
-        };
-        TweenTimelineState.prototype._onArriveAtFrame = function (isUpdate) {
-            this._tweenEasing = this._currentFrame.tweenEasing;
-            this._curve = this._currentFrame.curve;
-            if (this._keyFrameCount == 1 ||
-                (this._currentFrame.next == this._timeline.frames[0] &&
-                    (this._tweenEasing != dragonBones.DragonBones.NO_TWEEN || this._curve) &&
-                    this._animationState.playTimes > 0 &&
-                    this._animationState.currentPlayTimes == this._animationState.playTimes - 1)) {
-                this._tweenEasing = dragonBones.DragonBones.NO_TWEEN;
-                this._curve = null;
-            }
-        };
-        TweenTimelineState.prototype._onUpdateFrame = function (isUpdate) {
-            if (this._tweenEasing != dragonBones.DragonBones.NO_TWEEN && this._currentFrame.duration > 0) {
-                this._tweenProgress = (this._currentTime - this._currentFrame.position + this._position) / this._currentFrame.duration;
-                if (this._tweenEasing != 0) {
-                    this._tweenProgress = TweenTimelineState._getEasingValue(this._tweenProgress, this._tweenEasing);
-                }
-            }
-            else if (this._curve) {
-                this._tweenProgress = (this._currentTime - this._currentFrame.position + this._position) / this._currentFrame.duration;
-                this._tweenProgress = TweenTimelineState._getCurveEasingValue(this._tweenProgress, this._curve);
-            }
-            else {
-                this._tweenProgress = 0;
-            }
-        };
-        TweenTimelineState.prototype._updateExtensionKeyFrame = function (current, next, result) {
-            var tweenType = 0 /* None */;
-            if (current.type == next.type) {
-                for (var i = 0, l = current.tweens.length; i < l; ++i) {
-                    var tweenDuration = next.tweens[i] - current.tweens[i];
-                    result.tweens[i] = tweenDuration;
-                    if (tweenDuration != 0) {
-                        tweenType = 2 /* Always */;
-                    }
-                }
-            }
-            if (tweenType == 0 /* None */) {
-                if (result.type != current.type) {
-                    tweenType = 1 /* Once */;
-                    result.type = current.type;
-                }
-                if (result.tweens.length != current.tweens.length) {
-                    tweenType = 1 /* Once */;
-                    result.tweens.length = current.tweens.length;
-                }
-                if (result.keys.length != current.keys.length) {
-                    tweenType = 1 /* Once */;
-                    result.keys.length = current.keys.length;
-                }
-                for (var i = 0, l = current.keys.length; i < l; ++i) {
-                    var key = current.keys[i];
-                    if (result.keys[i] != key) {
-                        tweenType = 1 /* Once */;
-                        result.keys[i] = key;
-                    }
-                }
-            }
-            return tweenType;
-        };
-        return TweenTimelineState;
-    }(TimelineState));
-    dragonBones.TweenTimelineState = TweenTimelineState;
-})(dragonBones || (dragonBones = {}));
-var dragonBones;
-(function (dragonBones) {
-    /**
-     * @private
-     */
     var AnimationTimelineState = (function (_super) {
         __extends(AnimationTimelineState, _super);
         function AnimationTimelineState() {
@@ -1607,8 +2365,8 @@ var dragonBones;
                 }
                 else if (actionData.bone) {
                     var slots = this._armature.getSlots();
-                    for (var i_1 = 0, l_1 = slots.length; i_1 < l_1; ++i_1) {
-                        var eachChildArmature = slots[i_1].childArmature;
+                    for (var i_4 = 0, l_1 = slots.length; i_4 < l_1; ++i_4) {
+                        var eachChildArmature = slots[i_4].childArmature;
                         if (eachChildArmature) {
                             eachChildArmature._action = actionData;
                         }
@@ -3871,263 +4629,6 @@ var dragonBones;
 (function (dragonBones) {
     /**
      * @language zh_CN
-     * 基础变换对象。
-     * @version DragonBones 4.5
-     */
-    var TransformObject = (function (_super) {
-        __extends(TransformObject, _super);
-        /**
-         * @private
-         */
-        function TransformObject() {
-            _super.call(this);
-            /**
-             * @language zh_CN
-             * 相对于骨架坐标系的变换。
-             * @see dragonBones.Transform
-             * @version DragonBones 3.0
-             */
-            this.global = new dragonBones.Transform();
-            /**
-             * @language zh_CN
-             * 相对于骨架或父骨骼坐标系的绑定变换。
-             * @see dragonBones.Transform
-             * @version DragonBones 3.0
-             */
-            this.origin = new dragonBones.Transform();
-            /**
-             * @language zh_CN
-             * 相对于骨架或父骨骼坐标系的偏移变换。
-             * @see dragonBones.Transform
-             * @version DragonBones 3.0
-             */
-            this.offset = new dragonBones.Transform();
-            /**
-             * @private
-             */
-            this._globalTransformMatrix = new dragonBones.Matrix();
-        }
-        /**
-         * @inheritDoc
-         */
-        TransformObject.prototype._onClear = function () {
-            this.userData = null;
-            this.name = null;
-            this.globalTransformMatrix = this._globalTransformMatrix;
-            this.global.identity();
-            this.origin.identity();
-            this.offset.identity();
-            this._armature = null;
-            this._parent = null;
-            this._globalTransformMatrix.identity();
-        };
-        /**
-         * @private
-         */
-        TransformObject.prototype._setArmature = function (value) {
-            this._armature = value;
-        };
-        /**
-         * @private
-         */
-        TransformObject.prototype._setParent = function (value) {
-            this._parent = value;
-        };
-        Object.defineProperty(TransformObject.prototype, "armature", {
-            /**
-             * @language zh_CN
-             * 所属的骨架。
-             * @see dragonBones.Armature
-             * @version DragonBones 3.0
-             */
-            get: function () {
-                return this._armature;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(TransformObject.prototype, "parent", {
-            /**
-             * @language zh_CN
-             * 所属的父骨骼。
-             * @see dragonBones.Bone
-             * @version DragonBones 3.0
-             */
-            get: function () {
-                return this._parent;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        return TransformObject;
-    }(dragonBones.BaseObject));
-    dragonBones.TransformObject = TransformObject;
-})(dragonBones || (dragonBones = {}));
-var dragonBones;
-(function (dragonBones) {
-    /**
-     * @language zh_CN
-     * 基础对象。
-     * @version DragonBones 4.5
-     */
-    var BaseObject = (function () {
-        /**
-         * @private
-         */
-        function BaseObject() {
-            /**
-             * @language zh_CN
-             * 对象的唯一标识。
-             * @version DragonBones 4.5
-             */
-            this.hashCode = BaseObject._hashCode++;
-        }
-        /**
-         * @private
-         */
-        BaseObject._returnObject = function (object) {
-            var objectConstructor = object.constructor;
-            var classType = String(objectConstructor);
-            var maxCount = BaseObject._maxCountMap[classType] == null ? BaseObject._defaultMaxCount : BaseObject._maxCountMap[classType];
-            var pool = BaseObject._poolsMap[classType] = BaseObject._poolsMap[classType] || [];
-            if (pool.length < maxCount) {
-                if (pool.indexOf(object) < 0) {
-                    pool.push(object);
-                }
-                else {
-                    throw new Error();
-                }
-            }
-        };
-        /**
-         * @private
-         */
-        BaseObject.toString = function () {
-            throw new Error();
-        };
-        /**
-         * @language zh_CN
-         * 设置每种对象池的最大缓存数量。
-         * @param objectConstructor 对象类。
-         * @param maxCount 最大缓存数量。 (设置为 0 则不缓存)
-         * @version DragonBones 4.5
-         */
-        BaseObject.setMaxCount = function (objectConstructor, maxCount) {
-            if (maxCount < 0 || maxCount != maxCount) {
-                maxCount = 0;
-            }
-            if (objectConstructor) {
-                var classType = String(objectConstructor);
-                BaseObject._maxCountMap[classType] = maxCount;
-                var pool = BaseObject._poolsMap[classType];
-                if (pool && pool.length > maxCount) {
-                    pool.length = maxCount;
-                }
-            }
-            else {
-                BaseObject._defaultMaxCount = maxCount;
-                for (var classType in BaseObject._poolsMap) {
-                    if (BaseObject._maxCountMap[classType] == null) {
-                        continue;
-                    }
-                    var pool = BaseObject._poolsMap[classType];
-                    if (pool.length > maxCount) {
-                        pool.length = maxCount;
-                    }
-                }
-            }
-        };
-        /**
-         * @language zh_CN
-         * 清除对象池缓存的对象。
-         * @param objectConstructor 对象类。 (不设置则清除所有缓存)
-         * @version DragonBones 4.5
-         */
-        BaseObject.clearPool = function (objectConstructor) {
-            if (objectConstructor === void 0) { objectConstructor = null; }
-            if (objectConstructor) {
-                var pool = BaseObject._poolsMap[String(objectConstructor)];
-                if (pool && pool.length) {
-                    pool.length = 0;
-                }
-            }
-            else {
-                for (var iP in BaseObject._poolsMap) {
-                    var pool = BaseObject._poolsMap[iP];
-                    pool.length = 0;
-                }
-            }
-        };
-        /**
-         * @language zh_CN
-         * 从对象池中创建指定对象。
-         * @param objectConstructor 对象类。
-         * @version DragonBones 4.5
-         */
-        BaseObject.borrowObject = function (objectConstructor) {
-            var pool = BaseObject._poolsMap[String(objectConstructor)];
-            if (pool && pool.length) {
-                return pool.pop();
-            }
-            else {
-                var object = new objectConstructor();
-                object._onClear();
-                return object;
-            }
-        };
-        /**
-         * @language zh_CN
-         * 清除数据并返还对象池。
-         * @version DragonBones 4.5
-         */
-        BaseObject.prototype.returnToPool = function () {
-            this._onClear();
-            BaseObject._returnObject(this);
-        };
-        /**
-         * @private
-         */
-        BaseObject._hashCode = 0;
-        /**
-         * @private
-         */
-        BaseObject._defaultMaxCount = 5000;
-        /**
-         * @private
-         */
-        BaseObject._maxCountMap = {};
-        /**
-         * @private
-         */
-        BaseObject._poolsMap = {};
-        return BaseObject;
-    }());
-    dragonBones.BaseObject = BaseObject;
-})(dragonBones || (dragonBones = {}));
-var dragonBones;
-(function (dragonBones) {
-    /**
-     * DragonBones
-     */
-    var DragonBones = (function () {
-        function DragonBones() {
-        }
-        DragonBones.PI_D = Math.PI * 2;
-        DragonBones.PI_H = Math.PI / 2;
-        DragonBones.PI_Q = Math.PI / 4;
-        DragonBones.ANGLE_TO_RADIAN = Math.PI / 180;
-        DragonBones.RADIAN_TO_ANGLE = 180 / Math.PI;
-        DragonBones.SECOND_TO_MILLISECOND = 1000;
-        DragonBones.NO_TWEEN = 100;
-        DragonBones.VERSION = "4.7.1";
-        return DragonBones;
-    }());
-    dragonBones.DragonBones = DragonBones;
-})(dragonBones || (dragonBones = {}));
-var dragonBones;
-(function (dragonBones) {
-    /**
-     * @language zh_CN
      * 事件数据。
      * @version DragonBones 4.5
      */
@@ -4618,8 +5119,8 @@ var dragonBones;
             for (var i in this._textureAtlasDataMap) {
                 if (disposeData) {
                     var textureAtlasDataList = this._textureAtlasDataMap[i];
-                    for (var i_2 = 0, l = textureAtlasDataList.length; i_2 < l; ++i_2) {
-                        textureAtlasDataList[i_2].returnToPool();
+                    for (var i_5 = 0, l = textureAtlasDataList.length; i_5 < l; ++i_5) {
+                        textureAtlasDataList[i_5].returnToPool();
                     }
                 }
                 delete this._textureAtlasDataMap[i];
@@ -4688,12 +5189,12 @@ var dragonBones;
                     for (var i = 0, l = slots.length; i < l; ++i) {
                         var toSlot = slots[i];
                         var toSlotDisplayList = toSlot.displayList;
-                        for (var i_3 = 0, l_2 = toSlotDisplayList.length; i_3 < l_2; ++i_3) {
-                            var toDisplayObject = toSlotDisplayList[i_3];
+                        for (var i_6 = 0, l_2 = toSlotDisplayList.length; i_6 < l_2; ++i_6) {
+                            var toDisplayObject = toSlotDisplayList[i_6];
                             if (toDisplayObject instanceof dragonBones.Armature) {
                                 var displays = dataPackage.skin.getSlot(toSlot.name).displays;
-                                if (i_3 < displays.length) {
-                                    var fromDisplayData = displays[i_3];
+                                if (i_6 < displays.length) {
+                                    var fromDisplayData = displays[i_6];
                                     if (fromDisplayData.type == 1 /* Armature */) {
                                         this.copyAnimationsToArmature(toDisplayObject, fromDisplayData.name, fromSkinName, fromDragonBonesDataName, ifRemoveOriginalAnimationList);
                                     }
@@ -4758,6 +5259,420 @@ var dragonBones;
         return BaseFactory;
     }());
     dragonBones.BaseFactory = BaseFactory;
+})(dragonBones || (dragonBones = {}));
+var dragonBones;
+(function (dragonBones) {
+    /**
+     * @private
+     */
+    var ColorTransform = (function () {
+        function ColorTransform(alphaMultiplier, redMultiplier, greenMultiplier, blueMultiplier, alphaOffset, redOffset, greenOffset, blueOffset) {
+            if (alphaMultiplier === void 0) { alphaMultiplier = 1; }
+            if (redMultiplier === void 0) { redMultiplier = 1; }
+            if (greenMultiplier === void 0) { greenMultiplier = 1; }
+            if (blueMultiplier === void 0) { blueMultiplier = 1; }
+            if (alphaOffset === void 0) { alphaOffset = 0; }
+            if (redOffset === void 0) { redOffset = 0; }
+            if (greenOffset === void 0) { greenOffset = 0; }
+            if (blueOffset === void 0) { blueOffset = 0; }
+            this.alphaMultiplier = alphaMultiplier;
+            this.redMultiplier = redMultiplier;
+            this.greenMultiplier = greenMultiplier;
+            this.blueMultiplier = blueMultiplier;
+            this.alphaOffset = alphaOffset;
+            this.redOffset = redOffset;
+            this.greenOffset = greenOffset;
+            this.blueOffset = blueOffset;
+        }
+        ColorTransform.prototype.copyFrom = function (value) {
+            this.alphaMultiplier = value.alphaMultiplier;
+            this.redMultiplier = value.redMultiplier;
+            this.greenMultiplier = value.greenMultiplier;
+            this.blueMultiplier = value.blueMultiplier;
+            this.alphaOffset = value.alphaOffset;
+            this.redOffset = value.redOffset;
+            this.redOffset = value.redOffset;
+            this.greenOffset = value.blueOffset;
+        };
+        ColorTransform.prototype.identity = function () {
+            this.alphaMultiplier = this.redMultiplier = this.greenMultiplier = this.blueMultiplier = 1;
+            this.alphaOffset = this.redOffset = this.greenOffset = this.blueOffset = 0;
+        };
+        return ColorTransform;
+    }());
+    dragonBones.ColorTransform = ColorTransform;
+})(dragonBones || (dragonBones = {}));
+var dragonBones;
+(function (dragonBones) {
+    /**
+     * @language zh_CN
+     * 2D 矩阵。
+     * @version DragonBones 3.0
+     */
+    var Matrix = (function () {
+        function Matrix(a, b, c, d, tx, ty) {
+            if (a === void 0) { a = 1; }
+            if (b === void 0) { b = 0; }
+            if (c === void 0) { c = 0; }
+            if (d === void 0) { d = 1; }
+            if (tx === void 0) { tx = 0; }
+            if (ty === void 0) { ty = 0; }
+            this.a = a;
+            this.b = b;
+            this.c = c;
+            this.d = d;
+            this.tx = tx;
+            this.ty = ty;
+        }
+        /**
+         * @language zh_CN
+         * 复制矩阵。
+         * @param value 需要复制的矩阵。
+         * @version DragonBones 3.0
+         */
+        Matrix.prototype.copyFrom = function (value) {
+            this.a = value.a;
+            this.b = value.b;
+            this.c = value.c;
+            this.d = value.d;
+            this.tx = value.tx;
+            this.ty = value.ty;
+        };
+        /**
+         * @language zh_CN
+         * 转换为恒等矩阵。
+         * @version DragonBones 3.0
+         */
+        Matrix.prototype.identity = function () {
+            this.a = this.d = 1;
+            this.b = this.c = 0;
+            this.tx = this.ty = 0;
+        };
+        /**
+         * @language zh_CN
+         * 将当前矩阵与另一个矩阵相乘。
+         * @param value 需要相乘的矩阵。
+         * @version DragonBones 3.0
+         */
+        Matrix.prototype.concat = function (value) {
+            var aA = this.a;
+            var bA = this.b;
+            var cA = this.c;
+            var dA = this.d;
+            var txA = this.tx;
+            var tyA = this.ty;
+            var aB = value.a;
+            var bB = value.b;
+            var cB = value.c;
+            var dB = value.d;
+            var txB = value.tx;
+            var tyB = value.ty;
+            this.a = aA * aB + bA * cB;
+            this.b = aA * bB + bA * dB;
+            this.c = cA * aB + dA * cB;
+            this.d = cA * bB + dA * dB;
+            this.tx = aB * txA + cB * tyA + txB;
+            this.ty = dB * tyA + bB * txA + tyB;
+            /*
+            [
+                this.a,
+                this.b,
+                this.c,
+                this.d,
+                this.tx,
+                this.ty
+            ] = [
+                this.a * value.a + this.b * value.c,
+                this.a * value.b + this.b * value.d,
+                this.c * value.a + this.d * value.c,
+                this.c * value.b + this.d * value.d,
+                value.a * this.tx + value.c * this.tx + value.tx,
+                value.d * this.ty + value.b * this.ty + value.ty
+            ];
+            */
+        };
+        /**
+         * @language zh_CN
+         * 转换为逆矩阵。
+         * @version DragonBones 3.0
+         */
+        Matrix.prototype.invert = function () {
+            var aA = this.a;
+            var bA = this.b;
+            var cA = this.c;
+            var dA = this.d;
+            var txA = this.tx;
+            var tyA = this.ty;
+            var n = aA * dA - bA * cA;
+            this.a = dA / n;
+            this.b = -bA / n;
+            this.c = -cA / n;
+            this.d = aA / n;
+            this.tx = (cA * tyA - dA * txA) / n;
+            this.ty = -(aA * tyA - bA * txA) / n;
+        };
+        /**
+         * @language zh_CN
+         * 将矩阵转换应用于指定点。
+         * @param x 横坐标。
+         * @param y 纵坐标。
+         * @param result 应用转换之后的坐标。
+         * @params delta 是否忽略 tx，ty 对坐标的转换。
+         * @version DragonBones 3.0
+         */
+        Matrix.prototype.transformPoint = function (x, y, result, delta) {
+            if (delta === void 0) { delta = false; }
+            result.x = this.a * x + this.c * y;
+            result.y = this.b * x + this.d * y;
+            if (!delta) {
+                result.x += this.tx;
+                result.y += this.ty;
+            }
+        };
+        return Matrix;
+    }());
+    dragonBones.Matrix = Matrix;
+})(dragonBones || (dragonBones = {}));
+var dragonBones;
+(function (dragonBones) {
+    /**
+     * @private
+     */
+    var Point = (function () {
+        function Point(x, y) {
+            if (x === void 0) { x = 0; }
+            if (y === void 0) { y = 0; }
+            this.x = x;
+            this.y = y;
+        }
+        Point.prototype.copyFrom = function (value) {
+            this.x = value.x;
+            this.y = value.y;
+        };
+        Point.prototype.clear = function () {
+            this.x = this.y = 0;
+        };
+        return Point;
+    }());
+    dragonBones.Point = Point;
+})(dragonBones || (dragonBones = {}));
+var dragonBones;
+(function (dragonBones) {
+    /**
+     * @private
+     */
+    var Rectangle = (function () {
+        function Rectangle(x, y, width, height) {
+            if (x === void 0) { x = 0; }
+            if (y === void 0) { y = 0; }
+            if (width === void 0) { width = 0; }
+            if (height === void 0) { height = 0; }
+            this.x = x;
+            this.y = y;
+            this.width = width;
+            this.height = height;
+        }
+        Rectangle.prototype.copyFrom = function (value) {
+            this.x = value.x;
+            this.y = value.y;
+            this.width = value.width;
+            this.height = value.height;
+        };
+        Rectangle.prototype.clear = function () {
+            this.x = this.y = 0;
+            this.width = this.height = 0;
+        };
+        return Rectangle;
+    }());
+    dragonBones.Rectangle = Rectangle;
+})(dragonBones || (dragonBones = {}));
+var dragonBones;
+(function (dragonBones) {
+    /**
+     * @language zh_CN
+     * 2D 变换。
+     * @version DragonBones 3.0
+     */
+    var Transform = (function () {
+        /**
+         * @private
+         */
+        function Transform(
+            /**
+             * @language zh_CN
+             * 水平位移。
+             * @version DragonBones 3.0
+             */
+            x, 
+            /**
+             * @language zh_CN
+             * 垂直位移。
+             * @version DragonBones 3.0
+             */
+            y, 
+            /**
+             * @language zh_CN
+             * 水平倾斜。 (以弧度为单位)
+             * @version DragonBones 3.0
+             */
+            skewX, 
+            /**
+             * @language zh_CN
+             * 垂直倾斜。 (以弧度为单位)
+             * @version DragonBones 3.0
+             */
+            skewY, 
+            /**
+             * @language zh_CN
+             * 水平缩放。
+             * @version DragonBones 3.0
+             */
+            scaleX, 
+            /**
+             * @language zh_CN
+             * 垂直缩放。
+             * @version DragonBones 3.0
+             */
+            scaleY) {
+            if (x === void 0) { x = 0; }
+            if (y === void 0) { y = 0; }
+            if (skewX === void 0) { skewX = 0; }
+            if (skewY === void 0) { skewY = 0; }
+            if (scaleX === void 0) { scaleX = 1; }
+            if (scaleY === void 0) { scaleY = 1; }
+            this.x = x;
+            this.y = y;
+            this.skewX = skewX;
+            this.skewY = skewY;
+            this.scaleX = scaleX;
+            this.scaleY = scaleY;
+        }
+        /**
+         * @private
+         */
+        Transform.normalizeRadian = function (value) {
+            value = (value + Math.PI) % (Math.PI * 2);
+            value += value > 0 ? -Math.PI : Math.PI;
+            return value;
+        };
+        /**
+         * @private
+         */
+        Transform.prototype.toString = function () {
+            return "[object dragonBones.Transform] x:" + this.x + " y:" + this.y + " skewX:" + this.skewX * 180 / Math.PI + " skewY:" + this.skewY * 180 / Math.PI + " scaleX:" + this.scaleX + " scaleY:" + this.scaleY;
+        };
+        /**
+         * @private
+         */
+        Transform.prototype.copyFrom = function (value) {
+            this.x = value.x;
+            this.y = value.y;
+            this.skewX = value.skewX;
+            this.skewY = value.skewY;
+            this.scaleX = value.scaleX;
+            this.scaleY = value.scaleY;
+            return this;
+        };
+        /**
+         * @private
+         */
+        Transform.prototype.clone = function () {
+            var value = new Transform();
+            value.copyFrom(this);
+            return value;
+        };
+        /**
+         * @private
+         */
+        Transform.prototype.identity = function () {
+            this.x = this.y = this.skewX = this.skewY = 0;
+            this.scaleX = this.scaleY = 1;
+            return this;
+        };
+        /**
+         * @private
+         */
+        Transform.prototype.add = function (value) {
+            this.x += value.x;
+            this.y += value.y;
+            this.skewX += value.skewX;
+            this.skewY += value.skewY;
+            this.scaleX *= value.scaleX;
+            this.scaleY *= value.scaleY;
+            return this;
+        };
+        /**
+         * @private
+         */
+        Transform.prototype.minus = function (value) {
+            this.x -= value.x;
+            this.y -= value.y;
+            this.skewX = Transform.normalizeRadian(this.skewX - value.skewX);
+            this.skewY = Transform.normalizeRadian(this.skewY - value.skewY);
+            this.scaleX /= value.scaleX;
+            this.scaleY /= value.scaleY;
+            return this;
+        };
+        /**
+         * @private
+         */
+        Transform.prototype.fromMatrix = function (matrix) {
+            var PI_Q = Math.PI * 0.25;
+            var backupScaleX = this.scaleX, backupScaleY = this.scaleY;
+            this.x = matrix.tx;
+            this.y = matrix.ty;
+            this.skewX = Math.atan(-matrix.c / matrix.d);
+            this.skewY = Math.atan(matrix.b / matrix.a);
+            if (this.skewX != this.skewX)
+                this.skewX = 0;
+            if (this.skewY != this.skewY)
+                this.skewY = 0;
+            this.scaleY = (this.skewX > -PI_Q && this.skewX < PI_Q) ? matrix.d / Math.cos(this.skewX) : -matrix.c / Math.sin(this.skewX);
+            this.scaleX = (this.skewY > -PI_Q && this.skewY < PI_Q) ? matrix.a / Math.cos(this.skewY) : matrix.b / Math.sin(this.skewY);
+            if (backupScaleX >= 0 && this.scaleX < 0) {
+                this.scaleX = -this.scaleX;
+                this.skewY = this.skewY - Math.PI;
+            }
+            if (backupScaleY >= 0 && this.scaleY < 0) {
+                this.scaleY = -this.scaleY;
+                this.skewX = this.skewX - Math.PI;
+            }
+            return this;
+        };
+        /**
+         * @language zh_CN
+         * 转换为矩阵。
+         * @param 矩阵。
+         * @version DragonBones 3.0
+         */
+        Transform.prototype.toMatrix = function (matrix) {
+            matrix.a = this.scaleX * Math.cos(this.skewY);
+            matrix.b = this.scaleX * Math.sin(this.skewY);
+            matrix.c = -this.scaleY * Math.sin(this.skewX);
+            matrix.d = this.scaleY * Math.cos(this.skewX);
+            matrix.tx = this.x;
+            matrix.ty = this.y;
+        };
+        Object.defineProperty(Transform.prototype, "rotation", {
+            /**
+             * @language zh_CN
+             * 旋转。 (以弧度为单位)
+             * @version DragonBones 3.0
+             */
+            get: function () {
+                return this.skewY;
+            },
+            set: function (value) {
+                var dValue = value - this.skewY;
+                this.skewX += dValue;
+                this.skewY += dValue;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        return Transform;
+    }());
+    dragonBones.Transform = Transform;
 })(dragonBones || (dragonBones = {}));
 var dragonBones;
 (function (dragonBones) {
@@ -5818,921 +6733,6 @@ var dragonBones;
         return ExtensionFrameData;
     }(TweenFrameData));
     dragonBones.ExtensionFrameData = ExtensionFrameData;
-})(dragonBones || (dragonBones = {}));
-var dragonBones;
-(function (dragonBones) {
-    /**
-     * @private
-     */
-    var TimelineData = (function (_super) {
-        __extends(TimelineData, _super);
-        function TimelineData() {
-            _super.call(this);
-            /**
-             * @private
-             */
-            this.frames = [];
-        }
-        /**
-         * @inheritDoc
-         */
-        TimelineData.prototype._onClear = function () {
-            this.scale = 1;
-            this.offset = 0;
-            if (this.frames.length) {
-                var prevFrame = null;
-                for (var i = 0, l = this.frames.length; i < l; ++i) {
-                    var frame = this.frames[i];
-                    if (prevFrame && frame != prevFrame) {
-                        prevFrame.returnToPool();
-                    }
-                    prevFrame = frame;
-                }
-                this.frames.length = 0;
-            }
-        };
-        return TimelineData;
-    }(dragonBones.BaseObject));
-    dragonBones.TimelineData = TimelineData;
-    /**
-     * @private
-     */
-    var BoneTimelineData = (function (_super) {
-        __extends(BoneTimelineData, _super);
-        function BoneTimelineData() {
-            _super.call(this);
-            this.bone = null;
-            this.originTransform = new dragonBones.Transform();
-            this.cachedFrames = [];
-        }
-        BoneTimelineData.cacheFrame = function (cacheFrames, cacheFrameIndex, globalTransformMatrix) {
-            var cacheMatrix = cacheFrames[cacheFrameIndex] = new dragonBones.Matrix();
-            cacheMatrix.copyFrom(globalTransformMatrix);
-            return cacheMatrix;
-        };
-        BoneTimelineData.toString = function () {
-            return "[Class dragonBones.BoneTimelineData]";
-        };
-        /**
-         * @inheritDoc
-         */
-        BoneTimelineData.prototype._onClear = function () {
-            _super.prototype._onClear.call(this);
-            this.bone = null;
-            this.originTransform.identity();
-            if (this.cachedFrames.length) {
-                this.cachedFrames.length = 0;
-            }
-        };
-        BoneTimelineData.prototype.cacheFrames = function (cacheFrameCount) {
-            this.cachedFrames.length = 0;
-            this.cachedFrames.length = cacheFrameCount;
-        };
-        return BoneTimelineData;
-    }(TimelineData));
-    dragonBones.BoneTimelineData = BoneTimelineData;
-    /**
-     * @private
-     */
-    var SlotTimelineData = (function (_super) {
-        __extends(SlotTimelineData, _super);
-        function SlotTimelineData() {
-            _super.call(this);
-            this.slot = null;
-            this.cachedFrames = [];
-        }
-        SlotTimelineData.cacheFrame = function (cacheFrames, cacheFrameIndex, globalTransformMatrix) {
-            var cacheMatrix = cacheFrames[cacheFrameIndex] = new dragonBones.Matrix();
-            cacheMatrix.copyFrom(globalTransformMatrix);
-            return cacheMatrix;
-        };
-        SlotTimelineData.toString = function () {
-            return "[Class dragonBones.SlotTimelineData]";
-        };
-        /**
-         * @inheritDoc
-         */
-        SlotTimelineData.prototype._onClear = function () {
-            _super.prototype._onClear.call(this);
-            this.slot = null;
-            if (this.cachedFrames) {
-                this.cachedFrames.length = 0;
-            }
-        };
-        SlotTimelineData.prototype.cacheFrames = function (cacheFrameCount) {
-            this.cachedFrames.length = 0;
-            this.cachedFrames.length = cacheFrameCount;
-        };
-        return SlotTimelineData;
-    }(TimelineData));
-    dragonBones.SlotTimelineData = SlotTimelineData;
-    /**
-     * @private
-     */
-    var FFDTimelineData = (function (_super) {
-        __extends(FFDTimelineData, _super);
-        function FFDTimelineData() {
-            _super.call(this);
-            this.displayIndex = 0;
-            this.skin = null;
-            this.slot = null;
-        }
-        FFDTimelineData.toString = function () {
-            return "[Class dragonBones.FFDTimelineData]";
-        };
-        /**
-         * @inheritDoc
-         */
-        FFDTimelineData.prototype._onClear = function () {
-            _super.prototype._onClear.call(this);
-            this.displayIndex = 0;
-            this.skin = null;
-            this.slot = null;
-        };
-        return FFDTimelineData;
-    }(TimelineData));
-    dragonBones.FFDTimelineData = FFDTimelineData;
-})(dragonBones || (dragonBones = {}));
-var dragonBones;
-(function (dragonBones) {
-    /**
-     * @private
-     */
-    var ColorTransform = (function () {
-        function ColorTransform(alphaMultiplier, redMultiplier, greenMultiplier, blueMultiplier, alphaOffset, redOffset, greenOffset, blueOffset) {
-            if (alphaMultiplier === void 0) { alphaMultiplier = 1; }
-            if (redMultiplier === void 0) { redMultiplier = 1; }
-            if (greenMultiplier === void 0) { greenMultiplier = 1; }
-            if (blueMultiplier === void 0) { blueMultiplier = 1; }
-            if (alphaOffset === void 0) { alphaOffset = 0; }
-            if (redOffset === void 0) { redOffset = 0; }
-            if (greenOffset === void 0) { greenOffset = 0; }
-            if (blueOffset === void 0) { blueOffset = 0; }
-            this.alphaMultiplier = alphaMultiplier;
-            this.redMultiplier = redMultiplier;
-            this.greenMultiplier = greenMultiplier;
-            this.blueMultiplier = blueMultiplier;
-            this.alphaOffset = alphaOffset;
-            this.redOffset = redOffset;
-            this.greenOffset = greenOffset;
-            this.blueOffset = blueOffset;
-        }
-        ColorTransform.prototype.copyFrom = function (value) {
-            this.alphaMultiplier = value.alphaMultiplier;
-            this.redMultiplier = value.redMultiplier;
-            this.greenMultiplier = value.greenMultiplier;
-            this.blueMultiplier = value.blueMultiplier;
-            this.alphaOffset = value.alphaOffset;
-            this.redOffset = value.redOffset;
-            this.redOffset = value.redOffset;
-            this.greenOffset = value.blueOffset;
-        };
-        ColorTransform.prototype.identity = function () {
-            this.alphaMultiplier = this.redMultiplier = this.greenMultiplier = this.blueMultiplier = 1;
-            this.alphaOffset = this.redOffset = this.greenOffset = this.blueOffset = 0;
-        };
-        return ColorTransform;
-    }());
-    dragonBones.ColorTransform = ColorTransform;
-})(dragonBones || (dragonBones = {}));
-var dragonBones;
-(function (dragonBones) {
-    /**
-     * @language zh_CN
-     * 2D 矩阵。
-     * @version DragonBones 3.0
-     */
-    var Matrix = (function () {
-        function Matrix(a, b, c, d, tx, ty) {
-            if (a === void 0) { a = 1; }
-            if (b === void 0) { b = 0; }
-            if (c === void 0) { c = 0; }
-            if (d === void 0) { d = 1; }
-            if (tx === void 0) { tx = 0; }
-            if (ty === void 0) { ty = 0; }
-            this.a = a;
-            this.b = b;
-            this.c = c;
-            this.d = d;
-            this.tx = tx;
-            this.ty = ty;
-        }
-        /**
-         * @language zh_CN
-         * 复制矩阵。
-         * @param value 需要复制的矩阵。
-         * @version DragonBones 3.0
-         */
-        Matrix.prototype.copyFrom = function (value) {
-            this.a = value.a;
-            this.b = value.b;
-            this.c = value.c;
-            this.d = value.d;
-            this.tx = value.tx;
-            this.ty = value.ty;
-        };
-        /**
-         * @language zh_CN
-         * 转换为恒等矩阵。
-         * @version DragonBones 3.0
-         */
-        Matrix.prototype.identity = function () {
-            this.a = this.d = 1;
-            this.b = this.c = 0;
-            this.tx = this.ty = 0;
-        };
-        /**
-         * @language zh_CN
-         * 将当前矩阵与另一个矩阵相乘。
-         * @param value 需要相乘的矩阵。
-         * @version DragonBones 3.0
-         */
-        Matrix.prototype.concat = function (value) {
-            var aA = this.a;
-            var bA = this.b;
-            var cA = this.c;
-            var dA = this.d;
-            var txA = this.tx;
-            var tyA = this.ty;
-            var aB = value.a;
-            var bB = value.b;
-            var cB = value.c;
-            var dB = value.d;
-            var txB = value.tx;
-            var tyB = value.ty;
-            this.a = aA * aB + bA * cB;
-            this.b = aA * bB + bA * dB;
-            this.c = cA * aB + dA * cB;
-            this.d = cA * bB + dA * dB;
-            this.tx = aB * txA + cB * tyA + txB;
-            this.ty = dB * tyA + bB * txA + tyB;
-            /*
-            [
-                this.a,
-                this.b,
-                this.c,
-                this.d,
-                this.tx,
-                this.ty
-            ] = [
-                this.a * value.a + this.b * value.c,
-                this.a * value.b + this.b * value.d,
-                this.c * value.a + this.d * value.c,
-                this.c * value.b + this.d * value.d,
-                value.a * this.tx + value.c * this.tx + value.tx,
-                value.d * this.ty + value.b * this.ty + value.ty
-            ];
-            */
-        };
-        /**
-         * @language zh_CN
-         * 转换为逆矩阵。
-         * @version DragonBones 3.0
-         */
-        Matrix.prototype.invert = function () {
-            var aA = this.a;
-            var bA = this.b;
-            var cA = this.c;
-            var dA = this.d;
-            var txA = this.tx;
-            var tyA = this.ty;
-            var n = aA * dA - bA * cA;
-            this.a = dA / n;
-            this.b = -bA / n;
-            this.c = -cA / n;
-            this.d = aA / n;
-            this.tx = (cA * tyA - dA * txA) / n;
-            this.ty = -(aA * tyA - bA * txA) / n;
-        };
-        /**
-         * @language zh_CN
-         * 将矩阵转换应用于指定点。
-         * @param x 横坐标。
-         * @param y 纵坐标。
-         * @param result 应用转换之后的坐标。
-         * @params delta 是否忽略 tx，ty 对坐标的转换。
-         * @version DragonBones 3.0
-         */
-        Matrix.prototype.transformPoint = function (x, y, result, delta) {
-            if (delta === void 0) { delta = false; }
-            result.x = this.a * x + this.c * y;
-            result.y = this.b * x + this.d * y;
-            if (!delta) {
-                result.x += this.tx;
-                result.y += this.ty;
-            }
-        };
-        return Matrix;
-    }());
-    dragonBones.Matrix = Matrix;
-})(dragonBones || (dragonBones = {}));
-var dragonBones;
-(function (dragonBones) {
-    /**
-     * @private
-     */
-    var Point = (function () {
-        function Point(x, y) {
-            if (x === void 0) { x = 0; }
-            if (y === void 0) { y = 0; }
-            this.x = x;
-            this.y = y;
-        }
-        Point.prototype.copyFrom = function (value) {
-            this.x = value.x;
-            this.y = value.y;
-        };
-        Point.prototype.clear = function () {
-            this.x = this.y = 0;
-        };
-        return Point;
-    }());
-    dragonBones.Point = Point;
-})(dragonBones || (dragonBones = {}));
-var dragonBones;
-(function (dragonBones) {
-    /**
-     * @private
-     */
-    var Rectangle = (function () {
-        function Rectangle(x, y, width, height) {
-            if (x === void 0) { x = 0; }
-            if (y === void 0) { y = 0; }
-            if (width === void 0) { width = 0; }
-            if (height === void 0) { height = 0; }
-            this.x = x;
-            this.y = y;
-            this.width = width;
-            this.height = height;
-        }
-        Rectangle.prototype.copyFrom = function (value) {
-            this.x = value.x;
-            this.y = value.y;
-            this.width = value.width;
-            this.height = value.height;
-        };
-        Rectangle.prototype.clear = function () {
-            this.x = this.y = 0;
-            this.width = this.height = 0;
-        };
-        return Rectangle;
-    }());
-    dragonBones.Rectangle = Rectangle;
-})(dragonBones || (dragonBones = {}));
-var dragonBones;
-(function (dragonBones) {
-    /**
-     * @language zh_CN
-     * 2D 变换。
-     * @version DragonBones 3.0
-     */
-    var Transform = (function () {
-        /**
-         * @private
-         */
-        function Transform(
-            /**
-             * @language zh_CN
-             * 水平位移。
-             * @version DragonBones 3.0
-             */
-            x, 
-            /**
-             * @language zh_CN
-             * 垂直位移。
-             * @version DragonBones 3.0
-             */
-            y, 
-            /**
-             * @language zh_CN
-             * 水平倾斜。 (以弧度为单位)
-             * @version DragonBones 3.0
-             */
-            skewX, 
-            /**
-             * @language zh_CN
-             * 垂直倾斜。 (以弧度为单位)
-             * @version DragonBones 3.0
-             */
-            skewY, 
-            /**
-             * @language zh_CN
-             * 水平缩放。
-             * @version DragonBones 3.0
-             */
-            scaleX, 
-            /**
-             * @language zh_CN
-             * 垂直缩放。
-             * @version DragonBones 3.0
-             */
-            scaleY) {
-            if (x === void 0) { x = 0; }
-            if (y === void 0) { y = 0; }
-            if (skewX === void 0) { skewX = 0; }
-            if (skewY === void 0) { skewY = 0; }
-            if (scaleX === void 0) { scaleX = 1; }
-            if (scaleY === void 0) { scaleY = 1; }
-            this.x = x;
-            this.y = y;
-            this.skewX = skewX;
-            this.skewY = skewY;
-            this.scaleX = scaleX;
-            this.scaleY = scaleY;
-        }
-        /**
-         * @private
-         */
-        Transform.normalizeRadian = function (value) {
-            value = (value + Math.PI) % (Math.PI * 2);
-            value += value > 0 ? -Math.PI : Math.PI;
-            return value;
-        };
-        /**
-         * @private
-         */
-        Transform.prototype.toString = function () {
-            return "[object dragonBones.Transform] x:" + this.x + " y:" + this.y + " skewX:" + this.skewX * 180 / Math.PI + " skewY:" + this.skewY * 180 / Math.PI + " scaleX:" + this.scaleX + " scaleY:" + this.scaleY;
-        };
-        /**
-         * @private
-         */
-        Transform.prototype.copyFrom = function (value) {
-            this.x = value.x;
-            this.y = value.y;
-            this.skewX = value.skewX;
-            this.skewY = value.skewY;
-            this.scaleX = value.scaleX;
-            this.scaleY = value.scaleY;
-            return this;
-        };
-        /**
-         * @private
-         */
-        Transform.prototype.clone = function () {
-            var value = new Transform();
-            value.copyFrom(this);
-            return value;
-        };
-        /**
-         * @private
-         */
-        Transform.prototype.identity = function () {
-            this.x = this.y = this.skewX = this.skewY = 0;
-            this.scaleX = this.scaleY = 1;
-            return this;
-        };
-        /**
-         * @private
-         */
-        Transform.prototype.add = function (value) {
-            this.x += value.x;
-            this.y += value.y;
-            this.skewX += value.skewX;
-            this.skewY += value.skewY;
-            this.scaleX *= value.scaleX;
-            this.scaleY *= value.scaleY;
-            return this;
-        };
-        /**
-         * @private
-         */
-        Transform.prototype.minus = function (value) {
-            this.x -= value.x;
-            this.y -= value.y;
-            this.skewX = Transform.normalizeRadian(this.skewX - value.skewX);
-            this.skewY = Transform.normalizeRadian(this.skewY - value.skewY);
-            this.scaleX /= value.scaleX;
-            this.scaleY /= value.scaleY;
-            return this;
-        };
-        /**
-         * @private
-         */
-        Transform.prototype.fromMatrix = function (matrix) {
-            var PI_Q = Math.PI * 0.25;
-            var backupScaleX = this.scaleX, backupScaleY = this.scaleY;
-            this.x = matrix.tx;
-            this.y = matrix.ty;
-            this.skewX = Math.atan(-matrix.c / matrix.d);
-            this.skewY = Math.atan(matrix.b / matrix.a);
-            if (this.skewX != this.skewX)
-                this.skewX = 0;
-            if (this.skewY != this.skewY)
-                this.skewY = 0;
-            this.scaleY = (this.skewX > -PI_Q && this.skewX < PI_Q) ? matrix.d / Math.cos(this.skewX) : -matrix.c / Math.sin(this.skewX);
-            this.scaleX = (this.skewY > -PI_Q && this.skewY < PI_Q) ? matrix.a / Math.cos(this.skewY) : matrix.b / Math.sin(this.skewY);
-            if (backupScaleX >= 0 && this.scaleX < 0) {
-                this.scaleX = -this.scaleX;
-                this.skewY = this.skewY - Math.PI;
-            }
-            if (backupScaleY >= 0 && this.scaleY < 0) {
-                this.scaleY = -this.scaleY;
-                this.skewX = this.skewX - Math.PI;
-            }
-            return this;
-        };
-        /**
-         * @language zh_CN
-         * 转换为矩阵。
-         * @param 矩阵。
-         * @version DragonBones 3.0
-         */
-        Transform.prototype.toMatrix = function (matrix) {
-            matrix.a = this.scaleX * Math.cos(this.skewY);
-            matrix.b = this.scaleX * Math.sin(this.skewY);
-            matrix.c = -this.scaleY * Math.sin(this.skewX);
-            matrix.d = this.scaleY * Math.cos(this.skewX);
-            matrix.tx = this.x;
-            matrix.ty = this.y;
-        };
-        Object.defineProperty(Transform.prototype, "rotation", {
-            /**
-             * @language zh_CN
-             * 旋转。 (以弧度为单位)
-             * @version DragonBones 3.0
-             */
-            get: function () {
-                return this.skewY;
-            },
-            set: function (value) {
-                var dValue = value - this.skewY;
-                this.skewX += dValue;
-                this.skewY += dValue;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        return Transform;
-    }());
-    dragonBones.Transform = Transform;
-})(dragonBones || (dragonBones = {}));
-var dragonBones;
-(function (dragonBones) {
-    /**
-     * @private
-     */
-    var DataParser = (function () {
-        function DataParser() {
-            this._data = null;
-            this._armature = null;
-            this._skin = null;
-            this._slotDisplayDataSet = null;
-            this._mesh = null;
-            this._animation = null;
-            this._timeline = null;
-            this._isParentCooriinate = false;
-            this._isAutoTween = false;
-            this._animationTweenEasing = 0;
-            this._armatureScale = 1;
-            this._helpPoint = new dragonBones.Point();
-            this._helpTransform = new dragonBones.Transform();
-            this._helpMatrix = new dragonBones.Matrix();
-            this._rawBones = [];
-        }
-        DataParser._getArmatureType = function (value) {
-            switch (value.toLowerCase()) {
-                case "stage":
-                    return 0 /* Armature */;
-                case "armature":
-                    return 0 /* Armature */;
-                case "movieClip":
-                    return 1 /* MovieClip */;
-                default:
-                    return 0 /* Armature */;
-            }
-        };
-        DataParser._getDisplayType = function (value) {
-            switch (value.toLowerCase()) {
-                case "image":
-                    return 0 /* Image */;
-                case "armature":
-                    return 1 /* Armature */;
-                case "mesh":
-                    return 2 /* Mesh */;
-                default:
-                    return 0 /* Image */;
-            }
-        };
-        DataParser._getBlendMode = function (value) {
-            switch (value.toLowerCase()) {
-                case "normal":
-                    return 0 /* Normal */;
-                case "add":
-                    return 1 /* Add */;
-                case "alpha":
-                    return 2 /* Alpha */;
-                case "darken":
-                    return 3 /* Darken */;
-                case "difference":
-                    return 4 /* Difference */;
-                case "erase":
-                    return 5 /* Erase */;
-                case "hardlight":
-                    return 6 /* HardLight */;
-                case "invert":
-                    return 7 /* Invert */;
-                case "layer":
-                    return 8 /* Layer */;
-                case "lighten":
-                    return 9 /* Lighten */;
-                case "multiply":
-                    return 10 /* Multiply */;
-                case "overlay":
-                    return 11 /* Overlay */;
-                case "screen":
-                    return 12 /* Screen */;
-                case "subtract":
-                    return 13 /* Subtract */;
-                default:
-                    return 0 /* Normal */;
-            }
-        };
-        DataParser._getActionType = function (value) {
-            switch (value.toLowerCase()) {
-                case "play":
-                    return 0 /* Play */;
-                case "stop":
-                    return 1 /* Stop */;
-                case "gotoandplay":
-                    return 2 /* GotoAndPlay */;
-                case "gotoandstop":
-                    return 3 /* GotoAndStop */;
-                case "fadein":
-                    return 4 /* FadeIn */;
-                case "fadeout":
-                    return 5 /* FadeOut */;
-                default:
-                    return 4 /* FadeIn */;
-            }
-        };
-        DataParser.prototype._getTimelineFrameMatrix = function (animation, timeline, position, transform) {
-            var frameIndex = Math.floor(position * animation.frameCount / animation.duration); // uint()
-            if (timeline.frames.length == 1 || frameIndex >= timeline.frames.length) {
-                transform.copyFrom(timeline.frames[0].transform);
-            }
-            else {
-                var frame = timeline.frames[frameIndex];
-                var tweenProgress = 0;
-                if (frame.duration > 0 && frame.tweenEasing != dragonBones.DragonBones.NO_TWEEN) {
-                    tweenProgress = (position - frame.position) / frame.duration;
-                    if (frame.tweenEasing != 0) {
-                        tweenProgress = dragonBones.TweenTimelineState._getEasingValue(tweenProgress, frame.tweenEasing);
-                    }
-                }
-                else if (frame.curve) {
-                    tweenProgress = (position - frame.position) / frame.duration;
-                    tweenProgress = dragonBones.TweenTimelineState._getCurveEasingValue(tweenProgress, frame.curve);
-                }
-                transform.copyFrom(frame.next.transform);
-                transform.minus(frame.transform);
-                transform.x = frame.transform.x + transform.x * tweenProgress;
-                transform.y = frame.transform.y + transform.y * tweenProgress;
-                transform.skewX = frame.transform.skewX + transform.skewX * tweenProgress;
-                transform.skewY = frame.transform.skewY + transform.skewY * tweenProgress;
-                transform.scaleX = frame.transform.scaleX + transform.scaleX * tweenProgress;
-                transform.scaleY = frame.transform.scaleY + transform.scaleY * tweenProgress;
-                transform.add(timeline.originTransform);
-            }
-        };
-        DataParser.prototype._mergeFrameToAnimationTimeline = function (frame, actions, events) {
-            var frameStart = Math.floor(frame.position * this._armature.frameRate); // uint()
-            var frames = this._animation.frames;
-            if (frames.length == 0) {
-                var startFrame = dragonBones.BaseObject.borrowObject(dragonBones.AnimationFrameData); // Add start frame.
-                startFrame.position = 0;
-                if (this._animation.frameCount > 1) {
-                    frames.length = this._animation.frameCount + 1; // One more count for zero duration frame.
-                    var endFrame = dragonBones.BaseObject.borrowObject(dragonBones.AnimationFrameData); // Add end frame to keep animation timeline has two different frames atleast.
-                    endFrame.position = this._animation.frameCount / this._armature.frameRate;
-                    frames[0] = startFrame;
-                    frames[this._animation.frameCount] = endFrame;
-                }
-            }
-            var insertedFrame = null;
-            var replacedFrame = frames[frameStart];
-            if (replacedFrame && (frameStart == 0 || frames[frameStart - 1] == replacedFrame.prev)) {
-                insertedFrame = replacedFrame;
-            }
-            else {
-                insertedFrame = dragonBones.BaseObject.borrowObject(dragonBones.AnimationFrameData); // Create frame.
-                insertedFrame.position = frameStart / this._armature.frameRate;
-                frames[frameStart] = insertedFrame;
-                for (var i = frameStart + 1, l = frames.length; i < l; ++i) {
-                    if (replacedFrame && frames[i] == replacedFrame) {
-                        frames[i] = null;
-                    }
-                }
-            }
-            if (actions) {
-                for (var i = 0, l = actions.length; i < l; ++i) {
-                    insertedFrame.actions.push(actions[i]);
-                }
-            }
-            if (events) {
-                for (var i = 0, l = events.length; i < l; ++i) {
-                    insertedFrame.events.push(events[i]);
-                }
-            }
-            // Modify frame link and duration.
-            var prevFrame = null;
-            var nextFrame = null;
-            for (var i = 0, l = frames.length; i < l; ++i) {
-                var currentFrame = frames[i];
-                if (currentFrame && nextFrame != currentFrame) {
-                    nextFrame = currentFrame;
-                    if (prevFrame) {
-                        nextFrame.prev = prevFrame;
-                        prevFrame.next = nextFrame;
-                        prevFrame.duration = nextFrame.position - prevFrame.position;
-                    }
-                    prevFrame = nextFrame;
-                }
-                else {
-                    frames[i] = prevFrame;
-                }
-            }
-            nextFrame.duration = this._animation.duration - nextFrame.position;
-            nextFrame = frames[0];
-            prevFrame.next = nextFrame;
-            nextFrame.prev = prevFrame;
-        };
-        DataParser.prototype._globalToLocal = function (armature) {
-            var bones = armature.sortedBones.reverse();
-            for (var i = 0, l = bones.length; i < l; ++i) {
-                var bone = bones[i];
-                if (bone.parent) {
-                    bone.parent.transform.toMatrix(this._helpMatrix);
-                    this._helpMatrix.transformPoint(bone.transform.x, bone.transform.y, bone.transform);
-                    bone.transform.rotation += bone.transform.rotation - bone.parent.transform.rotation;
-                }
-            }
-            for (var i in armature.animations) {
-                var animation = armature.animations[i];
-                var timelines = animation.boneTimelines;
-                for (var i_4 in timelines) {
-                    var timeline = timelines[i_4];
-                    if (timeline.bone.parent) {
-                        var parentTimeline = animation.getBoneTimeline(timeline.bone.parent.name);
-                        for (var i_5 = 0, l = timeline.frames.length; i_5 < l; ++i_5) {
-                            var frame = timeline.frames[i_5];
-                            this._getTimelineFrameMatrix(animation, parentTimeline, frame.position, this._helpTransform);
-                            frame.transform.add(timeline.originTransform);
-                            this._helpTransform.toMatrix(this._helpMatrix);
-                            this._helpMatrix.transformPoint(frame.transform.x, frame.transform.y, frame.transform);
-                            frame.transform.rotation += frame.transform.rotation - this._helpTransform.rotation;
-                        }
-                    }
-                    this._helpTransform.copyFrom(timeline.originTransform);
-                    for (var i_6 = 0, l = timeline.frames.length; i_6 < l; ++i_6) {
-                        var frame = timeline.frames[i_6];
-                        frame.transform.add(this._helpTransform);
-                        frame.transform.minus(timeline.bone.transform);
-                        if (i_6 == 0) {
-                            timeline.originTransform.copyFrom(frame.transform);
-                            frame.transform.identity();
-                        }
-                        else {
-                            frame.transform.minus(timeline.originTransform);
-                        }
-                    }
-                }
-            }
-        };
-        /**
-         * @deprecated
-         * @see dragonBones.BaseFactory#parseDragonBonesData()
-         */
-        DataParser.parseDragonBonesData = function (rawData) {
-            return dragonBones.ObjectDataParser.getInstance().parseDragonBonesData(rawData);
-        };
-        /**
-         * @deprecated
-         * @see dragonBones.BaseFactory#parsetTextureAtlasData()
-         */
-        DataParser.parseTextureAtlasData = function (rawData, scale) {
-            if (scale === void 0) { scale = 1; }
-            var textureAtlasData = {};
-            var subTextureFrame = null;
-            var subTextureList = rawData[DataParser.SUB_TEXTURE];
-            for (var i = 0, len = subTextureList.length; i < len; i++) {
-                var subTextureObject = subTextureList[i];
-                var subTextureName = subTextureObject[DataParser.NAME];
-                var subTextureRegion = new dragonBones.Rectangle();
-                subTextureRegion.x = subTextureObject[DataParser.X] / scale;
-                subTextureRegion.y = subTextureObject[DataParser.Y] / scale;
-                subTextureRegion.width = subTextureObject[DataParser.WIDTH] / scale;
-                subTextureRegion.height = subTextureObject[DataParser.HEIGHT] / scale;
-                if (DataParser.FRAME_WIDTH in subTextureObject) {
-                    subTextureFrame = new dragonBones.Rectangle();
-                    subTextureFrame.x = subTextureObject[DataParser.FRAME_X] / scale;
-                    subTextureFrame.y = subTextureObject[DataParser.FRAME_Y] / scale;
-                    subTextureFrame.width = subTextureObject[DataParser.FRAME_WIDTH] / scale;
-                    subTextureFrame.height = subTextureObject[DataParser.FRAME_HEIGHT] / scale;
-                }
-                else {
-                    subTextureFrame = null;
-                }
-                textureAtlasData[subTextureName] = { region: subTextureRegion, frame: subTextureFrame, rotated: false };
-            }
-            return textureAtlasData;
-        };
-        DataParser.DATA_VERSION_2_3 = "2.3";
-        DataParser.DATA_VERSION_3_0 = "3.0";
-        DataParser.DATA_VERSION_4_0 = "4.0";
-        DataParser.DATA_VERSION = "4.5";
-        DataParser.TEXTURE_ATLAS = "TextureAtlas";
-        DataParser.SUB_TEXTURE = "SubTexture";
-        DataParser.FORMAT = "format";
-        DataParser.IMAGE_PATH = "imagePath";
-        DataParser.WIDTH = "width";
-        DataParser.HEIGHT = "height";
-        DataParser.ROTATED = "rotated";
-        DataParser.FRAME_X = "frameX";
-        DataParser.FRAME_Y = "frameY";
-        DataParser.FRAME_WIDTH = "frameWidth";
-        DataParser.FRAME_HEIGHT = "frameHeight";
-        DataParser.DRADON_BONES = "dragonBones";
-        DataParser.ARMATURE = "armature";
-        DataParser.BONE = "bone";
-        DataParser.IK = "ik";
-        DataParser.SLOT = "slot";
-        DataParser.SKIN = "skin";
-        DataParser.DISPLAY = "display";
-        DataParser.ANIMATION = "animation";
-        DataParser.FFD = "ffd";
-        DataParser.FRAME = "frame";
-        DataParser.PIVOT = "pivot";
-        DataParser.TRANSFORM = "transform";
-        DataParser.COLOR = "color";
-        DataParser.FILTER = "filter";
-        DataParser.VERSION = "version";
-        DataParser.IS_GLOBAL = "isGlobal";
-        DataParser.FRAME_RATE = "frameRate";
-        DataParser.TYPE = "type";
-        DataParser.NAME = "name";
-        DataParser.PARENT = "parent";
-        DataParser.LENGTH = "length";
-        DataParser.DATA = "data";
-        DataParser.DISPLAY_INDEX = "displayIndex";
-        DataParser.Z_ORDER = "z";
-        DataParser.BLEND_MODE = "blendMode";
-        DataParser.INHERIT_TRANSLATION = "inheritTranslation";
-        DataParser.INHERIT_ROTATION = "inheritRotation";
-        DataParser.INHERIT_SCALE = "inheritScale";
-        DataParser.TARGET = "target";
-        DataParser.BEND_POSITIVE = "bendPositive";
-        DataParser.CHAIN = "chain";
-        DataParser.WEIGHT = "weight";
-        DataParser.FADE_IN_TIME = "fadeInTime";
-        DataParser.PLAY_TIMES = "playTimes";
-        DataParser.SCALE = "scale";
-        DataParser.OFFSET = "offset";
-        DataParser.POSITION = "position";
-        DataParser.DURATION = "duration";
-        DataParser.TWEEN_EASING = "tweenEasing";
-        DataParser.TWEEN_ROTATE = "tweenRotate";
-        DataParser.TWEEN_SCALE = "tweenScale";
-        DataParser.CURVE = "curve";
-        DataParser.EVENT = "event";
-        DataParser.SOUND = "sound";
-        DataParser.ACTION = "action";
-        DataParser.ACTIONS = "actions";
-        DataParser.DEFAULT_ACTIONS = "defaultActions";
-        DataParser.X = "x";
-        DataParser.Y = "y";
-        DataParser.SKEW_X = "skX";
-        DataParser.SKEW_Y = "skY";
-        DataParser.SCALE_X = "scX";
-        DataParser.SCALE_Y = "scY";
-        DataParser.ALPHA_OFFSET = "aO";
-        DataParser.RED_OFFSET = "rO";
-        DataParser.GREEN_OFFSET = "gO";
-        DataParser.BLUE_OFFSET = "bO";
-        DataParser.ALPHA_MULTIPLIER = "aM";
-        DataParser.RED_MULTIPLIER = "rM";
-        DataParser.GREEN_MULTIPLIER = "gM";
-        DataParser.BLUE_MULTIPLIER = "bM";
-        DataParser.UVS = "uvs";
-        DataParser.VERTICES = "vertices";
-        DataParser.TRIANGLES = "triangles";
-        DataParser.WEIGHTS = "weights";
-        DataParser.SLOT_POSE = "slotPose";
-        DataParser.BONE_POSE = "bonePose";
-        DataParser.TWEEN = "tween";
-        DataParser.KEY = "key";
-        DataParser.COLOR_TRANSFORM = "colorTransform";
-        DataParser.TIMELINE = "timeline";
-        DataParser.PIVOT_X = "pX";
-        DataParser.PIVOT_Y = "pY";
-        DataParser.LOOP = "loop";
-        DataParser.AUTO_TWEEN = "autoTween";
-        DataParser.HIDE = "hide";
-        DataParser.RECTANGLE = "rectangle";
-        DataParser.ELLIPSE = "ellipse";
-        return DataParser;
-    }());
-    dragonBones.DataParser = DataParser;
 })(dragonBones || (dragonBones = {}));
 var dragonBones;
 (function (dragonBones) {

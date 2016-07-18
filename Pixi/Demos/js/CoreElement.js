@@ -15,8 +15,7 @@ var demosPixi;
                 Game.instance = this;
                 this._init();
             }
-            var d = __define,c=Game,p=c.prototype;
-            p._init = function () {
+            Game.prototype._init = function () {
                 Game.STAGE_WIDTH = this.renderer.width;
                 Game.STAGE_HEIGHT = this.renderer.height;
                 Game.GROUND = Game.STAGE_HEIGHT - 100;
@@ -29,7 +28,7 @@ var demosPixi;
                 PIXI.loader.once("complete", this._loadComplateHandler, this);
                 PIXI.loader.load();
             };
-            p._loadComplateHandler = function (loader, object) {
+            Game.prototype._loadComplateHandler = function (loader, object) {
                 this.factory.parseDragonBonesData(object["dragonBonesData"].data);
                 this.factory.parseTextureAtlasData(object["textureDataA"].data, object["textureA"].texture);
                 this.stage.interactive = true;
@@ -53,10 +52,10 @@ var demosPixi;
                 text.text = "Press W/A/S/D to move. Press Q/E/SPACE to switch weapons.\nMouse Move to aim. Click to fire.";
                 this.stage.addChild(text);
             };
-            p.addBullet = function (bullet) {
+            Game.prototype.addBullet = function (bullet) {
                 this._bullets.push(bullet);
             };
-            p._touchHandler = function (event) {
+            Game.prototype._touchHandler = function (event) {
                 this._player.aim(event.data.global.x, event.data.global.y);
                 if (event.type == 'touchstart' || event.type == 'mousedown') {
                     this._player.attack(true);
@@ -65,7 +64,7 @@ var demosPixi;
                     this._player.attack(false);
                 }
             };
-            p._keyHandler = function (event) {
+            Game.prototype._keyHandler = function (event) {
                 var isDown = event.type == "keydown";
                 switch (event.keyCode) {
                     case 37:
@@ -106,7 +105,7 @@ var demosPixi;
                         break;
                 }
             };
-            p._renderHandler = function (deltaTime) {
+            Game.prototype._renderHandler = function (deltaTime) {
                 if (this._player) {
                     this._player.update();
                 }
@@ -120,7 +119,7 @@ var demosPixi;
                 dragonBones.WorldClock.clock.advanceTime(-1);
                 this.renderer.render(this.stage);
             };
-            p._updateMove = function (dir) {
+            Game.prototype._updateMove = function (dir) {
                 if (this._left && this._right) {
                     this._player.move(dir);
                 }
@@ -142,7 +141,6 @@ var demosPixi;
             return Game;
         }());
         coreElement.Game = Game;
-        egret.registerClass(Game,'demosPixi.coreElement.Game');
         var Mecha = (function () {
             function Mecha() {
                 this._isJumpingA = false;
@@ -185,15 +183,14 @@ var demosPixi;
                 Game.instance.stage.addChild(this._armatureDisplay);
                 dragonBones.WorldClock.clock.add(this._armature);
             }
-            var d = __define,c=Mecha,p=c.prototype;
-            p.move = function (dir) {
+            Mecha.prototype.move = function (dir) {
                 if (this._moveDir == dir) {
                     return;
                 }
                 this._moveDir = dir;
                 this._updateAnimation();
             };
-            p.jump = function () {
+            Mecha.prototype.jump = function () {
                 if (this._isJumpingA) {
                     return;
                 }
@@ -201,20 +198,20 @@ var demosPixi;
                 this._armature.animation.fadeIn("jump_1", -1, -1, 0, Mecha.NORMAL_ANIMATION_GROUP);
                 this._walkState = null;
             };
-            p.squat = function (isSquating) {
+            Mecha.prototype.squat = function (isSquating) {
                 if (this._isSquating == isSquating) {
                     return;
                 }
                 this._isSquating = isSquating;
                 this._updateAnimation();
             };
-            p.attack = function (isAttacking) {
+            Mecha.prototype.attack = function (isAttacking) {
                 if (this._isAttackingA == isAttacking) {
                     return;
                 }
                 this._isAttackingA = isAttacking;
             };
-            p.switchWeaponR = function () {
+            Mecha.prototype.switchWeaponR = function () {
                 this._weaponRIndex++;
                 if (this._weaponRIndex >= Mecha.WEAPON_R_LIST.length) {
                     this._weaponRIndex = 0;
@@ -225,7 +222,7 @@ var demosPixi;
                 this._armature.getSlot("weapon_r").childArmature = this._weaponR;
                 this._weaponR.addEventListener(dragonBones.EventObject.FRAME_EVENT, this._frameEventHandler, this);
             };
-            p.switchWeaponL = function () {
+            Mecha.prototype.switchWeaponL = function () {
                 this._weaponLIndex++;
                 if (this._weaponLIndex >= Mecha.WEAPON_L_LIST.length) {
                     this._weaponLIndex = 0;
@@ -236,19 +233,19 @@ var demosPixi;
                 this._armature.getSlot("weapon_l").childArmature = this._weaponL;
                 this._weaponL.addEventListener(dragonBones.EventObject.FRAME_EVENT, this._frameEventHandler, this);
             };
-            p.aim = function (x, y) {
+            Mecha.prototype.aim = function (x, y) {
                 if (this._aimDir == 0) {
                     this._aimDir = 10;
                 }
                 this._target.x = x;
                 this._target.y = y;
             };
-            p.update = function () {
+            Mecha.prototype.update = function () {
                 this._updatePosition();
                 this._updateAim();
                 this._updateAttack();
             };
-            p._animationEventHandler = function (event) {
+            Mecha.prototype._animationEventHandler = function (event) {
                 switch (event.type) {
                     case dragonBones.EventObject.FADE_IN_COMPLETE:
                         if (event.animationState.name == "jump_1") {
@@ -268,7 +265,7 @@ var demosPixi;
                         break;
                 }
             };
-            p._frameEventHandler = function (event) {
+            Mecha.prototype._frameEventHandler = function (event) {
                 if (event.name == "onFire") {
                     var firePointBone = event.armature.getBone("firePoint");
                     Mecha._globalPoint.x = firePointBone.global.x;
@@ -277,14 +274,14 @@ var demosPixi;
                     this._fire(Mecha._globalPoint);
                 }
             };
-            p._fire = function (firePoint) {
+            Mecha.prototype._fire = function (firePoint) {
                 firePoint.x += Math.random() * 2 - 1;
                 firePoint.y += Math.random() * 2 - 1;
                 var radian = this._faceDir < 0 ? Math.PI - this._aimRadian : this._aimRadian;
                 var bullet = new Bullet("bullet_01", "fireEffect_01", radian + Math.random() * 0.02 - 0.01, 40, firePoint);
                 Game.instance.addBullet(bullet);
             };
-            p._updateAnimation = function () {
+            Mecha.prototype._updateAnimation = function () {
                 if (this._isJumpingA) {
                     return;
                 }
@@ -317,7 +314,7 @@ var demosPixi;
                     }
                 }
             };
-            p._updatePosition = function () {
+            Mecha.prototype._updatePosition = function () {
                 if (this._speedX != 0) {
                     this._armatureDisplay.x += this._speedX;
                     if (this._armatureDisplay.x < 0) {
@@ -346,7 +343,7 @@ var demosPixi;
                     }
                 }
             };
-            p._updateAim = function () {
+            Mecha.prototype._updateAim = function () {
                 if (this._aimDir == 0) {
                     return;
                 }
@@ -388,7 +385,7 @@ var demosPixi;
                 //_armature.invalidUpdate("pelvis"); // Only update bone mask.
                 this._armature.invalidUpdate();
             };
-            p._updateAttack = function () {
+            Mecha.prototype._updateAttack = function () {
                 if (!this._isAttackingA || this._isAttackingB) {
                     return;
                 }
@@ -410,7 +407,6 @@ var demosPixi;
             Mecha._globalPoint = new PIXI.Point();
             return Mecha;
         }());
-        egret.registerClass(Mecha,'Mecha');
         var Bullet = (function () {
             function Bullet(armatureName, effectArmatureName, radian, speed, position) {
                 this._speedX = 0;
@@ -443,8 +439,7 @@ var demosPixi;
                 dragonBones.WorldClock.clock.add(this._armature);
                 Game.instance.stage.addChild(this._armatureDisplay);
             }
-            var d = __define,c=Bullet,p=c.prototype;
-            p.update = function () {
+            Bullet.prototype.update = function () {
                 this._armatureDisplay.x += this._speedX;
                 this._armatureDisplay.y += this._speedY;
                 if (this._armatureDisplay.x < -100 || this._armatureDisplay.x >= Game.STAGE_WIDTH + 100 ||
@@ -463,7 +458,5 @@ var demosPixi;
             };
             return Bullet;
         }());
-        egret.registerClass(Bullet,'Bullet');
     })(coreElement = demosPixi.coreElement || (demosPixi.coreElement = {}));
 })(demosPixi || (demosPixi = {}));
-//# sourceMappingURL=CoreElement.js.map
