@@ -40,6 +40,10 @@ namespace dragonBones {
          */
         public name: string;
         /**
+         * @private
+         */
+        public parent: DragonBonesData = null;
+        /**
          * @language zh_CN
          * 所有的骨骼数据。
          * @see dragonBones.BoneData
@@ -93,6 +97,7 @@ namespace dragonBones {
             this.cacheFrameRate = 0;
             this.type = ArmatureType.Armature;
             this.name = null;
+            this.parent = null;
 
             for (let i in this.bones) {
                 this.bones[i].returnToPool();

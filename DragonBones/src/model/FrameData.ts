@@ -181,7 +181,6 @@ namespace dragonBones {
 
         public tweenScale: boolean;
         public tweenRotate: number;
-        public parent: BoneData;
         public transform: Transform = new Transform();
 
         public constructor() {
@@ -195,7 +194,6 @@ namespace dragonBones {
 
             this.tweenScale = false;
             this.tweenRotate = 0;
-            this.parent = null;
             this.transform.identity();
         }
     }

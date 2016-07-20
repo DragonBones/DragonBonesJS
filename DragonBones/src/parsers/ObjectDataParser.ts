@@ -549,6 +549,16 @@ namespace dragonBones {
                 if (!prevFrame) {
                     originTransform.copyFrom(frame.transform);
                     frame.transform.identity();
+
+                    if (originTransform.scaleX == 0) {
+                        originTransform.scaleX = 0.001;
+                        //frame.transform.scaleX = 0;
+                    }
+
+                    if (originTransform.scaleY == 0) {
+                        originTransform.scaleY = 0.001;
+                        //frame.transform.scaleY = 0;
+                    }
                 } else if (prevFrame != frame) {
                     frame.transform.minus(originTransform);
                 }
@@ -628,7 +638,6 @@ namespace dragonBones {
          */
         protected _parseBoneFrame(rawData: Object, frameStart: number, frameCount: number): BoneFrameData {
             const frame = BaseObject.borrowObject(BoneFrameData);
-            // frame.parent = this._armature.getBone(ObjectDataParser._getString(rawData, ObjectDataParser.PARENT, null)); // TODO
             frame.tweenRotate = ObjectDataParser._getNumber(rawData, ObjectDataParser.TWEEN_ROTATE, 0);
             frame.tweenScale = ObjectDataParser._getBoolean(rawData, ObjectDataParser.TWEEN_SCALE, true);
 
@@ -742,11 +751,11 @@ namespace dragonBones {
             if (ObjectDataParser.TWEEN_EASING in rawData) {
                 frame.tweenEasing = ObjectDataParser._getNumber(rawData, ObjectDataParser.TWEEN_EASING, DragonBones.NO_TWEEN);
             } else if (this._isParentCooriinate) { // Support 2.x ~ 3.x data.
-                if (this._animation.scale == 1 && (<TimelineData<T>>this._timeline).scale == 1 && frame.duration * this._armature.frameRate < 2) {
-                    frame.tweenEasing = DragonBones.NO_TWEEN;
-                } else {
-                    frame.tweenEasing = this._isAutoTween ? this._animationTweenEasing : DragonBones.NO_TWEEN;
-                }
+                frame.tweenEasing = this._isAutoTween ? this._animationTweenEasing : DragonBones.NO_TWEEN;
+            }
+
+            if (this._isParentCooriinate && this._animation.scale == 1 && (<TimelineData<T>>this._timeline).scale == 1 && frame.duration * this._armature.frameRate < 2) {
+                frame.tweenEasing = DragonBones.NO_TWEEN;
             }
 
             if (ObjectDataParser.CURVE in rawData) {

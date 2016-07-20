@@ -48,7 +48,6 @@ namespace dragonBones {
         public constructor() {
             super();
         }
-
         /**
          * @inheritDoc
          */
@@ -66,7 +65,6 @@ namespace dragonBones {
                 this._armatureNames.length = 0;
             }
         }
-
         /**
          * @language zh_CN
          * 获取指定名称的骨架。
@@ -77,7 +75,6 @@ namespace dragonBones {
         public getArmature(name: string): ArmatureData {
             return this.armatures[name];
         }
-
         /**
          * @private
          */
@@ -85,11 +82,11 @@ namespace dragonBones {
             if (value && value.name && !this.armatures[value.name]) {
                 this.armatures[value.name] = value;
                 this._armatureNames.push(value.name);
+                value.parent = this;
             } else {
                 throw new Error();
             }
         }
-
         /**
          * @language zh_CN
          * 所有的骨架数据名称。
