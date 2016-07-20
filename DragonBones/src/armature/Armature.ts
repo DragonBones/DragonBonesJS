@@ -38,10 +38,6 @@ namespace dragonBones {
         /**
          * @private
          */
-        public _delayAdvanceTime: number;
-        /**
-         * @private
-         */
         public _armatureData: ArmatureData;
         /**
          * @private
@@ -78,10 +74,6 @@ namespace dragonBones {
         /**
          * @private
          */
-        private _lockActionAndEvent: boolean;
-        /**
-         * @private
-         */
         private _slotsDirty: boolean;
         /**
          * @private Store bones based on bones' hierarchy (From root to leaf)
@@ -109,7 +101,6 @@ namespace dragonBones {
 
             this._bonesDirty = false;
             this._cacheFrameIndex = -1;
-            this._delayAdvanceTime = -1;
             this._armatureData = null;
             this._skinData = null;
 
@@ -129,7 +120,6 @@ namespace dragonBones {
 
             this._delayDispose = false;
             this._lockDispose = false;
-            this._lockActionAndEvent = false;
             this._slotsDirty = false;
 
             if (this._bones.length) {
@@ -272,47 +262,45 @@ namespace dragonBones {
          * @version DragonBones 3.0
          */
         public advanceTime(passedTime: number): void {
-            this._lockDispose = true;
+            if (!this._lockDispose) {
+                this._lockDispose = true;
 
-            const scaledPassedTime = passedTime * this._animation.timeScale;
+                const scaledPassedTime = passedTime * this._animation.timeScale;
 
-            // Animations.
-            this._animation._advanceTime(scaledPassedTime);
+                // Animations.
+                this._animation._advanceTime(scaledPassedTime);
 
-            // Bones and slots.
-            if (this._bonesDirty) {
-                this._bonesDirty = false;
-                this._sortBones();
-            }
+                // Bones and slots.
+                if (this._bonesDirty) {
+                    this._bonesDirty = false;
+                    this._sortBones();
+                }
 
-            if (this._slotsDirty) {
-                this._slotsDirty = false;
-                this._sortSlots();
-            }
+                if (this._slotsDirty) {
+                    this._slotsDirty = false;
+                    this._sortSlots();
+                }
 
-            for (let i = 0, l = this._bones.length; i < l; ++i) {
-                this._bones[i]._update(this._cacheFrameIndex);
-            }
+                for (let i = 0, l = this._bones.length; i < l; ++i) {
+                    this._bones[i]._update(this._cacheFrameIndex);
+                }
 
-            for (let i = 0, l = this._slots.length; i < l; ++i) {
-                const slot = this._slots[i];
+                for (let i = 0, l = this._slots.length; i < l; ++i) {
+                    const slot = this._slots[i];
 
-                slot._update(this._cacheFrameIndex);
+                    slot._update(this._cacheFrameIndex);
 
-                const childArmature = slot.childArmature;
-                if (childArmature) {
-                    if (slot.inheritAnimation) { // Animation's time scale will impact to childArmature
-                        childArmature.advanceTime(scaledPassedTime);
-                    } else {
-                        childArmature.advanceTime(passedTime);
+                    const childArmature = slot.childArmature;
+                    if (childArmature) {
+                        if (slot.inheritAnimation) { // Animation's time scale will impact to childArmature
+                            childArmature.advanceTime(scaledPassedTime);
+                        } else {
+                            childArmature.advanceTime(passedTime);
+                        }
                     }
                 }
-            }
 
-            // Actions and events.
-            if (!this._lockActionAndEvent) {
-                this._lockActionAndEvent = true;
-
+                // Actions and events.
                 if (this._action) {
                     switch (this._action.type) {
                         case ActionType.Play:
@@ -358,17 +346,11 @@ namespace dragonBones {
                     this._events.length = 0;
                 }
 
-                this._lockActionAndEvent = false;
+                this._lockDispose = false;
             }
-
-            this._lockDispose = false;
 
             if (this._delayDispose) {
                 this.returnToPool();
-            } else if (this._delayAdvanceTime >= 0) {
-                const delayAdvanceTime = this._delayAdvanceTime;
-                this._delayAdvanceTime = -1;
-                this.advanceTime(delayAdvanceTime);
             }
         }
         /**
@@ -630,6 +612,15 @@ namespace dragonBones {
         public set cacheFrameRate(value: number) {
             if (this._armatureData.cacheFrameRate != value) {
                 this._armatureData.cacheFrames(value);
+
+                // Set child armature frameRate.
+                for (let i = 0, l = this._slots.length; i < l; ++i) {
+                    const slot = this._slots[i];
+                    const childArmature = slot.childArmature;
+                    if (childArmature) {
+                        childArmature.cacheFrameRate = value;
+                    }
+                }
             }
         }
         /**

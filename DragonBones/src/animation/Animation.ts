@@ -429,9 +429,7 @@ namespace dragonBones {
                 }
             }
 
-            if (fadeInTime == 0) {
-                this._armature._delayAdvanceTime = 0;
-            }
+            this._armature.advanceTime(0);
 
             return this._lastAnimationState;
         }

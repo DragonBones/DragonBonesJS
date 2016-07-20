@@ -332,6 +332,16 @@ namespace dragonBones {
             const dragonBonesData = this._dragonBonesDataMap[dragonBonesName];
             if (dragonBonesData) {
                 if (disposeData) {
+
+                    if (DragonBones.DEBUG) {
+                        for (let i = 0, l = DragonBones._armatures.length; i < l; ++i) {
+                            const armature = DragonBones._armatures[i];
+                            if (armature._armatureData.parent == dragonBonesData) {
+                                throw new Error("ArmatureData : " + armature._armatureData.name + " DragonBonesData: " + dragonBonesName);
+                            }
+                        }
+                    }
+
                     dragonBonesData.returnToPool();
                 }
 
@@ -408,7 +418,6 @@ namespace dragonBones {
          * @version DragonBones 4.5
          */
         public clear(disposeData: Boolean = true): void {
-
             for (let i in this._dragonBonesDataMap) {
                 if (disposeData) {
                     this._dragonBonesDataMap[i].returnToPool();

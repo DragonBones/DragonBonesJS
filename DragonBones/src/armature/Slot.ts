@@ -328,6 +328,13 @@ namespace dragonBones {
                 if (this._childArmature) {
                     this._childArmature._parent = this; // Update child armature parent.
                     if (this.inheritAnimation) {
+
+                        // Set child armature frameRate.
+                        const cacheFrameRate = this._armature.cacheFrameRate;
+                        if (cacheFrameRate) {
+                            this._childArmature.cacheFrameRate = cacheFrameRate;
+                        }
+
                         this._childArmature.animation.play();
                     }
                 }
