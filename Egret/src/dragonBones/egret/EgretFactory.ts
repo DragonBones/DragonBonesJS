@@ -172,7 +172,7 @@ namespace dragonBones {
          * @see dragonBones.BaseFactory#removeSkeletonData()
          */
         public removeSkeletonData(dragonBonesName: string): void {
-            this.removeSkeletonData(dragonBonesName);
+            this.removeDragonBonesData(dragonBonesName);
         }
         /**
          * @deprecated
