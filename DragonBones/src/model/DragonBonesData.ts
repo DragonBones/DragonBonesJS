@@ -96,5 +96,12 @@ namespace dragonBones {
         public get armatureNames(): Array<string> {
             return this._armatureNames;
         }
+        /**
+         * @deprecated
+         * @see dragonBones.BaseFactory#removeDragonBonesData()
+         */
+        public dispose(): void {
+            this.returnToPool();
+        }
     }
 }

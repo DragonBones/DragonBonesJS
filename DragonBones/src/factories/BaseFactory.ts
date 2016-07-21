@@ -573,5 +573,13 @@ namespace dragonBones {
                 }
             }
         }
+
+        /**
+         * @deprecated
+         * @see #clear()
+         */
+        public dispose(): void {
+            this.clear();
+        }
     }
 }
