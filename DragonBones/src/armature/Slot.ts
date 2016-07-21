@@ -189,7 +189,7 @@ namespace dragonBones {
             this._transformDirty = false;
             this._displayIndex = 0;
             this._blendMode = BlendMode.Normal;
-            this._meshDisplay = null;
+            this._display = null;
             this._childArmature = null;
             this._localMatrix.identity();
 

@@ -109,7 +109,7 @@ namespace dragonBones {
 
             this.slot = null;
 
-            if (this.cachedFrames) {
+            if (this.cachedFrames.length) {
                 this.cachedFrames.length = 0;
             }
         }

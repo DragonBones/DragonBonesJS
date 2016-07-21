@@ -337,22 +337,8 @@ namespace dragonBones {
             this._colorDirty = false;
             this._tweenColor = TweenType.None;
             this._slotColor = null;
-            this._color.alphaMultiplier = 1;
-            this._color.redMultiplier = 1;
-            this._color.greenMultiplier = 1;
-            this._color.blueMultiplier = 1;
-            this._color.alphaOffset = 0;
-            this._color.redOffset = 0;
-            this._color.greenOffset = 0;
-            this._color.blueOffset = 0;
-            this._durationColor.alphaMultiplier = 1;
-            this._durationColor.redMultiplier = 1;
-            this._durationColor.greenMultiplier = 1;
-            this._durationColor.blueMultiplier = 1;
-            this._durationColor.alphaOffset = 0;
-            this._durationColor.redOffset = 0;
-            this._durationColor.greenOffset = 0;
-            this._durationColor.blueOffset = 0;
+            this._color.identity();
+            this._durationColor.identity();
         }
 
         protected _onFadeIn(): void {

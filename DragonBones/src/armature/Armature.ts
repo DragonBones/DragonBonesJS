@@ -243,7 +243,9 @@ namespace dragonBones {
             this._events.push(value);
         }
         /**
-         * dispose
+         * @language zh_CN
+         * 释放骨架。 (会回收到内存池)
+         * @version DragonBones 3.0
          */
         public dispose(): void {
             this._delayDispose = true;
