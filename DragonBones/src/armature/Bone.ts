@@ -254,6 +254,10 @@ namespace dragonBones {
             parentGlobal.skewX += ikRadianA;
             parentGlobal.skewY += ikRadianA;
             parentGlobal.toMatrix(this._parent.globalTransformMatrix);
+            this._parent._transformDirty = BoneTransformDirty.Self;
+
+            this.global.x = parentGlobal.x + Math.cos(parentGlobal.skewY) * lP;
+            this.global.y = parentGlobal.y + Math.sin(parentGlobal.skewY) * lP;
 
             const ikRadianB =
                 (
@@ -263,8 +267,7 @@ namespace dragonBones {
 
             this.global.skewX += ikRadianB;
             this.global.skewY += ikRadianB;
-            this.global.x = parentGlobal.x + Math.cos(parentGlobal.skewY) * lP;
-            this.global.y = parentGlobal.y + Math.sin(parentGlobal.skewY) * lP;
+
             this.global.toMatrix(this.globalTransformMatrix);
         }
         /**
@@ -386,7 +389,7 @@ namespace dragonBones {
                 }
             } else if (
                 this._transformDirty == BoneTransformDirty.All ||
-                (this._parent && this._parent._transformDirty) ||
+                (this._parent && this._parent._transformDirty != BoneTransformDirty.None) ||
                 (this._ik && this.ikWeight > 0 && this._ik._transformDirty != BoneTransformDirty.None)
             ) {
                 this._transformDirty = BoneTransformDirty.All; // For update children and ik children.
