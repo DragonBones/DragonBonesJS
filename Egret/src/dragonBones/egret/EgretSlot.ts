@@ -124,7 +124,6 @@ namespace dragonBones {
                 }
             }
         }
-
         /**
          * @private
          */
@@ -149,7 +148,7 @@ namespace dragonBones {
                 colorMatrix[4] = this._colorTransform.redOffset;
                 colorMatrix[9] = this._colorTransform.greenOffset;
                 colorMatrix[14] = this._colorTransform.blueOffset;
-                //colorMatrix[19] = this._colorTransform.alphaOffset / 255;
+                colorMatrix[19] = this._colorTransform.alphaOffset;
                 this._colorFilter.matrix = colorMatrix;
 
                 let filters = this._renderDisplay.filters;
@@ -167,6 +166,7 @@ namespace dragonBones {
                     this._colorFilter = null;
                     this._renderDisplay.filters = null;
                 }
+
                 this._renderDisplay.$setAlpha(this._colorTransform.alphaMultiplier);
             }
         }

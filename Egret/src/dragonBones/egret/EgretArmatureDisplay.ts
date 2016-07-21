@@ -284,10 +284,6 @@ namespace dragonBones {
             this.texture = texture;
             ObjectDataParser.getInstance().parseTextureAtlasData(rawData, this, scale);
         }
-
-        public dispose(): void {
-            this.returnToPool();
-        }
     }
     /**
      * @deprecated
