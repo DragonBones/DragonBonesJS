@@ -208,7 +208,6 @@ declare namespace dragonBones {
          */
         static toString(): string;
         constructor(texture: egret.Texture, rawData: any, scale?: number);
-        dispose(): void;
     }
     /**
      * @deprecated

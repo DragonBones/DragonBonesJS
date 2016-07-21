@@ -325,9 +325,6 @@ var dragonBones;
         EgretTextureAtlas.toString = function () {
             return "[Class dragonBones.EgretTextureAtlas]";
         };
-        EgretTextureAtlas.prototype.dispose = function () {
-            this.returnToPool();
-        };
         return EgretTextureAtlas;
     }(dragonBones.EgretTextureAtlasData));
     dragonBones.EgretTextureAtlas = EgretTextureAtlas;
@@ -539,7 +536,7 @@ var dragonBones;
          * @see dragonBones.BaseFactory#removeSkeletonData()
          */
         EgretFactory.prototype.removeSkeletonData = function (dragonBonesName) {
-            this.removeSkeletonData(dragonBonesName);
+            this.removeDragonBonesData(dragonBonesName);
         };
         /**
          * @deprecated
@@ -688,7 +685,7 @@ var dragonBones;
                 colorMatrix[4] = this._colorTransform.redOffset;
                 colorMatrix[9] = this._colorTransform.greenOffset;
                 colorMatrix[14] = this._colorTransform.blueOffset;
-                //colorMatrix[19] = this._colorTransform.alphaOffset / 255;
+                colorMatrix[19] = this._colorTransform.alphaOffset;
                 this._colorFilter.matrix = colorMatrix;
                 var filters = this._renderDisplay.filters;
                 if (!filters) {

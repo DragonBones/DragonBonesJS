@@ -75,15 +75,59 @@ declare namespace dragonBones {
      * DragonBones
      */
     class DragonBones {
+        /**
+         * @private
+         */
         static PI_D: number;
+        /**
+         * @private
+         */
         static PI_H: number;
+        /**
+         * @private
+         */
         static PI_Q: number;
+        /**
+         * @private
+         */
         static ANGLE_TO_RADIAN: number;
+        /**
+         * @private
+         */
         static RADIAN_TO_ANGLE: number;
+        /**
+         * @private
+         */
         static SECOND_TO_MILLISECOND: number;
+        /**
+         * @private
+         */
         static NO_TWEEN: number;
         static VERSION: string;
+        /**
+         * @private
+         */
+        static DEBUG: boolean;
+        /**
+         * @private
+         */
+        static _armatures: Array<Armature>;
+        /**
+         * @private
+         */
         constructor();
+        /**
+         * @private
+         */
+        static hasArmature(value: Armature): boolean;
+        /**
+         * @private
+         */
+        static addArmature(value: Armature): void;
+        /**
+         * @private
+         */
+        static removeArmature(value: Armature): void;
     }
 }
 declare namespace dragonBones {
@@ -93,25 +137,10 @@ declare namespace dragonBones {
      * @version DragonBones 4.5
      */
     abstract class BaseObject {
-        /**
-         * @private
-         */
         private static _hashCode;
-        /**
-         * @private
-         */
         private static _defaultMaxCount;
-        /**
-         * @private
-         */
         private static _maxCountMap;
-        /**
-         * @private
-         */
         private static _poolsMap;
-        /**
-         * @private
-         */
         private static _returnObject(object);
         /**
          * @private
@@ -1345,10 +1374,6 @@ declare namespace dragonBones {
         /**
          * @private
          */
-        _delayAdvanceTime: number;
-        /**
-         * @private
-         */
         _armatureData: ArmatureData;
         /**
          * @private
@@ -1382,10 +1407,6 @@ declare namespace dragonBones {
          * @private
          */
         private _lockDispose;
-        /**
-         * @private
-         */
-        private _lockActionAndEvent;
         /**
          * @private
          */
@@ -1439,7 +1460,9 @@ declare namespace dragonBones {
          */
         _bufferEvent(value: EventObject, type: string): void;
         /**
-         * dispose
+         * @language zh_CN
+         * 释放骨架。 (会回收到内存池)
+         * @version DragonBones 3.0
          */
         dispose(): void;
         /**
@@ -2545,6 +2568,11 @@ declare namespace dragonBones {
          * @version DragonBones 4.5
          */
         replaceSlotDisplayList(dragonBonesName: string, armatureName: string, slotName: string, slot: Slot): void;
+        /**
+         * @deprecated
+         * @see #clear()
+         */
+        dispose(): void;
     }
 }
 declare namespace dragonBones {
@@ -2925,6 +2953,10 @@ declare namespace dragonBones {
          * @version DragonBones 3.0
          */
         name: string;
+        /**
+         * @private
+         */
+        parent: DragonBonesData;
         /**
          * @language zh_CN
          * 所有的骨骼数据。
@@ -3340,6 +3372,11 @@ declare namespace dragonBones {
          * @version DragonBones 3.0
          */
         armatureNames: Array<string>;
+        /**
+         * @deprecated
+         * @see dragonBones.BaseFactory#removeDragonBonesData()
+         */
+        dispose(): void;
     }
 }
 declare namespace dragonBones {
@@ -3415,7 +3452,6 @@ declare namespace dragonBones {
         static toString(): string;
         tweenScale: boolean;
         tweenRotate: number;
-        parent: BoneData;
         transform: Transform;
         constructor();
         /**
@@ -3634,6 +3670,11 @@ declare namespace dragonBones {
          * @inheritDoc
          */
         protected _onClear(): void;
+        /**
+         * @deprecated
+         * @see dragonBones.BaseFactory#removeDragonBonesData()
+         */
+        dispose(): void;
         /**
          * @private
          */
