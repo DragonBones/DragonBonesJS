@@ -646,6 +646,15 @@ namespace dragonBones {
             if (ObjectDataParser.TRANSFORM in rawData) {
                 const transformObject = rawData[ObjectDataParser.TRANSFORM];
                 this._parseTransform(transformObject, frame.transform);
+
+                if (this._isParentCooriinate) { // Support 2.x ~ 3.x data.
+                    this._helpPoint.x = ObjectDataParser._getNumber(transformObject, ObjectDataParser.PIVOT_X, 0);
+                    this._helpPoint.y = ObjectDataParser._getNumber(transformObject, ObjectDataParser.PIVOT_Y, 0);
+                    frame.transform.toMatrix(this._helpMatrix);
+                    this._helpMatrix.transformPoint(this._helpPoint.x, this._helpPoint.y, this._helpPoint, true);
+                    frame.transform.x += this._helpPoint.x;
+                    frame.transform.y += this._helpPoint.y;
+                }
             }
 
             const bone = (<BoneTimelineData>this._timeline).bone;
