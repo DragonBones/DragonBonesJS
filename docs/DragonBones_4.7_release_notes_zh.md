@@ -6,10 +6,10 @@ DragonBones 4.7 的运行库，相对之前的版本有较大的功能增加和�
 * 不用再纠结是否需要使用极速模式了，因为 Armatue 已经合并了极速模式（FastArmature）的全部功能，包括支持开启缓存。
 * 通过 Armatrue.enableAnimationCache() 接口开启缓存。
 * FastArmatrue 以及 AnimationCacheManger 不再建议使用，但是功能依然保留用于实现向下兼容。
-* 【特别注意】TS版本，以下代码需要作调整才能编译通过
-** instanceof dragonBones.FastArmatre 改为 instanceof dragonBones.Armatre
-** instanceof dragonBones.FastBone 改为 instanceof dragonBones.Bone
-** 依次类推...
+* 【特别注意】TS版本，以下代码需要作调整才能编译通过：
+    * instanceof dragonBones.FastArmatre 改为 instanceof dragonBones.Armatre
+    * instanceof dragonBones.FastBone 改为 instanceof dragonBones.Bone
+    * 依次类推...
  
 #### 内置内存池，方便DragonBones对象的内存管理，大幅提升频繁创建对象的效率，减少发生内存泄漏的可能性。
 * 提供BaseObject基类，封装构建对象的方法，自动放入内存池，所有DragonBones体系中需要频繁动态创建的对象都是基于BaseObject的
