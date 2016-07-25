@@ -134,18 +134,16 @@ namespace dragonBones {
                 const currentDisplayData = replacedDisplayData || rawDisplayData;
                 const currentTextureData = <PixiTextureData>currentDisplayData.textureData;
                 if (currentTextureData) {
-                    if (!currentTextureData.texture) { // Create and cache texture.
-                        const textureAtlasTexture = (<PixiTextureAtlasData>currentTextureData.parent).texture;
-                        if (textureAtlasTexture) {
-                            const originSize = new PIXI.Rectangle(0, 0, currentTextureData.region.width, currentTextureData.region.height);
-                            currentTextureData.texture = new PIXI.Texture(
-                                textureAtlasTexture,
-                                null,
-                                <PIXI.Rectangle><any>currentTextureData.region,
-                                originSize,
-                                currentTextureData.rotated
-                            );
-                        }
+                    const textureAtlasTexture = (<PixiTextureAtlasData>currentTextureData.parent).texture;
+                    if (!currentTextureData.texture && textureAtlasTexture) { // Create and cache texture.
+                        const originSize = new PIXI.Rectangle(0, 0, currentTextureData.region.width, currentTextureData.region.height);
+                        currentTextureData.texture = new PIXI.Texture(
+                            textureAtlasTexture,
+                            null,
+                            <PIXI.Rectangle><any>currentTextureData.region,
+                            originSize,
+                            currentTextureData.rotated
+                        );
                     }
 
                     const texture = (<PIXI.Texture>this._armature._replacedTexture) || currentTextureData.texture;
@@ -171,8 +169,8 @@ namespace dragonBones {
                             for (let i = 0, l = meshDisplay.uvs.length; i < l; i += 2) {
                                 const u = meshDisplay.uvs[i];
                                 const v = meshDisplay.uvs[i + 1];
-                                meshDisplay.uvs[i] = (currentTextureData.region.x + u * currentTextureData.region.width) / texture.baseTexture.width;
-                                meshDisplay.uvs[i + 1] = (currentTextureData.region.y + v * currentTextureData.region.height) / texture.baseTexture.height;
+                                meshDisplay.uvs[i] = (currentTextureData.region.x + u * currentTextureData.region.width) / textureAtlasTexture.width;
+                                meshDisplay.uvs[i + 1] = (currentTextureData.region.y + v * currentTextureData.region.height) / textureAtlasTexture.height;
                             }
 
                             meshDisplay.texture = texture;

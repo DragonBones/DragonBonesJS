@@ -186,20 +186,18 @@ namespace dragonBones {
                 const currentDisplayData = replacedDisplayData || rawDisplayData;
                 const currentTextureData = <EgretTextureData>currentDisplayData.textureData;
                 if (currentTextureData) {
-                    if (!currentTextureData.texture) { // Create and cache texture.
-                        const textureAtlasTexture = (<EgretTextureAtlasData>currentTextureData.parent).texture;
-                        if (textureAtlasTexture) {
-                            currentTextureData.texture = new egret.Texture();
-                            currentTextureData.texture._bitmapData = textureAtlasTexture._bitmapData;
+                    const textureAtlasTexture = (<EgretTextureAtlasData>currentTextureData.parent).texture;
+                    if (!currentTextureData.texture && textureAtlasTexture) { // Create and cache texture.
+                        currentTextureData.texture = new egret.Texture();
+                        currentTextureData.texture._bitmapData = textureAtlasTexture._bitmapData;
 
-                            currentTextureData.texture.$initData(
-                                currentTextureData.region.x, currentTextureData.region.y,
-                                currentTextureData.region.width, currentTextureData.region.height,
-                                0, 0,
-                                currentTextureData.region.width, currentTextureData.region.height,
-                                textureAtlasTexture.textureWidth, textureAtlasTexture.textureHeight
-                            );
-                        }
+                        currentTextureData.texture.$initData(
+                            currentTextureData.region.x, currentTextureData.region.y,
+                            currentTextureData.region.width, currentTextureData.region.height,
+                            0, 0,
+                            currentTextureData.region.width, currentTextureData.region.height,
+                            textureAtlasTexture.textureWidth, textureAtlasTexture.textureHeight
+                        );
                     }
 
                     const texture = (<egret.Texture>this._armature._replacedTexture) || currentTextureData.texture;
@@ -328,7 +326,10 @@ namespace dragonBones {
         /**
          * @private
          */
-        protected _updateTransform(): void {
+        protected _updateTransform(): void
+        {
+            this.globalTransformMatrix;
+            this.transformUpdateEnabled;
             this._renderDisplay.$setMatrix(<egret.Matrix><any>this.globalTransformMatrix, this.transformUpdateEnabled);
         }
     }

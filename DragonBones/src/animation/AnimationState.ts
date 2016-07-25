@@ -2,8 +2,8 @@ namespace dragonBones {
     /**
      * @language zh_CN
      * 动画状态，播放动画时产生，可以对单个动画的播放进行更细致的控制和调节。
-     * @see dragonBones.animation.Animation
-     * @see dragonBones.objects.AnimationData
+     * @see dragonBones.Animation
+     * @see dragonBones.AnimationData
      * @version DragonBones 3.0
      */
     export class AnimationState extends BaseObject {
@@ -446,30 +446,27 @@ namespace dragonBones {
                 this._advanceFadeTime(passedTime);
             }
 
+            this._weightResult = this.weight * this._fadeProgress * weightLeft;
+
             passedTime *= this.timeScale;
 
             if (passedTime != 0 && this._isPlaying && !this._isPausePlayhead) {
                 this._time += passedTime;
-                this._timeline.update(this._time);
-
-                if (this.autoFadeOutTime >= 0 && this._fadeProgress >= 1 && this._timeline._isCompleted) {
-                    this.fadeOut(this.autoFadeOutTime);
-                }
             }
 
-            this._weightResult = this.weight * this._fadeProgress * weightLeft;
-
             if (this._weightResult != 0) {
-                let time = this._time;
+                const cacheFrameIndex = (this._fadeProgress >= 1 && index == 0 && this._armature.cacheFrameRate > 0) ? Math.floor(this._timeline._currentTime * this._animationData.cacheTimeToFrameScale) : -1;
+                let isUpdatesTimeline = true;
+                let isUpdatesBoneTimeline = true;
+                let time = cacheFrameIndex < 0 ? this._time : (cacheFrameIndex / this._animationData.cacheTimeToFrameScale);
+
+                this._timeline.update(this._time);
+
                 if (!this._animationData.hasAsynchronyTimeline) {
                     time = this._timeline._currentTime;
                 }
 
-                let isUpdatesTimeline = true;
-                let isUpdatesBoneTimeline = true;
-
-                if (this._fadeProgress >= 1 && index == 0 && this._armature.cacheFrameRate > 0) {
-                    const cacheFrameIndex = Math.floor(this._timeline._currentTime * this._animationData.cacheTimeToFrameScale);
+                if (cacheFrameIndex >= 0) {
                     if (this._armature._cacheFrameIndex == cacheFrameIndex) {
                         isUpdatesTimeline = false;
                         isUpdatesBoneTimeline = false;
@@ -515,6 +512,10 @@ namespace dragonBones {
                         this._ffdTimelines[i].update(time);
                     }
                 }
+            }
+
+            if (this.autoFadeOutTime >= 0 && this._fadeProgress >= 1 && this._timeline._isCompleted) {
+                this.fadeOut(this.autoFadeOutTime);
             }
         }
         /**
@@ -664,7 +665,7 @@ namespace dragonBones {
         /**
          * @language zh_CN
          * 动画图层。
-         * @see dragonBones.animation.Animation#fadeIn()
+         * @see dragonBones.Animation#fadeIn()
          * @version DragonBones 3.0
          */
         public get layer(): number {
@@ -673,7 +674,7 @@ namespace dragonBones {
         /**
          * @language zh_CN
          * 动画组。
-         * @see dragonBones.animation.Animation#fadeIn()
+         * @see dragonBones.Animation#fadeIn()
          * @version DragonBones 3.0
          */
         public get group(): string {
@@ -682,7 +683,7 @@ namespace dragonBones {
         /**
          * @language zh_CN
          * 动画名称。
-         * @see dragonBones.objects.AnimationData#name
+         * @see dragonBones.AnimationData#name
          * @version DragonBones 3.0
          */
         public get name(): string {
@@ -691,7 +692,7 @@ namespace dragonBones {
         /**
          * @language zh_CN
          * 动画数据。
-         * @see dragonBones.objects.AnimationData
+         * @see dragonBones.AnimationData
          * @version DragonBones 3.0
          */
         public get animationData(): AnimationData {

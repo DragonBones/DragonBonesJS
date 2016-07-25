@@ -60,9 +60,7 @@ namespace dragonBones {
         protected _onFadeIn(): void { }
         protected _onUpdateFrame(isUpdate: boolean): void { }
         protected _onArriveAtFrame(isUpdate: boolean): void { }
-
-        protected _onCrossFrame(frame: T): void {
-        }
+        protected _onCrossFrame(frame: T): void { }
 
         protected _setCurrentTime(value: number): boolean {
             let currentPlayTimes = 0;
@@ -167,50 +165,49 @@ namespace dragonBones {
             this.setCurrentTime(time);
         }
 
-        public fadeOut(): void {
-        }
+        public fadeOut(): void { }
 
         public update(time: number): void {
-            const prevTime = this._currentTime;
+            let self = this; // V8 bug
+            const prevTime = self._currentTime;
 
-            if (!this._isCompleted && this._setCurrentTime(time) && this._keyFrameCount) {
-                const currentFrameIndex = this._keyFrameCount > 1 ? Math.floor(this._currentTime * this._frameRate) : 0;
-                const currentFrame = this._timeline.frames[currentFrameIndex];
-
-                if (this._currentFrame != currentFrame) {
-                    if (this._keyFrameCount > 1) {
-                        let crossedFrame = this._currentFrame;
-                        this._currentFrame = currentFrame;
+            if (!self._isCompleted && self._setCurrentTime(time) && self._keyFrameCount) {
+                const currentFrameIndex = self._keyFrameCount > 1 ? Math.floor(self._currentTime * self._frameRate) : 0;
+                const currentFrame = self._timeline.frames[currentFrameIndex];
+                if (self._currentFrame != currentFrame) {
+                    if (self._keyFrameCount > 1) {
+                        let crossedFrame = self._currentFrame;
+                        self._currentFrame = currentFrame;
 
                         if (!crossedFrame) {
-                            const prevFrameIndex = Math.floor(prevTime * this._frameRate);
-                            crossedFrame = this._timeline.frames[prevFrameIndex];
-                            if (!this._isReverse && prevTime <= crossedFrame.position) {
+                            const prevFrameIndex = Math.floor(prevTime * self._frameRate);
+                            crossedFrame = self._timeline.frames[prevFrameIndex];
+                            if (!self._isReverse && prevTime <= crossedFrame.position) {
                                 crossedFrame = crossedFrame.prev;
                             }
                         }
 
-                        if (this._isReverse) {
+                        if (self._isReverse) {
                             while (crossedFrame != currentFrame) {
-                                this._onCrossFrame(crossedFrame);
+                                self._onCrossFrame(crossedFrame);
                                 crossedFrame = crossedFrame.prev;
                             }
                         } else {
                             while (crossedFrame != currentFrame) {
                                 crossedFrame = crossedFrame.next;
-                                this._onCrossFrame(crossedFrame);
+                                self._onCrossFrame(crossedFrame);
                             }
                         }
 
-                        this._onArriveAtFrame(true);
+                        self._onArriveAtFrame(true);
                     } else {
-                        this._currentFrame = currentFrame;
-                        this._onCrossFrame(this._currentFrame);
-                        this._onArriveAtFrame(true);
+                        self._currentFrame = currentFrame;
+                        self._onCrossFrame(self._currentFrame);
+                        self._onArriveAtFrame(true);
                     }
                 }
 
-                this._onUpdateFrame(true);
+                self._onUpdateFrame(true);
             }
         }
     }
@@ -280,20 +277,21 @@ namespace dragonBones {
         }
 
         protected _onArriveAtFrame(isUpdate: boolean): void {
-            this._tweenEasing = this._currentFrame.tweenEasing;
-            this._curve = this._currentFrame.curve;
+            let self = this; // V8 bug
+            self._tweenEasing = self._currentFrame.tweenEasing;
+            self._curve = self._currentFrame.curve;
 
             if (
-                this._keyFrameCount == 1 ||
+                self._keyFrameCount == 1 ||
                 (
-                    this._currentFrame.next == this._timeline.frames[0] &&
-                    (this._tweenEasing != DragonBones.NO_TWEEN || this._curve) &&
-                    this._animationState.playTimes > 0 &&
-                    this._animationState.currentPlayTimes == this._animationState.playTimes - 1
+                    self._currentFrame.next == self._timeline.frames[0] &&
+                    (self._tweenEasing != DragonBones.NO_TWEEN || self._curve) &&
+                    self._animationState.playTimes > 0 &&
+                    self._animationState.currentPlayTimes == self._animationState.playTimes - 1
                 )
             ) {
-                this._tweenEasing = DragonBones.NO_TWEEN;
-                this._curve = null;
+                self._tweenEasing = DragonBones.NO_TWEEN;
+                self._curve = null;
             }
         }
 
