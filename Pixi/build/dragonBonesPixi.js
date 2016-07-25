@@ -177,7 +177,6 @@ var dragonBones;
                         if (childArmature) {
                             if (slotData.actions.length > 0) {
                                 childArmature._action = slotData.actions[slotData.actions.length - 1];
-                                childArmature.advanceTime(0);
                             }
                             else {
                                 childArmature.animation.play();
@@ -354,12 +353,10 @@ var dragonBones;
                 var currentDisplayData = replacedDisplayData || rawDisplayData;
                 var currentTextureData = currentDisplayData.textureData;
                 if (currentTextureData) {
-                    if (!currentTextureData.texture) {
-                        var textureAtlasTexture = currentTextureData.parent.texture;
-                        if (textureAtlasTexture) {
-                            var originSize = new PIXI.Rectangle(0, 0, currentTextureData.region.width, currentTextureData.region.height);
-                            currentTextureData.texture = new PIXI.Texture(textureAtlasTexture, null, currentTextureData.region, originSize, currentTextureData.rotated);
-                        }
+                    var textureAtlasTexture = currentTextureData.parent.texture;
+                    if (!currentTextureData.texture && textureAtlasTexture) {
+                        var originSize = new PIXI.Rectangle(0, 0, currentTextureData.region.width, currentTextureData.region.height);
+                        currentTextureData.texture = new PIXI.Texture(textureAtlasTexture, null, currentTextureData.region, originSize, currentTextureData.rotated);
                     }
                     var texture = this._armature._replacedTexture || currentTextureData.texture;
                     if (texture) {
@@ -381,8 +378,8 @@ var dragonBones;
                             for (var i = 0, l = meshDisplay.uvs.length; i < l; i += 2) {
                                 var u = meshDisplay.uvs[i];
                                 var v = meshDisplay.uvs[i + 1];
-                                meshDisplay.uvs[i] = (currentTextureData.region.x + u * currentTextureData.region.width) / texture.baseTexture.width;
-                                meshDisplay.uvs[i + 1] = (currentTextureData.region.y + v * currentTextureData.region.height) / texture.baseTexture.height;
+                                meshDisplay.uvs[i] = (currentTextureData.region.x + u * currentTextureData.region.width) / textureAtlasTexture.width;
+                                meshDisplay.uvs[i + 1] = (currentTextureData.region.y + v * currentTextureData.region.height) / textureAtlasTexture.height;
                             }
                             meshDisplay.texture = texture;
                             meshDisplay.dirty = true;

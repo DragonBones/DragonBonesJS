@@ -8,31 +8,31 @@ namespace dragonBones {
     export const enum AnimationFadeOutMode {
         /**
          * @language zh_CN
-         * 不淡出动画
+         * 不淡出动画。
          * @version DragonBones 4.5
          */
         None = 0,
         /**
         * @language zh_CN
-         * 淡出同层的动画
+         * 淡出同层的动画。
          * @version DragonBones 4.5
          */
         SameLayer = 1,
         /**
          * @language zh_CN
-         * 淡出同组的动画
+         * 淡出同组的动画。
          * @version DragonBones 4.5
          */
         SameGroup = 2,
         /**
          * @language zh_CN
-         * 淡出同层并且同组的动画
+         * 淡出同层并且同组的动画。
          * @version DragonBones 4.5
          */
         SameLayerAndGroup = 3,
         /**
          * @language zh_CN
-         * 淡出所有动画
+         * 淡出所有动画。
          * @version DragonBones 4.5
          */
         All = 4
@@ -146,13 +146,11 @@ namespace dragonBones {
                 this._animationNames.length = 0;
             }
 
-            if (this._animationStates.length) {
-                for (let i = 0, l = this._animationStates.length; i < l; ++i) {
-                    this._animationStates[i].returnToPool();
-                }
-
-                this._animationStates.length = 0;
+            for (let i = 0, l = this._animationStates.length; i < l; ++i) {
+                this._animationStates[i].returnToPool();
             }
+
+            this._animationStates.length = 0;
         }
         /**
          * @private
@@ -277,7 +275,7 @@ namespace dragonBones {
 
                         animationState._advanceTime(passedTime, weightLeft, layerIndex);
 
-                        if (animationState._weightResult) {
+                        if (animationState._weightResult != 0) {
                             layerTotalWeight += animationState._weightResult;
                             layerIndex++;
                         }
@@ -437,7 +435,7 @@ namespace dragonBones {
          * @language zh_CN
          * 指定名称的动画从指定时间开始播放。
          * @param animationName 动画数据的名称。
-         * @param time 指定时间。 (以秒为单位)
+         * @param time 时间。 (以秒为单位)
          * @param playTimes 动画循环播放的次数。 [-1: 使用动画数据默认值, 0: 无限循环播放, [1~N]: 循环播放 N 次]
          * @returns 返回控制这个动画数据的动画状态。
          * @see dragonBones.AnimationState
@@ -452,7 +450,7 @@ namespace dragonBones {
          * @language zh_CN
          * 指定名称的动画从指定帧开始播放。
          * @param animationName 动画数据的名称。
-         * @param frame 指定帧。
+         * @param frame 帧。
          * @param playTimes 动画循环播放的次数。[-1: 使用动画数据默认值, 0: 无限循环播放, [1~N]: 循环播放 N 次]
          * @returns 返回控制这个动画数据的动画状态。
          * @see dragonBones.AnimationState
@@ -488,7 +486,7 @@ namespace dragonBones {
          * @language zh_CN
          * 播放指定名称的动画到指定的时间并停止。
          * @param animationName 动画数据的名称。
-         * @param time 指定的时间。
+         * @param time 时间。 (以秒为单位)
          * @returns 返回控制这个动画数据的动画状态。
          * @see dragonBones.AnimationState
          * @version DragonBones 4.5
@@ -524,7 +522,7 @@ namespace dragonBones {
          * @language zh_CN
          * 播放指定名称的动画到指定的进度并停止。
          * @param animationName 动画数据的名称。
-         * @param progress 指定的进度。 [0~1]
+         * @param progress 进度。 [0~1]
          * @returns 返回控制这个动画数据的动画状态。
          * @see dragonBones.AnimationState
          * @version DragonBones 4.5
@@ -624,7 +622,7 @@ namespace dragonBones {
         /**
          * @language zh_CN
          * 所有的动画数据。
-         * @see dragonBones.objects.AnimationData
+         * @see dragonBones.AnimationData
          * @version DragonBones 4.5
          */
         public get animations(): Map<AnimationData> {
@@ -650,7 +648,6 @@ namespace dragonBones {
         }
 
         /**
-         * @language zh_CN
          * @deprecated
          * @see #play()
          * @see #fadeIn()
@@ -671,7 +668,6 @@ namespace dragonBones {
             return animationState;
         }
         /**
-         * @language zh_CN
          * @deprecated
          * @see #gotoAndStopByTime()
          * @see #gotoAndStopByFrame()
@@ -681,7 +677,6 @@ namespace dragonBones {
             return this.gotoAndStopByTime(animationName, time);
         }
         /**
-         * @language zh_CN
          * @deprecated
          * @see #animationNames
          * @see #animations

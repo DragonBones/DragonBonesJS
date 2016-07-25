@@ -17,7 +17,7 @@ namespace dragonBones {
          * @language zh_CN
          * 是否开启共享搜索。 [true: 开启, false: 不开启]
          * @default false
-         * @see dragonBones.objects.ArmatureData
+         * @see dragonBones.ArmatureData
          * @version DragonBones 4.5
          */
         public autoSearch: boolean;
@@ -36,7 +36,7 @@ namespace dragonBones {
         /**
          * @language zh_CN
          * 所有的骨架数据。
-         * @see dragonBones.objects.ArmatureData
+         * @see dragonBones.ArmatureData
          * @version DragonBones 3.0
          */
         public armatures: Map<ArmatureData> = {};

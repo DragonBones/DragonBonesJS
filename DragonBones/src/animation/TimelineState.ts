@@ -167,14 +167,14 @@ namespace dragonBones {
                 const nextFrame = this._currentFrame.next;
                 const nextTransform = nextFrame.transform;
 
-                // Transform
+                // Transform.
                 this._durationTransform.x = nextTransform.x - this._currentTransform.x;
                 this._durationTransform.y = nextTransform.y - this._currentTransform.y;
                 if (this._durationTransform.x != 0 || this._durationTransform.y != 0) {
                     this._tweenTransform = TweenType.Always;
                 }
 
-                // Rotate
+                // Rotate.
                 const tweenRotate = this._currentFrame.tweenRotate;
                 if (tweenRotate == tweenRotate) {
                     if (tweenRotate) {
@@ -199,7 +199,7 @@ namespace dragonBones {
                     this._durationTransform.skewY = 0;
                 }
 
-                // Scale
+                // Scale.
                 if (this._currentFrame.tweenScale) {
                     this._durationTransform.scaleX = nextTransform.scaleX - this._currentTransform.scaleX;
                     this._durationTransform.scaleY = nextTransform.scaleY - this._currentTransform.scaleY;
@@ -229,10 +229,10 @@ namespace dragonBones {
                         this._tweenTransform = TweenType.None;
                     }
 
-                    if (this._animationState.additiveBlending) { // Additive blending
+                    if (this._animationState.additiveBlending) { // Additive blending.
                         this._transform.x = this._currentTransform.x + this._durationTransform.x * this._tweenProgress;
                         this._transform.y = this._currentTransform.y + this._durationTransform.y * this._tweenProgress;
-                    } else { // Normal blending
+                    } else { // Normal blending.
                         this._transform.x = this._originTransform.x + this._currentTransform.x + this._durationTransform.x * this._tweenProgress;
                         this._transform.y = this._originTransform.y + this._currentTransform.y + this._durationTransform.y * this._tweenProgress;
                     }
@@ -243,10 +243,10 @@ namespace dragonBones {
                         this._tweenRotate = TweenType.None;
                     }
 
-                    if (this._animationState.additiveBlending) { // Additive blending
+                    if (this._animationState.additiveBlending) { // Additive blending.
                         this._transform.skewX = this._currentTransform.skewX + this._durationTransform.skewX * this._tweenProgress;
                         this._transform.skewY = this._currentTransform.skewY + this._durationTransform.skewY * this._tweenProgress;
-                    } else { // Normal blending
+                    } else { // Normal blending.
                         this._transform.skewX = this._originTransform.skewX + this._currentTransform.skewX + this._durationTransform.skewX * this._tweenProgress;
                         this._transform.skewY = this._originTransform.skewY + this._currentTransform.skewY + this._durationTransform.skewY * this._tweenProgress;
                     }
@@ -257,10 +257,10 @@ namespace dragonBones {
                         this._tweenScale = TweenType.None;
                     }
 
-                    if (this._animationState.additiveBlending) { // Additive blending
+                    if (this._animationState.additiveBlending) { // Additive blending.
                         this._transform.scaleX = this._currentTransform.scaleX + this._durationTransform.scaleX * this._tweenProgress;
                         this._transform.scaleY = this._currentTransform.scaleY + this._durationTransform.scaleY * this._tweenProgress;
-                    } else { // Normal blending
+                    } else { // Normal blending.
                         this._transform.scaleX = this._originTransform.scaleX * (this._currentTransform.scaleX + this._durationTransform.scaleX * this._tweenProgress);
                         this._transform.scaleY = this._originTransform.scaleY * (this._currentTransform.scaleY + this._durationTransform.scaleY * this._tweenProgress);
                     }
@@ -278,7 +278,7 @@ namespace dragonBones {
         public update(time: number): void {
             super.update(time);
 
-            // Blend animation state
+            // Blend animation state.
             const weight = this._animationState._weightResult;
 
             if (weight > 0) {

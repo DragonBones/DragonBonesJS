@@ -258,9 +258,9 @@ namespace dragonBones {
          * @language zh_CN
          * 更新骨架和动画。 (可以使用时钟实例或显示容器来更新)
          * @param passedTime 两帧之前的时间间隔。 (以秒为单位)
-         * @see dragonBones.animation.IAnimateble
-         * @see dragonBones.animation.WorldClock
-         * @see dragonBones.core.IArmatureDisplayContainer
+         * @see dragonBones.IAnimateble
+         * @see dragonBones.WorldClock
+         * @see dragonBones.IArmatureDisplay
          * @version DragonBones 3.0
          */
         public advanceTime(passedTime: number): void {

@@ -453,7 +453,6 @@ var dragonBones;
                         if (childArmature) {
                             if (slotData.actions.length > 0) {
                                 childArmature._action = slotData.actions[slotData.actions.length - 1];
-                                childArmature.advanceTime(0);
                             }
                             else {
                                 childArmature.animation.play();
@@ -719,13 +718,11 @@ var dragonBones;
                 var currentDisplayData = replacedDisplayData || rawDisplayData;
                 var currentTextureData = currentDisplayData.textureData;
                 if (currentTextureData) {
-                    if (!currentTextureData.texture) {
-                        var textureAtlasTexture = currentTextureData.parent.texture;
-                        if (textureAtlasTexture) {
-                            currentTextureData.texture = new egret.Texture();
-                            currentTextureData.texture._bitmapData = textureAtlasTexture._bitmapData;
-                            currentTextureData.texture.$initData(currentTextureData.region.x, currentTextureData.region.y, currentTextureData.region.width, currentTextureData.region.height, 0, 0, currentTextureData.region.width, currentTextureData.region.height, textureAtlasTexture.textureWidth, textureAtlasTexture.textureHeight);
-                        }
+                    var textureAtlasTexture = currentTextureData.parent.texture;
+                    if (!currentTextureData.texture && textureAtlasTexture) {
+                        currentTextureData.texture = new egret.Texture();
+                        currentTextureData.texture._bitmapData = textureAtlasTexture._bitmapData;
+                        currentTextureData.texture.$initData(currentTextureData.region.x, currentTextureData.region.y, currentTextureData.region.width, currentTextureData.region.height, 0, 0, currentTextureData.region.width, currentTextureData.region.height, textureAtlasTexture.textureWidth, textureAtlasTexture.textureHeight);
                     }
                     var texture = this._armature._replacedTexture || currentTextureData.texture;
                     if (texture) {
@@ -834,6 +831,8 @@ var dragonBones;
          * @private
          */
         EgretSlot.prototype._updateTransform = function () {
+            this.globalTransformMatrix;
+            this.transformUpdateEnabled;
             this._renderDisplay.$setMatrix(this.globalTransformMatrix, this.transformUpdateEnabled);
         };
         /**
