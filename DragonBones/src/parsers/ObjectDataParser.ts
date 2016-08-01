@@ -90,6 +90,14 @@ namespace dragonBones {
             this._armature = armature;
             this._rawBones.length = 0;
 
+            if (ObjectDataParser.AABB in rawData) {
+                const aabbObject = rawData[ObjectDataParser.AABB];
+                armature.aabb.x = ObjectDataParser._getNumber(aabbObject, ObjectDataParser.X, 0);
+                armature.aabb.y = ObjectDataParser._getNumber(aabbObject, ObjectDataParser.Y, 0);
+                armature.aabb.width = ObjectDataParser._getNumber(aabbObject, ObjectDataParser.WIDTH, 0);
+                armature.aabb.height = ObjectDataParser._getNumber(aabbObject, ObjectDataParser.HEIGHT, 0);
+            }
+
             if (ObjectDataParser.BONE in rawData) {
                 const bones = <Array<any>>rawData[ObjectDataParser.BONE];
                 for (let i = 0, l = bones.length; i < l; ++i) {
@@ -129,7 +137,6 @@ namespace dragonBones {
             }
 
             if (
-                (ObjectDataParser.ACTION in rawData) ||
                 (ObjectDataParser.ACTIONS in rawData) ||
                 (ObjectDataParser.DEFAULT_ACTIONS in rawData)
             ) {
@@ -213,7 +220,6 @@ namespace dragonBones {
             }
 
             if (
-                (ObjectDataParser.ACTION in rawData) ||
                 (ObjectDataParser.ACTIONS in rawData) ||
                 (ObjectDataParser.DEFAULT_ACTIONS in rawData)
             ) {
@@ -621,8 +627,7 @@ namespace dragonBones {
 
             if (
                 (ObjectDataParser.ACTION in rawData) ||
-                (ObjectDataParser.ACTIONS in rawData) ||
-                (ObjectDataParser.DEFAULT_ACTIONS in rawData)
+                (ObjectDataParser.ACTIONS in rawData)
             ) {
                 this._parseActionData(rawData, frame.actions, null, null);
             }
@@ -661,8 +666,7 @@ namespace dragonBones {
 
             if (
                 (ObjectDataParser.ACTION in rawData) ||
-                (ObjectDataParser.ACTIONS in rawData) ||
-                (ObjectDataParser.DEFAULT_ACTIONS in rawData)
+                (ObjectDataParser.ACTIONS in rawData)
             ) {
                 const slot = this._armature.getSlot(bone.name);
                 const actions: Array<ActionData> = [];
@@ -690,7 +694,10 @@ namespace dragonBones {
 
             this._parseTweenFrame(rawData, frame, frameStart, frameCount);
 
-            if (ObjectDataParser.COLOR in rawData || ObjectDataParser.COLOR_TRANSFORM in rawData) { // Support 2.x ~ 3.x data. (colorTransform key)
+            if (
+                (ObjectDataParser.COLOR in rawData) ||
+                (ObjectDataParser.COLOR_TRANSFORM in rawData)
+            ) { // Support 2.x ~ 3.x data. (colorTransform key)
                 frame.color = SlotFrameData.generateColor();
                 this._parseColorTransform(rawData[ObjectDataParser.COLOR] || rawData[ObjectDataParser.COLOR_TRANSFORM], frame.color);
             } else {
@@ -701,7 +708,10 @@ namespace dragonBones {
                 if (ObjectDataParser._getBoolean(rawData, ObjectDataParser.HIDE, false)) {
                     frame.displayIndex = -1;
                 }
-            } else if (ObjectDataParser.ACTION in rawData) {
+            } else if (
+                (ObjectDataParser.ACTION in rawData) ||
+                (ObjectDataParser.ACTIONS in rawData)
+            ) {
                 const slot = (<SlotTimelineData>this._timeline).slot;
                 const actions: Array<ActionData> = [];
                 this._parseActionData(rawData, actions, slot.parent, slot);
@@ -1063,7 +1073,7 @@ namespace dragonBones {
         }
 
         /**
-         * @deprecated
+         * @private
          */
         private static _instance: ObjectDataParser = null;
         /**

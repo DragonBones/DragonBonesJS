@@ -73,6 +73,7 @@ namespace dragonBones {
          * @private
          */
         protected _disposeDisplay(value: Object): void {
+            (<PIXI.DisplayObject>value).destroy();
         }
         /**
          * @private
@@ -147,7 +148,6 @@ namespace dragonBones {
                     }
 
                     const texture = (<PIXI.Texture>this._armature._replacedTexture) || currentTextureData.texture;
-
                     if (texture) {
                         if (this._meshData && this._display == this._meshDisplay) { // Mesh.
                             const meshDisplay = <PIXI.mesh.Mesh>this._meshDisplay;
@@ -176,6 +176,10 @@ namespace dragonBones {
                             meshDisplay.texture = texture;
                             meshDisplay.dirty = true;
 
+                            // Identity transform.
+                            if (this._meshData.skinned) {
+                                meshDisplay.setTransform(0, 0, 1, 1, 0, 0, 0, 0, 0);
+                            }
                         } else { // Normal texture.
                             const rect = currentTextureData.frame || currentTextureData.region;
 
@@ -276,7 +280,7 @@ namespace dragonBones {
          * @private
          */
         protected _updateTransform(): void {
-            //this._renderDisplay.worldTransform.copy(<PIXI.Matrix><any>this.globalTransformMatrix); // How to set matrix !?
+            // this._renderDisplay.worldTransform.copy(<PIXI.Matrix><any>this.globalTransformMatrix); // How to set matrix !?
 
             this._renderDisplay.setTransform(
                 this.global.x, this.global.y,

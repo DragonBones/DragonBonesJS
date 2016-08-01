@@ -363,68 +363,70 @@ namespace dragonBones {
          * @private
          */
         public _update(cacheFrameIndex: number): void {
-            this._blendIndex = 0;
+            const self = this;
+
+            self._blendIndex = 0;
 
             if (cacheFrameIndex >= 0) {
-                const cacheFrame = this._cacheFrames[cacheFrameIndex];
+                const cacheFrame = self._cacheFrames[cacheFrameIndex];
 
-                if (this.globalTransformMatrix == cacheFrame) { // Same cache.
-                    this._transformDirty = BoneTransformDirty.None;
+                if (self.globalTransformMatrix == cacheFrame) { // Same cache.
+                    self._transformDirty = BoneTransformDirty.None;
                 } else if (cacheFrame) { // Has been Cached.
-                    this._transformDirty = BoneTransformDirty.All; // For update children and ik children.
-                    this.globalTransformMatrix = cacheFrame;
+                    self._transformDirty = BoneTransformDirty.All; // For update children and ik children.
+                    self.globalTransformMatrix = cacheFrame;
                 } else if ( // Dirty.
-                    this._transformDirty == BoneTransformDirty.All ||
-                    (this._parent && this._parent._transformDirty != BoneTransformDirty.None) ||
-                    (this._ik && this.ikWeight > 0 && this._ik._transformDirty != BoneTransformDirty.None)
+                    self._transformDirty == BoneTransformDirty.All ||
+                    (self._parent && self._parent._transformDirty != BoneTransformDirty.None) ||
+                    (self._ik && self.ikWeight > 0 && self._ik._transformDirty != BoneTransformDirty.None)
                 ) {
-                    this._transformDirty = BoneTransformDirty.All; // For update children and ik children.
-                    this.globalTransformMatrix = this._globalTransformMatrix;
-                } else if (this.globalTransformMatrix != this._globalTransformMatrix) { // Same cache but not cached yet.
-                    this._transformDirty = BoneTransformDirty.None;
-                    this._cacheFrames[cacheFrameIndex] = this.globalTransformMatrix;
+                    self._transformDirty = BoneTransformDirty.All; // For update children and ik children.
+                    self.globalTransformMatrix = self._globalTransformMatrix;
+                } else if (self.globalTransformMatrix != self._globalTransformMatrix) { // Same cache but not cached yet.
+                    self._transformDirty = BoneTransformDirty.None;
+                    self._cacheFrames[cacheFrameIndex] = self.globalTransformMatrix;
                 } else { // Dirty.
-                    this._transformDirty = BoneTransformDirty.Self;
-                    this.globalTransformMatrix = this._globalTransformMatrix;
+                    self._transformDirty = BoneTransformDirty.All;
+                    self.globalTransformMatrix = self._globalTransformMatrix;
                 }
             } else if (
-                this._transformDirty == BoneTransformDirty.All ||
-                (this._parent && this._parent._transformDirty != BoneTransformDirty.None) ||
-                (this._ik && this.ikWeight > 0 && this._ik._transformDirty != BoneTransformDirty.None)
+                self._transformDirty == BoneTransformDirty.All ||
+                (self._parent && self._parent._transformDirty != BoneTransformDirty.None) ||
+                (self._ik && self.ikWeight > 0 && self._ik._transformDirty != BoneTransformDirty.None)
             ) {
-                this._transformDirty = BoneTransformDirty.All; // For update children and ik children.
-                this.globalTransformMatrix = this._globalTransformMatrix;
+                self._transformDirty = BoneTransformDirty.All; // For update children and ik children.
+                self.globalTransformMatrix = self._globalTransformMatrix;
             }
 
-            if (this._transformDirty != BoneTransformDirty.None) {
-                if (this._transformDirty == BoneTransformDirty.All) {
-                    this._transformDirty = BoneTransformDirty.Self;
-                } else {
-                    this._transformDirty = BoneTransformDirty.None;
-                }
+            if (self._transformDirty != BoneTransformDirty.None) {
+                if (self._transformDirty == BoneTransformDirty.All) {
+                    self._transformDirty = BoneTransformDirty.Self;
+                    
+                    if (self.globalTransformMatrix == self._globalTransformMatrix) {
+                        /*self.global.copyFrom(self.origin).add(self.offset).add(self._animationPose);*/
+                        self.global.x = self.origin.x + self.offset.x + self._animationPose.x;
+                        self.global.y = self.origin.y + self.offset.y + self._animationPose.y;
+                        self.global.skewX = self.origin.skewX + self.offset.skewX + self._animationPose.skewX;
+                        self.global.skewY = self.origin.skewY + self.offset.skewY + self._animationPose.skewY;
+                        self.global.scaleX = self.origin.scaleX * self.offset.scaleX * self._animationPose.scaleX;
+                        self.global.scaleY = self.origin.scaleY * self.offset.scaleY * self._animationPose.scaleY;
 
-                if (this.globalTransformMatrix == this._globalTransformMatrix) {
-                    /*this.global.copyFrom(this.origin).add(this.offset).add(this._animationPose);*/
-                    this.global.x = this.origin.x + this.offset.x + this._animationPose.x;
-                    this.global.y = this.origin.y + this.offset.y + this._animationPose.y;
-                    this.global.skewX = this.origin.skewX + this.offset.skewX + this._animationPose.skewX;
-                    this.global.skewY = this.origin.skewY + this.offset.skewY + this._animationPose.skewY;
-                    this.global.scaleX = this.origin.scaleX * this.offset.scaleX * this._animationPose.scaleX;
-                    this.global.scaleY = this.origin.scaleY * this.offset.scaleY * this._animationPose.scaleY;
+                        self._updateGlobalTransformMatrix();
 
-                    this._updateGlobalTransformMatrix();
+                        if (self._ik && self._ikChainIndex == self._ikChain && self.ikWeight > 0) {
+                            if (self.inheritTranslation && self._ikChain > 0 && self._parent) {
+                                self._computeIKB();
+                            } else {
+                                self._computeIKA();
+                            }
+                        }
 
-                    if (this._ik && this._ikChainIndex == this._ikChain && this.ikWeight > 0) {
-                        if (this.inheritTranslation && this._ikChain > 0 && this._parent) {
-                            this._computeIKB();
-                        } else {
-                            this._computeIKA();
+                        if (cacheFrameIndex >= 0) {
+                            self.globalTransformMatrix = BoneTimelineData.cacheFrame(self._cacheFrames, cacheFrameIndex, self._globalTransformMatrix);
                         }
                     }
-
-                    if (cacheFrameIndex >= 0) {
-                        this.globalTransformMatrix = BoneTimelineData.cacheFrame(this._cacheFrames, cacheFrameIndex, this._globalTransformMatrix);
-                    }
+                } else {
+                    self._transformDirty = BoneTransformDirty.None;
                 }
             }
         }

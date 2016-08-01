@@ -177,13 +177,14 @@ var dragonBones;
             _super.call(this);
             if (!EgretArmatureDisplay._clock) {
                 EgretArmatureDisplay._clock = new dragonBones.WorldClock();
-                EgretArmatureDisplay._clock.time = egret.getTimer();
+                EgretArmatureDisplay._clock.time = egret.getTimer() * 0.001;
                 egret.startTick(EgretArmatureDisplay._clockHandler, EgretArmatureDisplay);
             }
         }
         EgretArmatureDisplay._clockHandler = function (time) {
-            var passedTime = time - EgretArmatureDisplay._clock.time;
-            EgretArmatureDisplay._clock.advanceTime(passedTime * 0.001);
+            time *= 0.001;
+            var passedTime = EgretArmatureDisplay.passTime > 0 ? EgretArmatureDisplay.passTime : (time - EgretArmatureDisplay._clock.time);
+            EgretArmatureDisplay._clock.advanceTime(passedTime);
             EgretArmatureDisplay._clock.time = time;
             return false;
         };
@@ -193,6 +194,7 @@ var dragonBones;
         EgretArmatureDisplay.prototype._onClear = function () {
             this.advanceTimeBySelf(false);
             this._armature = null;
+            this._debugDrawer = null;
         };
         /**
          * @inheritDoc
@@ -206,8 +208,24 @@ var dragonBones;
         /**
          * @inheritDoc
          */
-        EgretArmatureDisplay.prototype.advanceTime = function (passedTime) {
-            this._armature.advanceTime(passedTime);
+        EgretArmatureDisplay.prototype._debugDraw = function () {
+            if (!this._debugDrawer) {
+                this._debugDrawer = new egret.Shape();
+            }
+            this.addChild(this._debugDrawer);
+            this._debugDrawer.graphics.clear();
+            var bones = this._armature.getBones();
+            for (var i = 0, l = bones.length; i < l; ++i) {
+                var bone = bones[i];
+                var boneLength = Math.max(bone.length, 5);
+                var startX = bone.globalTransformMatrix.tx;
+                var startY = bone.globalTransformMatrix.ty;
+                var endX = startX + bone.globalTransformMatrix.a * boneLength;
+                var endY = startY + bone.globalTransformMatrix.b * boneLength;
+                this._debugDrawer.graphics.lineStyle(1, bone.ik ? 0xFF0000 : 0x00FF00, 0.5);
+                this._debugDrawer.graphics.moveTo(startX, startY);
+                this._debugDrawer.graphics.lineTo(endX, endY);
+            }
         };
         /**
          * @inheritDoc
@@ -266,6 +284,7 @@ var dragonBones;
             enumerable: true,
             configurable: true
         });
+        EgretArmatureDisplay.passTime = 0;
         EgretArmatureDisplay._clock = null;
         return EgretArmatureDisplay;
     }(egret.DisplayObjectContainer));
@@ -352,7 +371,7 @@ var dragonBones;
          * @see dragonBones.EgretFactory#soundEventManater
          */
         SoundEventManager.getInstance = function () {
-            return dragonBones.Armature._soundEventManager;
+            return dragonBones.EventObject._soundEventManager;
         };
         return SoundEventManager;
     }());
@@ -381,12 +400,14 @@ var dragonBones;
         /**
          * @language zh_CN
          * 创建一个工厂。
+         * @param dataParser 龙骨数据解析器，如果不设置，则使用默认解析器。
          * @version DragonBones 3.0
          */
-        function EgretFactory() {
-            _super.call(this);
-            if (!dragonBones.Armature._soundEventManager) {
-                dragonBones.Armature._soundEventManager = new dragonBones.EgretArmatureDisplay();
+        function EgretFactory(dataParser) {
+            if (dataParser === void 0) { dataParser = null; }
+            _super.call(this, dataParser);
+            if (!dragonBones.EventObject._soundEventManager) {
+                dragonBones.EventObject._soundEventManager = new dragonBones.EgretArmatureDisplay();
             }
         }
         /**
@@ -407,6 +428,8 @@ var dragonBones;
         EgretFactory.prototype._generateArmature = function (dataPackage) {
             var armature = dragonBones.BaseObject.borrowObject(dragonBones.Armature);
             var armatureDisplayContainer = new dragonBones.EgretArmatureDisplay();
+            // Test
+            //const armatureDisplayContainer = new BitmapContainer();
             armature._armatureData = dataPackage.armature;
             armature._skinData = dataPackage.skin;
             armature._animation = dragonBones.BaseObject.borrowObject(dragonBones.Animation);
@@ -452,7 +475,9 @@ var dragonBones;
                         var childArmature = this.buildArmature(displayData.name, dataPackage.dataName);
                         if (childArmature) {
                             if (slotData.actions.length > 0) {
-                                childArmature._action = slotData.actions[slotData.actions.length - 1];
+                                for (var i_1 = 0, l_1 = slotData.actions.length; i_1 < l_1; ++i_1) {
+                                    childArmature._bufferAction(slotData.actions[i_1]);
+                                }
                             }
                             else {
                                 childArmature.animation.play();
@@ -510,7 +535,7 @@ var dragonBones;
              * @version DragonBones 4.5
              */
             get: function () {
-                return dragonBones.Armature._soundEventManager;
+                return dragonBones.EventObject._soundEventManager;
             },
             enumerable: true,
             configurable: true
@@ -645,6 +670,7 @@ var dragonBones;
          * @private
          */
         EgretSlot.prototype._disposeDisplay = function (value) {
+            //
         };
         /**
          * @private
@@ -729,6 +755,9 @@ var dragonBones;
                         if (this._meshData && this._display == this._meshDisplay) {
                             var meshDisplay = this._meshDisplay;
                             var meshNode = meshDisplay.$renderNode;
+                            meshNode.uvs.length = 0;
+                            meshNode.vertices.length = 0;
+                            meshNode.indices.length = 0;
                             for (var i = 0, l = this._meshData.vertices.length; i < l; ++i) {
                                 meshNode.uvs[i] = this._meshData.uvs[i];
                                 meshNode.vertices[i] = this._meshData.vertices[i];
@@ -739,6 +768,12 @@ var dragonBones;
                             meshDisplay.$setBitmapData(texture);
                             meshDisplay.$updateVertices();
                             meshDisplay.$invalidateTransform();
+                            // Identity transform.
+                            if (this._meshData.skinned) {
+                                var transformationMatrix = meshDisplay.matrix;
+                                transformationMatrix.identity();
+                                meshDisplay.matrix = transformationMatrix;
+                            }
                         }
                         else {
                             var rect = currentTextureData.frame || currentTextureData.region;
@@ -831,8 +866,6 @@ var dragonBones;
          * @private
          */
         EgretSlot.prototype._updateTransform = function () {
-            this.globalTransformMatrix;
-            this.transformUpdateEnabled;
             this._renderDisplay.$setMatrix(this.globalTransformMatrix, this.transformUpdateEnabled);
         };
         /**

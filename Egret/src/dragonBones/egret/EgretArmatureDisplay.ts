@@ -127,11 +127,16 @@ namespace dragonBones {
      * @inheritDoc
      */
     export class EgretArmatureDisplay extends egret.DisplayObjectContainer implements IArmatureDisplay {
+        public static passTime: number = 0;
+
         private static _clock: WorldClock = null;
         private static _clockHandler(time: number): boolean {
-            const passedTime = time - EgretArmatureDisplay._clock.time;
-            EgretArmatureDisplay._clock.advanceTime(passedTime * 0.001);
+            time *= 0.001;
+
+            const passedTime = EgretArmatureDisplay.passTime > 0 ? EgretArmatureDisplay.passTime : (time - EgretArmatureDisplay._clock.time);
+            EgretArmatureDisplay._clock.advanceTime(passedTime);
             EgretArmatureDisplay._clock.time = time;
+            
             return false;
         }
         /**
@@ -139,6 +144,7 @@ namespace dragonBones {
          */
         public _armature: Armature;
 
+        private _debugDrawer: egret.Shape;
         /**
          * @private
          */
@@ -147,7 +153,7 @@ namespace dragonBones {
 
             if (!EgretArmatureDisplay._clock) {
                 EgretArmatureDisplay._clock = new WorldClock();
-                EgretArmatureDisplay._clock.time = egret.getTimer();
+                EgretArmatureDisplay._clock.time = egret.getTimer() * 0.001;
                 egret.startTick(EgretArmatureDisplay._clockHandler, EgretArmatureDisplay);
             }
         }
@@ -158,6 +164,7 @@ namespace dragonBones {
             this.advanceTimeBySelf(false);
 
             this._armature = null;
+            this._debugDrawer = null;
         }
         /**
          * @inheritDoc
@@ -171,8 +178,27 @@ namespace dragonBones {
         /**
          * @inheritDoc
          */
-        public advanceTime(passedTime: number): void {
-            this._armature.advanceTime(passedTime);
+        public _debugDraw(): void {
+            if (!this._debugDrawer) {
+                this._debugDrawer = new egret.Shape();
+            }
+
+            this.addChild(this._debugDrawer);
+            this._debugDrawer.graphics.clear();
+
+            const bones = this._armature.getBones();
+            for (let i = 0, l = bones.length; i < l; ++i) {
+                const bone = bones[i];
+                const boneLength = Math.max(bone.length, 5);
+                const startX = bone.globalTransformMatrix.tx;
+                const startY = bone.globalTransformMatrix.ty;
+                const endX = startX + bone.globalTransformMatrix.a * boneLength;
+                const endY = startY + bone.globalTransformMatrix.b * boneLength;
+
+                this._debugDrawer.graphics.lineStyle(1, bone.ik ? 0xFF0000 : 0x00FF00, 0.5);
+                this._debugDrawer.graphics.moveTo(startX, startY);
+                this._debugDrawer.graphics.lineTo(endX, endY);
+            }
         }
         /**
          * @inheritDoc
@@ -301,7 +327,7 @@ namespace dragonBones {
          * @see dragonBones.EgretFactory#soundEventManater
          */
         public static getInstance(): EgretArmatureDisplay {
-            return <EgretArmatureDisplay>Armature._soundEventManager;
+            return <EgretArmatureDisplay>EventObject._soundEventManager;
         }
     }
     /**

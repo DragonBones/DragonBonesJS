@@ -60,38 +60,39 @@ namespace dragonBones {
         protected _onFadeIn(): void { }
         protected _onUpdateFrame(isUpdate: boolean): void { }
         protected _onArriveAtFrame(isUpdate: boolean): void { }
-        protected _onCrossFrame(frame: T): void { }
 
         protected _setCurrentTime(value: number): boolean {
+            const self = this;
+
             let currentPlayTimes = 0;
 
-            if (this._hasAsynchronyTimeline) {
-                const playTimes = this._animationState.playTimes;
-                const totalTimes = playTimes * this._duration;
+            if (self._hasAsynchronyTimeline) {
+                const playTimes = self._animationState.playTimes;
+                const totalTimes = playTimes * self._duration;
 
-                value *= this._timeScale;
-                if (this._timeOffset != 0) {
-                    value += this._timeOffset * this._animationDutation;
+                value *= self._timeScale;
+                if (self._timeOffset != 0) {
+                    value += self._timeOffset * self._animationDutation;
                 }
 
                 if (playTimes > 0 && (value >= totalTimes || value <= -totalTimes)) {
-                    this._isCompleted = true;
+                    self._isCompleted = true;
                     currentPlayTimes = playTimes;
 
                     if (value < 0) {
                         value = 0;
                     } else {
-                        value = this._duration;
+                        value = self._duration;
                     }
                 } else {
-                    this._isCompleted = false;
+                    self._isCompleted = false;
 
                     if (value < 0) {
-                        currentPlayTimes = Math.floor(-value / this._duration);
-                        value = this._duration - (-value % this._duration);
+                        currentPlayTimes = Math.floor(-value / self._duration);
+                        value = self._duration - (-value % self._duration);
                     } else {
-                        currentPlayTimes = Math.floor(value / this._duration);
-                        value %= this._duration;
+                        currentPlayTimes = Math.floor(value / self._duration);
+                        value %= self._duration;
                     }
 
                     if (playTimes > 0 && currentPlayTimes > playTimes) {
@@ -99,23 +100,23 @@ namespace dragonBones {
                     }
                 }
 
-                value += this._position;
+                value += self._position;
             } else {
-                this._isCompleted = this._animationState._timeline._isCompleted;
-                currentPlayTimes = this._animationState._timeline._currentPlayTimes;
+                self._isCompleted = self._animationState._timeline._isCompleted;
+                currentPlayTimes = self._animationState._timeline._currentPlayTimes;
             }
 
-            if (this._currentTime == value) {
+            if (self._currentTime == value) {
                 return false;
             }
 
-            if (this._keyFrameCount == 1 && value > this._position && <any>this != this._animationState._timeline) {
-                this._isCompleted = true;
+            if (self._keyFrameCount == 1 && value > self._position && <any>this != self._animationState._timeline) {
+                self._isCompleted = true;
             }
 
-            this._isReverse = this._currentTime > value && this._currentPlayTimes == currentPlayTimes;
-            this._currentTime = value;
-            this._currentPlayTimes = currentPlayTimes;
+            self._isReverse = self._currentTime > value && self._currentPlayTimes == currentPlayTimes;
+            self._currentTime = value;
+            self._currentPlayTimes = currentPlayTimes;
 
             return true;
         }
@@ -168,43 +169,15 @@ namespace dragonBones {
         public fadeOut(): void { }
 
         public update(time: number): void {
-            let self = this; // V8 bug
-            const prevTime = self._currentTime;
+            const self = this;
 
             if (!self._isCompleted && self._setCurrentTime(time) && self._keyFrameCount) {
                 const currentFrameIndex = self._keyFrameCount > 1 ? Math.floor(self._currentTime * self._frameRate) : 0;
                 const currentFrame = self._timeline.frames[currentFrameIndex];
+
                 if (self._currentFrame != currentFrame) {
-                    if (self._keyFrameCount > 1) {
-                        let crossedFrame = self._currentFrame;
-                        self._currentFrame = currentFrame;
-
-                        if (!crossedFrame) {
-                            const prevFrameIndex = Math.floor(prevTime * self._frameRate);
-                            crossedFrame = self._timeline.frames[prevFrameIndex];
-                            if (!self._isReverse && prevTime <= crossedFrame.position) {
-                                crossedFrame = crossedFrame.prev;
-                            }
-                        }
-
-                        if (self._isReverse) {
-                            while (crossedFrame != currentFrame) {
-                                self._onCrossFrame(crossedFrame);
-                                crossedFrame = crossedFrame.prev;
-                            }
-                        } else {
-                            while (crossedFrame != currentFrame) {
-                                crossedFrame = crossedFrame.next;
-                                self._onCrossFrame(crossedFrame);
-                            }
-                        }
-
-                        self._onArriveAtFrame(true);
-                    } else {
-                        self._currentFrame = currentFrame;
-                        self._onCrossFrame(self._currentFrame);
-                        self._onArriveAtFrame(true);
-                    }
+                    self._currentFrame = currentFrame;
+                    self._onArriveAtFrame(true);
                 }
 
                 self._onUpdateFrame(true);
@@ -277,7 +250,8 @@ namespace dragonBones {
         }
 
         protected _onArriveAtFrame(isUpdate: boolean): void {
-            let self = this; // V8 bug
+            const self = this;
+
             self._tweenEasing = self._currentFrame.tweenEasing;
             self._curve = self._currentFrame.curve;
 
@@ -296,16 +270,18 @@ namespace dragonBones {
         }
 
         protected _onUpdateFrame(isUpdate: boolean): void {
-            if (this._tweenEasing != DragonBones.NO_TWEEN && this._currentFrame.duration > 0) {
-                this._tweenProgress = (this._currentTime - this._currentFrame.position + this._position) / this._currentFrame.duration;
-                if (this._tweenEasing != 0) {
-                    this._tweenProgress = TweenTimelineState._getEasingValue(this._tweenProgress, this._tweenEasing);
+            const self = this;
+
+            if (self._tweenEasing != DragonBones.NO_TWEEN && self._currentFrame.duration > 0) {
+                self._tweenProgress = (self._currentTime - self._currentFrame.position + self._position) / self._currentFrame.duration;
+                if (self._tweenEasing != 0) {
+                    self._tweenProgress = TweenTimelineState._getEasingValue(self._tweenProgress, self._tweenEasing);
                 }
-            } else if (this._curve) {
-                this._tweenProgress = (this._currentTime - this._currentFrame.position + this._position) / this._currentFrame.duration;
-                this._tweenProgress = TweenTimelineState._getCurveEasingValue(this._tweenProgress, this._curve);
+            } else if (self._curve) {
+                self._tweenProgress = (self._currentTime - self._currentFrame.position + self._position) / self._currentFrame.duration;
+                self._tweenProgress = TweenTimelineState._getCurveEasingValue(self._tweenProgress, self._curve);
             } else {
-                this._tweenProgress = 0;
+                self._tweenProgress = 0;
             }
         }
 

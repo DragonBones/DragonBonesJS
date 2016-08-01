@@ -26,7 +26,7 @@ namespace dragonBones {
         /**
          * @private
          */
-        protected _objectDataParser: ObjectDataParser = new ObjectDataParser();
+        protected _dataParser: DataParser = null;
         /**
          * @private
          */
@@ -38,7 +38,8 @@ namespace dragonBones {
         /** 
          * @private 
          */
-        public constructor() {
+        public constructor(dataParser: DataParser = null) {
+            this._dataParser = dataParser || ObjectDataParser.getInstance();
         }
         /** 
          * @private 
@@ -174,15 +175,16 @@ namespace dragonBones {
                 }
 
                 const slot = this._generateSlot(dataPackage, slotDisplayDataSet);
+                if (slot) {
+                    slot._displayDataSet = slotDisplayDataSet;
+                    slot._setDisplayIndex(slotData.displayIndex);
+                    slot._setBlendMode(slotData.blendMode);
+                    slot._setColor(slotData.color);
 
-                slot._displayDataSet = slotDisplayDataSet;
-                slot._setDisplayIndex(slotData.displayIndex);
-                slot._setBlendMode(slotData.blendMode);
-                slot._setColor(slotData.color);
+                    slot._replacedDisplayDataSet.length = slot._displayDataSet.displays.length;
 
-                slot._replacedDisplayDataSet.length = slot._displayDataSet.displays.length;
-
-                armature.addSlot(slot, slotData.parent.name);
+                    armature.addSlot(slot, slotData.parent.name);
+                }
             }
         }
         /**
@@ -249,7 +251,7 @@ namespace dragonBones {
          * @version DragonBones 4.5
          */
         public parseDragonBonesData(rawData: any, dragonBonesName: string = null): DragonBonesData {
-            const dragonBonesData = this._objectDataParser.parseDragonBonesData(rawData);
+            const dragonBonesData = this._dataParser.parseDragonBonesData(rawData, 1);
             this.addDragonBonesData(dragonBonesData, dragonBonesName);
 
             return dragonBonesData;
@@ -270,7 +272,7 @@ namespace dragonBones {
          */
         public parseTextureAtlasData(rawData: any, textureAtlas: Object, name: string = null, scale: number = 0): TextureAtlasData {
             const textureAtlasData = this._generateTextureAtlasData(null, null);
-            this._objectDataParser.parseTextureAtlasData(rawData, textureAtlasData, scale);
+            this._dataParser.parseTextureAtlasData(rawData, textureAtlasData, scale);
 
             this._generateTextureAtlasData(textureAtlasData, textureAtlas);
             this.addTextureAtlasData(textureAtlasData, name);
@@ -455,7 +457,9 @@ namespace dragonBones {
                 this._buildSlots(dataPackage, armature);
 
                 if (armature.armatureData.actions.length > 0) { // Add default action.
-                    armature._action = armature.armatureData.actions[armature.armatureData.actions.length - 1];
+                    for (let i = 0, l = armature.armatureData.actions.length; i < l; ++i) {
+                        armature._bufferAction(armature.armatureData.actions[i]);
+                    }
                 }
 
                 armature.advanceTime(0); // Update armature pose.

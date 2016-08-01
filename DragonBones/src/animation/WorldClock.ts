@@ -73,6 +73,11 @@ namespace dragonBones {
                 for (; i < l; ++i) {
                     const animateble = this._animatebles[i];
                     if (animateble) {
+                        if (r > 0) {
+                            this._animatebles[i - r] = animateble;
+                            this._animatebles[i] = null;
+                        }
+
                         animateble.advanceTime(passedTime);
                     } else {
                         r++;
@@ -80,9 +85,7 @@ namespace dragonBones {
                 }
 
                 if (r > 0) {
-                    r = 0;
                     l = this._animatebles.length;
-
                     for (; i < l; ++i) {
                         const animateble = this._animatebles[i];
                         if (animateble) {

@@ -29,12 +29,39 @@ var dragonBones;
         PixiArmatureDisplay.prototype._onClear = function () {
             this.advanceTimeBySelf(false);
             this._armature = null;
+            if (this._debugDrawer) {
+                this._debugDrawer.destroy(true);
+                this._debugDrawer = null;
+            }
+            this.destroy(true);
         };
         /**
          * @inheritDoc
          */
         PixiArmatureDisplay.prototype._dispatchEvent = function (eventObject) {
             this.emit(eventObject.type, eventObject);
+        };
+        /**
+         * @inheritDoc
+         */
+        PixiArmatureDisplay.prototype._debugDraw = function () {
+            if (!this._debugDrawer) {
+                this._debugDrawer = new PIXI.Graphics();
+            }
+            this.addChild(this._debugDrawer);
+            this._debugDrawer.clear();
+            var bones = this._armature.getBones();
+            for (var i = 0, l = bones.length; i < l; ++i) {
+                var bone = bones[i];
+                var boneLength = Math.max(bone.length, 5);
+                var startX = bone.globalTransformMatrix.tx;
+                var startY = bone.globalTransformMatrix.ty;
+                var endX = startX + bone.globalTransformMatrix.a * boneLength;
+                var endY = startY + bone.globalTransformMatrix.b * boneLength;
+                this._debugDrawer.lineStyle(1, bone.ik ? 0xFF0000 : 0x00FF00, 0.5);
+                this._debugDrawer.moveTo(startX, startY);
+                this._debugDrawer.lineTo(endX, endY);
+            }
         };
         /**
          * @inheritDoc
@@ -110,12 +137,14 @@ var dragonBones;
         /**
          * @language zh_CN
          * 创建一个工厂。
+         * @param dataParser 龙骨数据解析器，如果不设置，则使用默认解析器。
          * @version DragonBones 3.0
          */
-        function PixiFactory() {
-            _super.call(this);
-            if (!dragonBones.Armature._soundEventManager) {
-                dragonBones.Armature._soundEventManager = new dragonBones.PixiArmatureDisplay();
+        function PixiFactory(dataParser) {
+            if (dataParser === void 0) { dataParser = null; }
+            _super.call(this, dataParser);
+            if (!dragonBones.EventObject._soundEventManager) {
+                dragonBones.EventObject._soundEventManager = new dragonBones.PixiArmatureDisplay();
             }
         }
         /**
@@ -176,7 +205,9 @@ var dragonBones;
                         var childArmature = this.buildArmature(displayData.name, dataPackage.dataName);
                         if (childArmature) {
                             if (slotData.actions.length > 0) {
-                                childArmature._action = slotData.actions[slotData.actions.length - 1];
+                                for (var i_1 = 0, l_1 = slotData.actions.length; i_1 < l_1; ++i_1) {
+                                    childArmature._bufferAction(slotData.actions[i_1]);
+                                }
                             }
                             else {
                                 childArmature.animation.play();
@@ -234,7 +265,7 @@ var dragonBones;
              * @version DragonBones 4.5
              */
             get: function () {
-                return dragonBones.Armature._soundEventManager;
+                return dragonBones.EventObject._soundEventManager;
             },
             enumerable: true,
             configurable: true
@@ -314,6 +345,7 @@ var dragonBones;
          * @private
          */
         PixiSlot.prototype._disposeDisplay = function (value) {
+            value.destroy();
         };
         /**
          * @private
@@ -383,6 +415,10 @@ var dragonBones;
                             }
                             meshDisplay.texture = texture;
                             meshDisplay.dirty = true;
+                            // Identity transform.
+                            if (this._meshData.skinned) {
+                                meshDisplay.setTransform(0, 0, 1, 1, 0, 0, 0, 0, 0);
+                            }
                         }
                         else {
                             var rect = currentTextureData.frame || currentTextureData.region;
@@ -468,7 +504,7 @@ var dragonBones;
          * @private
          */
         PixiSlot.prototype._updateTransform = function () {
-            //this._renderDisplay.worldTransform.copy(<PIXI.Matrix><any>this.globalTransformMatrix); // How to set matrix !?
+            // this._renderDisplay.worldTransform.copy(<PIXI.Matrix><any>this.globalTransformMatrix); // How to set matrix !?
             this._renderDisplay.setTransform(this.global.x, this.global.y, this.global.scaleX, this.global.scaleY, this.global.skewY, 0, 0, this._renderDisplay.pivot.x, this._renderDisplay.pivot.y);
         };
         /**

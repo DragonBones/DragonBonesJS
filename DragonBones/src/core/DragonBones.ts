@@ -108,7 +108,11 @@ namespace dragonBones {
         /**
          * @private
          */
-        public static DEBUG: boolean = true;
+        public static DEBUG: boolean = false;
+        /**
+         * @private
+         */
+        public static DEBUG_DRAW: boolean = false;
         /**
          * @private
          */

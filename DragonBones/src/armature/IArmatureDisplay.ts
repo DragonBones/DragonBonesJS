@@ -7,6 +7,10 @@ namespace dragonBones {
      */
     export interface IArmatureDisplay extends IEventDispatcher {
         /**
+         * @private
+         */
+        _debugDraw(): void;
+        /**
          * @language zh_CN
          * 由显示容器来更新骨架和动画。
          * @param on 开启或关闭显示容器对骨架与动画的更新。

@@ -104,12 +104,14 @@ declare namespace dragonBones {
      * @inheritDoc
      */
     class EgretArmatureDisplay extends egret.DisplayObjectContainer implements IArmatureDisplay {
+        static passTime: number;
         private static _clock;
         private static _clockHandler(time);
         /**
          * @private
          */
         _armature: Armature;
+        private _debugDrawer;
         /**
          * @private
          */
@@ -125,7 +127,7 @@ declare namespace dragonBones {
         /**
          * @inheritDoc
          */
-        advanceTime(passedTime: number): void;
+        _debugDraw(): void;
         /**
          * @inheritDoc
          */
@@ -244,9 +246,10 @@ declare namespace dragonBones {
         /**
          * @language zh_CN
          * 创建一个工厂。
+         * @param dataParser 龙骨数据解析器，如果不设置，则使用默认解析器。
          * @version DragonBones 3.0
          */
-        constructor();
+        constructor(dataParser?: DataParser);
         /**
          * @private
          */

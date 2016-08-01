@@ -42,7 +42,15 @@ namespace dragonBones {
         /**
          * @private
          */
-        public parent: DragonBonesData = null;
+        public parent: DragonBonesData;
+        /**
+         * @private
+         */
+        public userData: any;
+        /**
+         * @private
+         */
+        public aabb: Rectangle = new Rectangle();
         /**
          * @language zh_CN
          * 所有的骨骼数据。
@@ -98,6 +106,8 @@ namespace dragonBones {
             this.type = ArmatureType.Armature;
             this.name = null;
             this.parent = null;
+            this.userData = null;
+            this.aabb.clear();
 
             for (let i in this.bones) {
                 this.bones[i].returnToPool();

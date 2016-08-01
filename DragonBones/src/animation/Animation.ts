@@ -210,7 +210,9 @@ namespace dragonBones {
          * @private
          */
         public _advanceTime(passedTime: number): void {
-            if (!this._isPlaying) {
+            const self = this;
+
+            if (!self._isPlaying) {
                 return;
             }
 
@@ -218,43 +220,43 @@ namespace dragonBones {
                 passedTime = -passedTime;
             }
 
-            const animationStateCount = this._animationStates.length;
+            const animationStateCount = self._animationStates.length;
             if (animationStateCount == 1) {
-                const animationState = this._animationStates[0];
+                const animationState = self._animationStates[0];
                 if (animationState._isFadeOutComplete) {
                     animationState.returnToPool();
-                    this._animationStates.length = 0;
-                    this._animationStateDirty = true;
-                    this._lastAnimationState = null;
+                    self._animationStates.length = 0;
+                    self._animationStateDirty = true;
+                    self._lastAnimationState = null;
                 } else {
-                    if (this._timelineStateDirty) {
+                    if (self._timelineStateDirty) {
                         animationState._updateTimelineStates();
                     }
 
                     animationState._advanceTime(passedTime, 1, 0);
                 }
             } else if (animationStateCount > 1) {
-                let prevLayer = this._animationStates[0]._layer;
+                let prevLayer = self._animationStates[0]._layer;
                 let weightLeft = 1;
                 let layerTotalWeight = 0;
                 let layerIndex = 1;
 
                 for (let i = 0, r = 0; i < animationStateCount; ++i) {
-                    const animationState = this._animationStates[i];
+                    const animationState = self._animationStates[i];
                     if (animationState._isFadeOutComplete) {
                         r++;
                         animationState.returnToPool();
 
-                        if (this._lastAnimationState == animationState) {
+                        if (self._lastAnimationState == animationState) {
                             if (i - r >= 0) {
-                                this._lastAnimationState = this._animationStates[i - r];
+                                self._lastAnimationState = self._animationStates[i - r];
                             } else {
-                                this._lastAnimationState = null;
+                                self._lastAnimationState = null;
                             }
                         }
                     } else {
                         if (r > 0) {
-                            this._animationStates[i - r] = animationState;
+                            self._animationStates[i - r] = animationState;
                         }
 
                         if (prevLayer != animationState._layer) {
@@ -269,7 +271,7 @@ namespace dragonBones {
                             layerTotalWeight = 0;
                         }
 
-                        if (this._timelineStateDirty) {
+                        if (self._timelineStateDirty) {
                             animationState._updateTimelineStates();
                         }
 
@@ -282,12 +284,12 @@ namespace dragonBones {
                     }
 
                     if (i == animationStateCount - 1 && r > 0) {
-                        this._animationStates.length -= r;
+                        self._animationStates.length -= r;
                     }
                 }
             }
 
-            this._timelineStateDirty = false;
+            self._timelineStateDirty = false;
         }
         /**
          * @language zh_CN
@@ -578,6 +580,8 @@ namespace dragonBones {
          * @version DragonBones 3.0
          */
         public get isCompleted(): boolean {
+            const self = this;
+
             if (this._lastAnimationState) {
                 if (!this._lastAnimationState.isCompleted) {
                     return false;
@@ -629,6 +633,8 @@ namespace dragonBones {
             return this._animations;
         }
         public set animations(value: Map<AnimationData>) {
+            const self = this;
+
             if (this._animations == value) {
                 return;
             }

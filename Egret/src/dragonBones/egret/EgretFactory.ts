@@ -8,13 +8,14 @@ namespace dragonBones {
         /**
          * @language zh_CN
          * 创建一个工厂。
+         * @param dataParser 龙骨数据解析器，如果不设置，则使用默认解析器。
          * @version DragonBones 3.0
          */
-        public constructor() {
-            super();
+        public constructor(dataParser: DataParser = null) {
+            super(dataParser);
 
-            if (!Armature._soundEventManager) {
-                Armature._soundEventManager = new EgretArmatureDisplay();
+            if (!EventObject._soundEventManager) {
+                EventObject._soundEventManager = new EgretArmatureDisplay();
             }
         }
         /**
@@ -35,6 +36,8 @@ namespace dragonBones {
         protected _generateArmature(dataPackage: BuildArmaturePackage): Armature {
             const armature = BaseObject.borrowObject(Armature);
             const armatureDisplayContainer = new EgretArmatureDisplay();
+            // Test
+            //const armatureDisplayContainer = new BitmapContainer();
 
             armature._armatureData = dataPackage.armature;
             armature._skinData = dataPackage.skin;
@@ -90,7 +93,9 @@ namespace dragonBones {
                         const childArmature = this.buildArmature(displayData.name, dataPackage.dataName);
                         if (childArmature) {
                             if (slotData.actions.length > 0) {
-                                childArmature._action = slotData.actions[slotData.actions.length - 1];
+                                for (let i = 0, l = slotData.actions.length; i < l; ++i) {
+                                    childArmature._bufferAction(slotData.actions[i]);
+                                }
                             } else {
                                 childArmature.animation.play();
                             }
@@ -149,7 +154,7 @@ namespace dragonBones {
          * @version DragonBones 4.5
          */
         public get soundEventManater(): EgretArmatureDisplay {
-            return <EgretArmatureDisplay>Armature._soundEventManager;
+            return <EgretArmatureDisplay>EventObject._soundEventManager;
         }
 
         /**

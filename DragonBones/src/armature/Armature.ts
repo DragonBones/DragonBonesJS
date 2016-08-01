@@ -13,10 +13,6 @@ namespace dragonBones {
         /**
          * @private
          */
-        public static _soundEventManager: IEventDispatcher = null;
-        /**
-         * @private
-         */
         public static toString(): string {
             return "[Class dragonBones.Armature]";
         }
@@ -58,10 +54,6 @@ namespace dragonBones {
         /**
          * @private
          */
-        public _action: ActionData;
-        /**
-         * @private
-         */
         public _replacedTexture: any;
         /**
          * @private
@@ -83,6 +75,10 @@ namespace dragonBones {
          * @private Store slots based on slots' zOrder (From low to high)
          */
         private _slots: Array<Slot> = [];
+        /**
+         * @private
+         */
+        private _actions: Array<ActionData> = [];
         /**
          * @private
          */
@@ -115,7 +111,6 @@ namespace dragonBones {
             }
 
             this._parent = null;
-            this._action = null;
             this._replacedTexture = null;
 
             this._delayDispose = false;
@@ -136,6 +131,14 @@ namespace dragonBones {
                 }
 
                 this._slots.length = 0;
+            }
+
+            if (this._actions.length) {
+                for (let i = 0, l = this._actions.length; i < l; ++i) {
+                    this._actions[i].returnToPool();
+                }
+
+                this._actions.length = 0;
             }
 
             if (this._events.length) {
@@ -197,6 +200,36 @@ namespace dragonBones {
         /**
          * @private
          */
+        private _doAction(value: ActionData): void {
+            switch (value.type) {
+                case ActionType.Play:
+                    this._animation.play(value.data[0], value.data[1]);
+                    break;
+
+                case ActionType.Stop:
+                    this._animation.stop(value.data[0]);
+                    break;
+
+                case ActionType.GotoAndPlay:
+                    this._animation.gotoAndPlayByTime(value.data[0], value.data[1], value.data[2]);
+                    break;
+
+                case ActionType.GotoAndStop:
+                    this._animation.gotoAndStopByTime(value.data[0], value.data[1]);
+                    break;
+
+                case ActionType.FadeIn:
+                    this._animation.fadeIn(value.data[0], value.data[1], value.data[2]);
+                    break;
+
+                case ActionType.FadeOut:
+                    // TODO fade out
+                    break;
+            }
+        }
+        /**
+         * @private
+         */
         public _addBoneToBoneList(value: Bone): void {
             if (this._bones.indexOf(value) < 0) {
                 this._bonesDirty = true;
@@ -237,6 +270,12 @@ namespace dragonBones {
         /**
          * @private
          */
+        public _bufferAction(value: ActionData): void {
+            this._actions.push(value);
+        }
+        /**
+         * @private
+         */
         public _bufferEvent(value: EventObject, type: string): void {
             value.type = type;
             value.armature = this;
@@ -264,35 +303,37 @@ namespace dragonBones {
          * @version DragonBones 3.0
          */
         public advanceTime(passedTime: number): void {
-            if (!this._lockDispose) {
-                this._lockDispose = true;
+            const self = this;
 
-                const scaledPassedTime = passedTime * this._animation.timeScale;
+            if (!self._lockDispose) {
+                self._lockDispose = true;
+
+                const scaledPassedTime = passedTime * self._animation.timeScale;
 
                 // Animations.
-                this._animation._advanceTime(scaledPassedTime);
+                self._animation._advanceTime(scaledPassedTime);
 
                 // Bones and slots.
-                if (this._bonesDirty) {
-                    this._bonesDirty = false;
-                    this._sortBones();
+                if (self._bonesDirty) {
+                    self._bonesDirty = false;
+                    self._sortBones();
                 }
 
-                if (this._slotsDirty) {
-                    this._slotsDirty = false;
-                    this._sortSlots();
+                if (self._slotsDirty) {
+                    self._slotsDirty = false;
+                    self._sortSlots();
                 }
 
-                for (let i = 0, l = this._bones.length; i < l; ++i) {
-                    this._bones[i]._update(this._cacheFrameIndex);
+                for (let i = 0, l = self._bones.length; i < l; ++i) {
+                    self._bones[i]._update(self._cacheFrameIndex);
                 }
 
-                for (let i = 0, l = this._slots.length; i < l; ++i) {
-                    const slot = this._slots[i];
+                for (let i = 0, l = self._slots.length; i < l; ++i) {
+                    const slot = self._slots[i];
 
-                    slot._update(this._cacheFrameIndex);
+                    slot._update(self._cacheFrameIndex);
 
-                    const childArmature = slot.childArmature;
+                    const childArmature = slot._childArmature;
                     if (childArmature) {
                         if (slot.inheritAnimation) { // Animation's time scale will impact to childArmature
                             childArmature.advanceTime(scaledPassedTime);
@@ -302,57 +343,57 @@ namespace dragonBones {
                     }
                 }
 
-                // Actions and events.
-                if (this._action) {
-                    switch (this._action.type) {
-                        case ActionType.Play:
-                            this._animation.play(this._action.data[0], this._action.data[1]);
-                            break;
-
-                        case ActionType.Stop:
-                            this._animation.stop(this._action.data[0]);
-                            break;
-
-                        case ActionType.GotoAndPlay:
-                            this._animation.gotoAndPlayByTime(this._action.data[0], this._action.data[1], this._action.data[2]);
-                            break;
-
-                        case ActionType.GotoAndStop:
-                            this._animation.gotoAndStopByTime(this._action.data[0], this._action.data[1]);
-                            break;
-
-                        case ActionType.FadeIn:
-                            this._animation.fadeIn(this._action.data[0], this._action.data[1], this._action.data[2]);
-                            break;
-
-                        case ActionType.FadeOut:
-                            // TODO fade out
-                            break;
-                    }
-
-                    this._action = null;
+                if (DragonBones.DEBUG_DRAW) {
+                    self._display._debugDraw();
                 }
 
-                if (this._events.length > 0) {
-                    for (let i = 0, l = this._events.length; i < l; ++i) {
-                        const event = this._events[i];
-                        if (Armature._soundEventManager && event.type == EventObject.SOUND_EVENT) {
-                            Armature._soundEventManager._dispatchEvent(event);
+                // Actions and events.
+                if (self._events.length > 0) { // Dispatch event before action.
+                    for (let i = 0, l = self._events.length; i < l; ++i) {
+                        const event = self._events[i];
+                        if (EventObject._soundEventManager && event.type == EventObject.SOUND_EVENT) {
+                            EventObject._soundEventManager._dispatchEvent(event);
                         } else {
-                            this._display._dispatchEvent(event);
+                            self._display._dispatchEvent(event);
                         }
 
                         event.returnToPool();
                     }
 
-                    this._events.length = 0;
+                    self._events.length = 0;
                 }
 
-                this._lockDispose = false;
+                if (self._actions.length > 0) {
+                    for (let i = 0, l = self._actions.length; i < l; ++i) {
+                        const action = self._actions[i];
+                        if (action.slot) {
+                            const slot = self.getSlot(action.slot.name);
+                            if (slot) {
+                                const childArmature = slot._childArmature;
+                                if (childArmature) {
+                                    childArmature._doAction(action);
+                                }
+                            }
+                        } else if (action.bone) {
+                            for (let i = 0, l = self._slots.length; i < l; ++i) {
+                                const childArmature = self._slots[i]._childArmature;
+                                if (childArmature) {
+                                    childArmature._doAction(action);
+                                }
+                            }
+                        } else {
+                            this._doAction(action);
+                        }
+                    }
+
+                    self._actions.length = 0;
+                }
+
+                self._lockDispose = false;
             }
 
-            if (this._delayDispose) {
-                this.returnToPool();
+            if (self._delayDispose) {
+                self.returnToPool();
             }
         }
         /**

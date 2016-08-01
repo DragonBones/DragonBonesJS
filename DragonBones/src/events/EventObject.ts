@@ -111,6 +111,10 @@ namespace dragonBones {
         public static toString(): string {
             return "[Class dragonBones.EventObject]";
         }
+        /**
+         * @private
+         */
+        public static _soundEventManager: IEventDispatcher = null;
 
         /**
          * @language zh_CN

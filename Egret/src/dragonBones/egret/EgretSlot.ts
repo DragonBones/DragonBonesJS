@@ -86,6 +86,7 @@ namespace dragonBones {
          * @private
          */
         protected _disposeDisplay(value: Object): void {
+            //
         }
         /**
          * @private
@@ -201,11 +202,14 @@ namespace dragonBones {
                     }
 
                     const texture = (<egret.Texture>this._armature._replacedTexture) || currentTextureData.texture;
-
                     if (texture) {
                         if (this._meshData && this._display == this._meshDisplay) { // Mesh.
                             const meshDisplay = <egret.Mesh>this._meshDisplay;
                             const meshNode = <egret.sys.MeshNode>meshDisplay.$renderNode;
+
+                            meshNode.uvs.length = 0;
+                            meshNode.vertices.length = 0;
+                            meshNode.indices.length = 0;
 
                             for (let i = 0, l = this._meshData.vertices.length; i < l; ++i) {
                                 meshNode.uvs[i] = this._meshData.uvs[i];
@@ -219,6 +223,13 @@ namespace dragonBones {
                             meshDisplay.$setBitmapData(texture);
                             meshDisplay.$updateVertices();
                             meshDisplay.$invalidateTransform();
+
+                            // Identity transform.
+                            if (this._meshData.skinned) {
+                                const transformationMatrix = meshDisplay.matrix;
+                                transformationMatrix.identity();
+                                meshDisplay.matrix = transformationMatrix;
+                            }
                         } else { // Normal texture.
                             const rect = currentTextureData.frame || currentTextureData.region;
 
@@ -326,10 +337,7 @@ namespace dragonBones {
         /**
          * @private
          */
-        protected _updateTransform(): void
-        {
-            this.globalTransformMatrix;
-            this.transformUpdateEnabled;
+        protected _updateTransform(): void {
             this._renderDisplay.$setMatrix(<egret.Matrix><any>this.globalTransformMatrix, this.transformUpdateEnabled);
         }
     }
