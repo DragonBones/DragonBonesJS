@@ -1,5 +1,6 @@
 namespace dragonBones {
     /**
+     * @internal
      * @private
      */
     export const enum TweenType {
@@ -8,6 +9,7 @@ namespace dragonBones {
         Always = 2
     }
     /**
+     * @internal
      * @private
      */
     export abstract class TimelineState<T extends FrameData<T>, M extends TimelineData<T>> extends BaseObject {
@@ -68,29 +70,32 @@ namespace dragonBones {
 
             if (self._hasAsynchronyTimeline) {
                 const playTimes = self._animationState.playTimes;
-                const totalTimes = playTimes * self._duration;
+                const totalTime = playTimes * self._duration;
 
                 value *= self._timeScale;
                 if (self._timeOffset != 0) {
                     value += self._timeOffset * self._animationDutation;
                 }
 
-                if (playTimes > 0 && (value >= totalTimes || value <= -totalTimes)) {
+                if (playTimes > 0 && (value >= totalTime || value <= -totalTime)) {
                     self._isCompleted = true;
                     currentPlayTimes = playTimes;
 
                     if (value < 0) {
                         value = 0;
-                    } else {
+                    }
+                    else {
                         value = self._duration;
                     }
-                } else {
+                }
+                else {
                     self._isCompleted = false;
 
                     if (value < 0) {
                         currentPlayTimes = Math.floor(-value / self._duration);
                         value = self._duration - (-value % self._duration);
-                    } else {
+                    }
+                    else {
                         currentPlayTimes = Math.floor(value / self._duration);
                         value %= self._duration;
                     }
@@ -101,7 +106,8 @@ namespace dragonBones {
                 }
 
                 value += self._position;
-            } else {
+            }
+            else {
                 self._isCompleted = self._animationState._timeline._isCompleted;
                 currentPlayTimes = self._animationState._timeline._currentPlayTimes;
             }
@@ -185,6 +191,7 @@ namespace dragonBones {
         }
     }
     /**
+     * @internal
      * @private
      */
     export abstract class TweenTimelineState<T extends TweenFrameData<T>, M extends TimelineData<T>> extends TimelineState<T, M> {
@@ -192,19 +199,24 @@ namespace dragonBones {
             let value = 1;
             if (easing > 2) {
                 return progress;
-            } else if (easing > 1) { // Ease in out.
+            }
+            else if (easing > 1) { // Ease in out.
                 value = 0.5 * (1 - Math.cos(progress * Math.PI));
                 easing -= 1;
-            } else if (easing > 0) { // Ease out.
+            }
+            else if (easing > 0) { // Ease out.
                 value = 1 - Math.pow(1 - progress, 2);
-            } else if (easing >= -1) { // Ease in.
+            }
+            else if (easing >= -1) { // Ease in.
                 easing *= -1;
                 value = Math.pow(progress, 2);
-            } else if (easing >= -2) { // Ease out in.
+            }
+            else if (easing >= -2) { // Ease out in.
                 easing *= -1;
                 value = Math.acos(1 - progress * 2) / Math.PI;
                 easing -= 1;
-            } else {
+            }
+            else {
                 return progress;
             }
 
@@ -212,15 +224,24 @@ namespace dragonBones {
         }
 
         public static _getCurveEasingValue(progress: number, sampling: Array<number>): number {
+            if (progress <= 0) {
+                return 0;
+            }
+            else if (progress >= 1) {
+                return 1;
+            }
+
             let x = 0;
             let y = 0;
+
             for (let i = 0, l = sampling.length; i < l; i += 2) {
                 x = sampling[i];
                 y = sampling[i + 1];
                 if (x >= progress) {
                     if (i == 0) {
                         return y * progress / x;
-                    } else {
+                    }
+                    else {
                         const xP = sampling[i - 2];
                         const yP = sampling[i - 1]; // i - 2 + 1
                         return yP + (y - yP) * (progress - xP) / (x - xP);
@@ -256,7 +277,7 @@ namespace dragonBones {
             self._curve = self._currentFrame.curve;
 
             if (
-                self._keyFrameCount == 1 ||
+                self._keyFrameCount <= 1 ||
                 (
                     self._currentFrame.next == self._timeline.frames[0] &&
                     (self._tweenEasing != DragonBones.NO_TWEEN || self._curve) &&
@@ -272,15 +293,17 @@ namespace dragonBones {
         protected _onUpdateFrame(isUpdate: boolean): void {
             const self = this;
 
-            if (self._tweenEasing != DragonBones.NO_TWEEN && self._currentFrame.duration > 0) {
+            if (self._tweenEasing != DragonBones.NO_TWEEN) {
                 self._tweenProgress = (self._currentTime - self._currentFrame.position + self._position) / self._currentFrame.duration;
                 if (self._tweenEasing != 0) {
                     self._tweenProgress = TweenTimelineState._getEasingValue(self._tweenProgress, self._tweenEasing);
                 }
-            } else if (self._curve) {
+            }
+            else if (self._curve) {
                 self._tweenProgress = (self._currentTime - self._currentFrame.position + self._position) / self._currentFrame.duration;
                 self._tweenProgress = TweenTimelineState._getCurveEasingValue(self._tweenProgress, self._curve);
-            } else {
+            }
+            else {
                 self._tweenProgress = 0;
             }
         }

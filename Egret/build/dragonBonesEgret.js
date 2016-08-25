@@ -162,6 +162,11 @@ var dragonBones;
          * @see dragonBones.EventObject.FRAME_EVENT
          */
         EgretEvent.MOVEMENT_FRAME_EVENT = dragonBones.EventObject.FRAME_EVENT;
+        /**
+         * @deprecated
+         * @see dragonBones.EventObject.SOUND_EVENT
+         */
+        EgretEvent.SOUND = dragonBones.EventObject.SOUND_EVENT;
         return EgretEvent;
     }(egret.Event));
     dragonBones.EgretEvent = EgretEvent;
@@ -183,7 +188,7 @@ var dragonBones;
         }
         EgretArmatureDisplay._clockHandler = function (time) {
             time *= 0.001;
-            var passedTime = EgretArmatureDisplay.passTime > 0 ? EgretArmatureDisplay.passTime : (time - EgretArmatureDisplay._clock.time);
+            var passedTime = time - EgretArmatureDisplay._clock.time;
             EgretArmatureDisplay._clock.advanceTime(passedTime);
             EgretArmatureDisplay._clock.time = time;
             return false;
@@ -192,7 +197,6 @@ var dragonBones;
          * @inheritDoc
          */
         EgretArmatureDisplay.prototype._onClear = function () {
-            this.advanceTimeBySelf(false);
             this._armature = null;
             this._debugDrawer = null;
         };
@@ -261,7 +265,9 @@ var dragonBones;
          */
         EgretArmatureDisplay.prototype.dispose = function () {
             if (this._armature) {
+                this.advanceTimeBySelf(false);
                 this._armature.dispose();
+                this._armature = null;
             }
         };
         Object.defineProperty(EgretArmatureDisplay.prototype, "armature", {
@@ -284,11 +290,22 @@ var dragonBones;
             enumerable: true,
             configurable: true
         });
-        EgretArmatureDisplay.passTime = 0;
         EgretArmatureDisplay._clock = null;
         return EgretArmatureDisplay;
     }(egret.DisplayObjectContainer));
     dragonBones.EgretArmatureDisplay = EgretArmatureDisplay;
+    /**
+     * @deprecated
+     * @see dragonBones.EgretEvent
+     */
+    var Event = (function (_super) {
+        __extends(Event, _super);
+        function Event() {
+            _super.apply(this, arguments);
+        }
+        return Event;
+    }(EgretEvent));
+    dragonBones.Event = Event;
     /**
      * @deprecated
      * @see dragonBones.EgretEvent
@@ -342,7 +359,7 @@ var dragonBones;
          * @private
          */
         EgretTextureAtlas.toString = function () {
-            return "[Class dragonBones.EgretTextureAtlas]";
+            return "[class dragonBones.EgretTextureAtlas]";
         };
         return EgretTextureAtlas;
     }(dragonBones.EgretTextureAtlasData));
@@ -399,7 +416,7 @@ var dragonBones;
         __extends(EgretFactory, _super);
         /**
          * @language zh_CN
-         * 创建一个工厂。
+         * 创建一个工厂。 (通常只需要一个全局工厂实例)
          * @param dataParser 龙骨数据解析器，如果不设置，则使用默认解析器。
          * @version DragonBones 3.0
          */
@@ -410,6 +427,21 @@ var dragonBones;
                 dragonBones.EventObject._soundEventManager = new dragonBones.EgretArmatureDisplay();
             }
         }
+        Object.defineProperty(EgretFactory, "factory", {
+            /**
+             * @language zh_CN
+             * 一个可以直接使用的全局工厂实例.
+             * @version DragonBones 4.7
+             */
+            get: function () {
+                if (!EgretFactory._factory) {
+                    EgretFactory._factory = new EgretFactory();
+                }
+                return EgretFactory._factory;
+            },
+            enumerable: true,
+            configurable: true
+        });
         /**
          * @private
          */
@@ -428,8 +460,6 @@ var dragonBones;
         EgretFactory.prototype._generateArmature = function (dataPackage) {
             var armature = dragonBones.BaseObject.borrowObject(dragonBones.Armature);
             var armatureDisplayContainer = new dragonBones.EgretArmatureDisplay();
-            // Test
-            //const armatureDisplayContainer = new BitmapContainer();
             armature._armatureData = dataPackage.armature;
             armature._skinData = dataPackage.skin;
             armature._animation = dragonBones.BaseObject.borrowObject(dragonBones.Animation);
@@ -452,14 +482,14 @@ var dragonBones;
                 var displayData = slotDisplayDataSet.displays[i];
                 switch (displayData.type) {
                     case 0 /* Image */:
-                        if (!displayData.textureData) {
-                            displayData.textureData = this._getTextureData(dataPackage.dataName, displayData.name);
+                        if (!displayData.texture) {
+                            displayData.texture = this._getTextureData(dataPackage.dataName, displayData.name);
                         }
                         displayList.push(slot._rawDisplay);
                         break;
                     case 2 /* Mesh */:
-                        if (!displayData.textureData) {
-                            displayData.textureData = this._getTextureData(dataPackage.dataName, displayData.name);
+                        if (!displayData.texture) {
+                            displayData.texture = this._getTextureData(dataPackage.dataName, displayData.name);
                         }
                         if (egret.Capabilities.renderMode == "webgl") {
                             if (!slot._meshDisplay) {
@@ -474,14 +504,18 @@ var dragonBones;
                     case 1 /* Armature */:
                         var childArmature = this.buildArmature(displayData.name, dataPackage.dataName);
                         if (childArmature) {
-                            if (slotData.actions.length > 0) {
-                                for (var i_1 = 0, l_1 = slotData.actions.length; i_1 < l_1; ++i_1) {
-                                    childArmature._bufferAction(slotData.actions[i_1]);
+                            if (!slot.inheritAnimation) {
+                                var actions = slotData.actions.length > 0 ? slotData.actions : childArmature.armatureData.actions;
+                                if (actions.length > 0) {
+                                    for (var i_1 = 0, l_1 = actions.length; i_1 < l_1; ++i_1) {
+                                        childArmature._bufferAction(actions[i_1]);
+                                    }
+                                }
+                                else {
+                                    childArmature.animation.play();
                                 }
                             }
-                            else {
-                                childArmature.animation.play();
-                            }
+                            displayData.armature = childArmature.armatureData; // 
                         }
                         displayList.push(childArmature);
                         break;
@@ -593,6 +627,14 @@ var dragonBones;
             if (skinName === void 0) { skinName = null; }
             return this.buildArmature(armatureName, dragonBonesName, skinName);
         };
+        /**
+         * @deprecated
+         * @see dragonBones.BaseFactory#clear()
+         */
+        EgretFactory.prototype.dispose = function () {
+            this.clear();
+        };
+        EgretFactory._factory = null;
         return EgretFactory;
     }(dragonBones.BaseFactory));
     dragonBones.EgretFactory = EgretFactory;
@@ -618,7 +660,7 @@ var dragonBones;
          * @private
          */
         EgretSlot.toString = function () {
-            return "[Class dragonBones.EgretSlot]";
+            return "[class dragonBones.EgretSlot]";
         };
         /**
          * @inheritDoc
@@ -698,7 +740,8 @@ var dragonBones;
                 this._colorTransform.blueMultiplier != 1 ||
                 this._colorTransform.redOffset != 0 ||
                 this._colorTransform.greenOffset != 0 ||
-                this._colorTransform.blueOffset != 0) {
+                this._colorTransform.blueOffset != 0 ||
+                this._colorTransform.alphaOffset != 0) {
                 if (!this._colorFilter) {
                     this._colorFilter = new egret.ColorMatrixFilter();
                 }
@@ -742,76 +785,82 @@ var dragonBones;
                 var rawDisplayData = this._displayIndex < this._displayDataSet.displays.length ? this._displayDataSet.displays[this._displayIndex] : null;
                 var replacedDisplayData = this._displayIndex < this._replacedDisplayDataSet.length ? this._replacedDisplayDataSet[this._displayIndex] : null;
                 var currentDisplayData = replacedDisplayData || rawDisplayData;
-                var currentTextureData = currentDisplayData.textureData;
+                var currentTextureData = currentDisplayData.texture;
                 if (currentTextureData) {
                     var textureAtlasTexture = currentTextureData.parent.texture;
                     if (!currentTextureData.texture && textureAtlasTexture) {
                         currentTextureData.texture = new egret.Texture();
                         currentTextureData.texture._bitmapData = textureAtlasTexture._bitmapData;
-                        currentTextureData.texture.$initData(currentTextureData.region.x, currentTextureData.region.y, currentTextureData.region.width, currentTextureData.region.height, 0, 0, currentTextureData.region.width, currentTextureData.region.height, textureAtlasTexture.textureWidth, textureAtlasTexture.textureHeight);
+                        currentTextureData.texture.$initData(currentTextureData.region.x, currentTextureData.region.y, Math.min(currentTextureData.region.width, textureAtlasTexture.textureWidth - currentTextureData.region.x), Math.min(currentTextureData.region.height, textureAtlasTexture.textureHeight - currentTextureData.region.y), 0, 0, Math.min(currentTextureData.region.width, textureAtlasTexture.textureWidth - currentTextureData.region.x), Math.min(currentTextureData.region.height, textureAtlasTexture.textureHeight - currentTextureData.region.y), textureAtlasTexture.textureWidth, textureAtlasTexture.textureHeight);
                     }
                     var texture = this._armature._replacedTexture || currentTextureData.texture;
-                    if (texture) {
-                        if (this._meshData && this._display == this._meshDisplay) {
-                            var meshDisplay = this._meshDisplay;
-                            var meshNode = meshDisplay.$renderNode;
-                            meshNode.uvs.length = 0;
-                            meshNode.vertices.length = 0;
-                            meshNode.indices.length = 0;
-                            for (var i = 0, l = this._meshData.vertices.length; i < l; ++i) {
-                                meshNode.uvs[i] = this._meshData.uvs[i];
-                                meshNode.vertices[i] = this._meshData.vertices[i];
-                            }
-                            for (var i = 0, l = this._meshData.vertexIndices.length; i < l; ++i) {
-                                meshNode.indices[i] = this._meshData.vertexIndices[i];
-                            }
+                    if (this._meshData && this._display == this._meshDisplay) {
+                        var meshDisplay = this._meshDisplay;
+                        var meshNode = meshDisplay.$renderNode;
+                        meshNode.uvs.length = 0;
+                        meshNode.vertices.length = 0;
+                        meshNode.indices.length = 0;
+                        for (var i = 0, l = this._meshData.vertices.length; i < l; ++i) {
+                            meshNode.uvs[i] = this._meshData.uvs[i];
+                            meshNode.vertices[i] = this._meshData.vertices[i];
+                        }
+                        for (var i = 0, l = this._meshData.vertexIndices.length; i < l; ++i) {
+                            meshNode.indices[i] = this._meshData.vertexIndices[i];
+                        }
+                        this._pivotX = 0;
+                        this._pivotY = 0;
+                        if (texture) {
                             meshDisplay.$setBitmapData(texture);
-                            meshDisplay.$updateVertices();
-                            meshDisplay.$invalidateTransform();
-                            // Identity transform.
-                            if (this._meshData.skinned) {
-                                var transformationMatrix = meshDisplay.matrix;
-                                transformationMatrix.identity();
-                                meshDisplay.matrix = transformationMatrix;
-                            }
                         }
-                        else {
-                            var rect = currentTextureData.frame || currentTextureData.region;
-                            var width = rect.width;
-                            var height = rect.height;
-                            if (currentTextureData.rotated) {
-                                width = rect.height;
-                                height = rect.width;
-                            }
-                            var pivotX = currentDisplayData.pivot.x;
-                            var pivotY = currentDisplayData.pivot.y;
-                            if (currentDisplayData.isRelativePivot) {
-                                pivotX = width * pivotX;
-                                pivotY = height * pivotY;
-                            }
-                            if (currentTextureData.frame) {
-                                pivotX += currentTextureData.frame.x;
-                                pivotY += currentTextureData.frame.y;
-                            }
-                            if (rawDisplayData && replacedDisplayData) {
-                                pivotX += rawDisplayData.transform.x - replacedDisplayData.transform.x;
-                                pivotY += rawDisplayData.transform.y - replacedDisplayData.transform.y;
-                            }
-                            frameDisplay.$setBitmapData(texture);
-                            frameDisplay.$setAnchorOffsetX(pivotX);
-                            frameDisplay.$setAnchorOffsetY(pivotY);
+                        meshDisplay.$updateVertices();
+                        meshDisplay.$invalidateTransform();
+                        // Identity transform.
+                        if (this._meshData.skinned) {
+                            var transformationMatrix = meshDisplay.matrix;
+                            transformationMatrix.identity();
+                            meshDisplay.matrix = transformationMatrix;
                         }
-                        this._updateVisible();
-                        return;
                     }
+                    else {
+                        var rect = currentTextureData.frame || currentTextureData.region;
+                        var width = rect.width;
+                        var height = rect.height;
+                        if (currentTextureData.rotated) {
+                            width = rect.height;
+                            height = rect.width;
+                        }
+                        this._pivotX = currentDisplayData.pivot.x;
+                        this._pivotY = currentDisplayData.pivot.y;
+                        if (currentDisplayData.isRelativePivot) {
+                            this._pivotX = width * this._pivotX;
+                            this._pivotY = height * this._pivotY;
+                        }
+                        if (currentTextureData.frame) {
+                            this._pivotX += currentTextureData.frame.x;
+                            this._pivotY += currentTextureData.frame.y;
+                        }
+                        if (rawDisplayData && rawDisplayData != currentDisplayData) {
+                            this._pivotX += rawDisplayData.transform.x - currentDisplayData.transform.x;
+                            this._pivotY += rawDisplayData.transform.y - currentDisplayData.transform.y;
+                        }
+                        if (texture) {
+                            frameDisplay.$setBitmapData(texture);
+                        }
+                        frameDisplay.$setAnchorOffsetX(this._pivotX);
+                        frameDisplay.$setAnchorOffsetY(this._pivotY);
+                    }
+                    this._updateVisible();
+                    return;
                 }
             }
+            this._pivotX = 0;
+            this._pivotY = 0;
             frameDisplay.visible = false;
             frameDisplay.$setBitmapData(null);
             frameDisplay.$setAnchorOffsetX(0);
             frameDisplay.$setAnchorOffsetY(0);
-            frameDisplay.x = 0;
-            frameDisplay.y = 0;
+            frameDisplay.x = this.origin.x;
+            frameDisplay.y = this.origin.y;
         };
         /**
          * @private
@@ -910,7 +959,7 @@ var dragonBones;
          * @private
          */
         EgretTextureAtlasData.toString = function () {
-            return "[Class dragonBones.EgretTextureAtlasData]";
+            return "[class dragonBones.EgretTextureAtlasData]";
         };
         /**
          * @inheritDoc
@@ -940,7 +989,7 @@ var dragonBones;
             _super.call(this);
         }
         EgretTextureData.toString = function () {
-            return "[Class dragonBones.EgretTextureData]";
+            return "[class dragonBones.EgretTextureData]";
         };
         /**
          * @inheritDoc

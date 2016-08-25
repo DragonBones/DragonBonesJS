@@ -63,9 +63,16 @@ declare namespace dragonBones {
      * @version DragonBones 3.0
      */
     class PixiFactory extends BaseFactory {
+        private static _factory;
         /**
          * @language zh_CN
-         * 创建一个工厂。
+         * 一个可以直接使用的全局工厂实例.
+         * @version DragonBones 4.7
+         */
+        static factory: PixiFactory;
+        /**
+         * @language zh_CN
+         * 创建一个工厂。 (通常只需要一个全局工厂实例)
          * @param dataParser 龙骨数据解析器，如果不设置，则使用默认解析器。
          * @version DragonBones 3.0
          */

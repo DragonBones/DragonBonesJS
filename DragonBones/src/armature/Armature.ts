@@ -14,7 +14,7 @@ namespace dragonBones {
          * @private
          */
         public static toString(): string {
-            return "[Class dragonBones.Armature]";
+            return "[class dragonBones.Armature]";
         }
 
         /**
@@ -24,10 +24,12 @@ namespace dragonBones {
          */
         public userData: any;
         /**
+         * @internal
          * @private
          */
         public _bonesDirty: boolean;
         /**
+         * @internal
          * @private
          */
         public _cacheFrameIndex: number;
@@ -48,6 +50,7 @@ namespace dragonBones {
          */
         public _display: IArmatureDisplay;
         /**
+         * @internal
          * @private
          */
         public _parent: Slot;
@@ -84,6 +87,7 @@ namespace dragonBones {
          */
         private _events: Array<EventObject> = [];
         /**
+         * @internal
          * @private
          */
         public constructor() {
@@ -93,30 +97,6 @@ namespace dragonBones {
          * @inheritDoc
          */
         protected _onClear(): void {
-            this.userData = null;
-
-            this._bonesDirty = false;
-            this._cacheFrameIndex = -1;
-            this._armatureData = null;
-            this._skinData = null;
-
-            if (this._animation) {
-                this._animation.returnToPool();
-                this._animation = null;
-            }
-
-            if (this._display) {
-                this._display._onClear();
-                this._display = null;
-            }
-
-            this._parent = null;
-            this._replacedTexture = null;
-
-            this._delayDispose = false;
-            this._lockDispose = false;
-            this._slotsDirty = false;
-
             if (this._bones.length) {
                 for (let i = 0, l = this._bones.length; i < l; ++i) {
                     this._bones[i].returnToPool();
@@ -148,6 +128,30 @@ namespace dragonBones {
 
                 this._events.length = 0;
             }
+
+            this.userData = null;
+
+            this._bonesDirty = false;
+            this._cacheFrameIndex = -1;
+            this._armatureData = null;
+            this._skinData = null;
+
+            if (this._animation) {
+                this._animation.returnToPool();
+                this._animation = null;
+            }
+
+            if (this._display) {
+                this._display._onClear();
+                this._display = null;
+            }
+
+            this._parent = null;
+            this._replacedTexture = null;
+
+            this._delayDispose = false;
+            this._lockDispose = false;
+            this._slotsDirty = false;
         }
         /**
          * @private
@@ -185,7 +189,8 @@ namespace dragonBones {
 
                 if (bone.ik && bone.ikChain > 0 && bone.ikChainIndex == bone.ikChain) {
                     this._bones.splice(this._bones.indexOf(bone.parent) + 1, 0, bone); // ik, parent, bone, children
-                } else {
+                }
+                else {
                     this._bones.push(bone);
                 }
 
@@ -228,6 +233,7 @@ namespace dragonBones {
             }
         }
         /**
+         * @internal
          * @private
          */
         public _addBoneToBoneList(value: Bone): void {
@@ -238,6 +244,7 @@ namespace dragonBones {
             }
         }
         /**
+         * @internal
          * @private
          */
         public _removeBoneFromBoneList(value: Bone): void {
@@ -248,6 +255,7 @@ namespace dragonBones {
             }
         }
         /**
+         * @internal
          * @private
          */
         public _addSlotToSlotList(value: Slot): void {
@@ -258,6 +266,7 @@ namespace dragonBones {
             }
         }
         /**
+         * @internal
          * @private
          */
         public _removeSlotFromSlotList(value: Slot): void {
@@ -274,6 +283,7 @@ namespace dragonBones {
             this._actions.push(value);
         }
         /**
+         * @internal
          * @private
          */
         public _bufferEvent(value: EventObject, type: string): void {
@@ -289,7 +299,7 @@ namespace dragonBones {
         public dispose(): void {
             this._delayDispose = true;
 
-            if (!this._lockDispose) {
+            if (!this._lockDispose && this._animation) { //
                 this.returnToPool();
             }
         }
@@ -307,6 +317,10 @@ namespace dragonBones {
 
             if (!self._lockDispose) {
                 self._lockDispose = true;
+
+                if (!self._animation) {
+                    throw new Error("The armature has been disposed.");
+                }
 
                 const scaledPassedTime = passedTime * self._animation.timeScale;
 
@@ -335,15 +349,17 @@ namespace dragonBones {
 
                     const childArmature = slot._childArmature;
                     if (childArmature) {
-                        if (slot.inheritAnimation) { // Animation's time scale will impact to childArmature
+                        if (slot.inheritAnimation) { // Animation's time scale will impact to childArmature.
                             childArmature.advanceTime(scaledPassedTime);
-                        } else {
+                        }
+                        else {
                             childArmature.advanceTime(passedTime);
                         }
                     }
                 }
 
-                if (DragonBones.DEBUG_DRAW) {
+                //
+                if (DragonBones.debugDraw) {
                     self._display._debugDraw();
                 }
 
@@ -353,7 +369,8 @@ namespace dragonBones {
                         const event = self._events[i];
                         if (EventObject._soundEventManager && event.type == EventObject.SOUND_EVENT) {
                             EventObject._soundEventManager._dispatchEvent(event);
-                        } else {
+                        }
+                        else {
                             self._display._dispatchEvent(event);
                         }
 
@@ -374,14 +391,16 @@ namespace dragonBones {
                                     childArmature._doAction(action);
                                 }
                             }
-                        } else if (action.bone) {
+                        }
+                        else if (action.bone) {
                             for (let i = 0, l = self._slots.length; i < l; ++i) {
                                 const childArmature = self._slots[i]._childArmature;
                                 if (childArmature) {
                                     childArmature._doAction(action);
                                 }
                             }
-                        } else {
+                        }
+                        else {
                             this._doAction(action);
                         }
                     }
@@ -420,7 +439,8 @@ namespace dragonBones {
                         }
                     }
                 }
-            } else {
+            }
+            else {
                 for (let i = 0, l = this._bones.length; i < l; ++i) {
                     this._bones[i].invalidUpdate();
                 }
@@ -483,7 +503,8 @@ namespace dragonBones {
             if (bone) {
                 value._setArmature(this);
                 value._setParent(bone);
-            } else {
+            }
+            else {
                 throw new Error();
             }
         }
@@ -498,7 +519,8 @@ namespace dragonBones {
             if (value && value.armature == this) {
                 value._setParent(null);
                 value._setArmature(null);
-            } else {
+            }
+            else {
                 throw new Error();
             }
         }
@@ -545,7 +567,8 @@ namespace dragonBones {
             if (value) {
                 value._setArmature(this);
                 value._setParent(parentName ? this.getBone(parentName) : null);
-            } else {
+            }
+            else {
                 throw new Error();
             }
         }
@@ -560,7 +583,8 @@ namespace dragonBones {
             if (value && value.armature == this) {
                 value._setParent(null);
                 value._setArmature(null);
-            } else {
+            }
+            else {
                 throw new Error();
             }
         }

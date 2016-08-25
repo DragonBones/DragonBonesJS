@@ -185,6 +185,8 @@ namespace demosEgret {
 
             public constructor() {
                 this._armature = Game.instance.factory.buildArmature("mecha_1502b");
+                Game.instance.factory.copyAnimationsToArmature(this._armature, "mecha_1502b");
+                
                 this._armatureDisplay = <ArmatureDisplayType>this._armature.display;
                 this._armatureDisplay.x = Game.STAGE_WIDTH * 0.5;
                 this._armatureDisplay.y = Game.GROUND;

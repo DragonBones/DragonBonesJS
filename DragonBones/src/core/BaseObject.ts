@@ -11,8 +11,7 @@ namespace dragonBones {
         private static _poolsMap: Map<Array<BaseObject>> = {};
         
         private static _returnObject(object: BaseObject): void {
-            const objectConstructor = <typeof BaseObject>object.constructor;
-            const classType = String(objectConstructor);
+            const classType = String(object.constructor);
             const maxCount = BaseObject._maxCountMap[classType] == null ? BaseObject._defaultMaxCount : BaseObject._maxCountMap[classType];
             const pool = BaseObject._poolsMap[classType] = BaseObject._poolsMap[classType] || [];
 
@@ -109,6 +108,7 @@ namespace dragonBones {
          */
         public hashCode: number = BaseObject._hashCode++;
         /**
+         * @internal
          * @private
          */
         public constructor() { }

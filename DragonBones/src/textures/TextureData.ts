@@ -31,10 +31,12 @@ namespace dragonBones {
          */
         public imagePath: string;
         /**
+         * @internal
          * @private
          */
         public textures: Map<TextureData> = {};
         /**
+         * @internal
          * @private
          */
         public constructor() {
@@ -55,32 +57,35 @@ namespace dragonBones {
             }
         }
         /**
-         * @deprecated
-         * @see dragonBones.BaseFactory#removeDragonBonesData()
-         */
-        public dispose(): void {
-            this.returnToPool();
-        }
-        /**
+         * @internal
          * @private
          */
         public abstract generateTextureData(): TextureData;
         /**
+         * @internal
          * @private
          */
-        public addTextureData(value: TextureData): void {
+        public addTexture(value: TextureData): void {
             if (value && value.name && !this.textures[value.name]) {
                 this.textures[value.name] = value;
                 value.parent = this;
-            } else {
+            }
+            else {
                 throw new Error();
             }
         }
         /**
          * @private
          */
-        public getTextureData(name: string): TextureData {
+        public getTexture(name: string): TextureData {
             return this.textures[name];
+        }
+        /**
+         * @deprecated
+         * @see dragonBones.BaseFactory#removeDragonBonesData()
+         */
+        public dispose(): void {
+            this.returnToPool();
         }
     }
     /**

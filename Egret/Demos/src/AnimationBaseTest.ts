@@ -51,8 +51,8 @@ namespace demosEgret {
                     //this._armatureDisplay.animation.gotoAndPlayByFrame("idle", 25, 2);
                     //this._armatureDisplay.animation.gotoAndStopByFrame("idle", 50);
 
-                    this._armatureDisplay.animation.gotoAndPlayByProgress("idle", progress, 3);
-                    //this._armatureDisplay.animation.gotoAndStopByProgress("idle", progress);
+                    //this._armatureDisplay.animation.gotoAndPlayByProgress("idle", progress, 3);
+                    this._armatureDisplay.animation.gotoAndStopByProgress("idle", progress);
                     break;
 
                 case egret.TouchEvent.TOUCH_END:

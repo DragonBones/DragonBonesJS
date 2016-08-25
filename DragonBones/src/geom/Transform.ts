@@ -156,13 +156,15 @@ namespace dragonBones {
          * @param 矩阵。
          * @version DragonBones 3.0
          */
-        public toMatrix(matrix: Matrix): void {
+        public toMatrix(matrix: Matrix): Transform {
             matrix.a = this.scaleX * Math.cos(this.skewY);
             matrix.b = this.scaleX * Math.sin(this.skewY);
             matrix.c = -this.scaleY * Math.sin(this.skewX);
             matrix.d = this.scaleY * Math.cos(this.skewX);
             matrix.tx = this.x;
             matrix.ty = this.y;
+
+            return this;
         }
         /**
          * @language zh_CN

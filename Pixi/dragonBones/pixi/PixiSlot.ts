@@ -9,7 +9,7 @@ namespace dragonBones {
          * @private
          */
         public static toString(): string {
-            return "[Class dragonBones.PixiSlot]";
+            return "[class dragonBones.PixiSlot]";
         }
 
         private _renderDisplay: PIXI.DisplayObject;
@@ -133,7 +133,7 @@ namespace dragonBones {
                 const rawDisplayData = this._displayIndex < this._displayDataSet.displays.length ? this._displayDataSet.displays[this._displayIndex] : null;
                 const replacedDisplayData = this._displayIndex < this._replacedDisplayDataSet.length ? this._replacedDisplayDataSet[this._displayIndex] : null;
                 const currentDisplayData = replacedDisplayData || rawDisplayData;
-                const currentTextureData = <PixiTextureData>currentDisplayData.textureData;
+                const currentTextureData = <PixiTextureData>currentDisplayData.texture;
                 if (currentTextureData) {
                     const textureAtlasTexture = (<PixiTextureAtlasData>currentTextureData.parent).texture;
                     if (!currentTextureData.texture && textureAtlasTexture) { // Create and cache texture.
@@ -148,82 +148,88 @@ namespace dragonBones {
                     }
 
                     const texture = (<PIXI.Texture>this._armature._replacedTexture) || currentTextureData.texture;
-                    if (texture) {
-                        if (this._meshData && this._display == this._meshDisplay) { // Mesh.
-                            const meshDisplay = <PIXI.mesh.Mesh>this._meshDisplay;
-                            /*
-                            for (let i = 0, l = this._meshData.vertices.length; i < l; ++i) {
-                                meshDisplay.uvs[i] = this._meshData.uvs[i];
-                                meshDisplay.vertices[i] = this._meshData.vertices[i];
-                            }
 
-                            for (let i = 0, l = this._meshData.vertexIndices.length; i < l; ++i) {
-                                meshDisplay.indices[i] = this._meshData.vertexIndices[i];
-                            }
-                            */
-
-                            meshDisplay.uvs = <any>new Float32Array(this._meshData.uvs);
-                            meshDisplay.vertices = <any>new Float32Array(this._meshData.vertices);
-                            meshDisplay.indices = <any>new Uint16Array(this._meshData.vertexIndices);
-
-                            for (let i = 0, l = meshDisplay.uvs.length; i < l; i += 2) {
-                                const u = meshDisplay.uvs[i];
-                                const v = meshDisplay.uvs[i + 1];
-                                meshDisplay.uvs[i] = (currentTextureData.region.x + u * currentTextureData.region.width) / textureAtlasTexture.width;
-                                meshDisplay.uvs[i + 1] = (currentTextureData.region.y + v * currentTextureData.region.height) / textureAtlasTexture.height;
-                            }
-
-                            meshDisplay.texture = texture;
-                            meshDisplay.dirty = true;
-
-                            // Identity transform.
-                            if (this._meshData.skinned) {
-                                meshDisplay.setTransform(0, 0, 1, 1, 0, 0, 0, 0, 0);
-                            }
-                        } else { // Normal texture.
-                            const rect = currentTextureData.frame || currentTextureData.region;
-
-                            let width = rect.width;
-                            let height = rect.height;
-                            if (currentTextureData.rotated) {
-                                width = rect.height;
-                                height = rect.width;
-                            }
-
-                            let pivotX = currentDisplayData.pivot.x;
-                            let pivotY = currentDisplayData.pivot.y;
-
-                            if (currentDisplayData.isRelativePivot) {
-                                pivotX = width * pivotX;
-                                pivotY = height * pivotY;
-                            }
-
-                            if (currentTextureData.frame) {
-                                pivotX += currentTextureData.frame.x;
-                                pivotY += currentTextureData.frame.y;
-                            }
-
-                            if (rawDisplayData && replacedDisplayData) {
-                                pivotX += rawDisplayData.transform.x - replacedDisplayData.transform.x;
-                                pivotY += rawDisplayData.transform.y - replacedDisplayData.transform.y;
-                            }
-
-                            frameDisplay.texture = texture;
-                            frameDisplay.pivot.set(pivotX, pivotY);
+                    if (this._meshData && this._display == this._meshDisplay) { // Mesh.
+                        const meshDisplay = <PIXI.mesh.Mesh>this._meshDisplay;
+                        /*
+                        for (let i = 0, l = this._meshData.vertices.length; i < l; ++i) {
+                            meshDisplay.uvs[i] = this._meshData.uvs[i];
+                            meshDisplay.vertices[i] = this._meshData.vertices[i];
                         }
 
-                        this._updateVisible();
+                        for (let i = 0, l = this._meshData.vertexIndices.length; i < l; ++i) {
+                            meshDisplay.indices[i] = this._meshData.vertexIndices[i];
+                        }
+                        */
 
-                        return;
+                        meshDisplay.uvs = <any>new Float32Array(this._meshData.uvs);
+                        meshDisplay.vertices = <any>new Float32Array(this._meshData.vertices);
+                        meshDisplay.indices = <any>new Uint16Array(this._meshData.vertexIndices);
+
+                        for (let i = 0, l = meshDisplay.uvs.length; i < l; i += 2) {
+                            const u = meshDisplay.uvs[i];
+                            const v = meshDisplay.uvs[i + 1];
+                            meshDisplay.uvs[i] = (currentTextureData.region.x + u * currentTextureData.region.width) / textureAtlasTexture.width;
+                            meshDisplay.uvs[i + 1] = (currentTextureData.region.y + v * currentTextureData.region.height) / textureAtlasTexture.height;
+                        }
+
+                        this._pivotX = 0;
+                        this._pivotY = 0;
+
+                        meshDisplay.texture = texture;
+                        meshDisplay.dirty = true;
+
+                        // Identity transform.
+                        if (this._meshData.skinned) {
+                            meshDisplay.setTransform(0, 0, 1, 1, 0, 0, 0, 0, 0);
+                        }
                     }
+                    else { // Normal texture.
+                        const rect = currentTextureData.frame || currentTextureData.region;
+
+                        let width = rect.width;
+                        let height = rect.height;
+                        if (currentTextureData.rotated) {
+                            width = rect.height;
+                            height = rect.width;
+                        }
+
+                        this._pivotX = currentDisplayData.pivot.x;
+                        this._pivotY = currentDisplayData.pivot.y;
+
+                        if (currentDisplayData.isRelativePivot) {
+                            this._pivotX = width * this._pivotX;
+                            this._pivotY = height * this._pivotY;
+                        }
+
+                        if (currentTextureData.frame) {
+                            this._pivotX += currentTextureData.frame.x;
+                            this._pivotY += currentTextureData.frame.y;
+                        }
+
+                        if (rawDisplayData && rawDisplayData != currentDisplayData) {
+                            this._pivotX += rawDisplayData.transform.x - currentDisplayData.transform.x;
+                            this._pivotY += rawDisplayData.transform.y - currentDisplayData.transform.y;
+                        }
+
+                        frameDisplay.texture = texture;
+                        frameDisplay.pivot.set(this._pivotX, this._pivotY);
+                    }
+
+                    this._updateVisible();
+
+                    return;
                 }
             }
+
+            this._pivotX = 0;
+            this._pivotY = 0;
 
             frameDisplay.visible = false;
             frameDisplay.texture = null;
             frameDisplay.pivot.set(0, 0);
-            frameDisplay.x = 0;
-            frameDisplay.y = 0;
+            frameDisplay.x = this.origin.x;
+            frameDisplay.y = this.origin.y;
         }
         /**
          * @private
@@ -251,7 +257,8 @@ namespace dragonBones {
                         if (hasFFD) {
                             xL = boneVertices[iB * 2] + this._ffdVertices[iF];
                             yL = boneVertices[iB * 2 + 1] + this._ffdVertices[iF + 1];
-                        } else {
+                        }
+                        else {
                             xL = boneVertices[iB * 2];
                             yL = boneVertices[iB * 2 + 1];
                         }
@@ -266,7 +273,8 @@ namespace dragonBones {
                     meshDisplay.vertices[i + 1] = yG;
                 }
 
-            } else if (hasFFD) {
+            }
+            else if (hasFFD) {
                 const vertices = this._meshData.vertices;
                 for (let i = 0, l = this._meshData.vertices.length; i < l; i += 2) {
                     const xG = vertices[i] + this._ffdVertices[i];
@@ -287,7 +295,7 @@ namespace dragonBones {
                 this.global.scaleX, this.global.scaleY,
                 this.global.skewY,
                 0, 0,
-                this._renderDisplay.pivot.x, this._renderDisplay.pivot.y
+                this._pivotX, this._pivotY
             );
         }
     }

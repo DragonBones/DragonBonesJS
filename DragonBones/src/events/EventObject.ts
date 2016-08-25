@@ -3,9 +3,9 @@ namespace dragonBones {
      * @private
      */
     export type EventStringType =
-        string | 'start' | 'loopComplete' | 'complete' |
-        'fadeIn' | 'fadeInComplete' | 'fadeOut' | 'fadeOutComplete' |
-        'frameEvent' | 'soundEvent';
+        string | "start" | "loopComplete" | "complete" |
+        "fadeIn" | "fadeInComplete" | "fadeOut" | "fadeOutComplete" |
+        "frameEvent" | "soundEvent";
     /**
      * @language zh_CN
      * 事件接口。
@@ -13,10 +13,12 @@ namespace dragonBones {
      */
     export interface IEventDispatcher {
         /**
+         * @internal
          * @private
          */
         _onClear(): void;
         /**
+         * @internal
          * @private
          */
         _dispatchEvent(eventObject: EventObject): void;
@@ -109,7 +111,7 @@ namespace dragonBones {
          * @private
          */
         public static toString(): string {
-            return "[Class dragonBones.EventObject]";
+            return "[class dragonBones.EventObject]";
         }
         /**
          * @private
@@ -159,12 +161,17 @@ namespace dragonBones {
          */
         public animationState: AnimationState;
         /**
+         * @private
+         */
+        public frame:AnimationFrameData;
+        /**
          * @language zh_CN
          * 用户数据。
          * @version DragonBones 4.5
          */
         public userData: any;
         /**
+         * @internal
          * @private
          */
         public constructor() {
@@ -181,10 +188,12 @@ namespace dragonBones {
             this.bone = null;
             this.slot = null;
             this.animationState = null;
+            this.frame = null;
             this.userData = null;
         }
 
         /**
+         * @deprecated
          * @see #animationState
          */
         public get animationName(): string {

@@ -35,9 +35,9 @@ namespace demosPixi {
             PIXI.ticker.shared.add(this._renderHandler, this);
             // Load data.
             PIXI.loader
-                .add("dragonBonesData", "./resource/assets/Ubbie/Ubbie.json")
-                .add("textureDataA", "./resource/assets/Ubbie/texture.json")
-                .add("textureA", "./resource/assets/Ubbie/texture.png");
+                .add("dragonBonesData", "./resource/assets/Old/Warrior/skeleton.json")
+                .add("textureDataA", "./resource/assets/Old/Warrior/texture.json")
+                .add("textureA", "./resource/assets/Old/Warrior/texture.png");
             PIXI.loader.once("complete", this._loadComplateHandler, this);
             PIXI.loader.load();
         }
@@ -54,19 +54,18 @@ namespace demosPixi {
             if (this._dragonBonesData) {
                 // Add event listeners.
                 this._stage.interactive = true;
-                this._stage.on('touchstart', this._touchHandler, this);
-                this._stage.on('touchend', this._touchHandler, this);
-                this._stage.on('touchmove', this._touchHandler, this);
-                this._stage.on('mousedown', this._touchHandler, this);
-                this._stage.on('mouseup', this._touchHandler, this);
-                this._stage.on('mousemove', this._touchHandler, this);
+                this._stage.on("touchstart", this._touchHandler, this);
+                this._stage.on("touchend", this._touchHandler, this);
+                this._stage.on("touchmove", this._touchHandler, this);
+                this._stage.on("mousedown", this._touchHandler, this);
+                this._stage.on("mouseup", this._touchHandler, this);
+                this._stage.on("mousemove", this._touchHandler, this);
                 this._stage.addChild(this._backgroud);
                 this._backgroud.width = this._renderer.width;
                 this._backgroud.height = this._renderer.height;
 
                 // Add Armature.            
                 this._changeArmature();
-                this._changeAnimation();
 
                 // Add infomation.            
                 const text = new PIXI.Text("", { align: "center" });
@@ -87,16 +86,16 @@ namespace demosPixi {
          */
         private _touchHandler(event: PIXI.interaction.InteractionEvent): void {
             switch (event.type) {
-                case 'touchstart':
-                case 'mousedown':
+                case "touchstart":
+                case "mousedown":
                     this._isDown = true;
                     this._prevArmatureScale = this._armatureDisplay.scale.x;
                     this._prevAnimationScale = this._armatureDisplay.animation.timeScale;
                     this._startPoint.set(event.data.global.x, event.data.global.y);
                     break;
 
-                case 'touchend':
-                case 'mouseup':
+                case "touchend":
+                case "mouseup":
                     this._isDown = false;
                     if (this._isMoved) {
                         this._isMoved = false;
@@ -110,8 +109,8 @@ namespace demosPixi {
                     }
                     break;
 
-                case 'touchmove':
-                case 'mousemove':
+                case "touchmove":
+                case "mousemove":
                     if (this._isDown) {
                         const dX = this._startPoint.x - event.data.global.x;
                         const dY = this._startPoint.y - event.data.global.y;

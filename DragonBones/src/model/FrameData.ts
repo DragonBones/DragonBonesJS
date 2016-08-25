@@ -4,7 +4,7 @@ namespace dragonBones {
      */
     export class ActionData extends BaseObject {
         public static toString(): string {
-            return "[Class dragonBones.ActionData]";
+            return "[class dragonBones.ActionData]";
         }
 
         public type: ActionType;
@@ -28,7 +28,7 @@ namespace dragonBones {
      */
     export class EventData extends BaseObject {
         public static toString(): string {
-            return "[Class dragonBones.EventData]";
+            return "[class dragonBones.EventData]";
         }
 
         public type: EventType;
@@ -85,6 +85,7 @@ namespace dragonBones {
             const sampling = new Array<number>((samplingTimes - 1) * 2);
 
             //
+            curve = curve.concat();
             curve.unshift(0, 0);
             curve.push(1, 1);
 
@@ -133,13 +134,12 @@ namespace dragonBones {
             this.curve = null;
         }
     }
-
     /**
      * @private
      */
     export class AnimationFrameData extends FrameData<AnimationFrameData> {
         public static toString(): string {
-            return "[Class dragonBones.AnimationFrameData]";
+            return "[class dragonBones.AnimationFrameData]";
         }
 
         public actions: Array<ActionData> = [];
@@ -176,7 +176,7 @@ namespace dragonBones {
      */
     export class BoneFrameData extends TweenFrameData<BoneFrameData> {
         public static toString(): string {
-            return "[Class dragonBones.BoneFrameData]";
+            return "[class dragonBones.BoneFrameData]";
         }
 
         public tweenScale: boolean;
@@ -206,7 +206,7 @@ namespace dragonBones {
             return new ColorTransform();
         }
         public static toString(): string {
-            return "[Class dragonBones.SlotFrameData]";
+            return "[class dragonBones.SlotFrameData]";
         }
 
         public displayIndex: number;
@@ -232,7 +232,7 @@ namespace dragonBones {
      */
     export class ExtensionFrameData extends TweenFrameData<ExtensionFrameData> {
         public static toString(): string {
-            return "[Class dragonBones.ExtensionFrameData]";
+            return "[class dragonBones.ExtensionFrameData]";
         }
 
         public type: ExtensionType;

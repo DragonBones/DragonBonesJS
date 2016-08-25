@@ -5,9 +5,23 @@ namespace dragonBones {
      * @version DragonBones 3.0
      */
     export class EgretFactory extends BaseFactory {
+        private static _factory: EgretFactory = null;
         /**
          * @language zh_CN
-         * 创建一个工厂。
+         * 一个可以直接使用的全局工厂实例.
+         * @version DragonBones 4.7
+         */
+        public static get factory(): EgretFactory {
+            if (!EgretFactory._factory) {
+                EgretFactory._factory = new EgretFactory();
+            }
+
+            return EgretFactory._factory;
+        }
+
+        /**
+         * @language zh_CN
+         * 创建一个工厂。 (通常只需要一个全局工厂实例)
          * @param dataParser 龙骨数据解析器，如果不设置，则使用默认解析器。
          * @version DragonBones 3.0
          */
@@ -36,8 +50,6 @@ namespace dragonBones {
         protected _generateArmature(dataPackage: BuildArmaturePackage): Armature {
             const armature = BaseObject.borrowObject(Armature);
             const armatureDisplayContainer = new EgretArmatureDisplay();
-            // Test
-            //const armatureDisplayContainer = new BitmapContainer();
 
             armature._armatureData = dataPackage.armature;
             armature._skinData = dataPackage.skin;
@@ -66,16 +78,16 @@ namespace dragonBones {
                 const displayData = slotDisplayDataSet.displays[i];
                 switch (displayData.type) {
                     case DisplayType.Image:
-                        if (!displayData.textureData) {
-                            displayData.textureData = this._getTextureData(dataPackage.dataName, displayData.name);
+                        if (!displayData.texture) {
+                            displayData.texture = this._getTextureData(dataPackage.dataName, displayData.name);
                         }
 
                         displayList.push(slot._rawDisplay);
                         break;
 
                     case DisplayType.Mesh:
-                        if (!displayData.textureData) {
-                            displayData.textureData = this._getTextureData(dataPackage.dataName, displayData.name);
+                        if (!displayData.texture) {
+                            displayData.texture = this._getTextureData(dataPackage.dataName, displayData.name);
                         }
 
                         if (egret.Capabilities.renderMode == "webgl") {
@@ -92,13 +104,18 @@ namespace dragonBones {
                     case DisplayType.Armature:
                         const childArmature = this.buildArmature(displayData.name, dataPackage.dataName);
                         if (childArmature) {
-                            if (slotData.actions.length > 0) {
-                                for (let i = 0, l = slotData.actions.length; i < l; ++i) {
-                                    childArmature._bufferAction(slotData.actions[i]);
+                            if (!slot.inheritAnimation) {
+                                const actions = slotData.actions.length > 0 ? slotData.actions : childArmature.armatureData.actions;
+                                if (actions.length > 0) {
+                                    for (let i = 0, l = actions.length; i < l; ++i) {
+                                        childArmature._bufferAction(actions[i]);
+                                    }
+                                } else {
+                                    childArmature.animation.play();
                                 }
-                            } else {
-                                childArmature.animation.play();
                             }
+
+                            displayData.armature = childArmature.armatureData; // 
                         }
 
                         displayList.push(childArmature);
@@ -205,6 +222,14 @@ namespace dragonBones {
          */
         public buildFastArmature(armatureName: string, dragonBonesName: string = null, skinName: string = null): FastArmature {
             return this.buildArmature(armatureName, dragonBonesName, skinName);
+        }
+
+        /**
+         * @deprecated
+         * @see dragonBones.BaseFactory#clear()
+         */
+        public dispose(): void {
+            this.clear();
         }
     }
 }

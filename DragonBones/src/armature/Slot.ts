@@ -29,21 +29,33 @@ namespace dragonBones {
          */
         public displayController: string;
         /**
+         * @internal
          * @private
          */
         public _colorDirty: boolean;
         /**
+         * @internal
          * @private
          */
         public _ffdDirty: boolean;
         /**
+         * @internal
          * @private
          */
         public _blendIndex: number;
         /**
+         * @internal
          * @private
          */
         public _zOrder: number;
+        /**
+         * @private
+         */
+        public _pivotX: number;
+        /**
+         * @private
+         */
+        public _pivotY: number;
         /**
          * @private
          */
@@ -53,6 +65,7 @@ namespace dragonBones {
          */
         public _meshData: MeshData;
         /**
+         * @internal
          * @private
          */
         public _childArmature: Armature;
@@ -65,6 +78,7 @@ namespace dragonBones {
          */
         public _meshDisplay: any;
         /**
+         * @internal
          * @private
          */
         public _cacheFrames: Array<Matrix>;
@@ -121,6 +135,7 @@ namespace dragonBones {
          */
         protected _meshBones: Array<Bone> = [];
         /**
+         * @internal
          * @private
          */
         public constructor() {
@@ -133,7 +148,6 @@ namespace dragonBones {
             super._onClear();
 
             const disposeDisplayList: Array<any> = [];
-
             for (let i = 0, l = this._displayList.length; i < l; ++i) {
                 const eachDisplay = this._displayList[i];
                 if (
@@ -148,7 +162,8 @@ namespace dragonBones {
                 const eachDisplay = disposeDisplayList[i];
                 if (eachDisplay instanceof Armature) {
                     (<Armature>eachDisplay).dispose();
-                } else {
+                }
+                else {
                     this._disposeDisplay(eachDisplay);
                 }
             }
@@ -168,6 +183,8 @@ namespace dragonBones {
             this._ffdDirty = false;
             this._blendIndex = 0;
             this._zOrder = 0;
+            this._pivotX = 0;
+            this._pivotY = 0;
             this._displayDataSet = null;
             this._meshData = null;
             this._childArmature = null;
@@ -227,6 +244,7 @@ namespace dragonBones {
          */
         protected abstract _disposeDisplay(value: any): void;
         /**
+         * @internal
          * @private Bone
          */
         public abstract _updateVisible(): void;
@@ -279,10 +297,12 @@ namespace dragonBones {
                 if (this._display instanceof Armature) {
                     this._childArmature = <Armature>this._display;
                     this._display = this._childArmature._display;
-                } else {
+                }
+                else {
                     this._childArmature = null;
                 }
-            } else {
+            }
+            else {
                 this._display = null;
                 this._childArmature = null;
             }
@@ -294,7 +314,8 @@ namespace dragonBones {
 
                 if (prevDisplay) {
                     this._replaceDisplay(prevDisplay);
-                } else {
+                }
+                else {
                     this._addDisplay();
                 }
 
@@ -328,19 +349,21 @@ namespace dragonBones {
                 if (this._childArmature) {
                     this._childArmature._parent = this; // Update child armature parent.
                     if (this.inheritAnimation) {
-
-                        // Set child armature frameRate.
-                        const cacheFrameRate = this._armature.cacheFrameRate;
-                        if (cacheFrameRate) {
-                            this._childArmature.cacheFrameRate = cacheFrameRate;
+                        if (this._childArmature.cacheFrameRate == 0) { // Set child armature frameRate.
+                            const cacheFrameRate = this._armature.cacheFrameRate;
+                            if (cacheFrameRate) {
+                                this._childArmature.cacheFrameRate = cacheFrameRate;
+                            }
                         }
 
                         const slotData = this._armature.armatureData.getSlot(this.name);
-                        if (slotData.actions.length > 0) {
-                            for (let i = 0, l = slotData.actions.length; i < l; ++i) {
-                                this._childArmature._bufferAction(slotData.actions[i]);
+                        const actions = slotData.actions.length > 0 ? slotData.actions : this._childArmature.armatureData.actions;
+                        if (actions.length > 0) {
+                            for (let i = 0, l = actions.length; i < l; ++i) {
+                                this._childArmature._bufferAction(actions[i]);
                             }
-                        } else {
+                        }
+                        else {
                             this._childArmature.animation.play();
                         }
                     }
@@ -362,6 +385,7 @@ namespace dragonBones {
             this.global.fromMatrix(this.globalTransformMatrix);
         }
         /**
+         * @internal
          * @inheritDoc
          */
         public _setArmature(value: Armature): void {
@@ -380,24 +404,29 @@ namespace dragonBones {
             if (this._armature) {
                 this._armature._addSlotToSlotList(this);
                 this._addDisplay();
-            } else {
+            }
+            else {
                 this._removeDisplay();
             }
         }
         /**
+         * @internal
          * @private Armature
          */
         public _updateMeshData(isTimelineUpdate: Boolean): void {
             const prevMeshData = this._meshData;
-
-            if (this._display == this._meshDisplay && this._displayDataSet && this._displayIndex >= 0 && this._displayIndex < this._displayDataSet.displays.length) {
-                this._meshData = this._displayDataSet.displays[this._displayIndex].meshData;
+            let rawMeshData = <MeshData>null;
+            if (this._meshDisplay && this._displayIndex >= 0) {
+                rawMeshData = (this._displayDataSet && this._displayIndex < this._displayDataSet.displays.length) ? this._displayDataSet.displays[this._displayIndex].mesh : null;
+                const replaceDisplayData = (this._displayIndex < this._replacedDisplayDataSet.length) ? this._replacedDisplayDataSet[this._displayIndex] : null;
+                const replaceMeshData = replaceDisplayData ? replaceDisplayData.mesh : null;
+                this._meshData = replaceMeshData || rawMeshData;
             } else {
                 this._meshData = null;
             }
 
             if (this._meshData != prevMeshData) {
-                if (this._meshData) {
+                if (this._meshData && this._meshData == rawMeshData) {
                     if (this._meshData.skinned) {
                         this._meshBones.length = this._meshData.bones.length;
 
@@ -431,8 +460,8 @@ namespace dragonBones {
                 }
             }
         }
-
         /**
+         * @internal
          * @private Armature
          */
         public _update(cacheFrameIndex: number): void {
@@ -481,20 +510,25 @@ namespace dragonBones {
                 const cacheFrame = self._cacheFrames[cacheFrameIndex];
                 if (self.globalTransformMatrix == cacheFrame) { // Same cache.
                     self._transformDirty = false;
-                } else if (cacheFrame) { // Has been Cached.
+                }
+                else if (cacheFrame) { // Has been Cached.
                     self._transformDirty = true;
                     self.globalTransformMatrix = cacheFrame;
-                } else if (self._transformDirty || self._parent._transformDirty != BoneTransformDirty.None) { // Dirty.
-                    self._transformDirty = true;
-                    self.globalTransformMatrix = self._globalTransformMatrix;
-                } else if (self.globalTransformMatrix != self._globalTransformMatrix) { // Same cache but not cached yet.
-                    self._transformDirty = false;
-                    self._cacheFrames[cacheFrameIndex] = self.globalTransformMatrix;
-                } else { // Dirty.
+                }
+                else if (self._transformDirty || self._parent._transformDirty != BoneTransformDirty.None) { // Dirty.
                     self._transformDirty = true;
                     self.globalTransformMatrix = self._globalTransformMatrix;
                 }
-            } else if (self._transformDirty || self._parent._transformDirty != BoneTransformDirty.None) { // Dirty.
+                else if (self.globalTransformMatrix != self._globalTransformMatrix) { // Same cache but not cached yet.
+                    self._transformDirty = false;
+                    self._cacheFrames[cacheFrameIndex] = self.globalTransformMatrix;
+                }
+                else { // Dirty.
+                    self._transformDirty = true;
+                    self.globalTransformMatrix = self._globalTransformMatrix;
+                }
+            }
+            else if (self._transformDirty || self._parent._transformDirty != BoneTransformDirty.None) { // Dirty.
                 self._transformDirty = true;
                 self.globalTransformMatrix = self._globalTransformMatrix;
             }
@@ -505,7 +539,7 @@ namespace dragonBones {
                 if (self.globalTransformMatrix == self._globalTransformMatrix) {
                     self._updateGlobalTransformMatrix();
 
-                    if (cacheFrameIndex >= 0) {
+                    if (cacheFrameIndex >= 0 && !self._cacheFrames[cacheFrameIndex]) {
                         self.globalTransformMatrix = SlotTimelineData.cacheFrame(self._cacheFrames, cacheFrameIndex, self._globalTransformMatrix);
                     }
                 }
@@ -513,7 +547,6 @@ namespace dragonBones {
                 self._updateTransform();
             }
         }
-
         /**
          * @private Factory
          */
@@ -526,8 +559,8 @@ namespace dragonBones {
                 for (let i = 0, l = this._displayList.length; i < l; ++i) { // Retain input render displays.
                     const eachDisplay = value[i];
                     if (
-                        eachDisplay && eachDisplay != this._rawDisplay && eachDisplay != this._meshDisplay && !(eachDisplay instanceof Armature) &&
-                        this._displayList.indexOf(eachDisplay) < 0
+                        eachDisplay && eachDisplay != this._rawDisplay && eachDisplay != this._meshDisplay &&
+                        !(eachDisplay instanceof Armature) && this._displayList.indexOf(eachDisplay) < 0
                     ) {
                         this._initDisplay(eachDisplay);
                     }
@@ -547,6 +580,7 @@ namespace dragonBones {
             return this._displayDirty;
         }
         /**
+         * @internal
          * @private Factory
          */
         public _setDisplayIndex(value: number): boolean {
@@ -560,6 +594,7 @@ namespace dragonBones {
             return this._displayDirty;
         }
         /**
+         * @internal
          * @private Factory
          */
         public _setBlendMode(value: BlendMode): boolean {
@@ -573,6 +608,7 @@ namespace dragonBones {
             return true;
         }
         /**
+         * @internal
          * @private Factory
          */
         public _setColor(value: ColorTransform): boolean {
@@ -587,7 +623,7 @@ namespace dragonBones {
          * @version DragonBones 4.5
          */
         public invalidUpdate(): void {
-            this._displayDirty = true;
+            this._originDirty = true;
         }
         /**
          * @private
@@ -693,6 +729,10 @@ namespace dragonBones {
         public set childArmature(value: Armature) {
             if (this._childArmature == value) {
                 return;
+            }
+
+            if (value) {
+                (<IArmatureDisplay>value.display).advanceTimeBySelf(false); // Stop child armature self advanceTime.
             }
 
             this.display = value;

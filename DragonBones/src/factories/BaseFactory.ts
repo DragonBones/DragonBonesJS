@@ -6,7 +6,7 @@ namespace dragonBones {
 
     /**
      * @language zh_CN
-     * 生成骨架的基础工厂。
+     * 生成骨架的基础工厂。 (通常只需要一个全局工厂实例)
      * @see dragonBones.DragonBonesData
      * @see dragonBones.TextureAtlasData
      * @see dragonBones.ArmatureData
@@ -48,7 +48,7 @@ namespace dragonBones {
             let textureAtlasDataList = this._textureAtlasDataMap[dragonBonesName];
             if (textureAtlasDataList) {
                 for (let i = 0, l = textureAtlasDataList.length; i < l; ++i) {
-                    const textureData = textureAtlasDataList[i].getTextureData(textureName);
+                    const textureData = textureAtlasDataList[i].getTexture(textureName);
                     if (textureData) {
                         return textureData;
                     }
@@ -61,7 +61,7 @@ namespace dragonBones {
                     for (let j = 0, lJ = textureAtlasDataList.length; j < lJ; ++j) {
                         const textureAtlasData = textureAtlasDataList[j];
                         if (textureAtlasData.autoSearch) {
-                            const textureData = textureAtlasData.getTextureData(textureName);
+                            const textureData = textureAtlasData.getTexture(textureName);
                             if (textureData) {
                                 return textureData;
                             }
@@ -121,7 +121,6 @@ namespace dragonBones {
          */
         protected _buildBones(dataPackage: BuildArmaturePackage, armature: Armature): void {
             const bones = dataPackage.armature.sortedBones;
-
             for (let i = 0, l = bones.length; i < l; ++i) {
                 const boneData = bones[i];
                 const bone = BaseObject.borrowObject(Bone);
@@ -132,12 +131,7 @@ namespace dragonBones {
                 bone.inheritScale = boneData.inheritScale;
                 bone.length = boneData.length;
                 bone.origin.copyFrom(boneData.transform);
-
-                if (boneData.parent) {
-                    armature.addBone(bone, boneData.parent.name);
-                } else {
-                    armature.addBone(bone);
-                }
+                armature.addBone(bone, boneData.parent ? boneData.parent.name : null);
 
                 if (boneData.ik) {
                     bone.ikBendPositive = boneData.bendPositive;
@@ -201,25 +195,28 @@ namespace dragonBones {
                     displayList.length = displayIndex + 1;
                 }
 
-                if (!displayData.textureData) {
-                    displayData.textureData = this._getTextureData(dataPackage.dataName, displayData.name);
+                if (!displayData.texture) {
+                    displayData.texture = this._getTextureData(dataPackage.dataName, displayData.name);
                 }
+
+                if (slot._replacedDisplayDataSet.length <= displayIndex) {
+                    slot._replacedDisplayDataSet.length = displayIndex + 1;
+                }
+
+                slot._replacedDisplayDataSet[displayIndex] = displayData;
 
                 if (displayData.type == DisplayType.Armature) {
                     const childArmature = this.buildArmature(displayData.name, dataPackage.dataName);
                     displayList[displayIndex] = childArmature;
-                } else {
-                    if (slot._replacedDisplayDataSet.length <= displayIndex) {
-                        slot._replacedDisplayDataSet.length = displayIndex + 1;
-                    }
-
-                    slot._replacedDisplayDataSet[displayIndex] = displayData;
-
-                    if (displayData.meshData) {
-                        displayList[displayIndex] = slot.MeshDisplay;
-                    } else {
-                        displayList[displayIndex] = slot.rawDisplay;
-                    }
+                }
+                else if (
+                    displayData.mesh ||
+                    (displayIndex < slot._displayDataSet.displays.length && slot._displayDataSet.displays[displayIndex].mesh)
+                ) {
+                    displayList[displayIndex] = slot.MeshDisplay;
+                }
+                else {
+                    displayList[displayIndex] = slot.rawDisplay;
                 }
 
                 slot.displayList = displayList;
@@ -276,6 +273,7 @@ namespace dragonBones {
 
             this._generateTextureAtlasData(textureAtlasData, textureAtlas);
             this.addTextureAtlasData(textureAtlasData, name);
+
             return textureAtlasData;
         }
         /**
@@ -309,13 +307,16 @@ namespace dragonBones {
                 if (dragonBonesName) {
                     if (!this._dragonBonesDataMap[dragonBonesName]) {
                         this._dragonBonesDataMap[dragonBonesName] = data;
-                    } else {
+                    }
+                    else {
                         console.warn("Same name data.");
                     }
-                } else {
+                }
+                else {
                     console.warn("Unnamed data.");
                 }
-            } else {
+            }
+            else {
                 throw new Error();
             }
         }
@@ -335,7 +336,7 @@ namespace dragonBones {
             if (dragonBonesData) {
                 if (disposeData) {
 
-                    if (DragonBones.DEBUG) {
+                    if (DragonBones.debug) {
                         for (let i = 0, l = DragonBones._armatures.length; i < l; ++i) {
                             const armature = DragonBones._armatures[i];
                             if (armature.armatureData.parent == dragonBonesData) {
@@ -383,7 +384,8 @@ namespace dragonBones {
                     if (textureAtlasList.indexOf(data) < 0) {
                         textureAtlasList.push(data);
                     }
-                } else {
+                }
+                else {
                     console.warn("Unnamed data.");
                 }
             } else {
@@ -455,12 +457,6 @@ namespace dragonBones {
                 const armature = this._generateArmature(dataPackage);
                 this._buildBones(dataPackage, armature);
                 this._buildSlots(dataPackage, armature);
-
-                if (armature.armatureData.actions.length > 0) { // Add default action.
-                    for (let i = 0, l = armature.armatureData.actions.length; i < l; ++i) {
-                        armature._bufferAction(armature.armatureData.actions[i]);
-                    }
-                }
 
                 armature.advanceTime(0); // Update armature pose.
 
@@ -575,14 +571,6 @@ namespace dragonBones {
                     }
                 }
             }
-        }
-
-        /**
-         * @deprecated
-         * @see #clear()
-         */
-        public dispose(): void {
-            this.clear();
         }
     }
 }

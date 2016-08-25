@@ -27,7 +27,6 @@ var dragonBones;
          * @inheritDoc
          */
         PixiArmatureDisplay.prototype._onClear = function () {
-            this.advanceTimeBySelf(false);
             this._armature = null;
             if (this._debugDrawer) {
                 this._debugDrawer.destroy(true);
@@ -97,7 +96,9 @@ var dragonBones;
          */
         PixiArmatureDisplay.prototype.dispose = function () {
             if (this._armature) {
+                this.advanceTimeBySelf(false);
                 this._armature.dispose();
+                this._armature = null;
             }
         };
         Object.defineProperty(PixiArmatureDisplay.prototype, "armature", {
@@ -136,7 +137,7 @@ var dragonBones;
         __extends(PixiFactory, _super);
         /**
          * @language zh_CN
-         * 创建一个工厂。
+         * 创建一个工厂。 (通常只需要一个全局工厂实例)
          * @param dataParser 龙骨数据解析器，如果不设置，则使用默认解析器。
          * @version DragonBones 3.0
          */
@@ -147,6 +148,21 @@ var dragonBones;
                 dragonBones.EventObject._soundEventManager = new dragonBones.PixiArmatureDisplay();
             }
         }
+        Object.defineProperty(PixiFactory, "factory", {
+            /**
+             * @language zh_CN
+             * 一个可以直接使用的全局工厂实例.
+             * @version DragonBones 4.7
+             */
+            get: function () {
+                if (!PixiFactory._factory) {
+                    PixiFactory._factory = new PixiFactory();
+                }
+                return PixiFactory._factory;
+            },
+            enumerable: true,
+            configurable: true
+        });
         /**
          * @private
          */
@@ -187,14 +203,14 @@ var dragonBones;
                 var displayData = slotDisplayDataSet.displays[i];
                 switch (displayData.type) {
                     case 0 /* Image */:
-                        if (!displayData.textureData) {
-                            displayData.textureData = this._getTextureData(dataPackage.dataName, displayData.name);
+                        if (!displayData.texture) {
+                            displayData.texture = this._getTextureData(dataPackage.dataName, displayData.name);
                         }
                         displayList.push(slot._rawDisplay);
                         break;
                     case 2 /* Mesh */:
-                        if (!displayData.textureData) {
-                            displayData.textureData = this._getTextureData(dataPackage.dataName, displayData.name);
+                        if (!displayData.texture) {
+                            displayData.texture = this._getTextureData(dataPackage.dataName, displayData.name);
                         }
                         if (!slot._meshDisplay) {
                             slot._meshDisplay = new PIXI.mesh.Mesh(null, null, null, null, PIXI.mesh.Mesh.DRAW_MODES.TRIANGLES);
@@ -204,14 +220,18 @@ var dragonBones;
                     case 1 /* Armature */:
                         var childArmature = this.buildArmature(displayData.name, dataPackage.dataName);
                         if (childArmature) {
-                            if (slotData.actions.length > 0) {
-                                for (var i_1 = 0, l_1 = slotData.actions.length; i_1 < l_1; ++i_1) {
-                                    childArmature._bufferAction(slotData.actions[i_1]);
+                            if (!slot.inheritAnimation) {
+                                var actions = slotData.actions.length > 0 ? slotData.actions : childArmature.armatureData.actions;
+                                if (actions.length > 0) {
+                                    for (var i_1 = 0, l_1 = actions.length; i_1 < l_1; ++i_1) {
+                                        childArmature._bufferAction(actions[i_1]);
+                                    }
+                                }
+                                else {
+                                    childArmature.animation.play();
                                 }
                             }
-                            else {
-                                childArmature.animation.play();
-                            }
+                            displayData.armature = childArmature.armatureData; // 
                         }
                         displayList.push(childArmature);
                         break;
@@ -270,6 +290,7 @@ var dragonBones;
             enumerable: true,
             configurable: true
         });
+        PixiFactory._factory = null;
         return PixiFactory;
     }(dragonBones.BaseFactory));
     dragonBones.PixiFactory = PixiFactory;
@@ -295,7 +316,7 @@ var dragonBones;
          * @private
          */
         PixiSlot.toString = function () {
-            return "[Class dragonBones.PixiSlot]";
+            return "[class dragonBones.PixiSlot]";
         };
         /**
          * @inheritDoc
@@ -383,7 +404,7 @@ var dragonBones;
                 var rawDisplayData = this._displayIndex < this._displayDataSet.displays.length ? this._displayDataSet.displays[this._displayIndex] : null;
                 var replacedDisplayData = this._displayIndex < this._replacedDisplayDataSet.length ? this._replacedDisplayDataSet[this._displayIndex] : null;
                 var currentDisplayData = replacedDisplayData || rawDisplayData;
-                var currentTextureData = currentDisplayData.textureData;
+                var currentTextureData = currentDisplayData.texture;
                 if (currentTextureData) {
                     var textureAtlasTexture = currentTextureData.parent.texture;
                     if (!currentTextureData.texture && textureAtlasTexture) {
@@ -391,70 +412,72 @@ var dragonBones;
                         currentTextureData.texture = new PIXI.Texture(textureAtlasTexture, null, currentTextureData.region, originSize, currentTextureData.rotated);
                     }
                     var texture = this._armature._replacedTexture || currentTextureData.texture;
-                    if (texture) {
-                        if (this._meshData && this._display == this._meshDisplay) {
-                            var meshDisplay = this._meshDisplay;
-                            /*
-                            for (let i = 0, l = this._meshData.vertices.length; i < l; ++i) {
-                                meshDisplay.uvs[i] = this._meshData.uvs[i];
-                                meshDisplay.vertices[i] = this._meshData.vertices[i];
-                            }
+                    if (this._meshData && this._display == this._meshDisplay) {
+                        var meshDisplay = this._meshDisplay;
+                        /*
+                        for (let i = 0, l = this._meshData.vertices.length; i < l; ++i) {
+                            meshDisplay.uvs[i] = this._meshData.uvs[i];
+                            meshDisplay.vertices[i] = this._meshData.vertices[i];
+                        }
 
-                            for (let i = 0, l = this._meshData.vertexIndices.length; i < l; ++i) {
-                                meshDisplay.indices[i] = this._meshData.vertexIndices[i];
-                            }
-                            */
-                            meshDisplay.uvs = new Float32Array(this._meshData.uvs);
-                            meshDisplay.vertices = new Float32Array(this._meshData.vertices);
-                            meshDisplay.indices = new Uint16Array(this._meshData.vertexIndices);
-                            for (var i = 0, l = meshDisplay.uvs.length; i < l; i += 2) {
-                                var u = meshDisplay.uvs[i];
-                                var v = meshDisplay.uvs[i + 1];
-                                meshDisplay.uvs[i] = (currentTextureData.region.x + u * currentTextureData.region.width) / textureAtlasTexture.width;
-                                meshDisplay.uvs[i + 1] = (currentTextureData.region.y + v * currentTextureData.region.height) / textureAtlasTexture.height;
-                            }
-                            meshDisplay.texture = texture;
-                            meshDisplay.dirty = true;
-                            // Identity transform.
-                            if (this._meshData.skinned) {
-                                meshDisplay.setTransform(0, 0, 1, 1, 0, 0, 0, 0, 0);
-                            }
+                        for (let i = 0, l = this._meshData.vertexIndices.length; i < l; ++i) {
+                            meshDisplay.indices[i] = this._meshData.vertexIndices[i];
                         }
-                        else {
-                            var rect = currentTextureData.frame || currentTextureData.region;
-                            var width = rect.width;
-                            var height = rect.height;
-                            if (currentTextureData.rotated) {
-                                width = rect.height;
-                                height = rect.width;
-                            }
-                            var pivotX = currentDisplayData.pivot.x;
-                            var pivotY = currentDisplayData.pivot.y;
-                            if (currentDisplayData.isRelativePivot) {
-                                pivotX = width * pivotX;
-                                pivotY = height * pivotY;
-                            }
-                            if (currentTextureData.frame) {
-                                pivotX += currentTextureData.frame.x;
-                                pivotY += currentTextureData.frame.y;
-                            }
-                            if (rawDisplayData && replacedDisplayData) {
-                                pivotX += rawDisplayData.transform.x - replacedDisplayData.transform.x;
-                                pivotY += rawDisplayData.transform.y - replacedDisplayData.transform.y;
-                            }
-                            frameDisplay.texture = texture;
-                            frameDisplay.pivot.set(pivotX, pivotY);
+                        */
+                        meshDisplay.uvs = new Float32Array(this._meshData.uvs);
+                        meshDisplay.vertices = new Float32Array(this._meshData.vertices);
+                        meshDisplay.indices = new Uint16Array(this._meshData.vertexIndices);
+                        for (var i = 0, l = meshDisplay.uvs.length; i < l; i += 2) {
+                            var u = meshDisplay.uvs[i];
+                            var v = meshDisplay.uvs[i + 1];
+                            meshDisplay.uvs[i] = (currentTextureData.region.x + u * currentTextureData.region.width) / textureAtlasTexture.width;
+                            meshDisplay.uvs[i + 1] = (currentTextureData.region.y + v * currentTextureData.region.height) / textureAtlasTexture.height;
                         }
-                        this._updateVisible();
-                        return;
+                        this._pivotX = 0;
+                        this._pivotY = 0;
+                        meshDisplay.texture = texture;
+                        meshDisplay.dirty = true;
+                        // Identity transform.
+                        if (this._meshData.skinned) {
+                            meshDisplay.setTransform(0, 0, 1, 1, 0, 0, 0, 0, 0);
+                        }
                     }
+                    else {
+                        var rect = currentTextureData.frame || currentTextureData.region;
+                        var width = rect.width;
+                        var height = rect.height;
+                        if (currentTextureData.rotated) {
+                            width = rect.height;
+                            height = rect.width;
+                        }
+                        this._pivotX = currentDisplayData.pivot.x;
+                        this._pivotY = currentDisplayData.pivot.y;
+                        if (currentDisplayData.isRelativePivot) {
+                            this._pivotX = width * this._pivotX;
+                            this._pivotY = height * this._pivotY;
+                        }
+                        if (currentTextureData.frame) {
+                            this._pivotX += currentTextureData.frame.x;
+                            this._pivotY += currentTextureData.frame.y;
+                        }
+                        if (rawDisplayData && rawDisplayData != currentDisplayData) {
+                            this._pivotX += rawDisplayData.transform.x - currentDisplayData.transform.x;
+                            this._pivotY += rawDisplayData.transform.y - currentDisplayData.transform.y;
+                        }
+                        frameDisplay.texture = texture;
+                        frameDisplay.pivot.set(this._pivotX, this._pivotY);
+                    }
+                    this._updateVisible();
+                    return;
                 }
             }
+            this._pivotX = 0;
+            this._pivotY = 0;
             frameDisplay.visible = false;
             frameDisplay.texture = null;
             frameDisplay.pivot.set(0, 0);
-            frameDisplay.x = 0;
-            frameDisplay.y = 0;
+            frameDisplay.x = this.origin.x;
+            frameDisplay.y = this.origin.y;
         };
         /**
          * @private
@@ -505,7 +528,7 @@ var dragonBones;
          */
         PixiSlot.prototype._updateTransform = function () {
             // this._renderDisplay.worldTransform.copy(<PIXI.Matrix><any>this.globalTransformMatrix); // How to set matrix !?
-            this._renderDisplay.setTransform(this.global.x, this.global.y, this.global.scaleX, this.global.scaleY, this.global.skewY, 0, 0, this._renderDisplay.pivot.x, this._renderDisplay.pivot.y);
+            this._renderDisplay.setTransform(this.global.x, this.global.y, this.global.scaleX, this.global.scaleY, this.global.skewY, 0, 0, this._pivotX, this._pivotY);
         };
         /**
          * @private
@@ -549,7 +572,7 @@ var dragonBones;
          * @private
          */
         PixiTextureAtlasData.toString = function () {
-            return "[Class dragonBones.PixiTextureAtlasData]";
+            return "[class dragonBones.PixiTextureAtlasData]";
         };
         /**
          * @inheritDoc
@@ -579,7 +602,7 @@ var dragonBones;
             _super.call(this);
         }
         PixiTextureData.toString = function () {
-            return "[Class dragonBones.PixiTextureData]";
+            return "[class dragonBones.PixiTextureData]";
         };
         /**
          * @inheritDoc

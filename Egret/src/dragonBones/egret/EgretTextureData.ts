@@ -9,7 +9,7 @@ namespace dragonBones {
          * @private
          */
         public static toString(): string {
-            return "[Class dragonBones.EgretTextureAtlasData]";
+            return "[class dragonBones.EgretTextureAtlasData]";
         }
         /**
          * @language zh_CN
@@ -46,7 +46,7 @@ namespace dragonBones {
      */
     export class EgretTextureData extends TextureData {
         public static toString(): string {
-            return "[Class dragonBones.EgretTextureData]";
+            return "[class dragonBones.EgretTextureData]";
         }
 
         public texture: egret.Texture;

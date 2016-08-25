@@ -32,12 +32,13 @@ class LoadingUI extends egret.Sprite {
     public constructor() {
         super();
 
-        this.addEventListener(egret.Event.ADDED_TO_STAGE, this.addToStageHandler, this)
+        this.addEventListener(egret.Event.ADDED_TO_STAGE, this.addToStageHandler, this);
     }
 
     private textField: egret.TextField;
 
     private addToStageHandler(event: egret.Event): void {
+        this.removeEventListener(egret.Event.ADDED_TO_STAGE, this.addToStageHandler, this);
         this.textField = new egret.TextField();
         this.textField.y = this.stage.stageHeight * 0.5;
         this.textField.width = this.stage.stageWidth;

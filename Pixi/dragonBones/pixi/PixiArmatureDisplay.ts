@@ -28,8 +28,6 @@ namespace dragonBones {
          * @inheritDoc
          */
         public _onClear(): void {
-            this.advanceTimeBySelf(false);
-
             this._armature = null;
 
             if (this._debugDrawer) {
@@ -94,7 +92,8 @@ namespace dragonBones {
         public advanceTimeBySelf(on: Boolean): void {
             if (on) {
                 PixiArmatureDisplay._clock.add(this._armature);
-            } else {
+            }
+            else {
                 PixiArmatureDisplay._clock.remove(this._armature);
             }
         }
@@ -103,7 +102,9 @@ namespace dragonBones {
          */
         public dispose(): void {
             if (this._armature) {
+                this.advanceTimeBySelf(false);
                 this._armature.dispose();
+                this._armature = null;
             }
         }
         /**

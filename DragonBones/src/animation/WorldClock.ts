@@ -10,7 +10,7 @@ namespace dragonBones {
         private static _clock: WorldClock = null;
         /**
          * @language zh_CN
-         * 一个可以直接使用的全局静态 WorldClock 实例.
+         * 一个可以直接使用的全局 WorldClock 实例.
          * @version DragonBones 3.0
          */
         public static get clock(): WorldClock {
@@ -79,7 +79,8 @@ namespace dragonBones {
                         }
 
                         animateble.advanceTime(passedTime);
-                    } else {
+                    }
+                    else {
                         r++;
                     }
                 }
@@ -90,7 +91,8 @@ namespace dragonBones {
                         const animateble = this._animatebles[i];
                         if (animateble) {
                             this._animatebles[i - r] = animateble;
-                        } else {
+                        }
+                        else {
                             r++;
                         }
                     }
@@ -118,7 +120,7 @@ namespace dragonBones {
             if (value && this._animatebles.indexOf(value) < 0) {
                 this._animatebles.push(value);
 
-                if (DragonBones.DEBUG && value instanceof Armature) {
+                if (DragonBones.debug && value instanceof Armature) {
                     DragonBones.addArmature(value);
                 }
             }
@@ -133,7 +135,8 @@ namespace dragonBones {
             let index = this._animatebles.indexOf(value);
             if (index >= 0) {
                 this._animatebles[index] = null;
-                if (DragonBones.DEBUG && value instanceof Armature) {
+                
+                if (DragonBones.debug && value instanceof Armature) {
                     DragonBones.removeArmature(value);
                 }
             }

@@ -10,7 +10,7 @@ namespace dragonBones {
          * @private
          */
         public static toString(): string {
-            return "[Class dragonBones.DragonBonesData]";
+            return "[class dragonBones.DragonBonesData]";
         }
 
         /**
@@ -47,6 +47,7 @@ namespace dragonBones {
 
         private _armatureNames: Array<string> = [];
         /**
+         * @internal
          * @private
          */
         public constructor() {
@@ -81,6 +82,7 @@ namespace dragonBones {
             return this.armatures[name];
         }
         /**
+         * @internal
          * @private
          */
         public addArmature(value: ArmatureData): void {

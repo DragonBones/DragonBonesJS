@@ -7,6 +7,7 @@ namespace dragonBones {
      */
     export interface IArmatureDisplay extends IEventDispatcher {
         /**
+         * @internal
          * @private
          */
         _debugDraw(): void;

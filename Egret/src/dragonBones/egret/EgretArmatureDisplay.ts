@@ -121,22 +121,25 @@ namespace dragonBones {
          * @see dragonBones.EventObject.FRAME_EVENT
          */
         public static MOVEMENT_FRAME_EVENT: string = EventObject.FRAME_EVENT;
+        /**
+         * @deprecated
+         * @see dragonBones.EventObject.SOUND_EVENT
+         */
+        public static SOUND: string = EventObject.SOUND_EVENT;
     }
 
     /**
      * @inheritDoc
      */
     export class EgretArmatureDisplay extends egret.DisplayObjectContainer implements IArmatureDisplay {
-        public static passTime: number = 0;
-
         private static _clock: WorldClock = null;
         private static _clockHandler(time: number): boolean {
             time *= 0.001;
 
-            const passedTime = EgretArmatureDisplay.passTime > 0 ? EgretArmatureDisplay.passTime : (time - EgretArmatureDisplay._clock.time);
+            const passedTime = time - EgretArmatureDisplay._clock.time;
             EgretArmatureDisplay._clock.advanceTime(passedTime);
             EgretArmatureDisplay._clock.time = time;
-            
+
             return false;
         }
         /**
@@ -161,8 +164,6 @@ namespace dragonBones {
          * @inheritDoc
          */
         public _onClear(): void {
-            this.advanceTimeBySelf(false);
-
             this._armature = null;
             this._debugDrawer = null;
         }
@@ -233,7 +234,9 @@ namespace dragonBones {
          */
         public dispose(): void {
             if (this._armature) {
+                this.advanceTimeBySelf(false);
                 this._armature.dispose();
+                this._armature = null;
             }
         }
         /**
@@ -279,6 +282,11 @@ namespace dragonBones {
      * @deprecated
      * @see dragonBones.EgretEvent
      */
+    export class Event extends EgretEvent { }
+    /**
+     * @deprecated
+     * @see dragonBones.EgretEvent
+     */
     export class AnimationEvent extends EgretEvent { }
     /**
      * @deprecated
@@ -299,7 +307,7 @@ namespace dragonBones {
          * @private
          */
         public static toString(): string {
-            return "[Class dragonBones.EgretTextureAtlas]";
+            return "[class dragonBones.EgretTextureAtlas]";
         }
 
         public constructor(texture: egret.Texture, rawData: any, scale: number = 1) {

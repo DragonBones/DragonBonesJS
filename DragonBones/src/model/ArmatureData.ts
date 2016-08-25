@@ -13,7 +13,7 @@ namespace dragonBones {
          * @private
          */
         public static toString(): string {
-            return "[Class dragonBones.ArmatureData]";
+            return "[class dragonBones.ArmatureData]";
         }
 
         /**
@@ -187,7 +187,8 @@ namespace dragonBones {
 
                 if (bone.ik && bone.chain > 0 && bone.chainIndex == bone.chain) {
                     this._sortedBones.splice(this._sortedBones.indexOf(bone.parent) + 1, 0, bone);
-                } else {
+                }
+                else {
                     this._sortedBones.push(bone);
                 }
 
@@ -222,7 +223,8 @@ namespace dragonBones {
                     const parent = this.getBone(parentName);
                     if (parent) {
                         value.parent = parent;
-                    } else {
+                    }
+                    else {
                         (this._bonesChildren[parentName] = this._bonesChildren[parentName] || []).push(value);
                     }
                 }
@@ -239,7 +241,8 @@ namespace dragonBones {
                 this.bones[value.name] = value;
                 this._sortedBones.push(value);
                 this._boneDirty = true;
-            } else {
+            }
+            else {
                 throw new Error();
             }
         }
@@ -251,7 +254,8 @@ namespace dragonBones {
                 this.slots[value.name] = value;
                 this._sortedSlots.push(value);
                 this._slotDirty = true;
-            } else {
+            }
+            else {
                 throw new Error();
             }
         }
@@ -264,7 +268,8 @@ namespace dragonBones {
                 if (!this._defaultSkin) {
                     this._defaultSkin = value;
                 }
-            } else {
+            }
+            else {
                 throw new Error();
             }
         }
@@ -277,7 +282,8 @@ namespace dragonBones {
                 if (!this._defaultAnimation) {
                     this._defaultAnimation = value;
                 }
-            } else {
+            }
+            else {
                 throw new Error();
             }
         }
@@ -374,7 +380,7 @@ namespace dragonBones {
          * @private
          */
         public static toString(): string {
-            return "[Class dragonBones.BoneData]";
+            return "[class dragonBones.BoneData]";
         }
 
         /**
@@ -474,7 +480,7 @@ namespace dragonBones {
          * @private
          */
         public static toString(): string {
-            return "[Class dragonBones.SlotData]";
+            return "[class dragonBones.SlotData]";
         }
 
         /**
@@ -546,7 +552,7 @@ namespace dragonBones {
          * @private
          */
         public static toString(): string {
-            return "[Class dragonBones.SkinData]";
+            return "[class dragonBones.SkinData]";
         }
         /**
          * @language zh_CN
@@ -581,7 +587,8 @@ namespace dragonBones {
         public addSlot(value: SlotDisplayDataSet): void {
             if (value && value.slot && !this.slots[value.slot.name]) {
                 this.slots[value.slot.name] = value;
-            } else {
+            }
+            else {
                 throw new Error();
             }
         }
@@ -597,7 +604,7 @@ namespace dragonBones {
      */
     export class SlotDisplayDataSet extends BaseObject {
         public static toString(): string {
-            return "[Class dragonBones.SlotDisplayDataSet]";
+            return "[class dragonBones.SlotDisplayDataSet]";
         }
 
         public slot: SlotData;
@@ -626,15 +633,15 @@ namespace dragonBones {
      */
     export class DisplayData extends BaseObject {
         public static toString(): string {
-            return "[Class dragonBones.DisplayData]";
+            return "[class dragonBones.DisplayData]";
         }
 
         public isRelativePivot: boolean;
         public type: DisplayType;
         public name: string;
-        public textureData: TextureData;
-        public armatureData: ArmatureData;
-        public meshData: MeshData;
+        public texture: TextureData;
+        public armature: ArmatureData;
+        public mesh: MeshData;
         public pivot: Point = new Point();
         public transform: Transform = new Transform();
 
@@ -648,12 +655,12 @@ namespace dragonBones {
             this.isRelativePivot = false;
             this.type = DisplayType.Image;
             this.name = null;
-            this.textureData = null;
-            this.armatureData = null;
+            this.texture = null;
+            this.armature = null;
 
-            if (this.meshData) {
-                this.meshData.returnToPool();
-                this.meshData = null;
+            if (this.mesh) {
+                this.mesh.returnToPool();
+                this.mesh = null;
             }
 
             this.pivot.clear();
@@ -665,7 +672,7 @@ namespace dragonBones {
      */
     export class MeshData extends BaseObject {
         public static toString(): string {
-            return "[Class dragonBones.MeshData]";
+            return "[class dragonBones.MeshData]";
         }
 
         public skinned: boolean;

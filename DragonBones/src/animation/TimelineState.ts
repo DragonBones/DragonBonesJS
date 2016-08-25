@@ -1,10 +1,11 @@
 namespace dragonBones {
     /**
+     * @internal
      * @private
      */
     export class AnimationTimelineState extends TimelineState<AnimationFrameData, AnimationData> {
         public static toString(): string {
-            return "[Class dragonBones.AnimationTimelineState]";
+            return "[class dragonBones.AnimationTimelineState]";
         }
 
         private _isStarted: boolean;
@@ -24,9 +25,11 @@ namespace dragonBones {
         protected _onCrossFrame(frame: AnimationFrameData): void {
             const self = this;
 
-            const actions = frame.actions;
-            for (let i = 0, l = actions.length; i < l; ++i) {
-                self._armature._bufferAction(actions[i]);
+            if (this._animationState.actionEnabled) {
+                const actions = frame.actions;
+                for (let i = 0, l = actions.length; i < l; ++i) {
+                    self._armature._bufferAction(actions[i]);
+                }
             }
 
             const eventDispatcher = self._armature._display;
@@ -45,9 +48,15 @@ namespace dragonBones {
                         break;
                 }
 
-                if (eventDispatcher.hasEvent(eventType)) {
+                if (
+                    (eventData.type == EventType.Sound ?
+                        (EventObject._soundEventManager || eventDispatcher) :
+                        eventDispatcher
+                    ).hasEvent(eventType)
+                ) {
                     const eventObject = BaseObject.borrowObject(EventObject);
                     eventObject.animationState = self._animationState;
+                    eventObject.frame = frame;
 
                     if (eventData.bone) {
                         eventObject.bone = self._armature.getBone(eventData.bone.name);
@@ -97,8 +106,8 @@ namespace dragonBones {
                                 crossedFrame = self._timeline.frames[prevFrameIndex];
 
                                 if (self._isReverse) {
-
-                                } else {
+                                }
+                                else {
                                     if (
                                         prevTime <= crossedFrame.position ||
                                         prevPlayTimes != self._currentPlayTimes
@@ -113,13 +122,15 @@ namespace dragonBones {
                                     self._onCrossFrame(crossedFrame);
                                     crossedFrame = crossedFrame.prev;
                                 }
-                            } else {
+                            }
+                            else {
                                 while (crossedFrame != currentFrame) {
                                     crossedFrame = crossedFrame.next;
                                     self._onCrossFrame(crossedFrame);
                                 }
                             }
-                        } else {
+                        }
+                        else {
                             self._currentFrame = currentFrame;
                             self._onCrossFrame(self._currentFrame);
                         }
@@ -133,16 +144,19 @@ namespace dragonBones {
                         eventObject.animationState = self._animationState;
                         self._armature._bufferEvent(eventObject, eventType);
                     }
+
+                    self._currentFrame = null;
                 }
             }
         }
     }
     /**
+     * @internal
      * @private
      */
     export class BoneTimelineState extends TweenTimelineState<BoneFrameData, BoneTimelineData> {
         public static toString(): string {
-            return "[Class dragonBones.BoneTimelineState]";
+            return "[class dragonBones.BoneTimelineState]";
         }
 
         public bone: Bone;
@@ -212,11 +226,13 @@ namespace dragonBones {
                             const rotate = tweenRotate > 0 ? tweenRotate - 1 : tweenRotate + 1;
                             self._durationTransform.skewX = nextTransform.skewX - self._currentTransform.skewX + DragonBones.PI_D * rotate;
                             self._durationTransform.skewY = nextTransform.skewY - self._currentTransform.skewY + DragonBones.PI_D * rotate;
-                        } else {
+                        }
+                        else {
                             self._durationTransform.skewX = nextTransform.skewX - self._currentTransform.skewX + DragonBones.PI_D * tweenRotate;
                             self._durationTransform.skewY = nextTransform.skewY - self._currentTransform.skewY + DragonBones.PI_D * tweenRotate;
                         }
-                    } else {
+                    }
+                    else {
                         self._durationTransform.skewX = Transform.normalizeRadian(nextTransform.skewX - self._currentTransform.skewX);
                         self._durationTransform.skewY = Transform.normalizeRadian(nextTransform.skewY - self._currentTransform.skewY);
                     }
@@ -224,7 +240,8 @@ namespace dragonBones {
                     if (self._durationTransform.skewX != 0 || self._durationTransform.skewY != 0) {
                         self._tweenRotate = TweenType.Always;
                     }
-                } else {
+                }
+                else {
                     self._durationTransform.skewX = 0;
                     self._durationTransform.skewY = 0;
                 }
@@ -236,11 +253,13 @@ namespace dragonBones {
                     if (self._durationTransform.scaleX != 0 || self._durationTransform.scaleY != 0) {
                         self._tweenScale = TweenType.Always;
                     }
-                } else {
+                }
+                else {
                     self._durationTransform.scaleX = 0;
                     self._durationTransform.scaleY = 0;
                 }
-            } else {
+            }
+            else {
                 self._durationTransform.x = 0;
                 self._durationTransform.y = 0;
                 self._durationTransform.skewX = 0;
@@ -262,14 +281,16 @@ namespace dragonBones {
                     if (self._tweenTransform == TweenType.Once) {
                         self._tweenTransform = TweenType.None;
                         tweenProgress = 0;
-                    } else {
+                    }
+                    else {
                         tweenProgress = self._tweenProgress;
                     }
 
                     if (self._animationState.additiveBlending) { // Additive blending.
                         self._transform.x = self._currentTransform.x + self._durationTransform.x * tweenProgress;
                         self._transform.y = self._currentTransform.y + self._durationTransform.y * tweenProgress;
-                    } else { // Normal blending.
+                    }
+                    else { // Normal blending.
                         self._transform.x = self._originTransform.x + self._currentTransform.x + self._durationTransform.x * tweenProgress;
                         self._transform.y = self._originTransform.y + self._currentTransform.y + self._durationTransform.y * tweenProgress;
                     }
@@ -279,14 +300,16 @@ namespace dragonBones {
                     if (self._tweenRotate == TweenType.Once) {
                         self._tweenRotate = TweenType.None;
                         tweenProgress = 0;
-                    } else {
+                    }
+                    else {
                         tweenProgress = self._tweenProgress;
                     }
 
                     if (self._animationState.additiveBlending) { // Additive blending.
                         self._transform.skewX = self._currentTransform.skewX + self._durationTransform.skewX * tweenProgress;
                         self._transform.skewY = self._currentTransform.skewY + self._durationTransform.skewY * tweenProgress;
-                    } else { // Normal blending.
+                    }
+                    else { // Normal blending.
                         self._transform.skewX = self._originTransform.skewX + self._currentTransform.skewX + self._durationTransform.skewX * tweenProgress;
                         self._transform.skewY = self._originTransform.skewY + self._currentTransform.skewY + self._durationTransform.skewY * tweenProgress;
                     }
@@ -296,14 +319,16 @@ namespace dragonBones {
                     if (self._tweenScale == TweenType.Once) {
                         self._tweenScale = TweenType.None;
                         tweenProgress = 0;
-                    } else {
+                    }
+                    else {
                         tweenProgress = self._tweenProgress;
                     }
 
                     if (self._animationState.additiveBlending) { // Additive blending.
                         self._transform.scaleX = self._currentTransform.scaleX + self._durationTransform.scaleX * tweenProgress;
                         self._transform.scaleY = self._currentTransform.scaleY + self._durationTransform.scaleY * tweenProgress;
-                    } else { // Normal blending.
+                    }
+                    else { // Normal blending.
                         self._transform.scaleX = self._originTransform.scaleX * (self._currentTransform.scaleX + self._durationTransform.scaleX * tweenProgress);
                         self._transform.scaleY = self._originTransform.scaleY * (self._currentTransform.scaleY + self._durationTransform.scaleY * tweenProgress);
                     }
@@ -334,7 +359,8 @@ namespace dragonBones {
                     self._boneTransform.skewY = self._transform.skewY * weight;
                     self._boneTransform.scaleX = (self._transform.scaleX - 1) * weight + 1;
                     self._boneTransform.scaleY = (self._transform.scaleY - 1) * weight + 1;
-                } else {
+                }
+                else {
                     self._boneTransform.x += self._transform.x * weight;
                     self._boneTransform.y += self._transform.y * weight;
                     self._boneTransform.skewX += self._transform.skewX * weight;
@@ -353,11 +379,12 @@ namespace dragonBones {
         }
     }
     /**
+     * @internal
      * @private
      */
     export class SlotTimelineState extends TweenTimelineState<SlotFrameData, SlotTimelineData> {
         public static toString(): string {
-            return "[Class dragonBones.SlotTimelineState]";
+            return "[class dragonBones.SlotTimelineState]";
         }
 
         public slot: Slot;
@@ -408,7 +435,8 @@ namespace dragonBones {
                     if (self.slot._displayDataSet.displays.length > 1) {
                         self.slot._setDisplayIndex(displayIndex);
                     }
-                } else {
+                }
+                else {
                     self.slot._setDisplayIndex(displayIndex);
                 }
 
@@ -462,7 +490,8 @@ namespace dragonBones {
                         self._tweenColor = TweenType.Once;
                     }
                 }
-            } else {
+            }
+            else {
                 self._tweenEasing = DragonBones.NO_TWEEN;
                 self._curve = null;
                 self._tweenColor = TweenType.None;
@@ -480,7 +509,8 @@ namespace dragonBones {
                 if (self._tweenColor == TweenType.Once) {
                     self._tweenColor = TweenType.None;
                     tweenProgress = 0;
-                } else {
+                }
+                else {
                     tweenProgress = self._tweenProgress;
                 }
 
@@ -523,7 +553,8 @@ namespace dragonBones {
                         self._slotColor.blueOffset += (self._color.blueOffset - self._slotColor.blueOffset) * fadeProgress;
 
                         self.slot._colorDirty = true;
-                    } else if (self._colorDirty) {
+                    }
+                    else if (self._colorDirty) {
                         self._colorDirty = false;
                         self._slotColor.alphaMultiplier = self._color.alphaMultiplier;
                         self._slotColor.redMultiplier = self._color.redMultiplier;
@@ -541,11 +572,12 @@ namespace dragonBones {
         }
     }
     /**
+     * @internal
      * @private
      */
     export class FFDTimelineState extends TweenTimelineState<ExtensionFrameData, FFDTimelineData> {
         public static toString(): string {
-            return "[Class dragonBones.FFDTimelineState]";
+            return "[class dragonBones.FFDTimelineState]";
         }
 
         public slot: Slot;
@@ -654,7 +686,8 @@ namespace dragonBones {
                     for (let i = 0, l = self._ffdVertices.length; i < l; ++i) {
                         self._slotFFDVertices[i] = self._ffdVertices[i] * weight;
                     }
-                } else {
+                }
+                else {
                     for (let i = 0, l = self._ffdVertices.length; i < l; ++i) {
                         self._slotFFDVertices[i] += self._ffdVertices[i] * weight;
                     }

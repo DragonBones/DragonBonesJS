@@ -57,6 +57,7 @@ namespace dragonBones {
          */
         protected _globalTransformMatrix: Matrix = new Matrix();
         /**
+         * @internal
          * @private
          */
         public constructor() {
@@ -78,12 +79,14 @@ namespace dragonBones {
             this._globalTransformMatrix.identity();
         }
         /**
+         * @internal
          * @private
          */
         public _setArmature(value: Armature): void {
             this._armature = value;
         }
         /**
+         * @internal
          * @private
          */
         public _setParent(value: Bone): void {

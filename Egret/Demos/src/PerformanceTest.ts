@@ -30,14 +30,13 @@ namespace demosEgret {
                 this.stage.addEventListener(egret.Event.ENTER_FRAME, this._enterFrameHandler, this);
                 this.stage.addEventListener(egret.TouchEvent.TOUCH_BEGIN, this._touchHandler, this);
                 this.stage.addEventListener(egret.TouchEvent.TOUCH_END, this._touchHandler, this);
-                this.stage.addEventListener(egret.TouchEvent.TOUCH_CANCEL, this._touchHandler, this);
-                this.stage.addEventListener(egret.TouchEvent.TOUCH_RELEASE_OUTSIDE, this._touchHandler, this);
 
                 for (let i = 0; i < 100; ++i) {
                     this._addArmature();
                 }
 
                 this._resetPosition();
+                this._updateText();
             } else {
                 throw new Error();
             }
@@ -51,6 +50,7 @@ namespace demosEgret {
                 }
 
                 this._resetPosition();
+                this._updateText();
             }
 
             if (this._removingArmature) {
@@ -60,6 +60,7 @@ namespace demosEgret {
                 }
 
                 this._resetPosition();
+                this._updateText();
             }
 
             dragonBones.WorldClock.clock.advanceTime(-1);
@@ -74,8 +75,6 @@ namespace demosEgret {
                     break;
 
                 case egret.TouchEvent.TOUCH_END:
-                case egret.TouchEvent.TOUCH_CANCEL:
-                case egret.TouchEvent.TOUCH_RELEASE_OUTSIDE:
                     this._addingArmature = false;
                     this._removingArmature = false;
                     break;
@@ -90,11 +89,11 @@ namespace demosEgret {
             this.addChild(armatureDisplay);
 
             armature.cacheFrameRate = 24;
-            armature.animation.play("walk", 0);
+            const animationName = armature.animation.animationNames[Math.floor(Math.random() * armature.animation.animationNames.length)];
+            armature.animation.play(animationName, 0);
             dragonBones.WorldClock.clock.add(armature);
 
             this._armatures.push(armature);
-            this._updateText();
         }
 
         private _removeArmature(): void {
@@ -107,8 +106,6 @@ namespace demosEgret {
             this.removeChild(armatureDisplay);
             dragonBones.WorldClock.clock.remove(armature);
             armature.dispose();
-
-            this._updateText();
         }
 
         private _resetPosition(): void {

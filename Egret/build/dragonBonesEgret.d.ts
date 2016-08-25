@@ -99,12 +99,16 @@ declare namespace dragonBones {
          * @see dragonBones.EventObject.FRAME_EVENT
          */
         static MOVEMENT_FRAME_EVENT: string;
+        /**
+         * @deprecated
+         * @see dragonBones.EventObject.SOUND_EVENT
+         */
+        static SOUND: string;
     }
     /**
      * @inheritDoc
      */
     class EgretArmatureDisplay extends egret.DisplayObjectContainer implements IArmatureDisplay {
-        static passTime: number;
         private static _clock;
         private static _clockHandler(time);
         /**
@@ -186,6 +190,12 @@ declare namespace dragonBones {
      * @deprecated
      * @see dragonBones.EgretEvent
      */
+    class Event extends EgretEvent {
+    }
+    /**
+     * @deprecated
+     * @see dragonBones.EgretEvent
+     */
     class AnimationEvent extends EgretEvent {
     }
     /**
@@ -243,9 +253,16 @@ declare namespace dragonBones {
      * @version DragonBones 3.0
      */
     class EgretFactory extends BaseFactory {
+        private static _factory;
         /**
          * @language zh_CN
-         * 创建一个工厂。
+         * 一个可以直接使用的全局工厂实例.
+         * @version DragonBones 4.7
+         */
+        static factory: EgretFactory;
+        /**
+         * @language zh_CN
+         * 创建一个工厂。 (通常只需要一个全局工厂实例)
          * @param dataParser 龙骨数据解析器，如果不设置，则使用默认解析器。
          * @version DragonBones 3.0
          */
@@ -322,6 +339,11 @@ declare namespace dragonBones {
          * @see dragonBones.BaseFactory#buildArmature()
          */
         buildFastArmature(armatureName: string, dragonBonesName?: string, skinName?: string): FastArmature;
+        /**
+         * @deprecated
+         * @see dragonBones.BaseFactory#clear()
+         */
+        dispose(): void;
     }
 }
 declare namespace dragonBones {

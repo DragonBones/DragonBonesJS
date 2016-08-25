@@ -39,27 +39,35 @@ namespace demosEgret {
                 this.stage.addEventListener(egret.TouchEvent.TOUCH_END, this._touchHandler, this);
                 this.stage.addEventListener(egret.TouchEvent.TOUCH_MOVE, this._touchHandler, this);
 
-                // Add Armature.            
-                this._changeArmature();
-                this._changeAnimation();
+                // Add sound event listener.
+                this._factory.soundEventManater.addEventListener(dragonBones.EventObject.SOUND_EVENT, this._frameEventHandler, this);
 
-                // Add infomation.            
+                // Add armature.
+                this._changeArmature();
+
+                // Add infomation.
                 const text = new egret.TextField();
                 text.x = 0;
                 text.y = this.stage.stageHeight - 60;
                 text.width = this.stage.stageWidth;
                 text.textAlign = egret.HorizontalAlign.CENTER;
                 text.size = 20;
-                text.text = "Touch screen left to change Armature / right to change Animation.\nTouch move to scale Armatrue and Animation.";
+                text.text = "Touch screen left to change armature / right to change animation.\nTouch move to scale armature and animation.";
                 this.addChild(text);
             } else {
                 throw new Error();
             }
+
+            const abc = "abc";
+            console.log(abc[2]);
+            abc[2] = "f";
+            console.log(abc);
+            
         }
         /** 
          * Touch event listeners.
-         * Touch to change Armature and Animation.
-         * Touch move to change Armature and Animation scale.
+         * Touch to change armature and animation.
+         * Touch move to change armature and animation scale.
          */
         private _touchHandler(event: egret.TouchEvent): void {
             switch (event.type) {
@@ -76,9 +84,9 @@ namespace demosEgret {
                         const touchRight = event.stageX > this.stage.stageWidth * 0.5;
                         if (this._dragonBonesData.armatureNames.length > 1 && !touchRight) {
                             this._changeArmature();
+                        } else {
+                            this._changeAnimation();
                         }
-
-                        this._changeAnimation();
                     }
                     break;
 
@@ -111,7 +119,7 @@ namespace demosEgret {
             }
         }
         /** 
-         * Change Armature.
+         * Change armature.
          */
         private _changeArmature(): void {
             const armatureNames = this._dragonBonesData.armatureNames;
@@ -119,13 +127,19 @@ namespace demosEgret {
                 return;
             }
 
-            // Remove prev Armature.
+            // Remove prev armature.
             if (this._armatureDisplay) {
+                // Remove listeners.
+                this._armatureDisplay.removeEventListener(dragonBones.EventObject.START, this._animationHandler, this);
+                this._armatureDisplay.removeEventListener(dragonBones.EventObject.LOOP_COMPLETE, this._animationHandler, this);
+                this._armatureDisplay.removeEventListener(dragonBones.EventObject.COMPLETE, this._animationHandler, this);
+                this._armatureDisplay.removeEventListener(dragonBones.EventObject.FRAME_EVENT, this._frameEventHandler, this);
+
                 this._armatureDisplay.dispose();
                 this.removeChild(this._armatureDisplay);
             }
 
-            // Get next Armature name.
+            // Get next armature name.
             this._animationIndex = 0;
             this._armatureIndex++;
             if (this._armatureIndex >= armatureNames.length) {
@@ -134,20 +148,25 @@ namespace demosEgret {
 
             const armatureName = armatureNames[this._armatureIndex];
 
-            // Build Armature display. (Factory.buildArmatureDisplay() will update Armature animation by Armature display)
+            // Build armature display. (Factory.buildArmatureDisplay() will update armature and animation by display self)
             this._armatureDisplay = this._factory.buildArmatureDisplay(armatureName);
-            //this._armatureDisplay.armature.cacheFrameRate = 24;
+            //this._armatureDisplay.armature.cacheFrameRate = 30; // Cache animation.
+            console.log("Change Armature:", armatureName);
 
-            // Add FrameEvent listener.
+            // Add animation listener.
+            this._armatureDisplay.addEventListener(dragonBones.EventObject.START, this._animationHandler, this);
+            this._armatureDisplay.addEventListener(dragonBones.EventObject.LOOP_COMPLETE, this._animationHandler, this);
+            this._armatureDisplay.addEventListener(dragonBones.EventObject.COMPLETE, this._animationHandler, this);
+            // Add frame event listener.
             this._armatureDisplay.addEventListener(dragonBones.EventObject.FRAME_EVENT, this._frameEventHandler, this);
 
-            // Add Armature display.
+            // Add armature display.
             this._armatureDisplay.x = this.stage.stageWidth * 0.5;
             this._armatureDisplay.y = this.stage.stageHeight * 0.5 + 100;
             this.addChild(this._armatureDisplay);
         }
         /** 
-         * Change Armature animation.
+         * Change armature animation.
          */
         private _changeAnimation(): void {
             if (!this._armatureDisplay) {
@@ -171,10 +190,16 @@ namespace demosEgret {
             this._armatureDisplay.animation.play(animationName);
         }
         /** 
-         * FrameEvent listener. (If animation has FrameEvent)
+         * Animation listener.
+         */
+        private _animationHandler(event: dragonBones.EgretEvent): void {
+            console.log(event.type, event.eventObject.animationState.name);
+        }
+        /** 
+         * Frame event listener. (If animation has frame event)
          */
         private _frameEventHandler(event: dragonBones.EgretEvent): void {
-            console.log(event.eventObject.animationState.name, event.eventObject.name);
+            console.log(event.type, event.eventObject.animationState.name, event.eventObject.name);
         }
     }
 }

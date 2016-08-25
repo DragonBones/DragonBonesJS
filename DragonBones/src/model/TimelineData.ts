@@ -3,9 +3,6 @@ namespace dragonBones {
      * @private
      */
     export abstract class TimelineData<T extends FrameData<T>> extends BaseObject {
-        /**
-         * @private
-         */
         public scale: number;
         /**
          * @private
@@ -51,7 +48,7 @@ namespace dragonBones {
             return cacheMatrix;
         }
         public static toString(): string {
-            return "[Class dragonBones.BoneTimelineData]";
+            return "[class dragonBones.BoneTimelineData]";
         }
 
 
@@ -92,7 +89,7 @@ namespace dragonBones {
             return cacheMatrix;
         }
         public static toString(): string {
-            return "[Class dragonBones.SlotTimelineData]";
+            return "[class dragonBones.SlotTimelineData]";
         }
 
         public slot: SlotData = null;
@@ -124,7 +121,7 @@ namespace dragonBones {
      */
     export class FFDTimelineData extends TimelineData<ExtensionFrameData> {
         public static toString(): string {
-            return "[Class dragonBones.FFDTimelineData]";
+            return "[class dragonBones.FFDTimelineData]";
         }
 
         public displayIndex: number = 0;

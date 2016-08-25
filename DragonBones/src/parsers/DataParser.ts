@@ -117,7 +117,7 @@ namespace dragonBones {
                 case "armature":
                     return ArmatureType.Armature;
 
-                case "movieClip":
+                case "movieclip":
                     return ArmatureType.MovieClip;
 
                 default:
@@ -223,15 +223,18 @@ namespace dragonBones {
         protected _animation: AnimationData = null;
         protected _timeline: any = null;
 
-        protected _isParentCooriinate: boolean = false;
-        protected _isAutoTween: boolean = false;
-        protected _animationTweenEasing: number = 0;
+        protected _isOldData: boolean = false; // For 2.x ~ 3.x
+        protected _isGlobalTransform: boolean = false; // For 2.x ~ 3.x
+        protected _isAutoTween: boolean = false; // For 2.x ~ 3.x
+        protected _animationTweenEasing: number = 0; // For 2.x ~ 3.x
+        protected _timelinePivot: Point = new Point(); // For 2.x ~ 3.x
+
         protected _armatureScale: number = 1;
         protected _helpPoint: Point = new Point();
         protected _helpTransformA: Transform = new Transform();
         protected _helpTransformB: Transform = new Transform();
         protected _helpMatrix: Matrix = new Matrix();
-        protected _rawBones: Array<BoneData> = [];
+        protected _rawBones: Array<BoneData> = []; // For skinned mesh
 
         public constructor() { }
         /**
@@ -247,16 +250,18 @@ namespace dragonBones {
             const frameIndex = Math.floor(position * animation.frameCount / animation.duration); // uint()
             if (timeline.frames.length == 1 || frameIndex >= timeline.frames.length) {
                 transform.copyFrom(timeline.frames[0].transform);
-            } else {
+            }
+            else {
                 const frame = timeline.frames[frameIndex];
                 let tweenProgress = 0;
 
-                if (frame.duration > 0 && frame.tweenEasing != DragonBones.NO_TWEEN) {
+                if (frame.tweenEasing != DragonBones.NO_TWEEN) {
                     tweenProgress = (position - frame.position) / frame.duration;
                     if (frame.tweenEasing != 0) {
                         tweenProgress = TweenTimelineState._getEasingValue(tweenProgress, frame.tweenEasing);
                     }
-                } else if (frame.curve) {
+                }
+                else if (frame.curve) {
                     tweenProgress = (position - frame.position) / frame.duration;
                     tweenProgress = TweenTimelineState._getCurveEasingValue(tweenProgress, frame.curve);
                 }
@@ -312,6 +317,7 @@ namespace dragonBones {
                         if (keyFrames.indexOf(frame) >= 0) {
                             continue;
                         }
+
                         keyFrames.push(frame);
 
                         if (parentTimeline) {
@@ -321,7 +327,8 @@ namespace dragonBones {
                             this._helpMatrix.invert();
                             this._helpMatrix.transformPoint(frame.transform.x, frame.transform.y, frame.transform);
                             frame.transform.rotation -= this._helpTransformA.rotation;
-                        } else {
+                        }
+                        else {
                             frame.transform.add(this._helpTransformB);
                         }
 
@@ -330,7 +337,8 @@ namespace dragonBones {
                         if (i == 0) {
                             timeline.originTransform.copyFrom(frame.transform);
                             frame.transform.identity();
-                        } else {
+                        }
+                        else {
                             frame.transform.minus(timeline.originTransform);
                         }
                     }
@@ -362,7 +370,8 @@ namespace dragonBones {
 
             if (replacedFrame && (frameStart == 0 || frames[frameStart - 1] == replacedFrame.prev)) { // Key frame.
                 insertedFrame = replacedFrame;
-            } else {
+            }
+            else {
                 insertedFrame = BaseObject.borrowObject(AnimationFrameData); // Create frame.
                 insertedFrame.position = frameStart / this._armature.frameRate;
                 frames[frameStart] = insertedFrame;
@@ -401,7 +410,8 @@ namespace dragonBones {
                     }
 
                     prevFrame = nextFrame;
-                } else {
+                }
+                else {
                     frames[i] = prevFrame;
                 }
             }

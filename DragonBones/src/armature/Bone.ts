@@ -1,5 +1,6 @@
 namespace dragonBones {
     /**
+     * @internal
      * @private
      */
     export const enum BoneTransformDirty {
@@ -22,7 +23,7 @@ namespace dragonBones {
          * @private
          */
         public static toString(): string {
-            return "[Class dragonBones.Bone]";
+            return "[class dragonBones.Bone]";
         }
 
         /**
@@ -62,18 +63,22 @@ namespace dragonBones {
          */
         public length: number;
         /**
+         * @internal
          * @private
          */
         public _transformDirty: BoneTransformDirty;
         /**
+         * @internal
          * @private
          */
         public _blendIndex: number;
         /**
+         * @internal
          * @private
          */
         public _cacheFrames: Array<Matrix>;
         /**
+         * @internal
          * @private
          */
         public _animationPose: Transform = new Transform();
@@ -102,6 +107,7 @@ namespace dragonBones {
          */
         private _slots: Array<Slot> = [];
         /**
+         * @internal
          * @private
          */
         public constructor() {
@@ -227,10 +233,12 @@ namespace dragonBones {
             if (lL + lP <= lT || lT + lL <= lP || lT + lP <= lL) {
                 ikRadianA = Math.atan2(ikGlobal.y - parentGlobal.y, ikGlobal.x - parentGlobal.x) + this._parent.offset.skewY; // Support offset.
                 if (lL + lP <= lT) {
-                } else if (lP < lL) {
+                }
+                else if (lP < lL) {
                     ikRadianA += Math.PI;
                 }
-            } else {
+            }
+            else {
                 const h = (lPP - lLL + lTT) / (2 * lTT);
                 const r = Math.sqrt(lPP - h * h * lTT) / lT;
                 const hX = parentGlobal.x + (dX * h);
@@ -241,7 +249,8 @@ namespace dragonBones {
                 if (this.ikBendPositive) {
                     this.global.x = hX - rX;
                     this.global.y = hY - rY;
-                } else {
+                }
+                else {
                     this.global.x = hX + rX;
                     this.global.y = hY + rY;
                 }
@@ -314,6 +323,7 @@ namespace dragonBones {
             }
         }
         /**
+         * @internal
          * @private
          */
         public _setIK(value: Bone, chain: number, chainIndex: number): void {
@@ -322,7 +332,8 @@ namespace dragonBones {
                     let chainEnd = this._parent;
                     if (chain && chainEnd) {
                         chain = 1;
-                    } else {
+                    }
+                    else {
                         chain = 0;
                         chainIndex = 0;
                         chainEnd = this;
@@ -332,7 +343,8 @@ namespace dragonBones {
                         value = null;
                         chain = 0;
                         chainIndex = 0;
-                    } else {
+                    }
+                    else {
                         let ancestor = value;
                         while (ancestor.ik && ancestor.ikChain) {
                             if (chainEnd.contains(ancestor.ik)) {
@@ -346,7 +358,8 @@ namespace dragonBones {
                         }
                     }
                 }
-            } else {
+            }
+            else {
                 chain = 0;
                 chainIndex = 0;
             }
@@ -360,6 +373,7 @@ namespace dragonBones {
             }
         }
         /**
+         * @internal
          * @private
          */
         public _update(cacheFrameIndex: number): void {
@@ -372,24 +386,29 @@ namespace dragonBones {
 
                 if (self.globalTransformMatrix == cacheFrame) { // Same cache.
                     self._transformDirty = BoneTransformDirty.None;
-                } else if (cacheFrame) { // Has been Cached.
+                }
+                else if (cacheFrame) { // Has been Cached.
                     self._transformDirty = BoneTransformDirty.All; // For update children and ik children.
                     self.globalTransformMatrix = cacheFrame;
-                } else if ( // Dirty.
+                }
+                else if ( // Dirty.
                     self._transformDirty == BoneTransformDirty.All ||
                     (self._parent && self._parent._transformDirty != BoneTransformDirty.None) ||
                     (self._ik && self.ikWeight > 0 && self._ik._transformDirty != BoneTransformDirty.None)
                 ) {
                     self._transformDirty = BoneTransformDirty.All; // For update children and ik children.
                     self.globalTransformMatrix = self._globalTransformMatrix;
-                } else if (self.globalTransformMatrix != self._globalTransformMatrix) { // Same cache but not cached yet.
+                }
+                else if (self.globalTransformMatrix != self._globalTransformMatrix) { // Same cache but not cached yet.
                     self._transformDirty = BoneTransformDirty.None;
                     self._cacheFrames[cacheFrameIndex] = self.globalTransformMatrix;
-                } else { // Dirty.
+                }
+                else { // Dirty.
                     self._transformDirty = BoneTransformDirty.All;
                     self.globalTransformMatrix = self._globalTransformMatrix;
                 }
-            } else if (
+            }
+            else if (
                 self._transformDirty == BoneTransformDirty.All ||
                 (self._parent && self._parent._transformDirty != BoneTransformDirty.None) ||
                 (self._ik && self.ikWeight > 0 && self._ik._transformDirty != BoneTransformDirty.None)
@@ -416,16 +435,18 @@ namespace dragonBones {
                         if (self._ik && self._ikChainIndex == self._ikChain && self.ikWeight > 0) {
                             if (self.inheritTranslation && self._ikChain > 0 && self._parent) {
                                 self._computeIKB();
-                            } else {
+                            }
+                            else {
                                 self._computeIKA();
                             }
                         }
 
-                        if (cacheFrameIndex >= 0) {
+                        if (cacheFrameIndex >= 0 && !self._cacheFrames[cacheFrameIndex]) {
                             self.globalTransformMatrix = BoneTimelineData.cacheFrame(self._cacheFrames, cacheFrameIndex, self._globalTransformMatrix);
                         }
                     }
-                } else {
+                }
+                else {
                     self._transformDirty = BoneTransformDirty.None;
                 }
             }

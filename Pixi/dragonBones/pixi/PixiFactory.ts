@@ -5,9 +5,22 @@ namespace dragonBones {
      * @version DragonBones 3.0
      */
     export class PixiFactory extends BaseFactory {
+        private static _factory: PixiFactory = null;
         /**
          * @language zh_CN
-         * 创建一个工厂。
+         * 一个可以直接使用的全局工厂实例.
+         * @version DragonBones 4.7
+         */
+        public static get factory(): PixiFactory {
+            if (!PixiFactory._factory) {
+                PixiFactory._factory = new PixiFactory();
+            }
+
+            return PixiFactory._factory;
+        }
+        /**
+         * @language zh_CN
+         * 创建一个工厂。 (通常只需要一个全局工厂实例)
          * @param dataParser 龙骨数据解析器，如果不设置，则使用默认解析器。
          * @version DragonBones 3.0
          */
@@ -64,16 +77,16 @@ namespace dragonBones {
                 const displayData = slotDisplayDataSet.displays[i];
                 switch (displayData.type) {
                     case DisplayType.Image:
-                        if (!displayData.textureData) {
-                            displayData.textureData = this._getTextureData(dataPackage.dataName, displayData.name);
+                        if (!displayData.texture) {
+                            displayData.texture = this._getTextureData(dataPackage.dataName, displayData.name);
                         }
 
                         displayList.push(slot._rawDisplay);
                         break;
 
                     case DisplayType.Mesh:
-                        if (!displayData.textureData) {
-                            displayData.textureData = this._getTextureData(dataPackage.dataName, displayData.name);
+                        if (!displayData.texture) {
+                            displayData.texture = this._getTextureData(dataPackage.dataName, displayData.name);
                         }
 
                         if (!slot._meshDisplay) {
@@ -86,13 +99,19 @@ namespace dragonBones {
                     case DisplayType.Armature:
                         const childArmature = this.buildArmature(displayData.name, dataPackage.dataName);
                         if (childArmature) {
-                            if (slotData.actions.length > 0) {
-                                for (let i = 0, l = slotData.actions.length; i < l; ++i) {
-                                    childArmature._bufferAction(slotData.actions[i]);
+                            if (!slot.inheritAnimation) {
+                                const actions = slotData.actions.length > 0 ? slotData.actions : childArmature.armatureData.actions;
+                                if (actions.length > 0) {
+                                    for (let i = 0, l = actions.length; i < l; ++i) {
+                                        childArmature._bufferAction(actions[i]);
+                                    }
                                 }
-                            } else {
-                                childArmature.animation.play();
+                                else {
+                                    childArmature.animation.play();
+                                }
                             }
+
+                            displayData.armature = childArmature.armatureData; // 
                         }
 
                         displayList.push(childArmature);
