@@ -11,8 +11,6 @@ namespace demosEgret {
             public static G: number = 0.6;
             public static instance: Game = null;
 
-            public factory: dragonBones.EgretFactory = new dragonBones.EgretFactory();
-
             private _left: boolean = false;
             private _right: boolean = false;
             private _player: Mecha = null;
@@ -23,7 +21,7 @@ namespace demosEgret {
 
                 Game.instance = this;
 
-                this._resourceConfigURL = "resource/CoreElement.json";
+                this._resourceConfigURL = "resource/CoreElement.res.json";
             }
 
             protected createGameScene(): void {
@@ -31,8 +29,8 @@ namespace demosEgret {
                 Game.STAGE_HEIGHT = this.stage.stageHeight;
                 Game.GROUND = Game.STAGE_HEIGHT - 100;
 
-                this.factory.parseDragonBonesData(RES.getRes("dragonBonesData"));
-                this.factory.parseTextureAtlasData(RES.getRes("textureDataA"), RES.getRes("textureA"));
+                dragonBones.EgretFactory.factory.parseDragonBonesData(RES.getRes("dragonBonesData"));
+                dragonBones.EgretFactory.factory.parseTextureAtlasData(RES.getRes("textureDataA"), RES.getRes("textureA"));
 
                 this.stage.addEventListener(egret.Event.ENTER_FRAME, this._enterFrameHandler, this);
                 this.stage.addEventListener(egret.TouchEvent.TOUCH_BEGIN, this._touchHandler, this);
@@ -184,9 +182,9 @@ namespace demosEgret {
             private _target: PointType = new egret.Point();
 
             public constructor() {
-                this._armature = Game.instance.factory.buildArmature("mecha_1502b");
-                Game.instance.factory.copyAnimationsToArmature(this._armature, "mecha_1502b");
-                
+                this._armature = dragonBones.EgretFactory.factory.buildArmature("mecha_1502b");
+                dragonBones.EgretFactory.factory.copyAnimationsToArmature(this._armature, "mecha_1502b");
+
                 this._armatureDisplay = <ArmatureDisplayType>this._armature.display;
                 this._armatureDisplay.x = Game.STAGE_WIDTH * 0.5;
                 this._armatureDisplay.y = Game.GROUND;
@@ -255,7 +253,7 @@ namespace demosEgret {
                 this._weaponR.removeEventListener(dragonBones.EventObject.FRAME_EVENT, this._frameEventHandler, this);
 
                 const weaponName = Mecha.WEAPON_R_LIST[this._weaponRIndex];
-                this._weaponR = Game.instance.factory.buildArmature(weaponName);
+                this._weaponR = dragonBones.EgretFactory.factory.buildArmature(weaponName);
                 this._armature.getSlot("weapon_r").childArmature = this._weaponR;
                 this._weaponR.addEventListener(dragonBones.EventObject.FRAME_EVENT, this._frameEventHandler, this);
             }
@@ -269,7 +267,7 @@ namespace demosEgret {
                 this._weaponL.removeEventListener(dragonBones.EventObject.FRAME_EVENT, this._frameEventHandler, this);
 
                 const weaponName = Mecha.WEAPON_L_LIST[this._weaponLIndex];
-                this._weaponL = Game.instance.factory.buildArmature(weaponName);
+                this._weaponL = dragonBones.EgretFactory.factory.buildArmature(weaponName);
                 this._armature.getSlot("weapon_l").childArmature = this._weaponL;
                 this._weaponL.addEventListener(dragonBones.EventObject.FRAME_EVENT, this._frameEventHandler, this);
             }
@@ -484,7 +482,7 @@ namespace demosEgret {
                 this._speedX = Math.cos(radian) * speed;
                 this._speedY = Math.sin(radian) * speed;
 
-                this._armature = Game.instance.factory.buildArmature(armatureName);
+                this._armature = dragonBones.EgretFactory.factory.buildArmature(armatureName);
                 this._armatureDisplay = <ArmatureDisplayType>this._armature.display;
                 this._armatureDisplay.x = position.x;
                 this._armatureDisplay.y = position.y;
@@ -492,7 +490,7 @@ namespace demosEgret {
                 this._armature.animation.play("idle");
 
                 if (effectArmatureName) {
-                    this._effect = Game.instance.factory.buildArmature(effectArmatureName);
+                    this._effect = dragonBones.EgretFactory.factory.buildArmature(effectArmatureName);
                     const effectDisplay = <ArmatureDisplayType>this._effect.display;
                     effectDisplay.rotation = radian * dragonBones.DragonBones.RADIAN_TO_ANGLE;
                     effectDisplay.x = position.x;

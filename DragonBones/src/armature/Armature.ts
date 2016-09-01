@@ -97,36 +97,16 @@ namespace dragonBones {
          * @inheritDoc
          */
         protected _onClear(): void {
-            if (this._bones.length) {
-                for (let i = 0, l = this._bones.length; i < l; ++i) {
-                    this._bones[i].returnToPool();
-                }
-
-                this._bones.length = 0;
+            for (let i = 0, l = this._bones.length; i < l; ++i) {
+                this._bones[i].returnToPool();
             }
 
-            if (this._slots.length) {
-                for (let i = 0, l = this._slots.length; i < l; ++i) {
-                    this._slots[i].returnToPool();
-                }
-
-                this._slots.length = 0;
+            for (let i = 0, l = this._slots.length; i < l; ++i) {
+                this._slots[i].returnToPool();
             }
 
-            if (this._actions.length) {
-                for (let i = 0, l = this._actions.length; i < l; ++i) {
-                    this._actions[i].returnToPool();
-                }
-
-                this._actions.length = 0;
-            }
-
-            if (this._events.length) {
-                for (let i = 0, l = this._events.length; i < l; ++i) {
-                    this._events[i].returnToPool();
-                }
-
-                this._events.length = 0;
+            for (let i = 0, l = this._events.length; i < l; ++i) {
+                this._events[i].returnToPool();
             }
 
             this.userData = null;
@@ -152,6 +132,10 @@ namespace dragonBones {
             this._delayDispose = false;
             this._lockDispose = false;
             this._slotsDirty = false;
+            this._bones.length = 0;
+            this._slots.length = 0;
+            this._actions.length = 0;
+            this._events.length = 0;
         }
         /**
          * @private
@@ -229,6 +213,9 @@ namespace dragonBones {
 
                 case ActionType.FadeOut:
                     // TODO fade out
+                    break;
+
+                default:
                     break;
             }
         }
@@ -315,53 +302,53 @@ namespace dragonBones {
         public advanceTime(passedTime: number): void {
             const self = this;
 
-            if (!self._lockDispose) {
-                self._lockDispose = true;
+            if (!self._animation) {
+                throw new Error("The armature has been disposed.");
+            }
 
-                if (!self._animation) {
-                    throw new Error("The armature has been disposed.");
-                }
+            const scaledPassedTime = passedTime * self._animation.timeScale;
 
-                const scaledPassedTime = passedTime * self._animation.timeScale;
+            // Animations.
+            self._animation._advanceTime(scaledPassedTime);
 
-                // Animations.
-                self._animation._advanceTime(scaledPassedTime);
+            // Bones and slots.
+            if (self._bonesDirty) {
+                self._bonesDirty = false;
+                self._sortBones();
+            }
 
-                // Bones and slots.
-                if (self._bonesDirty) {
-                    self._bonesDirty = false;
-                    self._sortBones();
-                }
+            if (self._slotsDirty) {
+                self._slotsDirty = false;
+                self._sortSlots();
+            }
 
-                if (self._slotsDirty) {
-                    self._slotsDirty = false;
-                    self._sortSlots();
-                }
+            for (let i = 0, l = self._bones.length; i < l; ++i) {
+                self._bones[i]._update(self._cacheFrameIndex);
+            }
 
-                for (let i = 0, l = self._bones.length; i < l; ++i) {
-                    self._bones[i]._update(self._cacheFrameIndex);
-                }
+            for (let i = 0, l = self._slots.length; i < l; ++i) {
+                const slot = self._slots[i];
 
-                for (let i = 0, l = self._slots.length; i < l; ++i) {
-                    const slot = self._slots[i];
+                slot._update(self._cacheFrameIndex);
 
-                    slot._update(self._cacheFrameIndex);
-
-                    const childArmature = slot._childArmature;
-                    if (childArmature) {
-                        if (slot.inheritAnimation) { // Animation's time scale will impact to childArmature.
-                            childArmature.advanceTime(scaledPassedTime);
-                        }
-                        else {
-                            childArmature.advanceTime(passedTime);
-                        }
+                const childArmature = slot._childArmature;
+                if (childArmature) {
+                    if (slot.inheritAnimation) { // Animation's time scale will impact to childArmature.
+                        childArmature.advanceTime(scaledPassedTime);
+                    }
+                    else {
+                        childArmature.advanceTime(passedTime);
                     }
                 }
+            }
 
-                //
-                if (DragonBones.debugDraw) {
-                    self._display._debugDraw();
-                }
+            //
+            if (DragonBones.debugDraw) {
+                self._display._debugDraw();
+            }
+
+            if (!self._lockDispose) {
+                self._lockDispose = true;
 
                 // Actions and events.
                 if (self._events.length > 0) { // Dispatch event before action.
@@ -684,7 +671,7 @@ namespace dragonBones {
                 for (let i = 0, l = this._slots.length; i < l; ++i) {
                     const slot = this._slots[i];
                     const childArmature = slot.childArmature;
-                    if (childArmature) {
+                    if (childArmature && childArmature.cacheFrameRate == 0) {
                         childArmature.cacheFrameRate = value;
                     }
                 }

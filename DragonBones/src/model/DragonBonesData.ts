@@ -34,10 +34,6 @@ namespace dragonBones {
          */
         public name: string;
         /**
-         * @private
-         */
-        public userData: any;
-        /**
          * @language zh_CN
          * 所有的骨架数据。
          * @see dragonBones.ArmatureData
@@ -60,7 +56,6 @@ namespace dragonBones {
             this.autoSearch = false;
             this.frameRate = 0;
             this.name = null;
-            this.userData = null;
 
             for (let i in this.armatures) {
                 this.armatures[i].returnToPool();

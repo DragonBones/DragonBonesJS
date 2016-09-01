@@ -14,6 +14,8 @@ namespace dragonBones {
      * @version DragonBones 3.0
      */
     export abstract class BaseFactory {
+        protected static _defaultParser: ObjectDataParser = null;
+
         /**
          * @language zh_CN
          * 是否开启共享搜索。 [true: 开启, false: 不开启]
@@ -39,7 +41,15 @@ namespace dragonBones {
          * @private 
          */
         public constructor(dataParser: DataParser = null) {
-            this._dataParser = dataParser || ObjectDataParser.getInstance();
+            this._dataParser = dataParser;
+
+            if (!this._dataParser) {
+                if (!BaseFactory._defaultParser) {
+                    BaseFactory._defaultParser = new ObjectDataParser();
+                }
+
+                this._dataParser = BaseFactory._defaultParser;
+            }
         }
         /** 
          * @private 
@@ -131,7 +141,13 @@ namespace dragonBones {
                 bone.inheritScale = boneData.inheritScale;
                 bone.length = boneData.length;
                 bone.origin.copyFrom(boneData.transform);
-                armature.addBone(bone, boneData.parent ? boneData.parent.name : null);
+
+                if (boneData.parent) {
+                    armature.addBone(bone, boneData.parent.name);
+                }
+                else {
+                    armature.addBone(bone);
+                }
 
                 if (boneData.ik) {
                     bone.ikBendPositive = boneData.bendPositive;
@@ -174,7 +190,6 @@ namespace dragonBones {
                     slot._setDisplayIndex(slotData.displayIndex);
                     slot._setBlendMode(slotData.blendMode);
                     slot._setColor(slotData.color);
-
                     slot._replacedDisplayDataSet.length = slot._displayDataSet.displays.length;
 
                     armature.addSlot(slot, slotData.parent.name);
@@ -195,10 +210,6 @@ namespace dragonBones {
                     displayList.length = displayIndex + 1;
                 }
 
-                if (!displayData.texture) {
-                    displayData.texture = this._getTextureData(dataPackage.dataName, displayData.name);
-                }
-
                 if (slot._replacedDisplayDataSet.length <= displayIndex) {
                     slot._replacedDisplayDataSet.length = displayIndex + 1;
                 }
@@ -209,14 +220,20 @@ namespace dragonBones {
                     const childArmature = this.buildArmature(displayData.name, dataPackage.dataName);
                     displayList[displayIndex] = childArmature;
                 }
-                else if (
-                    displayData.mesh ||
-                    (displayIndex < slot._displayDataSet.displays.length && slot._displayDataSet.displays[displayIndex].mesh)
-                ) {
-                    displayList[displayIndex] = slot.MeshDisplay;
-                }
                 else {
-                    displayList[displayIndex] = slot.rawDisplay;
+                    if (!displayData.texture) {
+                        displayData.texture = this._getTextureData(dataPackage.dataName, displayData.name);
+                    }
+
+                    if (
+                        displayData.mesh ||
+                        (displayIndex < slot._displayDataSet.displays.length && slot._displayDataSet.displays[displayIndex].mesh)
+                    ) {
+                        displayList[displayIndex] = slot.MeshDisplay;
+                    }
+                    else {
+                        displayList[displayIndex] = slot.rawDisplay;
+                    }
                 }
 
                 slot.displayList = displayList;
@@ -571,6 +588,20 @@ namespace dragonBones {
                     }
                 }
             }
+        }
+
+        /** 
+         * @private 
+         */
+        public getAllDragonBonesData(): Map<DragonBonesData> {
+            return this._dragonBonesDataMap;
+        }
+
+        /** 
+         * @private 
+         */
+        public getAllTextureAtlasData(): Map<Array<TextureAtlasData>> {
+            return this._textureAtlasDataMap;
         }
     }
 }

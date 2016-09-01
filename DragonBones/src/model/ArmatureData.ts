@@ -101,14 +101,6 @@ namespace dragonBones {
          * @inheritDoc
          */
         protected _onClear(): void {
-            this.frameRate = 0;
-            this.cacheFrameRate = 0;
-            this.type = ArmatureType.Armature;
-            this.name = null;
-            this.parent = null;
-            this.userData = null;
-            this.aabb.clear();
-
             for (let i in this.bones) {
                 this.bones[i].returnToPool();
                 delete this.bones[i];
@@ -136,6 +128,14 @@ namespace dragonBones {
 
                 this.actions.length = 0;
             }
+
+            this.frameRate = 0;
+            this.cacheFrameRate = 0;
+            this.type = ArmatureType.Armature;
+            this.name = null;
+            this.parent = null;
+            this.userData = null;
+            this.aabb.clear();
 
             this._boneDirty = false;
             this._slotDirty = false;
@@ -526,13 +526,6 @@ namespace dragonBones {
          * @inheritDoc
          */
         protected _onClear(): void {
-            this.displayIndex = 0;
-            this.zOrder = 0;
-            this.blendMode = BlendMode.Normal;
-            this.name = null;
-            this.parent = null;
-            this.color = null;
-
             if (this.actions.length) {
                 for (let i = 0, l = this.actions.length; i < l; ++i) {
                     this.actions[i].returnToPool();
@@ -540,6 +533,13 @@ namespace dragonBones {
 
                 this.actions.length = 0;
             }
+
+            this.displayIndex = 0;
+            this.zOrder = 0;
+            this.blendMode = BlendMode.Normal;
+            this.name = null;
+            this.parent = null;
+            this.color = null;
         }
     }
     /**

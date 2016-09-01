@@ -1,0 +1,25 @@
+{
+    "resources": [
+        {
+            "name": "dragonBonesData",
+            "type": "json",
+            "url": "assets/ReplaceSlotDisplay/ReplaceSlotDisplay.json"
+        },
+        {
+            "name": "textureDataA",
+            "type": "json",
+            "url": "assets/ReplaceSlotDisplay/texture.json"
+        },
+        {
+            "name": "textureA",
+            "type": "image",
+            "url": "assets/ReplaceSlotDisplay/texture.png"
+        }
+    ],
+    "groups": [
+        {
+            "name": "preload",
+            "keys": "dragonBonesData,textureDataA,textureA"
+        }
+    ]
+}

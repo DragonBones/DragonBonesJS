@@ -7,6 +7,71 @@ var dragonBones;
 (function (dragonBones) {
     /**
      * @language zh_CN
+     * Egret 贴图集数据。
+     * @version DragonBones 3.0
+     */
+    var EgretTextureAtlasData = (function (_super) {
+        __extends(EgretTextureAtlasData, _super);
+        /**
+         * @private
+         */
+        function EgretTextureAtlasData() {
+            _super.call(this);
+        }
+        /**
+         * @private
+         */
+        EgretTextureAtlasData.toString = function () {
+            return "[class dragonBones.EgretTextureAtlasData]";
+        };
+        /**
+         * @inheritDoc
+         */
+        EgretTextureAtlasData.prototype._onClear = function () {
+            _super.prototype._onClear.call(this);
+            if (this.texture) {
+                //this.texture.dispose();
+                this.texture = null;
+            }
+        };
+        /**
+         * @private
+         */
+        EgretTextureAtlasData.prototype.generateTextureData = function () {
+            return dragonBones.BaseObject.borrowObject(EgretTextureData);
+        };
+        return EgretTextureAtlasData;
+    }(dragonBones.TextureAtlasData));
+    dragonBones.EgretTextureAtlasData = EgretTextureAtlasData;
+    /**
+     * @private
+     */
+    var EgretTextureData = (function (_super) {
+        __extends(EgretTextureData, _super);
+        function EgretTextureData() {
+            _super.call(this);
+        }
+        EgretTextureData.toString = function () {
+            return "[class dragonBones.EgretTextureData]";
+        };
+        /**
+         * @inheritDoc
+         */
+        EgretTextureData.prototype._onClear = function () {
+            _super.prototype._onClear.call(this);
+            if (this.texture) {
+                this.texture.dispose();
+                this.texture = null;
+            }
+        };
+        return EgretTextureData;
+    }(dragonBones.TextureData));
+    dragonBones.EgretTextureData = EgretTextureData;
+})(dragonBones || (dragonBones = {}));
+var dragonBones;
+(function (dragonBones) {
+    /**
+     * @language zh_CN
      * Egret 事件。
      * @version DragonBones 4.5
      */
@@ -252,22 +317,22 @@ var dragonBones;
         /**
          * @inheritDoc
          */
+        EgretArmatureDisplay.prototype.dispose = function () {
+            if (this._armature) {
+                this.advanceTimeBySelf(false);
+                this._armature.dispose();
+                this._armature = null;
+            }
+        };
+        /**
+         * @inheritDoc
+         */
         EgretArmatureDisplay.prototype.advanceTimeBySelf = function (on) {
             if (on) {
                 EgretArmatureDisplay._clock.add(this._armature);
             }
             else {
                 EgretArmatureDisplay._clock.remove(this._armature);
-            }
-        };
-        /**
-         * @inheritDoc
-         */
-        EgretArmatureDisplay.prototype.dispose = function () {
-            if (this._armature) {
-                this.advanceTimeBySelf(false);
-                this._armature.dispose();
-                this._armature = null;
             }
         };
         Object.defineProperty(EgretArmatureDisplay.prototype, "armature", {
@@ -409,6 +474,312 @@ var dragonBones;
 (function (dragonBones) {
     /**
      * @language zh_CN
+     * Egret 插槽。
+     * @version DragonBones 3.0
+     */
+    var EgretSlot = (function (_super) {
+        __extends(EgretSlot, _super);
+        /**
+         * @language zh_CN
+         * 创建一个空的插槽。
+         * @version DragonBones 3.0
+         */
+        function EgretSlot() {
+            _super.call(this);
+        }
+        /**
+         * @private
+         */
+        EgretSlot.toString = function () {
+            return "[class dragonBones.EgretSlot]";
+        };
+        /**
+         * @inheritDoc
+         */
+        EgretSlot.prototype._onClear = function () {
+            _super.prototype._onClear.call(this);
+            this.transformUpdateEnabled = false;
+            this._renderDisplay = null;
+            this._colorFilter = null;
+        };
+        /**
+         * @private
+         */
+        EgretSlot.prototype._initDisplay = function (value) {
+        };
+        /**
+         * @private
+         */
+        EgretSlot.prototype._disposeDisplay = function (value) {
+        };
+        /**
+         * @private
+         */
+        EgretSlot.prototype._onUpdateDisplay = function () {
+            if (!this._rawDisplay) {
+                this._rawDisplay = new egret.Bitmap();
+            }
+            this._renderDisplay = (this._display || this._rawDisplay);
+        };
+        /**
+         * @private
+         */
+        EgretSlot.prototype._addDisplay = function () {
+            var container = this._armature._display;
+            container.addChild(this._renderDisplay);
+        };
+        /**
+         * @private
+         */
+        EgretSlot.prototype._replaceDisplay = function (value) {
+            var container = this._armature._display;
+            var prevDisplay = value;
+            container.addChild(this._renderDisplay);
+            container.swapChildren(this._renderDisplay, prevDisplay);
+            container.removeChild(prevDisplay);
+        };
+        /**
+         * @private
+         */
+        EgretSlot.prototype._removeDisplay = function () {
+            this._renderDisplay.parent.removeChild(this._renderDisplay);
+        };
+        /**
+         * @private
+         */
+        EgretSlot.prototype._updateVisible = function () {
+            this._renderDisplay.visible = this._parent.visible;
+        };
+        /**
+         * @private
+         */
+        EgretSlot.prototype._updateBlendMode = function () {
+            switch (this._blendMode) {
+                case 0 /* Normal */:
+                    this._renderDisplay.blendMode = egret.BlendMode.NORMAL;
+                    break;
+                case 1 /* Add */:
+                    this._renderDisplay.blendMode = egret.BlendMode.ADD;
+                    break;
+                case 5 /* Erase */:
+                    this._renderDisplay.blendMode = egret.BlendMode.ERASE;
+                    break;
+                default:
+                    break;
+            }
+        };
+        /**
+         * @private
+         */
+        EgretSlot.prototype._updateColor = function () {
+            if (this._colorTransform.redMultiplier != 1 ||
+                this._colorTransform.greenMultiplier != 1 ||
+                this._colorTransform.blueMultiplier != 1 ||
+                this._colorTransform.redOffset != 0 ||
+                this._colorTransform.greenOffset != 0 ||
+                this._colorTransform.blueOffset != 0 ||
+                this._colorTransform.alphaOffset != 0) {
+                if (!this._colorFilter) {
+                    this._colorFilter = new egret.ColorMatrixFilter();
+                }
+                var colorMatrix = this._colorFilter.matrix;
+                colorMatrix[0] = this._colorTransform.redMultiplier;
+                colorMatrix[6] = this._colorTransform.greenMultiplier;
+                colorMatrix[12] = this._colorTransform.blueMultiplier;
+                colorMatrix[18] = this._colorTransform.alphaMultiplier;
+                colorMatrix[4] = this._colorTransform.redOffset;
+                colorMatrix[9] = this._colorTransform.greenOffset;
+                colorMatrix[14] = this._colorTransform.blueOffset;
+                colorMatrix[19] = this._colorTransform.alphaOffset;
+                this._colorFilter.matrix = colorMatrix;
+                var filters = this._renderDisplay.filters;
+                if (!filters) {
+                    filters = [];
+                }
+                if (filters.indexOf(this._colorFilter) < 0) {
+                    filters.push(this._colorFilter);
+                }
+                this._renderDisplay.filters = filters;
+            }
+            else {
+                if (this._colorFilter) {
+                    this._colorFilter = null;
+                    this._renderDisplay.filters = null;
+                }
+                this._renderDisplay.$setAlpha(this._colorTransform.alphaMultiplier);
+            }
+        };
+        /**
+         * @private
+         */
+        EgretSlot.prototype._updateFilters = function () { };
+        /**
+         * @private
+         */
+        EgretSlot.prototype._updateFrame = function () {
+            var frameDisplay = this._renderDisplay;
+            if (this._display && this._displayIndex >= 0) {
+                var rawDisplayData = this._displayIndex < this._displayDataSet.displays.length ? this._displayDataSet.displays[this._displayIndex] : null;
+                var replacedDisplayData = this._displayIndex < this._replacedDisplayDataSet.length ? this._replacedDisplayDataSet[this._displayIndex] : null;
+                var currentDisplayData = replacedDisplayData || rawDisplayData;
+                var currentTextureData = currentDisplayData.texture;
+                if (currentTextureData) {
+                    var textureAtlasTexture = currentTextureData.parent.texture;
+                    if (!currentTextureData.texture && textureAtlasTexture) {
+                        currentTextureData.texture = new egret.Texture();
+                        currentTextureData.texture._bitmapData = textureAtlasTexture._bitmapData;
+                        currentTextureData.texture.$initData(currentTextureData.region.x, currentTextureData.region.y, Math.min(currentTextureData.region.width, textureAtlasTexture.textureWidth - currentTextureData.region.x), Math.min(currentTextureData.region.height, textureAtlasTexture.textureHeight - currentTextureData.region.y), 0, 0, Math.min(currentTextureData.region.width, textureAtlasTexture.textureWidth - currentTextureData.region.x), Math.min(currentTextureData.region.height, textureAtlasTexture.textureHeight - currentTextureData.region.y), textureAtlasTexture.textureWidth, textureAtlasTexture.textureHeight);
+                    }
+                    var texture = this._armature._replacedTexture || currentTextureData.texture;
+                    if (this._meshData && this._display == this._meshDisplay) {
+                        var meshDisplay = this._meshDisplay;
+                        var meshNode = meshDisplay.$renderNode;
+                        if (this._meshData != rawDisplayData.mesh && rawDisplayData && rawDisplayData != currentDisplayData) {
+                            this._pivotX = rawDisplayData.transform.x - currentDisplayData.transform.x;
+                            this._pivotY = rawDisplayData.transform.y - currentDisplayData.transform.y;
+                        }
+                        else {
+                            this._pivotX = 0;
+                            this._pivotY = 0;
+                        }
+                        meshNode.uvs.length = 0;
+                        meshNode.vertices.length = 0;
+                        meshNode.indices.length = 0;
+                        for (var i = 0, l = this._meshData.vertices.length; i < l; ++i) {
+                            meshNode.uvs[i] = this._meshData.uvs[i];
+                            meshNode.vertices[i] = this._meshData.vertices[i];
+                        }
+                        for (var i = 0, l = this._meshData.vertexIndices.length; i < l; ++i) {
+                            meshNode.indices[i] = this._meshData.vertexIndices[i];
+                        }
+                        if (texture) {
+                            meshDisplay.$setBitmapData(texture);
+                        }
+                        meshDisplay.$updateVertices();
+                        meshDisplay.$invalidateTransform();
+                        // Identity transform.
+                        if (this._meshData.skinned) {
+                            var transformationMatrix = meshDisplay.matrix;
+                            transformationMatrix.identity();
+                            meshDisplay.matrix = transformationMatrix;
+                        }
+                    }
+                    else {
+                        var rect = currentTextureData.frame || currentTextureData.region;
+                        var width = rect.width;
+                        var height = rect.height;
+                        if (currentTextureData.rotated) {
+                            width = rect.height;
+                            height = rect.width;
+                        }
+                        this._pivotX = currentDisplayData.pivot.x;
+                        this._pivotY = currentDisplayData.pivot.y;
+                        if (currentDisplayData.isRelativePivot) {
+                            this._pivotX = width * this._pivotX;
+                            this._pivotY = height * this._pivotY;
+                        }
+                        if (currentTextureData.frame) {
+                            this._pivotX += currentTextureData.frame.x;
+                            this._pivotY += currentTextureData.frame.y;
+                        }
+                        if (rawDisplayData && rawDisplayData != currentDisplayData) {
+                            this._pivotX += rawDisplayData.transform.x - currentDisplayData.transform.x;
+                            this._pivotY += rawDisplayData.transform.y - currentDisplayData.transform.y;
+                        }
+                        if (texture) {
+                            frameDisplay.$setBitmapData(texture);
+                        }
+                    }
+                    this._updateVisible();
+                    return;
+                }
+            }
+            this._pivotX = 0;
+            this._pivotY = 0;
+            frameDisplay.visible = false;
+            frameDisplay.$setBitmapData(null);
+            frameDisplay.x = this.origin.x;
+            frameDisplay.y = this.origin.y;
+        };
+        /**
+         * @private
+         */
+        EgretSlot.prototype._updateMesh = function () {
+            var meshDisplay = this._meshDisplay;
+            var meshNode = meshDisplay.$renderNode;
+            var hasFFD = this._ffdVertices.length > 0;
+            if (this._meshData.skinned) {
+                for (var i = 0, iF = 0, l = this._meshData.vertices.length; i < l; i += 2) {
+                    var iH = i / 2;
+                    var boneIndices = this._meshData.boneIndices[iH];
+                    var boneVertices = this._meshData.boneVertices[iH];
+                    var weights = this._meshData.weights[iH];
+                    var xG = 0, yG = 0;
+                    for (var iB = 0, lB = boneIndices.length; iB < lB; ++iB) {
+                        var bone = this._meshBones[boneIndices[iB]];
+                        var matrix = bone.globalTransformMatrix;
+                        var weight = weights[iB];
+                        var xL = 0, yL = 0;
+                        if (hasFFD) {
+                            xL = boneVertices[iB * 2] + this._ffdVertices[iF];
+                            yL = boneVertices[iB * 2 + 1] + this._ffdVertices[iF + 1];
+                        }
+                        else {
+                            xL = boneVertices[iB * 2];
+                            yL = boneVertices[iB * 2 + 1];
+                        }
+                        xG += (matrix.a * xL + matrix.c * yL + matrix.tx) * weight;
+                        yG += (matrix.b * xL + matrix.d * yL + matrix.ty) * weight;
+                        iF += 2;
+                    }
+                    meshNode.vertices[i] = xG;
+                    meshNode.vertices[i + 1] = yG;
+                }
+                meshDisplay.$updateVertices();
+                meshDisplay.$invalidateTransform();
+            }
+            else if (hasFFD) {
+                var vertices = this._meshData.vertices;
+                for (var i = 0, l = this._meshData.vertices.length; i < l; i += 2) {
+                    var xG = vertices[i] + this._ffdVertices[i];
+                    var yG = vertices[i + 1] + this._ffdVertices[i + 1];
+                    meshNode.vertices[i] = xG;
+                    meshNode.vertices[i + 1] = yG;
+                }
+                meshDisplay.$updateVertices();
+                meshDisplay.$invalidateTransform();
+            }
+        };
+        /**
+         * @private
+         */
+        EgretSlot.prototype._updateTransform = function () {
+            if (this.transformUpdateEnabled) {
+                this._renderDisplay.$setMatrix(this.globalTransformMatrix, this.transformUpdateEnabled);
+                this._renderDisplay.$setAnchorOffsetX(this._pivotX);
+                this._renderDisplay.$setAnchorOffsetX(this._pivotY);
+            }
+            else {
+                var values = this._renderDisplay.$DisplayObject;
+                var displayMatrix = values[6];
+                displayMatrix.a = this.globalTransformMatrix.a;
+                displayMatrix.b = this.globalTransformMatrix.b;
+                displayMatrix.c = this.globalTransformMatrix.c;
+                displayMatrix.d = this.globalTransformMatrix.d;
+                displayMatrix.tx = this.globalTransformMatrix.tx - (displayMatrix.a * this._pivotX + displayMatrix.c * this._pivotY);
+                displayMatrix.ty = this.globalTransformMatrix.ty - (displayMatrix.b * this._pivotX + displayMatrix.d * this._pivotY);
+                this._renderDisplay.$removeFlags(8);
+                this._renderDisplay.$invalidatePosition();
+            }
+        };
+        return EgretSlot;
+    }(dragonBones.Slot));
+    dragonBones.EgretSlot = EgretSlot;
+})(dragonBones || (dragonBones = {}));
+var dragonBones;
+(function (dragonBones) {
+    /**
+     * @language zh_CN
      * Egret 工厂。
      * @version DragonBones 3.0
      */
@@ -478,6 +849,7 @@ var dragonBones;
             var displayList = [];
             slot.name = slotData.name;
             slot._rawDisplay = new egret.Bitmap();
+            slot._meshDisplay = new egret.Mesh();
             for (var i = 0, l = slotDisplayDataSet.displays.length; i < l; ++i) {
                 var displayData = slotDisplayDataSet.displays[i];
                 switch (displayData.type) {
@@ -492,12 +864,10 @@ var dragonBones;
                             displayData.texture = this._getTextureData(dataPackage.dataName, displayData.name);
                         }
                         if (egret.Capabilities.renderMode == "webgl") {
-                            if (!slot._meshDisplay) {
-                                slot._meshDisplay = new egret.Mesh();
-                            }
                             displayList.push(slot._meshDisplay);
                         }
                         else {
+                            console.warn("Canvas can not support mesh, please change renderMode to webgl.");
                             displayList.push(slot._rawDisplay);
                         }
                         break;
@@ -558,6 +928,12 @@ var dragonBones;
             if (dragonBonesName === void 0) { dragonBonesName = null; }
             var textureData = this._getTextureData(dragonBonesName, textureName);
             if (textureData) {
+                if (!textureData.texture) {
+                    var textureAtlasTexture = textureData.parent.texture;
+                    textureData.texture = new egret.Texture();
+                    textureData.texture._bitmapData = textureAtlasTexture._bitmapData;
+                    textureData.texture.$initData(textureData.region.x, textureData.region.y, textureData.region.width, textureData.region.height, 0, 0, textureData.region.width, textureData.region.height, textureAtlasTexture.textureWidth, textureAtlasTexture.textureHeight);
+                }
                 return new egret.Bitmap(textureData.texture);
             }
             return null;
@@ -638,370 +1014,4 @@ var dragonBones;
         return EgretFactory;
     }(dragonBones.BaseFactory));
     dragonBones.EgretFactory = EgretFactory;
-})(dragonBones || (dragonBones = {}));
-var dragonBones;
-(function (dragonBones) {
-    /**
-     * @language zh_CN
-     * Egret 插槽。
-     * @version DragonBones 3.0
-     */
-    var EgretSlot = (function (_super) {
-        __extends(EgretSlot, _super);
-        /**
-         * @language zh_CN
-         * 创建一个空的插槽。
-         * @version DragonBones 3.0
-         */
-        function EgretSlot() {
-            _super.call(this);
-        }
-        /**
-         * @private
-         */
-        EgretSlot.toString = function () {
-            return "[class dragonBones.EgretSlot]";
-        };
-        /**
-         * @inheritDoc
-         */
-        EgretSlot.prototype._onClear = function () {
-            _super.prototype._onClear.call(this);
-            this.transformUpdateEnabled = false;
-            this._renderDisplay = null;
-            this._colorFilter = null;
-        };
-        /**
-         * @private
-         */
-        EgretSlot.prototype._onUpdateDisplay = function () {
-            if (!this._rawDisplay) {
-                this._rawDisplay = new egret.Bitmap();
-            }
-            this._renderDisplay = (this._display || this._rawDisplay);
-        };
-        /**
-         * @private
-         */
-        EgretSlot.prototype._initDisplay = function (value) {
-        };
-        /**
-         * @private
-         */
-        EgretSlot.prototype._addDisplay = function () {
-            var container = this._armature._display;
-            container.addChild(this._renderDisplay);
-        };
-        /**
-         * @private
-         */
-        EgretSlot.prototype._replaceDisplay = function (value) {
-            var container = this._armature._display;
-            var prevDisplay = value;
-            container.addChild(this._renderDisplay);
-            container.swapChildren(this._renderDisplay, prevDisplay);
-            container.removeChild(prevDisplay);
-        };
-        /**
-         * @private
-         */
-        EgretSlot.prototype._removeDisplay = function () {
-            this._renderDisplay.parent.removeChild(this._renderDisplay);
-        };
-        /**
-         * @private
-         */
-        EgretSlot.prototype._disposeDisplay = function (value) {
-            //
-        };
-        /**
-         * @private
-         */
-        EgretSlot.prototype._updateVisible = function () {
-            this._renderDisplay.visible = this._parent.visible;
-        };
-        /**
-         * @private
-         */
-        EgretSlot.prototype._updateBlendMode = function () {
-            if (this._blendMode < EgretSlot.BLEND_MODE_LIST.length) {
-                var blendMode = EgretSlot.BLEND_MODE_LIST[this._blendMode];
-                if (blendMode) {
-                    this._renderDisplay.blendMode = blendMode;
-                }
-            }
-        };
-        /**
-         * @private
-         */
-        EgretSlot.prototype._updateColor = function () {
-            if (this._colorTransform.redMultiplier != 1 ||
-                this._colorTransform.greenMultiplier != 1 ||
-                this._colorTransform.blueMultiplier != 1 ||
-                this._colorTransform.redOffset != 0 ||
-                this._colorTransform.greenOffset != 0 ||
-                this._colorTransform.blueOffset != 0 ||
-                this._colorTransform.alphaOffset != 0) {
-                if (!this._colorFilter) {
-                    this._colorFilter = new egret.ColorMatrixFilter();
-                }
-                var colorMatrix = this._colorFilter.matrix;
-                colorMatrix[0] = this._colorTransform.redMultiplier;
-                colorMatrix[6] = this._colorTransform.greenMultiplier;
-                colorMatrix[12] = this._colorTransform.blueMultiplier;
-                colorMatrix[18] = this._colorTransform.alphaMultiplier;
-                colorMatrix[4] = this._colorTransform.redOffset;
-                colorMatrix[9] = this._colorTransform.greenOffset;
-                colorMatrix[14] = this._colorTransform.blueOffset;
-                colorMatrix[19] = this._colorTransform.alphaOffset;
-                this._colorFilter.matrix = colorMatrix;
-                var filters = this._renderDisplay.filters;
-                if (!filters) {
-                    filters = [];
-                }
-                if (filters.indexOf(this._colorFilter) < 0) {
-                    filters.push(this._colorFilter);
-                }
-                this._renderDisplay.filters = filters;
-            }
-            else {
-                if (this._colorFilter) {
-                    this._colorFilter = null;
-                    this._renderDisplay.filters = null;
-                }
-                this._renderDisplay.$setAlpha(this._colorTransform.alphaMultiplier);
-            }
-        };
-        /**
-         * @private
-         */
-        EgretSlot.prototype._updateFilters = function () { };
-        /**
-         * @private
-         */
-        EgretSlot.prototype._updateFrame = function () {
-            var frameDisplay = this._renderDisplay;
-            if (this._display && this._displayIndex >= 0) {
-                var rawDisplayData = this._displayIndex < this._displayDataSet.displays.length ? this._displayDataSet.displays[this._displayIndex] : null;
-                var replacedDisplayData = this._displayIndex < this._replacedDisplayDataSet.length ? this._replacedDisplayDataSet[this._displayIndex] : null;
-                var currentDisplayData = replacedDisplayData || rawDisplayData;
-                var currentTextureData = currentDisplayData.texture;
-                if (currentTextureData) {
-                    var textureAtlasTexture = currentTextureData.parent.texture;
-                    if (!currentTextureData.texture && textureAtlasTexture) {
-                        currentTextureData.texture = new egret.Texture();
-                        currentTextureData.texture._bitmapData = textureAtlasTexture._bitmapData;
-                        currentTextureData.texture.$initData(currentTextureData.region.x, currentTextureData.region.y, Math.min(currentTextureData.region.width, textureAtlasTexture.textureWidth - currentTextureData.region.x), Math.min(currentTextureData.region.height, textureAtlasTexture.textureHeight - currentTextureData.region.y), 0, 0, Math.min(currentTextureData.region.width, textureAtlasTexture.textureWidth - currentTextureData.region.x), Math.min(currentTextureData.region.height, textureAtlasTexture.textureHeight - currentTextureData.region.y), textureAtlasTexture.textureWidth, textureAtlasTexture.textureHeight);
-                    }
-                    var texture = this._armature._replacedTexture || currentTextureData.texture;
-                    if (this._meshData && this._display == this._meshDisplay) {
-                        var meshDisplay = this._meshDisplay;
-                        var meshNode = meshDisplay.$renderNode;
-                        meshNode.uvs.length = 0;
-                        meshNode.vertices.length = 0;
-                        meshNode.indices.length = 0;
-                        for (var i = 0, l = this._meshData.vertices.length; i < l; ++i) {
-                            meshNode.uvs[i] = this._meshData.uvs[i];
-                            meshNode.vertices[i] = this._meshData.vertices[i];
-                        }
-                        for (var i = 0, l = this._meshData.vertexIndices.length; i < l; ++i) {
-                            meshNode.indices[i] = this._meshData.vertexIndices[i];
-                        }
-                        this._pivotX = 0;
-                        this._pivotY = 0;
-                        if (texture) {
-                            meshDisplay.$setBitmapData(texture);
-                        }
-                        meshDisplay.$updateVertices();
-                        meshDisplay.$invalidateTransform();
-                        // Identity transform.
-                        if (this._meshData.skinned) {
-                            var transformationMatrix = meshDisplay.matrix;
-                            transformationMatrix.identity();
-                            meshDisplay.matrix = transformationMatrix;
-                        }
-                    }
-                    else {
-                        var rect = currentTextureData.frame || currentTextureData.region;
-                        var width = rect.width;
-                        var height = rect.height;
-                        if (currentTextureData.rotated) {
-                            width = rect.height;
-                            height = rect.width;
-                        }
-                        this._pivotX = currentDisplayData.pivot.x;
-                        this._pivotY = currentDisplayData.pivot.y;
-                        if (currentDisplayData.isRelativePivot) {
-                            this._pivotX = width * this._pivotX;
-                            this._pivotY = height * this._pivotY;
-                        }
-                        if (currentTextureData.frame) {
-                            this._pivotX += currentTextureData.frame.x;
-                            this._pivotY += currentTextureData.frame.y;
-                        }
-                        if (rawDisplayData && rawDisplayData != currentDisplayData) {
-                            this._pivotX += rawDisplayData.transform.x - currentDisplayData.transform.x;
-                            this._pivotY += rawDisplayData.transform.y - currentDisplayData.transform.y;
-                        }
-                        if (texture) {
-                            frameDisplay.$setBitmapData(texture);
-                        }
-                        frameDisplay.$setAnchorOffsetX(this._pivotX);
-                        frameDisplay.$setAnchorOffsetY(this._pivotY);
-                    }
-                    this._updateVisible();
-                    return;
-                }
-            }
-            this._pivotX = 0;
-            this._pivotY = 0;
-            frameDisplay.visible = false;
-            frameDisplay.$setBitmapData(null);
-            frameDisplay.$setAnchorOffsetX(0);
-            frameDisplay.$setAnchorOffsetY(0);
-            frameDisplay.x = this.origin.x;
-            frameDisplay.y = this.origin.y;
-        };
-        /**
-         * @private
-         */
-        EgretSlot.prototype._updateMesh = function () {
-            var meshDisplay = this._meshDisplay;
-            var meshNode = meshDisplay.$renderNode;
-            var hasFFD = this._ffdVertices.length > 0;
-            if (this._meshData.skinned) {
-                for (var i = 0, iF = 0, l = this._meshData.vertices.length; i < l; i += 2) {
-                    var iH = i / 2;
-                    var boneIndices = this._meshData.boneIndices[iH];
-                    var boneVertices = this._meshData.boneVertices[iH];
-                    var weights = this._meshData.weights[iH];
-                    var xG = 0, yG = 0;
-                    for (var iB = 0, lB = boneIndices.length; iB < lB; ++iB) {
-                        var bone = this._meshBones[boneIndices[iB]];
-                        var matrix = bone.globalTransformMatrix;
-                        var weight = weights[iB];
-                        var xL = 0, yL = 0;
-                        if (hasFFD) {
-                            xL = boneVertices[iB * 2] + this._ffdVertices[iF];
-                            yL = boneVertices[iB * 2 + 1] + this._ffdVertices[iF + 1];
-                        }
-                        else {
-                            xL = boneVertices[iB * 2];
-                            yL = boneVertices[iB * 2 + 1];
-                        }
-                        xG += (matrix.a * xL + matrix.c * yL + matrix.tx) * weight;
-                        yG += (matrix.b * xL + matrix.d * yL + matrix.ty) * weight;
-                        iF += 2;
-                    }
-                    meshNode.vertices[i] = xG;
-                    meshNode.vertices[i + 1] = yG;
-                }
-                meshDisplay.$updateVertices();
-                meshDisplay.$invalidateTransform();
-            }
-            else if (hasFFD) {
-                var vertices = this._meshData.vertices;
-                for (var i = 0, l = this._meshData.vertices.length; i < l; i += 2) {
-                    var xG = vertices[i] + this._ffdVertices[i];
-                    var yG = vertices[i + 1] + this._ffdVertices[i + 1];
-                    meshNode.vertices[i] = xG;
-                    meshNode.vertices[i + 1] = yG;
-                }
-                meshDisplay.$updateVertices();
-                meshDisplay.$invalidateTransform();
-            }
-        };
-        /**
-         * @private
-         */
-        EgretSlot.prototype._updateTransform = function () {
-            this._renderDisplay.$setMatrix(this.globalTransformMatrix, this.transformUpdateEnabled);
-        };
-        /**
-         * @private
-         */
-        EgretSlot.BLEND_MODE_LIST = [
-            egret.BlendMode.NORMAL,
-            egret.BlendMode.ADD,
-            null,
-            null,
-            null,
-            egret.BlendMode.ERASE,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null
-        ];
-        return EgretSlot;
-    }(dragonBones.Slot));
-    dragonBones.EgretSlot = EgretSlot;
-})(dragonBones || (dragonBones = {}));
-var dragonBones;
-(function (dragonBones) {
-    /**
-     * @language zh_CN
-     * Egret 贴图集数据。
-     * @version DragonBones 3.0
-     */
-    var EgretTextureAtlasData = (function (_super) {
-        __extends(EgretTextureAtlasData, _super);
-        /**
-         * @private
-         */
-        function EgretTextureAtlasData() {
-            _super.call(this);
-        }
-        /**
-         * @private
-         */
-        EgretTextureAtlasData.toString = function () {
-            return "[class dragonBones.EgretTextureAtlasData]";
-        };
-        /**
-         * @inheritDoc
-         */
-        EgretTextureAtlasData.prototype._onClear = function () {
-            _super.prototype._onClear.call(this);
-            if (this.texture) {
-                //this.texture.dispose();
-                this.texture = null;
-            }
-        };
-        /**
-         * @private
-         */
-        EgretTextureAtlasData.prototype.generateTextureData = function () {
-            return dragonBones.BaseObject.borrowObject(EgretTextureData);
-        };
-        return EgretTextureAtlasData;
-    }(dragonBones.TextureAtlasData));
-    dragonBones.EgretTextureAtlasData = EgretTextureAtlasData;
-    /**
-     * @private
-     */
-    var EgretTextureData = (function (_super) {
-        __extends(EgretTextureData, _super);
-        function EgretTextureData() {
-            _super.call(this);
-        }
-        EgretTextureData.toString = function () {
-            return "[class dragonBones.EgretTextureData]";
-        };
-        /**
-         * @inheritDoc
-         */
-        EgretTextureData.prototype._onClear = function () {
-            _super.prototype._onClear.call(this);
-            if (this.texture) {
-                this.texture.dispose();
-                this.texture = null;
-            }
-        };
-        return EgretTextureData;
-    }(dragonBones.TextureData));
-    dragonBones.EgretTextureData = EgretTextureData;
 })(dragonBones || (dragonBones = {}));

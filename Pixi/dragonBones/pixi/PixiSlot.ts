@@ -34,17 +34,23 @@ namespace dragonBones {
         /**
          * @private
          */
+        protected _initDisplay(value: Object): void {
+        }
+        /**
+         * @private
+         */
+        protected _disposeDisplay(value: Object): void {
+            (<PIXI.DisplayObject>value).destroy();
+        }
+        /**
+         * @private
+         */
         protected _onUpdateDisplay(): void {
             if (!this._rawDisplay) {
                 this._rawDisplay = new PIXI.Sprite();
             }
 
             this._renderDisplay = <PIXI.DisplayObject>(this._display || this._rawDisplay);
-        }
-        /**
-         * @private
-         */
-        protected _initDisplay(value: Object): void {
         }
         /**
          * @private
@@ -72,44 +78,52 @@ namespace dragonBones {
         /**
          * @private
          */
-        protected _disposeDisplay(value: Object): void {
-            (<PIXI.DisplayObject>value).destroy();
-        }
-        /**
-         * @private
-         */
         public _updateVisible(): void {
             this._renderDisplay.visible = this._parent.visible;
         }
         /**
          * @private
          */
-        private static BLEND_MODE_LIST: Array<number> =
-        [
-            PIXI.BLEND_MODES.NORMAL,
-            PIXI.BLEND_MODES.ADD,
-            -1,
-            PIXI.BLEND_MODES.DARKEN,
-            PIXI.BLEND_MODES.DIFFERENCE,
-            -1,
-            PIXI.BLEND_MODES.HARD_LIGHT,
-            -1,
-            -1,
-            PIXI.BLEND_MODES.LIGHTEN,
-            PIXI.BLEND_MODES.MULTIPLY,
-            PIXI.BLEND_MODES.OVERLAY,
-            PIXI.BLEND_MODES.SCREEN,
-            -1
-        ];
-        /**
-         * @private
-         */
         protected _updateBlendMode(): void {
-            if (this._blendMode < PixiSlot.BLEND_MODE_LIST.length) {
-                const blendMode = PixiSlot.BLEND_MODE_LIST[this._blendMode];
-                if (blendMode > 0 && this._renderDisplay instanceof PIXI.Sprite) {
-                    (<PIXI.Sprite>this._renderDisplay).blendMode = blendMode;
-                }
+            switch (this._blendMode) {
+                case BlendMode.Normal:
+                    (<PIXI.Sprite>this._renderDisplay).blendMode = PIXI.BLEND_MODES.NORMAL;
+                    break;
+
+                case BlendMode.Add:
+                    (<PIXI.Sprite>this._renderDisplay).blendMode = PIXI.BLEND_MODES.ADD;
+                    break;
+
+                case BlendMode.Darken:
+                    (<PIXI.Sprite>this._renderDisplay).blendMode = PIXI.BLEND_MODES.DARKEN;
+                    break;
+
+                case BlendMode.Difference:
+                    (<PIXI.Sprite>this._renderDisplay).blendMode = PIXI.BLEND_MODES.DIFFERENCE;
+                    break;
+
+                case BlendMode.HardLight:
+                    (<PIXI.Sprite>this._renderDisplay).blendMode = PIXI.BLEND_MODES.HARD_LIGHT;
+                    break;
+
+                case BlendMode.Lighten:
+                    (<PIXI.Sprite>this._renderDisplay).blendMode = PIXI.BLEND_MODES.LIGHTEN;
+                    break;
+
+                case BlendMode.Multiply:
+                    (<PIXI.Sprite>this._renderDisplay).blendMode = PIXI.BLEND_MODES.MULTIPLY;
+                    break;
+
+                case BlendMode.Overlay:
+                    (<PIXI.Sprite>this._renderDisplay).blendMode = PIXI.BLEND_MODES.OVERLAY;
+                    break;
+
+                case BlendMode.Screen:
+                    (<PIXI.Sprite>this._renderDisplay).blendMode = PIXI.BLEND_MODES.SCREEN;
+                    break;
+
+                default:
+                    break;
             }
         }
 
@@ -151,6 +165,16 @@ namespace dragonBones {
 
                     if (this._meshData && this._display == this._meshDisplay) { // Mesh.
                         const meshDisplay = <PIXI.mesh.Mesh>this._meshDisplay;
+
+                        if (this._meshData != rawDisplayData.mesh && rawDisplayData && rawDisplayData != currentDisplayData) {
+                            this._pivotX = rawDisplayData.transform.x - currentDisplayData.transform.x;
+                            this._pivotY = rawDisplayData.transform.y - currentDisplayData.transform.y;
+                        }
+                        else {
+                            this._pivotX = 0;
+                            this._pivotY = 0;
+                        }
+                        
                         /*
                         for (let i = 0, l = this._meshData.vertices.length; i < l; ++i) {
                             meshDisplay.uvs[i] = this._meshData.uvs[i];
@@ -172,9 +196,6 @@ namespace dragonBones {
                             meshDisplay.uvs[i] = (currentTextureData.region.x + u * currentTextureData.region.width) / textureAtlasTexture.width;
                             meshDisplay.uvs[i + 1] = (currentTextureData.region.y + v * currentTextureData.region.height) / textureAtlasTexture.height;
                         }
-
-                        this._pivotX = 0;
-                        this._pivotY = 0;
 
                         meshDisplay.texture = texture;
                         meshDisplay.dirty = true;
@@ -213,7 +234,6 @@ namespace dragonBones {
                         }
 
                         frameDisplay.texture = texture;
-                        frameDisplay.pivot.set(this._pivotX, this._pivotY);
                     }
 
                     this._updateVisible();
@@ -227,7 +247,6 @@ namespace dragonBones {
 
             frameDisplay.visible = false;
             frameDisplay.texture = null;
-            frameDisplay.pivot.set(0, 0);
             frameDisplay.x = this.origin.x;
             frameDisplay.y = this.origin.y;
         }

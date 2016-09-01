@@ -47,17 +47,22 @@ namespace dragonBones {
         /**
          * @private
          */
+        protected _initDisplay(value: Object): void {
+        }
+        /**
+         * @private
+         */
+        protected _disposeDisplay(value: Object): void {
+        }
+        /**
+         * @private
+         */
         protected _onUpdateDisplay(): void {
             if (!this._rawDisplay) {
                 this._rawDisplay = new egret.Bitmap();
             }
 
             this._renderDisplay = <egret.DisplayObject>(this._display || this._rawDisplay);
-        }
-        /**
-         * @private
-         */
-        protected _initDisplay(value: Object): void {
         }
         /**
          * @private
@@ -85,44 +90,28 @@ namespace dragonBones {
         /**
          * @private
          */
-        protected _disposeDisplay(value: Object): void {
-            //
-        }
-        /**
-         * @private
-         */
         public _updateVisible(): void {
             this._renderDisplay.visible = this._parent.visible;
         }
         /**
          * @private
          */
-        private static BLEND_MODE_LIST: Array<string> =
-        [
-            egret.BlendMode.NORMAL,
-            egret.BlendMode.ADD,
-            null,
-            null,
-            null,
-            egret.BlendMode.ERASE,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null
-        ];
-        /**
-         * @private
-         */
         protected _updateBlendMode(): void {
-            if (this._blendMode < EgretSlot.BLEND_MODE_LIST.length) {
-                const blendMode = EgretSlot.BLEND_MODE_LIST[this._blendMode];
-                if (blendMode) {
-                    this._renderDisplay.blendMode = blendMode;
-                }
+            switch (this._blendMode) {
+                case BlendMode.Normal:
+                    this._renderDisplay.blendMode = egret.BlendMode.NORMAL;
+                    break;
+
+                case BlendMode.Add:
+                    this._renderDisplay.blendMode = egret.BlendMode.ADD;
+                    break;
+
+                case BlendMode.Erase:
+                    this._renderDisplay.blendMode = egret.BlendMode.ERASE;
+                    break;
+
+                default:
+                    break;
             }
         }
         /**
@@ -208,6 +197,15 @@ namespace dragonBones {
                         const meshDisplay = <egret.Mesh>this._meshDisplay;
                         const meshNode = <egret.sys.MeshNode>meshDisplay.$renderNode;
 
+                        if (this._meshData != rawDisplayData.mesh && rawDisplayData && rawDisplayData != currentDisplayData) {
+                            this._pivotX = rawDisplayData.transform.x - currentDisplayData.transform.x;
+                            this._pivotY = rawDisplayData.transform.y - currentDisplayData.transform.y;
+                        }
+                        else {
+                            this._pivotX = 0;
+                            this._pivotY = 0;
+                        }
+
                         meshNode.uvs.length = 0;
                         meshNode.vertices.length = 0;
                         meshNode.indices.length = 0;
@@ -220,9 +218,6 @@ namespace dragonBones {
                         for (let i = 0, l = this._meshData.vertexIndices.length; i < l; ++i) {
                             meshNode.indices[i] = this._meshData.vertexIndices[i];
                         }
-
-                        this._pivotX = 0;
-                        this._pivotY = 0;
 
                         if (texture) {
                             meshDisplay.$setBitmapData(texture);
@@ -239,7 +234,6 @@ namespace dragonBones {
                         }
                     } else { // Normal texture.
                         const rect = currentTextureData.frame || currentTextureData.region;
-
                         let width = rect.width;
                         let height = rect.height;
                         if (currentTextureData.rotated) {
@@ -268,13 +262,10 @@ namespace dragonBones {
                         if (texture) {
                             frameDisplay.$setBitmapData(texture);
                         }
-
-                        frameDisplay.$setAnchorOffsetX(this._pivotX);
-                        frameDisplay.$setAnchorOffsetY(this._pivotY);
                     }
 
                     this._updateVisible();
-                    
+
                     return;
                 }
             }
@@ -284,8 +275,6 @@ namespace dragonBones {
 
             frameDisplay.visible = false;
             frameDisplay.$setBitmapData(null);
-            frameDisplay.$setAnchorOffsetX(0);
-            frameDisplay.$setAnchorOffsetY(0);
             frameDisplay.x = this.origin.x;
             frameDisplay.y = this.origin.y;
         }
@@ -350,7 +339,24 @@ namespace dragonBones {
          * @private
          */
         protected _updateTransform(): void {
-            this._renderDisplay.$setMatrix(<egret.Matrix><any>this.globalTransformMatrix, this.transformUpdateEnabled);
+            if (this.transformUpdateEnabled) {
+                this._renderDisplay.$setMatrix(<egret.Matrix><any>this.globalTransformMatrix, this.transformUpdateEnabled);
+                this._renderDisplay.$setAnchorOffsetX(this._pivotX);
+                this._renderDisplay.$setAnchorOffsetX(this._pivotY);
+            }
+            else {
+                const values = this._renderDisplay.$DisplayObject;
+                const displayMatrix = values[6];
+                displayMatrix.a = this.globalTransformMatrix.a;
+                displayMatrix.b = this.globalTransformMatrix.b;
+                displayMatrix.c = this.globalTransformMatrix.c;
+                displayMatrix.d = this.globalTransformMatrix.d;
+                displayMatrix.tx = this.globalTransformMatrix.tx - (displayMatrix.a * this._pivotX + displayMatrix.c * this._pivotY);
+                displayMatrix.ty = this.globalTransformMatrix.ty - (displayMatrix.b * this._pivotX + displayMatrix.d * this._pivotY);
+
+                this._renderDisplay.$removeFlags(8);
+                this._renderDisplay.$invalidatePosition();
+            }
         }
     }
 }

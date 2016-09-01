@@ -247,7 +247,7 @@ namespace dragonBones {
         public abstract parseTextureAtlasData(rawData: any, textureAtlasData: TextureAtlasData, scale: number): void;
 
         private _getTimelineFrameMatrix(animation: AnimationData, timeline: BoneTimelineData, position: number, transform: Transform): void { // Support 2.x ~ 3.x data.
-            const frameIndex = Math.floor(position * animation.frameCount / animation.duration); // uint()
+            const frameIndex = Math.floor(position * animation.frameCount / animation.duration);
             if (timeline.frames.length == 1 || frameIndex >= timeline.frames.length) {
                 transform.copyFrom(timeline.frames[0].transform);
             }
@@ -346,8 +346,8 @@ namespace dragonBones {
             }
         }
 
-        protected _mergeFrameToAnimationTimeline<T extends FrameData<T>>(frame: T, actions: Array<ActionData>, events: Array<EventData>): void {
-            const frameStart = Math.floor(frame.position * this._armature.frameRate); // uint()
+        protected _mergeFrameToAnimationTimeline(framePostion: number, actions: Array<ActionData>, events: Array<EventData>): void {
+            const frameStart = Math.floor(framePostion * this._armature.frameRate); // uint()
             const frames = this._animation.frames;
 
             if (frames.length == 0) {

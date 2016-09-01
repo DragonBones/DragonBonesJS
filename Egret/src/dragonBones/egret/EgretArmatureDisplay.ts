@@ -222,21 +222,21 @@ namespace dragonBones {
         /**
          * @inheritDoc
          */
-        public advanceTimeBySelf(on: Boolean): void {
-            if (on) {
-                EgretArmatureDisplay._clock.add(this._armature);
-            } else {
-                EgretArmatureDisplay._clock.remove(this._armature);
-            }
-        }
-        /**
-         * @inheritDoc
-         */
         public dispose(): void {
             if (this._armature) {
                 this.advanceTimeBySelf(false);
                 this._armature.dispose();
                 this._armature = null;
+            }
+        }
+        /**
+         * @inheritDoc
+         */
+        public advanceTimeBySelf(on: Boolean): void {
+            if (on) {
+                EgretArmatureDisplay._clock.add(this._armature);
+            } else {
+                EgretArmatureDisplay._clock.remove(this._armature);
             }
         }
         /**

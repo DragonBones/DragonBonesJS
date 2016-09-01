@@ -491,7 +491,7 @@ declare namespace dragonBones {
         /**
          * @private
          */
-        static actionEnabled: boolean;
+        static stateActionEnabled: boolean;
         /**
          * @private
          */
@@ -556,10 +556,6 @@ declare namespace dragonBones {
          * @private
          */
         private _isFadeOut;
-        /**
-         * @private
-         */
-        private _currentPlayTimes;
         /**
          * @private
          */
@@ -686,13 +682,13 @@ declare namespace dragonBones {
          * 是否播放完毕。
          * @version DragonBones 3.0
          */
-        isCompleted: Boolean;
+        isCompleted: boolean;
         /**
          * @language zh_CN
          * 是否正在播放。
          * @version DragonBones 3.0
          */
-        isPlaying: Boolean;
+        isPlaying: boolean;
         /**
          * @language zh_CN
          * 当前动画的播放次数。
@@ -1333,17 +1329,17 @@ declare namespace dragonBones {
     interface IArmatureDisplay extends IEventDispatcher {
         /**
          * @language zh_CN
+         * 释放显示对象和骨架。 (骨架会回收到内存池)
+         * @version DragonBones 4.5
+         */
+        dispose(): void;
+        /**
+         * @language zh_CN
          * 由显示容器来更新骨架和动画。
          * @param on 开启或关闭显示容器对骨架与动画的更新。
          * @version DragonBones 4.5
          */
         advanceTimeBySelf(on: boolean): void;
-        /**
-         * @language zh_CN
-         * 释放显示对象和骨架。 (骨架会回收到内存池)
-         * @version DragonBones 4.5
-         */
-        dispose(): void;
         /**
          * @language zh_CN
          * 获取使用这个显示容器的骨架。
@@ -1475,11 +1471,15 @@ declare namespace dragonBones {
         /**
          * @private
          */
-        protected abstract _onUpdateDisplay(): void;
+        protected abstract _initDisplay(value: any): void;
         /**
          * @private
          */
-        protected abstract _initDisplay(value: any): void;
+        protected abstract _disposeDisplay(value: any): void;
+        /**
+         * @private
+         */
+        protected abstract _onUpdateDisplay(): void;
         /**
          * @private
          */
@@ -1492,10 +1492,6 @@ declare namespace dragonBones {
          * @private
          */
         protected abstract _removeDisplay(): void;
-        /**
-         * @private
-         */
-        protected abstract _disposeDisplay(value: any): void;
         /**
          * @private
          */
@@ -2595,10 +2591,6 @@ declare namespace dragonBones {
          */
         name: string;
         /**
-         * @private
-         */
-        userData: any;
-        /**
          * @language zh_CN
          * 所有的骨架数据。
          * @see dragonBones.ArmatureData
@@ -2875,7 +2867,7 @@ declare namespace dragonBones {
         abstract parseTextureAtlasData(rawData: any, textureAtlasData: TextureAtlasData, scale: number): void;
         private _getTimelineFrameMatrix(animation, timeline, position, transform);
         protected _globalToLocal(armature: ArmatureData): void;
-        protected _mergeFrameToAnimationTimeline<T extends FrameData<T>>(frame: T, actions: Array<ActionData>, events: Array<EventData>): void;
+        protected _mergeFrameToAnimationTimeline(framePostion: number, actions: Array<ActionData>, events: Array<EventData>): void;
         /**
          * @deprecated
          * @see dragonBones.BaseFactory#parseDragonBonesData()
@@ -3012,7 +3004,7 @@ declare namespace dragonBones {
         /**
          * @inheritDoc
          */
-        parseTextureAtlasData(rawData: any, textureAtlasData: TextureAtlasData, scale?: number): TextureAtlasData;
+        parseTextureAtlasData(rawData: any, textureAtlasData: TextureAtlasData, scale?: number): void;
         /**
          * @private
          */
@@ -3107,6 +3099,7 @@ declare namespace dragonBones {
      * @version DragonBones 3.0
      */
     abstract class BaseFactory {
+        protected static _defaultParser: ObjectDataParser;
         /**
          * @language zh_CN
          * 是否开启共享搜索。 [true: 开启, false: 不开启]
@@ -3317,5 +3310,13 @@ declare namespace dragonBones {
          * @version DragonBones 4.5
          */
         replaceSlotDisplayList(dragonBonesName: string, armatureName: string, slotName: string, slot: Slot): void;
+        /**
+         * @private
+         */
+        getAllDragonBonesData(): Map<DragonBonesData>;
+        /**
+         * @private
+         */
+        getAllTextureAtlasData(): Map<Array<TextureAtlasData>>;
     }
 }

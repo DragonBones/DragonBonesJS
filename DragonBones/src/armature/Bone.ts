@@ -135,14 +135,8 @@ namespace dragonBones {
             this._ikChain = 0;
             this._ikChainIndex = 0;
             this._ik = null;
-
-            if (this._bones.length) {
-                this._bones.length = 0;
-            }
-
-            if (this._slots.length) {
-                this._slots.length = 0;
-            }
+            this._bones.length = 0;
+            this._slots.length = 0;
         }
         /**
          * @private
@@ -420,7 +414,7 @@ namespace dragonBones {
             if (self._transformDirty != BoneTransformDirty.None) {
                 if (self._transformDirty == BoneTransformDirty.All) {
                     self._transformDirty = BoneTransformDirty.Self;
-                    
+
                     if (self.globalTransformMatrix == self._globalTransformMatrix) {
                         /*self.global.copyFrom(self.origin).add(self.offset).add(self._animationPose);*/
                         self.global.x = self.origin.x + self.offset.x + self._animationPose.x;

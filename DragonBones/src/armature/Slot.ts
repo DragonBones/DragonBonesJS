@@ -192,14 +192,8 @@ namespace dragonBones {
             this._meshDisplay = null;
             this._cacheFrames = null;
             this._colorTransform.identity();
-
-            if (this._ffdVertices.length) {
-                this._ffdVertices.length = 0;
-            }
-
-            if (this._replacedDisplayDataSet.length) {
-                this._replacedDisplayDataSet.length = 0;
-            }
+            this._ffdVertices.length = 0;
+            this._replacedDisplayDataSet.length = 0;
 
             this._displayDirty = false;
             this._blendModeDirty = false;
@@ -209,24 +203,22 @@ namespace dragonBones {
             this._blendMode = BlendMode.Normal;
             this._display = null;
             this._localMatrix.identity();
-
-            if (this._displayList.length) {
-                this._displayList.length = 0;
-            }
-
-            if (this._meshBones.length) {
-                this._meshBones.length = 0;
-            }
+            this._displayList.length = 0;
+            this._meshBones.length = 0;
         }
 
         /**
          * @private
          */
-        protected abstract _onUpdateDisplay(): void;
+        protected abstract _initDisplay(value: any): void;
         /**
          * @private
          */
-        protected abstract _initDisplay(value: any): void;
+        protected abstract _disposeDisplay(value: any): void;
+        /**
+         * @private
+         */
+        protected abstract _onUpdateDisplay(): void;
         /**
          * @private
          */
@@ -239,10 +231,6 @@ namespace dragonBones {
          * @private
          */
         protected abstract _removeDisplay(): void;
-        /**
-         * @private
-         */
-        protected abstract _disposeDisplay(value: any): void;
         /**
          * @internal
          * @private Bone
@@ -351,11 +339,12 @@ namespace dragonBones {
                     if (this.inheritAnimation) {
                         if (this._childArmature.cacheFrameRate == 0) { // Set child armature frameRate.
                             const cacheFrameRate = this._armature.cacheFrameRate;
-                            if (cacheFrameRate) {
+                            if (cacheFrameRate != 0) {
                                 this._childArmature.cacheFrameRate = cacheFrameRate;
                             }
                         }
 
+                        // Child armature action.                        
                         const slotData = this._armature.armatureData.getSlot(this.name);
                         const actions = slotData.actions.length > 0 ? slotData.actions : this._childArmature.armatureData.actions;
                         if (actions.length > 0) {
@@ -416,7 +405,7 @@ namespace dragonBones {
         public _updateMeshData(isTimelineUpdate: Boolean): void {
             const prevMeshData = this._meshData;
             let rawMeshData = <MeshData>null;
-            if (this._meshDisplay && this._displayIndex >= 0) {
+            if (this._display && this._display == this._meshDisplay && this._displayIndex >= 0) {
                 rawMeshData = (this._displayDataSet && this._displayIndex < this._displayDataSet.displays.length) ? this._displayDataSet.displays[this._displayIndex].mesh : null;
                 const replaceDisplayData = (this._displayIndex < this._replacedDisplayDataSet.length) ? this._replacedDisplayDataSet[this._displayIndex] : null;
                 const replaceMeshData = replaceDisplayData ? replaceDisplayData.mesh : null;
@@ -623,7 +612,7 @@ namespace dragonBones {
          * @version DragonBones 4.5
          */
         public invalidUpdate(): void {
-            this._originDirty = true;
+            this._displayDirty = true;
         }
         /**
          * @private

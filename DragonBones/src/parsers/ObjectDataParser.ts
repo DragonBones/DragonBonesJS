@@ -63,7 +63,7 @@ namespace dragonBones {
          * @private
          */
         protected static _getParameter(rawData: Array<any>, index: number, defaultValue: any): any {
-            if (rawData && rawData.length > index) {
+            if (rawData.length > index) {
                 return rawData[index];
             }
 
@@ -120,7 +120,7 @@ namespace dragonBones {
 
             if (ObjectDataParser.SLOT in rawData) {
                 const slots = <Array<any>>rawData[ObjectDataParser.SLOT];
-                var zOrder = 0;
+                let zOrder = 0;
                 for (let i = 0, l = slots.length; i < l; ++i) {
                     armature.addSlot(this._parseSlot(slots[i], zOrder++));
                 }
@@ -172,7 +172,6 @@ namespace dragonBones {
             }
 
             if (this._isOldData) { // Support 2.x ~ 3.x data.
-                bone.inheritRotation = true;
                 bone.inheritScale = false;
             }
 
@@ -259,7 +258,7 @@ namespace dragonBones {
                 this._skin = skin;
 
                 const slots = <Array<any>>rawData[ObjectDataParser.SLOT];
-                var zOrder = 0;
+                let zOrder = 0;
                 for (let i = 0, l = slots.length; i < l; ++i) {
                     if (this._isOldData) { // Support 2.x ~ 3.x data.
                         this._armature.addSlot(this._parseSlot(slots[i], zOrder++));
@@ -695,23 +694,23 @@ namespace dragonBones {
             }
 
             const bone = (<BoneTimelineData>this._timeline).bone;
+            const actions: Array<ActionData> = [];
+            const events: Array<EventData> = [];
 
             if (
                 (ObjectDataParser.ACTION in rawData) ||
                 (ObjectDataParser.ACTIONS in rawData)
             ) {
                 const slot = this._armature.getSlot(bone.name);
-                const actions: Array<ActionData> = [];
                 this._parseActionData(rawData, actions, bone, slot);
-
-                this._mergeFrameToAnimationTimeline(frame, actions, null); // Merge actions and events to animation timeline.
             }
 
             if ((ObjectDataParser.EVENT in rawData) || (ObjectDataParser.SOUND in rawData)) {
-                const events: Array<EventData> = [];
                 this._parseEventData(rawData, events, bone, null);
+            }
 
-                this._mergeFrameToAnimationTimeline(frame, null, events); // Merge actions and events to animation timeline.
+            if (actions.length > 0 || events.length > 0) {
+                this._mergeFrameToAnimationTimeline(frame.position, actions, events); // Merge actions and events to animation timeline.
             }
 
             return frame;
@@ -750,7 +749,7 @@ namespace dragonBones {
                 const actions: Array<ActionData> = [];
                 this._parseActionData(rawData, actions, slot.parent, slot);
 
-                this._mergeFrameToAnimationTimeline(frame, actions, null); // Merge actions and events to animation timeline.
+                this._mergeFrameToAnimationTimeline(frame.position, actions, null); // Merge actions and events to animation timeline.
             }
 
             return frame;
@@ -913,11 +912,12 @@ namespace dragonBones {
             }
             else if (actionsObject instanceof Array) { // Support [{gotoAndPlay: "animationName"}, ...] or [["gotoAndPlay", "animationName", ...], ...]
                 for (let i = 0, l = actionsObject.length; i < l; ++i) {
-                    const actionObject = <Array<any>>(actionsObject[i] instanceof Array ? actionsObject[i] : null);
+                    const actionObject = actionsObject[i];
+                    const isArray = actionObject instanceof Array;
                     const actionData = BaseObject.borrowObject(ActionData);
-                    const animationName = actionObject ? null : actionsObject[i]["gotoAndPlay"];
+                    const animationName = isArray ? ObjectDataParser._getParameter(actionObject, 1, null) : ObjectDataParser._getString(actionObject, "gotoAndPlay", null);
 
-                    if (actionObject) {
+                    if (isArray) {
                         const actionType = actionObject[0];
                         if (typeof actionType == "string") {
                             actionData.type = ObjectDataParser._getActionType(actionType);
@@ -933,44 +933,44 @@ namespace dragonBones {
                     switch (actionData.type) {
                         case ActionType.Play:
                             actionData.data = [
-                                actionObject ? ObjectDataParser._getParameter(actionObject, 1, null) : animationName, // animationName
-                                ObjectDataParser._getParameter(actionObject, 2, -1), // playTimes
+                                animationName, // animationName
+                                isArray ? ObjectDataParser._getParameter(actionObject, 2, -1) : -1, // playTimes
                             ];
                             break;
 
                         case ActionType.Stop:
                             actionData.data = [
-                                actionObject ? ObjectDataParser._getParameter(actionObject, 1, null) : animationName, // animationName
+                                animationName, // animationName
                             ];
                             break;
 
                         case ActionType.GotoAndPlay:
                             actionData.data = [
-                                actionObject ? ObjectDataParser._getParameter(actionObject, 1, null) : animationName, // animationName
-                                ObjectDataParser._getParameter(actionObject, 2, 0), // time
-                                ObjectDataParser._getParameter(actionObject, 3, -1) // playTimes
+                                animationName, // animationName
+                                isArray ? ObjectDataParser._getParameter(actionObject, 2, 0) : 0, // time
+                                isArray ? ObjectDataParser._getParameter(actionObject, 3, -1) : -1 // playTimes
                             ];
                             break;
 
                         case ActionType.GotoAndStop:
                             actionData.data = [
-                                actionObject ? ObjectDataParser._getParameter(actionObject, 1, null) : animationName, // animationName
-                                ObjectDataParser._getParameter(actionObject, 2, 0), // time
+                                animationName, // animationName
+                                isArray ? ObjectDataParser._getParameter(actionObject, 2, 0) : 0, // time
                             ];
                             break;
 
                         case ActionType.FadeIn:
                             actionData.data = [
-                                actionObject ? ObjectDataParser._getParameter(actionObject, 1, null) : animationName, // animationName
-                                ObjectDataParser._getParameter(actionObject, 2, -1), // fadeInTime
-                                ObjectDataParser._getParameter(actionObject, 3, -1) // playTimes
+                                animationName, // animationName
+                                isArray ? ObjectDataParser._getParameter(actionObject, 2, -1) : -1, // fadeInTime
+                                isArray ? ObjectDataParser._getParameter(actionObject, 3, -1) : -1 // playTimes
                             ];
                             break;
 
                         case ActionType.FadeOut:
                             actionData.data = [
-                                actionObject ? ObjectDataParser._getParameter(actionObject, 1, null) : animationName, // animationName
-                                ObjectDataParser._getParameter(actionObject, 2, 0) // fadeOutTime
+                                animationName, // animationName
+                                isArray ? ObjectDataParser._getParameter(actionObject, 2, 0) : 0 // fadeOutTime
                             ];
                             break;
                     }
@@ -1059,6 +1059,7 @@ namespace dragonBones {
 
                     if (ObjectDataParser.ARMATURE in rawData) {
                         this._data = data;
+
                         const armatures = <Array<any>>rawData[ObjectDataParser.ARMATURE];
                         for (let i = 0, l = armatures.length; i < l; ++i) {
                             data.addArmature(this._parseArmature(armatures[i]));
@@ -1082,7 +1083,7 @@ namespace dragonBones {
         /**
          * @inheritDoc
          */
-        public parseTextureAtlasData(rawData: any, textureAtlasData: TextureAtlasData, scale: number = 0): TextureAtlasData {
+        public parseTextureAtlasData(rawData: any, textureAtlasData: TextureAtlasData, scale: number = 0): void {
             if (rawData) {
                 textureAtlasData.name = ObjectDataParser._getString(rawData, ObjectDataParser.NAME, null);
                 textureAtlasData.imagePath = ObjectDataParser._getString(rawData, ObjectDataParser.IMAGE_PATH, null);
@@ -1122,13 +1123,10 @@ namespace dragonBones {
                         textureAtlasData.addTexture(textureData);
                     }
                 }
-
-                return textureAtlasData;
-            } else {
+            }
+            else {
                 throw new Error();
             }
-
-            // return null;
         }
 
         /**

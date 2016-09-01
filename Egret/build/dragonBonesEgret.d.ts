@@ -1,6 +1,49 @@
 declare namespace dragonBones {
     /**
      * @language zh_CN
+     * Egret 贴图集数据。
+     * @version DragonBones 3.0
+     */
+    class EgretTextureAtlasData extends TextureAtlasData {
+        /**
+         * @private
+         */
+        static toString(): string;
+        /**
+         * @language zh_CN
+         * Egret 贴图。
+         * @version DragonBones 3.0
+         */
+        texture: egret.Texture;
+        /**
+         * @private
+         */
+        constructor();
+        /**
+         * @inheritDoc
+         */
+        protected _onClear(): void;
+        /**
+         * @private
+         */
+        generateTextureData(): TextureData;
+    }
+    /**
+     * @private
+     */
+    class EgretTextureData extends TextureData {
+        static toString(): string;
+        texture: egret.Texture;
+        constructor();
+        /**
+         * @inheritDoc
+         */
+        protected _onClear(): void;
+    }
+}
+declare namespace dragonBones {
+    /**
+     * @language zh_CN
      * Egret 事件。
      * @version DragonBones 4.5
      */
@@ -147,11 +190,11 @@ declare namespace dragonBones {
         /**
          * @inheritDoc
          */
-        advanceTimeBySelf(on: Boolean): void;
+        dispose(): void;
         /**
          * @inheritDoc
          */
-        dispose(): void;
+        advanceTimeBySelf(on: Boolean): void;
         /**
          * @inheritDoc
          */
@@ -244,6 +287,91 @@ declare namespace dragonBones {
      * @see dragonBones.Armature#enableAnimationCache()
      */
     class AnimationCacheManager {
+    }
+}
+declare namespace dragonBones {
+    /**
+     * @language zh_CN
+     * Egret 插槽。
+     * @version DragonBones 3.0
+     */
+    class EgretSlot extends Slot {
+        /**
+         * @private
+         */
+        static toString(): string;
+        /**
+         * @language zh_CN
+         * 是否更新显示对象的变换属性。
+         * 为了更好的性能, 并不会更新 display 的变换属性 (x, y, rotation, scaleX, scaleX), 如果需要正确访问这些属性, 则需要设置为 true 。
+         * @default false
+         * @version DragonBones 3.0
+         */
+        transformUpdateEnabled: boolean;
+        private _renderDisplay;
+        private _colorFilter;
+        /**
+         * @language zh_CN
+         * 创建一个空的插槽。
+         * @version DragonBones 3.0
+         */
+        constructor();
+        /**
+         * @inheritDoc
+         */
+        protected _onClear(): void;
+        /**
+         * @private
+         */
+        protected _initDisplay(value: Object): void;
+        /**
+         * @private
+         */
+        protected _disposeDisplay(value: Object): void;
+        /**
+         * @private
+         */
+        protected _onUpdateDisplay(): void;
+        /**
+         * @private
+         */
+        protected _addDisplay(): void;
+        /**
+         * @private
+         */
+        protected _replaceDisplay(value: Object): void;
+        /**
+         * @private
+         */
+        protected _removeDisplay(): void;
+        /**
+         * @private
+         */
+        _updateVisible(): void;
+        /**
+         * @private
+         */
+        protected _updateBlendMode(): void;
+        /**
+         * @private
+         */
+        protected _updateColor(): void;
+        /**
+         * @private
+         */
+        protected _updateFilters(): void;
+        /**
+         * @private
+         */
+        protected _updateFrame(): void;
+        /**
+         * @private
+         */
+        protected _updateMesh(): void;
+        /**
+         * @private
+         */
+        protected _updateTransform(): void;
     }
 }
 declare namespace dragonBones {
@@ -344,137 +472,5 @@ declare namespace dragonBones {
          * @see dragonBones.BaseFactory#clear()
          */
         dispose(): void;
-    }
-}
-declare namespace dragonBones {
-    /**
-     * @language zh_CN
-     * Egret 插槽。
-     * @version DragonBones 3.0
-     */
-    class EgretSlot extends Slot {
-        /**
-         * @private
-         */
-        static toString(): string;
-        /**
-         * @language zh_CN
-         * 是否更新显示对象的变换属性。
-         * 为了更好的性能, 并不会更新 display 的变换属性 (x, y, rotation, scaleX, scaleX), 如果需要正确访问这些属性, 则需要设置为 true 。
-         * @default false
-         * @version DragonBones 3.0
-         */
-        transformUpdateEnabled: boolean;
-        private _renderDisplay;
-        private _colorFilter;
-        /**
-         * @language zh_CN
-         * 创建一个空的插槽。
-         * @version DragonBones 3.0
-         */
-        constructor();
-        /**
-         * @inheritDoc
-         */
-        protected _onClear(): void;
-        /**
-         * @private
-         */
-        protected _onUpdateDisplay(): void;
-        /**
-         * @private
-         */
-        protected _initDisplay(value: Object): void;
-        /**
-         * @private
-         */
-        protected _addDisplay(): void;
-        /**
-         * @private
-         */
-        protected _replaceDisplay(value: Object): void;
-        /**
-         * @private
-         */
-        protected _removeDisplay(): void;
-        /**
-         * @private
-         */
-        protected _disposeDisplay(value: Object): void;
-        /**
-         * @private
-         */
-        _updateVisible(): void;
-        /**
-         * @private
-         */
-        private static BLEND_MODE_LIST;
-        /**
-         * @private
-         */
-        protected _updateBlendMode(): void;
-        /**
-         * @private
-         */
-        protected _updateColor(): void;
-        /**
-         * @private
-         */
-        protected _updateFilters(): void;
-        /**
-         * @private
-         */
-        protected _updateFrame(): void;
-        /**
-         * @private
-         */
-        protected _updateMesh(): void;
-        /**
-         * @private
-         */
-        protected _updateTransform(): void;
-    }
-}
-declare namespace dragonBones {
-    /**
-     * @language zh_CN
-     * Egret 贴图集数据。
-     * @version DragonBones 3.0
-     */
-    class EgretTextureAtlasData extends TextureAtlasData {
-        /**
-         * @private
-         */
-        static toString(): string;
-        /**
-         * @language zh_CN
-         * Egret 贴图。
-         * @version DragonBones 3.0
-         */
-        texture: egret.Texture;
-        /**
-         * @private
-         */
-        constructor();
-        /**
-         * @inheritDoc
-         */
-        protected _onClear(): void;
-        /**
-         * @private
-         */
-        generateTextureData(): TextureData;
-    }
-    /**
-     * @private
-     */
-    class EgretTextureData extends TextureData {
-        static toString(): string;
-        texture: egret.Texture;
-        constructor();
-        /**
-         * @inheritDoc
-         */
-        protected _onClear(): void;
     }
 }

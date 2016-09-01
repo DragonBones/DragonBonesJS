@@ -1,5 +1,48 @@
 declare namespace dragonBones {
     /**
+     * @language zh_CN
+     * Pixi 贴图集数据。
+     * @version DragonBones 3.0
+     */
+    class PixiTextureAtlasData extends TextureAtlasData {
+        /**
+         * @private
+         */
+        static toString(): string;
+        /**
+         * @language zh_CN
+         * Pixi 贴图。
+         * @version DragonBones 3.0
+         */
+        texture: PIXI.BaseTexture;
+        /**
+         * @private
+         */
+        constructor();
+        /**
+         * @inheritDoc
+         */
+        protected _onClear(): void;
+        /**
+         * @private
+         */
+        generateTextureData(): TextureData;
+    }
+    /**
+     * @private
+     */
+    class PixiTextureData extends TextureData {
+        static toString(): string;
+        texture: PIXI.Texture;
+        constructor();
+        /**
+         * @inheritDoc
+         */
+        protected _onClear(): void;
+    }
+}
+declare namespace dragonBones {
+    /**
      * @inheritDoc
      */
     class PixiArmatureDisplay extends PIXI.Container implements IArmatureDisplay {
@@ -54,6 +97,82 @@ declare namespace dragonBones {
          * @inheritDoc
          */
         animation: Animation;
+    }
+}
+declare namespace dragonBones {
+    /**
+     * @language zh_CN
+     * Pixi 插槽。
+     * @version DragonBones 3.0
+     */
+    class PixiSlot extends Slot {
+        /**
+         * @private
+         */
+        static toString(): string;
+        private _renderDisplay;
+        /**
+         * @language zh_CN
+         * 创建一个空的插槽。
+         * @version DragonBones 3.0
+         */
+        constructor();
+        /**
+         * @inheritDoc
+         */
+        protected _onClear(): void;
+        /**
+         * @private
+         */
+        protected _initDisplay(value: Object): void;
+        /**
+         * @private
+         */
+        protected _disposeDisplay(value: Object): void;
+        /**
+         * @private
+         */
+        protected _onUpdateDisplay(): void;
+        /**
+         * @private
+         */
+        protected _addDisplay(): void;
+        /**
+         * @private
+         */
+        protected _replaceDisplay(value: Object): void;
+        /**
+         * @private
+         */
+        protected _removeDisplay(): void;
+        /**
+         * @private
+         */
+        _updateVisible(): void;
+        /**
+         * @private
+         */
+        protected _updateBlendMode(): void;
+        /**
+         * @private
+         */
+        protected _updateColor(): void;
+        /**
+         * @private
+         */
+        protected _updateFilters(): void;
+        /**
+         * @private
+         */
+        protected _updateFrame(): void;
+        /**
+         * @private
+         */
+        protected _updateMesh(): void;
+        /**
+         * @private
+         */
+        protected _updateTransform(): void;
     }
 }
 declare namespace dragonBones {
@@ -114,128 +233,5 @@ declare namespace dragonBones {
          * @version DragonBones 4.5
          */
         soundEventManater: PixiArmatureDisplay;
-    }
-}
-declare namespace dragonBones {
-    /**
-     * @language zh_CN
-     * Pixi 插槽。
-     * @version DragonBones 3.0
-     */
-    class PixiSlot extends Slot {
-        /**
-         * @private
-         */
-        static toString(): string;
-        private _renderDisplay;
-        /**
-         * @language zh_CN
-         * 创建一个空的插槽。
-         * @version DragonBones 3.0
-         */
-        constructor();
-        /**
-         * @inheritDoc
-         */
-        protected _onClear(): void;
-        /**
-         * @private
-         */
-        protected _onUpdateDisplay(): void;
-        /**
-         * @private
-         */
-        protected _initDisplay(value: Object): void;
-        /**
-         * @private
-         */
-        protected _addDisplay(): void;
-        /**
-         * @private
-         */
-        protected _replaceDisplay(value: Object): void;
-        /**
-         * @private
-         */
-        protected _removeDisplay(): void;
-        /**
-         * @private
-         */
-        protected _disposeDisplay(value: Object): void;
-        /**
-         * @private
-         */
-        _updateVisible(): void;
-        /**
-         * @private
-         */
-        private static BLEND_MODE_LIST;
-        /**
-         * @private
-         */
-        protected _updateBlendMode(): void;
-        /**
-         * @private
-         */
-        protected _updateColor(): void;
-        /**
-         * @private
-         */
-        protected _updateFilters(): void;
-        /**
-         * @private
-         */
-        protected _updateFrame(): void;
-        /**
-         * @private
-         */
-        protected _updateMesh(): void;
-        /**
-         * @private
-         */
-        protected _updateTransform(): void;
-    }
-}
-declare namespace dragonBones {
-    /**
-     * @language zh_CN
-     * Pixi 贴图集数据。
-     * @version DragonBones 3.0
-     */
-    class PixiTextureAtlasData extends TextureAtlasData {
-        /**
-         * @private
-         */
-        static toString(): string;
-        /**
-         * @language zh_CN
-         * Pixi 贴图。
-         * @version DragonBones 3.0
-         */
-        texture: PIXI.BaseTexture;
-        /**
-         * @private
-         */
-        constructor();
-        /**
-         * @inheritDoc
-         */
-        protected _onClear(): void;
-        /**
-         * @private
-         */
-        generateTextureData(): TextureData;
-    }
-    /**
-     * @private
-     */
-    class PixiTextureData extends TextureData {
-        static toString(): string;
-        texture: PIXI.Texture;
-        constructor();
-        /**
-         * @inheritDoc
-         */
-        protected _onClear(): void;
     }
 }

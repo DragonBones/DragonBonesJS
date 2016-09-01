@@ -11,8 +11,6 @@ namespace demosEgret {
             public static G: number = 0.6;
             public static instance: Game = null;
 
-            public factory: dragonBones.EgretFactory = new dragonBones.EgretFactory();
-
             private _left: boolean = false;
             private _right: boolean = false;
             private _player: Hero = null;
@@ -23,7 +21,7 @@ namespace demosEgret {
 
                 Game.instance = this;
 
-                this._resourceConfigURL = "resource/Knight.json";
+                this._resourceConfigURL = "resource/Knight.res.json";
             }
 
             protected createGameScene(): void {
@@ -31,8 +29,8 @@ namespace demosEgret {
                 Game.STAGE_HEIGHT = this.stage.stageHeight;
                 Game.GROUND = Game.STAGE_HEIGHT - 100;
 
-                this.factory.parseDragonBonesData(RES.getRes("dragonBonesData"));
-                this.factory.parseTextureAtlasData(RES.getRes("textureDataA"), RES.getRes("textureA"));
+                dragonBones.EgretFactory.factory.parseDragonBonesData(RES.getRes("dragonBonesData"));
+                dragonBones.EgretFactory.factory.parseTextureAtlasData(RES.getRes("textureDataA"), RES.getRes("textureA"));
 
                 this.stage.addEventListener(egret.Event.ENTER_FRAME, this._enterFrameHandler, this);
                 this.stage.addEventListener(egret.TouchEvent.TOUCH_BEGIN, this._touchHandler, this);
@@ -154,7 +152,7 @@ namespace demosEgret {
             private _armArmature: dragonBones.Armature = null;
 
             public constructor() {
-                this._armature = Game.instance.factory.buildArmature("knight");
+                this._armature = dragonBones.EgretFactory.factory.buildArmature("knight");
                 this._armatureDisplay = <ArmatureDisplayType>this._armature.display;
                 this._armatureDisplay.x = Game.STAGE_WIDTH * 0.5;
                 this._armatureDisplay.y = Game.GROUND;
@@ -232,9 +230,9 @@ namespace demosEgret {
 
                 // Replace display.
                 if (this._weaponName == "bow") {
-                    this._armArmature.getSlot("bow").childArmature = Game.instance.factory.buildArmature("knightFolder/" + this._weaponName + "_" + (weaponLevel + 1));
+                    this._armArmature.getSlot("bow").childArmature = dragonBones.EgretFactory.factory.buildArmature("knightFolder/" + this._weaponName + "_" + (weaponLevel + 1));
                 } else {
-                    Game.instance.factory.replaceSlotDisplay(
+                    dragonBones.EgretFactory.factory.replaceSlotDisplay(
                         null, "weapons", "weapon",
                         "knightFolder/" + this._weaponName + "_" + (weaponLevel + 1),
                         this._armArmature.getSlot("weapon")
@@ -352,7 +350,7 @@ namespace demosEgret {
                 this._speedX = Math.cos(radian) * speed;
                 this._speedY = Math.sin(radian) * speed;
 
-                this._armature = Game.instance.factory.buildArmature(armatureName);
+                this._armature = dragonBones.EgretFactory.factory.buildArmature(armatureName);
                 this._armatureDisplay = <ArmatureDisplayType>this._armature.display;
                 this._armatureDisplay.x = position.x;
                 this._armatureDisplay.y = position.y;

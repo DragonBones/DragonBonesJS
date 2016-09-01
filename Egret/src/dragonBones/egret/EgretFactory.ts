@@ -73,6 +73,7 @@ namespace dragonBones {
 
             slot.name = slotData.name;
             slot._rawDisplay = new egret.Bitmap();
+            slot._meshDisplay = new egret.Mesh();
 
             for (let i = 0, l = slotDisplayDataSet.displays.length; i < l; ++i) {
                 const displayData = slotDisplayDataSet.displays[i];
@@ -91,12 +92,9 @@ namespace dragonBones {
                         }
 
                         if (egret.Capabilities.renderMode == "webgl") {
-                            if (!slot._meshDisplay) {
-                                slot._meshDisplay = new egret.Mesh();
-                            }
-
                             displayList.push(slot._meshDisplay);
                         } else {
+                            console.warn("Canvas can not support mesh, please change renderMode to webgl.");
                             displayList.push(slot._rawDisplay);
                         }
                         break;
@@ -160,6 +158,20 @@ namespace dragonBones {
         public getTextureDisplay(textureName: string, dragonBonesName: string = null): egret.Bitmap {
             const textureData = <EgretTextureData>this._getTextureData(dragonBonesName, textureName);
             if (textureData) {
+                if (!textureData.texture) {
+                    const textureAtlasTexture = (<EgretTextureAtlasData>textureData.parent).texture;
+                    textureData.texture = new egret.Texture();
+                    textureData.texture._bitmapData = textureAtlasTexture._bitmapData;
+
+                    textureData.texture.$initData(
+                        textureData.region.x, textureData.region.y,
+                        textureData.region.width, textureData.region.height,
+                        0, 0,
+                        textureData.region.width, textureData.region.height,
+                        textureAtlasTexture.textureWidth, textureAtlasTexture.textureHeight
+                    );
+                }
+
                 return new egret.Bitmap(textureData.texture);
             }
 

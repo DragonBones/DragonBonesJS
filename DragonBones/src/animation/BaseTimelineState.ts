@@ -40,8 +40,8 @@ namespace dragonBones {
          */
         protected _onClear(): void {
             this._isCompleted = false;
-            this._currentPlayTimes = 0;
-            this._currentTime = 0;
+            this._currentPlayTimes = -1;
+            this._currentTime = -1;
             this._timeline = null;
 
             this._isReverse = false;
@@ -59,7 +59,6 @@ namespace dragonBones {
             this._animationState = null;
         }
 
-        protected _onFadeIn(): void { }
         protected _onUpdateFrame(isUpdate: boolean): void { }
         protected _onArriveAtFrame(isUpdate: boolean): void { }
 
@@ -68,7 +67,11 @@ namespace dragonBones {
 
             let currentPlayTimes = 0;
 
-            if (self._hasAsynchronyTimeline) {
+            if (self._keyFrameCount == 1 && this != <any>self._animationState._timeline) {
+                self._isCompleted = true;
+                currentPlayTimes = 1;
+            }
+            else if (self._hasAsynchronyTimeline) {
                 const playTimes = self._animationState.playTimes;
                 const totalTime = playTimes * self._duration;
 
@@ -112,42 +115,16 @@ namespace dragonBones {
                 currentPlayTimes = self._animationState._timeline._currentPlayTimes;
             }
 
+            self._currentPlayTimes = currentPlayTimes;
+
             if (self._currentTime == value) {
                 return false;
             }
 
-            if (self._keyFrameCount == 1 && value > self._position && <any>this != self._animationState._timeline) {
-                self._isCompleted = true;
-            }
-
             self._isReverse = self._currentTime > value && self._currentPlayTimes == currentPlayTimes;
             self._currentTime = value;
-            self._currentPlayTimes = currentPlayTimes;
 
             return true;
-        }
-
-        public setCurrentTime(value: number): void {
-            this._setCurrentTime(value);
-
-            switch (this._keyFrameCount) {
-                case 0:
-                    break;
-
-                case 1:
-                    this._currentFrame = this._timeline.frames[0];
-                    this._onArriveAtFrame(false);
-                    this._onUpdateFrame(false);
-                    break;
-
-                default:
-                    this._currentFrame = this._timeline.frames[Math.floor(this._currentTime * this._frameRate)];
-                    this._onArriveAtFrame(false);
-                    this._onUpdateFrame(false);
-                    break;
-            }
-
-            this._currentFrame = null;
         }
 
         public fadeIn(armature: Armature, animationState: AnimationState, timelineData: M, time: number): void {
@@ -166,10 +143,6 @@ namespace dragonBones {
             this._animationDutation = this._animationState.animationData.duration;
             this._timeScale = isMainTimeline ? 1 : (1 / this._timeline.scale);
             this._timeOffset = isMainTimeline ? 0 : this._timeline.offset;
-
-            this._onFadeIn();
-
-            this.setCurrentTime(time);
         }
 
         public fadeOut(): void { }
@@ -177,7 +150,7 @@ namespace dragonBones {
         public update(time: number): void {
             const self = this;
 
-            if (!self._isCompleted && self._setCurrentTime(time) && self._keyFrameCount) {
+            if (!self._isCompleted && self._setCurrentTime(time)) {
                 const currentFrameIndex = self._keyFrameCount > 1 ? Math.floor(self._currentTime * self._frameRate) : 0;
                 const currentFrame = self._timeline.frames[currentFrameIndex];
 
@@ -196,6 +169,13 @@ namespace dragonBones {
      */
     export abstract class TweenTimelineState<T extends TweenFrameData<T>, M extends TimelineData<T>> extends TimelineState<T, M> {
         public static _getEasingValue(progress: number, easing: number): number {
+            if (progress <= 0) {
+                return 0;
+            }
+            else if (progress >= 1) {
+                return 1;
+            }
+
             let value = 1;
             if (easing > 2) {
                 return progress;

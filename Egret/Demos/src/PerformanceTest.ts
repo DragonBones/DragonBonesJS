@@ -2,29 +2,26 @@ namespace demosEgret {
     export class PerformanceTest extends BaseTest {
         private _addingArmature: boolean = false;
         private _removingArmature: boolean = false;
+        private _text: egret.TextField = new egret.TextField();
+
         private _dragonBonesData: dragonBones.DragonBonesData = null;
-
-        private _text: egret.TextField = null;
-
-        private _factory: dragonBones.EgretFactory = new dragonBones.EgretFactory();
         private _armatures: Array<dragonBones.Armature> = [];
 
         public constructor() {
             super();
 
-            this._resourceConfigURL = "resource/PerformanceTest.json";
+            this._resourceConfigURL = "resource/PerformanceTest.res.json";
         }
 
         protected createGameScene(): void {
-
-            this._text = new egret.TextField();
+            //
             this._text.textAlign = egret.HorizontalAlign.CENTER;
             this._text.size = 20;
             this._text.text = "";
             this.addChild(this._text);
 
-            this._dragonBonesData = this._factory.parseDragonBonesData(RES.getRes("dragonBonesData"));
-            this._factory.parseTextureAtlasData(RES.getRes("textureDataA"), RES.getRes("textureA"));
+            this._dragonBonesData = dragonBones.EgretFactory.factory.parseDragonBonesData(RES.getRes("dragonBonesData"));
+            dragonBones.EgretFactory.factory.parseTextureAtlasData(RES.getRes("textureDataA"), RES.getRes("textureA"));
 
             if (this._dragonBonesData) {
                 this.stage.addEventListener(egret.Event.ENTER_FRAME, this._enterFrameHandler, this);
@@ -82,14 +79,15 @@ namespace demosEgret {
         }
 
         private _addArmature(): void {
-            const armature = this._factory.buildArmature("DragonBoy");
+            const armature = dragonBones.EgretFactory.factory.buildArmature("DragonBoy");
             const armatureDisplay = <dragonBones.EgretArmatureDisplay>armature.display;
 
             armatureDisplay.scaleX = armatureDisplay.scaleY = 0.7;
             this.addChild(armatureDisplay);
 
             armature.cacheFrameRate = 24;
-            const animationName = armature.animation.animationNames[Math.floor(Math.random() * armature.animation.animationNames.length)];
+            const animationName = "walk";
+            //const animationName = armature.animation.animationNames[Math.floor(Math.random() * armature.animation.animationNames.length)];
             armature.animation.play(animationName, 0);
             dragonBones.WorldClock.clock.add(armature);
 

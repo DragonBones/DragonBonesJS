@@ -7,10 +7,10 @@ namespace dragonBones {
      * @version DragonBones 3.0
      */
     export class AnimationState extends BaseObject {
-		/**
-		 * @private
-		 */
-        public static actionEnabled: boolean = true;
+        /**
+         * @private
+         */
+        public static stateActionEnabled: boolean = true;
 
         /**
          * @private
@@ -32,9 +32,9 @@ namespace dragonBones {
          * @version DragonBones 3.0
          */
         public additiveBlending: boolean;
-		/**
-		 * @private
-		 */
+        /**
+         * @private
+         */
         public actionEnabled: boolean;
         /**
          * @language zh_CN
@@ -122,10 +122,6 @@ namespace dragonBones {
         /**
          * @private
          */
-        private _currentPlayTimes: number;
-        /**
-         * @private
-         */
         private _fadeTime: number;
         /**
          * @private
@@ -207,17 +203,12 @@ namespace dragonBones {
             this._isPlaying = true;
             this._isPausePlayhead = false;
             this._isFadeOut = false;
-            this._currentPlayTimes = 0;
             this._fadeTime = 0;
             this._time = 0;
             this._name = null;
             this._armature = null;
             this._animationData = null;
-
-            if (this._boneMask.length) {
-                this._boneMask.length = 0;
-            }
-
+            this._boneMask.length = 0;
             this._boneTimelines.length = 0;
             this._slotTimelines.length = 0;
             this._ffdTimelines.length = 0;
@@ -320,7 +311,7 @@ namespace dragonBones {
             this._animationData = clip;
             this._name = animationName;
 
-            this.actionEnabled = AnimationState.actionEnabled;
+            this.actionEnabled = AnimationState.stateActionEnabled;
             this.playTimes = playTimes;
             this.timeScale = timeScale;
             this.fadeTotalTime = fadeInTime;
@@ -378,7 +369,7 @@ namespace dragonBones {
 
             for (let i in boneTimelineStates) { // Remove bone timelines.
                 const boneTimelineState = boneTimelineStates[i];
-                boneTimelineState.bone.invalidUpdate();
+                boneTimelineState.bone.invalidUpdate(); //
                 this._boneTimelines.splice(this._boneTimelines.indexOf(boneTimelineState), 1);
                 boneTimelineState.returnToPool();
             }
@@ -483,9 +474,8 @@ namespace dragonBones {
         public _advanceTime(passedTime: number, weightLeft: number, index: number): void {
             const self = this;
 
-            if (passedTime != 0) { // Fading.
-                self._advanceFadeTime(passedTime);
-            }
+            // Update fade time. (Still need to be update even if the passedTime is zero)
+            self._advanceFadeTime(passedTime);
 
             // Update time.
             passedTime *= self.timeScale;
@@ -512,7 +502,6 @@ namespace dragonBones {
 
                 if (isCacheEnabled) {
                     const cacheFrameIndex = Math.floor(self._timeline._currentTime * cacheTimeToFrameScale); // uint
-
                     if (self._armature._cacheFrameIndex == cacheFrameIndex) { // Same cache.
                         isUpdatesTimeline = false;
                         isUpdatesBoneTimeline = false;
@@ -753,7 +742,7 @@ namespace dragonBones {
          * 是否播放完毕。
          * @version DragonBones 3.0
          */
-        public get isCompleted(): Boolean {
+        public get isCompleted(): boolean {
             return this._timeline._isCompleted;
         }
 
@@ -762,7 +751,7 @@ namespace dragonBones {
          * 是否正在播放。
          * @version DragonBones 3.0
          */
-        public get isPlaying(): Boolean {
+        public get isPlaying(): boolean {
             return this._isPlaying && !this._timeline._isCompleted;
         }
 
@@ -772,7 +761,7 @@ namespace dragonBones {
          * @version DragonBones 3.0
          */
         public get currentPlayTimes(): number {
-            return this._currentPlayTimes;
+            return this._timeline._currentPlayTimes;
         }
 
         /**
@@ -796,26 +785,25 @@ namespace dragonBones {
                 value = 0;
             }
 
+            const currentPlayTimes = this._timeline._currentPlayTimes - (this._timeline._isCompleted ? 1 : 0);
+            value = (value % this._duration) + currentPlayTimes * this._duration;
+            if (this._time == value) {
+                return;
+            }
+
             this._time = value;
             this._timeline.setCurrentTime(this._time);
 
-            if (this._weightResult != 0) {
-                let time = this._time;
-                if (!this._animationData.hasAsynchronyTimeline) {
-                    time = this._timeline._currentTime;
-                }
+            for (let i = 0, l = this._boneTimelines.length; i < l; ++i) {
+                this._boneTimelines[i]._isCompleted = false;
+            }
 
-                for (let i = 0, l = this._boneTimelines.length; i < l; ++i) {
-                    this._boneTimelines[i].setCurrentTime(time);
-                }
+            for (let i = 0, l = this._slotTimelines.length; i < l; ++i) {
+                this._slotTimelines[i]._isCompleted = false;
+            }
 
-                for (let i = 0, l = this._slotTimelines.length; i < l; ++i) {
-                    this._slotTimelines[i].setCurrentTime(time);
-                }
-
-                for (let i = 0, l = this._ffdTimelines.length; i < l; ++i) {
-                    this._ffdTimelines[i].setCurrentTime(time);
-                }
+            for (let i = 0, l = this._ffdTimelines.length; i < l; ++i) {
+                this._ffdTimelines[i]._isCompleted = false;
             }
         }
 

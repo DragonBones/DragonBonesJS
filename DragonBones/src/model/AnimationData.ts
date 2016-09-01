@@ -88,15 +88,6 @@ namespace dragonBones {
         protected _onClear(): void {
             super._onClear();
 
-            this.hasAsynchronyTimeline = false;
-            this.cacheTimeToFrameScale = 0;
-            this.position = 0;
-            this.duration = 0;
-            this.playTimes = 0;
-            this.fadeInTime = 0;
-            this.name = null;
-            this.animation = null;
-
             for (let i in this.boneTimelines) {
                 this.boneTimelines[i].returnToPool();
                 delete this.boneTimelines[i];
@@ -117,9 +108,16 @@ namespace dragonBones {
                 delete this.ffdTimelines[i];
             }
 
-            if (this.cachedFrames.length) {
-                this.cachedFrames.length = 0;
-            }
+            this.hasAsynchronyTimeline = false;
+            this.frameCount = 0;
+            this.playTimes = 0;
+            this.position = 0;
+            this.duration = 0;
+            this.fadeInTime = 0;
+            this.cacheTimeToFrameScale = 0;
+            this.name = null;
+            this.animation = null;
+            this.cachedFrames.length = 0;
         }
         /**
          * @private
@@ -130,11 +128,11 @@ namespace dragonBones {
             }
 
             const cacheFrameCount = Math.max(Math.floor((this.frameCount + 1) * this.scale * value), 1);
-            
+
             this.cacheTimeToFrameScale = cacheFrameCount / (this.duration + 0.000001); //
             this.cachedFrames.length = 0;
             this.cachedFrames.length = cacheFrameCount;
-            
+
             for (let i in this.boneTimelines) {
                 this.boneTimelines[i].cacheFrames(cacheFrameCount);
             }

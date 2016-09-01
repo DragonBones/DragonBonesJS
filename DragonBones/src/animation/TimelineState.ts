@@ -74,6 +74,12 @@ namespace dragonBones {
             }
         }
 
+        public fadeIn(armature: Armature, animationState: AnimationState, timelineData: AnimationData, time: number): void {
+            super.fadeIn(armature, animationState, timelineData, time);
+
+            this._currentTime = time; // Pass first update. (armature.advanceTime(0))
+        }
+
         public update(time: number): void {
             const self = this;
 
@@ -83,7 +89,7 @@ namespace dragonBones {
             if (!self._isCompleted && self._setCurrentTime(time)) {
                 const eventDispatcher = self._armature._display;
 
-                if (!self._isStarted && time != 0) {
+                if (!self._isStarted) {
                     self._isStarted = true;
 
                     if (eventDispatcher.hasEvent(EventObject.START)) {
@@ -117,6 +123,7 @@ namespace dragonBones {
                                 }
                             }
 
+                            // TODO 1 2 3 key frame loop, first key frame after loop complete.
                             if (self._isReverse) {
                                 while (crossedFrame != currentFrame) {
                                     self._onCrossFrame(crossedFrame);
@@ -138,16 +145,25 @@ namespace dragonBones {
                 }
 
                 if (prevPlayTimes != self._currentPlayTimes) {
-                    const eventType = self._isCompleted ? EventObject.COMPLETE : EventObject.LOOP_COMPLETE;
-                    if (eventDispatcher.hasEvent(eventType)) {
+                    if (eventDispatcher.hasEvent(EventObject.LOOP_COMPLETE)) {
                         const eventObject = BaseObject.borrowObject(EventObject);
                         eventObject.animationState = self._animationState;
-                        self._armature._bufferEvent(eventObject, eventType);
+                        self._armature._bufferEvent(eventObject, EventObject.LOOP_COMPLETE);
                     }
 
+                    if (self._isCompleted && eventDispatcher.hasEvent(EventObject.COMPLETE)) {
+                        const eventObject = BaseObject.borrowObject(EventObject);
+                        eventObject.animationState = self._animationState;
+                        self._armature._bufferEvent(eventObject, EventObject.COMPLETE);
+                    }
                     self._currentFrame = null;
                 }
             }
+        }
+
+        public setCurrentTime(value: number): void {
+            this._setCurrentTime(value);
+            this._currentFrame = null;
         }
     }
     /**
@@ -189,11 +205,6 @@ namespace dragonBones {
             this._transform.identity();
             this._currentTransform.identity();
             this._durationTransform.identity();
-        }
-
-        protected _onFadeIn(): void {
-            this._originTransform = this._timeline.originTransform;
-            this._boneTransform = this.bone._animationPose;
         }
 
         protected _onArriveAtFrame(isUpdate: boolean): void {
@@ -338,6 +349,13 @@ namespace dragonBones {
             }
         }
 
+        public fadeIn(armature: Armature, animationState: AnimationState, timelineData: BoneTimelineData, time: number): void {
+            super.fadeIn(armature, animationState, timelineData, time);
+
+            this._originTransform = this._timeline.originTransform;
+            this._boneTransform = this.bone._animationPose;
+        }
+
         public fadeOut(): void {
             this._transform.skewX = Transform.normalizeRadian(this._transform.skewX);
             this._transform.skewY = Transform.normalizeRadian(this._transform.skewY);
@@ -411,10 +429,6 @@ namespace dragonBones {
             this._slotColor = null;
             this._color.identity();
             this._durationColor.identity();
-        }
-
-        protected _onFadeIn(): void {
-            this._slotColor = this.slot._colorTransform;
         }
 
         protected _onArriveAtFrame(isUpdate: boolean): void {
@@ -528,6 +542,12 @@ namespace dragonBones {
             }
         }
 
+        public fadeIn(armature: Armature, animationState: AnimationState, timelineData: SlotTimelineData, time: number): void {
+            super.fadeIn(armature, animationState, timelineData, time);
+
+            this._slotColor = this.slot._colorTransform;
+        }
+
         public fadeOut(): void {
             this._tweenColor = TweenType.None;
         }
@@ -611,22 +631,6 @@ namespace dragonBones {
             }
         }
 
-        protected _onFadeIn(): void {
-            this._slotFFDVertices = this.slot._ffdVertices;
-
-            this._durationFFDFrame = BaseObject.borrowObject(ExtensionFrameData);
-            this._durationFFDFrame.tweens.length = this._slotFFDVertices.length;
-            this._ffdVertices.length = this._slotFFDVertices.length;
-
-            for (let i = 0, l = this._durationFFDFrame.tweens.length; i < l; ++i) {
-                this._durationFFDFrame.tweens[i] = 0;
-            }
-
-            for (let i = 0, l = this._ffdVertices.length; i < l; ++i) {
-                this._ffdVertices[i] = 0;
-            }
-        }
-
         protected _onArriveAtFrame(isUpdate: boolean): void {
             const self = this;
 
@@ -671,6 +675,23 @@ namespace dragonBones {
                 }
 
                 self.slot._ffdDirty = true;
+            }
+        }
+
+        public fadeIn(armature: Armature, animationState: AnimationState, timelineData: FFDTimelineData, time: number): void {
+            super.fadeIn(armature, animationState, timelineData, time);
+
+            this._slotFFDVertices = this.slot._ffdVertices;
+            this._durationFFDFrame = BaseObject.borrowObject(ExtensionFrameData);
+            this._durationFFDFrame.tweens.length = this._slotFFDVertices.length;
+            this._ffdVertices.length = this._slotFFDVertices.length;
+
+            for (let i = 0, l = this._durationFFDFrame.tweens.length; i < l; ++i) {
+                this._durationFFDFrame.tweens[i] = 0;
+            }
+
+            for (let i = 0, l = this._ffdVertices.length; i < l; ++i) {
+                this._ffdVertices[i] = 0;
             }
         }
 

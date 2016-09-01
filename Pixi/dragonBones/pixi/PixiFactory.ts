@@ -72,6 +72,7 @@ namespace dragonBones {
 
             slot.name = slotData.name;
             slot._rawDisplay = new PIXI.Sprite();
+            slot._meshDisplay = new PIXI.mesh.Mesh(null, null, null, null, PIXI.mesh.Mesh.DRAW_MODES.TRIANGLES);
 
             for (let i = 0, l = slotDisplayDataSet.displays.length; i < l; ++i) {
                 const displayData = slotDisplayDataSet.displays[i];
@@ -87,10 +88,6 @@ namespace dragonBones {
                     case DisplayType.Mesh:
                         if (!displayData.texture) {
                             displayData.texture = this._getTextureData(dataPackage.dataName, displayData.name);
-                        }
-
-                        if (!slot._meshDisplay) {
-                            slot._meshDisplay = new PIXI.mesh.Mesh(null, null, null, null, PIXI.mesh.Mesh.DRAW_MODES.TRIANGLES);
                         }
 
                         displayList.push(slot._meshDisplay);
@@ -156,6 +153,18 @@ namespace dragonBones {
         public getTextureDisplay(textureName: string, dragonBonesName: string = null): PIXI.Sprite {
             const textureData = <PixiTextureData>this._getTextureData(dragonBonesName, textureName);
             if (textureData) {
+                if (!textureData.texture) {
+                    const textureAtlasTexture = (<PixiTextureAtlasData>textureData.parent).texture;
+                    const originSize = new PIXI.Rectangle(0, 0, textureData.region.width, textureData.region.height);
+                    textureData.texture = new PIXI.Texture(
+                        textureAtlasTexture,
+                        null,
+                        <PIXI.Rectangle><any>textureData.region,
+                        originSize,
+                        textureData.rotated
+                    );
+                }
+
                 return new PIXI.Sprite(textureData.texture);
             }
 
