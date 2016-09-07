@@ -207,6 +207,7 @@ namespace dragonBones {
                     }
                     else { // Normal texture.
                         const rect = currentTextureData.frame || currentTextureData.region;
+                        texture.frame = rect;
 
                         let width = rect.width;
                         let height = rect.height;
