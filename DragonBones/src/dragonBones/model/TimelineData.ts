@@ -3,9 +3,6 @@ namespace dragonBones {
      * @private
      */
     export abstract class TimelineData<T extends FrameData<T>> extends BaseObject {
-        /**
-         * @private
-         */
         public scale: number;
         /**
          * @private
@@ -23,21 +20,18 @@ namespace dragonBones {
          * @inheritDoc
          */
         protected _onClear(): void {
+            let prevFrame: T = null;
+            for (let i = 0, l = this.frames.length; i < l; ++i) { // Find key frame data.
+                const frame: T = this.frames[i];
+                if (prevFrame && frame != prevFrame) {
+                    prevFrame.returnToPool();
+                }
+                prevFrame = frame;
+            }
+
             this.scale = 1;
             this.offset = 0;
-
-            if (this.frames.length) {
-                let prevFrame: T = null;
-                for (let i = 0, l = this.frames.length; i < l; ++i) { // Find key frame data.
-                    const frame: T = this.frames[i];
-                    if (prevFrame && frame != prevFrame) {
-                        prevFrame.returnToPool();
-                    }
-                    prevFrame = frame;
-                }
-
-                this.frames.length = 0;
-            }
+            this.frames.length = 0;
         }
     }
     /**
@@ -51,11 +45,11 @@ namespace dragonBones {
             return cacheMatrix;
         }
         public static toString(): string {
-            return "[Class dragonBones.BoneTimelineData]";
+            return "[class dragonBones.BoneTimelineData]";
         }
 
 
-        public bone: BoneData = null;
+        public bone: BoneData;
         public originTransform: Transform = new Transform();
         public cachedFrames: Array<Matrix> = [];
 
@@ -70,10 +64,7 @@ namespace dragonBones {
 
             this.bone = null;
             this.originTransform.identity();
-
-            if (this.cachedFrames.length) {
-                this.cachedFrames.length = 0;
-            }
+            this.cachedFrames.length = 0;
         }
 
         public cacheFrames(cacheFrameCount: number): void {
@@ -92,10 +83,10 @@ namespace dragonBones {
             return cacheMatrix;
         }
         public static toString(): string {
-            return "[Class dragonBones.SlotTimelineData]";
+            return "[class dragonBones.SlotTimelineData]";
         }
 
-        public slot: SlotData = null;
+        public slot: SlotData;
         public cachedFrames: Array<Matrix> = [];
 
         public constructor() {
@@ -108,10 +99,7 @@ namespace dragonBones {
             super._onClear();
 
             this.slot = null;
-
-            if (this.cachedFrames) {
-                this.cachedFrames.length = 0;
-            }
+            this.cachedFrames.length = 0;
         }
 
         public cacheFrames(cacheFrameCount: number): void {
@@ -124,12 +112,12 @@ namespace dragonBones {
      */
     export class FFDTimelineData extends TimelineData<ExtensionFrameData> {
         public static toString(): string {
-            return "[Class dragonBones.FFDTimelineData]";
+            return "[class dragonBones.FFDTimelineData]";
         }
 
-        public displayIndex: number = 0;
-        public skin: SkinData = null;
-        public slot: SlotDisplayDataSet = null;
+        public displayIndex: number;
+        public skin: SkinData;
+        public slot: SlotDisplayDataSet;
 
         public constructor() {
             super();

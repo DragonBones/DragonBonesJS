@@ -5,7 +5,25 @@ namespace dragonBones {
      * @version DragonBones 3.0
      */
     export class EgretFactory extends BaseFactory {
-        private static _factory: EgretFactory = null;
+        public static _factory: EgretFactory = null;
+        /**
+         * @private
+         */
+        public static _eventManager: EgretArmatureDisplay = null;
+        /**
+         * @private
+         */
+        public static _clock: WorldClock = null;
+
+        private static _clockHandler(time: number): boolean {
+            time *= 0.001;
+
+            const passedTime = time - EgretFactory._clock.time;
+            EgretFactory._clock.advanceTime(passedTime);
+            EgretFactory._clock.time = time;
+
+            return false;
+        }
         /**
          * @language zh_CN
          * 一个可以直接使用的全局工厂实例.
@@ -28,8 +46,11 @@ namespace dragonBones {
         public constructor(dataParser: DataParser = null) {
             super(dataParser);
 
-            if (!EventObject._soundEventManager) {
-                EventObject._soundEventManager = new EgretArmatureDisplay();
+            if (!EgretFactory._eventManager) {
+                EgretFactory._eventManager = new EgretArmatureDisplay();
+                EgretFactory._clock = new WorldClock();
+                EgretFactory._clock.time = egret.getTimer() * 0.001;
+                egret.startTick(EgretFactory._clockHandler, EgretFactory);
             }
         }
         /**
@@ -55,6 +76,7 @@ namespace dragonBones {
             armature._skinData = dataPackage.skin;
             armature._animation = BaseObject.borrowObject(Animation);
             armature._display = armatureDisplayContainer;
+            armature._eventManager = EgretFactory._eventManager;
 
             armatureDisplayContainer._armature = armature;
             armature._animation._armature = armature;
@@ -183,7 +205,7 @@ namespace dragonBones {
          * @version DragonBones 4.5
          */
         public get soundEventManater(): EgretArmatureDisplay {
-            return <EgretArmatureDisplay>EventObject._soundEventManager;
+            return EgretFactory._eventManager;
         }
 
         /**

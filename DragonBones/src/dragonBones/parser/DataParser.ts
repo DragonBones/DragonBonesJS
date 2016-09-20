@@ -229,7 +229,6 @@ namespace dragonBones {
         protected _animationTweenEasing: number = 0; // For 2.x ~ 3.x
         protected _timelinePivot: Point = new Point(); // For 2.x ~ 3.x
 
-        protected _armatureScale: number = 1;
         protected _helpPoint: Point = new Point();
         protected _helpTransformA: Transform = new Transform();
         protected _helpTransformB: Transform = new Transform();
@@ -295,7 +294,9 @@ namespace dragonBones {
                 if (bone.parent) {
                     bone.parent.transform.toMatrix(this._helpMatrix);
                     this._helpMatrix.invert();
-                    this._helpMatrix.transformPoint(bone.transform.x, bone.transform.y, bone.transform);
+                    this._helpMatrix.transformPoint(bone.transform.x, bone.transform.y, this._helpPoint);
+                    bone.transform.x = this._helpPoint.x;
+                    bone.transform.y = this._helpPoint.y;
                     bone.transform.rotation -= bone.parent.transform.rotation;
                 }
 
@@ -325,7 +326,9 @@ namespace dragonBones {
                             frame.transform.add(this._helpTransformB);
                             this._helpTransformA.toMatrix(this._helpMatrix);
                             this._helpMatrix.invert();
-                            this._helpMatrix.transformPoint(frame.transform.x, frame.transform.y, frame.transform);
+                            this._helpMatrix.transformPoint(frame.transform.x, frame.transform.y, this._helpPoint);
+                            frame.transform.x = this._helpPoint.x;
+                            frame.transform.y = this._helpPoint.y;
                             frame.transform.rotation -= this._helpTransformA.rotation;
                         }
                         else {
@@ -367,7 +370,6 @@ namespace dragonBones {
 
             let insertedFrame: AnimationFrameData = null;
             const replacedFrame = frames[frameStart];
-
             if (replacedFrame && (frameStart == 0 || frames[frameStart - 1] == replacedFrame.prev)) { // Key frame.
                 insertedFrame = replacedFrame;
             }

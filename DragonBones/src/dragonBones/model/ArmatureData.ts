@@ -13,7 +13,7 @@ namespace dragonBones {
          * @private
          */
         public static toString(): string {
-            return "[Class dragonBones.ArmatureData]";
+            return "[class dragonBones.ArmatureData]";
         }
 
         /**
@@ -22,10 +22,6 @@ namespace dragonBones {
          * @version DragonBones 3.0
          */
         public frameRate: number;
-        /**
-         * @private
-         */
-        public cacheFrameRate: number;
         /**
          * @language zh_CN
          * 骨架类型。
@@ -39,6 +35,18 @@ namespace dragonBones {
          * @version DragonBones 3.0
          */
         public name: string;
+        /**
+         * @private
+         */
+        public parent: DragonBonesData;
+        /**
+         * @private
+         */
+        public userData: any;
+        /**
+         * @private
+         */
+        public aabb: Rectangle = new Rectangle();
         /**
          * @language zh_CN
          * 所有的骨骼数据。
@@ -72,6 +80,15 @@ namespace dragonBones {
          */
         public actions: Array<ActionData> = [];
 
+        /**
+         * @private
+         */
+        public cacheFrameRate: number;
+        /**
+         * @private
+         */
+        public scale: number;
+
         private _boneDirty: boolean;
         private _slotDirty: boolean;
         private _defaultSkin: SkinData;
@@ -89,11 +106,6 @@ namespace dragonBones {
          * @inheritDoc
          */
         protected _onClear(): void {
-            this.frameRate = 0;
-            this.cacheFrameRate = 0;
-            this.type = ArmatureType.Armature;
-            this.name = null;
-
             for (let i in this.bones) {
                 this.bones[i].returnToPool();
                 delete this.bones[i];
@@ -114,35 +126,36 @@ namespace dragonBones {
                 delete this.animations[i];
             }
 
-            if (this.actions.length) {
-                for (let i = 0, l = this.actions.length; i < l; ++i) {
-                    this.actions[i].returnToPool();
-                }
+            for (let i = 0, l = this.actions.length; i < l; ++i) {
+                this.actions[i].returnToPool();
+            }
 
-                this.actions.length = 0;
+            this.frameRate = 0;
+            this.type = ArmatureType.Armature;
+            this.name = null;
+            this.parent = null;
+            this.userData = null;
+            this.aabb.clear();
+            this.actions.length = 0;
+
+            this.cacheFrameRate = 0;
+            this.scale = 1;
+
+            for (let i in this._bonesChildren) {
+                delete this._bonesChildren[i];
             }
 
             this._boneDirty = false;
             this._slotDirty = false;
             this._defaultSkin = null;
             this._defaultAnimation = null;
-
-            if (this._sortedBones.length) {
-                this._sortedBones.length = 0;
-            }
-
-            if (this._sortedSlots.length) {
-                this._sortedSlots.length = 0;
-            }
-
-            for (let i in this._bonesChildren) {
-                delete this._bonesChildren[i];
-            }
+            this._sortedBones.length = 0;
+            this._sortedSlots.length = 0;
         }
 
         private _sortBones(): void {
             const total = this._sortedBones.length;
-            if (!total) {
+            if (total < 1) {
                 return;
             }
 
@@ -172,7 +185,8 @@ namespace dragonBones {
 
                 if (bone.ik && bone.chain > 0 && bone.chainIndex == bone.chain) {
                     this._sortedBones.splice(this._sortedBones.indexOf(bone.parent) + 1, 0, bone);
-                } else {
+                }
+                else {
                     this._sortedBones.push(bone);
                 }
 
@@ -207,7 +221,8 @@ namespace dragonBones {
                     const parent = this.getBone(parentName);
                     if (parent) {
                         value.parent = parent;
-                    } else {
+                    }
+                    else {
                         (this._bonesChildren[parentName] = this._bonesChildren[parentName] || []).push(value);
                     }
                 }
@@ -224,7 +239,8 @@ namespace dragonBones {
                 this.bones[value.name] = value;
                 this._sortedBones.push(value);
                 this._boneDirty = true;
-            } else {
+            }
+            else {
                 throw new Error();
             }
         }
@@ -236,7 +252,8 @@ namespace dragonBones {
                 this.slots[value.name] = value;
                 this._sortedSlots.push(value);
                 this._slotDirty = true;
-            } else {
+            }
+            else {
                 throw new Error();
             }
         }
@@ -249,7 +266,8 @@ namespace dragonBones {
                 if (!this._defaultSkin) {
                     this._defaultSkin = value;
                 }
-            } else {
+            }
+            else {
                 throw new Error();
             }
         }
@@ -262,7 +280,8 @@ namespace dragonBones {
                 if (!this._defaultAnimation) {
                     this._defaultAnimation = value;
                 }
-            } else {
+            }
+            else {
                 throw new Error();
             }
         }
@@ -359,7 +378,7 @@ namespace dragonBones {
          * @private
          */
         public static toString(): string {
-            return "[Class dragonBones.BoneData]";
+            return "[class dragonBones.BoneData]";
         }
 
         /**
@@ -459,7 +478,7 @@ namespace dragonBones {
          * @private
          */
         public static toString(): string {
-            return "[Class dragonBones.SlotData]";
+            return "[class dragonBones.SlotData]";
         }
 
         /**
@@ -505,20 +524,17 @@ namespace dragonBones {
          * @inheritDoc
          */
         protected _onClear(): void {
+            for (let i = 0, l = this.actions.length; i < l; ++i) {
+                this.actions[i].returnToPool();
+            }
+
             this.displayIndex = 0;
             this.zOrder = 0;
             this.blendMode = BlendMode.Normal;
             this.name = null;
             this.parent = null;
             this.color = null;
-
-            if (this.actions.length) {
-                for (let i = 0, l = this.actions.length; i < l; ++i) {
-                    this.actions[i].returnToPool();
-                }
-
-                this.actions.length = 0;
-            }
+            this.actions.length = 0;
         }
     }
     /**
@@ -531,14 +547,14 @@ namespace dragonBones {
          * @private
          */
         public static toString(): string {
-            return "[Class dragonBones.SkinData]";
+            return "[class dragonBones.SkinData]";
         }
         /**
          * @language zh_CN
          * 数据名称。
          * @version DragonBones 3.0
          */
-        public name: string = null;
+        public name: string;
         /**
          * @private
          */
@@ -553,12 +569,12 @@ namespace dragonBones {
          * @inheritDoc
          */
         protected _onClear(): void {
-            this.name = null;
-
             for (let i in this.slots) {
                 this.slots[i].returnToPool();
                 delete this.slots[i];
             }
+
+            this.name = null;
         }
         /**
          * @private
@@ -566,7 +582,8 @@ namespace dragonBones {
         public addSlot(value: SlotDisplayDataSet): void {
             if (value && value.slot && !this.slots[value.slot.name]) {
                 this.slots[value.slot.name] = value;
-            } else {
+            }
+            else {
                 throw new Error();
             }
         }
@@ -582,7 +599,7 @@ namespace dragonBones {
      */
     export class SlotDisplayDataSet extends BaseObject {
         public static toString(): string {
-            return "[Class dragonBones.SlotDisplayDataSet]";
+            return "[class dragonBones.SlotDisplayDataSet]";
         }
 
         public slot: SlotData;
@@ -595,15 +612,12 @@ namespace dragonBones {
          * @inheritDoc
          */
         protected _onClear(): void {
-            this.slot = null;
-
-            if (this.displays.length) {
-                for (let i = 0, l = this.displays.length; i < l; ++i) {
-                    this.displays[i].returnToPool();
-                }
-
-                this.displays.length = 0;
+            for (let i = 0, l = this.displays.length; i < l; ++i) {
+                this.displays[i].returnToPool();
             }
+
+            this.slot = null;
+            this.displays.length = 0;
         }
     }
     /**
@@ -611,15 +625,15 @@ namespace dragonBones {
      */
     export class DisplayData extends BaseObject {
         public static toString(): string {
-            return "[Class dragonBones.DisplayData]";
+            return "[class dragonBones.DisplayData]";
         }
 
         public isRelativePivot: boolean;
         public type: DisplayType;
         public name: string;
-        public textureData: TextureData;
-        public armatureData: ArmatureData;
-        public meshData: MeshData;
+        public texture: TextureData;
+        public armature: ArmatureData;
+        public mesh: MeshData;
         public pivot: Point = new Point();
         public transform: Transform = new Transform();
 
@@ -633,12 +647,12 @@ namespace dragonBones {
             this.isRelativePivot = false;
             this.type = DisplayType.Image;
             this.name = null;
-            this.textureData = null;
-            this.armatureData = null;
+            this.texture = null;
+            this.armature = null;
 
-            if (this.meshData) {
-                this.meshData.returnToPool();
-                this.meshData = null;
+            if (this.mesh) {
+                this.mesh.returnToPool();
+                this.mesh = null;
             }
 
             this.pivot.clear();
@@ -650,7 +664,7 @@ namespace dragonBones {
      */
     export class MeshData extends BaseObject {
         public static toString(): string {
-            return "[Class dragonBones.MeshData]";
+            return "[class dragonBones.MeshData]";
         }
 
         public skinned: boolean;
@@ -676,38 +690,14 @@ namespace dragonBones {
         protected _onClear(): void {
             this.skinned = false;
             this.slotPose.identity();
-
-            if (this.uvs.length) {
-                this.uvs.length = 0;
-            }
-
-            if (this.vertices.length) {
-                this.vertices.length = 0;
-            }
-
-            if (this.vertexIndices.length) {
-                this.vertexIndices.length = 0;
-            }
-
-            if (this.boneIndices.length) {
-                this.boneIndices.length = 0;
-            }
-
-            if (this.weights.length) {
-                this.weights.length = 0;
-            }
-
-            if (this.boneVertices.length) {
-                this.boneVertices.length = 0;
-            }
-
-            if (this.bones.length) {
-                this.bones.length = 0;
-            }
-
-            if (this.inverseBindPose.length) {
-                this.inverseBindPose.length = 0;
-            }
+            this.uvs.length = 0;
+            this.vertices.length = 0;
+            this.vertexIndices.length = 0;
+            this.boneIndices.length = 0;
+            this.weights.length = 0;
+            this.boneVertices.length = 0;
+            this.bones.length = 0;
+            this.inverseBindPose.length = 0;
         }
     }
 }

@@ -3,10 +3,6 @@ namespace dragonBones {
      * @inheritDoc
      */
     export class PixiArmatureDisplay extends PIXI.Container implements IArmatureDisplay {
-        private static _clock: WorldClock = null;
-        private static _clockHandler(passedTime: number): void {
-            PixiArmatureDisplay._clock.advanceTime(-1); // passedTime !?
-        }
         /**
          * @private
          */
@@ -18,11 +14,6 @@ namespace dragonBones {
          */
         public constructor() {
             super();
-
-            if (!PixiArmatureDisplay._clock) {
-                PixiArmatureDisplay._clock = new WorldClock();
-                PIXI.ticker.shared.add(PixiArmatureDisplay._clockHandler, PixiArmatureDisplay);
-            }
         }
         /**
          * @inheritDoc
@@ -89,12 +80,12 @@ namespace dragonBones {
         /**
          * @inheritDoc
          */
-        public advanceTimeBySelf(on: Boolean): void {
+        public advanceTimeBySelf(on: boolean): void {
             if (on) {
-                PixiArmatureDisplay._clock.add(this._armature);
+                PixiFactory._clock.add(this._armature);
             }
             else {
-                PixiArmatureDisplay._clock.remove(this._armature);
+                PixiFactory._clock.remove(this._armature);
             }
         }
         /**

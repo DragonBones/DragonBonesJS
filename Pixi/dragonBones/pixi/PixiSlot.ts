@@ -154,7 +154,7 @@ namespace dragonBones {
                         const originSize = new PIXI.Rectangle(0, 0, currentTextureData.region.width, currentTextureData.region.height);
                         currentTextureData.texture = new PIXI.Texture(
                             textureAtlasTexture,
-                            null,
+                            <PIXI.Rectangle><any>currentTextureData.region, // No need to set frame.
                             <PIXI.Rectangle><any>currentTextureData.region,
                             originSize,
                             currentTextureData.rotated
@@ -174,7 +174,7 @@ namespace dragonBones {
                             this._pivotX = 0;
                             this._pivotY = 0;
                         }
-                        
+
                         /*
                         for (let i = 0, l = this._meshData.vertices.length; i < l; ++i) {
                             meshDisplay.uvs[i] = this._meshData.uvs[i];
@@ -206,33 +206,7 @@ namespace dragonBones {
                         }
                     }
                     else { // Normal texture.
-                        const rect = currentTextureData.frame || currentTextureData.region;
-                        texture.frame = rect;
-
-                        let width = rect.width;
-                        let height = rect.height;
-                        if (currentTextureData.rotated) {
-                            width = rect.height;
-                            height = rect.width;
-                        }
-
-                        this._pivotX = currentDisplayData.pivot.x;
-                        this._pivotY = currentDisplayData.pivot.y;
-
-                        if (currentDisplayData.isRelativePivot) {
-                            this._pivotX = width * this._pivotX;
-                            this._pivotY = height * this._pivotY;
-                        }
-
-                        if (currentTextureData.frame) {
-                            this._pivotX += currentTextureData.frame.x;
-                            this._pivotY += currentTextureData.frame.y;
-                        }
-
-                        if (rawDisplayData && rawDisplayData != currentDisplayData) {
-                            this._pivotX += rawDisplayData.transform.x - currentDisplayData.transform.x;
-                            this._pivotY += rawDisplayData.transform.y - currentDisplayData.transform.y;
-                        }
+                        this._updatePivot(rawDisplayData, currentDisplayData, currentTextureData);
 
                         frameDisplay.texture = texture;
                     }

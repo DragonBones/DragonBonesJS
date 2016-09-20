@@ -123,10 +123,6 @@ declare namespace dragonBones {
         private static _poolsMap;
         private static _returnObject(object);
         /**
-         * @private
-         */
-        static toString(): string;
-        /**
          * @language zh_CN
          * 设置每种对象池的最大缓存数量。
          * @param objectConstructor 对象类。
@@ -897,6 +893,10 @@ declare namespace dragonBones {
         /**
          * @private
          */
+        _cacheFrameIndex: number;
+        /**
+         * @private
+         */
         _armatureData: ArmatureData;
         /**
          * @private
@@ -914,6 +914,10 @@ declare namespace dragonBones {
          * @private
          */
         _replacedTexture: any;
+        /**
+         * @private
+         */
+        _eventManager: IEventDispatcher;
         /**
          * @private
          */
@@ -1415,6 +1419,10 @@ declare namespace dragonBones {
         /**
          * @private
          */
+        _cacheFrames: Array<Matrix>;
+        /**
+         * @private
+         */
         _colorTransform: ColorTransform;
         /**
          * @private
@@ -1523,6 +1531,10 @@ declare namespace dragonBones {
         /**
          * @private
          */
+        protected _updatePivot(rawDisplayData: DisplayData, currentDisplayData: DisplayData, currentTextureData: TextureData): void;
+        /**
+         * @private
+         */
         protected _updateDisplay(): void;
         /**
          * @private
@@ -1535,7 +1547,7 @@ declare namespace dragonBones {
         /**
          * @private Factory
          */
-        _setDisplayList(value: Array<any>): Boolean;
+        _setDisplayList(value: Array<any>): boolean;
         /**
          * @language zh_CN
          * 在下一帧更新显示对象的状态。
@@ -1688,10 +1700,6 @@ declare namespace dragonBones {
          */
         static toString(): string;
         /**
-         * @private
-         */
-        static _soundEventManager: IEventDispatcher;
-        /**
          * @language zh_CN
          * 事件类型。
          * @version DragonBones 4.5
@@ -1747,11 +1755,6 @@ declare namespace dragonBones {
          * @inheritDoc
          */
         protected _onClear(): void;
-        /**
-         * @deprecated
-         * @see #animationState
-         */
-        animationName: string;
     }
 }
 declare namespace dragonBones {
@@ -2182,10 +2185,6 @@ declare namespace dragonBones {
          */
         frameRate: number;
         /**
-         * @private
-         */
-        cacheFrameRate: number;
-        /**
          * @language zh_CN
          * 骨架类型。
          * @see dragonBones.ArmatureType
@@ -2242,6 +2241,14 @@ declare namespace dragonBones {
          * @private
          */
         actions: Array<ActionData>;
+        /**
+         * @private
+         */
+        cacheFrameRate: number;
+        /**
+         * @private
+         */
+        scale: number;
         private _boneDirty;
         private _slotDirty;
         private _defaultSkin;
@@ -2631,9 +2638,9 @@ declare namespace dragonBones {
     class ActionData extends BaseObject {
         static toString(): string;
         type: ActionType;
-        data: Array<any>;
         bone: BoneData;
         slot: SlotData;
+        data: Array<any>;
         constructor();
         protected _onClear(): void;
     }
@@ -2850,7 +2857,6 @@ declare namespace dragonBones {
         protected _isAutoTween: boolean;
         protected _animationTweenEasing: number;
         protected _timelinePivot: Point;
-        protected _armatureScale: number;
         protected _helpPoint: Point;
         protected _helpTransformA: Transform;
         protected _helpTransformB: Transform;
@@ -2908,7 +2914,7 @@ declare namespace dragonBones {
         /**
          * @private
          */
-        protected _parseArmature(rawData: any): ArmatureData;
+        protected _parseArmature(rawData: any, scale: number): ArmatureData;
         /**
          * @private
          */
@@ -3056,11 +3062,6 @@ declare namespace dragonBones {
          * @private
          */
         getTexture(name: string): TextureData;
-        /**
-         * @deprecated
-         * @see dragonBones.BaseFactory#removeDragonBonesData()
-         */
-        dispose(): void;
     }
     /**
      * @private
@@ -3263,7 +3264,7 @@ declare namespace dragonBones {
          * @param disposeData 是否释放数据。 [false: 不释放, true: 释放]
          * @version DragonBones 4.5
          */
-        clear(disposeData?: Boolean): void;
+        clear(disposeData?: boolean): void;
         /**
          * @language zh_CN
          * 创建一个指定名称的骨架。

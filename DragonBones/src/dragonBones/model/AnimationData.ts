@@ -9,7 +9,7 @@ namespace dragonBones {
          * @private
          */
         public static toString(): string {
-            return "[Class dragonBones.AnimationData]";
+            return "[class dragonBones.AnimationData]";
         }
 
         /**
@@ -88,15 +88,6 @@ namespace dragonBones {
         protected _onClear(): void {
             super._onClear();
 
-            this.hasAsynchronyTimeline = false;
-            this.cacheTimeToFrameScale = 0;
-            this.position = 0;
-            this.duration = 0;
-            this.playTimes = 0;
-            this.fadeInTime = 0;
-            this.name = null;
-            this.animation = null;
-
             for (let i in this.boneTimelines) {
                 this.boneTimelines[i].returnToPool();
                 delete this.boneTimelines[i];
@@ -117,9 +108,16 @@ namespace dragonBones {
                 delete this.ffdTimelines[i];
             }
 
-            if (this.cachedFrames.length) {
-                this.cachedFrames.length = 0;
-            }
+            this.hasAsynchronyTimeline = false;
+            this.frameCount = 0;
+            this.playTimes = 0;
+            this.position = 0;
+            this.duration = 0;
+            this.fadeInTime = 0;
+            this.cacheTimeToFrameScale = 0;
+            this.name = null;
+            this.animation = null;
+            this.cachedFrames.length = 0;
         }
         /**
          * @private
@@ -129,7 +127,7 @@ namespace dragonBones {
                 return;
             }
 
-            const cacheFrameCount = Math.max(Math.floor(this.frameCount * this.scale * value), 1);
+            const cacheFrameCount = Math.max(Math.floor((this.frameCount + 1) * this.scale * value), 1);
 
             this.cacheTimeToFrameScale = cacheFrameCount / (this.duration + 0.000001); //
             this.cachedFrames.length = 0;
@@ -149,7 +147,8 @@ namespace dragonBones {
         public addBoneTimeline(value: BoneTimelineData): void {
             if (value && value.bone && !this.boneTimelines[value.bone.name]) {
                 this.boneTimelines[value.bone.name] = value;
-            } else {
+            }
+            else {
                 throw new Error();
             }
         }
@@ -159,7 +158,8 @@ namespace dragonBones {
         public addSlotTimeline(value: SlotTimelineData): void {
             if (value && value.slot && !this.slotTimelines[value.slot.name]) {
                 this.slotTimelines[value.slot.name] = value;
-            } else {
+            }
+            else {
                 throw new Error();
             }
         }
@@ -172,10 +172,12 @@ namespace dragonBones {
                 const slot = skin[value.slot.slot.name] = skin[value.slot.slot.name] || {};
                 if (!slot[value.displayIndex]) {
                     slot[value.displayIndex] = value;
-                } else {
+                }
+                else {
                     throw new Error();
                 }
-            } else {
+            }
+            else {
                 throw new Error();
             }
         }

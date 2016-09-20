@@ -7,6 +7,18 @@ namespace dragonBones {
     export class PixiFactory extends BaseFactory {
         private static _factory: PixiFactory = null;
         /**
+         * @private
+         */
+        public static _eventManager: PixiArmatureDisplay = null;
+        /**
+         * @private
+         */
+        public static _clock: WorldClock = null;
+
+        private static _clockHandler(passedTime: number): void {
+            PixiFactory._clock.advanceTime(-1); // passedTime !?
+        }
+        /**
          * @language zh_CN
          * 一个可以直接使用的全局工厂实例.
          * @version DragonBones 4.7
@@ -27,8 +39,10 @@ namespace dragonBones {
         public constructor(dataParser: DataParser = null) {
             super(dataParser);
 
-            if (!EventObject._soundEventManager) {
-                EventObject._soundEventManager = new PixiArmatureDisplay();
+            if (!PixiFactory._eventManager) {
+                PixiFactory._eventManager = new PixiArmatureDisplay();
+                PixiFactory._clock = new WorldClock();
+                PIXI.ticker.shared.add(PixiFactory._clockHandler, PixiFactory);
             }
         }
         /**
@@ -54,6 +68,7 @@ namespace dragonBones {
             armature._skinData = dataPackage.skin;
             armature._animation = BaseObject.borrowObject(Animation);
             armature._display = armatureDisplayContainer;
+            armature._eventManager = PixiFactory._eventManager;
 
             armatureDisplayContainer._armature = armature;
             armature._animation._armature = armature;
@@ -176,7 +191,7 @@ namespace dragonBones {
          * @version DragonBones 4.5
          */
         public get soundEventManater(): PixiArmatureDisplay {
-            return <PixiArmatureDisplay>EventObject._soundEventManager;
+            return PixiFactory._eventManager;
         }
     }
 }

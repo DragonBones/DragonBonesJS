@@ -1,10 +1,11 @@
 namespace dragonBones {
     /**
+     * @internal
      * @private
      */
     export class AnimationTimelineState extends TimelineState<AnimationFrameData, AnimationData> {
         public static toString(): string {
-            return "[Class dragonBones.AnimationTimelineState]";
+            return "[class dragonBones.AnimationTimelineState]";
         }
 
         private _isStarted: boolean;
@@ -22,31 +23,16 @@ namespace dragonBones {
         }
 
         protected _onCrossFrame(frame: AnimationFrameData): void {
-            const actions = frame.actions;
-            for (let i = 0, l = actions.length; i < l; ++i) {
-                const actionData = actions[i];
-                if (actionData.slot) {
-                    const slot = this._armature.getSlot(actionData.slot.name);
-                    if (slot) {
-                        const childArmature = slot.childArmature;
-                        if (childArmature) {
-                            childArmature._action = actionData;
-                        }
-                    }
-                } else if (actionData.bone) {
-                    const slots = this._armature.getSlots();
-                    for (let i = 0, l = slots.length; i < l; ++i) {
-                        const eachChildArmature = slots[i].childArmature;
-                        if (eachChildArmature) {
-                            eachChildArmature._action = actionData;
-                        }
-                    }
-                } else {
-                    this._armature._action = actionData;
+            const self = this;
+
+            if (this._animationState.actionEnabled) {
+                const actions = frame.actions;
+                for (let i = 0, l = actions.length; i < l; ++i) {
+                    self._armature._bufferAction(actions[i]);
                 }
             }
 
-            const eventDispatcher = this._armature._display;
+            const eventDispatcher = self._armature._display;
             const events = frame.events;
             for (let i = 0, l = events.length; i < l; ++i) {
                 const eventData = events[i];
@@ -62,59 +48,130 @@ namespace dragonBones {
                         break;
                 }
 
-                if (eventDispatcher.hasEvent(eventType)) {
+                if (
+                    (eventData.type == EventType.Sound ?
+                        this._armature._eventManager : eventDispatcher
+                    ).hasEvent(eventType)
+                ) {
                     const eventObject = BaseObject.borrowObject(EventObject);
-                    eventObject.animationState = this._animationState;
+                    eventObject.animationState = self._animationState;
+                    eventObject.frame = frame;
 
                     if (eventData.bone) {
-                        eventObject.bone = this._armature.getBone(eventData.bone.name);
+                        eventObject.bone = self._armature.getBone(eventData.bone.name);
                     }
 
                     if (eventData.slot) {
-                        eventObject.slot = this._armature.getSlot(eventData.slot.name);
+                        eventObject.slot = self._armature.getSlot(eventData.slot.name);
                     }
 
                     eventObject.name = eventData.name;
                     eventObject.data = eventData.data;
 
-                    this._armature._bufferEvent(eventObject, eventType);
+                    self._armature._bufferEvent(eventObject, eventType);
                 }
             }
+        }
+
+        public fadeIn(armature: Armature, animationState: AnimationState, timelineData: AnimationData, time: number): void {
+            super.fadeIn(armature, animationState, timelineData, time);
+
+            this._currentTime = time; // Pass first update. (armature.advanceTime(0))
         }
 
         public update(time: number): void {
-            const prevPlayTimes = this._currentPlayTimes;
-            const eventDispatcher = this._armature._display;
+            const self = this;
 
-            if (!this._isStarted && time != 0) {
-                this._isStarted = true;
+            const prevTime = self._currentTime;
+            const prevPlayTimes = self._currentPlayTimes;
 
-                if (eventDispatcher.hasEvent(EventObject.START)) {
-                    const eventObject = BaseObject.borrowObject(EventObject);
-                    eventObject.animationState = this._animationState;
-                    this._armature._bufferEvent(eventObject, EventObject.START);
+            if (!self._isCompleted && self._setCurrentTime(time)) {
+                const eventDispatcher = self._armature._display;
+
+                if (!self._isStarted) {
+                    self._isStarted = true;
+
+                    if (eventDispatcher.hasEvent(EventObject.START)) {
+                        const eventObject = BaseObject.borrowObject(EventObject);
+                        eventObject.animationState = self._animationState;
+                        self._armature._bufferEvent(eventObject, EventObject.START);
+                    }
                 }
-            }
 
-            super.update(time);
+                if (self._keyFrameCount) {
+                    const currentFrameIndex = self._keyFrameCount > 1 ? Math.floor(self._currentTime * self._frameRate) : 0;
+                    const currentFrame = self._timeline.frames[currentFrameIndex];
+                    if (self._currentFrame != currentFrame) {
+                        if (self._keyFrameCount > 1) {
+                            let crossedFrame = self._currentFrame;
+                            self._currentFrame = currentFrame;
 
-            if (prevPlayTimes != this._currentPlayTimes) {
-                const eventType = this._isCompleted ? EventObject.COMPLETE : EventObject.LOOP_COMPLETE;
+                            if (!crossedFrame) {
+                                const prevFrameIndex = Math.floor(prevTime * self._frameRate);
+                                crossedFrame = self._timeline.frames[prevFrameIndex];
 
-                if (eventDispatcher.hasEvent(eventType)) {
-                    const eventObject = BaseObject.borrowObject(EventObject);
-                    eventObject.animationState = this._animationState;
-                    this._armature._bufferEvent(eventObject, eventType);
+                                if (self._isReverse) {
+                                }
+                                else {
+                                    if (
+                                        prevTime <= crossedFrame.position ||
+                                        prevPlayTimes != self._currentPlayTimes
+                                    ) {
+                                        crossedFrame = crossedFrame.prev;
+                                    }
+                                }
+                            }
+
+                            // TODO 1 2 3 key frame loop, first key frame after loop complete.
+                            if (self._isReverse) {
+                                while (crossedFrame != currentFrame) {
+                                    self._onCrossFrame(crossedFrame);
+                                    crossedFrame = crossedFrame.prev;
+                                }
+                            }
+                            else {
+                                while (crossedFrame != currentFrame) {
+                                    crossedFrame = crossedFrame.next;
+                                    self._onCrossFrame(crossedFrame);
+                                }
+                            }
+                        }
+                        else {
+                            self._currentFrame = currentFrame;
+                            self._onCrossFrame(self._currentFrame);
+                        }
+                    }
+                }
+
+                if (prevPlayTimes != self._currentPlayTimes) {
+                    if (eventDispatcher.hasEvent(EventObject.LOOP_COMPLETE)) {
+                        const eventObject = BaseObject.borrowObject(EventObject);
+                        eventObject.animationState = self._animationState;
+                        self._armature._bufferEvent(eventObject, EventObject.LOOP_COMPLETE);
+                    }
+
+                    if (self._isCompleted && eventDispatcher.hasEvent(EventObject.COMPLETE)) {
+                        const eventObject = BaseObject.borrowObject(EventObject);
+                        eventObject.animationState = self._animationState;
+                        self._armature._bufferEvent(eventObject, EventObject.COMPLETE);
+                    }
+                    self._currentFrame = null;
                 }
             }
         }
+
+        public setCurrentTime(value: number): void {
+            this._setCurrentTime(value);
+            this._currentFrame = null;
+        }
     }
     /**
+     * @internal
      * @private
      */
     export class BoneTimelineState extends TweenTimelineState<BoneFrameData, BoneTimelineData> {
         public static toString(): string {
-            return "[Class dragonBones.BoneTimelineState]";
+            return "[class dragonBones.BoneTimelineState]";
         }
 
         public bone: Bone;
@@ -149,125 +206,153 @@ namespace dragonBones {
             this._durationTransform.identity();
         }
 
-        protected _onFadeIn(): void {
-            this._originTransform = this._timeline.originTransform;
-            this._boneTransform = this.bone._animationPose;
-        }
-
         protected _onArriveAtFrame(isUpdate: boolean): void {
+            const self = this;
+
             super._onArriveAtFrame(isUpdate);
 
-            this._currentTransform.copyFrom(this._currentFrame.transform);
+            self._currentTransform.copyFrom(self._currentFrame.transform);
 
-            this._tweenTransform = TweenType.Once;
-            this._tweenRotate = TweenType.Once;
-            this._tweenScale = TweenType.Once;
+            self._tweenTransform = TweenType.Once;
+            self._tweenRotate = TweenType.Once;
+            self._tweenScale = TweenType.Once;
 
-            if (this._keyFrameCount > 1 && (this._tweenEasing != DragonBones.NO_TWEEN || this._curve)) {
-                const nextFrame = this._currentFrame.next;
+            if (self._keyFrameCount > 1 && (self._tweenEasing != DragonBones.NO_TWEEN || self._curve)) {
+                const nextFrame = self._currentFrame.next;
                 const nextTransform = nextFrame.transform;
 
-                // Transform
-                this._durationTransform.x = nextTransform.x - this._currentTransform.x;
-                this._durationTransform.y = nextTransform.y - this._currentTransform.y;
-                if (this._durationTransform.x != 0 || this._durationTransform.y != 0) {
-                    this._tweenTransform = TweenType.Always;
+                // Transform.
+                self._durationTransform.x = nextTransform.x - self._currentTransform.x;
+                self._durationTransform.y = nextTransform.y - self._currentTransform.y;
+                if (self._durationTransform.x != 0 || self._durationTransform.y != 0) {
+                    self._tweenTransform = TweenType.Always;
                 }
 
-                // Rotate
-                const tweenRotate = this._currentFrame.tweenRotate;
+                // Rotate.
+                const tweenRotate = self._currentFrame.tweenRotate;
                 if (tweenRotate == tweenRotate) {
                     if (tweenRotate) {
-                        if (tweenRotate > 0 ? nextTransform.skewY >= this._currentTransform.skewY : nextTransform.skewY <= this._currentTransform.skewY) {
+                        if (tweenRotate > 0 ? nextTransform.skewY >= self._currentTransform.skewY : nextTransform.skewY <= self._currentTransform.skewY) {
                             const rotate = tweenRotate > 0 ? tweenRotate - 1 : tweenRotate + 1;
-                            this._durationTransform.skewX = nextTransform.skewX - this._currentTransform.skewX + DragonBones.PI_D * rotate;
-                            this._durationTransform.skewY = nextTransform.skewY - this._currentTransform.skewY + DragonBones.PI_D * rotate;
-                        } else {
-                            this._durationTransform.skewX = nextTransform.skewX - this._currentTransform.skewX + DragonBones.PI_D * tweenRotate;
-                            this._durationTransform.skewY = nextTransform.skewY - this._currentTransform.skewY + DragonBones.PI_D * tweenRotate;
+                            self._durationTransform.skewX = nextTransform.skewX - self._currentTransform.skewX + DragonBones.PI_D * rotate;
+                            self._durationTransform.skewY = nextTransform.skewY - self._currentTransform.skewY + DragonBones.PI_D * rotate;
                         }
-                    } else {
-                        this._durationTransform.skewX = Transform.normalizeRadian(nextTransform.skewX - this._currentTransform.skewX);
-                        this._durationTransform.skewY = Transform.normalizeRadian(nextTransform.skewY - this._currentTransform.skewY);
+                        else {
+                            self._durationTransform.skewX = nextTransform.skewX - self._currentTransform.skewX + DragonBones.PI_D * tweenRotate;
+                            self._durationTransform.skewY = nextTransform.skewY - self._currentTransform.skewY + DragonBones.PI_D * tweenRotate;
+                        }
+                    }
+                    else {
+                        self._durationTransform.skewX = Transform.normalizeRadian(nextTransform.skewX - self._currentTransform.skewX);
+                        self._durationTransform.skewY = Transform.normalizeRadian(nextTransform.skewY - self._currentTransform.skewY);
                     }
 
-                    if (this._durationTransform.skewX != 0 || this._durationTransform.skewY != 0) {
-                        this._tweenRotate = TweenType.Always;
+                    if (self._durationTransform.skewX != 0 || self._durationTransform.skewY != 0) {
+                        self._tweenRotate = TweenType.Always;
                     }
-                } else {
-                    this._durationTransform.skewX = 0;
-                    this._durationTransform.skewY = 0;
+                }
+                else {
+                    self._durationTransform.skewX = 0;
+                    self._durationTransform.skewY = 0;
                 }
 
-                // Scale
-                if (this._currentFrame.tweenScale) {
-                    this._durationTransform.scaleX = nextTransform.scaleX - this._currentTransform.scaleX;
-                    this._durationTransform.scaleY = nextTransform.scaleY - this._currentTransform.scaleY;
-                    if (this._durationTransform.scaleX != 0 || this._durationTransform.scaleY != 0) {
-                        this._tweenScale = TweenType.Always;
+                // Scale.
+                if (self._currentFrame.tweenScale) {
+                    self._durationTransform.scaleX = nextTransform.scaleX - self._currentTransform.scaleX;
+                    self._durationTransform.scaleY = nextTransform.scaleY - self._currentTransform.scaleY;
+                    if (self._durationTransform.scaleX != 0 || self._durationTransform.scaleY != 0) {
+                        self._tweenScale = TweenType.Always;
                     }
-                } else {
-                    this._durationTransform.scaleX = 0;
-                    this._durationTransform.scaleY = 0;
                 }
-            } else {
-                this._durationTransform.x = 0;
-                this._durationTransform.y = 0;
-                this._durationTransform.skewX = 0;
-                this._durationTransform.skewY = 0;
-                this._durationTransform.scaleX = 0;
-                this._durationTransform.scaleY = 0;
+                else {
+                    self._durationTransform.scaleX = 0;
+                    self._durationTransform.scaleY = 0;
+                }
+            }
+            else {
+                self._durationTransform.x = 0;
+                self._durationTransform.y = 0;
+                self._durationTransform.skewX = 0;
+                self._durationTransform.skewY = 0;
+                self._durationTransform.scaleX = 0;
+                self._durationTransform.scaleY = 0;
             }
         }
 
         protected _onUpdateFrame(isUpdate: boolean): void {
-            if (this._tweenTransform || this._tweenRotate || this._tweenScale) {
+            const self = this;
+
+            if (self._tweenTransform || self._tweenRotate || self._tweenScale) {
                 super._onUpdateFrame(isUpdate);
 
-                if (this._tweenTransform) {
-                    if (this._tweenTransform == TweenType.Once) {
-                        this._tweenTransform = TweenType.None;
+                let tweenProgress = 0;
+
+                if (self._tweenTransform) {
+                    if (self._tweenTransform == TweenType.Once) {
+                        self._tweenTransform = TweenType.None;
+                        tweenProgress = 0;
+                    }
+                    else {
+                        tweenProgress = self._tweenProgress;
                     }
 
-                    if (this._animationState.additiveBlending) { // Additive blending
-                        this._transform.x = this._currentTransform.x + this._durationTransform.x * this._tweenProgress;
-                        this._transform.y = this._currentTransform.y + this._durationTransform.y * this._tweenProgress;
-                    } else { // Normal blending
-                        this._transform.x = this._originTransform.x + this._currentTransform.x + this._durationTransform.x * this._tweenProgress;
-                        this._transform.y = this._originTransform.y + this._currentTransform.y + this._durationTransform.y * this._tweenProgress;
+                    if (self._animationState.additiveBlending) { // Additive blending.
+                        self._transform.x = self._currentTransform.x + self._durationTransform.x * tweenProgress;
+                        self._transform.y = self._currentTransform.y + self._durationTransform.y * tweenProgress;
                     }
-                }
-
-                if (this._tweenRotate) {
-                    if (this._tweenRotate == TweenType.Once) {
-                        this._tweenRotate = TweenType.None;
-                    }
-
-                    if (this._animationState.additiveBlending) { // Additive blending
-                        this._transform.skewX = this._currentTransform.skewX + this._durationTransform.skewX * this._tweenProgress;
-                        this._transform.skewY = this._currentTransform.skewY + this._durationTransform.skewY * this._tweenProgress;
-                    } else { // Normal blending
-                        this._transform.skewX = this._originTransform.skewX + this._currentTransform.skewX + this._durationTransform.skewX * this._tweenProgress;
-                        this._transform.skewY = this._originTransform.skewY + this._currentTransform.skewY + this._durationTransform.skewY * this._tweenProgress;
+                    else { // Normal blending.
+                        self._transform.x = self._originTransform.x + self._currentTransform.x + self._durationTransform.x * tweenProgress;
+                        self._transform.y = self._originTransform.y + self._currentTransform.y + self._durationTransform.y * tweenProgress;
                     }
                 }
 
-                if (this._tweenScale) {
-                    if (this._tweenScale == TweenType.Once) {
-                        this._tweenScale = TweenType.None;
+                if (self._tweenRotate) {
+                    if (self._tweenRotate == TweenType.Once) {
+                        self._tweenRotate = TweenType.None;
+                        tweenProgress = 0;
+                    }
+                    else {
+                        tweenProgress = self._tweenProgress;
                     }
 
-                    if (this._animationState.additiveBlending) { // Additive blending
-                        this._transform.scaleX = this._currentTransform.scaleX + this._durationTransform.scaleX * this._tweenProgress;
-                        this._transform.scaleY = this._currentTransform.scaleY + this._durationTransform.scaleY * this._tweenProgress;
-                    } else { // Normal blending
-                        this._transform.scaleX = this._originTransform.scaleX * (this._currentTransform.scaleX + this._durationTransform.scaleX * this._tweenProgress);
-                        this._transform.scaleY = this._originTransform.scaleY * (this._currentTransform.scaleY + this._durationTransform.scaleY * this._tweenProgress);
+                    if (self._animationState.additiveBlending) { // Additive blending.
+                        self._transform.skewX = self._currentTransform.skewX + self._durationTransform.skewX * tweenProgress;
+                        self._transform.skewY = self._currentTransform.skewY + self._durationTransform.skewY * tweenProgress;
+                    }
+                    else { // Normal blending.
+                        self._transform.skewX = self._originTransform.skewX + self._currentTransform.skewX + self._durationTransform.skewX * tweenProgress;
+                        self._transform.skewY = self._originTransform.skewY + self._currentTransform.skewY + self._durationTransform.skewY * tweenProgress;
                     }
                 }
 
-                this.bone.invalidUpdate();
+                if (self._tweenScale) {
+                    if (self._tweenScale == TweenType.Once) {
+                        self._tweenScale = TweenType.None;
+                        tweenProgress = 0;
+                    }
+                    else {
+                        tweenProgress = self._tweenProgress;
+                    }
+
+                    if (self._animationState.additiveBlending) { // Additive blending.
+                        self._transform.scaleX = self._currentTransform.scaleX + self._durationTransform.scaleX * tweenProgress;
+                        self._transform.scaleY = self._currentTransform.scaleY + self._durationTransform.scaleY * tweenProgress;
+                    }
+                    else { // Normal blending.
+                        self._transform.scaleX = self._originTransform.scaleX * (self._currentTransform.scaleX + self._durationTransform.scaleX * tweenProgress);
+                        self._transform.scaleY = self._originTransform.scaleY * (self._currentTransform.scaleY + self._durationTransform.scaleY * tweenProgress);
+                    }
+                }
+
+                self.bone.invalidUpdate();
             }
+        }
+
+        public fadeIn(armature: Armature, animationState: AnimationState, timelineData: BoneTimelineData, time: number): void {
+            super.fadeIn(armature, animationState, timelineData, time);
+
+            this._originTransform = this._timeline.originTransform;
+            this._boneTransform = this.bone._animationPose;
         }
 
         public fadeOut(): void {
@@ -276,43 +361,47 @@ namespace dragonBones {
         }
 
         public update(time: number): void {
+            const self = this;
+
             super.update(time);
 
-            // Blend animation state
-            const weight = this._animationState._weightResult;
+            // Blend animation state.
+            const weight = self._animationState._weightResult;
 
             if (weight > 0) {
-                if (this.bone._blendIndex == 0) {
-                    this._boneTransform.x = this._transform.x * weight;
-                    this._boneTransform.y = this._transform.y * weight;
-                    this._boneTransform.skewX = this._transform.skewX * weight;
-                    this._boneTransform.skewY = this._transform.skewY * weight;
-                    this._boneTransform.scaleX = (this._transform.scaleX - 1) * weight + 1;
-                    this._boneTransform.scaleY = (this._transform.scaleY - 1) * weight + 1;
-                } else {
-                    this._boneTransform.x += this._transform.x * weight;
-                    this._boneTransform.y += this._transform.y * weight;
-                    this._boneTransform.skewX += this._transform.skewX * weight;
-                    this._boneTransform.skewY += this._transform.skewY * weight;
-                    this._boneTransform.scaleX += (this._transform.scaleX - 1) * weight;
-                    this._boneTransform.scaleY += (this._transform.scaleY - 1) * weight;
+                if (self.bone._blendIndex == 0) {
+                    self._boneTransform.x = self._transform.x * weight;
+                    self._boneTransform.y = self._transform.y * weight;
+                    self._boneTransform.skewX = self._transform.skewX * weight;
+                    self._boneTransform.skewY = self._transform.skewY * weight;
+                    self._boneTransform.scaleX = (self._transform.scaleX - 1) * weight + 1;
+                    self._boneTransform.scaleY = (self._transform.scaleY - 1) * weight + 1;
+                }
+                else {
+                    self._boneTransform.x += self._transform.x * weight;
+                    self._boneTransform.y += self._transform.y * weight;
+                    self._boneTransform.skewX += self._transform.skewX * weight;
+                    self._boneTransform.skewY += self._transform.skewY * weight;
+                    self._boneTransform.scaleX += (self._transform.scaleX - 1) * weight;
+                    self._boneTransform.scaleY += (self._transform.scaleY - 1) * weight;
                 }
 
-                this.bone._blendIndex++;
+                self.bone._blendIndex++;
 
-                const fadeProgress = this._animationState._fadeProgress;
+                const fadeProgress = self._animationState._fadeProgress;
                 if (fadeProgress < 1) {
-                    this.bone.invalidUpdate();
+                    self.bone.invalidUpdate();
                 }
             }
         }
     }
     /**
+     * @internal
      * @private
      */
     export class SlotTimelineState extends TweenTimelineState<SlotFrameData, SlotTimelineData> {
         public static toString(): string {
-            return "[Class dragonBones.SlotTimelineState]";
+            return "[class dragonBones.SlotTimelineState]";
         }
 
         public slot: Slot;
@@ -337,133 +426,125 @@ namespace dragonBones {
             this._colorDirty = false;
             this._tweenColor = TweenType.None;
             this._slotColor = null;
-            this._color.alphaMultiplier = 1;
-            this._color.redMultiplier = 1;
-            this._color.greenMultiplier = 1;
-            this._color.blueMultiplier = 1;
-            this._color.alphaOffset = 0;
-            this._color.redOffset = 0;
-            this._color.greenOffset = 0;
-            this._color.blueOffset = 0;
-            this._durationColor.alphaMultiplier = 1;
-            this._durationColor.redMultiplier = 1;
-            this._durationColor.greenMultiplier = 1;
-            this._durationColor.blueMultiplier = 1;
-            this._durationColor.alphaOffset = 0;
-            this._durationColor.redOffset = 0;
-            this._durationColor.greenOffset = 0;
-            this._durationColor.blueOffset = 0;
-        }
-
-        protected _onFadeIn(): void {
-            this._slotColor = this.slot._colorTransform;
+            this._color.identity();
+            this._durationColor.identity();
         }
 
         protected _onArriveAtFrame(isUpdate: boolean): void {
+            const self = this;
+
             super._onArriveAtFrame(isUpdate);
 
-            if (this._animationState._isDisabled(this.slot)) {
-                this._tweenEasing = DragonBones.NO_TWEEN;
-                this._curve = null;
-                this._tweenColor = TweenType.None;
+            if (self._animationState._isDisabled(self.slot)) {
+                self._tweenEasing = DragonBones.NO_TWEEN;
+                self._curve = null;
+                self._tweenColor = TweenType.None;
                 return;
             }
 
-            if (this.slot._displayDataSet) {
-                const displayIndex = this._currentFrame.displayIndex;
-                if (this.slot.displayIndex >= 0 && displayIndex >= 0) {
-                    if (this.slot._displayDataSet.displays.length > 1) {
-                        this.slot._setDisplayIndex(displayIndex);
+            if (self.slot._displayDataSet) {
+                const displayIndex = self._currentFrame.displayIndex;
+                if (self.slot.displayIndex >= 0 && displayIndex >= 0) {
+                    if (self.slot._displayDataSet.displays.length > 1) {
+                        self.slot._setDisplayIndex(displayIndex);
                     }
-                } else {
-                    this.slot._setDisplayIndex(displayIndex);
+                }
+                else {
+                    self.slot._setDisplayIndex(displayIndex);
                 }
 
-                this.slot._updateMeshData(true);
+                self.slot._updateMeshData(true);
             }
 
-            if (this._currentFrame.displayIndex >= 0) {
-                this._tweenColor = TweenType.None;
+            if (self._currentFrame.displayIndex >= 0) {
+                self._tweenColor = TweenType.None;
 
-                const currentColor = this._currentFrame.color;
+                const currentColor = self._currentFrame.color;
 
-                if (this._keyFrameCount > 1 && (this._tweenEasing != DragonBones.NO_TWEEN || this._curve)) {
-                    const nextFrame = this._currentFrame.next;
+                if (self._keyFrameCount > 1 && (self._tweenEasing != DragonBones.NO_TWEEN || self._curve)) {
+                    const nextFrame = self._currentFrame.next;
                     const nextColor = nextFrame.color;
                     if (currentColor != nextColor && nextFrame.displayIndex >= 0) {
-                        this._durationColor.alphaMultiplier = nextColor.alphaMultiplier - currentColor.alphaMultiplier;
-                        this._durationColor.redMultiplier = nextColor.redMultiplier - currentColor.redMultiplier;
-                        this._durationColor.greenMultiplier = nextColor.greenMultiplier - currentColor.greenMultiplier;
-                        this._durationColor.blueMultiplier = nextColor.blueMultiplier - currentColor.blueMultiplier;
-                        this._durationColor.alphaOffset = nextColor.alphaOffset - currentColor.alphaOffset;
-                        this._durationColor.redOffset = nextColor.redOffset - currentColor.redOffset;
-                        this._durationColor.greenOffset = nextColor.greenOffset - currentColor.greenOffset;
-                        this._durationColor.blueOffset = nextColor.blueOffset - currentColor.blueOffset;
+                        self._durationColor.alphaMultiplier = nextColor.alphaMultiplier - currentColor.alphaMultiplier;
+                        self._durationColor.redMultiplier = nextColor.redMultiplier - currentColor.redMultiplier;
+                        self._durationColor.greenMultiplier = nextColor.greenMultiplier - currentColor.greenMultiplier;
+                        self._durationColor.blueMultiplier = nextColor.blueMultiplier - currentColor.blueMultiplier;
+                        self._durationColor.alphaOffset = nextColor.alphaOffset - currentColor.alphaOffset;
+                        self._durationColor.redOffset = nextColor.redOffset - currentColor.redOffset;
+                        self._durationColor.greenOffset = nextColor.greenOffset - currentColor.greenOffset;
+                        self._durationColor.blueOffset = nextColor.blueOffset - currentColor.blueOffset;
 
                         if (
-                            this._durationColor.alphaMultiplier != 0 ||
-                            this._durationColor.redMultiplier != 0 ||
-                            this._durationColor.greenMultiplier != 0 ||
-                            this._durationColor.blueMultiplier != 0 ||
-                            this._durationColor.alphaOffset != 0 ||
-                            this._durationColor.redOffset != 0 ||
-                            this._durationColor.greenOffset != 0 ||
-                            this._durationColor.blueOffset != 0
+                            self._durationColor.alphaMultiplier != 0 ||
+                            self._durationColor.redMultiplier != 0 ||
+                            self._durationColor.greenMultiplier != 0 ||
+                            self._durationColor.blueMultiplier != 0 ||
+                            self._durationColor.alphaOffset != 0 ||
+                            self._durationColor.redOffset != 0 ||
+                            self._durationColor.greenOffset != 0 ||
+                            self._durationColor.blueOffset != 0
                         ) {
-                            this._tweenColor = TweenType.Always;
+                            self._tweenColor = TweenType.Always;
                         }
                     }
                 }
 
-                if (this._tweenColor == TweenType.None) {
-                    this._durationColor.alphaMultiplier = currentColor.alphaMultiplier - this._slotColor.alphaMultiplier;
-                    this._durationColor.redMultiplier = currentColor.redMultiplier - this._slotColor.redMultiplier;
-                    this._durationColor.greenMultiplier = currentColor.greenMultiplier - this._slotColor.greenMultiplier;
-                    this._durationColor.blueMultiplier = currentColor.blueMultiplier - this._slotColor.blueMultiplier;
-                    this._durationColor.alphaOffset = currentColor.alphaOffset - this._slotColor.alphaOffset;
-                    this._durationColor.redOffset = currentColor.redOffset - this._slotColor.redOffset;
-                    this._durationColor.greenOffset = currentColor.greenOffset - this._slotColor.greenOffset;
-                    this._durationColor.blueOffset = currentColor.blueOffset - this._slotColor.blueOffset;
+                if (self._tweenColor == TweenType.None) {
                     if (
-                        this._durationColor.alphaMultiplier != 0 ||
-                        this._durationColor.redMultiplier != 0 ||
-                        this._durationColor.greenMultiplier != 0 ||
-                        this._durationColor.blueMultiplier != 0 ||
-                        this._durationColor.alphaOffset != 0 ||
-                        this._durationColor.redOffset != 0 ||
-                        this._durationColor.greenOffset != 0 ||
-                        this._durationColor.blueOffset != 0
+                        self._slotColor.alphaMultiplier != currentColor.alphaMultiplier ||
+                        self._slotColor.redMultiplier != currentColor.redMultiplier ||
+                        self._slotColor.greenMultiplier != currentColor.greenMultiplier ||
+                        self._slotColor.blueMultiplier != currentColor.blueMultiplier ||
+                        self._slotColor.alphaOffset != currentColor.alphaOffset ||
+                        self._slotColor.redOffset != currentColor.redOffset ||
+                        self._slotColor.greenOffset != currentColor.greenOffset ||
+                        self._slotColor.blueOffset != currentColor.blueOffset
                     ) {
-                        this._tweenColor = TweenType.Once;
+                        self._tweenColor = TweenType.Once;
                     }
                 }
-            } else {
-                this._tweenEasing = DragonBones.NO_TWEEN;
-                this._curve = null;
-                this._tweenColor = TweenType.None;
+            }
+            else {
+                self._tweenEasing = DragonBones.NO_TWEEN;
+                self._curve = null;
+                self._tweenColor = TweenType.None;
             }
         }
 
         protected _onUpdateFrame(isUpdate: boolean): void {
+            const self = this;
+
             super._onUpdateFrame(isUpdate);
 
-            if (this._tweenColor) {
-                if (this._tweenColor == TweenType.Once) {
-                    this._tweenColor = TweenType.None;
+            let tweenProgress = 0;
+
+            if (self._tweenColor) {
+                if (self._tweenColor == TweenType.Once) {
+                    self._tweenColor = TweenType.None;
+                    tweenProgress = 0;
+                }
+                else {
+                    tweenProgress = self._tweenProgress;
                 }
 
-                const currentColor = this._currentFrame.color;
-                this._color.alphaMultiplier = currentColor.alphaMultiplier + this._durationColor.alphaMultiplier * this._tweenProgress;
-                this._color.redMultiplier = currentColor.redMultiplier + this._durationColor.redMultiplier * this._tweenProgress;
-                this._color.greenMultiplier = currentColor.greenMultiplier + this._durationColor.greenMultiplier * this._tweenProgress;
-                this._color.blueMultiplier = currentColor.blueMultiplier + this._durationColor.blueMultiplier * this._tweenProgress;
-                this._color.alphaOffset = currentColor.alphaOffset + this._durationColor.alphaOffset * this._tweenProgress;
-                this._color.redOffset = currentColor.redOffset + this._durationColor.redOffset * this._tweenProgress;
-                this._color.greenOffset = currentColor.greenOffset + this._durationColor.greenOffset * this._tweenProgress;
-                this._color.blueOffset = currentColor.blueOffset + this._durationColor.blueOffset * this._tweenProgress;
+                const currentColor = self._currentFrame.color;
+                self._color.alphaMultiplier = currentColor.alphaMultiplier + self._durationColor.alphaMultiplier * tweenProgress;
+                self._color.redMultiplier = currentColor.redMultiplier + self._durationColor.redMultiplier * tweenProgress;
+                self._color.greenMultiplier = currentColor.greenMultiplier + self._durationColor.greenMultiplier * tweenProgress;
+                self._color.blueMultiplier = currentColor.blueMultiplier + self._durationColor.blueMultiplier * tweenProgress;
+                self._color.alphaOffset = currentColor.alphaOffset + self._durationColor.alphaOffset * tweenProgress;
+                self._color.redOffset = currentColor.redOffset + self._durationColor.redOffset * tweenProgress;
+                self._color.greenOffset = currentColor.greenOffset + self._durationColor.greenOffset * tweenProgress;
+                self._color.blueOffset = currentColor.blueOffset + self._durationColor.blueOffset * tweenProgress;
 
-                this._colorDirty = true;
+                self._colorDirty = true;
             }
+        }
+
+        public fadeIn(armature: Armature, animationState: AnimationState, timelineData: SlotTimelineData, time: number): void {
+            super.fadeIn(armature, animationState, timelineData, time);
+
+            this._slotColor = this.slot._colorTransform;
         }
 
         public fadeOut(): void {
@@ -471,47 +552,51 @@ namespace dragonBones {
         }
 
         public update(time: number): void {
+            const self = this;
+
             super.update(time);
 
             // Fade animation.
-            if (this._tweenColor != TweenType.None || this._colorDirty) {
-                const weight = this._animationState._weightResult;
+            if (self._tweenColor != TweenType.None || self._colorDirty) {
+                const weight = self._animationState._weightResult;
                 if (weight > 0) {
-                    const fadeProgress = this._animationState._fadeProgress;
+                    const fadeProgress = self._animationState._fadeProgress;
                     if (fadeProgress < 1) {
-                        this._slotColor.alphaMultiplier += (this._color.alphaMultiplier - this._slotColor.alphaMultiplier) * fadeProgress;
-                        this._slotColor.redMultiplier += (this._color.redMultiplier - this._slotColor.redMultiplier) * fadeProgress;
-                        this._slotColor.greenMultiplier += (this._color.greenMultiplier - this._slotColor.greenMultiplier) * fadeProgress;
-                        this._slotColor.blueMultiplier += (this._color.blueMultiplier - this._slotColor.blueMultiplier) * fadeProgress;
-                        this._slotColor.alphaOffset += (this._color.alphaOffset - this._slotColor.alphaOffset) * fadeProgress;
-                        this._slotColor.redOffset += (this._color.redOffset - this._slotColor.redOffset) * fadeProgress;
-                        this._slotColor.greenOffset += (this._color.greenOffset - this._slotColor.greenOffset) * fadeProgress;
-                        this._slotColor.blueOffset += (this._color.blueOffset - this._slotColor.blueOffset) * fadeProgress;
+                        self._slotColor.alphaMultiplier += (self._color.alphaMultiplier - self._slotColor.alphaMultiplier) * fadeProgress;
+                        self._slotColor.redMultiplier += (self._color.redMultiplier - self._slotColor.redMultiplier) * fadeProgress;
+                        self._slotColor.greenMultiplier += (self._color.greenMultiplier - self._slotColor.greenMultiplier) * fadeProgress;
+                        self._slotColor.blueMultiplier += (self._color.blueMultiplier - self._slotColor.blueMultiplier) * fadeProgress;
+                        self._slotColor.alphaOffset += (self._color.alphaOffset - self._slotColor.alphaOffset) * fadeProgress;
+                        self._slotColor.redOffset += (self._color.redOffset - self._slotColor.redOffset) * fadeProgress;
+                        self._slotColor.greenOffset += (self._color.greenOffset - self._slotColor.greenOffset) * fadeProgress;
+                        self._slotColor.blueOffset += (self._color.blueOffset - self._slotColor.blueOffset) * fadeProgress;
 
-                        this.slot._colorDirty = true;
-                    } else if (this._colorDirty) {
-                        this._colorDirty = false;
-                        this._slotColor.alphaMultiplier = this._color.alphaMultiplier;
-                        this._slotColor.redMultiplier = this._color.redMultiplier;
-                        this._slotColor.greenMultiplier = this._color.greenMultiplier;
-                        this._slotColor.blueMultiplier = this._color.blueMultiplier;
-                        this._slotColor.alphaOffset = this._color.alphaOffset;
-                        this._slotColor.redOffset = this._color.redOffset;
-                        this._slotColor.greenOffset = this._color.greenOffset;
-                        this._slotColor.blueOffset = this._color.blueOffset;
+                        self.slot._colorDirty = true;
+                    }
+                    else if (self._colorDirty) {
+                        self._colorDirty = false;
+                        self._slotColor.alphaMultiplier = self._color.alphaMultiplier;
+                        self._slotColor.redMultiplier = self._color.redMultiplier;
+                        self._slotColor.greenMultiplier = self._color.greenMultiplier;
+                        self._slotColor.blueMultiplier = self._color.blueMultiplier;
+                        self._slotColor.alphaOffset = self._color.alphaOffset;
+                        self._slotColor.redOffset = self._color.redOffset;
+                        self._slotColor.greenOffset = self._color.greenOffset;
+                        self._slotColor.blueOffset = self._color.blueOffset;
 
-                        this.slot._colorDirty = true;
+                        self.slot._colorDirty = true;
                     }
                 }
             }
         }
     }
     /**
+     * @internal
      * @private
      */
     export class FFDTimelineState extends TweenTimelineState<ExtensionFrameData, FFDTimelineData> {
         public static toString(): string {
-            return "[Class dragonBones.FFDTimelineState]";
+            return "[class dragonBones.FFDTimelineState]";
         }
 
         public slot: Slot;
@@ -545,9 +630,57 @@ namespace dragonBones {
             }
         }
 
-        protected _onFadeIn(): void {
-            this._slotFFDVertices = this.slot._ffdVertices;
+        protected _onArriveAtFrame(isUpdate: boolean): void {
+            const self = this;
 
+            super._onArriveAtFrame(isUpdate);
+
+            self._tweenFFD = TweenType.None;
+
+            if (self._tweenEasing != DragonBones.NO_TWEEN || self._curve) {
+                self._tweenFFD = self._updateExtensionKeyFrame(self._currentFrame, self._currentFrame.next, self._durationFFDFrame);
+            }
+
+            if (self._tweenFFD == TweenType.None) {
+                const currentFFDVertices = self._currentFrame.tweens;
+                for (let i = 0, l = currentFFDVertices.length; i < l; ++i) {
+                    if (self._slotFFDVertices[i] != currentFFDVertices[i]) {
+                        self._tweenFFD = TweenType.Once;
+                        break;
+                    }
+                }
+            }
+        }
+
+        protected _onUpdateFrame(isUpdate: boolean): void {
+            const self = this;
+
+            super._onUpdateFrame(isUpdate);
+
+            let tweenProgress = 0;
+
+            if (self._tweenFFD != TweenType.None) {
+                if (self._tweenFFD == TweenType.Once) {
+                    self._tweenFFD = TweenType.None;
+                    tweenProgress = 0;
+                } else {
+                    tweenProgress = self._tweenProgress;
+                }
+
+                const currentFFDVertices = self._currentFrame.tweens;
+                const nextFFDVertices = self._durationFFDFrame.tweens;
+                for (let i = 0, l = currentFFDVertices.length; i < l; ++i) {
+                    self._ffdVertices[i] = currentFFDVertices[i] + nextFFDVertices[i] * tweenProgress;
+                }
+
+                self.slot._ffdDirty = true;
+            }
+        }
+
+        public fadeIn(armature: Armature, animationState: AnimationState, timelineData: FFDTimelineData, time: number): void {
+            super.fadeIn(armature, animationState, timelineData, time);
+
+            this._slotFFDVertices = this.slot._ffdVertices;
             this._durationFFDFrame = BaseObject.borrowObject(ExtensionFrameData);
             this._durationFFDFrame.tweens.length = this._slotFFDVertices.length;
             this._ffdVertices.length = this._slotFFDVertices.length;
@@ -561,65 +694,30 @@ namespace dragonBones {
             }
         }
 
-        protected _onArriveAtFrame(isUpdate: boolean): void {
-            super._onArriveAtFrame(isUpdate);
-
-            this._tweenFFD = TweenType.None;
-
-            if (this._tweenEasing != DragonBones.NO_TWEEN || this._curve) {
-                this._tweenFFD = this._updateExtensionKeyFrame(this._currentFrame, this._currentFrame.next, this._durationFFDFrame);
-            }
-
-            if (this._tweenFFD == TweenType.None) {
-                const currentFFDVertices = this._currentFrame.tweens;
-                for (let i = 0, l = currentFFDVertices.length; i < l; ++i) {
-                    if (this._slotFFDVertices[i] != currentFFDVertices[i]) {
-                        this._tweenFFD = TweenType.Once;
-                        break;
-                    }
-                }
-            }
-        }
-
-        protected _onUpdateFrame(isUpdate: boolean): void {
-            super._onUpdateFrame(isUpdate);
-
-            if (this._tweenFFD != TweenType.None) {
-                if (this._tweenFFD == TweenType.Once) {
-                    this._tweenFFD = TweenType.None;
-                }
-
-                const currentFFDVertices = this._currentFrame.tweens;
-                const nextFFDVertices = this._durationFFDFrame.tweens;
-                for (let i = 0, l = currentFFDVertices.length; i < l; ++i) {
-                    this._ffdVertices[i] = currentFFDVertices[i] + nextFFDVertices[i] * this._tweenProgress;
-                }
-
-                this.slot._ffdDirty = true;
-            }
-        }
-
         public update(time: number): void {
+            const self = this;
+
             super.update(time);
 
             // Blend animation.
-            const weight = this._animationState._weightResult;
+            const weight = self._animationState._weightResult;
             if (weight > 0) {
-                if (this.slot._blendIndex == 0) {
-                    for (let i = 0, l = this._ffdVertices.length; i < l; ++i) {
-                        this._slotFFDVertices[i] = this._ffdVertices[i] * weight;
+                if (self.slot._blendIndex == 0) {
+                    for (let i = 0, l = self._ffdVertices.length; i < l; ++i) {
+                        self._slotFFDVertices[i] = self._ffdVertices[i] * weight;
                     }
-                } else {
-                    for (let i = 0, l = this._ffdVertices.length; i < l; ++i) {
-                        this._slotFFDVertices[i] += this._ffdVertices[i] * weight;
+                }
+                else {
+                    for (let i = 0, l = self._ffdVertices.length; i < l; ++i) {
+                        self._slotFFDVertices[i] += self._ffdVertices[i] * weight;
                     }
                 }
 
-                this.slot._blendIndex++;
+                self.slot._blendIndex++;
 
-                const fadeProgress = this._animationState._fadeProgress;
+                const fadeProgress = self._animationState._fadeProgress;
                 if (fadeProgress < 1) {
-                    this.slot._ffdDirty = true;
+                    self.slot._ffdDirty = true;
                 }
             }
         }

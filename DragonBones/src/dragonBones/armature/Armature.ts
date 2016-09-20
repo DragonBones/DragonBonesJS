@@ -13,12 +13,8 @@ namespace dragonBones {
         /**
          * @private
          */
-        public static _soundEventManager: IEventDispatcher = null;
-        /**
-         * @private
-         */
         public static toString(): string {
-            return "[Class dragonBones.Armature]";
+            return "[class dragonBones.Armature]";
         }
 
         /**
@@ -28,6 +24,7 @@ namespace dragonBones {
          */
         public userData: any;
         /**
+         * @internal
          * @private
          */
         public _bonesDirty: boolean;
@@ -35,10 +32,6 @@ namespace dragonBones {
          * @private
          */
         public _cacheFrameIndex: number;
-        /**
-         * @private
-         */
-        public _delayAdvanceTime: number;
         /**
          * @private
          */
@@ -56,17 +49,18 @@ namespace dragonBones {
          */
         public _display: IArmatureDisplay;
         /**
+         * @internal
          * @private
          */
         public _parent: Slot;
         /**
          * @private
          */
-        public _action: ActionData;
+        public _replacedTexture: any;
         /**
          * @private
          */
-        public _replacedTexture: any;
+        public _eventManager: IEventDispatcher;
         /**
          * @private
          */
@@ -75,10 +69,6 @@ namespace dragonBones {
          * @private
          */
         private _lockDispose: boolean;
-        /**
-         * @private
-         */
-        private _lockActionAndEvent: boolean;
         /**
          * @private
          */
@@ -94,8 +84,13 @@ namespace dragonBones {
         /**
          * @private
          */
+        private _actions: Array<ActionData> = [];
+        /**
+         * @private
+         */
         private _events: Array<EventObject> = [];
         /**
+         * @internal
          * @private
          */
         public constructor() {
@@ -105,11 +100,22 @@ namespace dragonBones {
          * @inheritDoc
          */
         protected _onClear(): void {
+            for (let i = 0, l = this._bones.length; i < l; ++i) {
+                this._bones[i].returnToPool();
+            }
+
+            for (let i = 0, l = this._slots.length; i < l; ++i) {
+                this._slots[i].returnToPool();
+            }
+
+            for (let i = 0, l = this._events.length; i < l; ++i) {
+                this._events[i].returnToPool();
+            }
+
             this.userData = null;
 
             this._bonesDirty = false;
             this._cacheFrameIndex = -1;
-            this._delayAdvanceTime = -1;
             this._armatureData = null;
             this._skinData = null;
 
@@ -124,44 +130,23 @@ namespace dragonBones {
             }
 
             this._parent = null;
-            this._action = null;
             this._replacedTexture = null;
+            this._eventManager = null;
 
             this._delayDispose = false;
             this._lockDispose = false;
-            this._lockActionAndEvent = false;
             this._slotsDirty = false;
-
-            if (this._bones.length) {
-                for (let i = 0, l = this._bones.length; i < l; ++i) {
-                    this._bones[i].returnToPool();
-                }
-
-                this._bones.length = 0;
-            }
-
-            if (this._slots.length) {
-                for (let i = 0, l = this._slots.length; i < l; ++i) {
-                    this._slots[i].returnToPool();
-                }
-
-                this._slots.length = 0;
-            }
-
-            if (this._events.length) {
-                for (let i = 0, l = this._events.length; i < l; ++i) {
-                    this._events[i].returnToPool();
-                }
-
-                this._events.length = 0;
-            }
+            this._bones.length = 0;
+            this._slots.length = 0;
+            this._actions.length = 0;
+            this._events.length = 0;
         }
         /**
          * @private
          */
         private _sortBones(): void {
             const total = this._bones.length;
-            if (!total) {
+            if (total <= 0) {
                 return;
             }
 
@@ -192,7 +177,8 @@ namespace dragonBones {
 
                 if (bone.ik && bone.ikChain > 0 && bone.ikChainIndex == bone.ikChain) {
                     this._bones.splice(this._bones.indexOf(bone.parent) + 1, 0, bone); // ik, parent, bone, children
-                } else {
+                }
+                else {
                     this._bones.push(bone);
                 }
 
@@ -207,14 +193,49 @@ namespace dragonBones {
         /**
          * @private
          */
+        private _doAction(value: ActionData): void {
+            switch (value.type) {
+                case ActionType.Play:
+                    this._animation.play(value.data[0], value.data[1]);
+                    break;
+
+                case ActionType.Stop:
+                    this._animation.stop(value.data[0]);
+                    break;
+
+                case ActionType.GotoAndPlay:
+                    this._animation.gotoAndPlayByTime(value.data[0], value.data[1], value.data[2]);
+                    break;
+
+                case ActionType.GotoAndStop:
+                    this._animation.gotoAndStopByTime(value.data[0], value.data[1]);
+                    break;
+
+                case ActionType.FadeIn:
+                    this._animation.fadeIn(value.data[0], value.data[1], value.data[2]);
+                    break;
+
+                case ActionType.FadeOut:
+                    // TODO fade out
+                    break;
+
+                default:
+                    break;
+            }
+        }
+        /**
+         * @internal
+         * @private
+         */
         public _addBoneToBoneList(value: Bone): void {
             if (this._bones.indexOf(value) < 0) {
                 this._bonesDirty = true;
-                this._bones[this._bones.length] = value;
+                this._bones.push(value);
                 this._animation._timelineStateDirty = true;
             }
         }
         /**
+         * @internal
          * @private
          */
         public _removeBoneFromBoneList(value: Bone): void {
@@ -225,16 +246,18 @@ namespace dragonBones {
             }
         }
         /**
+         * @internal
          * @private
          */
         public _addSlotToSlotList(value: Slot): void {
             if (this._slots.indexOf(value) < 0) {
                 this._slotsDirty = true;
-                this._slots[this._slots.length] = value;
+                this._slots.push(value);
                 this._animation._timelineStateDirty = true;
             }
         }
         /**
+         * @internal
          * @private
          */
         public _removeSlotFromSlotList(value: Slot): void {
@@ -247,18 +270,27 @@ namespace dragonBones {
         /**
          * @private
          */
+        public _bufferAction(value: ActionData): void {
+            this._actions.push(value);
+        }
+        /**
+         * @internal
+         * @private
+         */
         public _bufferEvent(value: EventObject, type: string): void {
             value.type = type;
             value.armature = this;
             this._events.push(value);
         }
         /**
-         * dispose
+         * @language zh_CN
+         * 释放骨架。 (会回收到内存池)
+         * @version DragonBones 3.0
          */
         public dispose(): void {
             this._delayDispose = true;
 
-            if (!this._lockDispose) {
+            if (!this._lockDispose && this._animation) { //
                 this.returnToPool();
             }
         }
@@ -266,109 +298,112 @@ namespace dragonBones {
          * @language zh_CN
          * 更新骨架和动画。 (可以使用时钟实例或显示容器来更新)
          * @param passedTime 两帧之前的时间间隔。 (以秒为单位)
-         * @see dragonBones.animation.IAnimateble
-         * @see dragonBones.animation.WorldClock
-         * @see dragonBones.core.IArmatureDisplayContainer
+         * @see dragonBones.IAnimateble
+         * @see dragonBones.WorldClock
+         * @see dragonBones.IArmatureDisplay
          * @version DragonBones 3.0
          */
         public advanceTime(passedTime: number): void {
-            this._lockDispose = true;
+            const self = this;
 
-            const scaledPassedTime = passedTime * this._animation.timeScale;
+            if (!self._animation) {
+                throw new Error("The armature has been disposed.");
+            }
+
+            const scaledPassedTime = passedTime * self._animation.timeScale;
 
             // Animations.
-            this._animation._advanceTime(scaledPassedTime);
+            self._animation._advanceTime(scaledPassedTime);
 
             // Bones and slots.
-            if (this._bonesDirty) {
-                this._bonesDirty = false;
-                this._sortBones();
+            if (self._bonesDirty) {
+                self._bonesDirty = false;
+                self._sortBones();
             }
 
-            if (this._slotsDirty) {
-                this._slotsDirty = false;
-                this._sortSlots();
+            if (self._slotsDirty) {
+                self._slotsDirty = false;
+                self._sortSlots();
             }
 
-            for (let i = 0, l = this._bones.length; i < l; ++i) {
-                this._bones[i]._update(this._cacheFrameIndex);
+            for (let i = 0, l = self._bones.length; i < l; ++i) {
+                self._bones[i]._update(self._cacheFrameIndex);
             }
 
-            for (let i = 0, l = this._slots.length; i < l; ++i) {
-                const slot = this._slots[i];
+            for (let i = 0, l = self._slots.length; i < l; ++i) {
+                const slot = self._slots[i];
 
-                slot._update(this._cacheFrameIndex);
+                slot._update(self._cacheFrameIndex);
 
-                const childArmature = slot.childArmature;
+                const childArmature = slot._childArmature;
                 if (childArmature) {
-                    if (slot.inheritAnimation) { // Animation's time scale will impact to childArmature
+                    if (slot.inheritAnimation) { // Animation's time scale will impact to childArmature.
                         childArmature.advanceTime(scaledPassedTime);
-                    } else {
+                    }
+                    else {
                         childArmature.advanceTime(passedTime);
                     }
                 }
             }
 
-            // Actions and events.
-            if (!this._lockActionAndEvent) {
-                this._lockActionAndEvent = true;
+            //
+            if (DragonBones.debugDraw) {
+                self._display._debugDraw();
+            }
 
-                if (this._action) {
-                    switch (this._action.type) {
-                        case ActionType.Play:
-                            this._animation.play(this._action.data[0], this._action.data[1]);
-                            break;
+            if (!self._lockDispose) {
+                self._lockDispose = true;
 
-                        case ActionType.Stop:
-                            this._animation.stop(this._action.data[0]);
-                            break;
-
-                        case ActionType.GotoAndPlay:
-                            this._animation.gotoAndPlayByTime(this._action.data[0], this._action.data[1], this._action.data[2]);
-                            break;
-
-                        case ActionType.GotoAndStop:
-                            this._animation.gotoAndStopByTime(this._action.data[0], this._action.data[1]);
-                            break;
-
-                        case ActionType.FadeIn:
-                            this._animation.fadeIn(this._action.data[0], this._action.data[1], this._action.data[2]);
-                            break;
-
-                        case ActionType.FadeOut:
-                            // TODO fade out
-                            break;
-                    }
-
-                    this._action = null;
-                }
-
-                if (this._events.length > 0) {
-                    for (let i = 0, l = this._events.length; i < l; ++i) {
-                        const event = this._events[i];
-                        if (Armature._soundEventManager && event.type == EventObject.SOUND_EVENT) {
-                            Armature._soundEventManager._dispatchEvent(event);
-                        } else {
-                            this._display._dispatchEvent(event);
+                // Actions and events.
+                if (self._events.length > 0) { // Dispatch event before action.
+                    for (let i = 0, l = self._events.length; i < l; ++i) {
+                        const event = self._events[i];
+                        if (event.type == EventObject.SOUND_EVENT) {
+                            this._eventManager._dispatchEvent(event);
+                        }
+                        else {
+                            self._display._dispatchEvent(event);
                         }
 
                         event.returnToPool();
                     }
 
-                    this._events.length = 0;
+                    self._events.length = 0;
                 }
 
-                this._lockActionAndEvent = false;
+                if (self._actions.length > 0) {
+                    for (let i = 0, l = self._actions.length; i < l; ++i) {
+                        const action = self._actions[i];
+                        if (action.slot) {
+                            const slot = self.getSlot(action.slot.name);
+                            if (slot) {
+                                const childArmature = slot._childArmature;
+                                if (childArmature) {
+                                    childArmature._doAction(action);
+                                }
+                            }
+                        }
+                        else if (action.bone) {
+                            for (let i = 0, l = self._slots.length; i < l; ++i) {
+                                const childArmature = self._slots[i]._childArmature;
+                                if (childArmature) {
+                                    childArmature._doAction(action);
+                                }
+                            }
+                        }
+                        else {
+                            this._doAction(action);
+                        }
+                    }
+
+                    self._actions.length = 0;
+                }
+
+                self._lockDispose = false;
             }
 
-            this._lockDispose = false;
-            
-            if (this._delayDispose) {
-                this.returnToPool();
-            } else if (this._delayAdvanceTime >= 0) {
-                const delayAdvanceTime = this._delayAdvanceTime;
-                this._delayAdvanceTime = -1;
-                this.advanceTime(delayAdvanceTime);
+            if (self._delayDispose) {
+                self.returnToPool();
             }
         }
         /**
@@ -395,7 +430,8 @@ namespace dragonBones {
                         }
                     }
                 }
-            } else {
+            }
+            else {
                 for (let i = 0, l = this._bones.length; i < l; ++i) {
                     this._bones[i].invalidUpdate();
                 }
@@ -458,7 +494,8 @@ namespace dragonBones {
             if (bone) {
                 value._setArmature(this);
                 value._setParent(bone);
-            } else {
+            }
+            else {
                 throw new Error();
             }
         }
@@ -473,7 +510,8 @@ namespace dragonBones {
             if (value && value.armature == this) {
                 value._setParent(null);
                 value._setArmature(null);
-            } else {
+            }
+            else {
                 throw new Error();
             }
         }
@@ -520,7 +558,8 @@ namespace dragonBones {
             if (value) {
                 value._setArmature(this);
                 value._setParent(parentName ? this.getBone(parentName) : null);
-            } else {
+            }
+            else {
                 throw new Error();
             }
         }
@@ -535,7 +574,8 @@ namespace dragonBones {
             if (value && value.armature == this) {
                 value._setParent(null);
                 value._setArmature(null);
-            } else {
+            }
+            else {
                 throw new Error();
             }
         }
@@ -590,10 +630,19 @@ namespace dragonBones {
         }
         /**
          * @language zh_CN
+         * 获得动画控制器。
+         * @see dragonBones.Animation
+         * @version DragonBones 3.0
+         */
+        public get animation(): Animation {
+            return this._animation;
+        }
+        /**
+         * @language zh_CN
          * 获取显示容器，插槽的显示对象都会以此显示容器为父级，根据渲染平台的不同，类型会不同，通常是 DisplayObjectContainer 类型。
          * @version DragonBones 3.0
          */
-        public get display(): any {
+        public get display(): IArmatureDisplay | any {
             return this._display;
         }
         /**
@@ -604,15 +653,6 @@ namespace dragonBones {
          */
         public get parent(): Slot {
             return this._parent;
-        }
-        /**
-         * @language zh_CN
-         * 获得动画控制器。
-         * @see dragonBones.Animation
-         * @version DragonBones 3.0
-         */
-        public get animation(): Animation {
-            return this._animation;
         }
         /**
          * @language zh_CN
@@ -630,6 +670,15 @@ namespace dragonBones {
         public set cacheFrameRate(value: number) {
             if (this._armatureData.cacheFrameRate != value) {
                 this._armatureData.cacheFrames(value);
+
+                // Set child armature frameRate.
+                for (let i = 0, l = this._slots.length; i < l; ++i) {
+                    const slot = this._slots[i];
+                    const childArmature = slot.childArmature;
+                    if (childArmature && childArmature.cacheFrameRate == 0) {
+                        childArmature.cacheFrameRate = value;
+                    }
+                }
             }
         }
         /**
@@ -649,7 +698,7 @@ namespace dragonBones {
          * @returns  [true: 包含, false: 不包含]
          * @version DragonBones 3.0
          */
-        public hasEventListener(type: string): void {
+        public hasEventListener(type: EventStringType): void {
             this._display.hasEvent(type);
         }
         /**
@@ -659,7 +708,7 @@ namespace dragonBones {
          * @param listener 事件回调。
          * @version DragonBones 3.0
          */
-        public addEventListener(type: string, listener: Function, target: any): void {
+        public addEventListener(type: EventStringType, listener: Function, target: any): void {
             this._display.addEvent(type, listener, target);
         }
         /**
@@ -669,10 +718,10 @@ namespace dragonBones {
          * @param listener 事件回调。
          * @version DragonBones 3.0
          */
-        public removeEventListener(type: string, listener: Function, target: any): void {
+        public removeEventListener(type: EventStringType, listener: Function, target: any): void {
             this._display.removeEvent(type, listener, target);
         }
-        
+
         /**
          * @deprecated
          * @see #display

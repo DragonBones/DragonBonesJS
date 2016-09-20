@@ -32,8 +32,14 @@ namespace demosEgret {
          */
         protected createGameScene(): void {
             // Parse data.
-            dragonBones.EgretFactory.factory.parseDragonBonesData(RES.getRes("dragonBonesData"));
-            dragonBones.EgretFactory.factory.parseTextureAtlasData(RES.getRes("textureDataA"), RES.getRes("textureA"));
+            const resourceGroup = RES.getGroupByName("search");
+            if (resourceGroup && resourceGroup.length > 0) {
+                for (let i = 0, l = resourceGroup.length; i < l; ++i) {
+                    const groupName = resourceGroup[i].name;
+                    dragonBones.EgretFactory.factory.parseDragonBonesData(RES.getRes(groupName));
+                    dragonBones.EgretFactory.factory.parseTextureAtlasData(RES.getRes(groupName + "_texture_config"), RES.getRes(groupName + "_texture"));
+                }
+            }
 
             // 
             const allDragonBonesData = dragonBones.EgretFactory.factory.getAllDragonBonesData();
@@ -136,7 +142,8 @@ namespace demosEgret {
          */
         private _changeArmature(dir: number): void {
             let dragonBonesChange = false;
-            let armatureNames = this._allDragonBonesData[this._dragonBonesIndex].armatureNames;
+            let dragonBonesData = this._allDragonBonesData[this._dragonBonesIndex];
+            let armatureNames = dragonBonesData.armatureNames;
 
             // Get next armature name.
             this._animationIndex = 0;
@@ -159,7 +166,8 @@ namespace demosEgret {
                     this._dragonBonesIndex = 0;
                 }
 
-                armatureNames = this._allDragonBonesData[this._dragonBonesIndex].armatureNames;
+                dragonBonesData = this._allDragonBonesData[this._dragonBonesIndex];
+                armatureNames = dragonBonesData.armatureNames;
                 this._armatureIndex = dir > 0 ? 0 : armatureNames.length - 1;
             }
 
@@ -178,7 +186,7 @@ namespace demosEgret {
             }
 
             // Build armature display.
-            this._armatureDisplay = dragonBones.EgretFactory.factory.buildArmatureDisplay(armatureName);
+            this._armatureDisplay = dragonBones.EgretFactory.factory.buildArmatureDisplay(armatureName, dragonBonesData.name);
             //this._armatureDisplay.armature.cacheFrameRate = 24; // Cache animation.
 
             // Add animation listener.

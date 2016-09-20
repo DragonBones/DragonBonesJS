@@ -40,6 +40,13 @@ namespace dragonBones {
         public generateTextureData(): TextureData {
             return BaseObject.borrowObject(EgretTextureData);
         }
+        /**
+         * @deprecated
+         * @see dragonBones.BaseFactory#removeDragonBonesData()
+         */
+        public dispose(): void {
+            this.returnToPool();
+        }
     }
     /**
      * @private

@@ -46,8 +46,6 @@ declare namespace dragonBones {
      * @inheritDoc
      */
     class PixiArmatureDisplay extends PIXI.Container implements IArmatureDisplay {
-        private static _clock;
-        private static _clockHandler(passedTime);
         /**
          * @private
          */
@@ -84,7 +82,7 @@ declare namespace dragonBones {
         /**
          * @inheritDoc
          */
-        advanceTimeBySelf(on: Boolean): void;
+        advanceTimeBySelf(on: boolean): void;
         /**
          * @inheritDoc
          */
@@ -183,6 +181,15 @@ declare namespace dragonBones {
      */
     class PixiFactory extends BaseFactory {
         private static _factory;
+        /**
+         * @private
+         */
+        static _eventManager: PixiArmatureDisplay;
+        /**
+         * @private
+         */
+        static _clock: WorldClock;
+        private static _clockHandler(passedTime);
         /**
          * @language zh_CN
          * 一个可以直接使用的全局工厂实例.

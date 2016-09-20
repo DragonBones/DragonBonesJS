@@ -438,7 +438,7 @@ namespace dragonBones {
          * @param disposeData 是否释放数据。 [false: 不释放, true: 释放]
          * @version DragonBones 4.5
          */
-        public clear(disposeData: Boolean = true): void {
+        public clear(disposeData: boolean = true): void {
             for (let i in this._dragonBonesDataMap) {
                 if (disposeData) {
                     this._dragonBonesDataMap[i].returnToPool();

@@ -40,6 +40,13 @@ var dragonBones;
         EgretTextureAtlasData.prototype.generateTextureData = function () {
             return dragonBones.BaseObject.borrowObject(EgretTextureData);
         };
+        /**
+         * @deprecated
+         * @see dragonBones.BaseFactory#removeDragonBonesData()
+         */
+        EgretTextureAtlasData.prototype.dispose = function () {
+            this.returnToPool();
+        };
         return EgretTextureAtlasData;
     }(dragonBones.TextureAtlasData));
     dragonBones.EgretTextureAtlasData = EgretTextureAtlasData;
@@ -95,26 +102,6 @@ var dragonBones;
             enumerable: true,
             configurable: true
         });
-        Object.defineProperty(EgretEvent.prototype, "frameLabel", {
-            /**
-             * @see dragonBones.EventObject#name
-             */
-            get: function () {
-                return this.eventObject.name;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(EgretEvent.prototype, "sound", {
-            /**
-             * @see dragonBones.EventObject#name
-             */
-            get: function () {
-                return this.eventObject.name;
-            },
-            enumerable: true,
-            configurable: true
-        });
         Object.defineProperty(EgretEvent.prototype, "animationName", {
             /**
              * @see dragonBones.EventObject#animationName
@@ -161,6 +148,28 @@ var dragonBones;
              */
             get: function () {
                 return this.eventObject.animationState;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(EgretEvent.prototype, "frameLabel", {
+            /**
+             * @deprecated
+             * @see dragonBones.EventObject#name
+             */
+            get: function () {
+                return this.eventObject.name;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(EgretEvent.prototype, "sound", {
+            /**
+             * @deprecated
+             * @see dragonBones.EventObject#name
+             */
+            get: function () {
+                return this.eventObject.name;
             },
             enumerable: true,
             configurable: true
@@ -245,19 +254,7 @@ var dragonBones;
          */
         function EgretArmatureDisplay() {
             _super.call(this);
-            if (!EgretArmatureDisplay._clock) {
-                EgretArmatureDisplay._clock = new dragonBones.WorldClock();
-                EgretArmatureDisplay._clock.time = egret.getTimer() * 0.001;
-                egret.startTick(EgretArmatureDisplay._clockHandler, EgretArmatureDisplay);
-            }
         }
-        EgretArmatureDisplay._clockHandler = function (time) {
-            time *= 0.001;
-            var passedTime = time - EgretArmatureDisplay._clock.time;
-            EgretArmatureDisplay._clock.advanceTime(passedTime);
-            EgretArmatureDisplay._clock.time = time;
-            return false;
-        };
         /**
          * @inheritDoc
          */
@@ -329,10 +326,10 @@ var dragonBones;
          */
         EgretArmatureDisplay.prototype.advanceTimeBySelf = function (on) {
             if (on) {
-                EgretArmatureDisplay._clock.add(this._armature);
+                dragonBones.EgretFactory._clock.add(this._armature);
             }
             else {
-                EgretArmatureDisplay._clock.remove(this._armature);
+                dragonBones.EgretFactory._clock.remove(this._armature);
             }
         };
         Object.defineProperty(EgretArmatureDisplay.prototype, "armature", {
@@ -355,7 +352,6 @@ var dragonBones;
             enumerable: true,
             configurable: true
         });
-        EgretArmatureDisplay._clock = null;
         return EgretArmatureDisplay;
     }(egret.DisplayObjectContainer));
     dragonBones.EgretArmatureDisplay = EgretArmatureDisplay;
@@ -371,6 +367,18 @@ var dragonBones;
         return Event;
     }(EgretEvent));
     dragonBones.Event = Event;
+    /**
+     * @deprecated
+     * @see dragonBones.EgretEvent
+     */
+    var ArmatureEvent = (function (_super) {
+        __extends(ArmatureEvent, _super);
+        function ArmatureEvent() {
+            _super.apply(this, arguments);
+        }
+        return ArmatureEvent;
+    }(EgretEvent));
+    dragonBones.ArmatureEvent = ArmatureEvent;
     /**
      * @deprecated
      * @see dragonBones.EgretEvent
@@ -453,7 +461,7 @@ var dragonBones;
          * @see dragonBones.EgretFactory#soundEventManater
          */
         SoundEventManager.getInstance = function () {
-            return dragonBones.EventObject._soundEventManager;
+            return dragonBones.EgretFactory._eventManager;
         };
         return SoundEventManager;
     }());
@@ -652,9 +660,7 @@ var dragonBones;
                         for (var i = 0, l = this._meshData.vertexIndices.length; i < l; ++i) {
                             meshNode.indices[i] = this._meshData.vertexIndices[i];
                         }
-                        if (texture) {
-                            meshDisplay.$setBitmapData(texture);
-                        }
+                        meshDisplay.$setBitmapData(texture);
                         meshDisplay.$updateVertices();
                         meshDisplay.$invalidateTransform();
                         // Identity transform.
@@ -665,30 +671,8 @@ var dragonBones;
                         }
                     }
                     else {
-                        var rect = currentTextureData.frame || currentTextureData.region;
-                        var width = rect.width;
-                        var height = rect.height;
-                        if (currentTextureData.rotated) {
-                            width = rect.height;
-                            height = rect.width;
-                        }
-                        this._pivotX = currentDisplayData.pivot.x;
-                        this._pivotY = currentDisplayData.pivot.y;
-                        if (currentDisplayData.isRelativePivot) {
-                            this._pivotX = width * this._pivotX;
-                            this._pivotY = height * this._pivotY;
-                        }
-                        if (currentTextureData.frame) {
-                            this._pivotX += currentTextureData.frame.x;
-                            this._pivotY += currentTextureData.frame.y;
-                        }
-                        if (rawDisplayData && rawDisplayData != currentDisplayData) {
-                            this._pivotX += rawDisplayData.transform.x - currentDisplayData.transform.x;
-                            this._pivotY += rawDisplayData.transform.y - currentDisplayData.transform.y;
-                        }
-                        if (texture) {
-                            frameDisplay.$setBitmapData(texture);
-                        }
+                        this._updatePivot(rawDisplayData, currentDisplayData, currentTextureData);
+                        frameDisplay.$setBitmapData(texture);
                     }
                     this._updateVisible();
                     return;
@@ -794,10 +778,20 @@ var dragonBones;
         function EgretFactory(dataParser) {
             if (dataParser === void 0) { dataParser = null; }
             _super.call(this, dataParser);
-            if (!dragonBones.EventObject._soundEventManager) {
-                dragonBones.EventObject._soundEventManager = new dragonBones.EgretArmatureDisplay();
+            if (!EgretFactory._eventManager) {
+                EgretFactory._eventManager = new dragonBones.EgretArmatureDisplay();
+                EgretFactory._clock = new dragonBones.WorldClock();
+                EgretFactory._clock.time = egret.getTimer() * 0.001;
+                egret.startTick(EgretFactory._clockHandler, EgretFactory);
             }
         }
+        EgretFactory._clockHandler = function (time) {
+            time *= 0.001;
+            var passedTime = time - EgretFactory._clock.time;
+            EgretFactory._clock.advanceTime(passedTime);
+            EgretFactory._clock.time = time;
+            return false;
+        };
         Object.defineProperty(EgretFactory, "factory", {
             /**
              * @language zh_CN
@@ -835,6 +829,7 @@ var dragonBones;
             armature._skinData = dataPackage.skin;
             armature._animation = dragonBones.BaseObject.borrowObject(dragonBones.Animation);
             armature._display = armatureDisplayContainer;
+            armature._eventManager = EgretFactory._eventManager;
             armatureDisplayContainer._armature = armature;
             armature._animation._armature = armature;
             armature.animation.animations = dataPackage.armature.animations;
@@ -945,7 +940,7 @@ var dragonBones;
              * @version DragonBones 4.5
              */
             get: function () {
-                return dragonBones.EventObject._soundEventManager;
+                return EgretFactory._eventManager;
             },
             enumerable: true,
             configurable: true
@@ -1011,6 +1006,14 @@ var dragonBones;
             this.clear();
         };
         EgretFactory._factory = null;
+        /**
+         * @private
+         */
+        EgretFactory._eventManager = null;
+        /**
+         * @private
+         */
+        EgretFactory._clock = null;
         return EgretFactory;
     }(dragonBones.BaseFactory));
     dragonBones.EgretFactory = EgretFactory;

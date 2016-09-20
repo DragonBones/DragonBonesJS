@@ -7,18 +7,23 @@ namespace dragonBones {
      */
     export interface IArmatureDisplay extends IEventDispatcher {
         /**
-         * @language zh_CN
-         * 由显示容器来更新骨架和动画。
-         * @param on 开启或关闭显示容器对骨架与动画的更新。
-         * @version DragonBones 4.5
+         * @internal
+         * @private
          */
-        advanceTimeBySelf(on: boolean): void;
+        _debugDraw(): void;
         /**
          * @language zh_CN
          * 释放显示对象和骨架。 (骨架会回收到内存池)
          * @version DragonBones 4.5
          */
         dispose(): void;
+        /**
+         * @language zh_CN
+         * 由显示容器来更新骨架和动画。
+         * @param on 开启或关闭显示容器对骨架与动画的更新。
+         * @version DragonBones 4.5
+         */
+        advanceTimeBySelf(on: boolean): void;
         /**
          * @language zh_CN
          * 获取使用这个显示容器的骨架。

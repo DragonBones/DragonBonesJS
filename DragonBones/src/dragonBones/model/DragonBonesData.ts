@@ -10,14 +10,14 @@ namespace dragonBones {
          * @private
          */
         public static toString(): string {
-            return "[Class dragonBones.DragonBonesData]";
+            return "[class dragonBones.DragonBonesData]";
         }
 
         /**
          * @language zh_CN
          * 是否开启共享搜索。 [true: 开启, false: 不开启]
          * @default false
-         * @see dragonBones.objects.ArmatureData
+         * @see dragonBones.ArmatureData
          * @version DragonBones 4.5
          */
         public autoSearch: boolean;
@@ -36,37 +36,33 @@ namespace dragonBones {
         /**
          * @language zh_CN
          * 所有的骨架数据。
-         * @see dragonBones.objects.ArmatureData
+         * @see dragonBones.ArmatureData
          * @version DragonBones 3.0
          */
         public armatures: Map<ArmatureData> = {};
 
         private _armatureNames: Array<string> = [];
         /**
+         * @internal
          * @private
          */
         public constructor() {
             super();
         }
-
         /**
          * @inheritDoc
          */
         protected _onClear(): void {
-            this.autoSearch = false;
-            this.frameRate = 0;
-            this.name = null;
-
             for (let i in this.armatures) {
                 this.armatures[i].returnToPool();
                 delete this.armatures[i];
             }
 
-            if (this._armatureNames.length) {
-                this._armatureNames.length = 0;
-            }
+            this.autoSearch = false;
+            this.frameRate = 0;
+            this.name = null;
+            this._armatureNames.length = 0;
         }
-
         /**
          * @language zh_CN
          * 获取指定名称的骨架。
@@ -77,19 +73,19 @@ namespace dragonBones {
         public getArmature(name: string): ArmatureData {
             return this.armatures[name];
         }
-
         /**
+         * @internal
          * @private
          */
         public addArmature(value: ArmatureData): void {
             if (value && value.name && !this.armatures[value.name]) {
                 this.armatures[value.name] = value;
                 this._armatureNames.push(value.name);
+                value.parent = this;
             } else {
                 throw new Error();
             }
         }
-
         /**
          * @language zh_CN
          * 所有的骨架数据名称。
@@ -98,6 +94,13 @@ namespace dragonBones {
          */
         public get armatureNames(): Array<string> {
             return this._armatureNames;
+        }
+        /**
+         * @deprecated
+         * @see dragonBones.BaseFactory#removeDragonBonesData()
+         */
+        public dispose(): void {
+            this.returnToPool();
         }
     }
 }

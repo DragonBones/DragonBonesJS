@@ -219,9 +219,7 @@ namespace dragonBones {
                             meshNode.indices[i] = this._meshData.vertexIndices[i];
                         }
 
-                        if (texture) {
-                            meshDisplay.$setBitmapData(texture);
-                        }
+                        meshDisplay.$setBitmapData(texture);
 
                         meshDisplay.$updateVertices();
                         meshDisplay.$invalidateTransform();
@@ -233,35 +231,9 @@ namespace dragonBones {
                             meshDisplay.matrix = transformationMatrix;
                         }
                     } else { // Normal texture.
-                        const rect = currentTextureData.frame || currentTextureData.region;
-                        let width = rect.width;
-                        let height = rect.height;
-                        if (currentTextureData.rotated) {
-                            width = rect.height;
-                            height = rect.width;
-                        }
+                        this._updatePivot(rawDisplayData, currentDisplayData, currentTextureData);
 
-                        this._pivotX = currentDisplayData.pivot.x;
-                        this._pivotY = currentDisplayData.pivot.y;
-
-                        if (currentDisplayData.isRelativePivot) {
-                            this._pivotX = width * this._pivotX;
-                            this._pivotY = height * this._pivotY;
-                        }
-
-                        if (currentTextureData.frame) {
-                            this._pivotX += currentTextureData.frame.x;
-                            this._pivotY += currentTextureData.frame.y;
-                        }
-
-                        if (rawDisplayData && rawDisplayData != currentDisplayData) {
-                            this._pivotX += rawDisplayData.transform.x - currentDisplayData.transform.x;
-                            this._pivotY += rawDisplayData.transform.y - currentDisplayData.transform.y;
-                        }
-
-                        if (texture) {
-                            frameDisplay.$setBitmapData(texture);
-                        }
+                        frameDisplay.$setBitmapData(texture);
                     }
 
                     this._updateVisible();

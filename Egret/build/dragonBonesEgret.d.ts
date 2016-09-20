@@ -27,6 +27,11 @@ declare namespace dragonBones {
          * @private
          */
         generateTextureData(): TextureData;
+        /**
+         * @deprecated
+         * @see dragonBones.BaseFactory#removeDragonBonesData()
+         */
+        dispose(): void;
     }
     /**
      * @private
@@ -59,14 +64,6 @@ declare namespace dragonBones {
          */
         constructor(type: EventStringType, bubbles?: boolean, cancelable?: boolean, data?: any);
         /**
-         * @see dragonBones.EventObject#name
-         */
-        frameLabel: string;
-        /**
-         * @see dragonBones.EventObject#name
-         */
-        sound: string;
-        /**
          * @see dragonBones.EventObject#animationName
          */
         animationName: string;
@@ -86,6 +83,16 @@ declare namespace dragonBones {
          * @see dragonBones.EventObject#animationState
          */
         animationState: AnimationState;
+        /**
+         * @deprecated
+         * @see dragonBones.EventObject#name
+         */
+        frameLabel: string;
+        /**
+         * @deprecated
+         * @see dragonBones.EventObject#name
+         */
+        sound: string;
         /**
          * @deprecated
          * @see #animationName
@@ -152,8 +159,6 @@ declare namespace dragonBones {
      * @inheritDoc
      */
     class EgretArmatureDisplay extends egret.DisplayObjectContainer implements IArmatureDisplay {
-        private static _clock;
-        private static _clockHandler(time);
         /**
          * @private
          */
@@ -194,7 +199,7 @@ declare namespace dragonBones {
         /**
          * @inheritDoc
          */
-        advanceTimeBySelf(on: Boolean): void;
+        advanceTimeBySelf(on: boolean): void;
         /**
          * @inheritDoc
          */
@@ -234,6 +239,12 @@ declare namespace dragonBones {
      * @see dragonBones.EgretEvent
      */
     class Event extends EgretEvent {
+    }
+    /**
+     * @deprecated
+     * @see dragonBones.EgretEvent
+     */
+    class ArmatureEvent extends EgretEvent {
     }
     /**
      * @deprecated
@@ -381,7 +392,16 @@ declare namespace dragonBones {
      * @version DragonBones 3.0
      */
     class EgretFactory extends BaseFactory {
-        private static _factory;
+        static _factory: EgretFactory;
+        /**
+         * @private
+         */
+        static _eventManager: EgretArmatureDisplay;
+        /**
+         * @private
+         */
+        static _clock: WorldClock;
+        private static _clockHandler(time);
         /**
          * @language zh_CN
          * 一个可以直接使用的全局工厂实例.

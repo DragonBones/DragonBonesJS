@@ -46,15 +46,15 @@ namespace dragonBones {
          * @inheritDoc
          */
         protected _onClear(): void {
-            this.autoSearch = false;
-            this.scale = 1;
-            this.name = null;
-            this.imagePath = null;
-
             for (let i in this.textures) {
                 this.textures[i].returnToPool();
                 delete this.textures[i];
             }
+
+            this.autoSearch = false;
+            this.scale = 1;
+            this.name = null;
+            this.imagePath = null;
         }
         /**
          * @internal
@@ -79,13 +79,6 @@ namespace dragonBones {
          */
         public getTexture(name: string): TextureData {
             return this.textures[name];
-        }
-        /**
-         * @deprecated
-         * @see dragonBones.BaseFactory#removeDragonBonesData()
-         */
-        public dispose(): void {
-            this.returnToPool();
         }
     }
     /**

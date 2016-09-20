@@ -20,18 +20,6 @@ namespace dragonBones {
             super(type, bubbles, cancelable, data);
         }
         /**
-         * @see dragonBones.EventObject#name
-         */
-        public get frameLabel(): string {
-            return this.eventObject.name;
-        }
-        /**
-         * @see dragonBones.EventObject#name
-         */
-        public get sound(): string {
-            return this.eventObject.name;
-        }
-        /**
          * @see dragonBones.EventObject#animationName
          */
         public get animationName(): string {
@@ -62,6 +50,20 @@ namespace dragonBones {
             return this.eventObject.animationState;
         }
 
+        /**
+         * @deprecated
+         * @see dragonBones.EventObject#name
+         */
+        public get frameLabel(): string {
+            return this.eventObject.name;
+        }
+        /**
+         * @deprecated
+         * @see dragonBones.EventObject#name
+         */
+        public get sound(): string {
+            return this.eventObject.name;
+        }
         /**
          * @deprecated
          * @see #animationName
@@ -132,16 +134,6 @@ namespace dragonBones {
      * @inheritDoc
      */
     export class EgretArmatureDisplay extends egret.DisplayObjectContainer implements IArmatureDisplay {
-        private static _clock: WorldClock = null;
-        private static _clockHandler(time: number): boolean {
-            time *= 0.001;
-
-            const passedTime = time - EgretArmatureDisplay._clock.time;
-            EgretArmatureDisplay._clock.advanceTime(passedTime);
-            EgretArmatureDisplay._clock.time = time;
-
-            return false;
-        }
         /**
          * @private
          */
@@ -153,12 +145,6 @@ namespace dragonBones {
          */
         public constructor() {
             super();
-
-            if (!EgretArmatureDisplay._clock) {
-                EgretArmatureDisplay._clock = new WorldClock();
-                EgretArmatureDisplay._clock.time = egret.getTimer() * 0.001;
-                egret.startTick(EgretArmatureDisplay._clockHandler, EgretArmatureDisplay);
-            }
         }
         /**
          * @inheritDoc
@@ -232,11 +218,11 @@ namespace dragonBones {
         /**
          * @inheritDoc
          */
-        public advanceTimeBySelf(on: Boolean): void {
+        public advanceTimeBySelf(on: boolean): void {
             if (on) {
-                EgretArmatureDisplay._clock.add(this._armature);
+                EgretFactory._clock.add(this._armature);
             } else {
-                EgretArmatureDisplay._clock.remove(this._armature);
+                EgretFactory._clock.remove(this._armature);
             }
         }
         /**
@@ -283,6 +269,11 @@ namespace dragonBones {
      * @see dragonBones.EgretEvent
      */
     export class Event extends EgretEvent { }
+    /**
+     * @deprecated
+     * @see dragonBones.EgretEvent
+     */
+    export class ArmatureEvent extends EgretEvent { }
     /**
      * @deprecated
      * @see dragonBones.EgretEvent
@@ -335,7 +326,7 @@ namespace dragonBones {
          * @see dragonBones.EgretFactory#soundEventManater
          */
         public static getInstance(): EgretArmatureDisplay {
-            return <EgretArmatureDisplay>EventObject._soundEventManager;
+            return EgretFactory._eventManager;
         }
     }
     /**

@@ -14,7 +14,7 @@
 
 ## To learn more about
 * [DragonBones WebSite](http://dragonbones.github.io/)
-* [DragonBones Pro WebSite](http://www.egret.com/products/dragonbones.html/)
+* [DragonBones Pro WebSite](http://www.egret.com/products/dragonbones.html)
 * [Demos](http://dragonbones.github.io/demo.html)
 
 ## Release Notes

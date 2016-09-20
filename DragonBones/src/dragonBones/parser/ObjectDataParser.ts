@@ -78,10 +78,11 @@ namespace dragonBones {
         /**
          * @private
          */
-        protected _parseArmature(rawData: any): ArmatureData {
+        protected _parseArmature(rawData: any, scale: number): ArmatureData {
             const armature = BaseObject.borrowObject(ArmatureData);
             armature.name = ObjectDataParser._getString(rawData, ObjectDataParser.NAME, null);
             armature.frameRate = ObjectDataParser._getNumber(rawData, ObjectDataParser.FRAME_RATE, this._data.frameRate) || this._data.frameRate;
+            armature.scale = scale;
 
             if (ObjectDataParser.TYPE in rawData && typeof rawData[ObjectDataParser.TYPE] == "string") {
                 armature.type = ObjectDataParser._getArmatureType(rawData[ObjectDataParser.TYPE]);
@@ -165,7 +166,7 @@ namespace dragonBones {
             bone.inheritTranslation = ObjectDataParser._getBoolean(rawData, ObjectDataParser.INHERIT_TRANSLATION, true);
             bone.inheritRotation = ObjectDataParser._getBoolean(rawData, ObjectDataParser.INHERIT_ROTATION, true);
             bone.inheritScale = ObjectDataParser._getBoolean(rawData, ObjectDataParser.INHERIT_SCALE, true);
-            bone.length = ObjectDataParser._getNumber(rawData, ObjectDataParser.LENGTH, 0) * this._armatureScale;
+            bone.length = ObjectDataParser._getNumber(rawData, ObjectDataParser.LENGTH, 0) * this._armature.scale;
 
             if (ObjectDataParser.TRANSFORM in rawData) {
                 this._parseTransform(rawData[ObjectDataParser.TRANSFORM], bone.transform);
@@ -210,10 +211,7 @@ namespace dragonBones {
             slot.displayIndex = ObjectDataParser._getNumber(rawData, ObjectDataParser.DISPLAY_INDEX, 0);
             slot.zOrder = ObjectDataParser._getNumber(rawData, ObjectDataParser.Z_ORDER, zOrder); // TODO zOrder.
 
-            if (
-                (ObjectDataParser.COLOR in rawData) ||
-                (ObjectDataParser.COLOR_TRANSFORM in rawData)
-            ) {
+            if ((ObjectDataParser.COLOR in rawData) || (ObjectDataParser.COLOR_TRANSFORM in rawData)) {
                 slot.color = SlotData.generateColor();
                 this._parseColorTransform(rawData[ObjectDataParser.COLOR] || rawData[ObjectDataParser.COLOR_TRANSFORM], slot.color);
             }
@@ -228,10 +226,7 @@ namespace dragonBones {
                 slot.blendMode = ObjectDataParser._getNumber(rawData, ObjectDataParser.BLEND_MODE, BlendMode.Normal);
             }
 
-            if (
-                (ObjectDataParser.ACTIONS in rawData) ||
-                (ObjectDataParser.DEFAULT_ACTIONS in rawData)
-            ) {
+            if ((ObjectDataParser.ACTIONS in rawData) || (ObjectDataParser.DEFAULT_ACTIONS in rawData)) {
                 this._parseActionData(rawData, slot.actions, null, null);
             }
 
@@ -316,8 +311,8 @@ namespace dragonBones {
             else if (this._isOldData) { // Support 2.x ~ 3.x data.
                 const transformObject = rawData[ObjectDataParser.TRANSFORM];
                 display.isRelativePivot = false;
-                display.pivot.x = ObjectDataParser._getNumber(transformObject, ObjectDataParser.PIVOT_X, 0) * this._armatureScale;
-                display.pivot.y = ObjectDataParser._getNumber(transformObject, ObjectDataParser.PIVOT_Y, 0) * this._armatureScale;
+                display.pivot.x = ObjectDataParser._getNumber(transformObject, ObjectDataParser.PIVOT_X, 0) * this._armature.scale;
+                display.pivot.y = ObjectDataParser._getNumber(transformObject, ObjectDataParser.PIVOT_Y, 0) * this._armature.scale;
             }
             else {
                 display.pivot.x = 0.5;
@@ -352,8 +347,8 @@ namespace dragonBones {
             const rawUVs = <Array<number>>rawData[ObjectDataParser.UVS];
             const rawTriangles = <Array<number>>rawData[ObjectDataParser.TRIANGLES];
 
-            const numVertices = Math.floor(rawVertices.length / 2); // uint()
-            const numTriangles = Math.floor(rawTriangles.length / 3); // uint()
+            const numVertices = Math.floor(rawVertices.length / 2); // uint
+            const numTriangles = Math.floor(rawTriangles.length / 3); // uint
 
             const inverseBindPose = new Array<Matrix>(this._armature.sortedBones.length);
 
@@ -380,7 +375,7 @@ namespace dragonBones {
                 if (ObjectDataParser.BONE_POSE in rawData) {
                     const rawBonePose = <Array<number>>rawData[ObjectDataParser.BONE_POSE];
                     for (let i = 0, l = rawBonePose.length; i < l; i += 7) {
-                        const rawBoneIndex = rawBonePose[i];
+                        const rawBoneIndex = rawBonePose[i]; // uint
                         const boneMatrix = inverseBindPose[rawBoneIndex] = new Matrix();
                         boneMatrix.a = rawBonePose[i + 1];
                         boneMatrix.b = rawBonePose[i + 2];
@@ -397,14 +392,14 @@ namespace dragonBones {
                 const iN = i + 1;
                 const vertexIndex = i / 2;
 
-                let x = mesh.vertices[i] = rawVertices[i] * this._armatureScale;
-                let y = mesh.vertices[iN] = rawVertices[iN] * this._armatureScale;
+                let x = mesh.vertices[i] = rawVertices[i] * this._armature.scale;
+                let y = mesh.vertices[iN] = rawVertices[iN] * this._armature.scale;
                 mesh.uvs[i] = rawUVs[i];
                 mesh.uvs[iN] = rawUVs[iN];
 
                 if (mesh.skinned) { // If mesh is skinned, transform point by bone bind pose.
                     const rawWeights = <Array<number>>rawData[ObjectDataParser.WEIGHTS];
-                    const numBones = rawWeights[iW];
+                    const numBones = rawWeights[iW]; // uint
                     const indices = mesh.boneIndices[vertexIndex] = new Array<number>(numBones);
                     const weights = mesh.weights[vertexIndex] = new Array<number>(numBones);
                     const boneVertices = mesh.boneVertices[vertexIndex] = new Array<number>(numBones * 2);
@@ -415,7 +410,7 @@ namespace dragonBones {
 
                     for (let iB = 0; iB < numBones; ++iB) {
                         const iI = iW + 1 + iB * 2;
-                        const rawBoneIndex = rawWeights[iI];
+                        const rawBoneIndex = rawWeights[iI]; // uint
                         const boneData = this._rawBones[rawBoneIndex];
 
                         let boneIndex = mesh.bones.indexOf(boneData);
@@ -513,8 +508,7 @@ namespace dragonBones {
 
             for (let i in this._armature.bones) {
                 const bone = this._armature.bones[i];
-                if (!animation.getBoneTimeline(bone.name)) // Add default bone timeline for cache if do not have one.
-                {
+                if (!animation.getBoneTimeline(bone.name)) { // Add default bone timeline for cache if do not have one.
                     const boneTimeline = BaseObject.borrowObject(BoneTimelineData);
                     const boneFrame = BaseObject.borrowObject(BoneFrameData);
                     boneTimeline.bone = bone;
@@ -525,8 +519,7 @@ namespace dragonBones {
 
             for (let i in this._armature.slots) {
                 const slot = this._armature.slots[i];
-                if (!animation.getSlotTimeline(slot.name)) // Add default slot timeline for cache if do not have one.
-                {
+                if (!animation.getSlotTimeline(slot.name)) { // Add default slot timeline for cache if do not have one.
                     const slotTimeline = BaseObject.borrowObject(SlotTimelineData);
                     const slotFrame = BaseObject.borrowObject(SlotFrameData);
                     slotTimeline.slot = slot;
@@ -595,10 +588,7 @@ namespace dragonBones {
 
             if (
                 this._isOldData &&
-                (
-                    (ObjectDataParser.PIVOT_X in rawData) ||
-                    (ObjectDataParser.PIVOT_Y in rawData)
-                )
+                ((ObjectDataParser.PIVOT_X in rawData) || (ObjectDataParser.PIVOT_Y in rawData))
             ) { // Support 2.x ~ 3.x data.
                 this._timelinePivot.x = ObjectDataParser._getNumber(rawData, ObjectDataParser.PIVOT_X, 0);
                 this._timelinePivot.y = ObjectDataParser._getNumber(rawData, ObjectDataParser.PIVOT_Y, 0);
@@ -656,10 +646,7 @@ namespace dragonBones {
 
             this._parseFrame(rawData, frame, frameStart, frameCount);
 
-            if (
-                (ObjectDataParser.ACTION in rawData) ||
-                (ObjectDataParser.ACTIONS in rawData)
-            ) {
+            if ((ObjectDataParser.ACTION in rawData) || (ObjectDataParser.ACTIONS in rawData)) {
                 this._parseActionData(rawData, frame.actions, null, null);
             }
 
@@ -697,10 +684,7 @@ namespace dragonBones {
             const actions: Array<ActionData> = [];
             const events: Array<EventData> = [];
 
-            if (
-                (ObjectDataParser.ACTION in rawData) ||
-                (ObjectDataParser.ACTIONS in rawData)
-            ) {
+            if ((ObjectDataParser.ACTION in rawData) || (ObjectDataParser.ACTIONS in rawData)) {
                 const slot = this._armature.getSlot(bone.name);
                 this._parseActionData(rawData, actions, bone, slot);
             }
@@ -725,10 +709,7 @@ namespace dragonBones {
 
             this._parseTweenFrame(rawData, frame, frameStart, frameCount);
 
-            if (
-                (ObjectDataParser.COLOR in rawData) ||
-                (ObjectDataParser.COLOR_TRANSFORM in rawData)
-            ) { // Support 2.x ~ 3.x data. (colorTransform key)
+            if ((ObjectDataParser.COLOR in rawData) || (ObjectDataParser.COLOR_TRANSFORM in rawData)) { // Support 2.x ~ 3.x data. (colorTransform key)
                 frame.color = SlotFrameData.generateColor();
                 this._parseColorTransform(rawData[ObjectDataParser.COLOR] || rawData[ObjectDataParser.COLOR_TRANSFORM], frame.color);
             }
@@ -741,10 +722,7 @@ namespace dragonBones {
                     frame.displayIndex = -1;
                 }
             }
-            else if (
-                (ObjectDataParser.ACTION in rawData) ||
-                (ObjectDataParser.ACTIONS in rawData)
-            ) {
+            else if ((ObjectDataParser.ACTION in rawData) || (ObjectDataParser.ACTIONS in rawData)) {
                 const slot = (<SlotTimelineData>this._timeline).slot;
                 const actions: Array<ActionData> = [];
                 this._parseActionData(rawData, actions, slot.parent, slot);
@@ -764,7 +742,7 @@ namespace dragonBones {
             this._parseTweenFrame(rawData, frame, frameStart, frameCount);
 
             const rawVertices = <Array<number>>rawData[ObjectDataParser.VERTICES];
-            const offset = ObjectDataParser._getNumber(rawData, ObjectDataParser.OFFSET, 0);
+            const offset = ObjectDataParser._getNumber(rawData, ObjectDataParser.OFFSET, 0); // uint
             let x = 0;
             let y = 0;
             for (let i = 0, l = this._mesh.vertices.length; i < l; i += 2) {
@@ -773,8 +751,8 @@ namespace dragonBones {
                     y = 0;
                 }
                 else {
-                    x = rawVertices[i - offset] * this._armatureScale;
-                    y = rawVertices[i + 1 - offset] * this._armatureScale;
+                    x = rawVertices[i - offset] * this._armature.scale;
+                    y = rawVertices[i + 1 - offset] * this._armature.scale;
                 }
 
                 if (this._mesh.skinned) { // If mesh is skinned, transform point by bone bind pose.
@@ -844,7 +822,7 @@ namespace dragonBones {
 
             if (ObjectDataParser.FRAME in rawData) {
                 const rawFrames = <Array<any>>rawData[ObjectDataParser.FRAME];
-                if (rawFrames.length) {
+                if (rawFrames.length > 0) {
                     if (rawFrames.length == 1) { // Only one frame.
                         timeline.frames.length = 1;
                         timeline.frames[0] = frameParser.call(this, rawFrames[0], 0, ObjectDataParser._getNumber(rawFrames[0], ObjectDataParser.DURATION, 1));
@@ -905,9 +883,11 @@ namespace dragonBones {
             if (typeof actionsObject == "string") { // Support string action.
                 const actionData = BaseObject.borrowObject(ActionData);
                 actionData.type = ActionType.FadeIn;
-                actionData.data = [actionsObject, -1, -1];
                 actionData.bone = bone;
                 actionData.slot = slot;
+                actionData.data[0] = actionsObject;
+                actionData.data[1] = -1;
+                actionData.data[2] = -1;
                 actions.push(actionData);
             }
             else if (actionsObject instanceof Array) { // Support [{gotoAndPlay: "animationName"}, ...] or [["gotoAndPlay", "animationName", ...], ...]
@@ -932,46 +912,34 @@ namespace dragonBones {
 
                     switch (actionData.type) {
                         case ActionType.Play:
-                            actionData.data = [
-                                animationName, // animationName
-                                isArray ? ObjectDataParser._getParameter(actionObject, 2, -1) : -1, // playTimes
-                            ];
+                            actionData.data[0] = animationName;
+                            actionData.data[1] = isArray ? ObjectDataParser._getParameter(actionObject, 2, -1) : -1; // playTimes
                             break;
 
                         case ActionType.Stop:
-                            actionData.data = [
-                                animationName, // animationName
-                            ];
+                            actionData.data[0] = animationName;
                             break;
 
                         case ActionType.GotoAndPlay:
-                            actionData.data = [
-                                animationName, // animationName
-                                isArray ? ObjectDataParser._getParameter(actionObject, 2, 0) : 0, // time
-                                isArray ? ObjectDataParser._getParameter(actionObject, 3, -1) : -1 // playTimes
-                            ];
+                            actionData.data[0] = animationName;
+                            actionData.data[1] = isArray ? ObjectDataParser._getParameter(actionObject, 2, 0) : 0; // time
+                            actionData.data[2] = isArray ? ObjectDataParser._getParameter(actionObject, 3, -1) : -1; // playTimes
                             break;
 
                         case ActionType.GotoAndStop:
-                            actionData.data = [
-                                animationName, // animationName
-                                isArray ? ObjectDataParser._getParameter(actionObject, 2, 0) : 0, // time
-                            ];
+                            actionData.data[0] = animationName;
+                            actionData.data[1] = isArray ? ObjectDataParser._getParameter(actionObject, 2, 0) : 0; // time
                             break;
 
                         case ActionType.FadeIn:
-                            actionData.data = [
-                                animationName, // animationName
-                                isArray ? ObjectDataParser._getParameter(actionObject, 2, -1) : -1, // fadeInTime
-                                isArray ? ObjectDataParser._getParameter(actionObject, 3, -1) : -1 // playTimes
-                            ];
+                            actionData.data[0] = animationName;
+                            actionData.data[1] = isArray ? ObjectDataParser._getParameter(actionObject, 2, -1) : -1; // fadeInTime
+                            actionData.data[2] = isArray ? ObjectDataParser._getParameter(actionObject, 3, -1) : -1; // playTimes
                             break;
 
                         case ActionType.FadeOut:
-                            actionData.data = [
-                                animationName, // animationName
-                                isArray ? ObjectDataParser._getParameter(actionObject, 2, 0) : 0 // fadeOutTime
-                            ];
+                            actionData.data[0] = animationName;
+                            actionData.data[1] = isArray ? ObjectDataParser._getParameter(actionObject, 2, 0) : 0; // fadeOutTime
                             break;
                     }
 
@@ -1012,8 +980,8 @@ namespace dragonBones {
          * @private
          */
         protected _parseTransform(rawData: Object, transform: Transform): void {
-            transform.x = ObjectDataParser._getNumber(rawData, ObjectDataParser.X, 0) * this._armatureScale;
-            transform.y = ObjectDataParser._getNumber(rawData, ObjectDataParser.Y, 0) * this._armatureScale;
+            transform.x = ObjectDataParser._getNumber(rawData, ObjectDataParser.X, 0) * this._armature.scale;
+            transform.y = ObjectDataParser._getNumber(rawData, ObjectDataParser.Y, 0) * this._armature.scale;
             transform.skewX = ObjectDataParser._getNumber(rawData, ObjectDataParser.SKEW_X, 0) * DragonBones.ANGLE_TO_RADIAN;
             transform.skewY = ObjectDataParser._getNumber(rawData, ObjectDataParser.SKEW_Y, 0) * DragonBones.ANGLE_TO_RADIAN;
             transform.scaleX = ObjectDataParser._getNumber(rawData, ObjectDataParser.SCALE_X, 1);
@@ -1046,8 +1014,6 @@ namespace dragonBones {
                     this._isGlobalTransform = false;
                 }
 
-                this._armatureScale = scale;
-
                 if (
                     version == ObjectDataParser.DATA_VERSION ||
                     version == ObjectDataParser.DATA_VERSION_4_0 ||
@@ -1062,7 +1028,7 @@ namespace dragonBones {
 
                         const armatures = <Array<any>>rawData[ObjectDataParser.ARMATURE];
                         for (let i = 0, l = armatures.length; i < l; ++i) {
-                            data.addArmature(this._parseArmature(armatures[i]));
+                            data.addArmature(this._parseArmature(armatures[i], scale));
                         }
 
                         this._data = null;
@@ -1075,7 +1041,7 @@ namespace dragonBones {
                 }
             }
             else {
-                throw new Error();
+                throw new Error("No data.");
             }
 
             // return null;
@@ -1125,7 +1091,7 @@ namespace dragonBones {
                 }
             }
             else {
-                throw new Error();
+                throw new Error("No data.");
             }
         }
 

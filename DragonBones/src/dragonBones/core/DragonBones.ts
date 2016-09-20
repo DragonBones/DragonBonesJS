@@ -32,8 +32,8 @@ namespace dragonBones {
      * @private
      */
     export const enum EventType {
-        Frame = 0,
-        Sound = 1
+        Frame = 10,
+        Sound = 11
     }
     /**
      * @private
@@ -75,16 +75,77 @@ namespace dragonBones {
      * DragonBones
      */
     export class DragonBones {
+        /**
+         * @private
+         */
         public static PI_D: number = Math.PI * 2;
+        /**
+         * @private
+         */
         public static PI_H: number = Math.PI / 2;
+        /**
+         * @private
+         */
         public static PI_Q: number = Math.PI / 4;
+        /**
+         * @private
+         */
         public static ANGLE_TO_RADIAN: number = Math.PI / 180;
+        /**
+         * @private
+         */
         public static RADIAN_TO_ANGLE: number = 180 / Math.PI;
+        /**
+         * @private
+         */
         public static SECOND_TO_MILLISECOND: number = 1000;
+        /**
+         * @internal
+         * @private
+         */
         public static NO_TWEEN: number = 100;
 
-        public static VERSION: string = "4.7.1";
-
-        public constructor() { }
+        public static VERSION: string = "4.7.2";
+        /**
+         * @private
+         */
+        public static debug: boolean = false;
+        /**
+         * @private
+         */
+        public static debugDraw: boolean = false;
+        /**
+         * @internal
+         * @private
+         */
+        public static _armatures: Array<Armature> = [];
+        /**
+         * @internal
+         * @private
+         */
+        public static hasArmature(value: Armature): boolean {
+            return DragonBones._armatures.indexOf(value) >= 0;
+        }
+        /**
+         * @internal
+         * @private
+         */
+        public static addArmature(value: Armature): void {
+            if (value && DragonBones._armatures.indexOf(value) < 0) {
+                DragonBones._armatures.push(value);
+            }
+        }
+        /**
+         * @internal
+         * @private
+         */
+        public static removeArmature(value: Armature): void {
+            if (value) {
+                const index = DragonBones._armatures.indexOf(value);
+                if (index >= 0) {
+                    DragonBones._armatures.splice(index, 1);
+                }
+            }
+        }
     }
 }

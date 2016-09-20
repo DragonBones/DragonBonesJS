@@ -80,14 +80,7 @@ var dragonBones;
          */
         function PixiArmatureDisplay() {
             _super.call(this);
-            if (!PixiArmatureDisplay._clock) {
-                PixiArmatureDisplay._clock = new dragonBones.WorldClock();
-                PIXI.ticker.shared.add(PixiArmatureDisplay._clockHandler, PixiArmatureDisplay);
-            }
         }
-        PixiArmatureDisplay._clockHandler = function (passedTime) {
-            PixiArmatureDisplay._clock.advanceTime(-1); // passedTime !?
-        };
         /**
          * @inheritDoc
          */
@@ -150,10 +143,10 @@ var dragonBones;
          */
         PixiArmatureDisplay.prototype.advanceTimeBySelf = function (on) {
             if (on) {
-                PixiArmatureDisplay._clock.add(this._armature);
+                dragonBones.PixiFactory._clock.add(this._armature);
             }
             else {
-                PixiArmatureDisplay._clock.remove(this._armature);
+                dragonBones.PixiFactory._clock.remove(this._armature);
             }
         };
         /**
@@ -186,7 +179,6 @@ var dragonBones;
             enumerable: true,
             configurable: true
         });
-        PixiArmatureDisplay._clock = null;
         return PixiArmatureDisplay;
     }(PIXI.Container));
     dragonBones.PixiArmatureDisplay = PixiArmatureDisplay;
@@ -330,7 +322,8 @@ var dragonBones;
                     var textureAtlasTexture = currentTextureData.parent.texture;
                     if (!currentTextureData.texture && textureAtlasTexture) {
                         var originSize = new PIXI.Rectangle(0, 0, currentTextureData.region.width, currentTextureData.region.height);
-                        currentTextureData.texture = new PIXI.Texture(textureAtlasTexture, null, currentTextureData.region, originSize, currentTextureData.rotated);
+                        currentTextureData.texture = new PIXI.Texture(textureAtlasTexture, currentTextureData.region, // No need to set frame.
+                        currentTextureData.region, originSize, currentTextureData.rotated);
                     }
                     var texture = this._armature._replacedTexture || currentTextureData.texture;
                     if (this._meshData && this._display == this._meshDisplay) {
@@ -370,27 +363,7 @@ var dragonBones;
                         }
                     }
                     else {
-                        var rect = currentTextureData.frame || currentTextureData.region;
-                        var width = rect.width;
-                        var height = rect.height;
-                        if (currentTextureData.rotated) {
-                            width = rect.height;
-                            height = rect.width;
-                        }
-                        this._pivotX = currentDisplayData.pivot.x;
-                        this._pivotY = currentDisplayData.pivot.y;
-                        if (currentDisplayData.isRelativePivot) {
-                            this._pivotX = width * this._pivotX;
-                            this._pivotY = height * this._pivotY;
-                        }
-                        if (currentTextureData.frame) {
-                            this._pivotX += currentTextureData.frame.x;
-                            this._pivotY += currentTextureData.frame.y;
-                        }
-                        if (rawDisplayData && rawDisplayData != currentDisplayData) {
-                            this._pivotX += rawDisplayData.transform.x - currentDisplayData.transform.x;
-                            this._pivotY += rawDisplayData.transform.y - currentDisplayData.transform.y;
-                        }
+                        this._updatePivot(rawDisplayData, currentDisplayData, currentTextureData);
                         frameDisplay.texture = texture;
                     }
                     this._updateVisible();
@@ -477,10 +450,15 @@ var dragonBones;
         function PixiFactory(dataParser) {
             if (dataParser === void 0) { dataParser = null; }
             _super.call(this, dataParser);
-            if (!dragonBones.EventObject._soundEventManager) {
-                dragonBones.EventObject._soundEventManager = new dragonBones.PixiArmatureDisplay();
+            if (!PixiFactory._eventManager) {
+                PixiFactory._eventManager = new dragonBones.PixiArmatureDisplay();
+                PixiFactory._clock = new dragonBones.WorldClock();
+                PIXI.ticker.shared.add(PixiFactory._clockHandler, PixiFactory);
             }
         }
+        PixiFactory._clockHandler = function (passedTime) {
+            PixiFactory._clock.advanceTime(-1); // passedTime !?
+        };
         Object.defineProperty(PixiFactory, "factory", {
             /**
              * @language zh_CN
@@ -518,6 +496,7 @@ var dragonBones;
             armature._skinData = dataPackage.skin;
             armature._animation = dragonBones.BaseObject.borrowObject(dragonBones.Animation);
             armature._display = armatureDisplayContainer;
+            armature._eventManager = PixiFactory._eventManager;
             armatureDisplayContainer._armature = armature;
             armature._animation._armature = armature;
             armature.animation.animations = dataPackage.armature.animations;
@@ -621,12 +600,20 @@ var dragonBones;
              * @version DragonBones 4.5
              */
             get: function () {
-                return dragonBones.EventObject._soundEventManager;
+                return PixiFactory._eventManager;
             },
             enumerable: true,
             configurable: true
         });
         PixiFactory._factory = null;
+        /**
+         * @private
+         */
+        PixiFactory._eventManager = null;
+        /**
+         * @private
+         */
+        PixiFactory._clock = null;
         return PixiFactory;
     }(dragonBones.BaseFactory));
     dragonBones.PixiFactory = PixiFactory;

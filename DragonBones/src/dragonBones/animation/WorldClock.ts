@@ -10,7 +10,7 @@ namespace dragonBones {
         private static _clock: WorldClock = null;
         /**
          * @language zh_CN
-         * 一个可以直接使用的全局静态 WorldClock 实例.
+         * 一个可以直接使用的全局 WorldClock 实例.
          * @version DragonBones 3.0
          */
         public static get clock(): WorldClock {
@@ -73,24 +73,26 @@ namespace dragonBones {
                 for (; i < l; ++i) {
                     const animateble = this._animatebles[i];
                     if (animateble) {
-                        animateble.advanceTime(passedTime);
-
                         if (r > 0) {
                             this._animatebles[i - r] = animateble;
+                            this._animatebles[i] = null;
                         }
-                    } else {
+
+                        animateble.advanceTime(passedTime);
+                    }
+                    else {
                         r++;
                     }
                 }
 
                 if (r > 0) {
                     l = this._animatebles.length;
-
                     for (; i < l; ++i) {
                         const animateble = this._animatebles[i];
                         if (animateble) {
                             this._animatebles[i - r] = animateble;
-                        } else {
+                        }
+                        else {
                             r++;
                         }
                     }
@@ -117,6 +119,10 @@ namespace dragonBones {
         public add(value: IAnimateble): void {
             if (value && this._animatebles.indexOf(value) < 0) {
                 this._animatebles.push(value);
+
+                if (DragonBones.debug && value instanceof Armature) {
+                    DragonBones.addArmature(value);
+                }
             }
         }
         /**
@@ -129,6 +135,10 @@ namespace dragonBones {
             let index = this._animatebles.indexOf(value);
             if (index >= 0) {
                 this._animatebles[index] = null;
+                
+                if (DragonBones.debug && value instanceof Armature) {
+                    DragonBones.removeArmature(value);
+                }
             }
         }
         /**

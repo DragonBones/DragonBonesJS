@@ -113,10 +113,6 @@ namespace dragonBones {
         public static toString(): string {
             return "[class dragonBones.EventObject]";
         }
-        /**
-         * @private
-         */
-        public static _soundEventManager: IEventDispatcher = null;
 
         /**
          * @language zh_CN
@@ -190,14 +186,6 @@ namespace dragonBones {
             this.animationState = null;
             this.frame = null;
             this.userData = null;
-        }
-
-        /**
-         * @deprecated
-         * @see #animationState
-         */
-        public get animationName(): string {
-            return this.animationState.name;
         }
     }
 }
