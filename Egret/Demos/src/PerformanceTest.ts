@@ -13,7 +13,7 @@ namespace demosEgret {
             this._resourceConfigURL = "resource/PerformanceTest.res.json";
         }
 
-        protected createGameScene(): void {
+        protected _onStart(): void {
             //
             this._text.textAlign = egret.HorizontalAlign.CENTER;
             this._text.size = 20;
@@ -34,7 +34,8 @@ namespace demosEgret {
 
                 this._resetPosition();
                 this._updateText();
-            } else {
+            }
+            else {
                 throw new Error();
             }
         }

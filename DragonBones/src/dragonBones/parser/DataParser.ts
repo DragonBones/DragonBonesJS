@@ -28,6 +28,7 @@ namespace dragonBones {
         protected static SKIN: string = "skin";
         protected static DISPLAY: string = "display";
         protected static ANIMATION: string = "animation";
+        protected static Z_ORDER: string = "zOrder";
         protected static FFD: string = "ffd";
         protected static FRAME: string = "frame";
 
@@ -46,7 +47,6 @@ namespace dragonBones {
         protected static LENGTH: string = "length";
         protected static DATA: string = "data";
         protected static DISPLAY_INDEX: string = "displayIndex";
-        protected static Z_ORDER: string = "z";
         protected static BLEND_MODE: string = "blendMode";
         protected static INHERIT_TRANSLATION: string = "inheritTranslation";
         protected static INHERIT_ROTATION: string = "inheritRotation";
@@ -66,6 +66,7 @@ namespace dragonBones {
         protected static TWEEN_ROTATE: string = "tweenRotate";
         protected static TWEEN_SCALE: string = "tweenScale";
         protected static CURVE: string = "curve";
+        protected static GUIDE_CURVE: string = "guideCurve";
         protected static EVENT: string = "event";
         protected static SOUND: string = "sound";
         protected static ACTION: string = "action";
@@ -102,17 +103,15 @@ namespace dragonBones {
         protected static TIMELINE: string = "timeline";
         protected static PIVOT_X: string = "pX";
         protected static PIVOT_Y: string = "pY";
+        protected static Z: string = "z";
         protected static LOOP: string = "loop";
         protected static AUTO_TWEEN: string = "autoTween";
         protected static HIDE: string = "hide";
 
-        protected static RECTANGLE: string = "rectangle";
-        protected static ELLIPSE: string = "ellipse";
-
         protected static _getArmatureType(value: string): ArmatureType {
             switch (value.toLowerCase()) {
                 case "stage":
-                    return ArmatureType.Armature;
+                    return ArmatureType.Stage;
 
                 case "armature":
                     return ArmatureType.Armature;
@@ -262,7 +261,7 @@ namespace dragonBones {
                 }
                 else if (frame.curve) {
                     tweenProgress = (position - frame.position) / frame.duration;
-                    tweenProgress = TweenTimelineState._getCurveEasingValue(tweenProgress, frame.curve);
+                    tweenProgress = TweenTimelineState._getCurveValue(tweenProgress, frame.curve);
                 }
 
                 const nextFrame = frame.next;
@@ -282,11 +281,11 @@ namespace dragonBones {
                 transform.scaleY = frame.transform.scaleY + transform.scaleY * tweenProgress;
             }
 
-            transform.add(timeline.originTransform);
+            transform.add(timeline.originalTransform);
         }
 
         protected _globalToLocal(armature: ArmatureData): void { // Support 2.x ~ 3.x data.
-            const keyFrames: Array<BoneFrameData> = [];
+            const keyFrames = new Array<BoneFrameData>();
             const bones = armature.sortedBones.concat().reverse();
 
             for (let i = 0, l = bones.length; i < l; ++i) {
@@ -309,7 +308,7 @@ namespace dragonBones {
                     }
 
                     const parentTimeline = bone.parent ? animation.getBoneTimeline(bone.parent.name) : null;
-                    this._helpTransformB.copyFrom(timeline.originTransform);
+                    this._helpTransformB.copyFrom(timeline.originalTransform);
                     keyFrames.length = 0;
 
                     for (let i = 0, l = timeline.frames.length; i < l; ++i) {
@@ -338,11 +337,11 @@ namespace dragonBones {
                         frame.transform.minus(bone.transform);
 
                         if (i == 0) {
-                            timeline.originTransform.copyFrom(frame.transform);
+                            timeline.originalTransform.copyFrom(frame.transform);
                             frame.transform.identity();
                         }
                         else {
-                            frame.transform.minus(timeline.originTransform);
+                            frame.transform.minus(timeline.originalTransform);
                         }
                     }
                 }
@@ -437,9 +436,9 @@ namespace dragonBones {
          * @see dragonBones.BaseFactory#parsetTextureAtlasData()
          */
         public static parseTextureAtlasData(rawData: any, scale: number = 1): any {
-            const textureAtlasData: any = {};
+            const textureAtlasData = {};
 
-            const subTextureList: any = rawData[DataParser.SUB_TEXTURE];
+            const subTextureList = rawData[DataParser.SUB_TEXTURE];
             for (let i = 0, len = subTextureList.length; i < len; i++) {
                 const subTextureObject = subTextureList[i];
                 const subTextureName = subTextureObject[DataParser.NAME];

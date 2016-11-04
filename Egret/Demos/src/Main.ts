@@ -38,12 +38,15 @@ class Main extends egret.DisplayObjectContainer {
 
         this.stage.dirtyRegionPolicy = "off";
 
-        this.addChild(new demosEgret.HelloDragonBones());
+        //this.addChild(new demosEgret.HelloDragonBones());
+        this.addChild(new demosEgret.DragonBonesTest());
         //this.addChild(new demosEgret.AnimationBaseTest());
-        //this.addChild(new demosEgret.ReplaceSlotDisplayTest());
+        //this.addChild(new demosEgret.ReplaceSlotDisplay());
         //this.addChild(new demosEgret.PerformanceTest());
         //this.addChild(new demosEgret.knight.Game());
         //this.addChild(new demosEgret.coreElement.Game());
+
+        //this.addChild(new demosEgret.HelloMovie());
     }
 }
 
@@ -70,9 +73,10 @@ abstract class BaseTest extends egret.DisplayObjectContainer {
 
             //初始化Resource资源加载库
             //initiate Resource loading library
-            RES.addEventListener(RES.ResourceEvent.CONFIG_COMPLETE, this._onConfigComplete, this);
+            RES.addEventListener(RES.ResourceEvent.CONFIG_COMPLETE, this.onConfigComplete, this);
             RES.loadConfig(this._resourceConfigURL, "resource/");
-        } else {
+        }
+        else {
             throw new Error();
         }
     }
@@ -81,8 +85,8 @@ abstract class BaseTest extends egret.DisplayObjectContainer {
      * 配置文件加载完成,开始预加载preload资源组。
      * configuration file loading is completed, start to pre-load the preload resource group
      */
-    private _onConfigComplete(event: RES.ResourceEvent): void {
-        RES.removeEventListener(RES.ResourceEvent.CONFIG_COMPLETE, this._onConfigComplete, this);
+    private onConfigComplete(event: RES.ResourceEvent): void {
+        RES.removeEventListener(RES.ResourceEvent.CONFIG_COMPLETE, this.onConfigComplete, this);
         RES.addEventListener(RES.ResourceEvent.GROUP_COMPLETE, this.onResourceLoadComplete, this);
         RES.addEventListener(RES.ResourceEvent.GROUP_LOAD_ERROR, this.onResourceLoadError, this);
         RES.addEventListener(RES.ResourceEvent.GROUP_PROGRESS, this.onResourceProgress, this);
@@ -101,7 +105,7 @@ abstract class BaseTest extends egret.DisplayObjectContainer {
             RES.removeEventListener(RES.ResourceEvent.GROUP_LOAD_ERROR, this.onResourceLoadError, this);
             RES.removeEventListener(RES.ResourceEvent.GROUP_PROGRESS, this.onResourceProgress, this);
             RES.removeEventListener(RES.ResourceEvent.ITEM_LOAD_ERROR, this.onItemLoadError, this);
-            this.createGameScene();
+            this._onStart();
         }
     }
 
@@ -134,7 +138,7 @@ abstract class BaseTest extends egret.DisplayObjectContainer {
         }
     }
 
-    protected abstract createGameScene(): void;
+    protected abstract _onStart(): void;
 }
 
 class LoadingUI extends egret.Sprite {

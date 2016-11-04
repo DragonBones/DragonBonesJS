@@ -78,15 +78,6 @@ namespace dragonBones {
         /**
          * @private
          */
-        public clone(): Transform {
-            const value = new Transform();
-            value.copyFrom(this);
-
-            return value;
-        }
-        /**
-         * @private
-         */
         public identity(): Transform {
             this.x = this.y = this.skewX = this.skewY = 0;
             this.scaleX = this.scaleY = 1;

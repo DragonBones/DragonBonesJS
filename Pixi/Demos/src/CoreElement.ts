@@ -14,8 +14,6 @@ namespace demosPixi {
             public renderer = new PIXI.WebGLRenderer(800, 600, { backgroundColor: 0x666666 });
             public stage = new PIXI.Container();
 
-            public factory: dragonBones.PixiFactory = new dragonBones.PixiFactory();
-
             private _backgroud: PIXI.Sprite = new PIXI.Sprite(PIXI.Texture.EMPTY);
 
             private _left: boolean = false;
@@ -45,8 +43,8 @@ namespace demosPixi {
             }
 
             private _loadComplateHandler(loader: PIXI.loaders.Loader, object: dragonBones.Map<PIXI.loaders.Resource>): void {
-                this.factory.parseDragonBonesData(object["dragonBonesData"].data);
-                this.factory.parseTextureAtlasData(object["textureDataA"].data, object["textureA"].texture);
+                dragonBones.PixiFactory.factory.parseDragonBonesData(object["dragonBonesData"].data);
+                dragonBones.PixiFactory.factory.parseTextureAtlasData(object["textureDataA"].data, object["textureA"].texture);
 
                 this.stage.interactive = true;
                 this.stage.on('touchstart', this._touchHandler, this);
@@ -200,7 +198,7 @@ namespace demosPixi {
             private _target: PointType = new PIXI.Point();
 
             public constructor() {
-                this._armature = Game.instance.factory.buildArmature("mecha_1502b");
+                this._armature = dragonBones.PixiFactory.factory.buildArmature("mecha_1502b");
                 this._armatureDisplay = <ArmatureDisplayType>this._armature.display;
                 this._armatureDisplay.x = Game.STAGE_WIDTH * 0.5;
                 this._armatureDisplay.y = Game.GROUND;
@@ -269,7 +267,7 @@ namespace demosPixi {
                 this._weaponR.removeEventListener(dragonBones.EventObject.FRAME_EVENT, this._frameEventHandler, this);
 
                 const weaponName = Mecha.WEAPON_R_LIST[this._weaponRIndex];
-                this._weaponR = Game.instance.factory.buildArmature(weaponName);
+                this._weaponR = dragonBones.PixiFactory.factory.buildArmature(weaponName);
                 this._armature.getSlot("weapon_r").childArmature = this._weaponR;
                 this._weaponR.addEventListener(dragonBones.EventObject.FRAME_EVENT, this._frameEventHandler, this);
             }
@@ -283,7 +281,7 @@ namespace demosPixi {
                 this._weaponL.removeEventListener(dragonBones.EventObject.FRAME_EVENT, this._frameEventHandler, this);
 
                 const weaponName = Mecha.WEAPON_L_LIST[this._weaponLIndex];
-                this._weaponL = Game.instance.factory.buildArmature(weaponName);
+                this._weaponL = dragonBones.PixiFactory.factory.buildArmature(weaponName);
                 this._armature.getSlot("weapon_l").childArmature = this._weaponL;
                 this._weaponL.addEventListener(dragonBones.EventObject.FRAME_EVENT, this._frameEventHandler, this);
             }
@@ -500,7 +498,7 @@ namespace demosPixi {
                 this._speedX = Math.cos(radian) * speed;
                 this._speedY = Math.sin(radian) * speed;
 
-                this._armature = Game.instance.factory.buildArmature(armatureName);
+                this._armature = dragonBones.PixiFactory.factory.buildArmature(armatureName);
                 this._armatureDisplay = <ArmatureDisplayType>this._armature.display;
                 this._armatureDisplay.x = position.x;
                 this._armatureDisplay.y = position.y;
@@ -508,7 +506,7 @@ namespace demosPixi {
                 this._armature.animation.play("idle");
 
                 if (effectArmatureName) {
-                    this._effect = Game.instance.factory.buildArmature(effectArmatureName);
+                    this._effect = dragonBones.PixiFactory.factory.buildArmature(effectArmatureName);
                     const effectDisplay = <ArmatureDisplayType>this._effect.display;
                     effectDisplay.rotation = radian;
                     effectDisplay.x = position.x;

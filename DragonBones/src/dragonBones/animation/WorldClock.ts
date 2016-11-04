@@ -64,7 +64,8 @@ namespace dragonBones {
 
             if (passedTime < 0) {
                 this.time -= passedTime;
-            } else {
+            }
+            else {
                 this.time += passedTime;
             }
 

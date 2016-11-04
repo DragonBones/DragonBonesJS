@@ -59,7 +59,8 @@ namespace dragonBones {
         protected _generateTextureAtlasData(textureAtlasData: EgretTextureAtlasData, textureAtlas: egret.Texture): EgretTextureAtlasData {
             if (textureAtlasData) {
                 textureAtlasData.texture = textureAtlas;
-            } else {
+            }
+            else {
                 textureAtlasData = BaseObject.borrowObject(EgretTextureAtlasData);
             }
 
@@ -88,7 +89,7 @@ namespace dragonBones {
         /**
          * @private
          */
-        protected _generateSlot(dataPackage: BuildArmaturePackage, slotDisplayDataSet: SlotDisplayDataSet): Slot {
+        protected _generateSlot(dataPackage: BuildArmaturePackage, slotDisplayDataSet: SlotDisplayDataSet, armature: Armature): Slot {
             const slot = BaseObject.borrowObject(EgretSlot);
             const slotData = slotDisplayDataSet.slot;
             const displayList = [];
@@ -101,28 +102,29 @@ namespace dragonBones {
                 const displayData = slotDisplayDataSet.displays[i];
                 switch (displayData.type) {
                     case DisplayType.Image:
-                        if (!displayData.texture) {
-                            displayData.texture = this._getTextureData(dataPackage.dataName, displayData.name);
+                        if (!displayData.texture || dataPackage.textureAtlasName) {
+                            displayData.texture = this._getTextureData(dataPackage.textureAtlasName || dataPackage.dataName, displayData.name);
                         }
 
                         displayList.push(slot._rawDisplay);
                         break;
 
                     case DisplayType.Mesh:
-                        if (!displayData.texture) {
-                            displayData.texture = this._getTextureData(dataPackage.dataName, displayData.name);
+                        if (!displayData.texture || dataPackage.textureAtlasName) {
+                            displayData.texture = this._getTextureData(dataPackage.textureAtlasName || dataPackage.dataName, displayData.name);
                         }
 
                         if (egret.Capabilities.renderMode == "webgl") {
                             displayList.push(slot._meshDisplay);
-                        } else {
+                        }
+                        else {
                             console.warn("Canvas can not support mesh, please change renderMode to webgl.");
                             displayList.push(slot._rawDisplay);
                         }
                         break;
 
                     case DisplayType.Armature:
-                        const childArmature = this.buildArmature(displayData.name, dataPackage.dataName);
+                        const childArmature = this.buildArmature(displayData.name, dataPackage.dataName, null, dataPackage.textureAtlasName);
                         if (childArmature) {
                             if (!slot.inheritAnimation) {
                                 const actions = slotData.actions.length > 0 ? slotData.actions : childArmature.armatureData.actions;
@@ -130,7 +132,8 @@ namespace dragonBones {
                                     for (let i = 0, l = actions.length; i < l; ++i) {
                                         childArmature._bufferAction(actions[i]);
                                     }
-                                } else {
+                                }
+                                else {
                                     childArmature.animation.play();
                                 }
                             }
@@ -154,15 +157,16 @@ namespace dragonBones {
         /**
          * @language zh_CN
          * 创建一个指定名称的骨架，并使用骨架的显示容器来更新骨架动画。
-         * @param armatureName 骨架数据名称。
+         * @param armatureName 骨架名称。
          * @param dragonBonesName 龙骨数据名称，如果未设置，将检索所有的龙骨数据，如果多个数据中包含同名的骨架数据，可能无法创建出准确的骨架。
          * @param skinName 皮肤名称，如果未设置，则使用默认皮肤。
+		 * @param textureAtlasName 贴图集数据名称，如果未设置，则使用龙骨数据。
          * @returns 骨架的显示容器。
-         * @see dragonBones.IArmatureDisplayContainer
+         * @see dragonBones.EgretArmatureDisplay
          * @version DragonBones 4.5
          */
-        public buildArmatureDisplay(armatureName: string, dragonBonesName: string = null, skinName: string = null): EgretArmatureDisplay {
-            const armature = this.buildArmature(armatureName, dragonBonesName, skinName);
+        public buildArmatureDisplay(armatureName: string, dragonBonesName: string = null, skinName: string = null, textureAtlasName: string = null): EgretArmatureDisplay {
+            const armature = this.buildArmature(armatureName, dragonBonesName, skinName, textureAtlasName);
             const armatureDisplay = armature ? <EgretArmatureDisplay>armature._display : null;
             if (armatureDisplay) {
                 armatureDisplay.advanceTimeBySelf(true);
@@ -174,14 +178,14 @@ namespace dragonBones {
          * @language zh_CN
          * 获取带有指定贴图的显示对象。
          * @param textureName 指定的贴图名称。
-         * @param dragonBonesName 指定的龙骨数据名称，如果未设置，将检索所有的龙骨数据。
+         * @param textureAtlasName 指定的贴图集数据名称，如果未设置，将检索所有的贴图集数据。
          * @version DragonBones 3.0
          */
-        public getTextureDisplay(textureName: string, dragonBonesName: string = null): egret.Bitmap {
-            const textureData = <EgretTextureData>this._getTextureData(dragonBonesName, textureName);
+        public getTextureDisplay(textureName: string, textureAtlasName: string = null): egret.Bitmap {
+            const textureData = <EgretTextureData>this._getTextureData(textureAtlasName, textureName);
             if (textureData) {
                 if (!textureData.texture) {
-                    const textureAtlasTexture = (<EgretTextureAtlasData>textureData.parent).texture;
+                    const textureAtlasTexture = (textureData.parent as EgretTextureAtlasData).texture;
                     textureData.texture = new egret.Texture();
                     textureData.texture._bitmapData = textureAtlasTexture._bitmapData;
 
@@ -257,7 +261,6 @@ namespace dragonBones {
         public buildFastArmature(armatureName: string, dragonBonesName: string = null, skinName: string = null): FastArmature {
             return this.buildArmature(armatureName, dragonBonesName, skinName);
         }
-
         /**
          * @deprecated
          * @see dragonBones.BaseFactory#clear()

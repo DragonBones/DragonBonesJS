@@ -65,8 +65,8 @@ namespace dragonBones {
         /**
          * @private
          */
-        protected static _sortAnimationState(a: AnimationState, b: AnimationState): number {
-            return a.layer > b.layer ? 1 : -1;
+        private static _sortAnimationState(a: AnimationState, b: AnimationState): number {
+            return a.layer > b.layer ? -1 : 1;
         }
         /**
          * @private
@@ -88,38 +88,17 @@ namespace dragonBones {
          */
         public _animationStateDirty: boolean;
         /**
-         * @internal
-         * @private
-         */
-        public _timelineStateDirty: boolean;
-        /**
          * @private
          */
         public _armature: Armature;
-        /**
-         * @private
-         */
-        protected _isPlaying: boolean;
-        /**
-         * @private
-         */
-        protected _time: number;
-        /**
-         * @private
-         */
-        protected _lastAnimationState: AnimationState;
-        /**
-         * @private
-         */
-        protected _animations: Map<AnimationData> = {};
-        /**
-         * @private
-         */
-        protected _animationNames: Array<string> = [];
-        /**
-         * @private
-         */
-        protected _animationStates: Array<AnimationState> = [];
+
+        private _isPlaying: boolean;
+        private _time: number;
+        private _duration: number;
+        private _lastAnimationState: AnimationState;
+        private _animations: Map<AnimationData> = {};
+        private _animationNames: Array<string> = [];
+        private _animationStates: Array<AnimationState> = [];
         /**
          * @internal
          * @private
@@ -142,19 +121,17 @@ namespace dragonBones {
             this.timeScale = 1;
 
             this._animationStateDirty = false;
-            this._timelineStateDirty = false;
             this._armature = null;
 
             this._isPlaying = false;
             this._time = 0;
+            this._duration = 0;
             this._lastAnimationState = null;
             this._animationNames.length = 0;
             this._animationStates.length = 0;
         }
-        /**
-         * @private
-         */
-        protected _fadeOut(fadeOutTime: number, layer: number, group: string, fadeOutMode: AnimationFadeOutMode, pauseFadeOut: boolean): void {
+
+        private _fadeOut(fadeOutTime: number, layer: number, group: string, fadeOutMode: AnimationFadeOutMode, pauseFadeOut: boolean): void {
             let i = 0, l = this._animationStates.length;
             let animationState = <AnimationState>null;
             switch (fadeOutMode) {
@@ -234,17 +211,13 @@ namespace dragonBones {
             const animationStateCount = self._animationStates.length;
             if (animationStateCount == 1) {
                 const animationState = self._animationStates[0];
-                if (animationState._isFadeOutComplete) {
+                if (animationState._fadeState > 0 && animationState._fadeProgress <= 0) {
                     animationState.returnToPool();
                     self._animationStates.length = 0;
                     self._animationStateDirty = true;
                     self._lastAnimationState = null;
                 }
                 else {
-                    if (self._timelineStateDirty) {
-                        animationState._updateTimelineStates();
-                    }
-
                     animationState._advanceTime(passedTime, 1, 0);
                 }
             }
@@ -256,7 +229,7 @@ namespace dragonBones {
 
                 for (let i = 0, r = 0; i < animationStateCount; ++i) {
                     const animationState = self._animationStates[i];
-                    if (animationState._isFadeOutComplete) {
+                    if (animationState._fadeState > 0 && animationState._fadeProgress <= 0) {
                         r++;
                         animationState.returnToPool();
                         self._animationStateDirty = true;
@@ -288,13 +261,9 @@ namespace dragonBones {
                             layerTotalWeight = 0;
                         }
 
-                        if (self._timelineStateDirty) {
-                            animationState._updateTimelineStates();
-                        }
-
                         animationState._advanceTime(passedTime, weightLeft, animationIndex);
 
-                        if (animationState._weightResult != 0) { // Update layer total weight.
+                        if (animationState._weightResult > 0) { // Update layer total weight.
                             layerTotalWeight += animationState._weightResult;
                             animationIndex++;
                         }
@@ -305,8 +274,6 @@ namespace dragonBones {
                     }
                 }
             }
-
-            self._timelineStateDirty = false;
         }
         /**
          * @language zh_CN
@@ -397,20 +364,27 @@ namespace dragonBones {
             const animationData = this._animations[animationName];
             if (!animationData) {
                 this._time = 0;
+                this._duration = 0;
+
                 console.warn(
                     "Non-existent animation.",
                     "DragonBones: " + this._armature.armatureData.parent.name,
                     "Armature: " + this._armature.name,
                     "Animation: " + animationName
                 );
+
                 return null;
             }
+
+            this._isPlaying = true;
 
             if (this._time != this._time) {
                 this._time = 0;
             }
 
-            this._isPlaying = true;
+            if (this._duration != this._duration) {
+                this._duration = 0;
+            }
 
             if (fadeInTime != fadeInTime || fadeInTime < 0) {
                 if (this._lastAnimationState) {
@@ -427,6 +401,10 @@ namespace dragonBones {
 
             this._fadeOut(fadeInTime, layer, group, fadeOutMode, pauseFadeOut);
 
+            const time = this._duration > 0 ? 0 : this._time;
+            const position = this._duration > 0 ? this._time : animationData.position;
+            const duration = this._duration > 0 ? this._duration : animationData.duration;
+
             this._lastAnimationState = BaseObject.borrowObject(AnimationState);
             this._lastAnimationState._layer = layer;
             this._lastAnimationState._group = group;
@@ -434,12 +412,15 @@ namespace dragonBones {
             this._lastAnimationState.displayControl = displayControl;
             this._lastAnimationState._fadeIn(
                 this._armature, animationData.animation || animationData, animationName,
-                playTimes, animationData.position, animationData.duration, this._time, 1 / animationData.scale, fadeInTime,
+                playTimes, position, duration, time, 1 / animationData.scale, fadeInTime,
                 pauseFadeIn
             );
             this._animationStates.push(this._lastAnimationState);
+
             this._animationStateDirty = true;
             this._time = 0;
+            this._duration = 0;
+            this._armature._cacheFrameIndex = -1;
 
             if (this._animationStates.length > 1) {
                 this._animationStates.sort(Animation._sortAnimationState);
@@ -460,7 +441,7 @@ namespace dragonBones {
                 }
             }
 
-            if (fadeInTime == 0) {
+            if (fadeInTime <= 0) {
                 this._armature.advanceTime(0); // Blend animation state, update armature. (pass actions and events) 
             }
 
@@ -472,12 +453,24 @@ namespace dragonBones {
          * @param animationName 动画数据的名称。
          * @param time 时间。 (以秒为单位)
          * @param playTimes 动画循环播放的次数。 [-1: 使用动画数据默认值, 0: 无限循环播放, [1~N]: 循环播放 N 次]
+         * @param toTime 播放到指定的时间，如果未设置则播放整个动画。
          * @returns 返回控制这个动画数据的动画状态。
          * @see dragonBones.AnimationState
          * @version DragonBones 4.5
          */
-        public gotoAndPlayByTime(animationName: string, time: number = 0, playTimes: number = -1): AnimationState {
-            this._time = time;
+        public gotoAndPlayByTime(animationName: string, time: number = 0, playTimes: number = -1, toTime: number = 0): AnimationState {
+            const animationData = this._animations[animationName];
+            if (animationData) {
+                this._time = time;
+                this._duration = toTime - time;
+
+                if (this._duration < 0) {
+                    this._duration = 0;
+                }
+                else if (this._duration > animationData.duration - this._time) {
+                    this._duration = animationData.duration - this._time;
+                }
+            }
 
             return this.fadeIn(animationName, 0, playTimes, 0, null, AnimationFadeOutMode.All);
         }
@@ -487,14 +480,22 @@ namespace dragonBones {
          * @param animationName 动画数据的名称。
          * @param frame 帧。
          * @param playTimes 动画循环播放的次数。[-1: 使用动画数据默认值, 0: 无限循环播放, [1~N]: 循环播放 N 次]
+         * @param toFrame 播放到指定的帧，如果未设置则播放整个动画。
          * @returns 返回控制这个动画数据的动画状态。
          * @see dragonBones.AnimationState
          * @version DragonBones 4.5
          */
-        public gotoAndPlayByFrame(animationName: string, frame: number = 0, playTimes: number = -1): AnimationState {
+        public gotoAndPlayByFrame(animationName: string, frame: number = 0, playTimes: number = -1, toFrame: number = 0): AnimationState {
             const animationData = this._animations[animationName];
             if (animationData) {
                 this._time = animationData.duration * frame / animationData.frameCount;
+
+                if (this._duration < 0) {
+                    this._duration = 0;
+                }
+                else if (this._duration > animationData.duration - this._time) {
+                    this._duration = animationData.duration - this._time;
+                }
             }
 
             return this.fadeIn(animationName, 0, playTimes, 0, null, AnimationFadeOutMode.All);
@@ -505,14 +506,22 @@ namespace dragonBones {
          * @param animationName 动画数据的名称。
          * @param progress 进度。 [0~1]
          * @param playTimes 动画循环播放的次数。[-1: 使用动画数据默认值, 0: 无限循环播放, [1~N]: 循环播放 N 次]
+         * @param toProgress 播放到指定的进度，如果未设置则播放整个动画。
          * @returns 返回控制这个动画数据的动画状态。
          * @see dragonBones.AnimationState
          * @version DragonBones 4.5
          */
-        public gotoAndPlayByProgress(animationName: string, progress: number = 0, playTimes: number = -1): AnimationState {
+        public gotoAndPlayByProgress(animationName: string, progress: number = 0, playTimes: number = -1, toProgress: number = 0): AnimationState {
             const animationData = this._animations[animationName];
             if (animationData) {
-                this._time = animationData.duration * Math.max(progress, 0);
+                this._time = animationData.duration * (progress > 0 ? progress : 0);
+
+                if (this._duration < 0) {
+                    this._duration = 0;
+                }
+                else if (this._duration > animationData.duration - this._time) {
+                    this._duration = animationData.duration - this._time;
+                }
             }
 
             return this.fadeIn(animationName, 0, playTimes, 0, null, AnimationFadeOutMode.All);
@@ -670,8 +679,6 @@ namespace dragonBones {
             return this._animations;
         }
         public set animations(value: Map<AnimationData>) {
-            const self = this;
-
             if (this._animations == value) {
                 return;
             }

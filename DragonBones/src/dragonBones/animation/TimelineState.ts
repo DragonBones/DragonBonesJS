@@ -25,7 +25,7 @@ namespace dragonBones {
         protected _onCrossFrame(frame: AnimationFrameData): void {
             const self = this;
 
-            if (this._animationState.actionEnabled) {
+            if (self._animationState.actionEnabled) {
                 const actions = frame.actions;
                 for (let i = 0, l = actions.length; i < l; ++i) {
                     self._armature._bufferAction(actions[i]);
@@ -50,7 +50,7 @@ namespace dragonBones {
 
                 if (
                     (eventData.type == EventType.Sound ?
-                        this._armature._eventManager : eventDispatcher
+                        self._armature._eventManager : eventDispatcher
                     ).hasEvent(eventType)
                 ) {
                     const eventObject = BaseObject.borrowObject(EventObject);
@@ -98,7 +98,7 @@ namespace dragonBones {
                     }
                 }
 
-                if (self._keyFrameCount) {
+                if (self._keyFrameCount > 0) {
                     const currentFrameIndex = self._keyFrameCount > 1 ? Math.floor(self._currentTime * self._frameRate) : 0;
                     const currentFrame = self._timeline.frames[currentFrameIndex];
                     if (self._currentFrame != currentFrame) {
@@ -169,6 +169,27 @@ namespace dragonBones {
      * @internal
      * @private
      */
+    export class ZOrderTimelineState extends TimelineState<ZOrderFrameData, ZOrderTimelineData> {
+        public static toString(): string {
+            return "[class dragonBones.ZOrderTimelineState]";
+        }
+
+        public constructor() {
+            super();
+        }
+
+        protected _onArriveAtFrame(isUpdate: boolean): void {
+            const self = this;
+
+            super._onArriveAtFrame(isUpdate);
+
+            self._armature._sortZOrder(self._currentFrame.zOrder);
+        }
+    }
+    /**
+     * @internal
+     * @private
+     */
     export class BoneTimelineState extends TweenTimelineState<BoneFrameData, BoneTimelineData> {
         public static toString(): string {
             return "[class dragonBones.BoneTimelineState]";
@@ -180,7 +201,8 @@ namespace dragonBones {
         private _tweenRotate: number;
         private _tweenScale: number;
         private _boneTransform: Transform;
-        private _originTransform: Transform;
+        private _originalTransform: Transform;
+        private _guideCurve: Array<number>;
         private _transform: Transform = new Transform();
         private _currentTransform: Transform = new Transform();
         private _durationTransform: Transform = new Transform();
@@ -200,7 +222,8 @@ namespace dragonBones {
             this._tweenRotate = TweenType.None;
             this._tweenScale = TweenType.None;
             this._boneTransform = null;
-            this._originTransform = null;
+            this._originalTransform = null;
+            this._guideCurve = null;
             this._transform.identity();
             this._currentTransform.identity();
             this._durationTransform.identity();
@@ -216,6 +239,7 @@ namespace dragonBones {
             self._tweenTransform = TweenType.Once;
             self._tweenRotate = TweenType.Once;
             self._tweenScale = TweenType.Once;
+            self._guideCurve = self._currentFrame.guideCurve;
 
             if (self._keyFrameCount > 1 && (self._tweenEasing != DragonBones.NO_TWEEN || self._curve)) {
                 const nextFrame = self._currentFrame.next;
@@ -296,13 +320,17 @@ namespace dragonBones {
                         tweenProgress = self._tweenProgress;
                     }
 
+                    if (self._guideCurve) {
+                        //const TweenTimelineState._getCurveValue(tweenProgress, self._guideCurve);
+                    }
+
                     if (self._animationState.additiveBlending) { // Additive blending.
                         self._transform.x = self._currentTransform.x + self._durationTransform.x * tweenProgress;
                         self._transform.y = self._currentTransform.y + self._durationTransform.y * tweenProgress;
                     }
                     else { // Normal blending.
-                        self._transform.x = self._originTransform.x + self._currentTransform.x + self._durationTransform.x * tweenProgress;
-                        self._transform.y = self._originTransform.y + self._currentTransform.y + self._durationTransform.y * tweenProgress;
+                        self._transform.x = self._originalTransform.x + self._currentTransform.x + self._durationTransform.x * tweenProgress;
+                        self._transform.y = self._originalTransform.y + self._currentTransform.y + self._durationTransform.y * tweenProgress;
                     }
                 }
 
@@ -320,8 +348,8 @@ namespace dragonBones {
                         self._transform.skewY = self._currentTransform.skewY + self._durationTransform.skewY * tweenProgress;
                     }
                     else { // Normal blending.
-                        self._transform.skewX = self._originTransform.skewX + self._currentTransform.skewX + self._durationTransform.skewX * tweenProgress;
-                        self._transform.skewY = self._originTransform.skewY + self._currentTransform.skewY + self._durationTransform.skewY * tweenProgress;
+                        self._transform.skewX = self._originalTransform.skewX + self._currentTransform.skewX + self._durationTransform.skewX * tweenProgress;
+                        self._transform.skewY = self._originalTransform.skewY + self._currentTransform.skewY + self._durationTransform.skewY * tweenProgress;
                     }
                 }
 
@@ -339,8 +367,8 @@ namespace dragonBones {
                         self._transform.scaleY = self._currentTransform.scaleY + self._durationTransform.scaleY * tweenProgress;
                     }
                     else { // Normal blending.
-                        self._transform.scaleX = self._originTransform.scaleX * (self._currentTransform.scaleX + self._durationTransform.scaleX * tweenProgress);
-                        self._transform.scaleY = self._originTransform.scaleY * (self._currentTransform.scaleY + self._durationTransform.scaleY * tweenProgress);
+                        self._transform.scaleX = self._originalTransform.scaleX * (self._currentTransform.scaleX + self._durationTransform.scaleX * tweenProgress);
+                        self._transform.scaleY = self._originalTransform.scaleY * (self._currentTransform.scaleY + self._durationTransform.scaleY * tweenProgress);
                     }
                 }
 
@@ -351,7 +379,7 @@ namespace dragonBones {
         public fadeIn(armature: Armature, animationState: AnimationState, timelineData: BoneTimelineData, time: number): void {
             super.fadeIn(armature, animationState, timelineData, time);
 
-            this._originTransform = this._timeline.originTransform;
+            this._originalTransform = this._timeline.originalTransform;
             this._boneTransform = this.bone._animationPose;
         }
 
@@ -388,8 +416,7 @@ namespace dragonBones {
 
                 self.bone._blendIndex++;
 
-                const fadeProgress = self._animationState._fadeProgress;
-                if (fadeProgress < 1) {
+                if (self._animationState._fadeState != 0) {
                     self.bone.invalidUpdate();
                 }
             }
@@ -560,8 +587,8 @@ namespace dragonBones {
             if (self._tweenColor != TweenType.None || self._colorDirty) {
                 const weight = self._animationState._weightResult;
                 if (weight > 0) {
-                    const fadeProgress = self._animationState._fadeProgress;
-                    if (fadeProgress < 1) {
+                    if (self._animationState._fadeState != 0) {
+                        const fadeProgress = self._animationState._fadeProgress;
                         self._slotColor.alphaMultiplier += (self._color.alphaMultiplier - self._slotColor.alphaMultiplier) * fadeProgress;
                         self._slotColor.redMultiplier += (self._color.redMultiplier - self._slotColor.redMultiplier) * fadeProgress;
                         self._slotColor.greenMultiplier += (self._color.greenMultiplier - self._slotColor.greenMultiplier) * fadeProgress;
@@ -625,9 +652,7 @@ namespace dragonBones {
                 this._durationFFDFrame = null;
             }
 
-            if (this._ffdVertices.length) {
-                this._ffdVertices.length = 0;
-            }
+            this._ffdVertices.length = 0;
         }
 
         protected _onArriveAtFrame(isUpdate: boolean): void {
@@ -663,7 +688,8 @@ namespace dragonBones {
                 if (self._tweenFFD == TweenType.Once) {
                     self._tweenFFD = TweenType.None;
                     tweenProgress = 0;
-                } else {
+                }
+                else {
                     tweenProgress = self._tweenProgress;
                 }
 
@@ -715,8 +741,7 @@ namespace dragonBones {
 
                 self.slot._blendIndex++;
 
-                const fadeProgress = self._animationState._fadeProgress;
-                if (fadeProgress < 1) {
+                if (self._animationState._fadeState != 0) {
                     self.slot._ffdDirty = true;
                 }
             }

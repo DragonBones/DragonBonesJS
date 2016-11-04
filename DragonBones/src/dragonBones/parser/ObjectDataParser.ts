@@ -103,7 +103,7 @@ namespace dragonBones {
             }
 
             if (ObjectDataParser.BONE in rawData) {
-                const bones = <Array<any>>rawData[ObjectDataParser.BONE];
+                const bones = rawData[ObjectDataParser.BONE] as Array<any>;
                 for (let i = 0, l = bones.length; i < l; ++i) {
                     const boneObject = bones[i];
                     const bone = this._parseBone(boneObject);
@@ -113,14 +113,14 @@ namespace dragonBones {
             }
 
             if (ObjectDataParser.IK in rawData) {
-                const iks = <Array<any>>rawData[ObjectDataParser.IK];
+                const iks = rawData[ObjectDataParser.IK] as Array<any>;
                 for (let i = 0, l = iks.length; i < l; ++i) {
                     this._parseIK(iks[i]);
                 }
             }
 
             if (ObjectDataParser.SLOT in rawData) {
-                const slots = <Array<any>>rawData[ObjectDataParser.SLOT];
+                const slots = rawData[ObjectDataParser.SLOT] as Array<any>;
                 let zOrder = 0;
                 for (let i = 0, l = slots.length; i < l; ++i) {
                     armature.addSlot(this._parseSlot(slots[i], zOrder++));
@@ -128,14 +128,14 @@ namespace dragonBones {
             }
 
             if (ObjectDataParser.SKIN in rawData) {
-                const skins = <Array<any>>rawData[ObjectDataParser.SKIN];
+                const skins = rawData[ObjectDataParser.SKIN] as Array<any>;
                 for (let i = 0, l = skins.length; i < l; ++i) {
                     armature.addSkin(this._parseSkin(skins[i]));
                 }
             }
 
             if (ObjectDataParser.ANIMATION in rawData) {
-                const animations = <Array<any>>rawData[ObjectDataParser.ANIMATION];
+                const animations = rawData[ObjectDataParser.ANIMATION] as Array<any>;
                 for (let i = 0, l = animations.length; i < l; ++i) {
                     armature.addAnimation(this._parseAnimation(animations[i]));
                 }
@@ -209,7 +209,7 @@ namespace dragonBones {
             slot.name = ObjectDataParser._getString(rawData, ObjectDataParser.NAME, null);
             slot.parent = this._armature.getBone(ObjectDataParser._getString(rawData, ObjectDataParser.PARENT, null));
             slot.displayIndex = ObjectDataParser._getNumber(rawData, ObjectDataParser.DISPLAY_INDEX, 0);
-            slot.zOrder = ObjectDataParser._getNumber(rawData, ObjectDataParser.Z_ORDER, zOrder); // TODO zOrder.
+            slot.zOrder = ObjectDataParser._getNumber(rawData, ObjectDataParser.Z, zOrder); // Support 2.x ~ 3.x data.
 
             if ((ObjectDataParser.COLOR in rawData) || (ObjectDataParser.COLOR_TRANSFORM in rawData)) {
                 slot.color = SlotData.generateColor();
@@ -252,7 +252,7 @@ namespace dragonBones {
             if (ObjectDataParser.SLOT in rawData) {
                 this._skin = skin;
 
-                const slots = <Array<any>>rawData[ObjectDataParser.SLOT];
+                const slots = rawData[ObjectDataParser.SLOT] as Array<any>;
                 let zOrder = 0;
                 for (let i = 0, l = slots.length; i < l; ++i) {
                     if (this._isOldData) { // Support 2.x ~ 3.x data.
@@ -275,7 +275,7 @@ namespace dragonBones {
             slotDisplayDataSet.slot = this._armature.getSlot(ObjectDataParser._getString(rawData, ObjectDataParser.NAME, null));
 
             if (ObjectDataParser.DISPLAY in rawData) {
-                const displayObjectSet = <Array<any>>rawData[ObjectDataParser.DISPLAY];
+                const displayObjectSet = rawData[ObjectDataParser.DISPLAY] as Array<any>;
                 const displayDataSet = slotDisplayDataSet.displays;
 
                 this._slotDisplayDataSet = slotDisplayDataSet;
@@ -298,7 +298,8 @@ namespace dragonBones {
 
             if (ObjectDataParser.TYPE in rawData && typeof rawData[ObjectDataParser.TYPE] == "string") {
                 display.type = ObjectDataParser._getDisplayType(rawData[ObjectDataParser.TYPE]);
-            } else {
+            }
+            else {
                 display.type = ObjectDataParser._getNumber(rawData, ObjectDataParser.TYPE, DisplayType.Image);
             }
 
@@ -343,16 +344,16 @@ namespace dragonBones {
         protected _parseMesh(rawData: any): MeshData {
             const mesh = BaseObject.borrowObject(MeshData);
 
-            const rawVertices = <Array<number>>rawData[ObjectDataParser.VERTICES];
-            const rawUVs = <Array<number>>rawData[ObjectDataParser.UVS];
-            const rawTriangles = <Array<number>>rawData[ObjectDataParser.TRIANGLES];
+            const rawVertices = rawData[ObjectDataParser.VERTICES] as Array<number>;
+            const rawUVs = rawData[ObjectDataParser.UVS] as Array<number>;
+            const rawTriangles = rawData[ObjectDataParser.TRIANGLES] as Array<number>;
 
             const numVertices = Math.floor(rawVertices.length / 2); // uint
             const numTriangles = Math.floor(rawTriangles.length / 3); // uint
 
             const inverseBindPose = new Array<Matrix>(this._armature.sortedBones.length);
 
-            mesh.skinned = (ObjectDataParser.WEIGHTS in rawData) && (<Array<number>>rawData[ObjectDataParser.WEIGHTS]).length > 0;
+            mesh.skinned = (ObjectDataParser.WEIGHTS in rawData) && (rawData[ObjectDataParser.WEIGHTS] as Array<number>).length > 0;
             mesh.uvs.length = numVertices * 2;
             mesh.vertices.length = numVertices * 2;
             mesh.vertexIndices.length = numTriangles * 3;
@@ -363,17 +364,17 @@ namespace dragonBones {
                 mesh.boneVertices.length = numVertices;
 
                 if (ObjectDataParser.SLOT_POSE in rawData) {
-                    const rawSlotPose = <Array<number>>rawData[ObjectDataParser.SLOT_POSE];
+                    const rawSlotPose = rawData[ObjectDataParser.SLOT_POSE] as Array<number>;
                     mesh.slotPose.a = rawSlotPose[0];
                     mesh.slotPose.b = rawSlotPose[1];
                     mesh.slotPose.c = rawSlotPose[2];
                     mesh.slotPose.d = rawSlotPose[3];
-                    mesh.slotPose.tx = rawSlotPose[4];
-                    mesh.slotPose.ty = rawSlotPose[5];
+                    mesh.slotPose.tx = rawSlotPose[4] * this._armature.scale;
+                    mesh.slotPose.ty = rawSlotPose[5] * this._armature.scale;
                 }
 
                 if (ObjectDataParser.BONE_POSE in rawData) {
-                    const rawBonePose = <Array<number>>rawData[ObjectDataParser.BONE_POSE];
+                    const rawBonePose = rawData[ObjectDataParser.BONE_POSE] as Array<number>;
                     for (let i = 0, l = rawBonePose.length; i < l; i += 7) {
                         const rawBoneIndex = rawBonePose[i]; // uint
                         const boneMatrix = inverseBindPose[rawBoneIndex] = new Matrix();
@@ -381,8 +382,8 @@ namespace dragonBones {
                         boneMatrix.b = rawBonePose[i + 2];
                         boneMatrix.c = rawBonePose[i + 3];
                         boneMatrix.d = rawBonePose[i + 4];
-                        boneMatrix.tx = rawBonePose[i + 5];
-                        boneMatrix.ty = rawBonePose[i + 6];
+                        boneMatrix.tx = rawBonePose[i + 5] * this._armature.scale;
+                        boneMatrix.ty = rawBonePose[i + 6] * this._armature.scale;
                         boneMatrix.invert();
                     }
                 }
@@ -398,7 +399,7 @@ namespace dragonBones {
                 mesh.uvs[iN] = rawUVs[iN];
 
                 if (mesh.skinned) { // If mesh is skinned, transform point by bone bind pose.
-                    const rawWeights = <Array<number>>rawData[ObjectDataParser.WEIGHTS];
+                    const rawWeights = rawData[ObjectDataParser.WEIGHTS] as Array<number>;
                     const numBones = rawWeights[iW]; // uint
                     const indices = mesh.boneIndices[vertexIndex] = new Array<number>(numBones);
                     const weights = mesh.weights[vertexIndex] = new Array<number>(numBones);
@@ -464,22 +465,27 @@ namespace dragonBones {
 
             this._parseTimeline(rawData, animation, this._parseAnimationFrame);
 
+            if (ObjectDataParser.Z_ORDER in rawData) {
+                animation.zOrderTimeline = BaseObject.borrowObject(ZOrderTimelineData);
+                this._parseTimeline(rawData[ObjectDataParser.Z_ORDER], animation.zOrderTimeline, this._parseZOrderFrame);
+            }
+
             if (ObjectDataParser.BONE in rawData) {
-                const boneTimelines = <Array<any>>rawData[ObjectDataParser.BONE];
+                const boneTimelines = rawData[ObjectDataParser.BONE] as Array<any>;
                 for (let i = 0, l = boneTimelines.length; i < l; ++i) {
                     animation.addBoneTimeline(this._parseBoneTimeline(boneTimelines[i]));
                 }
             }
 
             if (ObjectDataParser.SLOT in rawData) {
-                const slotTimelines = <Array<any>>rawData[ObjectDataParser.SLOT];
+                const slotTimelines = rawData[ObjectDataParser.SLOT] as Array<any>;
                 for (let i = 0, l = slotTimelines.length; i < l; ++i) {
                     animation.addSlotTimeline(this._parseSlotTimeline(slotTimelines[i]));
                 }
             }
 
             if (ObjectDataParser.FFD in rawData) {
-                const ffdTimelines = <Array<any>>rawData[ObjectDataParser.FFD];
+                const ffdTimelines = rawData[ObjectDataParser.FFD] as Array<any>;
                 for (let i = 0, l = ffdTimelines.length; i < l; ++i) {
                     animation.addFFDTimeline(this._parseFFDTimeline(ffdTimelines[i]));
                 }
@@ -491,13 +497,11 @@ namespace dragonBones {
                 animation.playTimes = ObjectDataParser._getNumber(rawData, ObjectDataParser.LOOP, 1);
 
                 if (ObjectDataParser.TIMELINE in rawData) {
-                    const timelines = <Array<any>>rawData[ObjectDataParser.TIMELINE];
-                    for (let i = 0, l = timelines.length; i < l; ++i) {
-                        animation.addBoneTimeline(this._parseBoneTimeline(timelines[i]));
-                    }
-
-                    for (let i = 0, l = timelines.length; i < l; ++i) {
-                        animation.addSlotTimeline(this._parseSlotTimeline(timelines[i]));
+                    const timelineObjects = rawData[ObjectDataParser.TIMELINE] as Array<any>;
+                    for (let i = 0, l = timelineObjects.length; i < l; ++i) {
+                        const timelineObject = timelineObjects[i];
+                        animation.addBoneTimeline(this._parseBoneTimeline(timelineObject));
+                        animation.addSlotTimeline(this._parseSlotTimeline(timelineObject));
                     }
                 }
             }
@@ -524,7 +528,6 @@ namespace dragonBones {
                     const slotFrame = BaseObject.borrowObject(SlotFrameData);
                     slotTimeline.slot = slot;
                     slotFrame.displayIndex = slot.displayIndex;
-                    //slotFrame.zOrder = -2; // TODO zOrder.
 
                     if (slot.color == SlotData.DEFAULT_COLOR) {
                         slotFrame.color = SlotFrameData.DEFAULT_COLOR;
@@ -556,27 +559,27 @@ namespace dragonBones {
 
             this._parseTimeline(rawData, timeline, this._parseBoneFrame);
 
-            const originTransform = timeline.originTransform;
+            const originalTransform = timeline.originalTransform;
             let prevFrame = null;
 
             for (let i = 0, l = timeline.frames.length; i < l; ++i) { // bone transform pose = origin + animation origin + animation.
                 const frame = timeline.frames[i];
                 if (!prevFrame) {
-                    originTransform.copyFrom(frame.transform);
+                    originalTransform.copyFrom(frame.transform);
                     frame.transform.identity();
 
-                    if (originTransform.scaleX == 0) { // Pose scale and origin scale can not be 0. (poseScale = originScale * animationOriginScale * animationScale)
-                        originTransform.scaleX = 0.001;
+                    if (originalTransform.scaleX == 0) { // Pose scale and origin scale can not be 0. (poseScale = originScale * animationOriginScale * animationScale)
+                        originalTransform.scaleX = 0.001;
                         //frame.transform.scaleX = 0;
                     }
 
-                    if (originTransform.scaleY == 0) {
-                        originTransform.scaleY = 0.001;
+                    if (originalTransform.scaleY == 0) {
+                        originalTransform.scaleY = 0.001;
                         //frame.transform.scaleY = 0;
                     }
                 }
                 else if (prevFrame != frame) {
-                    frame.transform.minus(originTransform);
+                    frame.transform.minus(originalTransform);
                 }
 
                 prevFrame = frame;
@@ -659,6 +662,51 @@ namespace dragonBones {
         /**
          * @private
          */
+        protected _parseZOrderFrame(rawData: any, frameStart: number, frameCount: number): ZOrderFrameData {
+            const frame = BaseObject.borrowObject(ZOrderFrameData);
+
+            this._parseFrame(rawData, frame, frameStart, frameCount);
+
+            const zOrder = rawData[ObjectDataParser.Z_ORDER] as Array<number>;
+            if (zOrder && zOrder.length > 0) {
+                const slotCount = this._armature.sortedSlots.length;
+                const unchanged = new Array<number>(slotCount - zOrder.length / 2);
+                
+                frame.zOrder.length = slotCount;
+                for (let i = 0; i < slotCount; ++i) {
+                    frame.zOrder[i] = -1;
+                }
+                
+                let originalIndex = 0;
+                let unchangedIndex = 0;
+                for (let i = 0, l = zOrder.length; i < l; i += 2) {
+                    const slotIndex = zOrder[i];
+                    const offset = zOrder[i + 1];
+
+                    while (originalIndex != slotIndex) {
+                        unchanged[unchangedIndex++] = originalIndex++;
+                    }
+
+                    frame.zOrder[originalIndex + offset] = originalIndex++;
+                }
+
+                while (originalIndex < slotCount) {
+                    unchanged[unchangedIndex++] = originalIndex++;
+                }
+
+                let i = slotCount;
+                while (i--) {
+                    if (frame.zOrder[i] == -1) {
+                        frame.zOrder[i] = unchanged[--unchangedIndex];
+                    }
+                }
+            }
+
+            return frame;
+        }
+        /**
+         * @private
+         */
         protected _parseBoneFrame(rawData: Object, frameStart: number, frameCount: number): BoneFrameData {
             const frame = BaseObject.borrowObject(BoneFrameData);
             frame.tweenRotate = ObjectDataParser._getNumber(rawData, ObjectDataParser.TWEEN_ROTATE, 0);
@@ -681,8 +729,8 @@ namespace dragonBones {
             }
 
             const bone = (<BoneTimelineData>this._timeline).bone;
-            const actions: Array<ActionData> = [];
-            const events: Array<EventData> = [];
+            const actions = new Array<ActionData>();
+            const events = new Array<EventData>();
 
             if ((ObjectDataParser.ACTION in rawData) || (ObjectDataParser.ACTIONS in rawData)) {
                 const slot = this._armature.getSlot(bone.name);
@@ -705,7 +753,6 @@ namespace dragonBones {
         protected _parseSlotFrame(rawData: any, frameStart: number, frameCount: number): SlotFrameData {
             const frame = BaseObject.borrowObject(SlotFrameData);
             frame.displayIndex = ObjectDataParser._getNumber(rawData, ObjectDataParser.DISPLAY_INDEX, 0);
-            //frame.zOrder = _getNumber(rawData, Z_ORDER, -1); // TODO zorder
 
             this._parseTweenFrame(rawData, frame, frameStart, frameCount);
 
@@ -723,8 +770,8 @@ namespace dragonBones {
                 }
             }
             else if ((ObjectDataParser.ACTION in rawData) || (ObjectDataParser.ACTIONS in rawData)) {
-                const slot = (<SlotTimelineData>this._timeline).slot;
-                const actions: Array<ActionData> = [];
+                const slot = (this._timeline as SlotTimelineData).slot;
+                const actions = new Array<ActionData>();
                 this._parseActionData(rawData, actions, slot.parent, slot);
 
                 this._mergeFrameToAnimationTimeline(frame.position, actions, null); // Merge actions and events to animation timeline.
@@ -741,7 +788,7 @@ namespace dragonBones {
 
             this._parseTweenFrame(rawData, frame, frameStart, frameCount);
 
-            const rawVertices = <Array<number>>rawData[ObjectDataParser.VERTICES];
+            const rawVertices = rawData[ObjectDataParser.VERTICES] as Array<number>;
             const offset = ObjectDataParser._getNumber(rawData, ObjectDataParser.OFFSET, 0); // uint
             let x = 0;
             let y = 0;
@@ -791,7 +838,7 @@ namespace dragonBones {
                     frame.tweenEasing = DragonBones.NO_TWEEN;
                 }
 
-                if (this._isOldData && this._animation.scale == 1 && (<TimelineData<T>>this._timeline).scale == 1 && frame.duration * this._armature.frameRate < 2) {
+                if (this._isOldData && this._animation.scale == 1 && (this._timeline as TimelineData<T>).scale == 1 && frame.duration * this._armature.frameRate < 2) {
                     frame.tweenEasing = DragonBones.NO_TWEEN;
                 }
 
@@ -818,62 +865,61 @@ namespace dragonBones {
             timeline.scale = ObjectDataParser._getNumber(rawData, ObjectDataParser.SCALE, 1);
             timeline.offset = ObjectDataParser._getNumber(rawData, ObjectDataParser.OFFSET, 0);
 
-            this._timeline = timeline;
-
             if (ObjectDataParser.FRAME in rawData) {
-                const rawFrames = <Array<any>>rawData[ObjectDataParser.FRAME];
-                if (rawFrames.length > 0) {
-                    if (rawFrames.length == 1) { // Only one frame.
-                        timeline.frames.length = 1;
-                        timeline.frames[0] = frameParser.call(this, rawFrames[0], 0, ObjectDataParser._getNumber(rawFrames[0], ObjectDataParser.DURATION, 1));
-                    } else {
-                        timeline.frames.length = this._animation.frameCount + 1;
+                this._timeline = timeline;
 
-                        let frameStart = 0;
-                        let frameCount = 0;
-                        let frame: T = null;
-                        let prevFrame: T = null;
+                const rawFrames = rawData[ObjectDataParser.FRAME];
+                if (rawFrames.length == 1) { // Only one frame.
+                    timeline.frames.length = 1;
+                    timeline.frames[0] = frameParser.call(this, rawFrames[0], 0, ObjectDataParser._getNumber(rawFrames[0], ObjectDataParser.DURATION, 1));
+                }
+                else if (rawFrames.length > 1) {
+                    timeline.frames.length = this._animation.frameCount + 1;
 
-                        for (let i = 0, iW = 0, l = timeline.frames.length; i < l; ++i) { // Fill frame link.
-                            if (frameStart + frameCount <= i && iW < rawFrames.length) {
-                                const frameObject = rawFrames[iW++];
-                                frameStart = i;
-                                frameCount = ObjectDataParser._getNumber(frameObject, ObjectDataParser.DURATION, 1);
-                                frame = frameParser.call(this, frameObject, frameStart, frameCount);
+                    let frameStart = 0;
+                    let frameCount = 0;
+                    let frame: T = null;
+                    let prevFrame: T = null;
 
-                                if (prevFrame) {
-                                    prevFrame.next = frame;
-                                    frame.prev = prevFrame;
+                    for (let i = 0, iW = 0, l = timeline.frames.length; i < l; ++i) { // Fill frame link.
+                        if (frameStart + frameCount <= i && iW < rawFrames.length) {
+                            const frameObject = rawFrames[iW++];
+                            frameStart = i;
+                            frameCount = ObjectDataParser._getNumber(frameObject, ObjectDataParser.DURATION, 1);
+                            frame = frameParser.call(this, frameObject, frameStart, frameCount);
 
-                                    if (this._isOldData) { // Support 2.x ~ 3.x data.
-                                        if (prevFrame instanceof TweenFrameData && frameObject[ObjectDataParser.DISPLAY_INDEX] == -1) {
-                                            (<TweenFrameData<T>><any>prevFrame).tweenEasing = DragonBones.NO_TWEEN;
-                                        }
+                            if (prevFrame) {
+                                prevFrame.next = frame;
+                                frame.prev = prevFrame;
+
+                                if (this._isOldData) { // Support 2.x ~ 3.x data.
+                                    if (prevFrame instanceof TweenFrameData && ObjectDataParser._getNumber(frameObject, ObjectDataParser.DISPLAY_INDEX, 0) == -1) {
+                                        (<any>prevFrame as TweenFrameData<T>).tweenEasing = DragonBones.NO_TWEEN;
                                     }
                                 }
-
-                                prevFrame = frame;
                             }
 
-                            timeline.frames[i] = frame;
+                            prevFrame = frame;
                         }
 
-                        frame.duration = this._animation.duration - frame.position; // Modify last frame duration.
+                        timeline.frames[i] = frame;
+                    }
 
-                        frame = timeline.frames[0];
-                        prevFrame.next = frame;
-                        frame.prev = prevFrame;
+                    frame.duration = this._animation.duration - frame.position; // Modify last frame duration.
 
-                        if (this._isOldData) { // Support 2.x ~ 3.x data.
-                            if (prevFrame instanceof TweenFrameData && rawFrames[0][ObjectDataParser.DISPLAY_INDEX] == -1) {
-                                (<TweenFrameData<T>><any>prevFrame).tweenEasing = DragonBones.NO_TWEEN;
-                            }
+                    frame = timeline.frames[0];
+                    prevFrame.next = frame;
+                    frame.prev = prevFrame;
+
+                    if (this._isOldData) { // Support 2.x ~ 3.x data.
+                        if (prevFrame instanceof TweenFrameData && ObjectDataParser._getNumber(rawFrames[0], ObjectDataParser.DISPLAY_INDEX, 0) == -1) {
+                            (<any>prevFrame as TweenFrameData<T>).tweenEasing = DragonBones.NO_TWEEN;
                         }
                     }
                 }
-            }
 
-            this._timeline = null;
+                this._timeline = null;
+            }
         }
         /**
          * @private
@@ -956,7 +1002,7 @@ namespace dragonBones {
             if (ObjectDataParser.SOUND in rawData) {
                 const soundEventData = BaseObject.borrowObject(EventData);
                 soundEventData.type = EventType.Sound;
-                soundEventData.name = rawData[ObjectDataParser.SOUND];
+                soundEventData.name = ObjectDataParser._getString(rawData, ObjectDataParser.SOUND, null);
                 soundEventData.bone = bone;
                 soundEventData.slot = slot;
                 events.push(soundEventData);
@@ -965,7 +1011,7 @@ namespace dragonBones {
             if (ObjectDataParser.EVENT in rawData) {
                 const eventData = BaseObject.borrowObject(EventData);
                 eventData.type = EventType.Frame;
-                eventData.name = rawData[ObjectDataParser.EVENT];
+                eventData.name = ObjectDataParser._getString(rawData, ObjectDataParser.EVENT, null);
                 eventData.bone = bone;
                 eventData.slot = slot;
 
@@ -1007,6 +1053,7 @@ namespace dragonBones {
             if (rawData) {
                 const version = ObjectDataParser._getString(rawData, ObjectDataParser.VERSION, null);
                 this._isOldData = version == ObjectDataParser.DATA_VERSION_2_3 || version == ObjectDataParser.DATA_VERSION_3_0;
+
                 if (this._isOldData) {
                     this._isGlobalTransform = ObjectDataParser._getBoolean(rawData, ObjectDataParser.IS_GLOBAL, true);
                 }
@@ -1026,7 +1073,7 @@ namespace dragonBones {
                     if (ObjectDataParser.ARMATURE in rawData) {
                         this._data = data;
 
-                        const armatures = <Array<any>>rawData[ObjectDataParser.ARMATURE];
+                        const armatures = rawData[ObjectDataParser.ARMATURE] as Array<any>;
                         for (let i = 0, l = armatures.length; i < l; ++i) {
                             data.addArmature(this._parseArmature(armatures[i], scale));
                         }
@@ -1065,7 +1112,7 @@ namespace dragonBones {
                 scale = 1 / scale;
 
                 if (ObjectDataParser.SUB_TEXTURE in rawData) {
-                    const textures = <Array<any>>rawData[ObjectDataParser.SUB_TEXTURE];
+                    const textures = rawData[ObjectDataParser.SUB_TEXTURE] as Array<any>;
                     for (let i = 0, l = textures.length; i < l; ++i) {
                         const textureObject = textures[i];
                         const textureData = textureAtlasData.generateTextureData();

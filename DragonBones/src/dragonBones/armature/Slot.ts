@@ -11,6 +11,8 @@ namespace dragonBones {
      * @version DragonBones 3.0
      */
     export abstract class Slot extends TransformObject {
+        private static _helpPoint: Point = new Point();
+        private static _helpMatrix: Matrix = new Matrix();
         /**
          * @language zh_CN
          * 子骨架是否继承父骨架的动画。 [true: 继承, false: 不继承]
@@ -32,19 +34,8 @@ namespace dragonBones {
          * @internal
          * @private
          */
-        public _colorDirty: boolean;
-        /**
-         * @internal
-         * @private
-         */
-        public _ffdDirty: boolean;
-        /**
-         * @internal
-         * @private
-         */
         public _blendIndex: number;
         /**
-         * @internal
          * @private
          */
         public _zOrder: number;
@@ -65,7 +56,6 @@ namespace dragonBones {
          */
         public _meshData: MeshData;
         /**
-         * @internal
          * @private
          */
         public _childArmature: Armature;
@@ -94,9 +84,19 @@ namespace dragonBones {
          */
         public _replacedDisplayDataSet: Array<DisplayData> = [];
         /**
+         * @internal
+         * @private
+         */
+        public _zOrderDirty: boolean;
+        /**
          * @private
          */
         protected _displayDirty: boolean;
+        /**
+         * @internal
+         * @private
+         */
+        public _colorDirty: boolean;
         /**
          * @private
          */
@@ -109,6 +109,11 @@ namespace dragonBones {
          * @private
          */
         protected _transformDirty: boolean;
+        /**
+         * @internal
+         * @private
+         */
+        public _ffdDirty: boolean;
         /**
          * @private
          */
@@ -178,8 +183,6 @@ namespace dragonBones {
             this.inheritAnimation = true;
             this.displayController = null;
 
-            this._colorDirty = false;
-            this._ffdDirty = false;
             this._blendIndex = 0;
             this._zOrder = 0;
             this._pivotX = 0;
@@ -194,10 +197,13 @@ namespace dragonBones {
             this._ffdVertices.length = 0;
             this._replacedDisplayDataSet.length = 0;
 
+            this._zOrderDirty = false;
             this._displayDirty = false;
+            this._colorDirty = false;
             this._blendModeDirty = false;
             this._originDirty = false;
             this._transformDirty = false;
+            this._ffdDirty = false;
             this._displayIndex = 0;
             this._blendMode = BlendMode.Normal;
             this._display = null;
@@ -231,6 +237,10 @@ namespace dragonBones {
          */
         protected abstract _removeDisplay(): void;
         /**
+         * @private
+         */
+        protected abstract _updateZOrder(): void;
+        /**
          * @internal
          * @private Bone
          */
@@ -260,9 +270,6 @@ namespace dragonBones {
          */
         protected abstract _updateTransform(): void;
 
-        /**
-         * @private
-         */
         private _isMeshBonesUpdate(): boolean {
             for (let i = 0, l = this._meshBones.length; i < l; ++i) {
                 if (this._meshBones[i]._transformDirty != BoneTransformDirty.None) {
@@ -276,32 +283,48 @@ namespace dragonBones {
          * @private
          */
         protected _updatePivot(rawDisplayData: DisplayData, currentDisplayData: DisplayData, currentTextureData: TextureData): void {
-            this._pivotX = currentDisplayData.pivot.x;
-            this._pivotY = currentDisplayData.pivot.y;
-
-            if (currentDisplayData.isRelativePivot) {
+            const isReplaceDisplay = rawDisplayData && rawDisplayData != currentDisplayData && (!this._meshData || this._meshData != rawDisplayData.mesh);
+            if (this._meshData && this._display == this._meshDisplay) {
+                this._pivotX = 0;
+                this._pivotY = 0;
+            }
+            else {
                 const scale = this._armature.armatureData.scale;
-                const rect = currentTextureData.frame || currentTextureData.region;
-                let width = rect.width * scale;
-                let height = rect.height * scale;
+                this._pivotX = currentDisplayData.pivot.x;
+                this._pivotY = currentDisplayData.pivot.y;
 
-                if (currentTextureData.rotated) {
-                    width = rect.height;
-                    height = rect.width;
+                if (currentDisplayData.isRelativePivot) {
+                    const rect = currentTextureData.frame || currentTextureData.region;
+                    let width = rect.width * scale;
+                    let height = rect.height * scale;
+
+                    if (currentTextureData.rotated) {
+                        width = rect.height;
+                        height = rect.width;
+                    }
+
+                    this._pivotX *= width;
+                    this._pivotY *= height;
                 }
 
-                this._pivotX *= width;
-                this._pivotY *= height;
+                if (currentTextureData.frame) {
+                    this._pivotX += currentTextureData.frame.x * scale;
+                    this._pivotY += currentTextureData.frame.y * scale;
+                }
             }
 
-            if (currentTextureData.frame) {
-                this._pivotX += currentTextureData.frame.x;
-                this._pivotY += currentTextureData.frame.y;
-            }
+            if (isReplaceDisplay) {
+                rawDisplayData.transform.toMatrix(Slot._helpMatrix);
+                Slot._helpMatrix.invert();
+                Slot._helpMatrix.transformPoint(0, 0, Slot._helpPoint);
+                this._pivotX -= Slot._helpPoint.x;
+                this._pivotY -= Slot._helpPoint.y;
 
-            if (rawDisplayData && rawDisplayData != currentDisplayData) {
-                this._pivotX += rawDisplayData.transform.x - currentDisplayData.transform.x;
-                this._pivotY += rawDisplayData.transform.y - currentDisplayData.transform.y;
+                currentDisplayData.transform.toMatrix(Slot._helpMatrix);
+                Slot._helpMatrix.invert();
+                Slot._helpMatrix.transformPoint(0, 0, Slot._helpPoint);
+                this._pivotX += Slot._helpPoint.x;
+                this._pivotY += Slot._helpPoint.y;
             }
         }
         /**
@@ -441,7 +464,8 @@ namespace dragonBones {
                 const replaceDisplayData = (this._displayIndex < this._replacedDisplayDataSet.length) ? this._replacedDisplayDataSet[this._displayIndex] : null;
                 const replaceMeshData = replaceDisplayData ? replaceDisplayData.mesh : null;
                 this._meshData = replaceMeshData || rawMeshData;
-            } else {
+            }
+            else {
                 this._meshData = null;
             }
 
@@ -460,7 +484,8 @@ namespace dragonBones {
                         }
 
                         this._ffdVertices.length = ffdVerticesCount * 2;
-                    } else {
+                    }
+                    else {
                         this._meshBones.length = 0;
                         this._ffdVertices.length = this._meshData.vertices.length;
                     }
@@ -470,7 +495,8 @@ namespace dragonBones {
                     }
 
                     this._ffdDirty = true;
-                } else {
+                }
+                else {
                     this._meshBones.length = 0;
                     this._ffdVertices.length = 0;
                 }
@@ -488,6 +514,11 @@ namespace dragonBones {
             const self = this;
 
             self._blendIndex = 0;
+
+            if (self._zOrderDirty) {
+                self._zOrderDirty = false;
+                self._updateZOrder();
+            }
 
             if (self._displayDirty) {
                 self._displayDirty = false;
@@ -526,7 +557,7 @@ namespace dragonBones {
                 self._updateLocalTransformMatrix();
             }
 
-            if (cacheFrameIndex >= 0) {
+            if (cacheFrameIndex >= 0 && self._cacheFrames) {
                 const cacheFrame = self._cacheFrames[cacheFrameIndex];
                 if (self.globalTransformMatrix == cacheFrame) { // Same cache.
                     self._transformDirty = false;
@@ -559,8 +590,9 @@ namespace dragonBones {
                 if (self.globalTransformMatrix == self._globalTransformMatrix) {
                     self._updateGlobalTransformMatrix();
 
-                    if (cacheFrameIndex >= 0 && !self._cacheFrames[cacheFrameIndex]) {
+                    if (cacheFrameIndex >= 0 && self._cacheFrames && !self._cacheFrames[cacheFrameIndex]) {
                         self.globalTransformMatrix = SlotTimelineData.cacheFrame(self._cacheFrames, cacheFrameIndex, self._globalTransformMatrix);
+
                     }
                 }
 
@@ -587,13 +619,15 @@ namespace dragonBones {
 
                     this._displayList[i] = eachDisplay;
                 }
-            } else if (this._displayList.length > 0) {
+            }
+            else if (this._displayList.length > 0) {
                 this._displayList.length = 0;
             }
 
             if (this._displayIndex >= 0 && this._displayIndex < this._displayList.length) {
                 this._displayDirty = this._display != this._displayList[this._displayIndex];
-            } else {
+            }
+            else {
                 this._displayDirty = this._display != null;
             }
 
@@ -702,7 +736,8 @@ namespace dragonBones {
                 let eachDisplay = disposeDisplayList[i];
                 if (eachDisplay instanceof Armature) {
                     (<Armature>eachDisplay).dispose();
-                } else {
+                }
+                else {
                     this._disposeDisplay(eachDisplay);
                 }
             }
@@ -727,7 +762,8 @@ namespace dragonBones {
 
             if (this._displayIndex < 0) {
                 return;
-            } else {
+            }
+            else {
                 const replaceDisplayList = this.displayList; // Copy.
                 if (displayListLength <= this._displayIndex) {
                     replaceDisplayList.length = this._displayIndex + 1;

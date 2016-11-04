@@ -51,7 +51,8 @@ namespace dragonBones {
         protected _generateTextureAtlasData(textureAtlasData: PixiTextureAtlasData, textureAtlas: PIXI.BaseTexture): PixiTextureAtlasData {
             if (textureAtlasData) {
                 textureAtlasData.texture = textureAtlas;
-            } else {
+            }
+            else {
                 textureAtlasData = BaseObject.borrowObject(PixiTextureAtlasData);
             }
 
@@ -80,7 +81,7 @@ namespace dragonBones {
         /**
          * @private
          */
-        protected _generateSlot(dataPackage: BuildArmaturePackage, slotDisplayDataSet: SlotDisplayDataSet): Slot {
+        protected _generateSlot(dataPackage: BuildArmaturePackage, slotDisplayDataSet: SlotDisplayDataSet, armature: Armature): Slot {
             const slot = BaseObject.borrowObject(PixiSlot);
             const slotData = slotDisplayDataSet.slot;
             const displayList = [];
@@ -93,23 +94,23 @@ namespace dragonBones {
                 const displayData = slotDisplayDataSet.displays[i];
                 switch (displayData.type) {
                     case DisplayType.Image:
-                        if (!displayData.texture) {
-                            displayData.texture = this._getTextureData(dataPackage.dataName, displayData.name);
+                        if (!displayData.texture || dataPackage.textureAtlasName) {
+                            displayData.texture = this._getTextureData(dataPackage.textureAtlasName || dataPackage.dataName, displayData.name);
                         }
 
                         displayList.push(slot._rawDisplay);
                         break;
 
                     case DisplayType.Mesh:
-                        if (!displayData.texture) {
-                            displayData.texture = this._getTextureData(dataPackage.dataName, displayData.name);
+                        if (!displayData.texture || dataPackage.textureAtlasName) {
+                            displayData.texture = this._getTextureData(dataPackage.textureAtlasName || dataPackage.dataName, displayData.name);
                         }
 
                         displayList.push(slot._meshDisplay);
                         break;
 
                     case DisplayType.Armature:
-                        const childArmature = this.buildArmature(displayData.name, dataPackage.dataName);
+                        const childArmature = this.buildArmature(displayData.name, dataPackage.dataName, null, dataPackage.textureAtlasName);
                         if (childArmature) {
                             if (!slot.inheritAnimation) {
                                 const actions = slotData.actions.length > 0 ? slotData.actions : childArmature.armatureData.actions;
@@ -142,16 +143,17 @@ namespace dragonBones {
         /**
          * @language zh_CN
          * 创建一个指定名称的骨架，并使用骨架的显示容器来更新骨架动画。
-         * @param armatureName 骨架数据名称。
+         * @param armatureName 骨架名称。
          * @param dragonBonesName 龙骨数据名称，如果未设置，将检索所有的龙骨数据，如果多个数据中包含同名的骨架数据，可能无法创建出准确的骨架。
          * @param skinName 皮肤名称，如果未设置，则使用默认皮肤。
+		 * @param textureAtlasName 贴图集数据名称，如果未设置，则使用龙骨数据。
          * @returns 骨架的显示容器。
-         * @see dragonBones.IArmatureDisplayContainer
+         * @see dragonBones.PixiArmatureDisplay
          * @version DragonBones 4.5
          */
-        public buildArmatureDisplay(armatureName: string, dragonBonesName: string = null, skinName: string = null): PixiArmatureDisplay {
-            const armature = this.buildArmature(armatureName, dragonBonesName, skinName);
-            const armatureDisplay = armature ? <PixiArmatureDisplay>armature._display : null;
+        public buildArmatureDisplay(armatureName: string, dragonBonesName: string = null, skinName: string = null, textureAtlasName: string = null): PixiArmatureDisplay {
+            const armature = this.buildArmature(armatureName, dragonBonesName, skinName, textureAtlasName);
+            const armatureDisplay = armature ? armature._display as PixiArmatureDisplay: null;
             if (armatureDisplay) {
                 armatureDisplay.advanceTimeBySelf(true);
             }
@@ -166,10 +168,10 @@ namespace dragonBones {
          * @version DragonBones 3.0
          */
         public getTextureDisplay(textureName: string, dragonBonesName: string = null): PIXI.Sprite {
-            const textureData = <PixiTextureData>this._getTextureData(dragonBonesName, textureName);
+            const textureData = this._getTextureData(dragonBonesName, textureName) as PixiTextureData;
             if (textureData) {
                 if (!textureData.texture) {
-                    const textureAtlasTexture = (<PixiTextureAtlasData>textureData.parent).texture;
+                    const textureAtlasTexture = (textureData.parent as PixiTextureAtlasData).texture;
                     const originSize = new PIXI.Rectangle(0, 0, textureData.region.width, textureData.region.height);
                     textureData.texture = new PIXI.Texture(
                         textureAtlasTexture,

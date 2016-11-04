@@ -10,6 +10,12 @@ namespace dragonBones {
 
         private _debugDrawer: PIXI.Graphics;
         /**
+         * @internal
+         * @private
+         */
+        public _subTextures: Map<PIXI.Texture> = {};
+
+        /**
          * @private
          */
         public constructor() {
@@ -19,12 +25,21 @@ namespace dragonBones {
          * @inheritDoc
          */
         public _onClear(): void {
-            this._armature = null;
+            for (let i in this._subTextures) {
+                this._subTextures[i].destroy(); // Why can not destroy?
+                delete this._subTextures[i];
+            }
 
             if (this._debugDrawer) {
                 this._debugDrawer.destroy(true);
-                this._debugDrawer = null;
             }
+
+            if (this._armature) {
+                this.advanceTimeBySelf(false);
+            }
+
+            this._armature = null;
+            this._debugDrawer = null;
 
             this.destroy(true);
         }
@@ -57,6 +72,15 @@ namespace dragonBones {
                 this._debugDrawer.lineStyle(1, bone.ik ? 0xFF0000 : 0x00FF00, 0.5);
                 this._debugDrawer.moveTo(startX, startY);
                 this._debugDrawer.lineTo(endX, endY);
+            }
+        }
+        /**
+         * @inheritDoc
+         */
+        public _onReplaceTexture(texture: any): void {
+            for (let i in this._subTextures) {
+                //this._subTextures[i].destroy(); // Why can not destroy?
+                delete this._subTextures[i];
             }
         }
         /**

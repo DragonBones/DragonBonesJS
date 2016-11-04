@@ -63,6 +63,10 @@ namespace dragonBones {
         /**
          * @private
          */
+        public zOrderTimeline: TimelineData<ZOrderFrameData>;
+        /**
+         * @private
+         */
         public boneTimelines: Map<BoneTimelineData> = {};
         /**
          * @private
@@ -76,6 +80,7 @@ namespace dragonBones {
          * @private
          */
         public cachedFrames: Array<boolean> = [];
+
         /**
          * @private
          */
@@ -87,6 +92,10 @@ namespace dragonBones {
          */
         protected _onClear(): void {
             super._onClear();
+
+            if (this.zOrderTimeline) {
+                this.zOrderTimeline.returnToPool();
+            }
 
             for (let i in this.boneTimelines) {
                 this.boneTimelines[i].returnToPool();
@@ -117,6 +126,7 @@ namespace dragonBones {
             this.cacheTimeToFrameScale = 0;
             this.name = null;
             this.animation = null;
+            this.zOrderTimeline = null;
             this.cachedFrames.length = 0;
         }
         /**

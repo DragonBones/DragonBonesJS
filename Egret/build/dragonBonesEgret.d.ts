@@ -29,7 +29,7 @@ declare namespace dragonBones {
         generateTextureData(): TextureData;
         /**
          * @deprecated
-         * @see dragonBones.BaseFactory#removeDragonBonesData()
+         * @see dragonBones.BaseFactory#removeTextureAtlasData()
          */
         dispose(): void;
     }
@@ -159,15 +159,7 @@ declare namespace dragonBones {
      * @inheritDoc
      */
     class EgretArmatureDisplay extends egret.DisplayObjectContainer implements IArmatureDisplay {
-        /**
-         * @private
-         */
-        _armature: Armature;
         private _debugDrawer;
-        /**
-         * @private
-         */
-        constructor();
         /**
          * @inheritDoc
          */
@@ -180,6 +172,10 @@ declare namespace dragonBones {
          * @inheritDoc
          */
         _debugDraw(): void;
+        /**
+         * @inheritDoc
+         */
+        _onReplaceTexture(texture: any): void;
         /**
          * @inheritDoc
          */
@@ -327,6 +323,7 @@ declare namespace dragonBones {
          * @version DragonBones 3.0
          */
         constructor();
+        private _createTexture(textureData, textureAtlas);
         /**
          * @inheritDoc
          */
@@ -334,11 +331,11 @@ declare namespace dragonBones {
         /**
          * @private
          */
-        protected _initDisplay(value: Object): void;
+        protected _initDisplay(value: any): void;
         /**
          * @private
          */
-        protected _disposeDisplay(value: Object): void;
+        protected _disposeDisplay(value: any): void;
         /**
          * @private
          */
@@ -350,7 +347,7 @@ declare namespace dragonBones {
         /**
          * @private
          */
-        protected _replaceDisplay(value: Object): void;
+        protected _replaceDisplay(value: any): void;
         /**
          * @private
          */
@@ -358,7 +355,7 @@ declare namespace dragonBones {
         /**
          * @private
          */
-        _updateVisible(): void;
+        protected _updateZOrder(): void;
         /**
          * @private
          */
@@ -426,26 +423,27 @@ declare namespace dragonBones {
         /**
          * @private
          */
-        protected _generateSlot(dataPackage: BuildArmaturePackage, slotDisplayDataSet: SlotDisplayDataSet): Slot;
+        protected _generateSlot(dataPackage: BuildArmaturePackage, slotDisplayDataSet: SlotDisplayDataSet, armature: Armature): Slot;
         /**
          * @language zh_CN
          * 创建一个指定名称的骨架，并使用骨架的显示容器来更新骨架动画。
-         * @param armatureName 骨架数据名称。
+         * @param armatureName 骨架名称。
          * @param dragonBonesName 龙骨数据名称，如果未设置，将检索所有的龙骨数据，如果多个数据中包含同名的骨架数据，可能无法创建出准确的骨架。
          * @param skinName 皮肤名称，如果未设置，则使用默认皮肤。
+         * @param textureAtlasName 贴图集数据名称，如果未设置，则使用龙骨数据。
          * @returns 骨架的显示容器。
-         * @see dragonBones.IArmatureDisplayContainer
+         * @see dragonBones.EgretArmatureDisplay
          * @version DragonBones 4.5
          */
-        buildArmatureDisplay(armatureName: string, dragonBonesName?: string, skinName?: string): EgretArmatureDisplay;
+        buildArmatureDisplay(armatureName: string, dragonBonesName?: string, skinName?: string, textureAtlasName?: string): EgretArmatureDisplay;
         /**
          * @language zh_CN
          * 获取带有指定贴图的显示对象。
          * @param textureName 指定的贴图名称。
-         * @param dragonBonesName 指定的龙骨数据名称，如果未设置，将检索所有的龙骨数据。
+         * @param textureAtlasName 指定的贴图集数据名称，如果未设置，将检索所有的贴图集数据。
          * @version DragonBones 3.0
          */
-        getTextureDisplay(textureName: string, dragonBonesName?: string): egret.Bitmap;
+        getTextureDisplay(textureName: string, textureAtlasName?: string): egret.Bitmap;
         /**
          * @language zh_CN
          * 获取全局声音事件管理器。

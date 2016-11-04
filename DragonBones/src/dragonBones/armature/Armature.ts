@@ -6,7 +6,7 @@ namespace dragonBones {
      * @see dragonBones.Bone
      * @see dragonBones.Slot
      * @see dragonBones.Animation
-     * @see dragonBones.IArmatureDisplayContainer
+     * @see dragonBones.IArmatureDisplay
      * @version DragonBones 3.0
      */
     export class Armature extends BaseObject implements IAnimateble {
@@ -17,17 +17,16 @@ namespace dragonBones {
             return "[class dragonBones.Armature]";
         }
 
+        private static _onSortSlots(a: Slot, b: Slot): number {
+            return a._zOrder > b._zOrder ? 1 : -1;
+        }
+
         /**
          * @language zh_CN
          * 可以用于存储临时数据。
          * @version DragonBones 3.0
          */
         public userData: any;
-        /**
-         * @internal
-         * @private
-         */
-        public _bonesDirty: boolean;
         /**
          * @private
          */
@@ -56,38 +55,20 @@ namespace dragonBones {
         /**
          * @private
          */
-        public _replacedTexture: any;
-        /**
-         * @private
-         */
         public _eventManager: IEventDispatcher;
-        /**
-         * @private
-         */
+
         private _delayDispose: boolean;
-        /**
-         * @private
-         */
         private _lockDispose: boolean;
         /**
+         * @internal
          * @private
          */
+        public _bonesDirty: boolean;
         private _slotsDirty: boolean;
-        /**
-         * @private Store bones based on bones' hierarchy (From root to leaf)
-         */
+        private _replacedTexture: any;
         private _bones: Array<Bone> = [];
-        /**
-         * @private Store slots based on slots' zOrder (From low to high)
-         */
         private _slots: Array<Slot> = [];
-        /**
-         * @private
-         */
         private _actions: Array<ActionData> = [];
-        /**
-         * @private
-         */
         private _events: Array<EventObject> = [];
         /**
          * @internal
@@ -112,38 +93,35 @@ namespace dragonBones {
                 this._events[i].returnToPool();
             }
 
-            this.userData = null;
-
-            this._bonesDirty = false;
-            this._cacheFrameIndex = -1;
-            this._armatureData = null;
-            this._skinData = null;
-
             if (this._animation) {
                 this._animation.returnToPool();
-                this._animation = null;
             }
 
             if (this._display) {
                 this._display._onClear();
-                this._display = null;
             }
 
+            this.userData = null;
+
+            this._cacheFrameIndex = -1;
+            this._armatureData = null;
+            this._skinData = null;
+            this._animation = null;
+            this._display = null;
             this._parent = null;
-            this._replacedTexture = null;
             this._eventManager = null;
 
             this._delayDispose = false;
             this._lockDispose = false;
+            this._bonesDirty = false;
             this._slotsDirty = false;
+            this._replacedTexture = null;
             this._bones.length = 0;
             this._slots.length = 0;
             this._actions.length = 0;
             this._events.length = 0;
         }
-        /**
-         * @private
-         */
+
         private _sortBones(): void {
             const total = this._bones.length;
             if (total <= 0) {
@@ -185,14 +163,11 @@ namespace dragonBones {
                 count++;
             }
         }
-        /**
-         * @private
-         */
+
         private _sortSlots(): void {
+            this._slots.sort(Armature._onSortSlots);
         }
-        /**
-         * @private
-         */
+
         private _doAction(value: ActionData): void {
             switch (value.type) {
                 case ActionType.Play:
@@ -231,7 +206,6 @@ namespace dragonBones {
             if (this._bones.indexOf(value) < 0) {
                 this._bonesDirty = true;
                 this._bones.push(value);
-                this._animation._timelineStateDirty = true;
             }
         }
         /**
@@ -242,7 +216,6 @@ namespace dragonBones {
             let index = this._bones.indexOf(value);
             if (index >= 0) {
                 this._bones.splice(index, 1);
-                this._animation._timelineStateDirty = true;
             }
         }
         /**
@@ -253,7 +226,6 @@ namespace dragonBones {
             if (this._slots.indexOf(value) < 0) {
                 this._slotsDirty = true;
                 this._slots.push(value);
-                this._animation._timelineStateDirty = true;
             }
         }
         /**
@@ -264,8 +236,27 @@ namespace dragonBones {
             let index = this._slots.indexOf(value);
             if (index >= 0) {
                 this._slots.splice(index, 1);
-                this._animation._timelineStateDirty = true;
             }
+        }
+        /**
+         * @private
+         */
+        public _sortZOrder(slotIndices: Array<number>): void {
+            const sortedSlots = this._armatureData.sortedSlots;
+            const isOriginal = slotIndices.length < 1;
+
+            for (let i = 0, l = sortedSlots.length; i < l; ++i) {
+                const slotIndex = isOriginal ? i : slotIndices[i];
+                const slotData = sortedSlots[slotIndex];
+                const slot = this.getSlot(slotData.name);
+
+                if (slot && slot._zOrder != i) {
+                    slot._zOrder = i;
+                    slot._zOrderDirty = true;
+                }
+            }
+
+            this._slotsDirty = true;
         }
         /**
          * @private
@@ -445,6 +436,37 @@ namespace dragonBones {
         }
         /**
          * @language zh_CN
+         * 获取指定名称的骨骼。
+         * @param name 骨骼的名称。
+         * @returns 骨骼。
+         * @see dragonBones.Bone
+         * @version DragonBones 3.0
+         */
+        public getBone(name: string): Bone {
+            for (let i = 0, l = this._bones.length; i < l; ++i) {
+                const bone = this._bones[i];
+                if (bone.name == name) {
+                    return bone;
+                }
+            }
+
+            return null;
+        }
+        /**
+         * @language zh_CN
+         * 通过显示对象获取骨骼。
+         * @param display 显示对象。
+         * @returns 包含这个显示对象的骨骼。
+         * @see dragonBones.Bone
+         * @version DragonBones 3.0
+         */
+        public getBoneByDisplay(display: any): Bone {
+            const slot = this.getSlotByDisplay(display);
+
+            return slot ? slot.parent : null;
+        }
+        /**
+         * @language zh_CN
          * 获取指定名称的插槽。
          * @param name 插槽的名称。
          * @returns 插槽。
@@ -483,114 +505,12 @@ namespace dragonBones {
         }
         /**
          * @language zh_CN
-         * 将一个指定的插槽添加到骨架中。
-         * @param value 需要添加的插槽。
-         * @param parentName 需要添加到的父骨骼名称。
-         * @see dragonBones.Slot
-         * @version DragonBones 3.0
-         */
-        public addSlot(value: Slot, parentName: string): void {
-            const bone = this.getBone(parentName);
-            if (bone) {
-                value._setArmature(this);
-                value._setParent(bone);
-            }
-            else {
-                throw new Error();
-            }
-        }
-        /**
-         * @language zh_CN
-         * 将一个指定的插槽从骨架中移除。
-         * @param value 需要移除的插槽
-         * @see dragonBones.Slot
-         * @version DragonBones 3.0
-         */
-        public removeSlot(value: Slot): void {
-            if (value && value.armature == this) {
-                value._setParent(null);
-                value._setArmature(null);
-            }
-            else {
-                throw new Error();
-            }
-        }
-        /**
-         * @language zh_CN
-         * 获取指定名称的骨骼。
-         * @param name 骨骼的名称。
-         * @returns 骨骼。
-         * @see dragonBones.Bone
-         * @version DragonBones 3.0
-         */
-        public getBone(name: string): Bone {
-            for (let i = 0, l = this._bones.length; i < l; ++i) {
-                const bone = this._bones[i];
-                if (bone.name == name) {
-                    return bone;
-                }
-            }
-
-            return null;
-        }
-        /**
-         * @language zh_CN
-         * 通过显示对象获取骨骼。
-         * @param display 显示对象。
-         * @returns 包含这个显示对象的骨骼。
-         * @see dragonBones.Bone
-         * @version DragonBones 3.0
-         */
-        public getBoneByDisplay(display: any): Bone {
-            const slot = this.getSlotByDisplay(display);
-
-            return slot ? slot.parent : null;
-        }
-        /**
-         * @language zh_CN
-         * 将一个指定的骨骼添加到骨架中。
-         * @param value 需要添加的骨骼。
-         * @param parentName 需要添加到父骨骼的名称，如果未设置，则添加到骨架根部。
-         * @see dragonBones.Bone
-         * @version DragonBones 3.0
-         */
-        public addBone(value: Bone, parentName: string = null): void {
-            if (value) {
-                value._setArmature(this);
-                value._setParent(parentName ? this.getBone(parentName) : null);
-            }
-            else {
-                throw new Error();
-            }
-        }
-        /**
-         * @language zh_CN
-         * 将一个指定的骨骼从骨架中移除。
-         * @param value 需要移除的骨骼。
-         * @see dragonBones.Bone
-         * @version DragonBones 3.0
-         */
-        public removeBone(value: Bone): void {
-            if (value && value.armature == this) {
-                value._setParent(null);
-                value._setArmature(null);
-            }
-            else {
-                throw new Error();
-            }
-        }
-        /**
-         * @language zh_CN
          * 替换骨架的主贴图，根据渲染引擎的不同，提供不同的贴图数据。
-         * @param texture 用来替换的贴图，根据渲染平台的不同，类型会有所不同，一般是 Texture 类型。
+         * @param texture 贴图。
          * @version DragonBones 4.5
          */
         public replaceTexture(texture: any): void {
-            this._replacedTexture = texture;
-
-            for (let i = 0, l = this._slots.length; i < l; ++i) {
-                this._slots[i].invalidUpdate();
-            }
+            this.replacedTexture = texture;
         }
         /**
          * @language zh_CN
@@ -683,6 +603,24 @@ namespace dragonBones {
         }
         /**
          * @language zh_CN
+         * 替换骨架的主贴图，根据渲染引擎的不同，提供不同的贴图数据。
+         * @version DragonBones 4.5
+         */
+        public get replacedTexture(): any {
+            return this._replacedTexture;
+        }
+        public set replacedTexture(value: any) {
+            this._display._onReplaceTexture(value);
+
+            this._replacedTexture = value;
+
+            for (let i = 0, l = this._slots.length; i < l; ++i) {
+                this._slots[i].invalidUpdate();
+            }
+        }
+
+        /**
+         * @language zh_CN
          * 开启动画缓存。
          * @param frameRate 动画缓存的帧率
          * @see #cacheFrameRate
@@ -722,6 +660,55 @@ namespace dragonBones {
             this._display.removeEvent(type, listener, target);
         }
 
+        /**
+         * @deprecated
+         */
+        public addBone(value: Bone, parentName: string = null): void {
+            if (value) {
+                value._setArmature(this);
+                value._setParent(parentName ? this.getBone(parentName) : null);
+            }
+            else {
+                throw new Error();
+            }
+        }
+        /**
+         * @deprecated
+         */
+        public addSlot(value: Slot, parentName: string): void {
+            const bone = this.getBone(parentName);
+            if (bone) {
+                value._setArmature(this);
+                value._setParent(bone);
+            }
+            else {
+                throw new Error();
+            }
+        }
+        /**
+         * @deprecated
+         */
+        public removeBone(value: Bone): void {
+            if (value && value.armature == this) {
+                value._setParent(null);
+                value._setArmature(null);
+            }
+            else {
+                throw new Error();
+            }
+        }
+        /**
+         * @deprecated
+         */
+        public removeSlot(value: Slot): void {
+            if (value && value.armature == this) {
+                value._setParent(null);
+                value._setArmature(null);
+            }
+            else {
+                throw new Error();
+            }
+        }
         /**
          * @deprecated
          * @see #display

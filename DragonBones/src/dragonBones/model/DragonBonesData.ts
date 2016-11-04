@@ -82,7 +82,8 @@ namespace dragonBones {
                 this.armatures[value.name] = value;
                 this._armatureNames.push(value.name);
                 value.parent = this;
-            } else {
+            }
+            else {
                 throw new Error();
             }
         }

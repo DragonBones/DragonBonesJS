@@ -70,6 +70,10 @@ declare namespace dragonBones {
         /**
          * @inheritDoc
          */
+        _onReplaceTexture(texture: any): void;
+        /**
+         * @inheritDoc
+         */
         hasEvent(type: EventStringType): boolean;
         /**
          * @inheritDoc
@@ -115,6 +119,7 @@ declare namespace dragonBones {
          * @version DragonBones 3.0
          */
         constructor();
+        private _createTexture(textureData, textureAtlas);
         /**
          * @inheritDoc
          */
@@ -146,7 +151,7 @@ declare namespace dragonBones {
         /**
          * @private
          */
-        _updateVisible(): void;
+        protected _updateZOrder(): void;
         /**
          * @private
          */
@@ -214,18 +219,19 @@ declare namespace dragonBones {
         /**
          * @private
          */
-        protected _generateSlot(dataPackage: BuildArmaturePackage, slotDisplayDataSet: SlotDisplayDataSet): Slot;
+        protected _generateSlot(dataPackage: BuildArmaturePackage, slotDisplayDataSet: SlotDisplayDataSet, armature: Armature): Slot;
         /**
          * @language zh_CN
          * 创建一个指定名称的骨架，并使用骨架的显示容器来更新骨架动画。
-         * @param armatureName 骨架数据名称。
+         * @param armatureName 骨架名称。
          * @param dragonBonesName 龙骨数据名称，如果未设置，将检索所有的龙骨数据，如果多个数据中包含同名的骨架数据，可能无法创建出准确的骨架。
          * @param skinName 皮肤名称，如果未设置，则使用默认皮肤。
+         * @param textureAtlasName 贴图集数据名称，如果未设置，则使用龙骨数据。
          * @returns 骨架的显示容器。
-         * @see dragonBones.IArmatureDisplayContainer
+         * @see dragonBones.PixiArmatureDisplay
          * @version DragonBones 4.5
          */
-        buildArmatureDisplay(armatureName: string, dragonBonesName?: string, skinName?: string): PixiArmatureDisplay;
+        buildArmatureDisplay(armatureName: string, dragonBonesName?: string, skinName?: string, textureAtlasName?: string): PixiArmatureDisplay;
         /**
          * @language zh_CN
          * 获取带有指定贴图的显示对象。

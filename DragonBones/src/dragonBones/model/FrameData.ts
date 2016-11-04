@@ -76,30 +76,29 @@ namespace dragonBones {
      */
     export abstract class TweenFrameData<T> extends FrameData<T> {
         public static samplingCurve(curve: Array<number>, frameCount: number): Array<number> {
-            if (curve.length == 0 || frameCount == 0) {
+            const curveCount = curve.length;
+            if (curveCount == 0 || frameCount == 0) {
                 return null;
             }
 
-            const samplingTimes = frameCount + 2;
-            const samplingStep = 1 / samplingTimes;
-            const sampling = new Array<number>((samplingTimes - 1) * 2);
+            const samplingTimes = frameCount + 1;
+            const samplingStep = 1 / (samplingTimes + 1);
+            const sampling = new Array<number>(samplingTimes * 2);
+            let stepIndex = -2;
 
-            //
-            curve = curve.concat();
-            curve.unshift(0, 0);
-            curve.push(1, 1);
-
-            let stepIndex = 0;
-            for (let i = 0; i < samplingTimes - 1; ++i) {
-                const step = samplingStep * (i + 1);
-                while (curve[stepIndex + 6] < step) { // stepIndex + 3 * 2
+            for (let i = 0; i < samplingTimes; ++i) {
+                const stepValue = samplingStep * (i + 1);
+                while ((stepIndex + 6 < curveCount ? curve[stepIndex + 6] : 1) < stepValue) { // stepIndex + 3 * 2
                     stepIndex += 6;
                 }
 
-                const x1 = curve[stepIndex];
-                const x4 = curve[stepIndex + 6];
+                const isInCurve = stepIndex >= 0 && stepIndex + 6 < curveCount;
+                const x1 = isInCurve ? curve[stepIndex] : 0;
+                const y1 = isInCurve ? curve[stepIndex + 1] : 0;
+                const x4 = isInCurve ? curve[stepIndex + 6] : 1;
+                const y4 = isInCurve ? curve[stepIndex + 7] : 1;
 
-                const t = (step - x1) / (x4 - x1);
+                const t = (stepValue - x1) / (x4 - x1);
                 const l_t = 1 - t;
 
                 const powA = l_t * l_t;
@@ -111,7 +110,7 @@ namespace dragonBones {
                 const kD = t * powB;
 
                 sampling[i * 2] = kA * x1 + kB * curve[stepIndex + 2] + kC * curve[stepIndex + 4] + kD * x4;
-                sampling[i * 2 + 1] = kA * curve[stepIndex + 1] + kB * curve[stepIndex + 3] + kC * curve[stepIndex + 5] + kD * curve[stepIndex + 7];
+                sampling[i * 2 + 1] = kA * y1 + kB * curve[stepIndex + 3] + kC * curve[stepIndex + 5] + kD * y4;
             }
 
             return sampling;
@@ -168,6 +167,23 @@ namespace dragonBones {
     /**
      * @private
      */
+    export class ZOrderFrameData extends FrameData<ZOrderFrameData> {
+        public zOrder: Array<number> = [];
+        public constructor() {
+            super();
+        }
+        /**
+         * @inheritDoc
+         */
+        protected _onClear(): void {
+            super._onClear();
+
+            this.zOrder.length = 0;
+        }
+    }
+    /**
+     * @private
+     */
     export class BoneFrameData extends TweenFrameData<BoneFrameData> {
         public static toString(): string {
             return "[class dragonBones.BoneFrameData]";
@@ -175,6 +191,7 @@ namespace dragonBones {
 
         public tweenScale: boolean;
         public tweenRotate: number;
+        public guideCurve: Array<number>;
         public transform: Transform = new Transform();
 
         public constructor() {
@@ -188,6 +205,7 @@ namespace dragonBones {
 
             this.tweenScale = false;
             this.tweenRotate = 0;
+            this.guideCurve = null;
             this.transform.identity();
         }
     }
@@ -204,7 +222,6 @@ namespace dragonBones {
         }
 
         public displayIndex: number;
-        public zOrder: number;
         public color: ColorTransform;
 
         public constructor() {
@@ -217,7 +234,6 @@ namespace dragonBones {
             super._onClear();
 
             this.displayIndex = 0;
-            this.zOrder = 0;
             this.color = null;
         }
     }

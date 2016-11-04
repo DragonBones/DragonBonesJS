@@ -3,6 +3,13 @@ namespace dragonBones {
      * @private
      */
     export abstract class TimelineData<T extends FrameData<T>> extends BaseObject {
+        /**
+         * @private
+         */
+        public static toString(): string {
+            return "[class dragonBones.TimelineData]";
+        }
+
         public scale: number;
         /**
          * @private
@@ -12,7 +19,7 @@ namespace dragonBones {
          * @private
          */
         public frames: Array<T> = [];
-
+        
         public constructor() {
             super();
         }
@@ -37,6 +44,14 @@ namespace dragonBones {
     /**
      * @private
      */
+    export class ZOrderTimelineData extends TimelineData<ZOrderFrameData> {
+        public static toString(): string {
+            return "[class dragonBones.ZOrderTimelineData]";
+        }
+    }
+    /**
+     * @private
+     */
     export class BoneTimelineData extends TimelineData<BoneFrameData> {
         public static cacheFrame(cacheFrames: Array<Matrix>, cacheFrameIndex: number, globalTransformMatrix: Matrix): Matrix {
             const cacheMatrix = cacheFrames[cacheFrameIndex] = new Matrix();
@@ -48,9 +63,8 @@ namespace dragonBones {
             return "[class dragonBones.BoneTimelineData]";
         }
 
-
         public bone: BoneData;
-        public originTransform: Transform = new Transform();
+        public originalTransform: Transform = new Transform();
         public cachedFrames: Array<Matrix> = [];
 
         public constructor() {
@@ -63,7 +77,7 @@ namespace dragonBones {
             super._onClear();
 
             this.bone = null;
-            this.originTransform.identity();
+            this.originalTransform.identity();
             this.cachedFrames.length = 0;
         }
 

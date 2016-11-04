@@ -12,6 +12,12 @@ namespace dragonBones {
         ) {
         }
         /**
+         * @private
+         */
+        public toString(): string {
+            return "[object dragonBones.Matrix] a:" + this.a + " b:" + this.b + " c:" + this.c + " d:" + this.d + " tx:" + this.tx + " ty:" + this.ty;
+        }
+        /**
          * @language zh_CN
          * 复制矩阵。
          * @param value 需要复制的矩阵。

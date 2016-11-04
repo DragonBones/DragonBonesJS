@@ -24,7 +24,7 @@ namespace demosEgret {
                 this._resourceConfigURL = "resource/Knight.res.json";
             }
 
-            protected createGameScene(): void {
+            protected _onStart(): void {
                 Game.STAGE_WIDTH = this.stage.stageWidth;
                 Game.STAGE_HEIGHT = this.stage.stageHeight;
                 Game.GROUND = Game.STAGE_HEIGHT - 100;

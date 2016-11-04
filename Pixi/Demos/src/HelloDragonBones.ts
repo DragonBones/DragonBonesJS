@@ -5,12 +5,10 @@ namespace demosPixi {
      * 2. factory.parseDragonBonesData();
      *    factory.parseTextureAtlasData();
      * 3. armatureDisplay = factory.buildArmatureDisplay("armatureName");
-     * 4. addChild(armatureDisplay);
+     * 4. armatureDisplay.animation.play("animationName");
+     * 5. addChild(armatureDisplay);
      */
-    export class HelloDragonBones {
-        private _renderer = new PIXI.WebGLRenderer(800, 600, { backgroundColor: 0x666666 });
-        private _stage = new PIXI.Container();
-
+    export class HelloDragonBones extends BaseTest {
         private _isDown: boolean = false;
         private _isMoved: boolean = false;
         private _isHorizontalMoved: boolean = false;
@@ -20,19 +18,10 @@ namespace demosPixi {
         private _prevAnimationScale: number = 1;
         private _startPoint: PIXI.Point = new PIXI.Point();
 
-        private _backgroud: PIXI.Sprite = new PIXI.Sprite(PIXI.Texture.EMPTY);
-
         private _dragonBonesData: dragonBones.DragonBonesData = null;
         private _armatureDisplay: dragonBones.PixiArmatureDisplay = null;
-        private _factory: dragonBones.PixiFactory = new dragonBones.PixiFactory();
 
-        public constructor() {
-            this._init();
-        }
-
-        private _init(): void {
-            document.body.appendChild(this._renderer.view);
-            PIXI.ticker.shared.add(this._renderHandler, this);
+        protected _onStart(): void {
             // Load data.
             PIXI.loader
                 .add("dragonBonesData", "./resource/assets/Old/Warrior/skeleton.json")
@@ -42,14 +31,10 @@ namespace demosPixi {
             PIXI.loader.load();
         }
 
-        private _renderHandler(deltaTime: number): void {
-            this._renderer.render(this._stage);
-        }
-
         private _loadComplateHandler(loader: PIXI.loaders.Loader, object: dragonBones.Map<PIXI.loaders.Resource>): void {
             // Parse data.
-            this._dragonBonesData = this._factory.parseDragonBonesData(object["dragonBonesData"].data);
-            this._factory.parseTextureAtlasData(object["textureDataA"].data, object["textureA"].texture);
+            this._dragonBonesData = dragonBones.PixiFactory.factory.parseDragonBonesData(object["dragonBonesData"].data);
+            dragonBones.PixiFactory.factory.parseTextureAtlasData(object["textureDataA"].data, object["textureA"].texture);
 
             if (this._dragonBonesData) {
                 // Add event listeners.
@@ -60,9 +45,6 @@ namespace demosPixi {
                 this._stage.on("mousedown", this._touchHandler, this);
                 this._stage.on("mouseup", this._touchHandler, this);
                 this._stage.on("mousemove", this._touchHandler, this);
-                this._stage.addChild(this._backgroud);
-                this._backgroud.width = this._renderer.width;
-                this._backgroud.height = this._renderer.height;
 
                 // Add Armature.            
                 this._changeArmature();
@@ -163,7 +145,7 @@ namespace demosPixi {
             const armatureName = armatureNames[this._armatureIndex];
 
             // Build Armature display. (Factory.buildArmatureDisplay() will update Armature animation by Armature display)
-            this._armatureDisplay = this._factory.buildArmatureDisplay(armatureName);
+            this._armatureDisplay = dragonBones.PixiFactory.factory.buildArmatureDisplay(armatureName);
 
             // Add FrameEvent listener.
             this._armatureDisplay.addEvent(dragonBones.EventObject.FRAME_EVENT, this._frameEventHandler, this);

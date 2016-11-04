@@ -161,7 +161,8 @@ namespace dragonBones {
                     }
 
                     this.global.fromMatrix(this.globalTransformMatrix);
-                } else {
+                }
+                else {
                     if (this.inheritTranslation) {
                         const x = this.global.x;
                         const y = this.global.y;
@@ -176,7 +177,8 @@ namespace dragonBones {
 
                     this.global.toMatrix(this.globalTransformMatrix);
                 }
-            } else {
+            }
+            else {
                 this.global.toMatrix(this.globalTransformMatrix);
             }
         }

@@ -8,7 +8,7 @@ namespace demosEgret {
 
         private _armatureDisplay: dragonBones.EgretArmatureDisplay = null;
 
-        protected createGameScene(): void {
+        protected _onStart(): void {
             const dragonBonesData = dragonBones.EgretFactory.factory.parseDragonBonesData(RES.getRes("dragonBonesData"));
             dragonBones.EgretFactory.factory.parseTextureAtlasData(RES.getRes("textureDataA"), RES.getRes("textureA"));
 

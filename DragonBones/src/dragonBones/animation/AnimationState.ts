@@ -69,42 +69,42 @@ namespace dragonBones {
         public fadeTotalTime: number;
         /**
          * @internal
-         * @private Animation
+         * @private
          */
-        public _isFadeOutComplete: boolean;
+        public _fadeState: number;
         /**
          * @internal
-         * @private Animation
+         * @private
          */
         public _layer: number;
         /**
          * @internal
-         * @private TimelineState
+         * @private
          */
         public _position: number;
         /**
          * @internal
-         * @private TimelineState
+         * @private
          */
         public _duration: number;
         /**
          * @internal
-         * @private Animation, TimelineState
+         * @private
          */
         public _weightResult: number;
         /**
          * @internal
-         * @private Animation, TimelineState
+         * @private
          */
         public _fadeProgress: number;
         /**
          * @internal
-         * @private Animation TimelineState
+         * @private
          */
         public _group: string;
         /**
          * @internal
-         * @private TimelineState
+         * @private
          */
         public _timeline: AnimationTimelineState;
         /**
@@ -115,10 +115,6 @@ namespace dragonBones {
          * @private
          */
         private _isPausePlayhead: boolean;
-        /**
-         * @private
-         */
-        private _isFadeOut: boolean;
         /**
          * @private
          */
@@ -139,6 +135,10 @@ namespace dragonBones {
          * @private
          */
         private _animationData: AnimationData;
+        /**
+         * @private
+         */
+        private _zOrderTimeline: ZOrderTimelineState;
         /**
          * @private
          */
@@ -178,6 +178,14 @@ namespace dragonBones {
                 this._ffdTimelines[i].returnToPool();
             }
 
+            if (this._timeline) {
+                this._timeline.returnToPool();
+            }
+
+            if (this._zOrderTimeline) {
+                this._zOrderTimeline.returnToPool();
+            }
+
             this.displayControl = true;
             this.additiveBlending = false;
             this.actionEnabled = false;
@@ -187,153 +195,30 @@ namespace dragonBones {
             this.autoFadeOutTime = -1;
             this.fadeTotalTime = 0;
 
-            this._isFadeOutComplete = false;
+            this._fadeState = 0;
             this._layer = 0;
             this._position = 0;
             this._duration = 0;
             this._weightResult = 0;
             this._fadeProgress = 0;
             this._group = null;
-
-            if (this._timeline) {
-                this._timeline.returnToPool();
-                this._timeline = null;
-            }
+            this._timeline = null;
 
             this._isPlaying = true;
             this._isPausePlayhead = false;
-            this._isFadeOut = false;
             this._fadeTime = 0;
             this._time = 0;
             this._name = null;
             this._armature = null;
             this._animationData = null;
+            this._zOrderTimeline = null;
             this._boneMask.length = 0;
             this._boneTimelines.length = 0;
             this._slotTimelines.length = 0;
             this._ffdTimelines.length = 0;
         }
-        /**
-         * @private
-         */
-        private _advanceFadeTime(passedTime: number): void {
-            const self = this;
-
-            if (passedTime < 0) {
-                passedTime = -passedTime;
-            }
-
-            self._fadeTime += passedTime;
-
-            let fadeProgress = 0;
-            if (self._fadeTime >= self.fadeTotalTime) { // Fade complete.
-                fadeProgress = self._isFadeOut ? 0 : 1;
-            }
-            else if (self._fadeTime > 0) { // Fading.
-                fadeProgress = self._isFadeOut ? (1 - self._fadeTime / self.fadeTotalTime) : (self._fadeTime / self.fadeTotalTime);
-            }
-            else { // Before fade.
-                fadeProgress = self._isFadeOut ? 1 : 0;
-            }
-
-            if (self._fadeProgress != fadeProgress) {
-                self._fadeProgress = fadeProgress;
-
-                const eventDispatcher = self._armature._display;
-
-                if (self._fadeTime <= passedTime) {
-                    if (self._isFadeOut) {
-                        if (eventDispatcher.hasEvent(EventObject.FADE_OUT)) {
-                            const event = BaseObject.borrowObject(EventObject);
-                            event.animationState = this;
-                            self._armature._bufferEvent(event, EventObject.FADE_OUT);
-                        }
-                    }
-                    else {
-                        if (eventDispatcher.hasEvent(EventObject.FADE_IN)) {
-                            const event = BaseObject.borrowObject(EventObject);
-                            event.animationState = this;
-                            self._armature._bufferEvent(event, EventObject.FADE_IN);
-                        }
-                    }
-                }
-
-                if (self._fadeTime >= self.fadeTotalTime) {
-                    if (self._isFadeOut) {
-                        self._isFadeOutComplete = true;
-
-                        if (eventDispatcher.hasEvent(EventObject.FADE_OUT_COMPLETE)) {
-                            const event = BaseObject.borrowObject(EventObject);
-                            event.animationState = this;
-                            self._armature._bufferEvent(event, EventObject.FADE_OUT_COMPLETE);
-                        }
-                    }
-                    else {
-                        self._isPausePlayhead = false;
-
-                        if (eventDispatcher.hasEvent(EventObject.FADE_IN_COMPLETE)) {
-                            const event = BaseObject.borrowObject(EventObject);
-                            event.animationState = this;
-                            self._armature._bufferEvent(event, EventObject.FADE_IN_COMPLETE);
-                        }
-                    }
-                }
-            }
-        }
-        /**
-         * @internal
-         * @private
-         */
-        public _isDisabled(slot: Slot): boolean {
-            if (
-                this.displayControl &&
-                (
-                    !slot.displayController ||
-                    slot.displayController == this._name ||
-                    slot.displayController == this._group
-                )
-            ) {
-                return false;
-            }
-
-            return true;
-        }
-        /**
-         * @internal
-         * @private
-         */
-        public _fadeIn(
-            armature: Armature, clip: AnimationData, animationName: string,
-            playTimes: number, position: number, duration: number, time: number, timeScale: number, fadeInTime: number,
-            pausePlayhead: boolean
-        ): void {
-            this._armature = armature;
-            this._animationData = clip;
-            this._name = animationName;
-
-            this.actionEnabled = AnimationState.stateActionEnabled;
-            this.playTimes = playTimes;
-            this.timeScale = timeScale;
-            this.fadeTotalTime = fadeInTime;
-
-            this._position = position;
-            this._duration = duration;
-            this._time = time;
-            this._isPausePlayhead = pausePlayhead;
-            if (this.fadeTotalTime == 0) {
-                this._fadeProgress = 0.999999;
-            }
-
-            this._timeline = BaseObject.borrowObject(AnimationTimelineState);
-            this._timeline.fadeIn(this._armature, this, this._animationData, this._time);
-
-            this._updateTimelineStates();
-        }
-        /**
-         * @internal
-         * @private
-         */
-        public _updateTimelineStates(): void {
+        
+        private _updateTimelineStates(): void {
             let time = this._time;
             if (!this._animationData.hasAsynchronyTimeline) {
                 time = this._timeline._currentTime;
@@ -386,7 +271,7 @@ namespace dragonBones {
                 const parentTimelineName = slot.parent.name;
                 const slotTimelineData = this._animationData.getSlotTimeline(slotTimelineName);
 
-                if (slotTimelineData && this.containsBoneMask(parentTimelineName) && !this._isFadeOut) {
+                if (slotTimelineData && this.containsBoneMask(parentTimelineName) && this._fadeState <= 0) {
                     let slotTimelineState = slotTimelineStates[slotTimelineName];
                     if (slotTimelineState) { // Remove slot timeline from map.
                         delete slotTimelineStates[slotTimelineName];
@@ -407,6 +292,127 @@ namespace dragonBones {
             }
 
             this._updateFFDTimelineStates();
+        }
+
+        private _advanceFadeTime(passedTime: number): void {
+            const self = this;
+
+            if (passedTime < 0) {
+                passedTime = -passedTime;
+            }
+
+            self._fadeTime += passedTime;
+
+            let fadeProgress = 0;
+            if (self._fadeTime >= self.fadeTotalTime) { // Fade complete.
+                fadeProgress = self._fadeState > 0 ? 0 : 1;
+            }
+            else if (self._fadeTime > 0) { // Fading.
+                fadeProgress = self._fadeState > 0 ? (1 - self._fadeTime / self.fadeTotalTime) : (self._fadeTime / self.fadeTotalTime);
+            }
+            else { // Before fade.
+                fadeProgress = self._fadeState > 0 ? 1 : 0;
+            }
+
+            if (self._fadeProgress != fadeProgress) {
+                self._fadeProgress = fadeProgress;
+
+                const eventDispatcher = self._armature._display;
+
+                if (self._fadeTime <= passedTime) {
+                    if (self._fadeState > 0) {
+                        if (eventDispatcher.hasEvent(EventObject.FADE_OUT)) {
+                            const event = BaseObject.borrowObject(EventObject);
+                            event.animationState = this;
+                            self._armature._bufferEvent(event, EventObject.FADE_OUT);
+                        }
+                    }
+                    else {
+                        if (eventDispatcher.hasEvent(EventObject.FADE_IN)) {
+                            const event = BaseObject.borrowObject(EventObject);
+                            event.animationState = this;
+                            self._armature._bufferEvent(event, EventObject.FADE_IN);
+                        }
+                    }
+                }
+
+                if (self._fadeTime >= self.fadeTotalTime) {
+                    if (self._fadeState > 0) {
+                        self._isPausePlayhead = true;
+                        
+                        if (eventDispatcher.hasEvent(EventObject.FADE_OUT_COMPLETE)) {
+                            const event = BaseObject.borrowObject(EventObject);
+                            event.animationState = this;
+                            self._armature._bufferEvent(event, EventObject.FADE_OUT_COMPLETE);
+                        }
+                    }
+                    else {
+                        self._isPausePlayhead = false;
+                        self._fadeState = 0;
+
+                        if (eventDispatcher.hasEvent(EventObject.FADE_IN_COMPLETE)) {
+                            const event = BaseObject.borrowObject(EventObject);
+                            event.animationState = this;
+                            self._armature._bufferEvent(event, EventObject.FADE_IN_COMPLETE);
+                        }
+                    }
+                }
+            }
+        }
+        /**
+         * @internal
+         * @private
+         */
+        public _isDisabled(slot: Slot): boolean {
+            if (
+                this.displayControl &&
+                (
+                    !slot.displayController ||
+                    slot.displayController == this._name ||
+                    slot.displayController == this._group
+                )
+            ) {
+                return false;
+            }
+
+            return true;
+        }
+        /**
+         * @internal
+         * @private
+         */
+        public _fadeIn(
+            armature: Armature, clip: AnimationData, animationName: string,
+            playTimes: number, position: number, duration: number, time: number, timeScale: number, fadeInTime: number,
+            pausePlayhead: boolean
+        ): void {
+            this._armature = armature;
+            this._animationData = clip;
+            this._name = animationName;
+
+            this.actionEnabled = AnimationState.stateActionEnabled;
+            this.playTimes = playTimes;
+            this.timeScale = timeScale;
+            this.fadeTotalTime = fadeInTime;
+
+            this._fadeState = -1;
+            this._position = position;
+            this._duration = duration;
+            this._time = time;
+            this._isPausePlayhead = pausePlayhead;
+            if (this.fadeTotalTime <= 0) {
+                this._fadeProgress = 0.999999;
+            }
+
+            this._timeline = BaseObject.borrowObject(AnimationTimelineState);
+            this._timeline.fadeIn(this._armature, this, this._animationData, this._time);
+
+            if (this._animationData.zOrderTimeline) {
+                this._zOrderTimeline = BaseObject.borrowObject(ZOrderTimelineState);
+                this._zOrderTimeline.fadeIn(this._armature, this, this._animationData.zOrderTimeline, this._time);
+            }
+
+            this._updateTimelineStates();
         }
         /**
          * @internal
@@ -475,7 +481,9 @@ namespace dragonBones {
             const self = this;
 
             // Update fade time. (Still need to be update even if the passedTime is zero)
-            self._advanceFadeTime(passedTime);
+            if (self._fadeState != 0) {
+                self._advanceFadeTime(passedTime);
+            }
 
             // Update time.
             passedTime *= self.timeScale;
@@ -500,6 +508,10 @@ namespace dragonBones {
                     time = self._timeline._currentTime;
                 }
 
+                if (self._zOrderTimeline) {
+                    self._zOrderTimeline.update(time);
+                }
+
                 if (isCacheEnabled) {
                     const cacheFrameIndex = Math.floor(self._timeline._currentTime * cacheTimeToFrameScale); // uint
                     if (self._armature._cacheFrameIndex == cacheFrameIndex) { // Same cache.
@@ -514,12 +526,12 @@ namespace dragonBones {
 
                             for (let i = 0, l = self._boneTimelines.length; i < l; ++i) {
                                 const boneTimeline = self._boneTimelines[i];
-                                boneTimeline.bone._cacheFrames = (<BoneTimelineData>boneTimeline._timeline).cachedFrames;
+                                boneTimeline.bone._cacheFrames = boneTimeline._timeline.cachedFrames;
                             }
 
                             for (let i = 0, l = self._slotTimelines.length; i < l; ++i) {
                                 const slotTimeline = self._slotTimelines[i];
-                                slotTimeline.slot._cacheFrames = (<SlotTimelineData>slotTimeline._timeline).cachedFrames;
+                                slotTimeline.slot._cacheFrames = slotTimeline._timeline.cachedFrames;
                             }
                         }
 
@@ -572,7 +584,6 @@ namespace dragonBones {
         public stop(): void {
             this._isPlaying = false;
         }
-
         /**
          * @language zh_CN
          * 淡出动画。
@@ -587,16 +598,16 @@ namespace dragonBones {
 
             this._isPausePlayhead = pausePlayhead;
 
-            if (this._isFadeOut) {
+            if (this._fadeState > 0) {
                 if (fadeOutTime > fadeOutTime - this._fadeTime) {
                     // If the animation is already in fade out, the new fade out will be ignored.
                     return;
                 }
             }
             else {
-                this._isFadeOut = true;
+                this._fadeState = 1;
 
-                if (fadeOutTime == 0 || this._fadeProgress <= 0) {
+                if (fadeOutTime <= 0 || this._fadeProgress <= 0) {
                     this._fadeProgress = 0.000001; // Modify _fadeProgress to different value.
                 }
 
@@ -652,7 +663,7 @@ namespace dragonBones {
                         this._animationData.getBoneTimeline(boneName) &&
                         currentBone.contains(bone)
                     ) { // Add recursive mixing.
-                        this._boneMask.push(boneName)
+                        this._boneMask.push(boneName);
                     }
                 }
             }
@@ -745,7 +756,6 @@ namespace dragonBones {
         public get isCompleted(): boolean {
             return this._timeline._isCompleted;
         }
-
         /**
          * @language zh_CN
          * 是否正在播放。
@@ -754,7 +764,6 @@ namespace dragonBones {
         public get isPlaying(): boolean {
             return this._isPlaying && !this._timeline._isCompleted;
         }
-
         /**
          * @language zh_CN
          * 当前动画的播放次数。
@@ -763,7 +772,6 @@ namespace dragonBones {
         public get currentPlayTimes(): number {
             return this._timeline._currentPlayTimes;
         }
-
         /**
          * @language zh_CN
          * 当前动画的总时间。 (以秒为单位)
@@ -793,6 +801,10 @@ namespace dragonBones {
 
             this._time = value;
             this._timeline.setCurrentTime(this._time);
+
+            if (this._zOrderTimeline) {
+                this._zOrderTimeline._isCompleted = false;
+            }
 
             for (let i = 0, l = this._boneTimelines.length; i < l; ++i) {
                 this._boneTimelines[i]._isCompleted = false;

@@ -1,46 +1,68 @@
-namespace demosEgret {
-    export class ReplaceSlotDisplayTest extends BaseTest {
-        public constructor() {
-            super();
-
-            this._resourceConfigURL = "resource/ReplaceSlotDisplayTest.res.json";
-        }
-
+namespace demosPixi {
+    export class ReplaceSlotDisplay extends BaseTest {
         private _displayIndex: number = 0;
-        private _replaceDisplay: string[] = [
+        private _replaceDisplays: string[] = [
             // Replace normal display.
             "display0002", "display0003", "display0004", "display0005", "display0006", "display0007", "display0008", "display0009", "display0010",
             // Replace mesh display.
             "meshA", "meshB", "mesh",
         ];
 
-        private _armatureDisplay: dragonBones.EgretArmatureDisplay = null;
+        private _factory: dragonBones.PixiFactory = dragonBones.PixiFactory.factory;
+        private _armatureDisplay: dragonBones.PixiArmatureDisplay = null;
 
-        protected createGameScene(): void {
-            dragonBones.EgretFactory.factory.parseDragonBonesData(RES.getRes("dragonBonesData"));
-            dragonBones.EgretFactory.factory.parseTextureAtlasData(RES.getRes("textureDataA"), RES.getRes("textureA"));
-
-            this._armatureDisplay = dragonBones.EgretFactory.factory.buildArmatureDisplay("MyArmature");
-            this._armatureDisplay.x = this.stage.stageWidth * 0.5;
-            this._armatureDisplay.y = this.stage.stageHeight * 0.5;
-            this._armatureDisplay.animation.timeScale = 0.1;
-            this._armatureDisplay.animation.play();
-            this.addChild(this._armatureDisplay);
-
-            this.stage.addEventListener(egret.TouchEvent.TOUCH_BEGIN, this._touchHandler, this);
+        protected _onStart(): void {
+            // Load data.
+            PIXI.loader
+                .add("dragonBonesData", "./resource/assets/ReplaceSlotDisplay/ReplaceSlotDisplay.json")
+                .add("textureDataA", "./resource/assets/ReplaceSlotDisplay/texture.json")
+                .add("textureA", "./resource/assets/ReplaceSlotDisplay/texture.png")
+                .add("textureRP", "./resource/assets/ReplaceSlotDisplay/textureReplace.png");
+            PIXI.loader.once("complete", this._loadComplateHandler, this);
+            PIXI.loader.load();
         }
 
-        private _touchHandler(event: egret.TouchEvent): void {
-            this._displayIndex++;
-            this._displayIndex %= this._replaceDisplay.length;
+        private _loadComplateHandler(loader: PIXI.loaders.Loader, object: dragonBones.Map<PIXI.loaders.Resource>): void {
+            this._factory.parseDragonBonesData(object["dragonBonesData"].data);
+            this._factory.parseTextureAtlasData(object["textureDataA"].data, object["textureA"].texture);
 
-            const replaceDisplayName = this._replaceDisplay[this._displayIndex];
+            this._armatureDisplay = this._factory.buildArmatureDisplay("MyArmature");
+            this._armatureDisplay.animation.timeScale = 0.1;
+            this._armatureDisplay.animation.play();
+
+            this._armatureDisplay.x = this._renderer.width * 0.5;
+            this._armatureDisplay.y = this._renderer.height * 0.5;
+            this._stage.addChild(this._armatureDisplay);
+
+            const touchHandler = (event: PIXI.interaction.InteractionEvent): void => {
+                this._replaceDisplay();
+            };
+
+            this._stage.interactive = true;
+            this._stage.on("touchstart", touchHandler, this);
+            this._stage.on("mousedown", touchHandler, this);
+
+            document.addEventListener("keydown", (event: KeyboardEvent): void => {
+                if (this._armatureDisplay.armature.replacedTexture) {
+                    this._armatureDisplay.armature.replacedTexture = null;
+                }
+                else {
+                    this._armatureDisplay.armature.replacedTexture = object["textureRP"].texture;
+                }
+            });
+        }
+
+        private _replaceDisplay(): void {
+            this._displayIndex++;
+            this._displayIndex %= this._replaceDisplays.length;
+
+            const replaceDisplayName = this._replaceDisplays[this._displayIndex];
 
             if (replaceDisplayName.indexOf("mesh") >= 0) { // Replace mesh display.
                 switch (replaceDisplayName) {
                     case "meshA":
                         // Normal to mesh.
-                        dragonBones.EgretFactory.factory.replaceSlotDisplay(
+                        this._factory.replaceSlotDisplay(
                             "ReplaceSlotDisplay",
                             "MyMesh",
                             "meshA",
@@ -49,7 +71,7 @@ namespace demosEgret {
                         );
 
                         // Replace mesh texture. 
-                        dragonBones.EgretFactory.factory.replaceSlotDisplay(
+                        this._factory.replaceSlotDisplay(
                             "ReplaceSlotDisplay",
                             "MyDisplay",
                             "ball",
@@ -60,7 +82,7 @@ namespace demosEgret {
 
                     case "meshB":
                         // Normal to mesh.
-                        dragonBones.EgretFactory.factory.replaceSlotDisplay(
+                        this._factory.replaceSlotDisplay(
                             "ReplaceSlotDisplay",
                             "MyMesh",
                             "meshB",
@@ -69,7 +91,7 @@ namespace demosEgret {
                         );
 
                         // Replace mesh texture. 
-                        dragonBones.EgretFactory.factory.replaceSlotDisplay(
+                        this._factory.replaceSlotDisplay(
                             "ReplaceSlotDisplay",
                             "MyDisplay",
                             "ball",
@@ -80,7 +102,7 @@ namespace demosEgret {
 
                     case "mesh":
                         // Back to normal.
-                        dragonBones.EgretFactory.factory.replaceSlotDisplay(
+                        this._factory.replaceSlotDisplay(
                             "ReplaceSlotDisplay",
                             "MyMesh",
                             "mesh",
@@ -89,7 +111,7 @@ namespace demosEgret {
                         );
 
                         // Replace mesh texture. 
-                        dragonBones.EgretFactory.factory.replaceSlotDisplay(
+                        this._factory.replaceSlotDisplay(
                             "ReplaceSlotDisplay",
                             "MyDisplay",
                             "ball",
@@ -100,7 +122,7 @@ namespace demosEgret {
                 }
             }
             else { // Replace normal display.
-                dragonBones.EgretFactory.factory.replaceSlotDisplay(
+                this._factory.replaceSlotDisplay(
                     "ReplaceSlotDisplay",
                     "MyDisplay",
                     "ball",
@@ -108,7 +130,6 @@ namespace demosEgret {
                     this._armatureDisplay.armature.getSlot("ball")
                 );
             }
-
         }
     }
 }

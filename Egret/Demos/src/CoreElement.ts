@@ -24,7 +24,7 @@ namespace demosEgret {
                 this._resourceConfigURL = "resource/CoreElement.res.json";
             }
 
-            protected createGameScene(): void {
+            protected _onStart(): void {
                 Game.STAGE_WIDTH = this.stage.stageWidth;
                 Game.STAGE_HEIGHT = this.stage.stageHeight;
                 Game.GROUND = Game.STAGE_HEIGHT - 100;
@@ -68,7 +68,8 @@ namespace demosEgret {
 
                 if (event.type == egret.TouchEvent.TOUCH_BEGIN) {
                     this._player.attack(true);
-                } else {
+                }
+                else {
                     this._player.attack(false);
                 }
             }
@@ -138,11 +139,14 @@ namespace demosEgret {
             private _updateMove(dir: number): void {
                 if (this._left && this._right) {
                     this._player.move(dir);
-                } else if (this._left) {
+                }
+                else if (this._left) {
                     this._player.move(-1);
-                } else if (this._right) {
+                }
+                else if (this._right) {
                     this._player.move(1);
-                } else {
+                }
+                else {
                     this._player.move(0);
                 }
             }
@@ -294,7 +298,8 @@ namespace demosEgret {
                             this._isJumpingB = true;
                             this._speedY = -Mecha.JUMP_SPEED;
                             this._armature.animation.fadeIn("jump_2", -1, -1, 0, Mecha.NORMAL_ANIMATION_GROUP);
-                        } else if (event.eventObject.animationState.name == "jump_4") {
+                        }
+                        else if (event.eventObject.animationState.name == "jump_4") {
                             this._updateAnimation();
                         }
                         break;
@@ -344,20 +349,23 @@ namespace demosEgret {
                     this._speedX = 0;
                     this._armature.animation.fadeIn("idle", -1, -1, 0, Mecha.NORMAL_ANIMATION_GROUP);
                     this._walkState = null;
-                } else {
+                }
+                else {
                     if (!this._walkState) {
                         this._walkState = this._armature.animation.fadeIn("walk", -1, -1, 0, Mecha.NORMAL_ANIMATION_GROUP);
                     }
 
                     if (this._moveDir * this._faceDir > 0) {
                         this._walkState.timeScale = Mecha.MAX_MOVE_SPEED_FRONT / Mecha.NORMALIZE_MOVE_SPEED;
-                    } else {
+                    }
+                    else {
                         this._walkState.timeScale = -Mecha.MAX_MOVE_SPEED_BACK / Mecha.NORMALIZE_MOVE_SPEED;
                     }
 
                     if (this._moveDir * this._faceDir > 0) {
                         this._speedX = Mecha.MAX_MOVE_SPEED_FRONT * this._faceDir;
-                    } else {
+                    }
+                    else {
                         this._speedX = -Mecha.MAX_MOVE_SPEED_BACK * this._faceDir;
                     }
                 }
@@ -368,7 +376,8 @@ namespace demosEgret {
                     this._armatureDisplay.x += this._speedX;
                     if (this._armatureDisplay.x < 0) {
                         this._armatureDisplay.x = 0;
-                    } else if (this._armatureDisplay.x > Game.STAGE_WIDTH) {
+                    }
+                    else if (this._armatureDisplay.x > Game.STAGE_WIDTH) {
                         this._armatureDisplay.x = Game.STAGE_WIDTH;
                     }
                 }
@@ -379,8 +388,8 @@ namespace demosEgret {
                     }
 
                     this._speedY += Game.G;
-
                     this._armatureDisplay.y += this._speedY;
+                    
                     if (this._armatureDisplay.y > Game.GROUND) {
                         this._armatureDisplay.y = Game.GROUND;
                         this._isJumpingA = false;
@@ -412,7 +421,8 @@ namespace demosEgret {
 
                 if (this._faceDir > 0) {
                     this._aimRadian = Math.atan2(this._target.y - this._armatureDisplay.y - aimOffsetY, this._target.x - this._armatureDisplay.x);
-                } else {
+                }
+                else {
                     this._aimRadian = Math.PI - Math.atan2(this._target.y - this._armatureDisplay.y - aimOffsetY, this._target.x - this._armatureDisplay.x);
                     if (this._aimRadian > Math.PI) {
                         this._aimRadian -= Math.PI * 2;
@@ -422,7 +432,8 @@ namespace demosEgret {
                 let aimDir = 0;
                 if (this._aimRadian > 0) {
                     aimDir = -1;
-                } else {
+                }
+                else {
                     aimDir = 1;
                 }
 
@@ -435,7 +446,8 @@ namespace demosEgret {
                             "aimUp", 0, 1,
                             0, Mecha.AIM_ANIMATION_GROUP, dragonBones.AnimationFadeOutMode.SameGroup
                         );
-                    } else {
+                    }
+                    else {
                         this._aimState = this._armature.animation.fadeIn(
                             "aimDown", 0, 1,
                             0, Mecha.AIM_ANIMATION_GROUP, dragonBones.AnimationFadeOutMode.SameGroup

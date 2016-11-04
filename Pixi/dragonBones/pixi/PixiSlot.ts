@@ -22,6 +22,19 @@ namespace dragonBones {
         public constructor() {
             super();
         }
+
+        private _createTexture(textureData: PixiTextureData, textureAtlas: PIXI.BaseTexture): PIXI.Texture {
+            const originSize = new PIXI.Rectangle(0, 0, textureData.region.width, textureData.region.height);
+            const texture = new PIXI.Texture(
+                textureAtlas,
+                <PIXI.Rectangle><any>textureData.region, // No need to set frame.
+                <PIXI.Rectangle><any>textureData.region,
+                originSize,
+                textureData.rotated
+            );
+            
+            return texture;
+        }
         /**
          * @inheritDoc
          */
@@ -30,7 +43,6 @@ namespace dragonBones {
 
             this._renderDisplay = null;
         }
-
         /**
          * @private
          */
@@ -40,7 +52,7 @@ namespace dragonBones {
          * @private
          */
         protected _disposeDisplay(value: Object): void {
-            (<PIXI.DisplayObject>value).destroy();
+            (value as PIXI.DisplayObject).destroy();
         }
         /**
          * @private
@@ -50,21 +62,21 @@ namespace dragonBones {
                 this._rawDisplay = new PIXI.Sprite();
             }
 
-            this._renderDisplay = <PIXI.DisplayObject>(this._display || this._rawDisplay);
+            this._renderDisplay = (this._display || this._rawDisplay) as PIXI.DisplayObject;
         }
         /**
          * @private
          */
         protected _addDisplay(): void {
-            const container = <PixiArmatureDisplay>this._armature._display;
+            const container = this._armature._display as PixiArmatureDisplay;
             container.addChild(this._renderDisplay);
         }
         /**
          * @private
          */
         protected _replaceDisplay(value: Object): void {
-            const container = <PixiArmatureDisplay>this._armature._display;
-            const prevDisplay = <PIXI.DisplayObject>value;
+            const container = this._armature._display as PixiArmatureDisplay;
+            const prevDisplay = value as PIXI.DisplayObject;
             container.addChild(this._renderDisplay);
             container.swapChildren(this._renderDisplay, prevDisplay);
             container.removeChild(prevDisplay);
@@ -78,6 +90,14 @@ namespace dragonBones {
         /**
          * @private
          */
+        protected _updateZOrder(): void {
+            const container = this._armature._display as PixiArmatureDisplay;
+            container.addChildAt(this._renderDisplay, this._zOrder);
+        }
+        /**
+         * @internal
+         * @private
+         */
         public _updateVisible(): void {
             this._renderDisplay.visible = this._parent.visible;
         }
@@ -87,39 +107,39 @@ namespace dragonBones {
         protected _updateBlendMode(): void {
             switch (this._blendMode) {
                 case BlendMode.Normal:
-                    (<PIXI.Sprite>this._renderDisplay).blendMode = PIXI.BLEND_MODES.NORMAL;
+                    (this._renderDisplay as PIXI.Sprite).blendMode = PIXI.BLEND_MODES.NORMAL;
                     break;
 
                 case BlendMode.Add:
-                    (<PIXI.Sprite>this._renderDisplay).blendMode = PIXI.BLEND_MODES.ADD;
+                    (this._renderDisplay as PIXI.Sprite).blendMode = PIXI.BLEND_MODES.ADD;
                     break;
 
                 case BlendMode.Darken:
-                    (<PIXI.Sprite>this._renderDisplay).blendMode = PIXI.BLEND_MODES.DARKEN;
+                    (this._renderDisplay as PIXI.Sprite).blendMode = PIXI.BLEND_MODES.DARKEN;
                     break;
 
                 case BlendMode.Difference:
-                    (<PIXI.Sprite>this._renderDisplay).blendMode = PIXI.BLEND_MODES.DIFFERENCE;
+                    (this._renderDisplay as PIXI.Sprite).blendMode = PIXI.BLEND_MODES.DIFFERENCE;
                     break;
 
                 case BlendMode.HardLight:
-                    (<PIXI.Sprite>this._renderDisplay).blendMode = PIXI.BLEND_MODES.HARD_LIGHT;
+                    (this._renderDisplay as PIXI.Sprite).blendMode = PIXI.BLEND_MODES.HARD_LIGHT;
                     break;
 
                 case BlendMode.Lighten:
-                    (<PIXI.Sprite>this._renderDisplay).blendMode = PIXI.BLEND_MODES.LIGHTEN;
+                    (this._renderDisplay as PIXI.Sprite).blendMode = PIXI.BLEND_MODES.LIGHTEN;
                     break;
 
                 case BlendMode.Multiply:
-                    (<PIXI.Sprite>this._renderDisplay).blendMode = PIXI.BLEND_MODES.MULTIPLY;
+                    (this._renderDisplay as PIXI.Sprite).blendMode = PIXI.BLEND_MODES.MULTIPLY;
                     break;
 
                 case BlendMode.Overlay:
-                    (<PIXI.Sprite>this._renderDisplay).blendMode = PIXI.BLEND_MODES.OVERLAY;
+                    (this._renderDisplay as PIXI.Sprite).blendMode = PIXI.BLEND_MODES.OVERLAY;
                     break;
 
                 case BlendMode.Screen:
-                    (<PIXI.Sprite>this._renderDisplay).blendMode = PIXI.BLEND_MODES.SCREEN;
+                    (this._renderDisplay as PIXI.Sprite).blendMode = PIXI.BLEND_MODES.SCREEN;
                     break;
 
                 default:
@@ -141,79 +161,69 @@ namespace dragonBones {
          * @private
          */
         protected _updateFrame(): void {
-            const frameDisplay = <PIXI.Sprite>this._renderDisplay;
+            const frameDisplay = this._renderDisplay as PIXI.Sprite;
 
             if (this._display && this._displayIndex >= 0) {
                 const rawDisplayData = this._displayIndex < this._displayDataSet.displays.length ? this._displayDataSet.displays[this._displayIndex] : null;
                 const replacedDisplayData = this._displayIndex < this._replacedDisplayDataSet.length ? this._replacedDisplayDataSet[this._displayIndex] : null;
                 const currentDisplayData = replacedDisplayData || rawDisplayData;
-                const currentTextureData = <PixiTextureData>currentDisplayData.texture;
+                const currentTextureData = currentDisplayData.texture as PixiTextureData;
                 if (currentTextureData) {
-                    const textureAtlasTexture = (<PixiTextureAtlasData>currentTextureData.parent).texture;
-                    if (!currentTextureData.texture && textureAtlasTexture) { // Create and cache texture.
-                        const originSize = new PIXI.Rectangle(0, 0, currentTextureData.region.width, currentTextureData.region.height);
-                        currentTextureData.texture = new PIXI.Texture(
-                            textureAtlasTexture,
-                            <PIXI.Rectangle><any>currentTextureData.region, // No need to set frame.
-                            <PIXI.Rectangle><any>currentTextureData.region,
-                            originSize,
-                            currentTextureData.rotated
-                        );
-                    }
+                    const currentTextureAtlasData = currentTextureData.parent as PixiTextureAtlasData;
+                    const replacedTextureAtlas = this._armature.replacedTexture as PIXI.BaseTexture;
+                    const currentTextureAtlas = (replacedTextureAtlas && currentDisplayData.texture.parent == rawDisplayData.texture.parent) ?
+                        replacedTextureAtlas : currentTextureAtlasData.texture;
+                    if (currentTextureAtlas) {
+                        let currentTexture = currentTextureData.texture;
 
-                    const texture = (<PIXI.Texture>this._armature._replacedTexture) || currentTextureData.texture;
-
-                    if (this._meshData && this._display == this._meshDisplay) { // Mesh.
-                        const meshDisplay = <PIXI.mesh.Mesh>this._meshDisplay;
-
-                        if (this._meshData != rawDisplayData.mesh && rawDisplayData && rawDisplayData != currentDisplayData) {
-                            this._pivotX = rawDisplayData.transform.x - currentDisplayData.transform.x;
-                            this._pivotY = rawDisplayData.transform.y - currentDisplayData.transform.y;
+                        if (currentTextureAtlas == replacedTextureAtlas) {
+                            const armatureDisplay = this._armature._display as PixiArmatureDisplay;
+                            const textureName = currentTextureData.name;
+                            currentTexture = armatureDisplay._subTextures[textureName];
+                            if (!currentTexture) {
+                                currentTexture = this._createTexture(currentTextureData, currentTextureAtlas);
+                                armatureDisplay._subTextures[textureName] = currentTexture;
+                            }
                         }
-                        else {
-                            this._pivotX = 0;
-                            this._pivotY = 0;
+                        else if (!currentTextureData.texture) {
+                            currentTexture = this._createTexture(currentTextureData, currentTextureAtlas);
+                            currentTextureData.texture = currentTexture;
                         }
 
-                        /*
-                        for (let i = 0, l = this._meshData.vertices.length; i < l; ++i) {
-                            meshDisplay.uvs[i] = this._meshData.uvs[i];
-                            meshDisplay.vertices[i] = this._meshData.vertices[i];
-                        }
-
-                        for (let i = 0, l = this._meshData.vertexIndices.length; i < l; ++i) {
-                            meshDisplay.indices[i] = this._meshData.vertexIndices[i];
-                        }
-                        */
-
-                        meshDisplay.uvs = <any>new Float32Array(this._meshData.uvs);
-                        meshDisplay.vertices = <any>new Float32Array(this._meshData.vertices);
-                        meshDisplay.indices = <any>new Uint16Array(this._meshData.vertexIndices);
-
-                        for (let i = 0, l = meshDisplay.uvs.length; i < l; i += 2) {
-                            const u = meshDisplay.uvs[i];
-                            const v = meshDisplay.uvs[i + 1];
-                            meshDisplay.uvs[i] = (currentTextureData.region.x + u * currentTextureData.region.width) / textureAtlasTexture.width;
-                            meshDisplay.uvs[i + 1] = (currentTextureData.region.y + v * currentTextureData.region.height) / textureAtlasTexture.height;
-                        }
-
-                        meshDisplay.texture = texture;
-                        meshDisplay.dirty = true;
-
-                        // Identity transform.
-                        if (this._meshData.skinned) {
-                            meshDisplay.setTransform(0, 0, 1, 1, 0, 0, 0, 0, 0);
-                        }
-                    }
-                    else { // Normal texture.
                         this._updatePivot(rawDisplayData, currentDisplayData, currentTextureData);
 
-                        frameDisplay.texture = texture;
+                        if (this._meshData && this._display == this._meshDisplay) { // Mesh.
+                            const meshDisplay = this._meshDisplay as PIXI.mesh.Mesh;
+                            const textureAtlasWidth = currentTextureAtlas ? currentTextureAtlas.width : 1;
+                            const textureAtlasHeight = currentTextureAtlas ? currentTextureAtlas.height : 1;
+
+                            meshDisplay.uvs = <any>new Float32Array(this._meshData.uvs);
+                            meshDisplay.vertices = <any>new Float32Array(this._meshData.vertices);
+                            meshDisplay.indices = <any>new Uint16Array(this._meshData.vertexIndices);
+
+                            for (let i = 0, l = meshDisplay.uvs.length; i < l; i += 2) {
+                                const u = meshDisplay.uvs[i];
+                                const v = meshDisplay.uvs[i + 1];
+                                meshDisplay.uvs[i] = (currentTextureData.region.x + u * currentTextureData.region.width) / textureAtlasWidth;
+                                meshDisplay.uvs[i + 1] = (currentTextureData.region.y + v * currentTextureData.region.height) / textureAtlasHeight;
+                            }
+
+                            meshDisplay.texture = currentTexture;
+                            meshDisplay.dirty = true;
+
+                            // Identity transform.
+                            if (this._meshData.skinned) {
+                                meshDisplay.setTransform(0, 0, 1, 1, 0, 0, 0, 0, 0);
+                            }
+                        }
+                        else { // Normal texture.
+                            frameDisplay.texture = currentTexture;
+                        }
+
+                        this._updateVisible();
+
+                        return;
                     }
-
-                    this._updateVisible();
-
-                    return;
                 }
             }
 
@@ -229,7 +239,7 @@ namespace dragonBones {
          * @private
          */
         protected _updateMesh(): void {
-            const meshDisplay = <PIXI.mesh.Mesh>this._meshDisplay;
+            const meshDisplay = this._meshDisplay as PIXI.mesh.Mesh;
             const hasFFD = this._ffdVertices.length > 0;
 
             if (this._meshData.skinned) {

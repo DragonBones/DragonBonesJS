@@ -1,3 +1,8 @@
+var __extends = (this && this.__extends) || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+};
 var demosPixi;
 (function (demosPixi) {
     /**
@@ -6,12 +11,13 @@ var demosPixi;
      * 2. factory.parseDragonBonesData();
      *    factory.parseTextureAtlasData();
      * 3. armatureDisplay = factory.buildArmatureDisplay("armatureName");
-     * 4. addChild(armatureDisplay);
+     * 4. armatureDisplay.animation.play("animationName");
+     * 5. addChild(armatureDisplay);
      */
-    var HelloDragonBones = (function () {
+    var HelloDragonBones = (function (_super) {
+        __extends(HelloDragonBones, _super);
         function HelloDragonBones() {
-            this._renderer = new PIXI.WebGLRenderer(800, 600, { backgroundColor: 0x666666 });
-            this._stage = new PIXI.Container();
+            _super.apply(this, arguments);
             this._isDown = false;
             this._isMoved = false;
             this._isHorizontalMoved = false;
@@ -20,15 +26,10 @@ var demosPixi;
             this._prevArmatureScale = 1;
             this._prevAnimationScale = 1;
             this._startPoint = new PIXI.Point();
-            this._backgroud = new PIXI.Sprite(PIXI.Texture.EMPTY);
             this._dragonBonesData = null;
             this._armatureDisplay = null;
-            this._factory = new dragonBones.PixiFactory();
-            this._init();
         }
-        HelloDragonBones.prototype._init = function () {
-            document.body.appendChild(this._renderer.view);
-            PIXI.ticker.shared.add(this._renderHandler, this);
+        HelloDragonBones.prototype._onStart = function () {
             // Load data.
             PIXI.loader
                 .add("dragonBonesData", "./resource/assets/Old/Warrior/skeleton.json")
@@ -37,13 +38,10 @@ var demosPixi;
             PIXI.loader.once("complete", this._loadComplateHandler, this);
             PIXI.loader.load();
         };
-        HelloDragonBones.prototype._renderHandler = function (deltaTime) {
-            this._renderer.render(this._stage);
-        };
         HelloDragonBones.prototype._loadComplateHandler = function (loader, object) {
             // Parse data.
-            this._dragonBonesData = this._factory.parseDragonBonesData(object["dragonBonesData"].data);
-            this._factory.parseTextureAtlasData(object["textureDataA"].data, object["textureA"].texture);
+            this._dragonBonesData = dragonBones.PixiFactory.factory.parseDragonBonesData(object["dragonBonesData"].data);
+            dragonBones.PixiFactory.factory.parseTextureAtlasData(object["textureDataA"].data, object["textureA"].texture);
             if (this._dragonBonesData) {
                 // Add event listeners.
                 this._stage.interactive = true;
@@ -53,9 +51,6 @@ var demosPixi;
                 this._stage.on("mousedown", this._touchHandler, this);
                 this._stage.on("mouseup", this._touchHandler, this);
                 this._stage.on("mousemove", this._touchHandler, this);
-                this._stage.addChild(this._backgroud);
-                this._backgroud.width = this._renderer.width;
-                this._backgroud.height = this._renderer.height;
                 // Add Armature.            
                 this._changeArmature();
                 // Add infomation.            
@@ -147,7 +142,7 @@ var demosPixi;
             }
             var armatureName = armatureNames[this._armatureIndex];
             // Build Armature display. (Factory.buildArmatureDisplay() will update Armature animation by Armature display)
-            this._armatureDisplay = this._factory.buildArmatureDisplay(armatureName);
+            this._armatureDisplay = dragonBones.PixiFactory.factory.buildArmatureDisplay(armatureName);
             // Add FrameEvent listener.
             this._armatureDisplay.addEvent(dragonBones.EventObject.FRAME_EVENT, this._frameEventHandler, this);
             // Add Armature display.
@@ -182,6 +177,6 @@ var demosPixi;
             console.log(event.animationState.name, event.name);
         };
         return HelloDragonBones;
-    }());
+    }(demosPixi.BaseTest));
     demosPixi.HelloDragonBones = HelloDragonBones;
 })(demosPixi || (demosPixi = {}));

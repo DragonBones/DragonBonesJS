@@ -135,12 +135,20 @@ namespace dragonBones {
      */
     export class EgretArmatureDisplay extends egret.DisplayObjectContainer implements IArmatureDisplay {
         /**
+         * @internal
          * @private
          */
         public _armature: Armature;
+        /**
+         * @internal
+         * @private
+         */
+        public _subTextures: Map<egret.Texture> = {};
 
         private _debugDrawer: egret.Shape;
+
         /**
+         * @internal
          * @private
          */
         public constructor() {
@@ -150,6 +158,15 @@ namespace dragonBones {
          * @inheritDoc
          */
         public _onClear(): void {
+            for (let i in this._subTextures) {
+                //this._subTextures[i].dispose();
+                delete this._subTextures[i];
+            }
+
+            if (this._armature) {
+                this.advanceTimeBySelf(false);
+            }
+
             this._armature = null;
             this._debugDrawer = null;
         }
@@ -190,6 +207,15 @@ namespace dragonBones {
         /**
          * @inheritDoc
          */
+        public _onReplaceTexture(texture: any): void {
+            for (let i in this._subTextures) {
+                //this._subTextures[i].dispose();
+                delete this._subTextures[i];
+            }
+        }
+        /**
+         * @inheritDoc
+         */
         public hasEvent(type: EventStringType): boolean {
             return this.hasEventListener(type);
         }
@@ -197,13 +223,13 @@ namespace dragonBones {
          * @inheritDoc
          */
         public addEvent(type: EventStringType, listener: (event: EgretEvent) => void, target: any): void {
-            this.addEventListener(type, listener, target);
+            //this.addEventListener(type, listener, target);
         }
         /**
          * @inheritDoc
          */
         public removeEvent(type: EventStringType, listener: (event: EgretEvent) => void, target: any): void {
-            this.removeEventListener(type, listener, target);
+            //this.removeEventListener(type, listener, target);
         }
         /**
          * @inheritDoc
@@ -221,7 +247,8 @@ namespace dragonBones {
         public advanceTimeBySelf(on: boolean): void {
             if (on) {
                 EgretFactory._clock.add(this._armature);
-            } else {
+            }
+            else {
                 EgretFactory._clock.remove(this._armature);
             }
         }

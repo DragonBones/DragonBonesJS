@@ -42,7 +42,7 @@ namespace dragonBones {
         }
         /**
          * @deprecated
-         * @see dragonBones.BaseFactory#removeDragonBonesData()
+         * @see dragonBones.BaseFactory#removeTextureAtlasData()
          */
         public dispose(): void {
             this.returnToPool();
@@ -68,7 +68,7 @@ namespace dragonBones {
             super._onClear();
 
             if (this.texture) {
-                this.texture.dispose();
+                //this.texture.dispose();
                 this.texture = null;
             }
         }
