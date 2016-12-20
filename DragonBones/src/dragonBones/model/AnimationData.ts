@@ -49,7 +49,7 @@ namespace dragonBones {
         /**
          * @private
          */
-        public cacheTimeToFrameScale: number;
+        public cacheFrameRate: number;
         /**
          * @language zh_CN
          * 数据名称。
@@ -123,7 +123,7 @@ namespace dragonBones {
             this.position = 0;
             this.duration = 0;
             this.fadeInTime = 0;
-            this.cacheTimeToFrameScale = 0;
+            this.cacheFrameRate = 0;
             this.name = null;
             this.animation = null;
             this.zOrderTimeline = null;
@@ -132,14 +132,14 @@ namespace dragonBones {
         /**
          * @private
          */
-        public cacheFrames(value: number): void {
+        public cacheFrames(cacheFrameRate: number): void {
             if (this.animation) {
                 return;
             }
 
-            const cacheFrameCount = Math.max(Math.floor((this.frameCount + 1) * this.scale * value), 1);
+            this.cacheFrameRate = Math.max(Math.ceil(cacheFrameRate * this.scale), 1);
 
-            this.cacheTimeToFrameScale = cacheFrameCount / (this.duration + 0.000001); //
+            const cacheFrameCount = Math.ceil(this.cacheFrameRate * this.duration) + 1;
             this.cachedFrames.length = 0;
             this.cachedFrames.length = cacheFrameCount;
 
@@ -177,11 +177,11 @@ namespace dragonBones {
          * @private
          */
         public addFFDTimeline(value: FFDTimelineData): void {
-            if (value && value.skin && value.slot) {
+            if (value && value.skin && value.slot && value.display) {
                 const skin = this.ffdTimelines[value.skin.name] = this.ffdTimelines[value.skin.name] || {};
                 const slot = skin[value.slot.slot.name] = skin[value.slot.slot.name] || {};
-                if (!slot[value.displayIndex]) {
-                    slot[value.displayIndex] = value;
+                if (!slot[value.display.name]) {
+                    slot[value.display.name] = value;
                 }
                 else {
                     throw new Error();
@@ -206,12 +206,12 @@ namespace dragonBones {
         /**
          * @private
          */
-        public getFFDTimeline(skinName: string, slotName: string, displayIndex: number): FFDTimelineData {
+        public getFFDTimeline(skinName: string, slotName: string, displayName: string): FFDTimelineData {
             const skin = this.ffdTimelines[skinName];
             if (skin) {
                 const slot = skin[slotName];
                 if (slot) {
-                    return slot[displayIndex];
+                    return slot[displayName];
                 }
             }
 

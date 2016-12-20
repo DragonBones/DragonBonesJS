@@ -31,6 +31,11 @@ namespace dragonBones {
         protected static Z_ORDER: string = "zOrder";
         protected static FFD: string = "ffd";
         protected static FRAME: string = "frame";
+        protected static EVENTS: string = "events";
+        protected static ACTIONS: string = "actions";
+        protected static INTS: string = "ints";
+        protected static FLOATS: string = "floats";
+        protected static STRINGS: string = "strings";
 
         protected static PIVOT: string = "pivot";
         protected static TRANSFORM: string = "transform";
@@ -42,8 +47,10 @@ namespace dragonBones {
         protected static IS_GLOBAL: string = "isGlobal";
         protected static FRAME_RATE: string = "frameRate";
         protected static TYPE: string = "type";
+        protected static SUB_TYPE: string = "subType";
         protected static NAME: string = "name";
         protected static PARENT: string = "parent";
+        protected static SHARE: string = "share";
         protected static LENGTH: string = "length";
         protected static DATA: string = "data";
         protected static DISPLAY_INDEX: string = "displayIndex";
@@ -51,6 +58,7 @@ namespace dragonBones {
         protected static INHERIT_TRANSLATION: string = "inheritTranslation";
         protected static INHERIT_ROTATION: string = "inheritRotation";
         protected static INHERIT_SCALE: string = "inheritScale";
+        protected static INHERIT_ANIMATION: string = "inheritAnimation";
         protected static TARGET: string = "target";
         protected static BEND_POSITIVE: string = "bendPositive";
         protected static CHAIN: string = "chain";
@@ -70,7 +78,6 @@ namespace dragonBones {
         protected static EVENT: string = "event";
         protected static SOUND: string = "sound";
         protected static ACTION: string = "action";
-        protected static ACTIONS: string = "actions";
         protected static DEFAULT_ACTIONS: string = "defaultActions";
 
         protected static X: string = "x";
@@ -120,7 +127,7 @@ namespace dragonBones {
                     return ArmatureType.MovieClip;
 
                 default:
-                    return ArmatureType.Armature;
+                    return ArmatureType.None;
             }
         }
 
@@ -129,14 +136,33 @@ namespace dragonBones {
                 case "image":
                     return DisplayType.Image;
 
-                case "armature":
-                    return DisplayType.Armature;
-
                 case "mesh":
                     return DisplayType.Mesh;
 
+                case "armature":
+                    return DisplayType.Armature;
+
+                case "boundingbox":
+                    return DisplayType.BoundingBox;
+
                 default:
-                    return DisplayType.Image;
+                    return DisplayType.None;
+            }
+        }
+
+        protected static _getBoundingBoxType(value: string): BoundingBoxType {
+            switch (value.toLowerCase()) {
+                case "rectangle":
+                    return BoundingBoxType.Rectangle;
+
+                case "ellipse":
+                    return BoundingBoxType.Ellipse;
+
+                case "polygon":
+                    return BoundingBoxType.Polygon;
+
+                default:
+                    return BoundingBoxType.None;
             }
         }
 
@@ -185,7 +211,7 @@ namespace dragonBones {
                     return BlendMode.Subtract;
 
                 default:
-                    return BlendMode.Normal;
+                    return BlendMode.None;
             }
         }
 
@@ -210,7 +236,7 @@ namespace dragonBones {
                     return ActionType.FadeOut;
 
                 default:
-                    return ActionType.FadeIn;
+                    return ActionType.None;
             }
         }
 
@@ -218,7 +244,6 @@ namespace dragonBones {
         protected _armature: ArmatureData = null;
         protected _skin: SkinData = null;
         protected _slotDisplayDataSet: SlotDisplayDataSet = null;
-        protected _mesh: MeshData = null;
         protected _animation: AnimationData = null;
         protected _timeline: any = null;
 
@@ -261,7 +286,7 @@ namespace dragonBones {
                 }
                 else if (frame.curve) {
                     tweenProgress = (position - frame.position) / frame.duration;
-                    tweenProgress = TweenTimelineState._getCurveValue(tweenProgress, frame.curve);
+                    tweenProgress = TweenTimelineState._getEasingCurveValue(tweenProgress, frame.curve);
                 }
 
                 const nextFrame = frame.next;

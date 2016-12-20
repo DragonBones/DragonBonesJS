@@ -95,7 +95,7 @@ namespace dragonBones {
                 switch (displayData.type) {
                     case DisplayType.Image:
                         if (!displayData.texture || dataPackage.textureAtlasName) {
-                            displayData.texture = this._getTextureData(dataPackage.textureAtlasName || dataPackage.dataName, displayData.name);
+                            displayData.texture = this._getTextureData(dataPackage.textureAtlasName || dataPackage.dataName, displayData.path);
                         }
 
                         displayList.push(slot._rawDisplay);
@@ -103,14 +103,14 @@ namespace dragonBones {
 
                     case DisplayType.Mesh:
                         if (!displayData.texture || dataPackage.textureAtlasName) {
-                            displayData.texture = this._getTextureData(dataPackage.textureAtlasName || dataPackage.dataName, displayData.name);
+                            displayData.texture = this._getTextureData(dataPackage.textureAtlasName || dataPackage.dataName, displayData.path);
                         }
 
                         displayList.push(slot._meshDisplay);
                         break;
 
                     case DisplayType.Armature:
-                        const childArmature = this.buildArmature(displayData.name, dataPackage.dataName, null, dataPackage.textureAtlasName);
+                        const childArmature = this.buildArmature(displayData.path, dataPackage.dataName, null, dataPackage.textureAtlasName);
                         if (childArmature) {
                             if (!slot.inheritAnimation) {
                                 const actions = slotData.actions.length > 0 ? slotData.actions : childArmature.armatureData.actions;

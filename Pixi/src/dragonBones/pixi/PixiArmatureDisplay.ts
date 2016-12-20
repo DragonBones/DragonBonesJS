@@ -41,7 +41,7 @@ namespace dragonBones {
             this._armature = null;
             this._debugDrawer = null;
 
-            this.destroy(true);
+            this.destroy();
         }
         /**
          * @inheritDoc

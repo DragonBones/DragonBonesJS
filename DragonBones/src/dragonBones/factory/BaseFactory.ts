@@ -213,19 +213,19 @@ namespace dragonBones {
                 slot._replacedDisplayDataSet[displayIndex] = displayData;
 
                 if (displayData.type == DisplayType.Armature) {
-                    const childArmature = this.buildArmature(displayData.name, dataPackage.dataName, null, dataPackage.textureAtlasName);
+                    const childArmature = this.buildArmature(displayData.path, dataPackage.dataName, null, dataPackage.textureAtlasName);
                     displayList[displayIndex] = childArmature;
                 }
                 else {
                     if (!displayData.texture || dataPackage.textureAtlasName) {
-                        displayData.texture = this._getTextureData(dataPackage.textureAtlasName || dataPackage.dataName, displayData.name);
+                        displayData.texture = this._getTextureData(dataPackage.textureAtlasName || dataPackage.dataName, displayData.path);
                     }
 
                     if (
                         displayData.mesh ||
                         (displayIndex < slot._displayDataSet.displays.length && slot._displayDataSet.displays[displayIndex].mesh)
                     ) {
-                        displayList[displayIndex] = slot.MeshDisplay;
+                        displayList[displayIndex] = slot.meshDisplay;
                     }
                     else {
                         displayList[displayIndex] = slot.rawDisplay;
@@ -529,7 +529,7 @@ namespace dragonBones {
                                 if (i < displays.length) {
                                     const fromDisplayData = displays[i];
                                     if (fromDisplayData.type == DisplayType.Armature) {
-                                        this.copyAnimationsToArmature(<Armature>toDisplayObject, fromDisplayData.name, fromSkinName, fromDragonBonesDataName, ifRemoveOriginalAnimationList);
+                                        this.copyAnimationsToArmature(<Armature>toDisplayObject, fromDisplayData.path, fromSkinName, fromDragonBonesDataName, ifRemoveOriginalAnimationList);
                                     }
                                 }
                             }
@@ -560,7 +560,7 @@ namespace dragonBones {
                 if (slotDisplayDataSet) {
                     for (let i = 0, l = slotDisplayDataSet.displays.length; i < l; ++i) {
                         const displayData = slotDisplayDataSet.displays[i];
-                        if (displayData.name == displayName) {
+                        if (displayData.path == displayName) {
                             this._replaceSlotDisplay(dataPackage, displayData, slot, displayIndex);
                             break;
                         }

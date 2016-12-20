@@ -156,7 +156,6 @@ namespace dragonBones {
                 case AnimationFadeOutMode.All:
                     for (; i < l; ++i) {
                         animationState = this._animationStates[i];
-                        animationState.fadeOut(fadeOutTime, pauseFadeOut);
                         if (fadeOutTime == 0) {
                             animationState.returnToPool();
                         }

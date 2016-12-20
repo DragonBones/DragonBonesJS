@@ -2,7 +2,18 @@ declare namespace dragonBones {
     /**
      * @private
      */
+    const enum DisplayType {
+        None = -1,
+        Image = 0,
+        Armature = 1,
+        Mesh = 2,
+        BoundingBox = 3,
+    }
+    /**
+     * @private
+     */
     const enum ArmatureType {
+        None = -1,
         Armature = 0,
         MovieClip = 1,
         Stage = 2,
@@ -10,15 +21,17 @@ declare namespace dragonBones {
     /**
      * @private
      */
-    const enum DisplayType {
-        Image = 0,
-        Armature = 1,
-        Mesh = 2,
+    const enum BoundingBoxType {
+        None = -1,
+        Rectangle = 0,
+        Ellipse = 1,
+        Polygon = 2,
     }
     /**
      * @private
      */
     const enum ExtensionType {
+        None = -1,
         FFD = 0,
         AdjustColor = 10,
         BevelFilter = 11,
@@ -32,6 +45,7 @@ declare namespace dragonBones {
      * @private
      */
     const enum EventType {
+        None = -1,
         Frame = 10,
         Sound = 11,
     }
@@ -39,6 +53,7 @@ declare namespace dragonBones {
      * @private
      */
     const enum ActionType {
+        None = -1,
         Play = 0,
         Stop = 1,
         GotoAndPlay = 2,
@@ -50,6 +65,7 @@ declare namespace dragonBones {
      * @private
      */
     const enum BlendMode {
+        None = -1,
         Normal = 0,
         Add = 1,
         Alpha = 2,
@@ -162,6 +178,235 @@ declare namespace dragonBones {
          * @version DragonBones 4.5
          */
         returnToPool(): void;
+    }
+}
+declare namespace dragonBones {
+    /**
+     * @private
+     */
+    class ColorTransform {
+        alphaMultiplier: number;
+        redMultiplier: number;
+        greenMultiplier: number;
+        blueMultiplier: number;
+        alphaOffset: number;
+        redOffset: number;
+        greenOffset: number;
+        blueOffset: number;
+        constructor(alphaMultiplier?: number, redMultiplier?: number, greenMultiplier?: number, blueMultiplier?: number, alphaOffset?: number, redOffset?: number, greenOffset?: number, blueOffset?: number);
+        copyFrom(value: ColorTransform): void;
+        identity(): void;
+    }
+}
+declare namespace dragonBones {
+    /**
+     * @private
+     */
+    class Point {
+        x: number;
+        y: number;
+        constructor(x?: number, y?: number);
+        copyFrom(value: Point): void;
+        clear(): void;
+    }
+}
+declare namespace dragonBones {
+    /**
+     * @language zh_CN
+     * 2D 矩阵。
+     * @version DragonBones 3.0
+     */
+    class Matrix {
+        a: number;
+        b: number;
+        c: number;
+        d: number;
+        tx: number;
+        ty: number;
+        constructor(a?: number, b?: number, c?: number, d?: number, tx?: number, ty?: number);
+        /**
+         * @private
+         */
+        toString(): string;
+        /**
+         * @language zh_CN
+         * 复制矩阵。
+         * @param value 需要复制的矩阵。
+         * @version DragonBones 3.0
+         */
+        copyFrom(value: Matrix): void;
+        /**
+         * @language zh_CN
+         * 转换为恒等矩阵。
+         * @version DragonBones 3.0
+         */
+        identity(): void;
+        /**
+         * @language zh_CN
+         * 将当前矩阵与另一个矩阵相乘。
+         * @param value 需要相乘的矩阵。
+         * @version DragonBones 3.0
+         */
+        concat(value: Matrix): void;
+        /**
+         * @language zh_CN
+         * 转换为逆矩阵。
+         * @version DragonBones 3.0
+         */
+        invert(): void;
+        /**
+         * @language zh_CN
+         * 将矩阵转换应用于指定点。
+         * @param x 横坐标。
+         * @param y 纵坐标。
+         * @param result 应用转换之后的坐标。
+         * @params delta 是否忽略 tx，ty 对坐标的转换。
+         * @version DragonBones 3.0
+         */
+        transformPoint(x: number, y: number, result: {
+            x: number;
+            y: number;
+        }, delta?: boolean): void;
+    }
+}
+declare namespace dragonBones {
+    /**
+     * @private
+     */
+    class Rectangle {
+        x: number;
+        y: number;
+        width: number;
+        height: number;
+        constructor(x?: number, y?: number, width?: number, height?: number);
+        copyFrom(value: Rectangle): void;
+        clear(): void;
+    }
+}
+declare namespace dragonBones {
+    /**
+     * @language zh_CN
+     * 2D 变换。
+     * @version DragonBones 3.0
+     */
+    class Transform {
+        /**
+         * @language zh_CN
+         * 水平位移。
+         * @version DragonBones 3.0
+         */
+        x: number;
+        /**
+         * @language zh_CN
+         * 垂直位移。
+         * @version DragonBones 3.0
+         */
+        y: number;
+        /**
+         * @language zh_CN
+         * 水平倾斜。 (以弧度为单位)
+         * @version DragonBones 3.0
+         */
+        skewX: number;
+        /**
+         * @language zh_CN
+         * 垂直倾斜。 (以弧度为单位)
+         * @version DragonBones 3.0
+         */
+        skewY: number;
+        /**
+         * @language zh_CN
+         * 水平缩放。
+         * @version DragonBones 3.0
+         */
+        scaleX: number;
+        /**
+         * @language zh_CN
+         * 垂直缩放。
+         * @version DragonBones 3.0
+         */
+        scaleY: number;
+        /**
+         * @private
+         */
+        static normalizeRadian(value: number): number;
+        /**
+         * @private
+         */
+        constructor(
+            /**
+             * @language zh_CN
+             * 水平位移。
+             * @version DragonBones 3.0
+             */
+            x?: number, 
+            /**
+             * @language zh_CN
+             * 垂直位移。
+             * @version DragonBones 3.0
+             */
+            y?: number, 
+            /**
+             * @language zh_CN
+             * 水平倾斜。 (以弧度为单位)
+             * @version DragonBones 3.0
+             */
+            skewX?: number, 
+            /**
+             * @language zh_CN
+             * 垂直倾斜。 (以弧度为单位)
+             * @version DragonBones 3.0
+             */
+            skewY?: number, 
+            /**
+             * @language zh_CN
+             * 水平缩放。
+             * @version DragonBones 3.0
+             */
+            scaleX?: number, 
+            /**
+             * @language zh_CN
+             * 垂直缩放。
+             * @version DragonBones 3.0
+             */
+            scaleY?: number);
+        /**
+         * @private
+         */
+        toString(): string;
+        /**
+         * @private
+         */
+        copyFrom(value: Transform): Transform;
+        /**
+         * @private
+         */
+        identity(): Transform;
+        /**
+         * @private
+         */
+        add(value: Transform): Transform;
+        /**
+         * @private
+         */
+        minus(value: Transform): Transform;
+        /**
+         * @private
+         */
+        fromMatrix(matrix: Matrix): Transform;
+        /**
+         * @language zh_CN
+         * 转换为矩阵。
+         * @param 矩阵。
+         * @version DragonBones 3.0
+         */
+        toMatrix(matrix: Matrix): Transform;
+        /**
+         * @language zh_CN
+         * 旋转。 (以弧度为单位)
+         * @version DragonBones 3.0
+         */
+        rotation: number;
     }
 }
 declare namespace dragonBones {
@@ -898,6 +1143,7 @@ declare namespace dragonBones {
         _eventManager: IEventDispatcher;
         private _delayDispose;
         private _lockDispose;
+        private _debugDraw;
         private _slotsDirty;
         private _replacedTexture;
         private _bones;
@@ -935,6 +1181,39 @@ declare namespace dragonBones {
          * @version DragonBones 3.0
          */
         advanceTime(passedTime: number): void;
+        /**
+         * @language zh_CN
+         * 判断指定的点是否在所有插槽的自定义包围盒内。
+         * @param x 点的水平坐标。（骨架内坐标系）
+         * @param y 点的垂直坐标。（骨架内坐标系）
+         * @param color 指定的包围盒颜色。 [0: 与所有包围盒进行判断, N: 仅当包围盒的颜色为 N 时才进行判断]
+         * @version DragonBones 4.5
+         */
+        containsPoint(x: number, y: number, color?: number): Slot;
+        /**
+         * @language zh_CN
+         * 判断指定的线段与骨架的所有插槽的自定义包围盒是否相交。
+         * @param xA 线段起点的水平坐标。（骨架内坐标系）
+         * @param yA 线段起点的垂直坐标。（骨架内坐标系）
+         * @param xB 线段终点的水平坐标。（骨架内坐标系）
+         * @param yB 线段终点的垂直坐标。（骨架内坐标系）
+         * @param color 指定的包围盒颜色。 [0: 与所有包围盒进行判断, N: 仅当包围盒的颜色为 N 时才进行判断]
+         * @param intersectionPointA 线段从起点到终点与包围盒相交的第一个交点。（骨架内坐标系）
+         * @param intersectionPointB 线段从终点到起点与包围盒相交的第一个交点。（骨架内坐标系）
+         * @param normalRadians 碰撞点处包围盒切线的法线弧度。 [x: 第一个碰撞点处切线的法线弧度, y: 第二个碰撞点处切线的法线弧度]
+         * @returns 线段从起点到终点相交的第一个自定义包围盒的插槽。
+         * @version DragonBones 4.5
+         */
+        intersectsSegment(xA: number, yA: number, xB: number, yB: number, color?: number, intersectionPointA?: {
+            x: number;
+            y: number;
+        }, intersectionPointB?: {
+            x: number;
+            y: number;
+        }, normalRadians?: {
+            x: number;
+            y: number;
+        }): Slot;
         /**
          * @language zh_CN
          * 更新骨骼和插槽的变换。 (当骨骼没有动画状态或动画状态播放完成时，骨骼将不在更新)
@@ -1068,7 +1347,7 @@ declare namespace dragonBones {
          * @returns  [true: 包含, false: 不包含]
          * @version DragonBones 3.0
          */
-        hasEventListener(type: EventStringType): void;
+        hasEventListener(type: EventStringType): boolean;
         /**
          * @language zh_CN
          * 添加事件。
@@ -1338,15 +1617,7 @@ declare namespace dragonBones {
         /**
          * @private
          */
-        _zOrder: number;
-        /**
-         * @private
-         */
-        _pivotX: number;
-        /**
-         * @private
-         */
-        _pivotY: number;
+        _blendIndex: number;
         /**
          * @private
          */
@@ -1402,7 +1673,19 @@ declare namespace dragonBones {
         /**
          * @private
          */
+        _zOrder: number;
+        /**
+         * @private
+         */
         protected _displayIndex: number;
+        /**
+         * @private
+         */
+        protected _pivotX: number;
+        /**
+         * @private
+         */
+        protected _pivotY: number;
         /**
          * @private
          */
@@ -1502,6 +1785,39 @@ declare namespace dragonBones {
         _setDisplayList(value: Array<any>): boolean;
         /**
          * @language zh_CN
+         * 判断指定的点是否在插槽的自定义包围盒内。
+         * @param x 点的水平坐标。（骨架内坐标系）
+         * @param y 点的垂直坐标。（骨架内坐标系）
+         * @param color 指定的包围盒颜色。 [0: 与所有包围盒进行判断, N: 仅当包围盒的颜色为 N 时才进行判断]
+         * @version DragonBones 4.5
+         */
+        containsPoint(x: number, y: number, color?: number): boolean;
+        /**
+         * @language zh_CN
+         * 判断指定的线段与插槽的自定义包围盒是否相交。
+         * @param xA 线段起点的水平坐标。（骨架内坐标系）
+         * @param yA 线段起点的垂直坐标。（骨架内坐标系）
+         * @param xB 线段终点的水平坐标。（骨架内坐标系）
+         * @param yB 线段终点的垂直坐标。（骨架内坐标系）
+         * @param color 指定的包围盒颜色。 [0: 与所有包围盒进行判断, N: 仅当包围盒的颜色为 N 时才进行判断]
+         * @param intersectionPointA 线段从起点到终点与包围盒相交的第一个交点。（骨架内坐标系）
+         * @param intersectionPointB 线段从终点到起点与包围盒相交的第一个交点。（骨架内坐标系）
+         * @param normalRadians 碰撞点处包围盒切线的法线弧度。 [x: 第一个碰撞点处切线的法线弧度, y: 第二个碰撞点处切线的法线弧度]
+         * @returns 相交的情况。 [-1: 不相交且线段在包围盒内, 0: 不相交, 1: 相交且有一个交点且终点在包围盒内, 2: 相交且有一个交点且起点在包围盒内, 3: 相交且有两个交点, N: 相交且有 N 个交点]
+         * @version DragonBones 4.5
+         */
+        intersectsSegment(xA: number, yA: number, xB: number, yB: number, color?: number, intersectionPointA?: {
+            x: number;
+            y: number;
+        }, intersectionPointB?: {
+            x: number;
+            y: number;
+        }, normalRadians?: {
+            x: number;
+            y: number;
+        }): number;
+        /**
+         * @language zh_CN
          * 在下一帧更新显示对象的状态。
          * @version DragonBones 4.5
          */
@@ -1509,11 +1825,15 @@ declare namespace dragonBones {
         /**
          * @private
          */
+        displayData: DisplayData;
+        /**
+         * @private
+         */
         rawDisplay: any;
         /**
          * @private
          */
-        MeshDisplay: any;
+        meshDisplay: any;
         /**
          * @language zh_CN
          * 此时显示的显示对象在显示列表中的索引。
@@ -1665,12 +1985,6 @@ declare namespace dragonBones {
         name: string;
         /**
          * @language zh_CN
-         * 扩展的数据。
-         * @version DragonBones 4.5
-         */
-        data: any;
-        /**
-         * @language zh_CN
          * 发出事件的骨架。
          * @version DragonBones 4.5
          */
@@ -1698,6 +2012,10 @@ declare namespace dragonBones {
          */
         frame: AnimationFrameData;
         /**
+         * @private
+         */
+        data: EventData;
+        /**
          * @language zh_CN
          * 用户数据。
          * @version DragonBones 4.5
@@ -1707,235 +2025,9 @@ declare namespace dragonBones {
          * @inheritDoc
          */
         protected _onClear(): void;
-    }
-}
-declare namespace dragonBones {
-    /**
-     * @private
-     */
-    class ColorTransform {
-        alphaMultiplier: number;
-        redMultiplier: number;
-        greenMultiplier: number;
-        blueMultiplier: number;
-        alphaOffset: number;
-        redOffset: number;
-        greenOffset: number;
-        blueOffset: number;
-        constructor(alphaMultiplier?: number, redMultiplier?: number, greenMultiplier?: number, blueMultiplier?: number, alphaOffset?: number, redOffset?: number, greenOffset?: number, blueOffset?: number);
-        copyFrom(value: ColorTransform): void;
-        identity(): void;
-    }
-}
-declare namespace dragonBones {
-    /**
-     * @language zh_CN
-     * 2D 矩阵。
-     * @version DragonBones 3.0
-     */
-    class Matrix {
-        a: number;
-        b: number;
-        c: number;
-        d: number;
-        tx: number;
-        ty: number;
-        constructor(a?: number, b?: number, c?: number, d?: number, tx?: number, ty?: number);
-        /**
-         * @private
-         */
-        toString(): string;
-        /**
-         * @language zh_CN
-         * 复制矩阵。
-         * @param value 需要复制的矩阵。
-         * @version DragonBones 3.0
-         */
-        copyFrom(value: Matrix): void;
-        /**
-         * @language zh_CN
-         * 转换为恒等矩阵。
-         * @version DragonBones 3.0
-         */
-        identity(): void;
-        /**
-         * @language zh_CN
-         * 将当前矩阵与另一个矩阵相乘。
-         * @param value 需要相乘的矩阵。
-         * @version DragonBones 3.0
-         */
-        concat(value: Matrix): void;
-        /**
-         * @language zh_CN
-         * 转换为逆矩阵。
-         * @version DragonBones 3.0
-         */
-        invert(): void;
-        /**
-         * @language zh_CN
-         * 将矩阵转换应用于指定点。
-         * @param x 横坐标。
-         * @param y 纵坐标。
-         * @param result 应用转换之后的坐标。
-         * @params delta 是否忽略 tx，ty 对坐标的转换。
-         * @version DragonBones 3.0
-         */
-        transformPoint(x: number, y: number, result: {
-            x: number;
-            y: number;
-        }, delta?: boolean): void;
-    }
-}
-declare namespace dragonBones {
-    /**
-     * @private
-     */
-    class Point {
-        x: number;
-        y: number;
-        constructor(x?: number, y?: number);
-        copyFrom(value: Point): void;
-        clear(): void;
-    }
-}
-declare namespace dragonBones {
-    /**
-     * @private
-     */
-    class Rectangle {
-        x: number;
-        y: number;
-        width: number;
-        height: number;
-        constructor(x?: number, y?: number, width?: number, height?: number);
-        copyFrom(value: Rectangle): void;
-        clear(): void;
-    }
-}
-declare namespace dragonBones {
-    /**
-     * @language zh_CN
-     * 2D 变换。
-     * @version DragonBones 3.0
-     */
-    class Transform {
-        /**
-         * @language zh_CN
-         * 水平位移。
-         * @version DragonBones 3.0
-         */
-        x: number;
-        /**
-         * @language zh_CN
-         * 垂直位移。
-         * @version DragonBones 3.0
-         */
-        y: number;
-        /**
-         * @language zh_CN
-         * 水平倾斜。 (以弧度为单位)
-         * @version DragonBones 3.0
-         */
-        skewX: number;
-        /**
-         * @language zh_CN
-         * 垂直倾斜。 (以弧度为单位)
-         * @version DragonBones 3.0
-         */
-        skewY: number;
-        /**
-         * @language zh_CN
-         * 水平缩放。
-         * @version DragonBones 3.0
-         */
-        scaleX: number;
-        /**
-         * @language zh_CN
-         * 垂直缩放。
-         * @version DragonBones 3.0
-         */
-        scaleY: number;
-        /**
-         * @private
-         */
-        static normalizeRadian(value: number): number;
-        /**
-         * @private
-         */
-        constructor(
-            /**
-             * @language zh_CN
-             * 水平位移。
-             * @version DragonBones 3.0
-             */
-            x?: number, 
-            /**
-             * @language zh_CN
-             * 垂直位移。
-             * @version DragonBones 3.0
-             */
-            y?: number, 
-            /**
-             * @language zh_CN
-             * 水平倾斜。 (以弧度为单位)
-             * @version DragonBones 3.0
-             */
-            skewX?: number, 
-            /**
-             * @language zh_CN
-             * 垂直倾斜。 (以弧度为单位)
-             * @version DragonBones 3.0
-             */
-            skewY?: number, 
-            /**
-             * @language zh_CN
-             * 水平缩放。
-             * @version DragonBones 3.0
-             */
-            scaleX?: number, 
-            /**
-             * @language zh_CN
-             * 垂直缩放。
-             * @version DragonBones 3.0
-             */
-            scaleY?: number);
-        /**
-         * @private
-         */
-        toString(): string;
-        /**
-         * @private
-         */
-        copyFrom(value: Transform): Transform;
-        /**
-         * @private
-         */
-        identity(): Transform;
-        /**
-         * @private
-         */
-        add(value: Transform): Transform;
-        /**
-         * @private
-         */
-        minus(value: Transform): Transform;
-        /**
-         * @private
-         */
-        fromMatrix(matrix: Matrix): Transform;
-        /**
-         * @language zh_CN
-         * 转换为矩阵。
-         * @param 矩阵。
-         * @version DragonBones 3.0
-         */
-        toMatrix(matrix: Matrix): Transform;
-        /**
-         * @language zh_CN
-         * 旋转。 (以弧度为单位)
-         * @version DragonBones 3.0
-         */
-        rotation: number;
+        getInt(index: number): number;
+        getFloat(index: number): number;
+        getString(index: number): string;
     }
 }
 declare namespace dragonBones {
@@ -2004,9 +2096,9 @@ declare namespace dragonBones {
      */
     class FFDTimelineData extends TimelineData<ExtensionFrameData> {
         static toString(): string;
-        displayIndex: number;
         skin: SkinData;
         slot: SlotDisplayDataSet;
+        display: DisplayData;
         constructor();
         /**
          * @inheritDoc
@@ -2062,7 +2154,7 @@ declare namespace dragonBones {
         /**
          * @private
          */
-        cacheTimeToFrameScale: number;
+        cacheFrameRate: number;
         /**
          * @language zh_CN
          * 数据名称。
@@ -2104,7 +2196,7 @@ declare namespace dragonBones {
         /**
          * @private
          */
-        cacheFrames(value: number): void;
+        cacheFrames(cacheFrameRate: number): void;
         /**
          * @private
          */
@@ -2128,7 +2220,7 @@ declare namespace dragonBones {
         /**
          * @private
          */
-        getFFDTimeline(skinName: string, slotName: string, displayIndex: number): FFDTimelineData;
+        getFFDTimeline(skinName: string, slotName: string, displayName: string): FFDTimelineData;
     }
 }
 declare namespace dragonBones {
@@ -2497,10 +2589,15 @@ declare namespace dragonBones {
         static toString(): string;
         isRelativePivot: boolean;
         type: DisplayType;
+        inheritAnimation: boolean;
+        color: number;
         name: string;
+        path: string;
         texture: TextureData;
         armature: ArmatureData;
         mesh: MeshData;
+        share: DisplayData;
+        boundingBox: BoundingBoxData;
         pivot: Point;
         transform: Transform;
         constructor();
@@ -2529,6 +2626,68 @@ declare namespace dragonBones {
          * @inheritDoc
          */
         protected _onClear(): void;
+    }
+    /**
+     * @private
+     */
+    class BoundingBoxData extends BaseObject {
+        static toString(): string;
+        /**
+         * Compute the bit code for a point (x, y) using the clip rectangle
+         */
+        private static _computeOutCode(x, y, xMin, yMin, xMax, yMax);
+        static segmentIntersectsRectangle(xA: number, yA: number, xB: number, yB: number, xMin: number, yMin: number, xMax: number, yMax: number, intersectionPointA?: {
+            x: number;
+            y: number;
+        }, intersectionPointB?: {
+            x: number;
+            y: number;
+        }, normalRadians?: {
+            x: number;
+            y: number;
+        }): number;
+        static segmentIntersectsEllipse(xA: number, yA: number, xB: number, yB: number, xC: number, yC: number, widthH: number, heightH: number, intersectionPointA?: {
+            x: number;
+            y: number;
+        }, intersectionPointB?: {
+            x: number;
+            y: number;
+        }, normalRadians?: {
+            x: number;
+            y: number;
+        }): number;
+        static segmentIntersectsPolygon(xA: number, yA: number, xB: number, yB: number, vertices: Array<number>, intersectionPointA?: {
+            x: number;
+            y: number;
+        }, intersectionPointB?: {
+            x: number;
+            y: number;
+        }, normalRadians?: {
+            x: number;
+            y: number;
+        }): number;
+        type: BoundingBoxType;
+        x: number;
+        y: number;
+        width: number;
+        height: number;
+        vertices: Array<number>;
+        constructor();
+        /**
+         * @inheritDoc
+         */
+        protected _onClear(): void;
+        containsPoint(x: number, y: number): boolean;
+        intersectsSegment(xA: number, yA: number, xB: number, yB: number, intersectionPointA?: {
+            x: number;
+            y: number;
+        }, intersectionPointB?: {
+            x: number;
+            y: number;
+        }, normalRadians?: {
+            x: number;
+            y: number;
+        }): number;
     }
 }
 declare namespace dragonBones {
@@ -2617,7 +2776,9 @@ declare namespace dragonBones {
         static toString(): string;
         type: EventType;
         name: string;
-        data: any;
+        ints: Array<number>;
+        floats: Array<number>;
+        strings: Array<string>;
         bone: BoneData;
         slot: SlotData;
         constructor();
@@ -2641,7 +2802,8 @@ declare namespace dragonBones {
      * @private
      */
     abstract class TweenFrameData<T> extends FrameData<T> {
-        static samplingCurve(curve: Array<number>, frameCount: number): Array<number>;
+        private static _getCurvePoint(x1, y1, x2, y2, x3, y3, x4, y4, t, result);
+        static samplingEasingCurve(curve: Array<number>, samples: Array<number>): void;
         tweenEasing: number;
         curve: Array<number>;
         constructor();
@@ -2681,7 +2843,6 @@ declare namespace dragonBones {
         static toString(): string;
         tweenScale: boolean;
         tweenRotate: number;
-        guideCurve: Array<number>;
         transform: Transform;
         constructor();
         /**
@@ -2750,6 +2911,11 @@ declare namespace dragonBones {
         protected static Z_ORDER: string;
         protected static FFD: string;
         protected static FRAME: string;
+        protected static EVENTS: string;
+        protected static ACTIONS: string;
+        protected static INTS: string;
+        protected static FLOATS: string;
+        protected static STRINGS: string;
         protected static PIVOT: string;
         protected static TRANSFORM: string;
         protected static AABB: string;
@@ -2759,8 +2925,10 @@ declare namespace dragonBones {
         protected static IS_GLOBAL: string;
         protected static FRAME_RATE: string;
         protected static TYPE: string;
+        protected static SUB_TYPE: string;
         protected static NAME: string;
         protected static PARENT: string;
+        protected static SHARE: string;
         protected static LENGTH: string;
         protected static DATA: string;
         protected static DISPLAY_INDEX: string;
@@ -2768,6 +2936,7 @@ declare namespace dragonBones {
         protected static INHERIT_TRANSLATION: string;
         protected static INHERIT_ROTATION: string;
         protected static INHERIT_SCALE: string;
+        protected static INHERIT_ANIMATION: string;
         protected static TARGET: string;
         protected static BEND_POSITIVE: string;
         protected static CHAIN: string;
@@ -2786,7 +2955,6 @@ declare namespace dragonBones {
         protected static EVENT: string;
         protected static SOUND: string;
         protected static ACTION: string;
-        protected static ACTIONS: string;
         protected static DEFAULT_ACTIONS: string;
         protected static X: string;
         protected static Y: string;
@@ -2820,13 +2988,13 @@ declare namespace dragonBones {
         protected static HIDE: string;
         protected static _getArmatureType(value: string): ArmatureType;
         protected static _getDisplayType(value: string): DisplayType;
+        protected static _getBoundingBoxType(value: string): BoundingBoxType;
         protected static _getBlendMode(value: string): BlendMode;
         protected static _getActionType(value: string): ActionType;
         protected _data: DragonBonesData;
         protected _armature: ArmatureData;
         protected _skin: SkinData;
         protected _slotDisplayDataSet: SlotDisplayDataSet;
-        protected _mesh: MeshData;
         protected _animation: AnimationData;
         protected _timeline: any;
         protected _isOldData: boolean;
@@ -2883,7 +3051,7 @@ declare namespace dragonBones {
         /**
          * @private
          */
-        protected static _getParameter(rawData: Array<any>, index: number, defaultValue: any): any;
+        protected static _getParameter<T>(rawData: Array<any>, index: number, defaultValue: T): T;
         /**
          * @private
          */
@@ -2916,6 +3084,10 @@ declare namespace dragonBones {
          * @private
          */
         protected _parseDisplay(rawData: any): DisplayData;
+        /**
+         * @private
+         */
+        protected _BoundingBox(rawData: any): BoundingBoxData;
         /**
          * @private
          */

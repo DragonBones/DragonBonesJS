@@ -287,23 +287,82 @@ var dragonBones;
         /**
          * @inheritDoc
          */
-        EgretArmatureDisplay.prototype._debugDraw = function () {
+        EgretArmatureDisplay.prototype._debugDraw = function (isEnabled) {
             if (!this._debugDrawer) {
-                this._debugDrawer = new egret.Shape();
+                this._debugDrawer = new egret.Sprite();
             }
-            this.addChild(this._debugDrawer);
-            this._debugDrawer.graphics.clear();
-            var bones = this._armature.getBones();
-            for (var i = 0, l = bones.length; i < l; ++i) {
-                var bone = bones[i];
-                var boneLength = Math.max(bone.length, 5);
-                var startX = bone.globalTransformMatrix.tx;
-                var startY = bone.globalTransformMatrix.ty;
-                var endX = startX + bone.globalTransformMatrix.a * boneLength;
-                var endY = startY + bone.globalTransformMatrix.b * boneLength;
-                this._debugDrawer.graphics.lineStyle(1, bone.ik ? 0xFF0000 : 0x00FF00, 0.5);
-                this._debugDrawer.graphics.moveTo(startX, startY);
-                this._debugDrawer.graphics.lineTo(endX, endY);
+            if (isEnabled) {
+                this.addChild(this._debugDrawer);
+                this._debugDrawer.graphics.clear();
+                var bones = this._armature.getBones();
+                for (var i = 0, l = bones.length; i < l; ++i) {
+                    var bone = bones[i];
+                    var boneLength = bone.length;
+                    var startX = bone.globalTransformMatrix.tx;
+                    var startY = bone.globalTransformMatrix.ty;
+                    var endX = startX + bone.globalTransformMatrix.a * boneLength;
+                    var endY = startY + bone.globalTransformMatrix.b * boneLength;
+                    this._debugDrawer.graphics.lineStyle(2, bone.ik ? 0xFF0000 : 0x00FFFF, 0.7);
+                    this._debugDrawer.graphics.moveTo(startX, startY);
+                    this._debugDrawer.graphics.lineTo(endX, endY);
+                    this._debugDrawer.graphics.lineStyle(0, 0, 0);
+                    this._debugDrawer.graphics.beginFill(0x00FFFF, 0.7);
+                    this._debugDrawer.graphics.drawCircle(startX, startY, 3);
+                    this._debugDrawer.graphics.endFill();
+                }
+                var slots = this._armature.getSlots();
+                for (var i = 0, l = slots.length; i < l; ++i) {
+                    var slot = slots[i];
+                    var displayData = slot.displayData;
+                    if (displayData && displayData.boundingBox) {
+                        var boundingBox = displayData.boundingBox;
+                        var child = this._debugDrawer.getChildByName(slot.name);
+                        if (!child) {
+                            child = new egret.Shape();
+                            child.name = slot.name;
+                            this._debugDrawer.addChild(child);
+                        }
+                        child.graphics.clear();
+                        child.graphics.beginFill(0xFF00FF, 0.3);
+                        switch (boundingBox.type) {
+                            case 0 /* Rectangle */:
+                                child.graphics.drawRect(-boundingBox.width * 0.5, -boundingBox.height * 0.5, boundingBox.width, boundingBox.height);
+                                break;
+                            case 1 /* Ellipse */:
+                                child.graphics.drawEllipse(-boundingBox.width * 0.5, -boundingBox.height * 0.5, boundingBox.width, boundingBox.height);
+                                break;
+                            case 2 /* Polygon */:
+                                var vertices = boundingBox.vertices;
+                                for (var i_1 = 0, l_1 = boundingBox.vertices.length; i_1 < l_1; i_1 += 2) {
+                                    if (i_1 == 0) {
+                                        child.graphics.moveTo(vertices[i_1], vertices[i_1 + 1]);
+                                    }
+                                    else {
+                                        child.graphics.lineTo(vertices[i_1], vertices[i_1 + 1]);
+                                    }
+                                }
+                                break;
+                            default:
+                                break;
+                        }
+                        child.graphics.endFill();
+                        if (slot._blendIndex == 0) {
+                            slot._blendIndex = 1;
+                            slot["_updateLocalTransformMatrix"]();
+                            slot["_updateGlobalTransformMatrix"]();
+                        }
+                        child.$setMatrix(slot.globalTransformMatrix, false);
+                    }
+                    else {
+                        var child = this._debugDrawer.getChildByName(slot.name);
+                        if (child) {
+                            this._debugDrawer.removeChild(child);
+                        }
+                    }
+                }
+            }
+            else if (this._debugDrawer && this.contains(this._debugDrawer)) {
+                this.removeChild(this._debugDrawer);
             }
         };
         /**
@@ -325,13 +384,13 @@ var dragonBones;
          * @inheritDoc
          */
         EgretArmatureDisplay.prototype.addEvent = function (type, listener, target) {
-            //this.addEventListener(type, listener, target);
+            this.addEventListener(type, listener, target);
         };
         /**
          * @inheritDoc
          */
         EgretArmatureDisplay.prototype.removeEvent = function (type, listener, target) {
-            //this.removeEventListener(type, listener, target);
+            this.removeEventListener(type, listener, target);
         };
         /**
          * @inheritDoc
@@ -589,7 +648,11 @@ var dragonBones;
          */
         EgretSlot.prototype._updateZOrder = function () {
             var container = this._armature._display;
-            container.addChildAt(this._renderDisplay, this._zOrder);
+            var index = container.getChildIndex(this._renderDisplay);
+            if (index == this._zOrder) {
+                return;
+            }
+            container.addChildAt(this._renderDisplay, index < this._zOrder ? this._zOrder : this._zOrder + 1);
         };
         /**
          * @internal
@@ -902,13 +965,13 @@ var dragonBones;
                 switch (displayData.type) {
                     case 0 /* Image */:
                         if (!displayData.texture || dataPackage.textureAtlasName) {
-                            displayData.texture = this._getTextureData(dataPackage.textureAtlasName || dataPackage.dataName, displayData.name);
+                            displayData.texture = this._getTextureData(dataPackage.textureAtlasName || dataPackage.dataName, displayData.path);
                         }
                         displayList.push(slot._rawDisplay);
                         break;
                     case 2 /* Mesh */:
                         if (!displayData.texture || dataPackage.textureAtlasName) {
-                            displayData.texture = this._getTextureData(dataPackage.textureAtlasName || dataPackage.dataName, displayData.name);
+                            displayData.texture = this._getTextureData(dataPackage.textureAtlasName || dataPackage.dataName, displayData.path);
                         }
                         if (egret.Capabilities.renderMode == "webgl") {
                             displayList.push(slot._meshDisplay);
@@ -919,13 +982,13 @@ var dragonBones;
                         }
                         break;
                     case 1 /* Armature */:
-                        var childArmature = this.buildArmature(displayData.name, dataPackage.dataName, null, dataPackage.textureAtlasName);
+                        var childArmature = this.buildArmature(displayData.path, dataPackage.dataName, null, dataPackage.textureAtlasName);
                         if (childArmature) {
                             if (!slot.inheritAnimation) {
                                 var actions = slotData.actions.length > 0 ? slotData.actions : childArmature.armatureData.actions;
                                 if (actions.length > 0) {
-                                    for (var i_1 = 0, l_1 = actions.length; i_1 < l_1; ++i_1) {
-                                        childArmature._bufferAction(actions[i_1]);
+                                    for (var i_2 = 0, l_2 = actions.length; i_2 < l_2; ++i_2) {
+                                        childArmature._bufferAction(actions[i_2]);
                                     }
                                 }
                                 else {

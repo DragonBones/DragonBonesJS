@@ -171,7 +171,7 @@ declare namespace dragonBones {
         /**
          * @inheritDoc
          */
-        _debugDraw(): void;
+        _debugDraw(isEnabled: Boolean): void;
         /**
          * @inheritDoc
          */

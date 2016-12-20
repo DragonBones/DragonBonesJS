@@ -68,7 +68,7 @@ namespace dragonBones {
             let currentPlayTimes = 0;
 
             if (self._keyFrameCount == 1 && this != <any>self._animationState._timeline) {
-                self._isCompleted = true;
+                self._isCompleted = self._animationState._fadeState >= 0; // 
                 currentPlayTimes = 1;
             }
             else if (self._hasAsynchronyTimeline) {
@@ -122,6 +122,10 @@ namespace dragonBones {
             self._isReverse = self._currentTime > value && self._currentPlayTimes == currentPlayTimes;
             self._currentTime = value;
             self._currentPlayTimes = currentPlayTimes;
+
+            if (self._animationState._onFadeInComplete) { //
+                self._currentFrame = null;
+            }
 
             return true;
         }
@@ -202,7 +206,7 @@ namespace dragonBones {
             return (value - progress) * easing + progress;
         }
 
-        public static _getCurveValue(progress: number, curveSampling: Array<number>): number {
+        public static _getEasingCurveValue(progress: number, samples: Array<number>): number {
             if (progress <= 0) {
                 return 0;
             }
@@ -210,25 +214,12 @@ namespace dragonBones {
                 return 1;
             }
 
-            let x = 0;
-            let y = 0;
+            const segmentCount = samples.length + 1; // + 2 - 1
+            const valueIndex = Math.floor(progress * segmentCount);
+            const fromValue = valueIndex == 0 ? 0 : samples[valueIndex - 1];
+            const toValue = (valueIndex == segmentCount - 1) ? 1 : samples[valueIndex];
 
-            for (let i = 0, l = curveSampling.length; i < l; i += 2) {
-                x = curveSampling[i];
-                y = curveSampling[i + 1];
-                if (x >= progress) {
-                    if (i == 0) {
-                        return y * progress / x;
-                    }
-                    else {
-                        const xP = curveSampling[i - 2];
-                        const yP = curveSampling[i - 1]; // i - 2 + 1
-                        return yP + (y - yP) * (progress - xP) / (x - xP);
-                    }
-                }
-            }
-
-            return y + (1 - y) * (progress - x) / (1 - x);
+            return fromValue + (toValue - fromValue) * (progress - valueIndex / segmentCount);
         }
 
         protected _tweenProgress: number;
@@ -280,7 +271,7 @@ namespace dragonBones {
             }
             else if (self._curve) {
                 self._tweenProgress = (self._currentTime - self._currentFrame.position + self._position) / self._currentFrame.duration;
-                self._tweenProgress = TweenTimelineState._getCurveValue(self._tweenProgress, self._curve);
+                self._tweenProgress = TweenTimelineState._getEasingCurveValue(self._tweenProgress, self._curve);
             }
             else {
                 self._tweenProgress = 0;

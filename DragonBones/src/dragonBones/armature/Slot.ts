@@ -31,22 +31,9 @@ namespace dragonBones {
          */
         public displayController: string;
         /**
-         * @internal
          * @private
          */
         public _blendIndex: number;
-        /**
-         * @private
-         */
-        public _zOrder: number;
-        /**
-         * @private
-         */
-        public _pivotX: number;
-        /**
-         * @private
-         */
-        public _pivotY: number;
         /**
          * @private
          */
@@ -117,7 +104,19 @@ namespace dragonBones {
         /**
          * @private
          */
+        public _zOrder: number;
+        /**
+         * @private
+         */
         protected _displayIndex: number;
+        /**
+         * @private
+         */
+        protected _pivotX: number;
+        /**
+         * @private
+         */
+        protected _pivotY: number;
         /**
          * @private
          */
@@ -184,9 +183,6 @@ namespace dragonBones {
             this.displayController = null;
 
             this._blendIndex = 0;
-            this._zOrder = 0;
-            this._pivotX = 0;
-            this._pivotY = 0;
             this._displayDataSet = null;
             this._meshData = null;
             this._childArmature = null;
@@ -204,7 +200,10 @@ namespace dragonBones {
             this._originDirty = false;
             this._transformDirty = false;
             this._ffdDirty = false;
-            this._displayIndex = 0;
+            this._zOrder = 0;
+            this._displayIndex = -2;
+            this._pivotX = 0;
+            this._pivotY = 0;
             this._blendMode = BlendMode.Normal;
             this._display = null;
             this._localMatrix.identity();
@@ -637,6 +636,20 @@ namespace dragonBones {
          * @internal
          * @private
          */
+        public _setZorder(value: number): boolean {
+            if (this._zOrder == value) {
+                //return false;
+            }
+
+            this._zOrder = value;
+            this._zOrderDirty = true;
+
+            return this._zOrderDirty;
+        }
+        /**
+         * @internal
+         * @private
+         */
         public _setDisplayIndex(value: number): boolean {
             if (this._displayIndex == value) {
                 return false;
@@ -673,11 +686,125 @@ namespace dragonBones {
         }
         /**
          * @language zh_CN
+         * 判断指定的点是否在插槽的自定义包围盒内。
+         * @param x 点的水平坐标。（骨架内坐标系）
+         * @param y 点的垂直坐标。（骨架内坐标系）
+         * @param color 指定的包围盒颜色。 [0: 与所有包围盒进行判断, N: 仅当包围盒的颜色为 N 时才进行判断]
+         * @version DragonBones 4.5
+         */
+        public containsPoint(x: number, y: number, color: number = 0): boolean {
+            const displayData = this.displayData;
+            if (!displayData || !displayData.boundingBox || (color && displayData.color != color)) {
+                return false;
+            }
+
+            if (this._blendIndex == 0) {
+                this._blendIndex = 1;
+                this._updateLocalTransformMatrix();
+                this._updateGlobalTransformMatrix();
+            }
+
+            Slot._helpMatrix.copyFrom(this.globalTransformMatrix);
+            Slot._helpMatrix.invert();
+
+            Slot._helpMatrix.transformPoint(x, y, Slot._helpPoint);
+
+            return displayData.boundingBox.containsPoint(Slot._helpPoint.x, Slot._helpPoint.y);
+        }
+        /**
+         * @language zh_CN
+         * 判断指定的线段与插槽的自定义包围盒是否相交。
+         * @param xA 线段起点的水平坐标。（骨架内坐标系）
+         * @param yA 线段起点的垂直坐标。（骨架内坐标系）
+         * @param xB 线段终点的水平坐标。（骨架内坐标系）
+         * @param yB 线段终点的垂直坐标。（骨架内坐标系）
+         * @param color 指定的包围盒颜色。 [0: 与所有包围盒进行判断, N: 仅当包围盒的颜色为 N 时才进行判断]
+         * @param intersectionPointA 线段从起点到终点与包围盒相交的第一个交点。（骨架内坐标系）
+         * @param intersectionPointB 线段从终点到起点与包围盒相交的第一个交点。（骨架内坐标系）
+         * @param normalRadians 碰撞点处包围盒切线的法线弧度。 [x: 第一个碰撞点处切线的法线弧度, y: 第二个碰撞点处切线的法线弧度]
+         * @returns 相交的情况。 [-1: 不相交且线段在包围盒内, 0: 不相交, 1: 相交且有一个交点且终点在包围盒内, 2: 相交且有一个交点且起点在包围盒内, 3: 相交且有两个交点, N: 相交且有 N 个交点]
+         * @version DragonBones 4.5
+         */
+        public intersectsSegment(
+            xA: number, yA: number, xB: number, yB: number,
+            color: number = 0,
+            intersectionPointA: { x: number, y: number } = null,
+            intersectionPointB: { x: number, y: number } = null,
+            normalRadians: { x: number, y: number } = null
+        ): number {
+            const displayData = this.displayData;
+            if (!displayData || !displayData.boundingBox || (color && displayData.color != color)) {
+                return 0;
+            }
+
+            if (this._blendIndex == 0) {
+                this._blendIndex = 1;
+                this._updateLocalTransformMatrix();
+                this._updateGlobalTransformMatrix();
+            }
+
+            Slot._helpMatrix.copyFrom(this.globalTransformMatrix);
+            Slot._helpMatrix.invert();
+
+            Slot._helpMatrix.transformPoint(xA, yA, Slot._helpPoint);
+            xA = Slot._helpPoint.x;
+            yA = Slot._helpPoint.y;
+            Slot._helpMatrix.transformPoint(xB, yB, Slot._helpPoint);
+            xB = Slot._helpPoint.x;
+            yB = Slot._helpPoint.y;
+
+            const intersectionCount = displayData.boundingBox.intersectsSegment(xA, yA, xB, yB, intersectionPointA, intersectionPointB, normalRadians);
+            if (intersectionCount > 0) {
+                if (intersectionCount == 1 || intersectionCount == 2) {
+                    if (intersectionPointA) {
+                        this.globalTransformMatrix.transformPoint(intersectionPointA.x, intersectionPointA.y, intersectionPointA);
+                        if (intersectionPointB) {
+                            intersectionPointB.x = intersectionPointA.x;
+                            intersectionPointB.y = intersectionPointA.y;
+                        }
+                    }
+                    else if (intersectionPointB) {
+                        this.globalTransformMatrix.transformPoint(intersectionPointB.x, intersectionPointB.y, intersectionPointB);
+                    }
+                }
+                else {
+                    if (intersectionPointA) {
+                        this.globalTransformMatrix.transformPoint(intersectionPointA.x, intersectionPointA.y, intersectionPointA);
+                    }
+
+                    if (intersectionPointB) {
+                        this.globalTransformMatrix.transformPoint(intersectionPointB.x, intersectionPointB.y, intersectionPointB);
+                    }
+                }
+
+                if (normalRadians) {
+                    this.globalTransformMatrix.transformPoint(Math.cos(normalRadians.x), Math.sin(normalRadians.x), Slot._helpPoint, true);
+                    normalRadians.x = Math.atan2(Slot._helpPoint.y, Slot._helpPoint.x);
+
+                    this.globalTransformMatrix.transformPoint(Math.cos(normalRadians.y), Math.sin(normalRadians.y), Slot._helpPoint, true);
+                    normalRadians.y = Math.atan2(Slot._helpPoint.y, Slot._helpPoint.x);
+                }
+            }
+
+            return intersectionCount;
+        }
+        /**
+         * @language zh_CN
          * 在下一帧更新显示对象的状态。
          * @version DragonBones 4.5
          */
         public invalidUpdate(): void {
             this._displayDirty = true;
+        }
+        /**
+         * @private
+         */
+        public get displayData(): DisplayData {
+            if (this._displayIndex < 0 || this._displayIndex >= this._displayDataSet.displays.length) {
+                return null;
+            }
+
+            return this._displayDataSet.displays[this._displayIndex];
         }
         /**
          * @private
@@ -688,7 +815,7 @@ namespace dragonBones {
         /**
          * @private
          */
-        public get MeshDisplay(): any {
+        public get meshDisplay(): any {
             return this._meshDisplay;
         }
         /**

@@ -145,7 +145,7 @@ namespace dragonBones {
          */
         public _subTextures: Map<egret.Texture> = {};
 
-        private _debugDrawer: egret.Shape;
+        private _debugDrawer: egret.Sprite;
 
         /**
          * @internal
@@ -182,27 +182,97 @@ namespace dragonBones {
         /**
          * @inheritDoc
          */
-        public _debugDraw(): void {
+        public _debugDraw(isEnabled: Boolean): void {
             if (!this._debugDrawer) {
-                this._debugDrawer = new egret.Shape();
+                this._debugDrawer = new egret.Sprite();
             }
 
-            this.addChild(this._debugDrawer);
-            this._debugDrawer.graphics.clear();
+            if (isEnabled) {
+                this.addChild(this._debugDrawer);
+                this._debugDrawer.graphics.clear();
 
-            const bones = this._armature.getBones();
-            for (let i = 0, l = bones.length; i < l; ++i) {
-                const bone = bones[i];
-                const boneLength = Math.max(bone.length, 5);
-                const startX = bone.globalTransformMatrix.tx;
-                const startY = bone.globalTransformMatrix.ty;
-                const endX = startX + bone.globalTransformMatrix.a * boneLength;
-                const endY = startY + bone.globalTransformMatrix.b * boneLength;
+                const bones = this._armature.getBones();
+                for (let i = 0, l = bones.length; i < l; ++i) {
+                    const bone = bones[i];
+                    const boneLength = bone.length;
+                    const startX = bone.globalTransformMatrix.tx;
+                    const startY = bone.globalTransformMatrix.ty;
+                    const endX = startX + bone.globalTransformMatrix.a * boneLength;
+                    const endY = startY + bone.globalTransformMatrix.b * boneLength;
 
-                this._debugDrawer.graphics.lineStyle(1, bone.ik ? 0xFF0000 : 0x00FF00, 0.5);
-                this._debugDrawer.graphics.moveTo(startX, startY);
-                this._debugDrawer.graphics.lineTo(endX, endY);
+                    this._debugDrawer.graphics.lineStyle(2, bone.ik ? 0xFF0000 : 0x00FFFF, 0.7);
+                    this._debugDrawer.graphics.moveTo(startX, startY);
+                    this._debugDrawer.graphics.lineTo(endX, endY);
+                    this._debugDrawer.graphics.lineStyle(0, 0, 0);
+                    this._debugDrawer.graphics.beginFill(0x00FFFF, 0.7);
+                    this._debugDrawer.graphics.drawCircle(startX, startY, 3);
+                    this._debugDrawer.graphics.endFill();
+                }
+
+                const slots = this._armature.getSlots();
+                for (let i = 0, l = slots.length; i < l; ++i) {
+                    const slot = slots[i];
+                    const displayData = slot.displayData;
+
+                    if (displayData && displayData.boundingBox) {
+                        const boundingBox = displayData.boundingBox;
+                        let child = this._debugDrawer.getChildByName(slot.name) as egret.Shape;
+                        if (!child) {
+                            child = new egret.Shape();
+                            child.name = slot.name;
+                            this._debugDrawer.addChild(child);
+                        }
+
+                        child.graphics.clear();
+                        child.graphics.beginFill(0xFF00FF, 0.3);
+
+                        switch (boundingBox.type) {
+                            case BoundingBoxType.Rectangle:
+                                child.graphics.drawRect(-boundingBox.width * 0.5, -boundingBox.height * 0.5, boundingBox.width, boundingBox.height);
+                                break;
+
+                            case BoundingBoxType.Ellipse:
+                                child.graphics.drawEllipse(-boundingBox.width * 0.5, -boundingBox.height * 0.5, boundingBox.width, boundingBox.height);
+                                break;
+
+                            case BoundingBoxType.Polygon:
+                                const vertices = boundingBox.vertices;
+                                for (let i = 0, l = boundingBox.vertices.length; i < l; i += 2) {
+                                    if (i == 0) {
+                                        child.graphics.moveTo(vertices[i], vertices[i + 1]);
+                                    }
+                                    else {
+                                        child.graphics.lineTo(vertices[i], vertices[i + 1]);
+                                    }
+                                }
+                                break;
+
+                            default:
+                                break;
+                        }
+
+                        child.graphics.endFill();
+
+                        if (slot._blendIndex == 0) {
+                            slot._blendIndex = 1;
+                            slot["_updateLocalTransformMatrix"]();
+                            slot["_updateGlobalTransformMatrix"]();
+                        }
+
+                        child.$setMatrix(slot.globalTransformMatrix as egret.Matrix, false);
+                    }
+                    else {
+                        const child = this._debugDrawer.getChildByName(slot.name);
+                        if (child) {
+                            this._debugDrawer.removeChild(child);
+                        }
+                    }
+                }
             }
+            else if (this._debugDrawer && this.contains(this._debugDrawer)) {
+                this.removeChild(this._debugDrawer);
+            }
+
         }
         /**
          * @inheritDoc
@@ -223,13 +293,13 @@ namespace dragonBones {
          * @inheritDoc
          */
         public addEvent(type: EventStringType, listener: (event: EgretEvent) => void, target: any): void {
-            //this.addEventListener(type, listener, target);
+            this.addEventListener(type, listener, target);
         }
         /**
          * @inheritDoc
          */
         public removeEvent(type: EventStringType, listener: (event: EgretEvent) => void, target: any): void {
-            //this.removeEventListener(type, listener, target);
+            this.removeEventListener(type, listener, target);
         }
         /**
          * @inheritDoc

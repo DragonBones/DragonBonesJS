@@ -19,7 +19,7 @@ namespace dragonBones {
          * @private
          */
         public frames: Array<T> = [];
-        
+
         public constructor() {
             super();
         }
@@ -129,9 +129,9 @@ namespace dragonBones {
             return "[class dragonBones.FFDTimelineData]";
         }
 
-        public displayIndex: number;
         public skin: SkinData;
         public slot: SlotDisplayDataSet;
+        public display: DisplayData;
 
         public constructor() {
             super();
@@ -142,9 +142,9 @@ namespace dragonBones {
         protected _onClear(): void {
             super._onClear();
 
-            this.displayIndex = 0;
             this.skin = null;
             this.slot = null;
+            this.display = null;
         }
     }
 }

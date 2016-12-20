@@ -111,7 +111,12 @@ namespace dragonBones {
          */
         protected _updateZOrder(): void {
             const container = this._armature._display as EgretArmatureDisplay;
-            container.addChildAt(this._renderDisplay, this._zOrder);
+            const index = container.getChildIndex(this._renderDisplay);
+            if (index == this._zOrder) {
+                return;
+            }
+
+            container.addChildAt(this._renderDisplay, index < this._zOrder ? this._zOrder : this._zOrder + 1);
         }
         /**
          * @internal

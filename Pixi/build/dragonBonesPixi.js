@@ -102,7 +102,7 @@ var dragonBones;
             }
             this._armature = null;
             this._debugDrawer = null;
-            this.destroy(true);
+            this.destroy();
         };
         /**
          * @inheritDoc
@@ -549,18 +549,18 @@ var dragonBones;
                 switch (displayData.type) {
                     case 0 /* Image */:
                         if (!displayData.texture || dataPackage.textureAtlasName) {
-                            displayData.texture = this._getTextureData(dataPackage.textureAtlasName || dataPackage.dataName, displayData.name);
+                            displayData.texture = this._getTextureData(dataPackage.textureAtlasName || dataPackage.dataName, displayData.path);
                         }
                         displayList.push(slot._rawDisplay);
                         break;
                     case 2 /* Mesh */:
                         if (!displayData.texture || dataPackage.textureAtlasName) {
-                            displayData.texture = this._getTextureData(dataPackage.textureAtlasName || dataPackage.dataName, displayData.name);
+                            displayData.texture = this._getTextureData(dataPackage.textureAtlasName || dataPackage.dataName, displayData.path);
                         }
                         displayList.push(slot._meshDisplay);
                         break;
                     case 1 /* Armature */:
-                        var childArmature = this.buildArmature(displayData.name, dataPackage.dataName, null, dataPackage.textureAtlasName);
+                        var childArmature = this.buildArmature(displayData.path, dataPackage.dataName, null, dataPackage.textureAtlasName);
                         if (childArmature) {
                             if (!slot.inheritAnimation) {
                                 var actions = slotData.actions.length > 0 ? slotData.actions : childArmature.armatureData.actions;

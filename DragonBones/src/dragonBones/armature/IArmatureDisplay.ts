@@ -10,7 +10,7 @@ namespace dragonBones {
          * @internal
          * @private
          */
-        _debugDraw(): void;
+        _debugDraw(isEnabled: boolean): void;
         /**
          * @internal
          * @private

@@ -128,12 +128,6 @@ namespace dragonBones {
         public name: string;
         /**
          * @language zh_CN
-         * 扩展的数据。
-         * @version DragonBones 4.5
-         */
-        public data: any;
-        /**
-         * @language zh_CN
          * 发出事件的骨架。
          * @version DragonBones 4.5
          */
@@ -159,7 +153,11 @@ namespace dragonBones {
         /**
          * @private
          */
-        public frame:AnimationFrameData;
+        public frame: AnimationFrameData;
+        /**
+         * @private
+         */
+        public data: EventData;
         /**
          * @language zh_CN
          * 用户数据。
@@ -179,13 +177,25 @@ namespace dragonBones {
         protected _onClear(): void {
             this.type = null;
             this.name = null;
-            this.data = null;
             this.armature = null;
             this.bone = null;
             this.slot = null;
             this.animationState = null;
             this.frame = null;
+            this.data = null;
             this.userData = null;
+        }
+
+        public getInt(index: number): number {
+            return this.data ? this.data.ints[index] : 0;
+        }
+
+        public getFloat(index: number): number {
+            return this.data ? this.data.floats[index] : 0;
+        }
+
+        public getString(index: number): string {
+            return this.data ? this.data.strings[index] : null;
         }
     }
 }

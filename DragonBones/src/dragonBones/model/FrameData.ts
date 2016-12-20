@@ -17,7 +17,7 @@ namespace dragonBones {
         }
 
         protected _onClear(): void {
-            this.type = ActionType.Play;
+            this.type = ActionType.None;
             this.bone = null;
             this.slot = null;
             this.data.length = 0;
@@ -33,7 +33,9 @@ namespace dragonBones {
 
         public type: EventType;
         public name: string;
-        public data: any;
+        public ints: Array<number> = [];
+        public floats: Array<number> = [];
+        public strings: Array<string> = [];
         public bone: BoneData;
         public slot: SlotData;
 
@@ -42,9 +44,11 @@ namespace dragonBones {
         }
 
         protected _onClear(): void {
-            this.type = EventType.Frame;
+            this.type = EventType.None;
             this.name = null;
-            this.data = null;
+            this.ints.length = 0;
+            this.floats.length = 0;
+            this.strings.length = 0;
             this.bone = null;
             this.slot = null;
         }
@@ -75,45 +79,54 @@ namespace dragonBones {
      * @private
      */
     export abstract class TweenFrameData<T> extends FrameData<T> {
-        public static samplingCurve(curve: Array<number>, frameCount: number): Array<number> {
+        private static _getCurvePoint(x1: number, y1: number, x2: number, y2: number, x3: number, y3: number, x4: number, y4: number, t: number, result: Point) {
+            const l_t = 1 - t;
+            const powA = l_t * l_t;
+            const powB = t * t;
+            const kA = l_t * powA;
+            const kB = 3 * t * powA;
+            const kC = 3 * l_t * powB;
+            const kD = t * powB;
+
+            result.x = kA * x1 + kB * x2 + kC * x3 + kD * x4;
+            result.y = kA * y1 + kB * y2 + kC * y3 + kD * y4;
+        }
+
+        public static samplingEasingCurve(curve: Array<number>, samples: Array<number>): void {
             const curveCount = curve.length;
-            if (curveCount == 0 || frameCount == 0) {
-                return null;
-            }
+            const result = new Point();
 
-            const samplingTimes = frameCount + 1;
-            const samplingStep = 1 / (samplingTimes + 1);
-            const sampling = new Array<number>(samplingTimes * 2);
             let stepIndex = -2;
-
-            for (let i = 0; i < samplingTimes; ++i) {
-                const stepValue = samplingStep * (i + 1);
-                while ((stepIndex + 6 < curveCount ? curve[stepIndex + 6] : 1) < stepValue) { // stepIndex + 3 * 2
+            for (let i = 0, l = samples.length; i < l; ++i) {
+                let t = (i + 1) / (l + 1);
+                while ((stepIndex + 6 < curveCount ? curve[stepIndex + 6] : 1) < t) { // stepIndex + 3 * 2
                     stepIndex += 6;
                 }
 
                 const isInCurve = stepIndex >= 0 && stepIndex + 6 < curveCount;
                 const x1 = isInCurve ? curve[stepIndex] : 0;
                 const y1 = isInCurve ? curve[stepIndex + 1] : 0;
+                const x2 = curve[stepIndex + 2];
+                const y2 = curve[stepIndex + 3];
+                const x3 = curve[stepIndex + 4];
+                const y3 = curve[stepIndex + 5];
                 const x4 = isInCurve ? curve[stepIndex + 6] : 1;
                 const y4 = isInCurve ? curve[stepIndex + 7] : 1;
 
-                const t = (stepValue - x1) / (x4 - x1);
-                const l_t = 1 - t;
+                let lower = 0;
+                let higher = 1;
+                while (higher - lower > 0.01) {
+                    const percentage = (higher + lower) / 2;
+                    TweenFrameData._getCurvePoint(x1, y1, x2, y2, x3, y3, x4, y4, percentage, result);
+                    if (t - result.x > 0) {
+                        lower = percentage;
+                    } else {
+                        higher = percentage;
+                    }
+                }
 
-                const powA = l_t * l_t;
-                const powB = t * t;
-
-                const kA = l_t * powA;
-                const kB = 3 * t * powA;
-                const kC = 3 * l_t * powB;
-                const kD = t * powB;
-
-                sampling[i * 2] = kA * x1 + kB * curve[stepIndex + 2] + kC * curve[stepIndex + 4] + kD * x4;
-                sampling[i * 2 + 1] = kA * y1 + kB * curve[stepIndex + 3] + kC * curve[stepIndex + 5] + kD * y4;
+                samples[i] = result.y;
             }
-
-            return sampling;
         }
 
         public tweenEasing: number;
@@ -191,7 +204,6 @@ namespace dragonBones {
 
         public tweenScale: boolean;
         public tweenRotate: number;
-        public guideCurve: Array<number>;
         public transform: Transform = new Transform();
 
         public constructor() {
@@ -205,7 +217,6 @@ namespace dragonBones {
 
             this.tweenScale = false;
             this.tweenRotate = 0;
-            this.guideCurve = null;
             this.transform.identity();
         }
     }
@@ -258,7 +269,7 @@ namespace dragonBones {
         protected _onClear(): void {
             super._onClear();
 
-            this.type = ExtensionType.FFD;
+            this.type = ExtensionType.None;
             this.tweens.length = 0;
             this.keys.length = 0;
         }

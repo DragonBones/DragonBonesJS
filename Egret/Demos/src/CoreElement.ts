@@ -187,7 +187,6 @@ namespace demosEgret {
 
             public constructor() {
                 this._armature = dragonBones.EgretFactory.factory.buildArmature("mecha_1502b");
-                dragonBones.EgretFactory.factory.copyAnimationsToArmature(this._armature, "mecha_1502b");
 
                 this._armatureDisplay = <ArmatureDisplayType>this._armature.display;
                 this._armatureDisplay.x = Game.STAGE_WIDTH * 0.5;
@@ -297,9 +296,21 @@ namespace demosEgret {
                         if (event.eventObject.animationState.name == "jump_1") {
                             this._isJumpingB = true;
                             this._speedY = -Mecha.JUMP_SPEED;
+
+                            if (this._moveDir != 0) {
+                                if (this._moveDir * this._faceDir > 0) {
+                                    this._speedX = Mecha.MAX_MOVE_SPEED_FRONT * this._faceDir;
+                                }
+                                else {
+                                    this._speedX = -Mecha.MAX_MOVE_SPEED_BACK * this._faceDir;
+                                }
+                            }
+
                             this._armature.animation.fadeIn("jump_2", -1, -1, 0, Mecha.NORMAL_ANIMATION_GROUP);
                         }
                         else if (event.eventObject.animationState.name == "jump_4") {
+                            this._isJumpingA = false;
+                            this._isJumpingB = false;
                             this._updateAnimation();
                         }
                         break;
@@ -389,17 +400,11 @@ namespace demosEgret {
 
                     this._speedY += Game.G;
                     this._armatureDisplay.y += this._speedY;
-                    
+
                     if (this._armatureDisplay.y > Game.GROUND) {
                         this._armatureDisplay.y = Game.GROUND;
-                        this._isJumpingA = false;
-                        this._isJumpingB = false;
                         this._speedY = 0;
-                        this._speedX = 0;
                         this._armature.animation.fadeIn("jump_4", -1, -1, 0, Mecha.NORMAL_ANIMATION_GROUP);
-                        if (this._isSquating || this._moveDir) {
-                            this._updateAnimation();
-                        }
                     }
                 }
             }

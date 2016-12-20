@@ -210,6 +210,419 @@ var dragonBones;
 var dragonBones;
 (function (dragonBones) {
     /**
+     * @private
+     */
+    var ColorTransform = (function () {
+        function ColorTransform(alphaMultiplier, redMultiplier, greenMultiplier, blueMultiplier, alphaOffset, redOffset, greenOffset, blueOffset) {
+            if (alphaMultiplier === void 0) { alphaMultiplier = 1; }
+            if (redMultiplier === void 0) { redMultiplier = 1; }
+            if (greenMultiplier === void 0) { greenMultiplier = 1; }
+            if (blueMultiplier === void 0) { blueMultiplier = 1; }
+            if (alphaOffset === void 0) { alphaOffset = 0; }
+            if (redOffset === void 0) { redOffset = 0; }
+            if (greenOffset === void 0) { greenOffset = 0; }
+            if (blueOffset === void 0) { blueOffset = 0; }
+            this.alphaMultiplier = alphaMultiplier;
+            this.redMultiplier = redMultiplier;
+            this.greenMultiplier = greenMultiplier;
+            this.blueMultiplier = blueMultiplier;
+            this.alphaOffset = alphaOffset;
+            this.redOffset = redOffset;
+            this.greenOffset = greenOffset;
+            this.blueOffset = blueOffset;
+        }
+        ColorTransform.prototype.copyFrom = function (value) {
+            this.alphaMultiplier = value.alphaMultiplier;
+            this.redMultiplier = value.redMultiplier;
+            this.greenMultiplier = value.greenMultiplier;
+            this.blueMultiplier = value.blueMultiplier;
+            this.alphaOffset = value.alphaOffset;
+            this.redOffset = value.redOffset;
+            this.redOffset = value.redOffset;
+            this.greenOffset = value.blueOffset;
+        };
+        ColorTransform.prototype.identity = function () {
+            this.alphaMultiplier = this.redMultiplier = this.greenMultiplier = this.blueMultiplier = 1;
+            this.alphaOffset = this.redOffset = this.greenOffset = this.blueOffset = 0;
+        };
+        return ColorTransform;
+    }());
+    dragonBones.ColorTransform = ColorTransform;
+})(dragonBones || (dragonBones = {}));
+var dragonBones;
+(function (dragonBones) {
+    /**
+     * @private
+     */
+    var Point = (function () {
+        function Point(x, y) {
+            if (x === void 0) { x = 0; }
+            if (y === void 0) { y = 0; }
+            this.x = x;
+            this.y = y;
+        }
+        Point.prototype.copyFrom = function (value) {
+            this.x = value.x;
+            this.y = value.y;
+        };
+        Point.prototype.clear = function () {
+            this.x = this.y = 0;
+        };
+        return Point;
+    }());
+    dragonBones.Point = Point;
+})(dragonBones || (dragonBones = {}));
+var dragonBones;
+(function (dragonBones) {
+    /**
+     * @language zh_CN
+     * 2D 矩阵。
+     * @version DragonBones 3.0
+     */
+    var Matrix = (function () {
+        function Matrix(a, b, c, d, tx, ty) {
+            if (a === void 0) { a = 1; }
+            if (b === void 0) { b = 0; }
+            if (c === void 0) { c = 0; }
+            if (d === void 0) { d = 1; }
+            if (tx === void 0) { tx = 0; }
+            if (ty === void 0) { ty = 0; }
+            this.a = a;
+            this.b = b;
+            this.c = c;
+            this.d = d;
+            this.tx = tx;
+            this.ty = ty;
+        }
+        /**
+         * @private
+         */
+        Matrix.prototype.toString = function () {
+            return "[object dragonBones.Matrix] a:" + this.a + " b:" + this.b + " c:" + this.c + " d:" + this.d + " tx:" + this.tx + " ty:" + this.ty;
+        };
+        /**
+         * @language zh_CN
+         * 复制矩阵。
+         * @param value 需要复制的矩阵。
+         * @version DragonBones 3.0
+         */
+        Matrix.prototype.copyFrom = function (value) {
+            this.a = value.a;
+            this.b = value.b;
+            this.c = value.c;
+            this.d = value.d;
+            this.tx = value.tx;
+            this.ty = value.ty;
+        };
+        /**
+         * @language zh_CN
+         * 转换为恒等矩阵。
+         * @version DragonBones 3.0
+         */
+        Matrix.prototype.identity = function () {
+            this.a = this.d = 1;
+            this.b = this.c = 0;
+            this.tx = this.ty = 0;
+        };
+        /**
+         * @language zh_CN
+         * 将当前矩阵与另一个矩阵相乘。
+         * @param value 需要相乘的矩阵。
+         * @version DragonBones 3.0
+         */
+        Matrix.prototype.concat = function (value) {
+            var aA = this.a;
+            var bA = this.b;
+            var cA = this.c;
+            var dA = this.d;
+            var txA = this.tx;
+            var tyA = this.ty;
+            var aB = value.a;
+            var bB = value.b;
+            var cB = value.c;
+            var dB = value.d;
+            var txB = value.tx;
+            var tyB = value.ty;
+            this.a = aA * aB + bA * cB;
+            this.b = aA * bB + bA * dB;
+            this.c = cA * aB + dA * cB;
+            this.d = cA * bB + dA * dB;
+            this.tx = aB * txA + cB * tyA + txB;
+            this.ty = dB * tyA + bB * txA + tyB;
+            /*
+            [
+                this.a,
+                this.b,
+                this.c,
+                this.d,
+                this.tx,
+                this.ty
+            ] = [
+                this.a * value.a + this.b * value.c,
+                this.a * value.b + this.b * value.d,
+                this.c * value.a + this.d * value.c,
+                this.c * value.b + this.d * value.d,
+                value.a * this.tx + value.c * this.tx + value.tx,
+                value.d * this.ty + value.b * this.ty + value.ty
+            ];
+            */
+        };
+        /**
+         * @language zh_CN
+         * 转换为逆矩阵。
+         * @version DragonBones 3.0
+         */
+        Matrix.prototype.invert = function () {
+            var aA = this.a;
+            var bA = this.b;
+            var cA = this.c;
+            var dA = this.d;
+            var txA = this.tx;
+            var tyA = this.ty;
+            var n = aA * dA - bA * cA;
+            this.a = dA / n;
+            this.b = -bA / n;
+            this.c = -cA / n;
+            this.d = aA / n;
+            this.tx = (cA * tyA - dA * txA) / n;
+            this.ty = -(aA * tyA - bA * txA) / n;
+        };
+        /**
+         * @language zh_CN
+         * 将矩阵转换应用于指定点。
+         * @param x 横坐标。
+         * @param y 纵坐标。
+         * @param result 应用转换之后的坐标。
+         * @params delta 是否忽略 tx，ty 对坐标的转换。
+         * @version DragonBones 3.0
+         */
+        Matrix.prototype.transformPoint = function (x, y, result, delta) {
+            if (delta === void 0) { delta = false; }
+            result.x = this.a * x + this.c * y;
+            result.y = this.b * x + this.d * y;
+            if (!delta) {
+                result.x += this.tx;
+                result.y += this.ty;
+            }
+        };
+        return Matrix;
+    }());
+    dragonBones.Matrix = Matrix;
+})(dragonBones || (dragonBones = {}));
+var dragonBones;
+(function (dragonBones) {
+    /**
+     * @private
+     */
+    var Rectangle = (function () {
+        function Rectangle(x, y, width, height) {
+            if (x === void 0) { x = 0; }
+            if (y === void 0) { y = 0; }
+            if (width === void 0) { width = 0; }
+            if (height === void 0) { height = 0; }
+            this.x = x;
+            this.y = y;
+            this.width = width;
+            this.height = height;
+        }
+        Rectangle.prototype.copyFrom = function (value) {
+            this.x = value.x;
+            this.y = value.y;
+            this.width = value.width;
+            this.height = value.height;
+        };
+        Rectangle.prototype.clear = function () {
+            this.x = this.y = 0;
+            this.width = this.height = 0;
+        };
+        return Rectangle;
+    }());
+    dragonBones.Rectangle = Rectangle;
+})(dragonBones || (dragonBones = {}));
+var dragonBones;
+(function (dragonBones) {
+    /**
+     * @language zh_CN
+     * 2D 变换。
+     * @version DragonBones 3.0
+     */
+    var Transform = (function () {
+        /**
+         * @private
+         */
+        function Transform(
+            /**
+             * @language zh_CN
+             * 水平位移。
+             * @version DragonBones 3.0
+             */
+            x, 
+            /**
+             * @language zh_CN
+             * 垂直位移。
+             * @version DragonBones 3.0
+             */
+            y, 
+            /**
+             * @language zh_CN
+             * 水平倾斜。 (以弧度为单位)
+             * @version DragonBones 3.0
+             */
+            skewX, 
+            /**
+             * @language zh_CN
+             * 垂直倾斜。 (以弧度为单位)
+             * @version DragonBones 3.0
+             */
+            skewY, 
+            /**
+             * @language zh_CN
+             * 水平缩放。
+             * @version DragonBones 3.0
+             */
+            scaleX, 
+            /**
+             * @language zh_CN
+             * 垂直缩放。
+             * @version DragonBones 3.0
+             */
+            scaleY) {
+            if (x === void 0) { x = 0; }
+            if (y === void 0) { y = 0; }
+            if (skewX === void 0) { skewX = 0; }
+            if (skewY === void 0) { skewY = 0; }
+            if (scaleX === void 0) { scaleX = 1; }
+            if (scaleY === void 0) { scaleY = 1; }
+            this.x = x;
+            this.y = y;
+            this.skewX = skewX;
+            this.skewY = skewY;
+            this.scaleX = scaleX;
+            this.scaleY = scaleY;
+        }
+        /**
+         * @private
+         */
+        Transform.normalizeRadian = function (value) {
+            value = (value + Math.PI) % (Math.PI * 2);
+            value += value > 0 ? -Math.PI : Math.PI;
+            return value;
+        };
+        /**
+         * @private
+         */
+        Transform.prototype.toString = function () {
+            return "[object dragonBones.Transform] x:" + this.x + " y:" + this.y + " skewX:" + this.skewX * 180 / Math.PI + " skewY:" + this.skewY * 180 / Math.PI + " scaleX:" + this.scaleX + " scaleY:" + this.scaleY;
+        };
+        /**
+         * @private
+         */
+        Transform.prototype.copyFrom = function (value) {
+            this.x = value.x;
+            this.y = value.y;
+            this.skewX = value.skewX;
+            this.skewY = value.skewY;
+            this.scaleX = value.scaleX;
+            this.scaleY = value.scaleY;
+            return this;
+        };
+        /**
+         * @private
+         */
+        Transform.prototype.identity = function () {
+            this.x = this.y = this.skewX = this.skewY = 0;
+            this.scaleX = this.scaleY = 1;
+            return this;
+        };
+        /**
+         * @private
+         */
+        Transform.prototype.add = function (value) {
+            this.x += value.x;
+            this.y += value.y;
+            this.skewX += value.skewX;
+            this.skewY += value.skewY;
+            this.scaleX *= value.scaleX;
+            this.scaleY *= value.scaleY;
+            return this;
+        };
+        /**
+         * @private
+         */
+        Transform.prototype.minus = function (value) {
+            this.x -= value.x;
+            this.y -= value.y;
+            this.skewX = Transform.normalizeRadian(this.skewX - value.skewX);
+            this.skewY = Transform.normalizeRadian(this.skewY - value.skewY);
+            this.scaleX /= value.scaleX;
+            this.scaleY /= value.scaleY;
+            return this;
+        };
+        /**
+         * @private
+         */
+        Transform.prototype.fromMatrix = function (matrix) {
+            var PI_Q = Math.PI * 0.25;
+            var backupScaleX = this.scaleX, backupScaleY = this.scaleY;
+            this.x = matrix.tx;
+            this.y = matrix.ty;
+            this.skewX = Math.atan(-matrix.c / matrix.d);
+            this.skewY = Math.atan(matrix.b / matrix.a);
+            if (this.skewX != this.skewX)
+                this.skewX = 0;
+            if (this.skewY != this.skewY)
+                this.skewY = 0;
+            this.scaleY = (this.skewX > -PI_Q && this.skewX < PI_Q) ? matrix.d / Math.cos(this.skewX) : -matrix.c / Math.sin(this.skewX);
+            this.scaleX = (this.skewY > -PI_Q && this.skewY < PI_Q) ? matrix.a / Math.cos(this.skewY) : matrix.b / Math.sin(this.skewY);
+            if (backupScaleX >= 0 && this.scaleX < 0) {
+                this.scaleX = -this.scaleX;
+                this.skewY = this.skewY - Math.PI;
+            }
+            if (backupScaleY >= 0 && this.scaleY < 0) {
+                this.scaleY = -this.scaleY;
+                this.skewX = this.skewX - Math.PI;
+            }
+            return this;
+        };
+        /**
+         * @language zh_CN
+         * 转换为矩阵。
+         * @param 矩阵。
+         * @version DragonBones 3.0
+         */
+        Transform.prototype.toMatrix = function (matrix) {
+            matrix.a = this.scaleX * Math.cos(this.skewY);
+            matrix.b = this.scaleX * Math.sin(this.skewY);
+            matrix.c = -this.scaleY * Math.sin(this.skewX);
+            matrix.d = this.scaleY * Math.cos(this.skewX);
+            matrix.tx = this.x;
+            matrix.ty = this.y;
+            return this;
+        };
+        Object.defineProperty(Transform.prototype, "rotation", {
+            /**
+             * @language zh_CN
+             * 旋转。 (以弧度为单位)
+             * @version DragonBones 3.0
+             */
+            get: function () {
+                return this.skewY;
+            },
+            set: function (value) {
+                var dValue = value - this.skewY;
+                this.skewX += dValue;
+                this.skewY += dValue;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        return Transform;
+    }());
+    dragonBones.Transform = Transform;
+})(dragonBones || (dragonBones = {}));
+var dragonBones;
+(function (dragonBones) {
+    /**
      * @internal
      * @private
      */
@@ -246,7 +659,7 @@ var dragonBones;
             var self = this;
             var currentPlayTimes = 0;
             if (self._keyFrameCount == 1 && this != self._animationState._timeline) {
-                self._isCompleted = true;
+                self._isCompleted = self._animationState._fadeState >= 0; // 
                 currentPlayTimes = 1;
             }
             else if (self._hasAsynchronyTimeline) {
@@ -292,6 +705,9 @@ var dragonBones;
             self._isReverse = self._currentTime > value && self._currentPlayTimes == currentPlayTimes;
             self._currentTime = value;
             self._currentPlayTimes = currentPlayTimes;
+            if (self._animationState._onFadeInComplete) {
+                self._currentFrame = null;
+            }
             return true;
         };
         TimelineState.prototype.fadeIn = function (armature, animationState, timelineData, time) {
@@ -366,30 +782,18 @@ var dragonBones;
             }
             return (value - progress) * easing + progress;
         };
-        TweenTimelineState._getCurveValue = function (progress, curveSampling) {
+        TweenTimelineState._getEasingCurveValue = function (progress, samples) {
             if (progress <= 0) {
                 return 0;
             }
             else if (progress >= 1) {
                 return 1;
             }
-            var x = 0;
-            var y = 0;
-            for (var i = 0, l = curveSampling.length; i < l; i += 2) {
-                x = curveSampling[i];
-                y = curveSampling[i + 1];
-                if (x >= progress) {
-                    if (i == 0) {
-                        return y * progress / x;
-                    }
-                    else {
-                        var xP = curveSampling[i - 2];
-                        var yP = curveSampling[i - 1]; // i - 2 + 1
-                        return yP + (y - yP) * (progress - xP) / (x - xP);
-                    }
-                }
-            }
-            return y + (1 - y) * (progress - x) / (1 - x);
+            var segmentCount = samples.length + 1; // + 2 - 1
+            var valueIndex = Math.floor(progress * segmentCount);
+            var fromValue = valueIndex == 0 ? 0 : samples[valueIndex - 1];
+            var toValue = (valueIndex == segmentCount - 1) ? 1 : samples[valueIndex];
+            return fromValue + (toValue - fromValue) * (progress - valueIndex / segmentCount);
         };
         /**
          * @inheritDoc
@@ -423,7 +827,7 @@ var dragonBones;
             }
             else if (self._curve) {
                 self._tweenProgress = (self._currentTime - self._currentFrame.position + self._position) / self._currentFrame.duration;
-                self._tweenProgress = TweenTimelineState._getCurveValue(self._tweenProgress, self._curve);
+                self._tweenProgress = TweenTimelineState._getEasingCurveValue(self._tweenProgress, self._curve);
             }
             else {
                 self._tweenProgress = 0;
@@ -543,7 +947,6 @@ var dragonBones;
                 case 4 /* All */:
                     for (; i < l; ++i) {
                         animationState = this._animationStates[i];
-                        animationState.fadeOut(fadeOutTime, pauseFadeOut);
                         if (fadeOutTime == 0) {
                             animationState.returnToPool();
                         }
@@ -1204,6 +1607,7 @@ var dragonBones;
             this.weight = 1;
             this.autoFadeOutTime = -1;
             this.fadeTotalTime = 0;
+            this._onFadeInComplete = false;
             this._fadeState = 0;
             this._layer = 0;
             this._position = 0;
@@ -1327,7 +1731,6 @@ var dragonBones;
                 }
                 if (self._fadeTime >= self.fadeTotalTime) {
                     if (self._fadeState > 0) {
-                        self._isPausePlayhead = true;
                         if (eventDispatcher.hasEvent(dragonBones.EventObject.FADE_OUT_COMPLETE)) {
                             var event_3 = dragonBones.BaseObject.borrowObject(dragonBones.EventObject);
                             event_3.animationState = this;
@@ -1335,6 +1738,7 @@ var dragonBones;
                         }
                     }
                     else {
+                        self._onFadeInComplete = true;
                         self._isPausePlayhead = false;
                         self._fadeState = 0;
                         if (eventDispatcher.hasEvent(dragonBones.EventObject.FADE_IN_COMPLETE)) {
@@ -1406,29 +1810,29 @@ var dragonBones;
                 var slot = slots[i];
                 var slotTimelineName = slot.name;
                 var parentTimelineName = slot.parent.name;
-                if (slot._meshData) {
-                    var displayIndex = slot.displayIndex;
-                    var rawMeshData = displayIndex < slot._displayDataSet.displays.length ? slot._displayDataSet.displays[displayIndex].mesh : null;
-                    if (slot._meshData == rawMeshData) {
-                        var ffdTimelineData = this._animationData.getFFDTimeline(this._armature._skinData.name, slotTimelineName, displayIndex);
-                        if (ffdTimelineData && this.containsBoneMask(parentTimelineName)) {
-                            var ffdTimelineState = ffdTimelineStates[slotTimelineName];
-                            if (ffdTimelineState && ffdTimelineState._timeline == ffdTimelineData) {
-                                delete ffdTimelineStates[slotTimelineName];
-                            }
-                            else {
-                                ffdTimelineState = dragonBones.BaseObject.borrowObject(dragonBones.FFDTimelineState);
-                                ffdTimelineState.slot = slot;
-                                ffdTimelineState.fadeIn(this._armature, this, ffdTimelineData, time);
-                                this._ffdTimelines.push(ffdTimelineState);
-                            }
+                var displayData = slot.displayData;
+                if (!displayData) {
+                    continue;
+                }
+                if (slot._meshData && slot._meshData == displayData.mesh) {
+                    var ffdTimelineData = this._animationData.getFFDTimeline(this._armature._skinData.name, slotTimelineName, !displayData.share ? displayData.name : (displayData.inheritAnimation ? displayData.share.name : displayData.name));
+                    if (ffdTimelineData && this.containsBoneMask(parentTimelineName)) {
+                        var ffdTimelineState = ffdTimelineStates[slotTimelineName];
+                        if (ffdTimelineState && ffdTimelineState._timeline == ffdTimelineData) {
+                            delete ffdTimelineStates[slotTimelineName];
                         }
                         else {
-                            for (var iF = 0, lF = slot._ffdVertices.length; iF < lF; ++iF) {
-                                slot._ffdVertices[iF] = 0;
-                            }
-                            slot._ffdDirty = true;
+                            ffdTimelineState = dragonBones.BaseObject.borrowObject(dragonBones.FFDTimelineState);
+                            ffdTimelineState.slot = slot;
+                            ffdTimelineState.fadeIn(this._armature, this, ffdTimelineData, time);
+                            this._ffdTimelines.push(ffdTimelineState);
                         }
+                    }
+                    else {
+                        for (var iF = 0, lF = slot._ffdVertices.length; iF < lF; ++iF) {
+                            slot._ffdVertices[iF] = 0;
+                        }
+                        slot._ffdDirty = true;
                     }
                 }
             }
@@ -1446,6 +1850,7 @@ var dragonBones;
         AnimationState.prototype._advanceTime = function (passedTime, weightLeft, index) {
             var self = this;
             // Update fade time. (Still need to be update even if the passedTime is zero)
+            self._onFadeInComplete = false;
             if (self._fadeState != 0) {
                 self._advanceFadeTime(passedTime);
             }
@@ -1457,11 +1862,11 @@ var dragonBones;
             // Blend weight.
             self._weightResult = self.weight * self._fadeProgress * weightLeft;
             if (self._weightResult != 0) {
-                var isCacheEnabled = self._fadeProgress >= 1 && index == 0 && self._armature.cacheFrameRate > 0;
-                var cacheTimeToFrameScale = self._animationData.cacheTimeToFrameScale;
+                var cacheFrameRate = self._animationData.cacheFrameRate;
+                var isCacheEnabled = self._fadeProgress >= 1 && index == 0 && cacheFrameRate > 0;
                 var isUpdatesTimeline = true;
                 var isUpdatesBoneTimeline = true;
-                var time = cacheTimeToFrameScale * 2;
+                var time = cacheFrameRate * 2;
                 time = isCacheEnabled ? (Math.floor(self._time * time) / time) : self._time; // Cache time internval.
                 // Update main timeline.                
                 self._timeline.update(time);
@@ -1472,7 +1877,7 @@ var dragonBones;
                     self._zOrderTimeline.update(time);
                 }
                 if (isCacheEnabled) {
-                    var cacheFrameIndex = Math.floor(self._timeline._currentTime * cacheTimeToFrameScale); // uint
+                    var cacheFrameIndex = Math.floor(self._timeline._currentTime * cacheFrameRate); // uint
                     if (self._armature._cacheFrameIndex == cacheFrameIndex) {
                         isUpdatesTimeline = false;
                         isUpdatesBoneTimeline = false;
@@ -1827,6 +2232,9 @@ var dragonBones;
         };
         AnimationTimelineState.prototype._onCrossFrame = function (frame) {
             var self = this;
+            if (self._animationState._fadeState < 0) {
+                return;
+            }
             if (self._animationState.actionEnabled) {
                 var actions = frame.actions;
                 for (var i = 0, l = actions.length; i < l; ++i) {
@@ -1849,16 +2257,16 @@ var dragonBones;
                 if ((eventData.type == 11 /* Sound */ ?
                     self._armature._eventManager : eventDispatcher).hasEvent(eventType)) {
                     var eventObject = dragonBones.BaseObject.borrowObject(dragonBones.EventObject);
+                    eventObject.name = eventData.name;
                     eventObject.animationState = self._animationState;
                     eventObject.frame = frame;
+                    eventObject.data = eventData;
                     if (eventData.bone) {
                         eventObject.bone = self._armature.getBone(eventData.bone.name);
                     }
                     if (eventData.slot) {
                         eventObject.slot = self._armature.getSlot(eventData.slot.name);
                     }
-                    eventObject.name = eventData.name;
-                    eventObject.data = eventData.data;
                     self._armature._bufferEvent(eventObject, eventType);
                 }
             }
@@ -1988,7 +2396,6 @@ var dragonBones;
             this._tweenScale = 0 /* None */;
             this._boneTransform = null;
             this._originalTransform = null;
-            this._guideCurve = null;
             this._transform.identity();
             this._currentTransform.identity();
             this._durationTransform.identity();
@@ -2000,7 +2407,6 @@ var dragonBones;
             self._tweenTransform = 1 /* Once */;
             self._tweenRotate = 1 /* Once */;
             self._tweenScale = 1 /* Once */;
-            self._guideCurve = self._currentFrame.guideCurve;
             if (self._keyFrameCount > 1 && (self._tweenEasing != dragonBones.DragonBones.NO_TWEEN || self._curve)) {
                 var nextFrame = self._currentFrame.next;
                 var nextTransform = nextFrame.transform;
@@ -2070,8 +2476,6 @@ var dragonBones;
                     }
                     else {
                         tweenProgress = self._tweenProgress;
-                    }
-                    if (self._guideCurve) {
                     }
                     if (self._animationState.additiveBlending) {
                         self._transform.x = self._currentTransform.x + self._durationTransform.x * tweenProgress;
@@ -2194,62 +2598,47 @@ var dragonBones;
                 self._tweenColor = 0 /* None */;
                 return;
             }
-            if (self.slot._displayDataSet) {
-                var displayIndex = self._currentFrame.displayIndex;
-                if (self.slot.displayIndex >= 0 && displayIndex >= 0) {
-                    if (self.slot._displayDataSet.displays.length > 1) {
-                        self.slot._setDisplayIndex(displayIndex);
-                    }
-                }
-                else {
-                    self.slot._setDisplayIndex(displayIndex);
-                }
+            if (self._animationState._fadeState >= 0) {
+                self.slot._setDisplayIndex(self._currentFrame.displayIndex);
                 self.slot._updateMeshData(true);
             }
-            if (self._currentFrame.displayIndex >= 0) {
-                self._tweenColor = 0 /* None */;
-                var currentColor = self._currentFrame.color;
-                if (self._keyFrameCount > 1 && (self._tweenEasing != dragonBones.DragonBones.NO_TWEEN || self._curve)) {
-                    var nextFrame = self._currentFrame.next;
-                    var nextColor = nextFrame.color;
-                    if (currentColor != nextColor && nextFrame.displayIndex >= 0) {
-                        self._durationColor.alphaMultiplier = nextColor.alphaMultiplier - currentColor.alphaMultiplier;
-                        self._durationColor.redMultiplier = nextColor.redMultiplier - currentColor.redMultiplier;
-                        self._durationColor.greenMultiplier = nextColor.greenMultiplier - currentColor.greenMultiplier;
-                        self._durationColor.blueMultiplier = nextColor.blueMultiplier - currentColor.blueMultiplier;
-                        self._durationColor.alphaOffset = nextColor.alphaOffset - currentColor.alphaOffset;
-                        self._durationColor.redOffset = nextColor.redOffset - currentColor.redOffset;
-                        self._durationColor.greenOffset = nextColor.greenOffset - currentColor.greenOffset;
-                        self._durationColor.blueOffset = nextColor.blueOffset - currentColor.blueOffset;
-                        if (self._durationColor.alphaMultiplier != 0 ||
-                            self._durationColor.redMultiplier != 0 ||
-                            self._durationColor.greenMultiplier != 0 ||
-                            self._durationColor.blueMultiplier != 0 ||
-                            self._durationColor.alphaOffset != 0 ||
-                            self._durationColor.redOffset != 0 ||
-                            self._durationColor.greenOffset != 0 ||
-                            self._durationColor.blueOffset != 0) {
-                            self._tweenColor = 2 /* Always */;
-                        }
-                    }
-                }
-                if (self._tweenColor == 0 /* None */) {
-                    if (self._slotColor.alphaMultiplier != currentColor.alphaMultiplier ||
-                        self._slotColor.redMultiplier != currentColor.redMultiplier ||
-                        self._slotColor.greenMultiplier != currentColor.greenMultiplier ||
-                        self._slotColor.blueMultiplier != currentColor.blueMultiplier ||
-                        self._slotColor.alphaOffset != currentColor.alphaOffset ||
-                        self._slotColor.redOffset != currentColor.redOffset ||
-                        self._slotColor.greenOffset != currentColor.greenOffset ||
-                        self._slotColor.blueOffset != currentColor.blueOffset) {
-                        self._tweenColor = 1 /* Once */;
+            self._tweenColor = 0 /* None */;
+            var currentColor = self._currentFrame.color;
+            if (self._keyFrameCount > 1 && (self._tweenEasing != dragonBones.DragonBones.NO_TWEEN || self._curve)) {
+                var nextFrame = self._currentFrame.next;
+                var nextColor = nextFrame.color;
+                if (currentColor != nextColor && nextFrame.displayIndex >= 0) {
+                    self._durationColor.alphaMultiplier = nextColor.alphaMultiplier - currentColor.alphaMultiplier;
+                    self._durationColor.redMultiplier = nextColor.redMultiplier - currentColor.redMultiplier;
+                    self._durationColor.greenMultiplier = nextColor.greenMultiplier - currentColor.greenMultiplier;
+                    self._durationColor.blueMultiplier = nextColor.blueMultiplier - currentColor.blueMultiplier;
+                    self._durationColor.alphaOffset = nextColor.alphaOffset - currentColor.alphaOffset;
+                    self._durationColor.redOffset = nextColor.redOffset - currentColor.redOffset;
+                    self._durationColor.greenOffset = nextColor.greenOffset - currentColor.greenOffset;
+                    self._durationColor.blueOffset = nextColor.blueOffset - currentColor.blueOffset;
+                    if (self._durationColor.alphaMultiplier != 0 ||
+                        self._durationColor.redMultiplier != 0 ||
+                        self._durationColor.greenMultiplier != 0 ||
+                        self._durationColor.blueMultiplier != 0 ||
+                        self._durationColor.alphaOffset != 0 ||
+                        self._durationColor.redOffset != 0 ||
+                        self._durationColor.greenOffset != 0 ||
+                        self._durationColor.blueOffset != 0) {
+                        self._tweenColor = 2 /* Always */;
                     }
                 }
             }
-            else {
-                self._tweenEasing = dragonBones.DragonBones.NO_TWEEN;
-                self._curve = null;
-                self._tweenColor = 0 /* None */;
+            if (self._tweenColor == 0 /* None */) {
+                if (self._slotColor.alphaMultiplier != currentColor.alphaMultiplier ||
+                    self._slotColor.redMultiplier != currentColor.redMultiplier ||
+                    self._slotColor.greenMultiplier != currentColor.greenMultiplier ||
+                    self._slotColor.blueMultiplier != currentColor.blueMultiplier ||
+                    self._slotColor.alphaOffset != currentColor.alphaOffset ||
+                    self._slotColor.redOffset != currentColor.redOffset ||
+                    self._slotColor.greenOffset != currentColor.greenOffset ||
+                    self._slotColor.blueOffset != currentColor.blueOffset) {
+                    self._tweenColor = 1 /* Once */;
+                }
             }
         };
         SlotTimelineState.prototype._onUpdateFrame = function (isUpdate) {
@@ -2291,7 +2680,7 @@ var dragonBones;
                 var weight = self._animationState._weightResult;
                 if (weight > 0) {
                     if (self._animationState._fadeState != 0) {
-                        var fadeProgress = self._animationState._fadeProgress;
+                        var fadeProgress = Math.pow(self._animationState._fadeProgress, 4);
                         self._slotColor.alphaMultiplier += (self._color.alphaMultiplier - self._slotColor.alphaMultiplier) * fadeProgress;
                         self._slotColor.redMultiplier += (self._color.redMultiplier - self._slotColor.redMultiplier) * fadeProgress;
                         self._slotColor.greenMultiplier += (self._color.greenMultiplier - self._slotColor.greenMultiplier) * fadeProgress;
@@ -2741,6 +3130,7 @@ var dragonBones;
             this._eventManager = null;
             this._delayDispose = false;
             this._lockDispose = false;
+            this._debugDraw = false;
             this._bonesDirty = false;
             this._slotsDirty = false;
             this._replacedTexture = null;
@@ -2858,9 +3248,8 @@ var dragonBones;
                 var slotIndex = isOriginal ? i : slotIndices[i];
                 var slotData = sortedSlots[slotIndex];
                 var slot = this.getSlot(slotData.name);
-                if (slot && slot._zOrder != i) {
-                    slot._zOrder = i;
-                    slot._zOrderDirty = true;
+                if (slot) {
+                    slot._setZorder(i);
                 }
             }
             this._slotsDirty = true;
@@ -2934,8 +3323,9 @@ var dragonBones;
                 }
             }
             //
-            if (dragonBones.DragonBones.debugDraw) {
-                self._display._debugDraw();
+            if (dragonBones.DragonBones.debugDraw || self._debugDraw) {
+                self._debugDraw = dragonBones.DragonBones.debugDraw;
+                self._display._debugDraw(self._debugDraw);
             }
             if (!self._lockDispose) {
                 self._lockDispose = true;
@@ -2984,6 +3374,112 @@ var dragonBones;
             if (self._delayDispose) {
                 self.returnToPool();
             }
+        };
+        /**
+         * @language zh_CN
+         * 判断指定的点是否在所有插槽的自定义包围盒内。
+         * @param x 点的水平坐标。（骨架内坐标系）
+         * @param y 点的垂直坐标。（骨架内坐标系）
+         * @param color 指定的包围盒颜色。 [0: 与所有包围盒进行判断, N: 仅当包围盒的颜色为 N 时才进行判断]
+         * @version DragonBones 4.5
+         */
+        Armature.prototype.containsPoint = function (x, y, color) {
+            if (color === void 0) { color = 0; }
+            for (var i = 0, l = this._slots.length; i < l; ++i) {
+                var slot = this._slots[i];
+                if (slot.containsPoint(x, y, color)) {
+                    return slot;
+                }
+            }
+            return null;
+        };
+        /**
+         * @language zh_CN
+         * 判断指定的线段与骨架的所有插槽的自定义包围盒是否相交。
+         * @param xA 线段起点的水平坐标。（骨架内坐标系）
+         * @param yA 线段起点的垂直坐标。（骨架内坐标系）
+         * @param xB 线段终点的水平坐标。（骨架内坐标系）
+         * @param yB 线段终点的垂直坐标。（骨架内坐标系）
+         * @param color 指定的包围盒颜色。 [0: 与所有包围盒进行判断, N: 仅当包围盒的颜色为 N 时才进行判断]
+         * @param intersectionPointA 线段从起点到终点与包围盒相交的第一个交点。（骨架内坐标系）
+         * @param intersectionPointB 线段从终点到起点与包围盒相交的第一个交点。（骨架内坐标系）
+         * @param normalRadians 碰撞点处包围盒切线的法线弧度。 [x: 第一个碰撞点处切线的法线弧度, y: 第二个碰撞点处切线的法线弧度]
+         * @returns 线段从起点到终点相交的第一个自定义包围盒的插槽。
+         * @version DragonBones 4.5
+         */
+        Armature.prototype.intersectsSegment = function (xA, yA, xB, yB, color, intersectionPointA, intersectionPointB, normalRadians) {
+            if (color === void 0) { color = 0; }
+            if (intersectionPointA === void 0) { intersectionPointA = null; }
+            if (intersectionPointB === void 0) { intersectionPointB = null; }
+            if (normalRadians === void 0) { normalRadians = null; }
+            var isV = xA == xB;
+            var dMin = 0;
+            var dMax = 0;
+            var intXA = 0;
+            var intYA = 0;
+            var intXB = 0;
+            var intYB = 0;
+            var intAN = 0;
+            var intBN = 0;
+            var intSlotA = null;
+            var intSlotB = null;
+            for (var i = 0, l = this._slots.length; i < l; ++i) {
+                var slot = this._slots[i];
+                var intersectionCount = slot.intersectsSegment(xA, yA, xB, yB, color, intersectionPointA, intersectionPointB, normalRadians);
+                if (intersectionCount > 0) {
+                    if (intersectionPointA || intersectionPointB) {
+                        if (intersectionPointA) {
+                            var d = isV ? intersectionPointA.y - yA : intersectionPointA.x - xA;
+                            if (d < 0) {
+                                d = -d;
+                            }
+                            if (!intSlotA || d < dMin) {
+                                dMin = d;
+                                intXA = intersectionPointA.x;
+                                intYA = intersectionPointA.y;
+                                intSlotA = slot;
+                                if (normalRadians) {
+                                    intAN = normalRadians.x;
+                                }
+                            }
+                        }
+                        if (intersectionPointB) {
+                            var d = intersectionPointB.x - xA;
+                            if (d < 0) {
+                                d = -d;
+                            }
+                            if (!intSlotB || d > dMax) {
+                                dMax = d;
+                                intXB = intersectionPointB.x;
+                                intYB = intersectionPointB.y;
+                                intSlotB = slot;
+                                if (normalRadians) {
+                                    intBN = normalRadians.y;
+                                }
+                            }
+                        }
+                    }
+                    else {
+                        intSlotA = slot;
+                        break;
+                    }
+                }
+            }
+            if (intSlotA && intersectionPointA) {
+                intersectionPointA.x = intXA;
+                intersectionPointA.y = intYA;
+                if (normalRadians) {
+                    normalRadians.x = intAN;
+                }
+            }
+            if (intSlotB && intersectionPointB) {
+                intersectionPointB.x = intXB;
+                intersectionPointB.y = intYB;
+                if (normalRadians) {
+                    normalRadians.y = intBN;
+                }
+            }
+            return intSlotA;
         };
         /**
          * @language zh_CN
@@ -3245,7 +3741,7 @@ var dragonBones;
          * @version DragonBones 3.0
          */
         Armature.prototype.hasEventListener = function (type) {
-            this._display.hasEvent(type);
+            return this._display.hasEvent(type);
         };
         /**
          * @language zh_CN
@@ -3867,9 +4363,6 @@ var dragonBones;
             this.inheritAnimation = true;
             this.displayController = null;
             this._blendIndex = 0;
-            this._zOrder = 0;
-            this._pivotX = 0;
-            this._pivotY = 0;
             this._displayDataSet = null;
             this._meshData = null;
             this._childArmature = null;
@@ -3886,7 +4379,10 @@ var dragonBones;
             this._originDirty = false;
             this._transformDirty = false;
             this._ffdDirty = false;
-            this._displayIndex = 0;
+            this._zOrder = 0;
+            this._displayIndex = -2;
+            this._pivotX = 0;
+            this._pivotY = 0;
             this._blendMode = 0 /* Normal */;
             this._display = null;
             this._localMatrix.identity();
@@ -4209,6 +4705,17 @@ var dragonBones;
          * @internal
          * @private
          */
+        Slot.prototype._setZorder = function (value) {
+            if (this._zOrder == value) {
+            }
+            this._zOrder = value;
+            this._zOrderDirty = true;
+            return this._zOrderDirty;
+        };
+        /**
+         * @internal
+         * @private
+         */
         Slot.prototype._setDisplayIndex = function (value) {
             if (this._displayIndex == value) {
                 return false;
@@ -4240,12 +4747,116 @@ var dragonBones;
         };
         /**
          * @language zh_CN
+         * 判断指定的点是否在插槽的自定义包围盒内。
+         * @param x 点的水平坐标。（骨架内坐标系）
+         * @param y 点的垂直坐标。（骨架内坐标系）
+         * @param color 指定的包围盒颜色。 [0: 与所有包围盒进行判断, N: 仅当包围盒的颜色为 N 时才进行判断]
+         * @version DragonBones 4.5
+         */
+        Slot.prototype.containsPoint = function (x, y, color) {
+            if (color === void 0) { color = 0; }
+            var displayData = this.displayData;
+            if (!displayData || !displayData.boundingBox || (color && displayData.color != color)) {
+                return false;
+            }
+            if (this._blendIndex == 0) {
+                this._blendIndex = 1;
+                this._updateLocalTransformMatrix();
+                this._updateGlobalTransformMatrix();
+            }
+            Slot._helpMatrix.copyFrom(this.globalTransformMatrix);
+            Slot._helpMatrix.invert();
+            Slot._helpMatrix.transformPoint(x, y, Slot._helpPoint);
+            return displayData.boundingBox.containsPoint(Slot._helpPoint.x, Slot._helpPoint.y);
+        };
+        /**
+         * @language zh_CN
+         * 判断指定的线段与插槽的自定义包围盒是否相交。
+         * @param xA 线段起点的水平坐标。（骨架内坐标系）
+         * @param yA 线段起点的垂直坐标。（骨架内坐标系）
+         * @param xB 线段终点的水平坐标。（骨架内坐标系）
+         * @param yB 线段终点的垂直坐标。（骨架内坐标系）
+         * @param color 指定的包围盒颜色。 [0: 与所有包围盒进行判断, N: 仅当包围盒的颜色为 N 时才进行判断]
+         * @param intersectionPointA 线段从起点到终点与包围盒相交的第一个交点。（骨架内坐标系）
+         * @param intersectionPointB 线段从终点到起点与包围盒相交的第一个交点。（骨架内坐标系）
+         * @param normalRadians 碰撞点处包围盒切线的法线弧度。 [x: 第一个碰撞点处切线的法线弧度, y: 第二个碰撞点处切线的法线弧度]
+         * @returns 相交的情况。 [-1: 不相交且线段在包围盒内, 0: 不相交, 1: 相交且有一个交点且终点在包围盒内, 2: 相交且有一个交点且起点在包围盒内, 3: 相交且有两个交点, N: 相交且有 N 个交点]
+         * @version DragonBones 4.5
+         */
+        Slot.prototype.intersectsSegment = function (xA, yA, xB, yB, color, intersectionPointA, intersectionPointB, normalRadians) {
+            if (color === void 0) { color = 0; }
+            if (intersectionPointA === void 0) { intersectionPointA = null; }
+            if (intersectionPointB === void 0) { intersectionPointB = null; }
+            if (normalRadians === void 0) { normalRadians = null; }
+            var displayData = this.displayData;
+            if (!displayData || !displayData.boundingBox || (color && displayData.color != color)) {
+                return 0;
+            }
+            if (this._blendIndex == 0) {
+                this._blendIndex = 1;
+                this._updateLocalTransformMatrix();
+                this._updateGlobalTransformMatrix();
+            }
+            Slot._helpMatrix.copyFrom(this.globalTransformMatrix);
+            Slot._helpMatrix.invert();
+            Slot._helpMatrix.transformPoint(xA, yA, Slot._helpPoint);
+            xA = Slot._helpPoint.x;
+            yA = Slot._helpPoint.y;
+            Slot._helpMatrix.transformPoint(xB, yB, Slot._helpPoint);
+            xB = Slot._helpPoint.x;
+            yB = Slot._helpPoint.y;
+            var intersectionCount = displayData.boundingBox.intersectsSegment(xA, yA, xB, yB, intersectionPointA, intersectionPointB, normalRadians);
+            if (intersectionCount > 0) {
+                if (intersectionCount == 1 || intersectionCount == 2) {
+                    if (intersectionPointA) {
+                        this.globalTransformMatrix.transformPoint(intersectionPointA.x, intersectionPointA.y, intersectionPointA);
+                        if (intersectionPointB) {
+                            intersectionPointB.x = intersectionPointA.x;
+                            intersectionPointB.y = intersectionPointA.y;
+                        }
+                    }
+                    else if (intersectionPointB) {
+                        this.globalTransformMatrix.transformPoint(intersectionPointB.x, intersectionPointB.y, intersectionPointB);
+                    }
+                }
+                else {
+                    if (intersectionPointA) {
+                        this.globalTransformMatrix.transformPoint(intersectionPointA.x, intersectionPointA.y, intersectionPointA);
+                    }
+                    if (intersectionPointB) {
+                        this.globalTransformMatrix.transformPoint(intersectionPointB.x, intersectionPointB.y, intersectionPointB);
+                    }
+                }
+                if (normalRadians) {
+                    this.globalTransformMatrix.transformPoint(Math.cos(normalRadians.x), Math.sin(normalRadians.x), Slot._helpPoint, true);
+                    normalRadians.x = Math.atan2(Slot._helpPoint.y, Slot._helpPoint.x);
+                    this.globalTransformMatrix.transformPoint(Math.cos(normalRadians.y), Math.sin(normalRadians.y), Slot._helpPoint, true);
+                    normalRadians.y = Math.atan2(Slot._helpPoint.y, Slot._helpPoint.x);
+                }
+            }
+            return intersectionCount;
+        };
+        /**
+         * @language zh_CN
          * 在下一帧更新显示对象的状态。
          * @version DragonBones 4.5
          */
         Slot.prototype.invalidUpdate = function () {
             this._displayDirty = true;
         };
+        Object.defineProperty(Slot.prototype, "displayData", {
+            /**
+             * @private
+             */
+            get: function () {
+                if (this._displayIndex < 0 || this._displayIndex >= this._displayDataSet.displays.length) {
+                    return null;
+                }
+                return this._displayDataSet.displays[this._displayIndex];
+            },
+            enumerable: true,
+            configurable: true
+        });
         Object.defineProperty(Slot.prototype, "rawDisplay", {
             /**
              * @private
@@ -4256,7 +4867,7 @@ var dragonBones;
             enumerable: true,
             configurable: true
         });
-        Object.defineProperty(Slot.prototype, "MeshDisplay", {
+        Object.defineProperty(Slot.prototype, "meshDisplay", {
             /**
              * @private
              */
@@ -4422,13 +5033,22 @@ var dragonBones;
         EventObject.prototype._onClear = function () {
             this.type = null;
             this.name = null;
-            this.data = null;
             this.armature = null;
             this.bone = null;
             this.slot = null;
             this.animationState = null;
             this.frame = null;
+            this.data = null;
             this.userData = null;
+        };
+        EventObject.prototype.getInt = function (index) {
+            return this.data ? this.data.ints[index] : 0;
+        };
+        EventObject.prototype.getFloat = function (index) {
+            return this.data ? this.data.floats[index] : 0;
+        };
+        EventObject.prototype.getString = function (index) {
+            return this.data ? this.data.strings[index] : null;
         };
         /**
          * @language zh_CN
@@ -4487,419 +5107,6 @@ var dragonBones;
         return EventObject;
     }(dragonBones.BaseObject));
     dragonBones.EventObject = EventObject;
-})(dragonBones || (dragonBones = {}));
-var dragonBones;
-(function (dragonBones) {
-    /**
-     * @private
-     */
-    var ColorTransform = (function () {
-        function ColorTransform(alphaMultiplier, redMultiplier, greenMultiplier, blueMultiplier, alphaOffset, redOffset, greenOffset, blueOffset) {
-            if (alphaMultiplier === void 0) { alphaMultiplier = 1; }
-            if (redMultiplier === void 0) { redMultiplier = 1; }
-            if (greenMultiplier === void 0) { greenMultiplier = 1; }
-            if (blueMultiplier === void 0) { blueMultiplier = 1; }
-            if (alphaOffset === void 0) { alphaOffset = 0; }
-            if (redOffset === void 0) { redOffset = 0; }
-            if (greenOffset === void 0) { greenOffset = 0; }
-            if (blueOffset === void 0) { blueOffset = 0; }
-            this.alphaMultiplier = alphaMultiplier;
-            this.redMultiplier = redMultiplier;
-            this.greenMultiplier = greenMultiplier;
-            this.blueMultiplier = blueMultiplier;
-            this.alphaOffset = alphaOffset;
-            this.redOffset = redOffset;
-            this.greenOffset = greenOffset;
-            this.blueOffset = blueOffset;
-        }
-        ColorTransform.prototype.copyFrom = function (value) {
-            this.alphaMultiplier = value.alphaMultiplier;
-            this.redMultiplier = value.redMultiplier;
-            this.greenMultiplier = value.greenMultiplier;
-            this.blueMultiplier = value.blueMultiplier;
-            this.alphaOffset = value.alphaOffset;
-            this.redOffset = value.redOffset;
-            this.redOffset = value.redOffset;
-            this.greenOffset = value.blueOffset;
-        };
-        ColorTransform.prototype.identity = function () {
-            this.alphaMultiplier = this.redMultiplier = this.greenMultiplier = this.blueMultiplier = 1;
-            this.alphaOffset = this.redOffset = this.greenOffset = this.blueOffset = 0;
-        };
-        return ColorTransform;
-    }());
-    dragonBones.ColorTransform = ColorTransform;
-})(dragonBones || (dragonBones = {}));
-var dragonBones;
-(function (dragonBones) {
-    /**
-     * @language zh_CN
-     * 2D 矩阵。
-     * @version DragonBones 3.0
-     */
-    var Matrix = (function () {
-        function Matrix(a, b, c, d, tx, ty) {
-            if (a === void 0) { a = 1; }
-            if (b === void 0) { b = 0; }
-            if (c === void 0) { c = 0; }
-            if (d === void 0) { d = 1; }
-            if (tx === void 0) { tx = 0; }
-            if (ty === void 0) { ty = 0; }
-            this.a = a;
-            this.b = b;
-            this.c = c;
-            this.d = d;
-            this.tx = tx;
-            this.ty = ty;
-        }
-        /**
-         * @private
-         */
-        Matrix.prototype.toString = function () {
-            return "[object dragonBones.Matrix] a:" + this.a + " b:" + this.b + " c:" + this.c + " d:" + this.d + " tx:" + this.tx + " ty:" + this.ty;
-        };
-        /**
-         * @language zh_CN
-         * 复制矩阵。
-         * @param value 需要复制的矩阵。
-         * @version DragonBones 3.0
-         */
-        Matrix.prototype.copyFrom = function (value) {
-            this.a = value.a;
-            this.b = value.b;
-            this.c = value.c;
-            this.d = value.d;
-            this.tx = value.tx;
-            this.ty = value.ty;
-        };
-        /**
-         * @language zh_CN
-         * 转换为恒等矩阵。
-         * @version DragonBones 3.0
-         */
-        Matrix.prototype.identity = function () {
-            this.a = this.d = 1;
-            this.b = this.c = 0;
-            this.tx = this.ty = 0;
-        };
-        /**
-         * @language zh_CN
-         * 将当前矩阵与另一个矩阵相乘。
-         * @param value 需要相乘的矩阵。
-         * @version DragonBones 3.0
-         */
-        Matrix.prototype.concat = function (value) {
-            var aA = this.a;
-            var bA = this.b;
-            var cA = this.c;
-            var dA = this.d;
-            var txA = this.tx;
-            var tyA = this.ty;
-            var aB = value.a;
-            var bB = value.b;
-            var cB = value.c;
-            var dB = value.d;
-            var txB = value.tx;
-            var tyB = value.ty;
-            this.a = aA * aB + bA * cB;
-            this.b = aA * bB + bA * dB;
-            this.c = cA * aB + dA * cB;
-            this.d = cA * bB + dA * dB;
-            this.tx = aB * txA + cB * tyA + txB;
-            this.ty = dB * tyA + bB * txA + tyB;
-            /*
-            [
-                this.a,
-                this.b,
-                this.c,
-                this.d,
-                this.tx,
-                this.ty
-            ] = [
-                this.a * value.a + this.b * value.c,
-                this.a * value.b + this.b * value.d,
-                this.c * value.a + this.d * value.c,
-                this.c * value.b + this.d * value.d,
-                value.a * this.tx + value.c * this.tx + value.tx,
-                value.d * this.ty + value.b * this.ty + value.ty
-            ];
-            */
-        };
-        /**
-         * @language zh_CN
-         * 转换为逆矩阵。
-         * @version DragonBones 3.0
-         */
-        Matrix.prototype.invert = function () {
-            var aA = this.a;
-            var bA = this.b;
-            var cA = this.c;
-            var dA = this.d;
-            var txA = this.tx;
-            var tyA = this.ty;
-            var n = aA * dA - bA * cA;
-            this.a = dA / n;
-            this.b = -bA / n;
-            this.c = -cA / n;
-            this.d = aA / n;
-            this.tx = (cA * tyA - dA * txA) / n;
-            this.ty = -(aA * tyA - bA * txA) / n;
-        };
-        /**
-         * @language zh_CN
-         * 将矩阵转换应用于指定点。
-         * @param x 横坐标。
-         * @param y 纵坐标。
-         * @param result 应用转换之后的坐标。
-         * @params delta 是否忽略 tx，ty 对坐标的转换。
-         * @version DragonBones 3.0
-         */
-        Matrix.prototype.transformPoint = function (x, y, result, delta) {
-            if (delta === void 0) { delta = false; }
-            result.x = this.a * x + this.c * y;
-            result.y = this.b * x + this.d * y;
-            if (!delta) {
-                result.x += this.tx;
-                result.y += this.ty;
-            }
-        };
-        return Matrix;
-    }());
-    dragonBones.Matrix = Matrix;
-})(dragonBones || (dragonBones = {}));
-var dragonBones;
-(function (dragonBones) {
-    /**
-     * @private
-     */
-    var Point = (function () {
-        function Point(x, y) {
-            if (x === void 0) { x = 0; }
-            if (y === void 0) { y = 0; }
-            this.x = x;
-            this.y = y;
-        }
-        Point.prototype.copyFrom = function (value) {
-            this.x = value.x;
-            this.y = value.y;
-        };
-        Point.prototype.clear = function () {
-            this.x = this.y = 0;
-        };
-        return Point;
-    }());
-    dragonBones.Point = Point;
-})(dragonBones || (dragonBones = {}));
-var dragonBones;
-(function (dragonBones) {
-    /**
-     * @private
-     */
-    var Rectangle = (function () {
-        function Rectangle(x, y, width, height) {
-            if (x === void 0) { x = 0; }
-            if (y === void 0) { y = 0; }
-            if (width === void 0) { width = 0; }
-            if (height === void 0) { height = 0; }
-            this.x = x;
-            this.y = y;
-            this.width = width;
-            this.height = height;
-        }
-        Rectangle.prototype.copyFrom = function (value) {
-            this.x = value.x;
-            this.y = value.y;
-            this.width = value.width;
-            this.height = value.height;
-        };
-        Rectangle.prototype.clear = function () {
-            this.x = this.y = 0;
-            this.width = this.height = 0;
-        };
-        return Rectangle;
-    }());
-    dragonBones.Rectangle = Rectangle;
-})(dragonBones || (dragonBones = {}));
-var dragonBones;
-(function (dragonBones) {
-    /**
-     * @language zh_CN
-     * 2D 变换。
-     * @version DragonBones 3.0
-     */
-    var Transform = (function () {
-        /**
-         * @private
-         */
-        function Transform(
-            /**
-             * @language zh_CN
-             * 水平位移。
-             * @version DragonBones 3.0
-             */
-            x, 
-            /**
-             * @language zh_CN
-             * 垂直位移。
-             * @version DragonBones 3.0
-             */
-            y, 
-            /**
-             * @language zh_CN
-             * 水平倾斜。 (以弧度为单位)
-             * @version DragonBones 3.0
-             */
-            skewX, 
-            /**
-             * @language zh_CN
-             * 垂直倾斜。 (以弧度为单位)
-             * @version DragonBones 3.0
-             */
-            skewY, 
-            /**
-             * @language zh_CN
-             * 水平缩放。
-             * @version DragonBones 3.0
-             */
-            scaleX, 
-            /**
-             * @language zh_CN
-             * 垂直缩放。
-             * @version DragonBones 3.0
-             */
-            scaleY) {
-            if (x === void 0) { x = 0; }
-            if (y === void 0) { y = 0; }
-            if (skewX === void 0) { skewX = 0; }
-            if (skewY === void 0) { skewY = 0; }
-            if (scaleX === void 0) { scaleX = 1; }
-            if (scaleY === void 0) { scaleY = 1; }
-            this.x = x;
-            this.y = y;
-            this.skewX = skewX;
-            this.skewY = skewY;
-            this.scaleX = scaleX;
-            this.scaleY = scaleY;
-        }
-        /**
-         * @private
-         */
-        Transform.normalizeRadian = function (value) {
-            value = (value + Math.PI) % (Math.PI * 2);
-            value += value > 0 ? -Math.PI : Math.PI;
-            return value;
-        };
-        /**
-         * @private
-         */
-        Transform.prototype.toString = function () {
-            return "[object dragonBones.Transform] x:" + this.x + " y:" + this.y + " skewX:" + this.skewX * 180 / Math.PI + " skewY:" + this.skewY * 180 / Math.PI + " scaleX:" + this.scaleX + " scaleY:" + this.scaleY;
-        };
-        /**
-         * @private
-         */
-        Transform.prototype.copyFrom = function (value) {
-            this.x = value.x;
-            this.y = value.y;
-            this.skewX = value.skewX;
-            this.skewY = value.skewY;
-            this.scaleX = value.scaleX;
-            this.scaleY = value.scaleY;
-            return this;
-        };
-        /**
-         * @private
-         */
-        Transform.prototype.identity = function () {
-            this.x = this.y = this.skewX = this.skewY = 0;
-            this.scaleX = this.scaleY = 1;
-            return this;
-        };
-        /**
-         * @private
-         */
-        Transform.prototype.add = function (value) {
-            this.x += value.x;
-            this.y += value.y;
-            this.skewX += value.skewX;
-            this.skewY += value.skewY;
-            this.scaleX *= value.scaleX;
-            this.scaleY *= value.scaleY;
-            return this;
-        };
-        /**
-         * @private
-         */
-        Transform.prototype.minus = function (value) {
-            this.x -= value.x;
-            this.y -= value.y;
-            this.skewX = Transform.normalizeRadian(this.skewX - value.skewX);
-            this.skewY = Transform.normalizeRadian(this.skewY - value.skewY);
-            this.scaleX /= value.scaleX;
-            this.scaleY /= value.scaleY;
-            return this;
-        };
-        /**
-         * @private
-         */
-        Transform.prototype.fromMatrix = function (matrix) {
-            var PI_Q = Math.PI * 0.25;
-            var backupScaleX = this.scaleX, backupScaleY = this.scaleY;
-            this.x = matrix.tx;
-            this.y = matrix.ty;
-            this.skewX = Math.atan(-matrix.c / matrix.d);
-            this.skewY = Math.atan(matrix.b / matrix.a);
-            if (this.skewX != this.skewX)
-                this.skewX = 0;
-            if (this.skewY != this.skewY)
-                this.skewY = 0;
-            this.scaleY = (this.skewX > -PI_Q && this.skewX < PI_Q) ? matrix.d / Math.cos(this.skewX) : -matrix.c / Math.sin(this.skewX);
-            this.scaleX = (this.skewY > -PI_Q && this.skewY < PI_Q) ? matrix.a / Math.cos(this.skewY) : matrix.b / Math.sin(this.skewY);
-            if (backupScaleX >= 0 && this.scaleX < 0) {
-                this.scaleX = -this.scaleX;
-                this.skewY = this.skewY - Math.PI;
-            }
-            if (backupScaleY >= 0 && this.scaleY < 0) {
-                this.scaleY = -this.scaleY;
-                this.skewX = this.skewX - Math.PI;
-            }
-            return this;
-        };
-        /**
-         * @language zh_CN
-         * 转换为矩阵。
-         * @param 矩阵。
-         * @version DragonBones 3.0
-         */
-        Transform.prototype.toMatrix = function (matrix) {
-            matrix.a = this.scaleX * Math.cos(this.skewY);
-            matrix.b = this.scaleX * Math.sin(this.skewY);
-            matrix.c = -this.scaleY * Math.sin(this.skewX);
-            matrix.d = this.scaleY * Math.cos(this.skewX);
-            matrix.tx = this.x;
-            matrix.ty = this.y;
-            return this;
-        };
-        Object.defineProperty(Transform.prototype, "rotation", {
-            /**
-             * @language zh_CN
-             * 旋转。 (以弧度为单位)
-             * @version DragonBones 3.0
-             */
-            get: function () {
-                return this.skewY;
-            },
-            set: function (value) {
-                var dValue = value - this.skewY;
-                this.skewX += dValue;
-                this.skewY += dValue;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        return Transform;
-    }());
-    dragonBones.Transform = Transform;
 })(dragonBones || (dragonBones = {}));
 var dragonBones;
 (function (dragonBones) {
@@ -5036,9 +5243,9 @@ var dragonBones;
          */
         FFDTimelineData.prototype._onClear = function () {
             _super.prototype._onClear.call(this);
-            this.displayIndex = 0;
             this.skin = null;
             this.slot = null;
+            this.display = null;
         };
         return FFDTimelineData;
     }(TimelineData));
@@ -5111,7 +5318,7 @@ var dragonBones;
             this.position = 0;
             this.duration = 0;
             this.fadeInTime = 0;
-            this.cacheTimeToFrameScale = 0;
+            this.cacheFrameRate = 0;
             this.name = null;
             this.animation = null;
             this.zOrderTimeline = null;
@@ -5120,12 +5327,12 @@ var dragonBones;
         /**
          * @private
          */
-        AnimationData.prototype.cacheFrames = function (value) {
+        AnimationData.prototype.cacheFrames = function (cacheFrameRate) {
             if (this.animation) {
                 return;
             }
-            var cacheFrameCount = Math.max(Math.floor((this.frameCount + 1) * this.scale * value), 1);
-            this.cacheTimeToFrameScale = cacheFrameCount / (this.duration + 0.000001); //
+            this.cacheFrameRate = Math.max(Math.ceil(cacheFrameRate * this.scale), 1);
+            var cacheFrameCount = Math.ceil(this.cacheFrameRate * this.duration) + 1;
             this.cachedFrames.length = 0;
             this.cachedFrames.length = cacheFrameCount;
             for (var i in this.boneTimelines) {
@@ -5161,11 +5368,11 @@ var dragonBones;
          * @private
          */
         AnimationData.prototype.addFFDTimeline = function (value) {
-            if (value && value.skin && value.slot) {
+            if (value && value.skin && value.slot && value.display) {
                 var skin = this.ffdTimelines[value.skin.name] = this.ffdTimelines[value.skin.name] || {};
                 var slot = skin[value.slot.slot.name] = skin[value.slot.slot.name] || {};
-                if (!slot[value.displayIndex]) {
-                    slot[value.displayIndex] = value;
+                if (!slot[value.display.name]) {
+                    slot[value.display.name] = value;
                 }
                 else {
                     throw new Error();
@@ -5190,12 +5397,12 @@ var dragonBones;
         /**
          * @private
          */
-        AnimationData.prototype.getFFDTimeline = function (skinName, slotName, displayIndex) {
+        AnimationData.prototype.getFFDTimeline = function (skinName, slotName, displayName) {
             var skin = this.ffdTimelines[skinName];
             if (skin) {
                 var slot = skin[slotName];
                 if (slot) {
-                    return slot[displayIndex];
+                    return slot[displayName];
                 }
             }
             return null;
@@ -5292,7 +5499,7 @@ var dragonBones;
                 this.actions[i].returnToPool();
             }
             this.frameRate = 0;
-            this.type = 0 /* Armature */;
+            this.type = -1 /* None */;
             this.name = null;
             this.parent = null;
             this.userData = null;
@@ -5353,9 +5560,8 @@ var dragonBones;
                 return;
             }
             this.cacheFrameRate = value;
-            var frameScale = this.cacheFrameRate / this.frameRate;
             for (var i in this.animations) {
-                this.animations[i].cacheFrames(frameScale);
+                this.animations[i].cacheFrames(this.cacheFrameRate);
             }
         };
         /**
@@ -5716,15 +5922,23 @@ var dragonBones;
          * @inheritDoc
          */
         DisplayData.prototype._onClear = function () {
+            if (this.mesh && !this.share) {
+                this.mesh.returnToPool();
+            }
+            if (this.boundingBox) {
+                this.boundingBox.returnToPool();
+            }
             this.isRelativePivot = false;
-            this.type = 0 /* Image */;
+            this.type = -1 /* None */;
+            this.inheritAnimation = true;
+            this.color = 0;
             this.name = null;
+            this.path = null;
             this.texture = null;
             this.armature = null;
-            if (this.mesh) {
-                this.mesh.returnToPool();
-                this.mesh = null;
-            }
+            this.mesh = null;
+            this.share = null;
+            this.boundingBox = null;
             this.pivot.clear();
             this.transform.identity();
         };
@@ -5769,6 +5983,437 @@ var dragonBones;
         return MeshData;
     }(dragonBones.BaseObject));
     dragonBones.MeshData = MeshData;
+    /**
+     * @private
+     */
+    var BoundingBoxData = (function (_super) {
+        __extends(BoundingBoxData, _super);
+        function BoundingBoxData() {
+            _super.call(this);
+            this.x = 0; // Polygon min x.
+            this.y = 0; // Polygon min y.
+            this.width = 0;
+            this.height = 0;
+            this.vertices = [];
+        }
+        BoundingBoxData.toString = function () {
+            return "[class dragonBones.BoundingBoxData]";
+        };
+        /**
+         * Compute the bit code for a point (x, y) using the clip rectangle
+         */
+        BoundingBoxData._computeOutCode = function (x, y, xMin, yMin, xMax, yMax) {
+            var code = 0 /* InSide */; // initialised as being inside of [[clip window]]
+            if (x < xMin) {
+                code |= 1 /* Left */;
+            }
+            else if (x > xMax) {
+                code |= 2 /* Right */;
+            }
+            if (y < yMin) {
+                code |= 4 /* Top */;
+            }
+            else if (y > yMax) {
+                code |= 8 /* Bottom */;
+            }
+            return code;
+        };
+        BoundingBoxData.segmentIntersectsRectangle = function (xA, yA, xB, yB, xMin, yMin, xMax, yMax, intersectionPointA, intersectionPointB, normalRadians) {
+            if (intersectionPointA === void 0) { intersectionPointA = null; }
+            if (intersectionPointB === void 0) { intersectionPointB = null; }
+            if (normalRadians === void 0) { normalRadians = null; }
+            var inSideA = xA > xMin && xA < xMax && yA > yMin && yA < yMax;
+            var inSideB = xB > xMin && xB < xMax && yB > yMin && yB < yMax;
+            if (inSideA && inSideB) {
+                return -1;
+            }
+            var intersectionCount = 0;
+            var outcode0 = BoundingBoxData._computeOutCode(xA, yA, xMin, yMin, xMax, yMax);
+            var outcode1 = BoundingBoxData._computeOutCode(xB, yB, xMin, yMin, xMax, yMax);
+            while (true) {
+                if (!(outcode0 | outcode1)) {
+                    intersectionCount = 2;
+                    break;
+                }
+                else if (outcode0 & outcode1) {
+                    break;
+                }
+                // failed both tests, so calculate the line segment to clip
+                // from an outside point to an intersection with clip edge
+                var x = 0;
+                var y = 0;
+                var normalRadian = 0;
+                // At least one endpoint is outside the clip rectangle; pick it.
+                var outcodeOut = outcode0 ? outcode0 : outcode1;
+                // Now find the intersection point;
+                if (outcodeOut & 4 /* Top */) {
+                    x = xA + (xB - xA) * (yMin - yA) / (yB - yA);
+                    y = yMin;
+                    if (normalRadians) {
+                        normalRadian = -Math.PI * 0.5;
+                    }
+                }
+                else if (outcodeOut & 8 /* Bottom */) {
+                    x = xA + (xB - xA) * (yMax - yA) / (yB - yA);
+                    y = yMax;
+                    if (normalRadians) {
+                        normalRadian = Math.PI * 0.5;
+                    }
+                }
+                else if (outcodeOut & 2 /* Right */) {
+                    y = yA + (yB - yA) * (xMax - xA) / (xB - xA);
+                    x = xMax;
+                    if (normalRadians) {
+                        normalRadian = 0;
+                    }
+                }
+                else if (outcodeOut & 1 /* Left */) {
+                    y = yA + (yB - yA) * (xMin - xA) / (xB - xA);
+                    x = xMin;
+                    if (normalRadians) {
+                        normalRadian = Math.PI;
+                    }
+                }
+                // Now we move outside point to intersection point to clip
+                // and get ready for next pass.
+                if (outcodeOut == outcode0) {
+                    xA = x;
+                    yA = y;
+                    outcode0 = BoundingBoxData._computeOutCode(xA, yA, xMin, yMin, xMax, yMax);
+                    if (normalRadians) {
+                        normalRadians.x = normalRadian;
+                    }
+                }
+                else {
+                    xB = x;
+                    yB = y;
+                    outcode1 = BoundingBoxData._computeOutCode(xB, yB, xMin, yMin, xMax, yMax);
+                    if (normalRadians) {
+                        normalRadians.y = normalRadian;
+                    }
+                }
+            }
+            if (intersectionCount) {
+                if (inSideA) {
+                    intersectionCount = 2; // 10
+                    if (intersectionPointA) {
+                        intersectionPointA.x = xB;
+                        intersectionPointA.y = yB;
+                    }
+                    if (intersectionPointB) {
+                        intersectionPointB.x = xB;
+                        intersectionPointB.y = xB;
+                    }
+                    if (normalRadians) {
+                        normalRadians.x = normalRadians.y + Math.PI;
+                    }
+                }
+                else if (inSideB) {
+                    intersectionCount = 1; // 01
+                    if (intersectionPointA) {
+                        intersectionPointA.x = xA;
+                        intersectionPointA.y = yA;
+                    }
+                    if (intersectionPointB) {
+                        intersectionPointB.x = xA;
+                        intersectionPointB.y = yA;
+                    }
+                    if (normalRadians) {
+                        normalRadians.y = normalRadians.x + Math.PI;
+                    }
+                }
+                else {
+                    intersectionCount = 3; // 11
+                    if (intersectionPointA) {
+                        intersectionPointA.x = xA;
+                        intersectionPointA.y = yA;
+                    }
+                    if (intersectionPointB) {
+                        intersectionPointB.x = xB;
+                        intersectionPointB.y = yB;
+                    }
+                }
+            }
+            return intersectionCount;
+        };
+        BoundingBoxData.segmentIntersectsEllipse = function (xA, yA, xB, yB, xC, yC, widthH, heightH, intersectionPointA, intersectionPointB, normalRadians) {
+            if (intersectionPointA === void 0) { intersectionPointA = null; }
+            if (intersectionPointB === void 0) { intersectionPointB = null; }
+            if (normalRadians === void 0) { normalRadians = null; }
+            var d = widthH / heightH;
+            var dd = d * d;
+            yA *= d;
+            yB *= d;
+            var dX = xB - xA;
+            var dY = yB - yA;
+            var lAB = Math.sqrt(dX * dX + dY * dY);
+            var xD = dX / lAB;
+            var yD = dY / lAB;
+            var a = (xC - xA) * xD + (yC - yA) * yD;
+            var aa = a * a;
+            var ee = xA * xA + yA * yA;
+            var rr = widthH * widthH;
+            var dR = rr - ee + aa;
+            var intersectionCount = 0;
+            if (dR >= 0) {
+                var dT = Math.sqrt(dR);
+                var sA = a - dT;
+                var sB = a + dT;
+                var inSideA = sA < 0 ? -1 : (sA <= lAB ? 0 : 1);
+                var inSideB = sB < 0 ? -1 : (sB <= lAB ? 0 : 1);
+                var sideAB = inSideA * inSideB;
+                if (sideAB < 0) {
+                    return -1;
+                }
+                else if (sideAB == 0) {
+                    if (inSideA == -1) {
+                        intersectionCount = 2; // 10
+                        xB = xA + sB * xD;
+                        yB = (yA + sB * yD) / d;
+                        if (intersectionPointA) {
+                            intersectionPointA.x = xB;
+                            intersectionPointA.y = yB;
+                        }
+                        if (intersectionPointB) {
+                            intersectionPointB.x = xB;
+                            intersectionPointB.y = yB;
+                        }
+                        if (normalRadians) {
+                            normalRadians.x = Math.atan2(yB / rr * dd, xB / rr);
+                            normalRadians.y = normalRadians.x + Math.PI;
+                        }
+                    }
+                    else if (inSideB == 1) {
+                        intersectionCount = 1; // 01
+                        xA = xA + sA * xD;
+                        yA = (yA + sA * yD) / d;
+                        if (intersectionPointA) {
+                            intersectionPointA.x = xA;
+                            intersectionPointA.y = yA;
+                        }
+                        if (intersectionPointB) {
+                            intersectionPointB.x = xA;
+                            intersectionPointB.y = yA;
+                        }
+                        if (normalRadians) {
+                            normalRadians.x = Math.atan2(yA / rr * dd, xA / rr);
+                            normalRadians.y = normalRadians.x + Math.PI;
+                        }
+                    }
+                    else {
+                        intersectionCount = 3; // 11
+                        if (intersectionPointA) {
+                            intersectionPointA.x = xA + sA * xD;
+                            intersectionPointA.y = (yA + sA * yD) / d;
+                            if (normalRadians) {
+                                normalRadians.x = Math.atan2(intersectionPointA.y / rr * dd, intersectionPointA.x / rr);
+                            }
+                        }
+                        if (intersectionPointB) {
+                            intersectionPointB.x = xA + sB * xD;
+                            intersectionPointB.y = (yA + sB * yD) / d;
+                            if (normalRadians) {
+                                normalRadians.y = Math.atan2(intersectionPointB.y / rr * dd, intersectionPointB.x / rr);
+                            }
+                        }
+                    }
+                }
+            }
+            return intersectionCount;
+        };
+        BoundingBoxData.segmentIntersectsPolygon = function (xA, yA, xB, yB, vertices, intersectionPointA, intersectionPointB, normalRadians) {
+            if (intersectionPointA === void 0) { intersectionPointA = null; }
+            if (intersectionPointB === void 0) { intersectionPointB = null; }
+            if (normalRadians === void 0) { normalRadians = null; }
+            if (xA == xB) {
+                xA = xB + 0.01;
+            }
+            if (yA == yB) {
+                yA = yB + 0.01;
+            }
+            var l = vertices.length;
+            var dXAB = xA - xB;
+            var dYAB = yA - yB;
+            var llAB = xA * yB - yA * xB;
+            var intersectionCount = 0;
+            var xC = vertices[l - 2];
+            var yC = vertices[l - 1];
+            var dMin = 0;
+            var dMax = 0;
+            var xMin = 0;
+            var yMin = 0;
+            var xMax = 0;
+            var yMax = 0;
+            for (var i = 0; i < l; i += 2) {
+                var xD = vertices[i];
+                var yD = vertices[i + 1];
+                if (xC == xD) {
+                    xC = xD + 0.01;
+                }
+                if (yC == yD) {
+                    yC = yD + 0.01;
+                }
+                var dXCD = xC - xD;
+                var dYCD = yC - yD;
+                var llCD = xC * yD - yC * xD;
+                var ll = dXAB * dYCD - dYAB * dXCD;
+                var x = (llAB * dXCD - dXAB * llCD) / ll;
+                if (((x >= xC && x <= xD) || (x >= xD && x <= xC)) && (dXAB == 0 || (x >= xA && x <= xB) || (x >= xB && x <= xA))) {
+                    var y = (llAB * dYCD - dYAB * llCD) / ll;
+                    if (((y >= yC && y <= yD) || (y >= yD && y <= yC)) && (dYAB == 0 || (y >= yA && y <= yB) || (y >= yB && y <= yA))) {
+                        if (intersectionPointB) {
+                            var d = x - xA;
+                            if (d < 0) {
+                                d = -d;
+                            }
+                            if (intersectionCount == 0) {
+                                dMin = d;
+                                dMax = d;
+                                xMin = x;
+                                yMin = y;
+                                xMax = x;
+                                yMax = y;
+                                if (normalRadians) {
+                                    normalRadians.x = Math.atan2(yD - yC, xD - xC) - Math.PI * 0.5;
+                                    normalRadians.y = normalRadians.x;
+                                }
+                            }
+                            else {
+                                if (d < dMin) {
+                                    dMin = d;
+                                    xMin = x;
+                                    yMin = y;
+                                    if (normalRadians) {
+                                        normalRadians.x = Math.atan2(yD - yC, xD - xC) - Math.PI * 0.5;
+                                    }
+                                }
+                                if (d > dMax) {
+                                    dMax = d;
+                                    xMax = x;
+                                    yMax = y;
+                                    if (normalRadians) {
+                                        normalRadians.y = Math.atan2(yD - yC, xD - xC) - Math.PI * 0.5;
+                                    }
+                                }
+                            }
+                            intersectionCount++;
+                        }
+                        else {
+                            xMin = x;
+                            yMin = y;
+                            xMax = x;
+                            yMax = y;
+                            intersectionCount++;
+                            if (normalRadians) {
+                                normalRadians.x = Math.atan2(yD - yC, xD - xC) - Math.PI * 0.5;
+                                normalRadians.y = normalRadians.x;
+                            }
+                            break;
+                        }
+                    }
+                }
+                xC = xD;
+                yC = yD;
+            }
+            if (intersectionCount == 1) {
+                if (intersectionPointA) {
+                    intersectionPointA.x = xMin;
+                    intersectionPointA.y = yMin;
+                }
+                if (intersectionPointB) {
+                    intersectionPointB.x = xMin;
+                    intersectionPointB.y = yMin;
+                }
+                if (normalRadians) {
+                    normalRadians.y = normalRadians.x + Math.PI;
+                }
+            }
+            else if (intersectionCount > 1) {
+                intersectionCount++;
+                if (intersectionPointA) {
+                    intersectionPointA.x = xMin;
+                    intersectionPointA.y = yMin;
+                }
+                if (intersectionPointB) {
+                    intersectionPointB.x = xMax;
+                    intersectionPointB.y = yMax;
+                }
+            }
+            return intersectionCount;
+        };
+        /**
+         * @inheritDoc
+         */
+        BoundingBoxData.prototype._onClear = function () {
+            this.type = -1 /* None */;
+            this.x = 0;
+            this.y = 0;
+            this.width = 0;
+            this.height = 0;
+            this.vertices.length = 0;
+        };
+        BoundingBoxData.prototype.containsPoint = function (x, y) {
+            var isInSide = false;
+            if (this.type == 2 /* Polygon */) {
+                if (x >= this.x && x <= this.width && y >= this.y && y <= this.height) {
+                    for (var i = 0, l = this.vertices.length, prevIndex = l - 2; i < l; i += 2) {
+                        var yA = this.vertices[prevIndex + 1];
+                        var yB = this.vertices[i + 1];
+                        if ((yB < y && yA >= y) || (yA < y && yB >= y)) {
+                            var xA = this.vertices[prevIndex];
+                            var xB = this.vertices[i];
+                            if ((y - yB) * (xA - xB) / (yA - yB) + xB < x) {
+                                isInSide = !isInSide;
+                            }
+                        }
+                        prevIndex = i;
+                    }
+                }
+            }
+            else {
+                var widthH = this.width * 0.5;
+                if (x >= -widthH && x <= widthH) {
+                    var heightH = this.height * 0.5;
+                    if (y >= -heightH && y <= heightH) {
+                        if (this.type == 1 /* Ellipse */) {
+                            y *= widthH / heightH;
+                            isInSide = Math.sqrt(x * x + y * y) <= widthH;
+                        }
+                        else {
+                            isInSide = true;
+                        }
+                    }
+                }
+            }
+            return isInSide;
+        };
+        BoundingBoxData.prototype.intersectsSegment = function (xA, yA, xB, yB, intersectionPointA, intersectionPointB, normalRadians) {
+            if (intersectionPointA === void 0) { intersectionPointA = null; }
+            if (intersectionPointB === void 0) { intersectionPointB = null; }
+            if (normalRadians === void 0) { normalRadians = null; }
+            var intersectionCount = 0;
+            switch (this.type) {
+                case 0 /* Rectangle */:
+                    var widthH = this.width * 0.5;
+                    var heightH = this.height * 0.5;
+                    intersectionCount = BoundingBoxData.segmentIntersectsRectangle(xA, yA, xB, yB, -widthH, -heightH, widthH, heightH, intersectionPointA, intersectionPointB, normalRadians);
+                    break;
+                case 1 /* Ellipse */:
+                    intersectionCount = BoundingBoxData.segmentIntersectsEllipse(xA, yA, xB, yB, 0, 0, this.width * 0.5, this.height * 0.5, intersectionPointA, intersectionPointB, normalRadians);
+                    break;
+                case 2 /* Polygon */:
+                    if (BoundingBoxData.segmentIntersectsRectangle(xA, yA, xB, yB, this.x, this.y, this.width, this.height, null, null) != 0) {
+                        intersectionCount = BoundingBoxData.segmentIntersectsPolygon(xA, yA, xB, yB, this.vertices, intersectionPointA, intersectionPointB, normalRadians);
+                    }
+                    break;
+                default:
+                    break;
+            }
+            return intersectionCount;
+        };
+        return BoundingBoxData;
+    }(dragonBones.BaseObject));
+    dragonBones.BoundingBoxData = BoundingBoxData;
 })(dragonBones || (dragonBones = {}));
 var dragonBones;
 (function (dragonBones) {
@@ -5877,7 +6522,7 @@ var dragonBones;
             return "[class dragonBones.ActionData]";
         };
         ActionData.prototype._onClear = function () {
-            this.type = 0 /* Play */;
+            this.type = -1 /* None */;
             this.bone = null;
             this.slot = null;
             this.data.length = 0;
@@ -5892,14 +6537,19 @@ var dragonBones;
         __extends(EventData, _super);
         function EventData() {
             _super.call(this);
+            this.ints = [];
+            this.floats = [];
+            this.strings = [];
         }
         EventData.toString = function () {
             return "[class dragonBones.EventData]";
         };
         EventData.prototype._onClear = function () {
-            this.type = 10 /* Frame */;
+            this.type = -1 /* None */;
             this.name = null;
-            this.data = null;
+            this.ints.length = 0;
+            this.floats.length = 0;
+            this.strings.length = 0;
             this.bone = null;
             this.slot = null;
         };
@@ -5934,37 +6584,49 @@ var dragonBones;
         function TweenFrameData() {
             _super.call(this);
         }
-        TweenFrameData.samplingCurve = function (curve, frameCount) {
+        TweenFrameData._getCurvePoint = function (x1, y1, x2, y2, x3, y3, x4, y4, t, result) {
+            var l_t = 1 - t;
+            var powA = l_t * l_t;
+            var powB = t * t;
+            var kA = l_t * powA;
+            var kB = 3 * t * powA;
+            var kC = 3 * l_t * powB;
+            var kD = t * powB;
+            result.x = kA * x1 + kB * x2 + kC * x3 + kD * x4;
+            result.y = kA * y1 + kB * y2 + kC * y3 + kD * y4;
+        };
+        TweenFrameData.samplingEasingCurve = function (curve, samples) {
             var curveCount = curve.length;
-            if (curveCount == 0 || frameCount == 0) {
-                return null;
-            }
-            var samplingTimes = frameCount + 1;
-            var samplingStep = 1 / (samplingTimes + 1);
-            var sampling = new Array(samplingTimes * 2);
+            var result = new dragonBones.Point();
             var stepIndex = -2;
-            for (var i = 0; i < samplingTimes; ++i) {
-                var stepValue = samplingStep * (i + 1);
-                while ((stepIndex + 6 < curveCount ? curve[stepIndex + 6] : 1) < stepValue) {
+            for (var i = 0, l = samples.length; i < l; ++i) {
+                var t = (i + 1) / (l + 1);
+                while ((stepIndex + 6 < curveCount ? curve[stepIndex + 6] : 1) < t) {
                     stepIndex += 6;
                 }
                 var isInCurve = stepIndex >= 0 && stepIndex + 6 < curveCount;
                 var x1 = isInCurve ? curve[stepIndex] : 0;
                 var y1 = isInCurve ? curve[stepIndex + 1] : 0;
+                var x2 = curve[stepIndex + 2];
+                var y2 = curve[stepIndex + 3];
+                var x3 = curve[stepIndex + 4];
+                var y3 = curve[stepIndex + 5];
                 var x4 = isInCurve ? curve[stepIndex + 6] : 1;
                 var y4 = isInCurve ? curve[stepIndex + 7] : 1;
-                var t = (stepValue - x1) / (x4 - x1);
-                var l_t = 1 - t;
-                var powA = l_t * l_t;
-                var powB = t * t;
-                var kA = l_t * powA;
-                var kB = 3 * t * powA;
-                var kC = 3 * l_t * powB;
-                var kD = t * powB;
-                sampling[i * 2] = kA * x1 + kB * curve[stepIndex + 2] + kC * curve[stepIndex + 4] + kD * x4;
-                sampling[i * 2 + 1] = kA * y1 + kB * curve[stepIndex + 3] + kC * curve[stepIndex + 5] + kD * y4;
+                var lower = 0;
+                var higher = 1;
+                while (higher - lower > 0.01) {
+                    var percentage = (higher + lower) / 2;
+                    TweenFrameData._getCurvePoint(x1, y1, x2, y2, x3, y3, x4, y4, percentage, result);
+                    if (t - result.x > 0) {
+                        lower = percentage;
+                    }
+                    else {
+                        higher = percentage;
+                    }
+                }
+                samples[i] = result.y;
             }
-            return sampling;
         };
         /**
          * @inheritDoc
@@ -6045,7 +6707,6 @@ var dragonBones;
             _super.prototype._onClear.call(this);
             this.tweenScale = false;
             this.tweenRotate = 0;
-            this.guideCurve = null;
             this.transform.identity();
         };
         return BoneFrameData;
@@ -6095,7 +6756,7 @@ var dragonBones;
          */
         ExtensionFrameData.prototype._onClear = function () {
             _super.prototype._onClear.call(this);
-            this.type = 0 /* FFD */;
+            this.type = -1 /* None */;
             this.tweens.length = 0;
             this.keys.length = 0;
         };
@@ -6114,7 +6775,6 @@ var dragonBones;
             this._armature = null;
             this._skin = null;
             this._slotDisplayDataSet = null;
-            this._mesh = null;
             this._animation = null;
             this._timeline = null;
             this._isOldData = false; // For 2.x ~ 3.x
@@ -6137,19 +6797,33 @@ var dragonBones;
                 case "movieclip":
                     return 1 /* MovieClip */;
                 default:
-                    return 0 /* Armature */;
+                    return -1 /* None */;
             }
         };
         DataParser._getDisplayType = function (value) {
             switch (value.toLowerCase()) {
                 case "image":
                     return 0 /* Image */;
-                case "armature":
-                    return 1 /* Armature */;
                 case "mesh":
                     return 2 /* Mesh */;
+                case "armature":
+                    return 1 /* Armature */;
+                case "boundingbox":
+                    return 3 /* BoundingBox */;
                 default:
-                    return 0 /* Image */;
+                    return -1 /* None */;
+            }
+        };
+        DataParser._getBoundingBoxType = function (value) {
+            switch (value.toLowerCase()) {
+                case "rectangle":
+                    return 0 /* Rectangle */;
+                case "ellipse":
+                    return 1 /* Ellipse */;
+                case "polygon":
+                    return 2 /* Polygon */;
+                default:
+                    return -1 /* None */;
             }
         };
         DataParser._getBlendMode = function (value) {
@@ -6183,7 +6857,7 @@ var dragonBones;
                 case "subtract":
                     return 13 /* Subtract */;
                 default:
-                    return 0 /* Normal */;
+                    return -1 /* None */;
             }
         };
         DataParser._getActionType = function (value) {
@@ -6201,7 +6875,7 @@ var dragonBones;
                 case "fadeout":
                     return 5 /* FadeOut */;
                 default:
-                    return 4 /* FadeIn */;
+                    return -1 /* None */;
             }
         };
         DataParser.prototype._getTimelineFrameMatrix = function (animation, timeline, position, transform) {
@@ -6220,7 +6894,7 @@ var dragonBones;
                 }
                 else if (frame.curve) {
                     tweenProgress = (position - frame.position) / frame.duration;
-                    tweenProgress = dragonBones.TweenTimelineState._getCurveValue(tweenProgress, frame.curve);
+                    tweenProgress = dragonBones.TweenTimelineState._getEasingCurveValue(tweenProgress, frame.curve);
                 }
                 var nextFrame = frame.next;
                 transform.x = nextFrame.transform.x - frame.transform.x;
@@ -6414,6 +7088,11 @@ var dragonBones;
         DataParser.Z_ORDER = "zOrder";
         DataParser.FFD = "ffd";
         DataParser.FRAME = "frame";
+        DataParser.EVENTS = "events";
+        DataParser.ACTIONS = "actions";
+        DataParser.INTS = "ints";
+        DataParser.FLOATS = "floats";
+        DataParser.STRINGS = "strings";
         DataParser.PIVOT = "pivot";
         DataParser.TRANSFORM = "transform";
         DataParser.AABB = "aabb";
@@ -6423,8 +7102,10 @@ var dragonBones;
         DataParser.IS_GLOBAL = "isGlobal";
         DataParser.FRAME_RATE = "frameRate";
         DataParser.TYPE = "type";
+        DataParser.SUB_TYPE = "subType";
         DataParser.NAME = "name";
         DataParser.PARENT = "parent";
+        DataParser.SHARE = "share";
         DataParser.LENGTH = "length";
         DataParser.DATA = "data";
         DataParser.DISPLAY_INDEX = "displayIndex";
@@ -6432,6 +7113,7 @@ var dragonBones;
         DataParser.INHERIT_TRANSLATION = "inheritTranslation";
         DataParser.INHERIT_ROTATION = "inheritRotation";
         DataParser.INHERIT_SCALE = "inheritScale";
+        DataParser.INHERIT_ANIMATION = "inheritAnimation";
         DataParser.TARGET = "target";
         DataParser.BEND_POSITIVE = "bendPositive";
         DataParser.CHAIN = "chain";
@@ -6450,7 +7132,6 @@ var dragonBones;
         DataParser.EVENT = "event";
         DataParser.SOUND = "sound";
         DataParser.ACTION = "action";
-        DataParser.ACTIONS = "actions";
         DataParser.DEFAULT_ACTIONS = "defaultActions";
         DataParser.X = "x";
         DataParser.Y = "y";
@@ -6746,6 +7427,8 @@ var dragonBones;
         ObjectDataParser.prototype._parseDisplay = function (rawData) {
             var display = dragonBones.BaseObject.borrowObject(dragonBones.DisplayData);
             display.name = ObjectDataParser._getString(rawData, ObjectDataParser.NAME, null);
+            display.path = ObjectDataParser._getString(rawData, ObjectDataParser.SHARE, display.name);
+            display.inheritAnimation = ObjectDataParser._getBoolean(rawData, ObjectDataParser.INHERIT_ANIMATION, true);
             if (ObjectDataParser.TYPE in rawData && typeof rawData[ObjectDataParser.TYPE] == "string") {
                 display.type = ObjectDataParser._getDisplayType(rawData[ObjectDataParser.TYPE]);
             }
@@ -6777,10 +7460,84 @@ var dragonBones;
                 case 1 /* Armature */:
                     break;
                 case 2 /* Mesh */:
-                    display.mesh = this._parseMesh(rawData);
+                    var shareMeshName = ObjectDataParser._getString(rawData, ObjectDataParser.SHARE, null);
+                    if (shareMeshName) {
+                        for (var i = 0, l = this._slotDisplayDataSet.displays.length; i < l; ++i) {
+                            var eachDisplay = this._slotDisplayDataSet.displays[i];
+                            if (eachDisplay.name == shareMeshName) {
+                                display.share = eachDisplay;
+                                display.mesh = eachDisplay.mesh;
+                                break;
+                            }
+                        }
+                    }
+                    else {
+                        display.mesh = this._parseMesh(rawData);
+                    }
+                    break;
+                case 3 /* BoundingBox */:
+                    display.boundingBox = this._BoundingBox(rawData);
+                    break;
+                default:
                     break;
             }
             return display;
+        };
+        /**
+         * @private
+         */
+        ObjectDataParser.prototype._BoundingBox = function (rawData) {
+            var boundingBox = dragonBones.BaseObject.borrowObject(dragonBones.BoundingBoxData);
+            if (ObjectDataParser.SUB_TYPE in rawData && typeof rawData[ObjectDataParser.SUB_TYPE] == "string") {
+                boundingBox.type = ObjectDataParser._getBoundingBoxType(rawData[ObjectDataParser.SUB_TYPE]);
+            }
+            else {
+                boundingBox.type = ObjectDataParser._getNumber(rawData, ObjectDataParser.SUB_TYPE, 0 /* Rectangle */);
+            }
+            switch (boundingBox.type) {
+                case 0 /* Rectangle */:
+                case 1 /* Ellipse */:
+                    boundingBox.width = ObjectDataParser._getNumber(rawData, ObjectDataParser.WIDTH, 0);
+                    boundingBox.height = ObjectDataParser._getNumber(rawData, ObjectDataParser.HEIGHT, 0);
+                    break;
+                case 2 /* Polygon */:
+                    if (ObjectDataParser.VERTICES in rawData) {
+                        var rawVertices = rawData[ObjectDataParser.VERTICES];
+                        boundingBox.vertices.length = rawVertices.length;
+                        for (var i = 0, l = rawVertices.length; i < l; i += 2) {
+                            var iN = i + 1;
+                            var x = rawVertices[i];
+                            var y = rawVertices[iN];
+                            boundingBox.vertices[i] = x;
+                            boundingBox.vertices[iN] = y;
+                            // AABB.
+                            if (i == 0) {
+                                boundingBox.x = x;
+                                boundingBox.y = y;
+                                boundingBox.width = x;
+                                boundingBox.height = y;
+                            }
+                            else {
+                                if (x < boundingBox.x) {
+                                    boundingBox.x = x;
+                                }
+                                else if (x > boundingBox.width) {
+                                    boundingBox.width = x;
+                                }
+                                if (y < boundingBox.y) {
+                                    boundingBox.y = y;
+                                }
+                                else if (y > boundingBox.height) {
+                                    boundingBox.height = y;
+                                }
+                            }
+                        }
+                    }
+                    break;
+                default:
+                    break;
+            }
+            return boundingBox;
         };
         /**
          * @private
@@ -7015,18 +7772,16 @@ var dragonBones;
         ObjectDataParser.prototype._parseFFDTimeline = function (rawData) {
             var timeline = dragonBones.BaseObject.borrowObject(dragonBones.FFDTimelineData);
             timeline.skin = this._armature.getSkin(ObjectDataParser._getString(rawData, ObjectDataParser.SKIN, null));
-            timeline.slot = timeline.skin.getSlot(ObjectDataParser._getString(rawData, ObjectDataParser.SLOT, null)); // NAME;
+            timeline.slot = timeline.skin.getSlot(ObjectDataParser._getString(rawData, ObjectDataParser.SLOT, null));
             var meshName = ObjectDataParser._getString(rawData, ObjectDataParser.NAME, null);
             for (var i = 0, l = timeline.slot.displays.length; i < l; ++i) {
-                var displayData = timeline.slot.displays[i];
-                if (displayData.mesh && displayData.name == meshName) {
-                    timeline.displayIndex = i; // rawData[DISPLAY_INDEX];
-                    this._mesh = displayData.mesh; // Find the ffd's mesh.
+                var display = timeline.slot.displays[i];
+                if (display.mesh && display.name == meshName) {
+                    timeline.display = display;
                     break;
                 }
             }
             this._parseTimeline(rawData, timeline, this._parseFFDFrame);
-            this._mesh = null;
             return timeline;
         };
         /**
@@ -7049,19 +7804,19 @@ var dragonBones;
         ObjectDataParser.prototype._parseZOrderFrame = function (rawData, frameStart, frameCount) {
             var frame = dragonBones.BaseObject.borrowObject(dragonBones.ZOrderFrameData);
             this._parseFrame(rawData, frame, frameStart, frameCount);
-            var zOrder = rawData[ObjectDataParser.Z_ORDER];
-            if (zOrder && zOrder.length > 0) {
+            var rawZOrder = rawData[ObjectDataParser.Z_ORDER];
+            if (rawZOrder && rawZOrder.length > 0) {
                 var slotCount = this._armature.sortedSlots.length;
-                var unchanged = new Array(slotCount - zOrder.length / 2);
+                var unchanged = new Array(slotCount - rawZOrder.length / 2);
                 frame.zOrder.length = slotCount;
                 for (var i_4 = 0; i_4 < slotCount; ++i_4) {
                     frame.zOrder[i_4] = -1;
                 }
                 var originalIndex = 0;
                 var unchangedIndex = 0;
-                for (var i_5 = 0, l = zOrder.length; i_5 < l; i_5 += 2) {
-                    var slotIndex = zOrder[i_5];
-                    var offset = zOrder[i_5 + 1];
+                for (var i_5 = 0, l = rawZOrder.length; i_5 < l; i_5 += 2) {
+                    var slotIndex = rawZOrder[i_5];
+                    var offset = rawZOrder[i_5 + 1];
                     while (originalIndex != slotIndex) {
                         unchanged[unchangedIndex++] = originalIndex++;
                     }
@@ -7145,6 +7900,8 @@ var dragonBones;
          * @private
          */
         ObjectDataParser.prototype._parseFFDFrame = function (rawData, frameStart, frameCount) {
+            var ffdTimeline = this._timeline;
+            var mesh = ffdTimeline.display.mesh;
             var frame = dragonBones.BaseObject.borrowObject(dragonBones.ExtensionFrameData);
             frame.type = ObjectDataParser._getNumber(rawData, ObjectDataParser.TYPE, 0 /* FFD */);
             this._parseTweenFrame(rawData, frame, frameStart, frameCount);
@@ -7152,7 +7909,7 @@ var dragonBones;
             var offset = ObjectDataParser._getNumber(rawData, ObjectDataParser.OFFSET, 0); // uint
             var x = 0;
             var y = 0;
-            for (var i = 0, l = this._mesh.vertices.length; i < l; i += 2) {
+            for (var i = 0, l = mesh.vertices.length; i < l; i += 2) {
                 if (!rawVertices || i < offset || i - offset >= rawVertices.length) {
                     x = 0;
                     y = 0;
@@ -7161,14 +7918,14 @@ var dragonBones;
                     x = rawVertices[i - offset] * this._armature.scale;
                     y = rawVertices[i + 1 - offset] * this._armature.scale;
                 }
-                if (this._mesh.skinned) {
-                    this._mesh.slotPose.transformPoint(x, y, this._helpPoint, true);
+                if (mesh.skinned) {
+                    mesh.slotPose.transformPoint(x, y, this._helpPoint, true);
                     x = this._helpPoint.x;
                     y = this._helpPoint.y;
-                    var boneIndices = this._mesh.boneIndices[i / 2];
+                    var boneIndices = mesh.boneIndices[i / 2];
                     for (var iB = 0, lB = boneIndices.length; iB < lB; ++iB) {
                         var boneIndex = boneIndices[iB];
-                        this._mesh.inverseBindPose[boneIndex].transformPoint(x, y, this._helpPoint, true);
+                        mesh.inverseBindPose[boneIndex].transformPoint(x, y, this._helpPoint, true);
                         frame.tweens.push(this._helpPoint.x, this._helpPoint.y);
                     }
                 }
@@ -7196,8 +7953,9 @@ var dragonBones;
                 if (this._isOldData && this._animation.scale == 1 && this._timeline.scale == 1 && frame.duration * this._armature.frameRate < 2) {
                     frame.tweenEasing = dragonBones.DragonBones.NO_TWEEN;
                 }
-                if (ObjectDataParser.CURVE in rawData) {
-                    frame.curve = dragonBones.TweenFrameData.samplingCurve(rawData[ObjectDataParser.CURVE], frameCount);
+                if (frameCount > 0 && (ObjectDataParser.CURVE in rawData)) {
+                    frame.curve = new Array(frameCount * 2 - 1);
+                    dragonBones.TweenFrameData.samplingEasingCurve(rawData[ObjectDataParser.CURVE], frame.curve);
                 }
             }
             else {
@@ -7347,10 +8105,37 @@ var dragonBones;
                 eventData.name = ObjectDataParser._getString(rawData, ObjectDataParser.EVENT, null);
                 eventData.bone = bone;
                 eventData.slot = slot;
-                if (ObjectDataParser.DATA in rawData) {
-                    eventData.data = rawData[ObjectDataParser.DATA];
-                }
                 events.push(eventData);
+            }
+            if (ObjectDataParser.EVENTS in rawData) {
+                var rawEvents = rawData[ObjectDataParser.EVENTS];
+                for (var i = 0, l = rawEvents.length; i < l; ++i) {
+                    var rawEvent = rawEvents[i];
+                    var boneName = ObjectDataParser._getString(rawEvent, ObjectDataParser.BONE, null);
+                    var eventData = dragonBones.BaseObject.borrowObject(dragonBones.EventData);
+                    eventData.type = 10 /* Frame */;
+                    eventData.name = ObjectDataParser._getString(rawEvent, ObjectDataParser.NAME, null);
+                    eventData.bone = this._armature.getBone(boneName);
+                    if (ObjectDataParser.INTS in rawEvent) {
+                        var rawInts = rawEvent[ObjectDataParser.INTS];
+                        for (var i_6 = 0, l_3 = rawInts.length; i_6 < l_3; ++i_6) {
+                            eventData.ints.push(ObjectDataParser._getParameter(rawInts, i_6, 0));
+                        }
+                    }
+                    if (ObjectDataParser.FLOATS in rawEvent) {
+                        var rawFloats = rawEvent[ObjectDataParser.FLOATS];
+                        for (var i_7 = 0, l_4 = rawFloats.length; i_7 < l_4; ++i_7) {
+                            eventData.floats.push(ObjectDataParser._getParameter(rawFloats, i_7, 0));
+                        }
+                    }
+                    if (ObjectDataParser.STRINGS in rawEvent) {
+                        var rawStrings = rawEvent[ObjectDataParser.STRINGS];
+                        for (var i_8 = 0, l_5 = rawStrings.length; i_8 < l_5; ++i_8) {
+                            eventData.strings.push(ObjectDataParser._getParameter(rawStrings, i_8, null));
+                        }
+                    }
+                    events.push(eventData);
+                }
             }
         };
         /**
@@ -7750,16 +8535,16 @@ var dragonBones;
                 }
                 slot._replacedDisplayDataSet[displayIndex] = displayData;
                 if (displayData.type == 1 /* Armature */) {
-                    var childArmature = this.buildArmature(displayData.name, dataPackage.dataName, null, dataPackage.textureAtlasName);
+                    var childArmature = this.buildArmature(displayData.path, dataPackage.dataName, null, dataPackage.textureAtlasName);
                     displayList[displayIndex] = childArmature;
                 }
                 else {
                     if (!displayData.texture || dataPackage.textureAtlasName) {
-                        displayData.texture = this._getTextureData(dataPackage.textureAtlasName || dataPackage.dataName, displayData.name);
+                        displayData.texture = this._getTextureData(dataPackage.textureAtlasName || dataPackage.dataName, displayData.path);
                     }
                     if (displayData.mesh ||
                         (displayIndex < slot._displayDataSet.displays.length && slot._displayDataSet.displays[displayIndex].mesh)) {
-                        displayList[displayIndex] = slot.MeshDisplay;
+                        displayList[displayIndex] = slot.meshDisplay;
                     }
                     else {
                         displayList[displayIndex] = slot.rawDisplay;
@@ -7968,8 +8753,8 @@ var dragonBones;
             for (var i in this._textureAtlasDataMap) {
                 if (disposeData) {
                     var textureAtlasDataList = this._textureAtlasDataMap[i];
-                    for (var i_6 = 0, l = textureAtlasDataList.length; i_6 < l; ++i_6) {
-                        textureAtlasDataList[i_6].returnToPool();
+                    for (var i_9 = 0, l = textureAtlasDataList.length; i_9 < l; ++i_9) {
+                        textureAtlasDataList[i_9].returnToPool();
                     }
                 }
                 delete this._textureAtlasDataMap[i];
@@ -8038,14 +8823,14 @@ var dragonBones;
                     for (var i = 0, l = slots.length; i < l; ++i) {
                         var toSlot = slots[i];
                         var toSlotDisplayList = toSlot.displayList;
-                        for (var i_7 = 0, l_3 = toSlotDisplayList.length; i_7 < l_3; ++i_7) {
-                            var toDisplayObject = toSlotDisplayList[i_7];
+                        for (var i_10 = 0, l_6 = toSlotDisplayList.length; i_10 < l_6; ++i_10) {
+                            var toDisplayObject = toSlotDisplayList[i_10];
                             if (toDisplayObject instanceof dragonBones.Armature) {
                                 var displays = dataPackage.skin.getSlot(toSlot.name).displays;
-                                if (i_7 < displays.length) {
-                                    var fromDisplayData = displays[i_7];
+                                if (i_10 < displays.length) {
+                                    var fromDisplayData = displays[i_10];
                                     if (fromDisplayData.type == 1 /* Armature */) {
-                                        this.copyAnimationsToArmature(toDisplayObject, fromDisplayData.name, fromSkinName, fromDragonBonesDataName, ifRemoveOriginalAnimationList);
+                                        this.copyAnimationsToArmature(toDisplayObject, fromDisplayData.path, fromSkinName, fromDragonBonesDataName, ifRemoveOriginalAnimationList);
                                     }
                                 }
                             }
@@ -8075,7 +8860,7 @@ var dragonBones;
                 if (slotDisplayDataSet) {
                     for (var i = 0, l = slotDisplayDataSet.displays.length; i < l; ++i) {
                         var displayData = slotDisplayDataSet.displays[i];
-                        if (displayData.name == displayName) {
+                        if (displayData.path == displayName) {
                             this._replaceSlotDisplay(dataPackage, displayData, slot, displayIndex);
                             break;
                         }

@@ -59,6 +59,7 @@ namespace dragonBones {
 
         private _delayDispose: boolean;
         private _lockDispose: boolean;
+        private _debugDraw: boolean;
         /**
          * @internal
          * @private
@@ -113,6 +114,7 @@ namespace dragonBones {
 
             this._delayDispose = false;
             this._lockDispose = false;
+            this._debugDraw = false;
             this._bonesDirty = false;
             this._slotsDirty = false;
             this._replacedTexture = null;
@@ -250,9 +252,8 @@ namespace dragonBones {
                 const slotData = sortedSlots[slotIndex];
                 const slot = this.getSlot(slotData.name);
 
-                if (slot && slot._zOrder != i) {
-                    slot._zOrder = i;
-                    slot._zOrderDirty = true;
+                if (slot) {
+                    slot._setZorder(i);
                 }
             }
 
@@ -338,8 +339,9 @@ namespace dragonBones {
             }
 
             //
-            if (DragonBones.debugDraw) {
-                self._display._debugDraw();
+            if (DragonBones.debugDraw || self._debugDraw) {
+                self._debugDraw = DragonBones.debugDraw;
+                self._display._debugDraw(self._debugDraw);
             }
 
             if (!self._lockDispose) {
@@ -396,6 +398,125 @@ namespace dragonBones {
             if (self._delayDispose) {
                 self.returnToPool();
             }
+        }
+        /**
+         * @language zh_CN
+         * 判断指定的点是否在所有插槽的自定义包围盒内。
+         * @param x 点的水平坐标。（骨架内坐标系）
+         * @param y 点的垂直坐标。（骨架内坐标系）
+         * @param color 指定的包围盒颜色。 [0: 与所有包围盒进行判断, N: 仅当包围盒的颜色为 N 时才进行判断]
+         * @version DragonBones 4.5
+         */
+        public containsPoint(x: number, y: number, color: number = 0): Slot {
+            for (let i = 0, l = this._slots.length; i < l; ++i) {
+                const slot = this._slots[i];
+                if (slot.containsPoint(x, y, color)) {
+                    return slot;
+                }
+            }
+
+            return null;
+        }
+        /**
+         * @language zh_CN
+         * 判断指定的线段与骨架的所有插槽的自定义包围盒是否相交。
+         * @param xA 线段起点的水平坐标。（骨架内坐标系）
+         * @param yA 线段起点的垂直坐标。（骨架内坐标系）
+         * @param xB 线段终点的水平坐标。（骨架内坐标系）
+         * @param yB 线段终点的垂直坐标。（骨架内坐标系）
+         * @param color 指定的包围盒颜色。 [0: 与所有包围盒进行判断, N: 仅当包围盒的颜色为 N 时才进行判断]
+         * @param intersectionPointA 线段从起点到终点与包围盒相交的第一个交点。（骨架内坐标系）
+         * @param intersectionPointB 线段从终点到起点与包围盒相交的第一个交点。（骨架内坐标系）
+         * @param normalRadians 碰撞点处包围盒切线的法线弧度。 [x: 第一个碰撞点处切线的法线弧度, y: 第二个碰撞点处切线的法线弧度]
+         * @returns 线段从起点到终点相交的第一个自定义包围盒的插槽。
+         * @version DragonBones 4.5
+         */
+        public intersectsSegment(
+            xA: number, yA: number, xB: number, yB: number,
+            color: number = 0,
+            intersectionPointA: { x: number, y: number } = null,
+            intersectionPointB: { x: number, y: number } = null,
+            normalRadians: { x: number, y: number } = null
+        ): Slot {
+            const isV = xA == xB;
+            let dMin = 0;
+            let dMax = 0;
+            let intXA = 0;
+            let intYA = 0;
+            let intXB = 0;
+            let intYB = 0;
+            let intAN = 0;
+            let intBN = 0;
+            let intSlotA: Slot = null;
+            let intSlotB: Slot = null;
+
+            for (let i = 0, l = this._slots.length; i < l; ++i) {
+                const slot = this._slots[i];
+                const intersectionCount = slot.intersectsSegment(xA, yA, xB, yB, color, intersectionPointA, intersectionPointB, normalRadians);
+                if (intersectionCount > 0) {
+                    if (intersectionPointA || intersectionPointB) {
+                        if (intersectionPointA) {
+                            let d = isV ? intersectionPointA.y - yA : intersectionPointA.x - xA;
+                            if (d < 0) {
+                                d = -d;
+                            }
+
+                            if (!intSlotA || d < dMin) {
+                                dMin = d;
+                                intXA = intersectionPointA.x;
+                                intYA = intersectionPointA.y;
+                                intSlotA = slot;
+
+                                if (normalRadians) {
+                                    intAN = normalRadians.x;
+                                }
+                            }
+                        }
+
+                        if (intersectionPointB) {
+                            let d = intersectionPointB.x - xA;
+                            if (d < 0) {
+                                d = -d;
+                            }
+
+                            if (!intSlotB || d > dMax) {
+                                dMax = d;
+                                intXB = intersectionPointB.x;
+                                intYB = intersectionPointB.y;
+                                intSlotB = slot;
+
+                                if (normalRadians) {
+                                    intBN = normalRadians.y;
+                                }
+                            }
+                        }
+                    }
+                    else {
+                        intSlotA = slot;
+                        break;
+                    }
+                }
+            }
+
+            if (intSlotA && intersectionPointA) {
+                intersectionPointA.x = intXA;
+                intersectionPointA.y = intYA;
+
+                if (normalRadians) {
+                    normalRadians.x = intAN;
+                }
+            }
+
+            if (intSlotB && intersectionPointB) {
+                intersectionPointB.x = intXB;
+                intersectionPointB.y = intYB;
+
+                if (normalRadians) {
+                    normalRadians.y = intBN;
+                }
+            }
+
+            return intSlotA;
         }
         /**
          * @language zh_CN
@@ -636,8 +757,8 @@ namespace dragonBones {
          * @returns  [true: 包含, false: 不包含]
          * @version DragonBones 3.0
          */
-        public hasEventListener(type: EventStringType): void {
-            this._display.hasEvent(type);
+        public hasEventListener(type: EventStringType): boolean {
+            return this._display.hasEvent(type);
         }
         /**
          * @language zh_CN

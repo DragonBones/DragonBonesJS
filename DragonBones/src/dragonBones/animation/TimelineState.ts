@@ -25,6 +25,10 @@ namespace dragonBones {
         protected _onCrossFrame(frame: AnimationFrameData): void {
             const self = this;
 
+            if (self._animationState._fadeState < 0) { //
+                return;
+            }
+
             if (self._animationState.actionEnabled) {
                 const actions = frame.actions;
                 for (let i = 0, l = actions.length; i < l; ++i) {
@@ -54,8 +58,10 @@ namespace dragonBones {
                     ).hasEvent(eventType)
                 ) {
                     const eventObject = BaseObject.borrowObject(EventObject);
+                    eventObject.name = eventData.name;
                     eventObject.animationState = self._animationState;
                     eventObject.frame = frame;
+                    eventObject.data = eventData;
 
                     if (eventData.bone) {
                         eventObject.bone = self._armature.getBone(eventData.bone.name);
@@ -64,9 +70,6 @@ namespace dragonBones {
                     if (eventData.slot) {
                         eventObject.slot = self._armature.getSlot(eventData.slot.name);
                     }
-
-                    eventObject.name = eventData.name;
-                    eventObject.data = eventData.data;
 
                     self._armature._bufferEvent(eventObject, eventType);
                 }
@@ -155,6 +158,7 @@ namespace dragonBones {
                         eventObject.animationState = self._animationState;
                         self._armature._bufferEvent(eventObject, EventObject.COMPLETE);
                     }
+
                     self._currentFrame = null;
                 }
             }
@@ -202,7 +206,6 @@ namespace dragonBones {
         private _tweenScale: number;
         private _boneTransform: Transform;
         private _originalTransform: Transform;
-        private _guideCurve: Array<number>;
         private _transform: Transform = new Transform();
         private _currentTransform: Transform = new Transform();
         private _durationTransform: Transform = new Transform();
@@ -223,7 +226,6 @@ namespace dragonBones {
             this._tweenScale = TweenType.None;
             this._boneTransform = null;
             this._originalTransform = null;
-            this._guideCurve = null;
             this._transform.identity();
             this._currentTransform.identity();
             this._durationTransform.identity();
@@ -239,7 +241,6 @@ namespace dragonBones {
             self._tweenTransform = TweenType.Once;
             self._tweenRotate = TweenType.Once;
             self._tweenScale = TweenType.Once;
-            self._guideCurve = self._currentFrame.guideCurve;
 
             if (self._keyFrameCount > 1 && (self._tweenEasing != DragonBones.NO_TWEEN || self._curve)) {
                 const nextFrame = self._currentFrame.next;
@@ -318,10 +319,6 @@ namespace dragonBones {
                     }
                     else {
                         tweenProgress = self._tweenProgress;
-                    }
-
-                    if (self._guideCurve) {
-                        //const TweenTimelineState._getCurveValue(tweenProgress, self._guideCurve);
                     }
 
                     if (self._animationState.additiveBlending) { // Additive blending.
@@ -469,72 +466,56 @@ namespace dragonBones {
                 return;
             }
 
-            if (self.slot._displayDataSet) {
-                const displayIndex = self._currentFrame.displayIndex;
-                if (self.slot.displayIndex >= 0 && displayIndex >= 0) {
-                    if (self.slot._displayDataSet.displays.length > 1) {
-                        self.slot._setDisplayIndex(displayIndex);
-                    }
-                }
-                else {
-                    self.slot._setDisplayIndex(displayIndex);
-                }
-
+            if (self._animationState._fadeState >= 0) { //
+                self.slot._setDisplayIndex(self._currentFrame.displayIndex);
                 self.slot._updateMeshData(true);
             }
 
-            if (self._currentFrame.displayIndex >= 0) {
-                self._tweenColor = TweenType.None;
+            self._tweenColor = TweenType.None;
 
-                const currentColor = self._currentFrame.color;
+            const currentColor = self._currentFrame.color;
 
-                if (self._keyFrameCount > 1 && (self._tweenEasing != DragonBones.NO_TWEEN || self._curve)) {
-                    const nextFrame = self._currentFrame.next;
-                    const nextColor = nextFrame.color;
-                    if (currentColor != nextColor && nextFrame.displayIndex >= 0) {
-                        self._durationColor.alphaMultiplier = nextColor.alphaMultiplier - currentColor.alphaMultiplier;
-                        self._durationColor.redMultiplier = nextColor.redMultiplier - currentColor.redMultiplier;
-                        self._durationColor.greenMultiplier = nextColor.greenMultiplier - currentColor.greenMultiplier;
-                        self._durationColor.blueMultiplier = nextColor.blueMultiplier - currentColor.blueMultiplier;
-                        self._durationColor.alphaOffset = nextColor.alphaOffset - currentColor.alphaOffset;
-                        self._durationColor.redOffset = nextColor.redOffset - currentColor.redOffset;
-                        self._durationColor.greenOffset = nextColor.greenOffset - currentColor.greenOffset;
-                        self._durationColor.blueOffset = nextColor.blueOffset - currentColor.blueOffset;
+            if (self._keyFrameCount > 1 && (self._tweenEasing != DragonBones.NO_TWEEN || self._curve)) {
+                const nextFrame = self._currentFrame.next;
+                const nextColor = nextFrame.color;
+                if (currentColor != nextColor && nextFrame.displayIndex >= 0) {
+                    self._durationColor.alphaMultiplier = nextColor.alphaMultiplier - currentColor.alphaMultiplier;
+                    self._durationColor.redMultiplier = nextColor.redMultiplier - currentColor.redMultiplier;
+                    self._durationColor.greenMultiplier = nextColor.greenMultiplier - currentColor.greenMultiplier;
+                    self._durationColor.blueMultiplier = nextColor.blueMultiplier - currentColor.blueMultiplier;
+                    self._durationColor.alphaOffset = nextColor.alphaOffset - currentColor.alphaOffset;
+                    self._durationColor.redOffset = nextColor.redOffset - currentColor.redOffset;
+                    self._durationColor.greenOffset = nextColor.greenOffset - currentColor.greenOffset;
+                    self._durationColor.blueOffset = nextColor.blueOffset - currentColor.blueOffset;
 
-                        if (
-                            self._durationColor.alphaMultiplier != 0 ||
-                            self._durationColor.redMultiplier != 0 ||
-                            self._durationColor.greenMultiplier != 0 ||
-                            self._durationColor.blueMultiplier != 0 ||
-                            self._durationColor.alphaOffset != 0 ||
-                            self._durationColor.redOffset != 0 ||
-                            self._durationColor.greenOffset != 0 ||
-                            self._durationColor.blueOffset != 0
-                        ) {
-                            self._tweenColor = TweenType.Always;
-                        }
-                    }
-                }
-
-                if (self._tweenColor == TweenType.None) {
                     if (
-                        self._slotColor.alphaMultiplier != currentColor.alphaMultiplier ||
-                        self._slotColor.redMultiplier != currentColor.redMultiplier ||
-                        self._slotColor.greenMultiplier != currentColor.greenMultiplier ||
-                        self._slotColor.blueMultiplier != currentColor.blueMultiplier ||
-                        self._slotColor.alphaOffset != currentColor.alphaOffset ||
-                        self._slotColor.redOffset != currentColor.redOffset ||
-                        self._slotColor.greenOffset != currentColor.greenOffset ||
-                        self._slotColor.blueOffset != currentColor.blueOffset
+                        self._durationColor.alphaMultiplier != 0 ||
+                        self._durationColor.redMultiplier != 0 ||
+                        self._durationColor.greenMultiplier != 0 ||
+                        self._durationColor.blueMultiplier != 0 ||
+                        self._durationColor.alphaOffset != 0 ||
+                        self._durationColor.redOffset != 0 ||
+                        self._durationColor.greenOffset != 0 ||
+                        self._durationColor.blueOffset != 0
                     ) {
-                        self._tweenColor = TweenType.Once;
+                        self._tweenColor = TweenType.Always;
                     }
                 }
             }
-            else {
-                self._tweenEasing = DragonBones.NO_TWEEN;
-                self._curve = null;
-                self._tweenColor = TweenType.None;
+
+            if (self._tweenColor == TweenType.None) {
+                if (
+                    self._slotColor.alphaMultiplier != currentColor.alphaMultiplier ||
+                    self._slotColor.redMultiplier != currentColor.redMultiplier ||
+                    self._slotColor.greenMultiplier != currentColor.greenMultiplier ||
+                    self._slotColor.blueMultiplier != currentColor.blueMultiplier ||
+                    self._slotColor.alphaOffset != currentColor.alphaOffset ||
+                    self._slotColor.redOffset != currentColor.redOffset ||
+                    self._slotColor.greenOffset != currentColor.greenOffset ||
+                    self._slotColor.blueOffset != currentColor.blueOffset
+                ) {
+                    self._tweenColor = TweenType.Once;
+                }
             }
         }
 
@@ -588,7 +569,7 @@ namespace dragonBones {
                 const weight = self._animationState._weightResult;
                 if (weight > 0) {
                     if (self._animationState._fadeState != 0) {
-                        const fadeProgress = self._animationState._fadeProgress;
+                        const fadeProgress = Math.pow(self._animationState._fadeProgress, 4);
                         self._slotColor.alphaMultiplier += (self._color.alphaMultiplier - self._slotColor.alphaMultiplier) * fadeProgress;
                         self._slotColor.redMultiplier += (self._color.redMultiplier - self._slotColor.redMultiplier) * fadeProgress;
                         self._slotColor.greenMultiplier += (self._color.greenMultiplier - self._slotColor.greenMultiplier) * fadeProgress;

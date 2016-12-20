@@ -71,6 +71,11 @@ namespace dragonBones {
          * @internal
          * @private
          */
+        public _onFadeInComplete: boolean;
+        /**
+         * @internal
+         * @private
+         */
         public _fadeState: number;
         /**
          * @internal
@@ -195,6 +200,7 @@ namespace dragonBones {
             this.autoFadeOutTime = -1;
             this.fadeTotalTime = 0;
 
+            this._onFadeInComplete = false;
             this._fadeState = 0;
             this._layer = 0;
             this._position = 0;
@@ -217,7 +223,7 @@ namespace dragonBones {
             this._slotTimelines.length = 0;
             this._ffdTimelines.length = 0;
         }
-        
+
         private _updateTimelineStates(): void {
             let time = this._time;
             if (!this._animationData.hasAsynchronyTimeline) {
@@ -338,8 +344,6 @@ namespace dragonBones {
 
                 if (self._fadeTime >= self.fadeTotalTime) {
                     if (self._fadeState > 0) {
-                        self._isPausePlayhead = true;
-                        
                         if (eventDispatcher.hasEvent(EventObject.FADE_OUT_COMPLETE)) {
                             const event = BaseObject.borrowObject(EventObject);
                             event.animationState = this;
@@ -347,6 +351,7 @@ namespace dragonBones {
                         }
                     }
                     else {
+                        self._onFadeInComplete = true;
                         self._isPausePlayhead = false;
                         self._fadeState = 0;
 
@@ -436,32 +441,36 @@ namespace dragonBones {
                 const slot = slots[i];
                 const slotTimelineName = slot.name;
                 const parentTimelineName = slot.parent.name;
+                const displayData = slot.displayData;
 
-                if (slot._meshData) {
-                    const displayIndex = slot.displayIndex;
-                    const rawMeshData = displayIndex < slot._displayDataSet.displays.length ? slot._displayDataSet.displays[displayIndex].mesh : null;
+                if (!displayData) {
+                    continue;
+                }
 
-                    if (slot._meshData == rawMeshData) {
-                        const ffdTimelineData = this._animationData.getFFDTimeline(this._armature._skinData.name, slotTimelineName, displayIndex);
-                        if (ffdTimelineData && this.containsBoneMask(parentTimelineName)) { // && !_isFadeOut
-                            let ffdTimelineState = ffdTimelineStates[slotTimelineName];
-                            if (ffdTimelineState && ffdTimelineState._timeline == ffdTimelineData) { // Remove ffd timeline from map.
-                                delete ffdTimelineStates[slotTimelineName];
-                            }
-                            else { // Create new ffd timeline.
-                                ffdTimelineState = BaseObject.borrowObject(FFDTimelineState);
-                                ffdTimelineState.slot = slot;
-                                ffdTimelineState.fadeIn(this._armature, this, ffdTimelineData, time);
-                                this._ffdTimelines.push(ffdTimelineState);
-                            }
+                if (slot._meshData && slot._meshData == displayData.mesh) {
+                    const ffdTimelineData = this._animationData.getFFDTimeline(
+                        this._armature._skinData.name, slotTimelineName,
+                        !displayData.share ? displayData.name : (displayData.inheritAnimation ? displayData.share.name : displayData.name)
+                    );
+                    
+                    if (ffdTimelineData && this.containsBoneMask(parentTimelineName)) { // && !_isFadeOut
+                        let ffdTimelineState = ffdTimelineStates[slotTimelineName];
+                        if (ffdTimelineState && ffdTimelineState._timeline == ffdTimelineData) { // Remove ffd timeline from map.
+                            delete ffdTimelineStates[slotTimelineName];
                         }
-                        else {
-                            for (let iF = 0, lF = slot._ffdVertices.length; iF < lF; ++iF) { // Clear slot ffd.
-                                slot._ffdVertices[iF] = 0;
-                            }
-
-                            slot._ffdDirty = true;
+                        else { // Create new ffd timeline.
+                            ffdTimelineState = BaseObject.borrowObject(FFDTimelineState);
+                            ffdTimelineState.slot = slot;
+                            ffdTimelineState.fadeIn(this._armature, this, ffdTimelineData, time);
+                            this._ffdTimelines.push(ffdTimelineState);
                         }
+                    }
+                    else {
+                        for (let iF = 0, lF = slot._ffdVertices.length; iF < lF; ++iF) { // Clear slot ffd.
+                            slot._ffdVertices[iF] = 0;
+                        }
+
+                        slot._ffdDirty = true;
                     }
                 }
             }
@@ -481,6 +490,7 @@ namespace dragonBones {
             const self = this;
 
             // Update fade time. (Still need to be update even if the passedTime is zero)
+            self._onFadeInComplete = false;
             if (self._fadeState != 0) {
                 self._advanceFadeTime(passedTime);
             }
@@ -495,11 +505,11 @@ namespace dragonBones {
             self._weightResult = self.weight * self._fadeProgress * weightLeft;
 
             if (self._weightResult != 0) {
-                const isCacheEnabled = self._fadeProgress >= 1 && index == 0 && self._armature.cacheFrameRate > 0;
-                const cacheTimeToFrameScale = self._animationData.cacheTimeToFrameScale;
+                const cacheFrameRate = self._animationData.cacheFrameRate;
+                const isCacheEnabled = self._fadeProgress >= 1 && index == 0 && cacheFrameRate > 0;
                 let isUpdatesTimeline = true;
                 let isUpdatesBoneTimeline = true;
-                let time = cacheTimeToFrameScale * 2;
+                let time = cacheFrameRate * 2;
                 time = isCacheEnabled ? (Math.floor(self._time * time) / time) : self._time; // Cache time internval.
 
                 // Update main timeline.                
@@ -513,7 +523,7 @@ namespace dragonBones {
                 }
 
                 if (isCacheEnabled) {
-                    const cacheFrameIndex = Math.floor(self._timeline._currentTime * cacheTimeToFrameScale); // uint
+                    const cacheFrameIndex = Math.floor(self._timeline._currentTime * cacheFrameRate); // uint
                     if (self._armature._cacheFrameIndex == cacheFrameIndex) { // Same cache.
                         isUpdatesTimeline = false;
                         isUpdatesBoneTimeline = false;

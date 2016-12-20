@@ -2,7 +2,18 @@ namespace dragonBones {
     /**
      * @private
      */
+    export const enum DisplayType {
+        None = -1,
+        Image = 0,
+        Armature = 1,
+        Mesh = 2,
+        BoundingBox = 3
+    }
+    /**
+     * @private
+     */
     export const enum ArmatureType {
+        None = -1,
         Armature = 0,
         MovieClip = 1,
         Stage = 2
@@ -10,15 +21,17 @@ namespace dragonBones {
     /**
      * @private
      */
-    export const enum DisplayType {
-        Image = 0,
-        Armature = 1,
-        Mesh = 2
+    export const enum BoundingBoxType {
+        None = -1,
+        Rectangle = 0,
+        Ellipse = 1,
+        Polygon = 2
     }
     /**
      * @private
      */
     export const enum ExtensionType {
+        None = -1,
         FFD = 0,
         AdjustColor = 10,
         BevelFilter = 11,
@@ -32,6 +45,7 @@ namespace dragonBones {
      * @private
      */
     export const enum EventType {
+        None = -1,
         Frame = 10,
         Sound = 11
     }
@@ -39,6 +53,7 @@ namespace dragonBones {
      * @private
      */
     export const enum ActionType {
+        None = -1,
         Play = 0,
         Stop = 1,
         GotoAndPlay = 2,
@@ -50,6 +65,7 @@ namespace dragonBones {
      * @private
      */
     export const enum BlendMode {
+        None = -1,
         Normal = 0,
         Add = 1,
         Alpha = 2,
