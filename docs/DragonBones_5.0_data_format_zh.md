@@ -7,7 +7,7 @@
     // 数据版本
     "version": "5.0",
     
-    // 兼容版本
+    // 最低兼容版本
     "compatibleVersion": "4.5",
 
     // 动画帧频
@@ -405,7 +405,7 @@
 # 5.0 相对 [4.5](DragonBones_4.5_data_format_zh.md) 格式变化
 
 ## Root
-* 增加 "compatibleVersion" 属性。
+* 增加 "compatibleVersion" 属性，代表兼容的最低版本。
 * 删除 "isGlobal" 属性。
 	* 不再支持绝对坐标，只支持相对坐标，相当于isGlobal设置为0。
 	* isGlobal为1的情况（绝对坐标）只存在于使用2.3及以前的数据格式。
