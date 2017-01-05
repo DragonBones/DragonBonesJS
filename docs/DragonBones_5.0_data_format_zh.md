@@ -402,7 +402,7 @@
 ```
 
 ------------------------------
-# 5.0 相对 4.5 格式变化
+# 5.0 相对 [4.5](../DragonBones_5.0_data_format_zh.md) 格式变化
 
 ## Root
 * 增加 "compatibleVersion" 属性。
