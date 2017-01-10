@@ -45,6 +45,7 @@ var demosPixi;
             this._stage.interactive = true;
             this._stage.on("touchstart", touchHandler, this);
             this._stage.on("mousedown", touchHandler, this);
+            // Replace armature texture.
             document.addEventListener("keydown", function (event) {
                 if (_this._armatureDisplay.armature.replacedTexture) {
                     _this._armatureDisplay.armature.replacedTexture = null;
@@ -55,8 +56,7 @@ var demosPixi;
             });
         };
         ReplaceSlotDisplay.prototype._replaceDisplay = function () {
-            this._displayIndex++;
-            this._displayIndex %= this._replaceDisplays.length;
+            this._displayIndex = (this._displayIndex + 1) % this._replaceDisplays.length;
             var replaceDisplayName = this._replaceDisplays[this._displayIndex];
             if (replaceDisplayName.indexOf("mesh") >= 0) {
                 switch (replaceDisplayName) {

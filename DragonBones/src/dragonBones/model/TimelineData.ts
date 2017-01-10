@@ -19,20 +19,23 @@ namespace dragonBones {
          * @private
          */
         public frames: Array<T> = [];
-
+        /**
+         * @private
+         */
         public constructor() {
             super();
         }
         /**
-         * @inheritDoc
+         * @private
          */
         protected _onClear(): void {
             let prevFrame: T = null;
             for (let i = 0, l = this.frames.length; i < l; ++i) { // Find key frame data.
                 const frame: T = this.frames[i];
-                if (prevFrame && frame != prevFrame) {
+                if (prevFrame && frame !== prevFrame) {
                     prevFrame.returnToPool();
                 }
+                
                 prevFrame = frame;
             }
 
@@ -53,72 +56,42 @@ namespace dragonBones {
      * @private
      */
     export class BoneTimelineData extends TimelineData<BoneFrameData> {
-        public static cacheFrame(cacheFrames: Array<Matrix>, cacheFrameIndex: number, globalTransformMatrix: Matrix): Matrix {
-            const cacheMatrix = cacheFrames[cacheFrameIndex] = new Matrix();
-            cacheMatrix.copyFrom(globalTransformMatrix);
-
-            return cacheMatrix;
-        }
         public static toString(): string {
             return "[class dragonBones.BoneTimelineData]";
         }
 
-        public bone: BoneData;
         public originalTransform: Transform = new Transform();
-        public cachedFrames: Array<Matrix> = [];
+        public bone: BoneData;
 
         public constructor() {
             super();
         }
-        /**
-         * @inheritDoc
-         */
+
         protected _onClear(): void {
             super._onClear();
 
-            this.bone = null;
             this.originalTransform.identity();
-            this.cachedFrames.length = 0;
-        }
-
-        public cacheFrames(cacheFrameCount: number): void {
-            this.cachedFrames.length = 0;
-            this.cachedFrames.length = cacheFrameCount;
+            this.bone = null;
         }
     }
     /**
      * @private
      */
     export class SlotTimelineData extends TimelineData<SlotFrameData> {
-        public static cacheFrame(cacheFrames: Array<Matrix>, cacheFrameIndex: number, globalTransformMatrix: Matrix): Matrix {
-            const cacheMatrix = cacheFrames[cacheFrameIndex] = new Matrix();
-            cacheMatrix.copyFrom(globalTransformMatrix);
-
-            return cacheMatrix;
-        }
         public static toString(): string {
             return "[class dragonBones.SlotTimelineData]";
         }
 
         public slot: SlotData;
-        public cachedFrames: Array<Matrix> = [];
 
         public constructor() {
             super();
         }
-        /**
-         * @inheritDoc
-         */
+
         protected _onClear(): void {
             super._onClear();
 
             this.slot = null;
-            this.cachedFrames.length = 0;
-        }
-
-        public cacheFrames(cacheFrameCount: number): void {
-            this.cachedFrames.length = 0;
-            this.cachedFrames.length = cacheFrameCount;
         }
     }
     /**
@@ -130,15 +103,13 @@ namespace dragonBones {
         }
 
         public skin: SkinData;
-        public slot: SlotDisplayDataSet;
+        public slot: SkinSlotData;
         public display: DisplayData;
 
         public constructor() {
             super();
         }
-        /**
-         * @inheritDoc
-         */
+
         protected _onClear(): void {
             super._onClear();
 

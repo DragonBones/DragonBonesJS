@@ -8,42 +8,55 @@ namespace dragonBones {
         /**
          * @language zh_CN
          * 事件对象。
+         * @see dragonBones.EventObject
          * @version DragonBones 4.5
          */
         public get eventObject(): EventObject {
             return this.data;
         }
         /**
+         * @internal
          * @private
          */
         public constructor(type: EventStringType, bubbles?: boolean, cancelable?: boolean, data?: any) {
             super(type, bubbles, cancelable, data);
         }
+
         /**
+         * @deprecated
+         * @see #eventObject
          * @see dragonBones.EventObject#animationName
          */
         public get animationName(): string {
             return this.eventObject.animationState.name;
         }
         /**
+         * @deprecated
+         * @see #eventObject
          * @see dragonBones.EventObject#armature
          */
         public get armature(): Armature {
             return this.eventObject.armature;
         }
         /**
+         * @deprecated
+         * @see #eventObject
          * @see dragonBones.EventObject#bone
          */
         public get bone(): Bone {
             return this.eventObject.bone;
         }
         /**
+         * @deprecated
+         * @see #eventObject
          * @see dragonBones.EventObject#slot
          */
         public get slot(): Slot {
             return this.eventObject.slot;
         }
         /**
+         * @deprecated
+         * @see #eventObject
          * @see dragonBones.EventObject#animationState
          */
         public get animationState(): AnimationState {
@@ -71,40 +84,48 @@ namespace dragonBones {
         public get movementID(): string {
             return this.animationName;
         }
-
         /**
+         * @deprecated
          * @see dragonBones.EventObject.START
          */
         public static START: string = EventObject.START;
         /**
+         * @deprecated
          * @see dragonBones.EventObject.LOOP_COMPLETE
          */
         public static LOOP_COMPLETE: string = EventObject.LOOP_COMPLETE;
         /**
+         * @deprecated
          * @see dragonBones.EventObject.COMPLETE
          */
         public static COMPLETE: string = EventObject.COMPLETE;
         /**
+         * @deprecated
          * @see dragonBones.EventObject.FADE_IN
          */
         public static FADE_IN: string = EventObject.FADE_IN;
         /**
+         * @deprecated
          * @see dragonBones.EventObject.FADE_IN_COMPLETE
          */
         public static FADE_IN_COMPLETE: string = EventObject.FADE_IN_COMPLETE;
         /**
+         * @deprecated
          * @see dragonBones.EventObject.FADE_OUT
          */
         public static FADE_OUT: string = EventObject.FADE_OUT;
         /**
+         * @deprecated
          * @see dragonBones.EventObject.FADE_OUT_COMPLETE
          */
         public static FADE_OUT_COMPLETE: string = EventObject.FADE_OUT_COMPLETE;
         /**
+         * @deprecated
          * @see dragonBones.EventObject.FRAME_EVENT
          */
         public static FRAME_EVENT: string = EventObject.FRAME_EVENT;
         /**
+         * @deprecated
          * @see dragonBones.EventObject.SOUND_EVENT
          */
         public static SOUND_EVENT: string = EventObject.SOUND_EVENT;
@@ -129,24 +150,17 @@ namespace dragonBones {
          */
         public static SOUND: string = EventObject.SOUND_EVENT;
     }
-
     /**
      * @inheritDoc
      */
-    export class EgretArmatureDisplay extends egret.DisplayObjectContainer implements IArmatureDisplay {
+    export class EgretArmatureDisplay extends egret.DisplayObjectContainer implements IArmatureDisplay, IEventDispatcher {
+        private _disposeProxy: boolean;
         /**
          * @internal
          * @private
          */
         public _armature: Armature;
-        /**
-         * @internal
-         * @private
-         */
-        public _subTextures: Map<egret.Texture> = {};
-
         private _debugDrawer: egret.Sprite;
-
         /**
          * @internal
          * @private
@@ -155,39 +169,34 @@ namespace dragonBones {
             super();
         }
         /**
-         * @inheritDoc
+         * @internal
+         * @private
          */
         public _onClear(): void {
-            for (let i in this._subTextures) {
-                //this._subTextures[i].dispose();
-                delete this._subTextures[i];
-            }
-
-            if (this._armature) {
-                this.advanceTimeBySelf(false);
-            }
-
+            this._disposeProxy = false;
             this._armature = null;
             this._debugDrawer = null;
         }
         /**
-         * @inheritDoc
+         * @internal
+         * @private
          */
-        public _dispatchEvent(eventObject: EventObject): void {
-            const event = egret.Event.create(EgretEvent, eventObject.type);
+        public _dispatchEvent(type: EventStringType, eventObject: EventObject): void {
+            const event = egret.Event.create(EgretEvent, type);
             event.data = eventObject;
-            this.dispatchEvent(event);
+            super.dispatchEvent(event);
             egret.Event.release(event);
         }
         /**
-         * @inheritDoc
+         * @internal
+         * @private
          */
-        public _debugDraw(isEnabled: Boolean): void {
-            if (!this._debugDrawer) {
-                this._debugDrawer = new egret.Sprite();
-            }
-
+        public _debugDraw(isEnabled: boolean): void {
             if (isEnabled) {
+                if (!this._debugDrawer) {
+                    this._debugDrawer = new egret.Sprite();
+                }
+
                 this.addChild(this._debugDrawer);
                 this._debugDrawer.graphics.clear();
 
@@ -200,22 +209,21 @@ namespace dragonBones {
                     const endX = startX + bone.globalTransformMatrix.a * boneLength;
                     const endY = startY + bone.globalTransformMatrix.b * boneLength;
 
-                    this._debugDrawer.graphics.lineStyle(2, bone.ik ? 0xFF0000 : 0x00FFFF, 0.7);
+                    this._debugDrawer.graphics.lineStyle(2.0, bone.ik ? 0xFF0000 : 0x00FFFF, 0.7);
                     this._debugDrawer.graphics.moveTo(startX, startY);
                     this._debugDrawer.graphics.lineTo(endX, endY);
-                    this._debugDrawer.graphics.lineStyle(0, 0, 0);
+                    this._debugDrawer.graphics.lineStyle(0.0, 0, 0);
                     this._debugDrawer.graphics.beginFill(0x00FFFF, 0.7);
-                    this._debugDrawer.graphics.drawCircle(startX, startY, 3);
+                    this._debugDrawer.graphics.drawCircle(startX, startY, 3.0);
                     this._debugDrawer.graphics.endFill();
                 }
 
                 const slots = this._armature.getSlots();
                 for (let i = 0, l = slots.length; i < l; ++i) {
                     const slot = slots[i];
-                    const displayData = slot.displayData;
+                    const boundingBoxData = slot.boundingBoxData;
 
-                    if (displayData && displayData.boundingBox) {
-                        const boundingBox = displayData.boundingBox;
+                    if (boundingBoxData) {
                         let child = this._debugDrawer.getChildByName(slot.name) as egret.Shape;
                         if (!child) {
                             child = new egret.Shape();
@@ -224,25 +232,25 @@ namespace dragonBones {
                         }
 
                         child.graphics.clear();
-                        child.graphics.beginFill(0xFF00FF, 0.3);
+                        child.graphics.beginFill(boundingBoxData.color ? boundingBoxData.color : 0xFF00FF, 0.3);
 
-                        switch (boundingBox.type) {
+                        switch (boundingBoxData.type) {
                             case BoundingBoxType.Rectangle:
-                                child.graphics.drawRect(-boundingBox.width * 0.5, -boundingBox.height * 0.5, boundingBox.width, boundingBox.height);
+                                child.graphics.drawRect(-boundingBoxData.width * 0.5, -boundingBoxData.height * 0.5, boundingBoxData.width, boundingBoxData.height);
                                 break;
 
                             case BoundingBoxType.Ellipse:
-                                child.graphics.drawEllipse(-boundingBox.width * 0.5, -boundingBox.height * 0.5, boundingBox.width, boundingBox.height);
+                                child.graphics.drawEllipse(-boundingBoxData.width * 0.5, -boundingBoxData.height * 0.5, boundingBoxData.width, boundingBoxData.height);
                                 break;
 
                             case BoundingBoxType.Polygon:
-                                const vertices = boundingBox.vertices;
-                                for (let i = 0, l = boundingBox.vertices.length; i < l; i += 2) {
-                                    if (i == 0) {
-                                        child.graphics.moveTo(vertices[i], vertices[i + 1]);
+                                const vertices = boundingBoxData.vertices;
+                                for (let iA = 0, lA = boundingBoxData.vertices.length; iA < lA; iA += 2) {
+                                    if (iA === 0) {
+                                        child.graphics.moveTo(vertices[iA], vertices[iA + 1]);
                                     }
                                     else {
-                                        child.graphics.lineTo(vertices[i], vertices[i + 1]);
+                                        child.graphics.lineTo(vertices[iA], vertices[iA + 1]);
                                     }
                                 }
                                 break;
@@ -252,14 +260,8 @@ namespace dragonBones {
                         }
 
                         child.graphics.endFill();
-
-                        if (slot._blendIndex == 0) {
-                            slot._blendIndex = 1;
-                            slot["_updateLocalTransformMatrix"]();
-                            slot["_updateGlobalTransformMatrix"]();
-                        }
-
-                        child.$setMatrix(slot.globalTransformMatrix as egret.Matrix, false);
+                        slot._updateTransformAndMatrix();
+                        child.$setMatrix((<any>slot.globalTransformMatrix) as egret.Matrix, false);
                     }
                     else {
                         const child = this._debugDrawer.getChildByName(slot.name);
@@ -269,18 +271,19 @@ namespace dragonBones {
                     }
                 }
             }
-            else if (this._debugDrawer && this.contains(this._debugDrawer)) {
+            else if (this._debugDrawer && this._debugDrawer.parent === this) {
                 this.removeChild(this._debugDrawer);
             }
-
         }
         /**
          * @inheritDoc
          */
-        public _onReplaceTexture(texture: any): void {
-            for (let i in this._subTextures) {
-                //this._subTextures[i].dispose();
-                delete this._subTextures[i];
+        public dispose(disposeProxy: boolean = true): void {
+            this._disposeProxy = disposeProxy;
+
+            if (this._armature) {
+                this._armature.dispose();
+                this._armature = null;
             }
         }
         /**
@@ -304,27 +307,6 @@ namespace dragonBones {
         /**
          * @inheritDoc
          */
-        public dispose(): void {
-            if (this._armature) {
-                this.advanceTimeBySelf(false);
-                this._armature.dispose();
-                this._armature = null;
-            }
-        }
-        /**
-         * @inheritDoc
-         */
-        public advanceTimeBySelf(on: boolean): void {
-            if (on) {
-                EgretFactory._clock.add(this._armature);
-            }
-            else {
-                EgretFactory._clock.remove(this._armature);
-            }
-        }
-        /**
-         * @inheritDoc
-         */
         public get armature(): Armature {
             return this._armature;
         }
@@ -333,6 +315,20 @@ namespace dragonBones {
          */
         public get animation(): Animation {
             return this._armature.animation;
+        }
+
+        /**
+         * @deprecated
+         * @see dragonBones.Animation#timescale
+         * @see dragonBones.Animation#stop()
+         */
+        public advanceTimeBySelf(on: boolean): void {
+            if (on) {
+                this._armature.clock = EgretFactory._clock;
+            }
+            else {
+                this._armature.clock = null;
+            }
         }
     }
 

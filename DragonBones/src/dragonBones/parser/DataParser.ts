@@ -6,7 +6,17 @@ namespace dragonBones {
         protected static DATA_VERSION_2_3: string = "2.3";
         protected static DATA_VERSION_3_0: string = "3.0";
         protected static DATA_VERSION_4_0: string = "4.0";
-        protected static DATA_VERSION: string = "4.5";
+        protected static DATA_VERSION_4_5: string = "4.5";
+        protected static DATA_VERSION_5_0: string = "5.0";
+        protected static DATA_VERSION: string = DataParser.DATA_VERSION_5_0;
+        
+        protected static DATA_VERSIONS: Array<string> = [
+            DataParser.DATA_VERSION_5_0,
+            DataParser.DATA_VERSION_4_5,
+            DataParser.DATA_VERSION_4_0,
+            DataParser.DATA_VERSION_3_0,
+            DataParser.DATA_VERSION_2_3
+        ];
 
         protected static TEXTURE_ATLAS: string = "TextureAtlas";
         protected static SUB_TEXTURE: string = "SubTexture";
@@ -31,8 +41,8 @@ namespace dragonBones {
         protected static Z_ORDER: string = "zOrder";
         protected static FFD: string = "ffd";
         protected static FRAME: string = "frame";
-        protected static EVENTS: string = "events";
         protected static ACTIONS: string = "actions";
+        protected static EVENTS: string = "events";
         protected static INTS: string = "ints";
         protected static FLOATS: string = "floats";
         protected static STRINGS: string = "strings";
@@ -41,25 +51,25 @@ namespace dragonBones {
         protected static TRANSFORM: string = "transform";
         protected static AABB: string = "aabb";
         protected static COLOR: string = "color";
-        protected static FILTER: string = "filter";
 
         protected static VERSION: string = "version";
-        protected static IS_GLOBAL: string = "isGlobal";
+        protected static COMPATIBLE_VERSION: string = "compatibleVersion";
         protected static FRAME_RATE: string = "frameRate";
         protected static TYPE: string = "type";
         protected static SUB_TYPE: string = "subType";
         protected static NAME: string = "name";
         protected static PARENT: string = "parent";
+        protected static TARGET: string = "target";
         protected static SHARE: string = "share";
+        protected static PATH: string = "path";
         protected static LENGTH: string = "length";
-        protected static DATA: string = "data";
         protected static DISPLAY_INDEX: string = "displayIndex";
         protected static BLEND_MODE: string = "blendMode";
         protected static INHERIT_TRANSLATION: string = "inheritTranslation";
         protected static INHERIT_ROTATION: string = "inheritRotation";
         protected static INHERIT_SCALE: string = "inheritScale";
         protected static INHERIT_ANIMATION: string = "inheritAnimation";
-        protected static TARGET: string = "target";
+        protected static INHERIT_FFD: string = "inheritFFD";
         protected static BEND_POSITIVE: string = "bendPositive";
         protected static CHAIN: string = "chain";
         protected static WEIGHT: string = "weight";
@@ -70,11 +80,11 @@ namespace dragonBones {
         protected static OFFSET: string = "offset";
         protected static POSITION: string = "position";
         protected static DURATION: string = "duration";
+        protected static TWEEN_TYPE: string = "tweenType";
         protected static TWEEN_EASING: string = "tweenEasing";
         protected static TWEEN_ROTATE: string = "tweenRotate";
         protected static TWEEN_SCALE: string = "tweenScale";
         protected static CURVE: string = "curve";
-        protected static GUIDE_CURVE: string = "guideCurve";
         protected static EVENT: string = "event";
         protected static SOUND: string = "sound";
         protected static ACTION: string = "action";
@@ -103,17 +113,17 @@ namespace dragonBones {
         protected static SLOT_POSE: string = "slotPose";
         protected static BONE_POSE: string = "bonePose";
 
-        protected static TWEEN: string = "tween";
-        protected static KEY: string = "key";
-
         protected static COLOR_TRANSFORM: string = "colorTransform";
         protected static TIMELINE: string = "timeline";
+        protected static IS_GLOBAL: string = "isGlobal";
         protected static PIVOT_X: string = "pX";
         protected static PIVOT_Y: string = "pY";
         protected static Z: string = "z";
         protected static LOOP: string = "loop";
         protected static AUTO_TWEEN: string = "autoTween";
         protected static HIDE: string = "hide";
+
+        protected static DEFAULT_NAME: string = "__default";
 
         protected static _getArmatureType(value: string): ArmatureType {
             switch (value.toLowerCase()) {
@@ -218,39 +228,18 @@ namespace dragonBones {
         protected static _getActionType(value: string): ActionType {
             switch (value.toLowerCase()) {
                 case "play":
-                    return ActionType.Play;
-
-                case "stop":
-                    return ActionType.Stop;
-
                 case "gotoandplay":
-                    return ActionType.GotoAndPlay;
-
-                case "gotoandstop":
-                    return ActionType.GotoAndStop;
-
-                case "fadein":
-                    return ActionType.FadeIn;
-
-                case "fadeout":
-                    return ActionType.FadeOut;
+                    return ActionType.Play;
 
                 default:
                     return ActionType.None;
             }
         }
 
-        protected _data: DragonBonesData = null;
-        protected _armature: ArmatureData = null;
-        protected _skin: SkinData = null;
-        protected _slotDisplayDataSet: SlotDisplayDataSet = null;
-        protected _animation: AnimationData = null;
-        protected _timeline: any = null;
-
         protected _isOldData: boolean = false; // For 2.x ~ 3.x
         protected _isGlobalTransform: boolean = false; // For 2.x ~ 3.x
         protected _isAutoTween: boolean = false; // For 2.x ~ 3.x
-        protected _animationTweenEasing: number = 0; // For 2.x ~ 3.x
+        protected _animationTweenEasing: number = 0.0; // For 2.x ~ 3.x
         protected _timelinePivot: Point = new Point(); // For 2.x ~ 3.x
 
         protected _helpPoint: Point = new Point();
@@ -258,6 +247,13 @@ namespace dragonBones {
         protected _helpTransformB: Transform = new Transform();
         protected _helpMatrix: Matrix = new Matrix();
         protected _rawBones: Array<BoneData> = []; // For skinned mesh
+
+        protected _data: DragonBonesData = null;
+        protected _armature: ArmatureData = null;
+        protected _skin: SkinData = null;
+        protected _skinSlotData: SkinSlotData = null;
+        protected _animation: AnimationData = null;
+        protected _timeline: any = null;
 
         public constructor() { }
         /**
@@ -271,16 +267,16 @@ namespace dragonBones {
 
         private _getTimelineFrameMatrix(animation: AnimationData, timeline: BoneTimelineData, position: number, transform: Transform): void { // Support 2.x ~ 3.x data.
             const frameIndex = Math.floor(position * animation.frameCount / animation.duration);
-            if (timeline.frames.length == 1 || frameIndex >= timeline.frames.length) {
+            if (timeline.frames.length === 1 || frameIndex >= timeline.frames.length) {
                 transform.copyFrom(timeline.frames[0].transform);
             }
             else {
                 const frame = timeline.frames[frameIndex];
-                let tweenProgress = 0;
+                let tweenProgress = 0.0;
 
-                if (frame.tweenEasing != DragonBones.NO_TWEEN) {
+                if (frame.tweenEasing !== DragonBones.NO_TWEEN) {
                     tweenProgress = (position - frame.position) / frame.duration;
-                    if (frame.tweenEasing != 0) {
+                    if (frame.tweenEasing !== 0.0) {
                         tweenProgress = TweenTimelineState._getEasingValue(tweenProgress, frame.tweenEasing);
                     }
                 }
@@ -361,7 +357,7 @@ namespace dragonBones {
 
                         frame.transform.minus(bone.transform);
 
-                        if (i == 0) {
+                        if (i === 0) {
                             timeline.originalTransform.copyFrom(frame.transform);
                             frame.transform.identity();
                         }
@@ -377,9 +373,9 @@ namespace dragonBones {
             const frameStart = Math.floor(framePostion * this._armature.frameRate); // uint()
             const frames = this._animation.frames;
 
-            if (frames.length == 0) {
+            if (frames.length === 0) {
                 const startFrame = BaseObject.borrowObject(AnimationFrameData); // Add start frame.
-                startFrame.position = 0;
+                startFrame.position = 0.0;
 
                 if (this._animation.frameCount > 1) {
                     frames.length = this._animation.frameCount + 1; // One more count for zero duration frame.
@@ -394,7 +390,7 @@ namespace dragonBones {
 
             let insertedFrame: AnimationFrameData = null;
             const replacedFrame = frames[frameStart];
-            if (replacedFrame && (frameStart == 0 || frames[frameStart - 1] == replacedFrame.prev)) { // Key frame.
+            if (replacedFrame && (frameStart === 0 || frames[frameStart - 1] === replacedFrame.prev)) { // Key frame.
                 insertedFrame = replacedFrame;
             }
             else {
@@ -403,7 +399,7 @@ namespace dragonBones {
                 frames[frameStart] = insertedFrame;
 
                 for (let i = frameStart + 1, l = frames.length; i < l; ++i) { // Clear replaced frame.
-                    if (replacedFrame && frames[i] == replacedFrame) {
+                    if (replacedFrame && frames[i] === replacedFrame) {
                         frames[i] = null;
                     }
                 }
@@ -426,7 +422,7 @@ namespace dragonBones {
             let nextFrame: AnimationFrameData = null;
             for (let i = 0, l = frames.length; i < l; ++i) {
                 const currentFrame = frames[i];
-                if (currentFrame && nextFrame != currentFrame) {
+                if (currentFrame && nextFrame !== currentFrame) {
                     nextFrame = currentFrame;
 
                     if (prevFrame) {

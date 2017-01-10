@@ -1,9 +1,6 @@
 namespace dragonBones {
-    /**
-     * @private
-     */
     export class Point {
-        public constructor(public x: number = 0, public y: number = 0) {
+        public constructor(public x: number = 0.0, public y: number = 0.0) {
         }
 
         public copyFrom(value: Point): void {
@@ -12,7 +9,7 @@ namespace dragonBones {
         }
 
         public clear(): void {
-            this.x = this.y = 0;
+            this.x = this.y = 0.0;
         }
     }
 }

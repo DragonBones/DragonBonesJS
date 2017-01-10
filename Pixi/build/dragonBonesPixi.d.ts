@@ -20,13 +20,13 @@ declare namespace dragonBones {
          */
         constructor();
         /**
-         * @inheritDoc
+         * @private
          */
         protected _onClear(): void;
         /**
          * @private
          */
-        generateTextureData(): TextureData;
+        generateTexture(): TextureData;
     }
     /**
      * @private
@@ -35,9 +35,6 @@ declare namespace dragonBones {
         static toString(): string;
         texture: PIXI.Texture;
         constructor();
-        /**
-         * @inheritDoc
-         */
         protected _onClear(): void;
     }
 }
@@ -45,7 +42,7 @@ declare namespace dragonBones {
     /**
      * @inheritDoc
      */
-    class PixiArmatureDisplay extends PIXI.Container implements IArmatureDisplay {
+    class PixiArmatureDisplay extends PIXI.Container implements IArmatureProxy {
         /**
          * @private
          */
@@ -54,23 +51,15 @@ declare namespace dragonBones {
         /**
          * @private
          */
-        constructor();
-        /**
-         * @inheritDoc
-         */
         _onClear(): void;
         /**
-         * @inheritDoc
+         * @private
          */
-        _dispatchEvent(eventObject: EventObject): void;
+        _dispatchEvent(type: EventStringType, eventObject: EventObject): void;
         /**
-         * @inheritDoc
+         * @private
          */
-        _debugDraw(): void;
-        /**
-         * @inheritDoc
-         */
-        _onReplaceTexture(texture: any): void;
+        _debugDraw(isEnabled: boolean): void;
         /**
          * @inheritDoc
          */
@@ -86,11 +75,7 @@ declare namespace dragonBones {
         /**
          * @inheritDoc
          */
-        advanceTimeBySelf(on: boolean): void;
-        /**
-         * @inheritDoc
-         */
-        dispose(): void;
+        dispose(disposeProxy?: boolean): void;
         /**
          * @inheritDoc
          */
@@ -99,6 +84,12 @@ declare namespace dragonBones {
          * @inheritDoc
          */
         animation: Animation;
+        /**
+         * @deprecated
+         * @see dragonBones.Animation#timescale
+         * @see dragonBones.Animation#stop()
+         */
+        advanceTimeBySelf(on: boolean): void;
     }
 }
 declare namespace dragonBones {
@@ -113,13 +104,6 @@ declare namespace dragonBones {
          */
         static toString(): string;
         private _renderDisplay;
-        /**
-         * @language zh_CN
-         * 创建一个空的插槽。
-         * @version DragonBones 3.0
-         */
-        constructor();
-        private _createTexture(textureData, textureAtlas);
         /**
          * @inheritDoc
          */
@@ -163,10 +147,6 @@ declare namespace dragonBones {
         /**
          * @private
          */
-        protected _updateFilters(): void;
-        /**
-         * @private
-         */
         protected _updateFrame(): void;
         /**
          * @private
@@ -175,7 +155,7 @@ declare namespace dragonBones {
         /**
          * @private
          */
-        protected _updateTransform(): void;
+        protected _updateTransform(isSkinnedMesh: boolean): void;
     }
 }
 declare namespace dragonBones {
@@ -197,7 +177,7 @@ declare namespace dragonBones {
         private static _clockHandler(passedTime);
         /**
          * @language zh_CN
-         * 一个可以直接使用的全局工厂实例.
+         * 一个可以直接使用的全局工厂实例。
          * @version DragonBones 4.7
          */
         static factory: PixiFactory;
@@ -219,7 +199,7 @@ declare namespace dragonBones {
         /**
          * @private
          */
-        protected _generateSlot(dataPackage: BuildArmaturePackage, slotDisplayDataSet: SlotDisplayDataSet, armature: Armature): Slot;
+        protected _generateSlot(dataPackage: BuildArmaturePackage, skinSlotData: SkinSlotData, armature: Armature): Slot;
         /**
          * @language zh_CN
          * 创建一个指定名称的骨架，并使用骨架的显示容器来更新骨架动画。

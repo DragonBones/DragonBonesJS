@@ -1,11 +1,8 @@
 namespace dragonBones {
-    /**
-     * @private
-     */
     export class Rectangle {
         public constructor(
-            public x: number = 0, public y: number = 0,
-            public width: number = 0, public height: number = 0
+            public x: number = 0.0, public y: number = 0.0,
+            public width: number = 0.0, public height: number = 0.0
         ) {
         }
 
@@ -17,8 +14,8 @@ namespace dragonBones {
         }
 
         public clear(): void {
-            this.x = this.y = 0;
-            this.width = this.height = 0;
+            this.x = this.y = 0.0;
+            this.width = this.height = 0.0;
         }
     }
 }

@@ -3,7 +3,7 @@ namespace demosEgret {
         public constructor() {
             super();
 
-            this._resourceConfigURL = "resource/replaceSlotDisplay.res.json";
+            this._resourceConfigURL = "resource/replace_slot_display.res.json";
         }
 
         private _displayIndex: number = 0;
@@ -36,6 +36,7 @@ namespace demosEgret {
                 this
             );
 
+            // Replace armature texture.
             document.addEventListener(
                 "keydown",
                 (event: KeyboardEvent): void => {
@@ -50,8 +51,7 @@ namespace demosEgret {
         }
 
         private _replaceDisplay(): void {
-            this._displayIndex++;
-            this._displayIndex %= this._replaceDisplays.length;
+            this._displayIndex = (this._displayIndex + 1) % this._replaceDisplays.length;
 
             const replaceDisplayName = this._replaceDisplays[this._displayIndex];
 

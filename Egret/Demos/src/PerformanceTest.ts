@@ -4,40 +4,32 @@ namespace demosEgret {
         private _removingArmature: boolean = false;
         private _text: egret.TextField = new egret.TextField();
 
-        private _dragonBonesData: dragonBones.DragonBonesData = null;
-        private _armatures: Array<dragonBones.Armature> = [];
+        private _armatures: Array<dragonBones.EgretArmatureDisplay> = [];
 
         public constructor() {
             super();
 
-            this._resourceConfigURL = "resource/PerformanceTest.res.json";
+            this._resourceGroup = "performanceTest";
+            this._resourceConfigURL = "resource/test.res.json";
         }
 
         protected _onStart(): void {
             //
-            this._text.textAlign = egret.HorizontalAlign.CENTER;
             this._text.size = 20;
+            this._text.textAlign = egret.HorizontalAlign.CENTER;
             this._text.text = "";
             this.addChild(this._text);
 
-            this._dragonBonesData = dragonBones.EgretFactory.factory.parseDragonBonesData(RES.getRes("dragonBonesData"));
-            dragonBones.EgretFactory.factory.parseTextureAtlasData(RES.getRes("textureDataA"), RES.getRes("textureA"));
+            this.stage.addEventListener(egret.Event.ENTER_FRAME, this._enterFrameHandler, this);
+            this.stage.addEventListener(egret.TouchEvent.TOUCH_BEGIN, this._touchHandler, this);
+            this.stage.addEventListener(egret.TouchEvent.TOUCH_END, this._touchHandler, this);
 
-            if (this._dragonBonesData) {
-                this.stage.addEventListener(egret.Event.ENTER_FRAME, this._enterFrameHandler, this);
-                this.stage.addEventListener(egret.TouchEvent.TOUCH_BEGIN, this._touchHandler, this);
-                this.stage.addEventListener(egret.TouchEvent.TOUCH_END, this._touchHandler, this);
-
-                for (let i = 0; i < 100; ++i) {
-                    this._addArmature();
-                }
-
-                this._resetPosition();
-                this._updateText();
+            for (let i = 0; i < 100; ++i) {
+                this._addArmature();
             }
-            else {
-                throw new Error();
-            }
+
+            this._resetPosition();
+            this._updateText();
         }
 
         private _enterFrameHandler(event: egret.Event): void {
@@ -60,8 +52,6 @@ namespace demosEgret {
                 this._resetPosition();
                 this._updateText();
             }
-
-            dragonBones.WorldClock.clock.advanceTime(-1);
         }
 
         private _touchHandler(event: egret.TouchEvent): void {
@@ -80,19 +70,21 @@ namespace demosEgret {
         }
 
         private _addArmature(): void {
-            const armature = dragonBones.EgretFactory.factory.buildArmature("DragonBoy");
-            const armatureDisplay = <dragonBones.EgretArmatureDisplay>armature.display;
+            if (this._armatures.length == 0) {
+                dragonBones.EgretFactory.factory.parseDragonBonesData(RES.getRes(this._resourceGroup));
+                dragonBones.EgretFactory.factory.parseTextureAtlasData(RES.getRes(this._resourceGroup + "_textureData"), RES.getRes(this._resourceGroup + "_texture"));
+            }
 
+            const armatureDisplay = dragonBones.EgretFactory.factory.buildArmatureDisplay("DragonBoy");
             armatureDisplay.scaleX = armatureDisplay.scaleY = 0.7;
-            this.addChild(armatureDisplay);
 
-            armature.cacheFrameRate = 24;
+            armatureDisplay.armature.cacheFrameRate = 24;
             const animationName = "walk";
             //const animationName = armature.animation.animationNames[Math.floor(Math.random() * armature.animation.animationNames.length)];
-            armature.animation.play(animationName, 0);
-            dragonBones.WorldClock.clock.add(armature);
+            armatureDisplay.animation.play(animationName, 0);
 
-            this._armatures.push(armature);
+            this._armatures.push(armatureDisplay);
+            this.addChild(armatureDisplay);
         }
 
         private _removeArmature(): void {
@@ -100,16 +92,18 @@ namespace demosEgret {
                 return;
             }
 
-            const armature = this._armatures.pop();
-            const armatureDisplay = <dragonBones.EgretArmatureDisplay>armature.display;
+            const armatureDisplay = this._armatures.pop();
             this.removeChild(armatureDisplay);
-            dragonBones.WorldClock.clock.remove(armature);
-            armature.dispose();
+            armatureDisplay.dispose();
+
+            if (this._armatures.length == 0) { // Test factory clear.
+                dragonBones.EgretFactory.factory.clear(true);
+            }
         }
 
         private _resetPosition(): void {
-            const count = this._armatures.length;
-            if (!count) {
+            const armatureCount = this._armatures.length;
+            if (!armatureCount) {
                 return;
             }
 
@@ -122,11 +116,10 @@ namespace demosEgret {
             const paddingHModify = (this.stage.stageWidth - columnCount * gapping) * 0.5;
 
             const dX = stageWidth / columnCount;
-            const dY = (this.stage.stageHeight - paddingV * 2) / Math.ceil(count / columnCount);
+            const dY = (this.stage.stageHeight - paddingV * 2) / Math.ceil(armatureCount / columnCount);
 
-            for (let i = 0, l = this._armatures.length; i < l; ++i) {
-                const armature = this._armatures[i];
-                const armatureDisplay = <dragonBones.EgretArmatureDisplay>armature.display;
+            for (let i = 0, l = armatureCount; i < l; ++i) {
+                const armatureDisplay = this._armatures[i];
                 const lineY = Math.floor(i / columnCount);
 
                 armatureDisplay.x = (i % columnCount) * dX + paddingHModify;
@@ -135,10 +128,10 @@ namespace demosEgret {
         }
 
         private _updateText(): void {
+            this._text.text = "Count: " + this._armatures.length + " \nTouch screen left to decrease count / right to increase count.";
+            this._text.width = this.stage.stageWidth;
             this._text.x = 0;
             this._text.y = this.stage.stageHeight - 60;
-            this._text.width = this.stage.stageWidth;
-            this._text.text = "Count: " + this._armatures.length + " \nTouch screen left to decrease count / right to increase count.";
         }
     }
 }

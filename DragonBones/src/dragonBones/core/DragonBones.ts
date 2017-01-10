@@ -2,16 +2,6 @@ namespace dragonBones {
     /**
      * @private
      */
-    export const enum DisplayType {
-        None = -1,
-        Image = 0,
-        Armature = 1,
-        Mesh = 2,
-        BoundingBox = 3
-    }
-    /**
-     * @private
-     */
     export const enum ArmatureType {
         None = -1,
         Armature = 0,
@@ -21,25 +11,23 @@ namespace dragonBones {
     /**
      * @private
      */
+    export const enum DisplayType {
+        None = -1,
+        Image = 0,
+        Armature = 1,
+        Mesh = 2,
+        BoundingBox = 3
+    }
+    /**
+     * @language zh_CN
+     * 包围盒类型。
+     * @version DragonBones 5.0
+     */
     export const enum BoundingBoxType {
         None = -1,
         Rectangle = 0,
         Ellipse = 1,
         Polygon = 2
-    }
-    /**
-     * @private
-     */
-    export const enum ExtensionType {
-        None = -1,
-        FFD = 0,
-        AdjustColor = 10,
-        BevelFilter = 11,
-        BlurFilter = 12,
-        DropShadowFilter = 13,
-        GlowFilter = 14,
-        GradientBevelFilter = 15,
-        GradientGlowFilter = 16
     }
     /**
      * @private
@@ -55,11 +43,7 @@ namespace dragonBones {
     export const enum ActionType {
         None = -1,
         Play = 0,
-        Stop = 1,
-        GotoAndPlay = 2,
-        GotoAndStop = 3,
-        FadeIn = 4,
-        FadeOut = 5
+        Fade = 4,
     }
     /**
      * @private
@@ -82,6 +66,43 @@ namespace dragonBones {
         Subtract = 13
     }
     /**
+     * @language zh_CN
+     * 动画混合的淡出方式。
+     * @version DragonBones 4.5
+     */
+    export const enum AnimationFadeOutMode {
+        /**
+         * @language zh_CN
+         * 不淡出动画。
+         * @version DragonBones 4.5
+         */
+        None = 0,
+        /**
+        * @language zh_CN
+         * 淡出同层的动画。
+         * @version DragonBones 4.5
+         */
+        SameLayer = 1,
+        /**
+         * @language zh_CN
+         * 淡出同组的动画。
+         * @version DragonBones 4.5
+         */
+        SameGroup = 2,
+        /**
+         * @language zh_CN
+         * 淡出同层并且同组的动画。
+         * @version DragonBones 4.5
+         */
+        SameLayerAndGroup = 3,
+        /**
+         * @language zh_CN
+         * 淡出所有动画。
+         * @version DragonBones 4.5
+         */
+        All = 4
+    }
+    /**
      * @private
      */
     export interface Map<T> {
@@ -94,34 +115,39 @@ namespace dragonBones {
         /**
          * @private
          */
-        public static PI_D: number = Math.PI * 2;
+        public static PI_D: number = Math.PI * 2.0;
         /**
          * @private
          */
-        public static PI_H: number = Math.PI / 2;
+        public static PI_H: number = Math.PI / 2.0;
         /**
          * @private
          */
-        public static PI_Q: number = Math.PI / 4;
+        public static PI_Q: number = Math.PI / 4.0;
         /**
          * @private
          */
-        public static ANGLE_TO_RADIAN: number = Math.PI / 180;
+        public static ANGLE_TO_RADIAN: number = Math.PI / 180.0;
         /**
          * @private
          */
-        public static RADIAN_TO_ANGLE: number = 180 / Math.PI;
+        public static RADIAN_TO_ANGLE: number = 180.0 / Math.PI;
         /**
          * @private
          */
-        public static SECOND_TO_MILLISECOND: number = 1000;
+        public static SECOND_TO_MILLISECOND: number = 1000.0;
         /**
          * @internal
          * @private
          */
         public static NO_TWEEN: number = 100;
 
-        public static VERSION: string = "4.7.2";
+        public static VERSION: string = "5.0.0";
+        /**
+         * @internal
+         * @private
+         */
+        public static ARGUMENT_ERROR: string = "Argument error.";
         /**
          * @private
          */
@@ -130,6 +156,7 @@ namespace dragonBones {
          * @private
          */
         public static debugDraw: boolean = false;
+
         /**
          * @internal
          * @private

@@ -2,40 +2,25 @@ namespace dragonBones {
     /**
      * @inheritDoc
      */
-    export class PixiArmatureDisplay extends PIXI.Container implements IArmatureDisplay {
+    export class PixiArmatureDisplay extends PIXI.Container implements IArmatureProxy {
         /**
          * @private
          */
         public _armature: Armature;
-
-        private _debugDrawer: PIXI.Graphics;
+        private _debugDrawer: PIXI.Sprite;
         /**
          * @internal
-         * @private
-         */
-        public _subTextures: Map<PIXI.Texture> = {};
-
-        /**
          * @private
          */
         public constructor() {
             super();
         }
         /**
-         * @inheritDoc
+         * @private
          */
         public _onClear(): void {
-            for (let i in this._subTextures) {
-                this._subTextures[i].destroy(); // Why can not destroy?
-                delete this._subTextures[i];
-            }
-
             if (this._debugDrawer) {
                 this._debugDrawer.destroy(true);
-            }
-
-            if (this._armature) {
-                this.advanceTimeBySelf(false);
             }
 
             this._armature = null;
@@ -44,50 +29,114 @@ namespace dragonBones {
             this.destroy();
         }
         /**
-         * @inheritDoc
+         * @private
          */
-        public _dispatchEvent(eventObject: EventObject): void {
-            this.emit(eventObject.type, eventObject);
+        public _dispatchEvent(type: EventStringType, eventObject: EventObject): void {
+            this.emit(type, eventObject);
         }
         /**
-         * @inheritDoc
+         * @private
          */
-        public _debugDraw(): void {
+        public _debugDraw(isEnabled: boolean): void {
             if (!this._debugDrawer) {
-                this._debugDrawer = new PIXI.Graphics();
+                this._debugDrawer = new PIXI.Sprite();
+                const boneDrawer = new PIXI.Graphics();
+                this._debugDrawer.addChild(boneDrawer);
             }
 
-            this.addChild(this._debugDrawer);
-            this._debugDrawer.clear();
+            if (isEnabled) {
+                this.addChild(this._debugDrawer);
+                const boneDrawer = this._debugDrawer.getChildAt(0) as PIXI.Graphics;
+                boneDrawer.clear();
 
-            const bones = this._armature.getBones();
-            for (let i = 0, l = bones.length; i < l; ++i) {
-                const bone = bones[i];
-                const boneLength = Math.max(bone.length, 5);
-                const startX = bone.globalTransformMatrix.tx;
-                const startY = bone.globalTransformMatrix.ty;
-                const endX = startX + bone.globalTransformMatrix.a * boneLength;
-                const endY = startY + bone.globalTransformMatrix.b * boneLength;
+                const bones = this._armature.getBones();
+                for (let i = 0, l = bones.length; i < l; ++i) {
+                    const bone = bones[i];
+                    const boneLength = bone.length;
+                    const startX = bone.globalTransformMatrix.tx;
+                    const startY = bone.globalTransformMatrix.ty;
+                    const endX = startX + bone.globalTransformMatrix.a * boneLength;
+                    const endY = startY + bone.globalTransformMatrix.b * boneLength;
 
-                this._debugDrawer.lineStyle(1, bone.ik ? 0xFF0000 : 0x00FF00, 0.5);
-                this._debugDrawer.moveTo(startX, startY);
-                this._debugDrawer.lineTo(endX, endY);
+                    boneDrawer.lineStyle(2, bone.ik ? 0xFF0000 : 0x00FFFF, 0.7);
+                    boneDrawer.moveTo(startX, startY);
+                    boneDrawer.lineTo(endX, endY);
+                    boneDrawer.lineStyle(0, 0, 0);
+                    boneDrawer.beginFill(0x00FFFF, 0.7);
+                    boneDrawer.drawCircle(startX, startY, 3);
+                    boneDrawer.endFill();
+                }
+
+                const slots = this._armature.getSlots();
+                for (let i = 0, l = slots.length; i < l; ++i) {
+                    const slot = slots[i];
+                    const boundingBoxData = slot.boundingBoxData;
+
+                    if (boundingBoxData) {
+                        let child = this._debugDrawer.getChildByName(slot.name) as PIXI.Graphics;
+                        if (!child) {
+                            child = new PIXI.Graphics();
+                            child.name = slot.name;
+                            this._debugDrawer.addChild(child);
+                        }
+
+                        child.clear();
+                        child.beginFill(0xFF00FF, 0.3);
+
+                        switch (boundingBoxData.type) {
+                            case BoundingBoxType.Rectangle:
+                                child.drawRect(-boundingBoxData.width * 0.5, -boundingBoxData.height * 0.5, boundingBoxData.width, boundingBoxData.height);
+                                break;
+
+                            case BoundingBoxType.Ellipse:
+                                child.drawEllipse(-boundingBoxData.width * 0.5, -boundingBoxData.height * 0.5, boundingBoxData.width, boundingBoxData.height);
+                                break;
+
+                            case BoundingBoxType.Polygon:
+                                const vertices = boundingBoxData.vertices;
+                                for (let i = 0, l = boundingBoxData.vertices.length; i < l; i += 2) {
+                                    if (i === 0) {
+                                        child.moveTo(vertices[i], vertices[i + 1]);
+                                    }
+                                    else {
+                                        child.lineTo(vertices[i], vertices[i + 1]);
+                                    }
+                                }
+                                break;
+
+                            default:
+                                break;
+                        }
+
+                        child.endFill();
+                        slot._updateTransformAndMatrix();
+
+                        const x = slot.globalTransformMatrix.tx - (slot.globalTransformMatrix.a * slot._pivotX + slot.globalTransformMatrix.c * slot._pivotY);
+                        const y = slot.globalTransformMatrix.ty - (slot.globalTransformMatrix.b * slot._pivotX + slot.globalTransformMatrix.d * slot._pivotY);
+
+                        child.setTransform(
+                            x, y,
+                            slot.global.scaleX, slot.global.scaleY,
+                            slot.global.skewY, slot.global.skewX - slot.global.skewY
+                        );
+                    }
+                    else {
+                        const child = this._debugDrawer.getChildByName(slot.name);
+                        if (child) {
+                            this._debugDrawer.removeChild(child);
+                        }
+                    }
+                }
             }
-        }
-        /**
-         * @inheritDoc
-         */
-        public _onReplaceTexture(texture: any): void {
-            for (let i in this._subTextures) {
-                //this._subTextures[i].destroy(); // Why can not destroy?
-                delete this._subTextures[i];
+            else if (this._debugDrawer && this._debugDrawer.parent === this) {
+                this.removeChild(this._debugDrawer);
             }
         }
         /**
          * @inheritDoc
          */
         public hasEvent(type: EventStringType): boolean {
-            return <boolean>this.listeners(type, true);
+            return this.listeners(type, true) as boolean;
         }
         /**
          * @inheritDoc
@@ -104,20 +153,8 @@ namespace dragonBones {
         /**
          * @inheritDoc
          */
-        public advanceTimeBySelf(on: boolean): void {
-            if (on) {
-                PixiFactory._clock.add(this._armature);
-            }
-            else {
-                PixiFactory._clock.remove(this._armature);
-            }
-        }
-        /**
-         * @inheritDoc
-         */
-        public dispose(): void {
+        public dispose(disposeProxy: boolean = true): void {
             if (this._armature) {
-                this.advanceTimeBySelf(false);
                 this._armature.dispose();
                 this._armature = null;
             }
@@ -133,6 +170,20 @@ namespace dragonBones {
          */
         public get animation(): Animation {
             return this._armature.animation;
+        }
+
+        /**
+         * @deprecated
+         * @see dragonBones.Animation#timescale
+         * @see dragonBones.Animation#stop()
+         */
+        public advanceTimeBySelf(on: boolean): void {
+            if (on) {
+                this._armature.clock = PixiFactory._clock;
+            }
+            else {
+                this._armature.clock = null;
+            }
         }
     }
 }

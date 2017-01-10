@@ -6,7 +6,6 @@ namespace dragonBones {
      * @see dragonBones.Bone
      * @see dragonBones.Slot
      * @see dragonBones.Animation
-     * @see dragonBones.IArmatureDisplay
      * @version DragonBones 3.0
      */
     export class Armature extends BaseObject implements IAnimateble {
@@ -16,21 +15,40 @@ namespace dragonBones {
         public static toString(): string {
             return "[class dragonBones.Armature]";
         }
-
         private static _onSortSlots(a: Slot, b: Slot): number {
             return a._zOrder > b._zOrder ? 1 : -1;
         }
-
         /**
          * @language zh_CN
-         * 可以用于存储临时数据。
-         * @version DragonBones 3.0
+         * 是否继承父骨架的动画状态。
+         * @default true
+         * @version DragonBones 4.5
          */
-        public userData: any;
+        public inheritAnimation: boolean;
         /**
          * @private
          */
-        public _cacheFrameIndex: number;
+        public debugDraw: boolean;
+        /**
+         * @language zh_CN
+         * 用于存储临时数据。
+         * @version DragonBones 3.0
+         */
+        public userData: any;
+
+        private _debugDraw: boolean;
+        private _delayDispose: boolean;
+        private _lockDispose: boolean;
+        /**
+         * @internal
+         * @private
+         */
+        public _bonesDirty: boolean;
+        private _slotsDirty: boolean;
+        private _bones: Array<Bone> = [];
+        private _slots: Array<Slot> = [];
+        private _actions: Array<ActionData> = [];
+        private _events: Array<EventObject> = [];
         /**
          * @private
          */
@@ -39,38 +57,22 @@ namespace dragonBones {
          * @private
          */
         public _skinData: SkinData;
-        /**
-         * @private
-         */
-        public _animation: Animation;
-        /**
-         * @private
-         */
-        public _display: IArmatureDisplay;
+        private _animation: Animation;
+        private _proxy: IArmatureProxy;
+        private _display: any;
+        private _eventManager: IEventDispatcher;
         /**
          * @internal
          * @private
          */
         public _parent: Slot;
+        private _clock: WorldClock;
         /**
          * @private
          */
-        public _eventManager: IEventDispatcher;
-
-        private _delayDispose: boolean;
-        private _lockDispose: boolean;
-        private _debugDraw: boolean;
-        /**
-         * @internal
-         * @private
-         */
-        public _bonesDirty: boolean;
-        private _slotsDirty: boolean;
+        public _replaceTextureAtlasData: TextureAtlasData;
         private _replacedTexture: any;
-        private _bones: Array<Bone> = [];
-        private _slots: Array<Slot> = [];
-        private _actions: Array<ActionData> = [];
-        private _events: Array<EventObject> = [];
+
         /**
          * @internal
          * @private
@@ -79,7 +81,7 @@ namespace dragonBones {
             super();
         }
         /**
-         * @inheritDoc
+         * @private
          */
         protected _onClear(): void {
             for (let i = 0, l = this._bones.length; i < l; ++i) {
@@ -94,34 +96,45 @@ namespace dragonBones {
                 this._events[i].returnToPool();
             }
 
+            if (this._clock) {
+                this._clock.remove(this);
+            }
+
+            if (this._proxy) {
+                this._proxy._onClear();
+            }
+
+            if (this._replaceTextureAtlasData) {
+                this._replaceTextureAtlasData.returnToPool();
+            }
+
             if (this._animation) {
                 this._animation.returnToPool();
             }
 
-            if (this._display) {
-                this._display._onClear();
-            }
-
+            this.inheritAnimation = true;
+            this.debugDraw = false;
             this.userData = null;
 
-            this._cacheFrameIndex = -1;
-            this._armatureData = null;
-            this._skinData = null;
-            this._animation = null;
-            this._display = null;
-            this._parent = null;
-            this._eventManager = null;
-
+            this._debugDraw = false;
             this._delayDispose = false;
             this._lockDispose = false;
-            this._debugDraw = false;
             this._bonesDirty = false;
             this._slotsDirty = false;
-            this._replacedTexture = null;
             this._bones.length = 0;
             this._slots.length = 0;
             this._actions.length = 0;
             this._events.length = 0;
+            this._armatureData = null;
+            this._skinData = null;
+            this._animation = null;
+            this._proxy = null;
+            this._display = null;
+            this._eventManager = null;
+            this._parent = null;
+            this._clock = null;
+            this._replaceTextureAtlasData = null;
+            this._replacedTexture = null;
         }
 
         private _sortBones(): void {
@@ -155,7 +168,7 @@ namespace dragonBones {
                     continue;
                 }
 
-                if (bone.ik && bone.ikChain > 0 && bone.ikChainIndex == bone.ikChain) {
+                if (bone.ik && bone.ikChain > 0 && bone.ikChainIndex === bone.ikChain) {
                     this._bones.splice(this._bones.indexOf(bone.parent) + 1, 0, bone); // ik, parent, bone, children
                 }
                 else {
@@ -173,32 +186,33 @@ namespace dragonBones {
         private _doAction(value: ActionData): void {
             switch (value.type) {
                 case ActionType.Play:
-                    this._animation.play(value.data[0], value.data[1]);
-                    break;
-
-                case ActionType.Stop:
-                    this._animation.stop(value.data[0]);
-                    break;
-
-                case ActionType.GotoAndPlay:
-                    this._animation.gotoAndPlayByTime(value.data[0], value.data[1], value.data[2]);
-                    break;
-
-                case ActionType.GotoAndStop:
-                    this._animation.gotoAndStopByTime(value.data[0], value.data[1]);
-                    break;
-
-                case ActionType.FadeIn:
-                    this._animation.fadeIn(value.data[0], value.data[1], value.data[2]);
-                    break;
-
-                case ActionType.FadeOut:
-                    // TODO fade out
+                    this._animation.playConfig(value.animationConfig);
                     break;
 
                 default:
                     break;
             }
+        }
+        /**
+         * @private
+         */
+        public _init(
+            armatureData: ArmatureData, skinData: SkinData,
+            proxy: IArmatureProxy, display: any, eventManager: IEventDispatcher
+        ): void {
+            if (this._armatureData) {
+                return;
+            }
+
+            this._armatureData = armatureData;
+            this._skinData = skinData;
+            this._animation = BaseObject.borrowObject(Animation);
+            this._proxy = proxy;
+            this._display = display;
+            this._eventManager = eventManager;
+
+            this._animation._init(this);
+            this._animation.animations = this._armatureData.animations;
         }
         /**
          * @internal
@@ -208,6 +222,7 @@ namespace dragonBones {
             if (this._bones.indexOf(value) < 0) {
                 this._bonesDirty = true;
                 this._bones.push(value);
+                this._animation._timelineStateDirty = true;
             }
         }
         /**
@@ -215,9 +230,10 @@ namespace dragonBones {
          * @private
          */
         public _removeBoneFromBoneList(value: Bone): void {
-            let index = this._bones.indexOf(value);
+            const index = this._bones.indexOf(value);
             if (index >= 0) {
                 this._bones.splice(index, 1);
+                this._animation._timelineStateDirty = true;
             }
         }
         /**
@@ -228,6 +244,7 @@ namespace dragonBones {
             if (this._slots.indexOf(value) < 0) {
                 this._slotsDirty = true;
                 this._slots.push(value);
+                this._animation._timelineStateDirty = true;
             }
         }
         /**
@@ -235,9 +252,10 @@ namespace dragonBones {
          * @private
          */
         public _removeSlotFromSlotList(value: Slot): void {
-            let index = this._slots.indexOf(value);
+            const index = this._slots.indexOf(value);
             if (index >= 0) {
                 this._slots.splice(index, 1);
+                this._animation._timelineStateDirty = true;
             }
         }
         /**
@@ -276,109 +294,109 @@ namespace dragonBones {
         }
         /**
          * @language zh_CN
-         * 释放骨架。 (会回收到内存池)
+         * 释放骨架。 (回收到对象池)
          * @version DragonBones 3.0
          */
         public dispose(): void {
             this._delayDispose = true;
 
-            if (!this._lockDispose && this._animation) { //
+            if (!this._lockDispose && this._armatureData) {
                 this.returnToPool();
             }
         }
         /**
          * @language zh_CN
-         * 更新骨架和动画。 (可以使用时钟实例或显示容器来更新)
-         * @param passedTime 两帧之前的时间间隔。 (以秒为单位)
+         * 更新骨架和动画。
+         * @param passedTime 两帧之间的时间间隔。 (以秒为单位)
          * @see dragonBones.IAnimateble
          * @see dragonBones.WorldClock
-         * @see dragonBones.IArmatureDisplay
          * @version DragonBones 3.0
          */
         public advanceTime(passedTime: number): void {
-            const self = this;
-
-            if (!self._animation) {
+            if (!this._armatureData) {
                 throw new Error("The armature has been disposed.");
+                //return;
+            }
+            else if (!this._armatureData.parent) {
+                throw new Error("The armature data has been disposed.");
+                //return;
             }
 
-            const scaledPassedTime = passedTime * self._animation.timeScale;
-
-            // Animations.
-            self._animation._advanceTime(scaledPassedTime);
-
-            // Bones and slots.
-            if (self._bonesDirty) {
-                self._bonesDirty = false;
-                self._sortBones();
+            // Sort bones and slots.
+            if (this._bonesDirty) {
+                this._bonesDirty = false;
+                this._sortBones();
             }
 
-            if (self._slotsDirty) {
-                self._slotsDirty = false;
-                self._sortSlots();
+            if (this._slotsDirty) {
+                this._slotsDirty = false;
+                this._sortSlots();
             }
 
-            for (let i = 0, l = self._bones.length; i < l; ++i) {
-                self._bones[i]._update(self._cacheFrameIndex);
-            }
+            const prevCacheFrameIndex = this._animation._cacheFrameIndex;
 
-            for (let i = 0, l = self._slots.length; i < l; ++i) {
-                const slot = self._slots[i];
+            // Update nimation.
+            this._animation._advanceTime(passedTime);
 
-                slot._update(self._cacheFrameIndex);
+            const currentCacheFrameIndex = this._animation._cacheFrameIndex;
 
-                const childArmature = slot._childArmature;
-                if (childArmature) {
-                    if (slot.inheritAnimation) { // Animation's time scale will impact to childArmature.
-                        childArmature.advanceTime(scaledPassedTime);
-                    }
-                    else {
-                        childArmature.advanceTime(passedTime);
-                    }
+            let i = 0, l = 0;
+
+            // Update bones and slots.
+            if (currentCacheFrameIndex < 0 || currentCacheFrameIndex !== prevCacheFrameIndex) {
+                for (i = 0, l = this._bones.length; i < l; ++i) {
+                    this._bones[i]._update(currentCacheFrameIndex);
+                }
+
+                for (i = 0, l = this._slots.length; i < l; ++i) {
+                    this._slots[i]._update(currentCacheFrameIndex);
                 }
             }
 
             //
-            if (DragonBones.debugDraw || self._debugDraw) {
-                self._debugDraw = DragonBones.debugDraw;
-                self._display._debugDraw(self._debugDraw);
+            const drawed = this.debugDraw || DragonBones.debugDraw;
+            if (drawed || this._debugDraw) {
+                this._debugDraw = drawed;
+                this._proxy._debugDraw(this._debugDraw);
             }
 
-            if (!self._lockDispose) {
-                self._lockDispose = true;
+            if (!this._lockDispose) {
+                this._lockDispose = true;
 
-                // Actions and events.
-                if (self._events.length > 0) { // Dispatch event before action.
-                    for (let i = 0, l = self._events.length; i < l; ++i) {
-                        const event = self._events[i];
-                        if (event.type == EventObject.SOUND_EVENT) {
-                            this._eventManager._dispatchEvent(event);
-                        }
-                        else {
-                            self._display._dispatchEvent(event);
+                // Events. (Dispatch event before action.)
+                l = this._events.length;
+                if (l > 0) {
+                    for (i = 0; i < l; ++i) {
+                        const eventObject = this._events[i];
+                        this._proxy._dispatchEvent(eventObject.type, eventObject);
+
+                        if (eventObject.type === EventObject.SOUND_EVENT) {
+                            this._eventManager._dispatchEvent(eventObject.type, eventObject);
                         }
 
-                        event.returnToPool();
+                        eventObject.returnToPool();
                     }
 
-                    self._events.length = 0;
+                    this._events.length = 0;
                 }
 
-                if (self._actions.length > 0) {
-                    for (let i = 0, l = self._actions.length; i < l; ++i) {
-                        const action = self._actions[i];
+                // Actions.
+                l = this._actions.length;
+                if (l > 0) {
+                    for (i = 0; i < l; ++i) {
+                        const action = this._actions[i];
                         if (action.slot) {
-                            const slot = self.getSlot(action.slot.name);
+                            const slot = this.getSlot(action.slot.name);
                             if (slot) {
-                                const childArmature = slot._childArmature;
+                                const childArmature = slot.childArmature;
                                 if (childArmature) {
                                     childArmature._doAction(action);
                                 }
                             }
                         }
                         else if (action.bone) {
-                            for (let i = 0, l = self._slots.length; i < l; ++i) {
-                                const childArmature = self._slots[i]._childArmature;
+                            for (let iA = 0, lA = this._slots.length; iA < lA; ++iA) {
+                                const childArmature = this._slots[iA].childArmature;
                                 if (childArmature) {
                                     childArmature._doAction(action);
                                 }
@@ -389,28 +407,64 @@ namespace dragonBones {
                         }
                     }
 
-                    self._actions.length = 0;
+                    this._actions.length = 0;
                 }
 
-                self._lockDispose = false;
+                this._lockDispose = false;
             }
 
-            if (self._delayDispose) {
-                self.returnToPool();
+            if (this._delayDispose) {
+                this.returnToPool();
             }
         }
         /**
          * @language zh_CN
-         * 判断指定的点是否在所有插槽的自定义包围盒内。
+         * 更新骨骼和插槽。 (当骨骼没有动画状态或动画状态播放完成时，骨骼将不在更新)
+         * @param boneName 指定的骨骼名称，如果未设置，将更新所有骨骼。
+         * @param updateSlotDisplay 是否更新插槽的显示对象。
+         * @see dragonBones.Bone
+         * @see dragonBones.Slot
+         * @version DragonBones 3.0
+         */
+        public invalidUpdate(boneName: string = null, updateSlotDisplay: boolean = false): void {
+            if (boneName) {
+                const bone = this.getBone(boneName);
+                if (bone) {
+                    bone.invalidUpdate();
+
+                    if (updateSlotDisplay) {
+                        for (let i = 0, l = this._slots.length; i < l; ++i) {
+                            const slot = this._slots[i];
+                            if (slot.parent === bone) {
+                                slot.invalidUpdate();
+                            }
+                        }
+                    }
+                }
+            }
+            else {
+                for (let i = 0, l = this._bones.length; i < l; ++i) {
+                    this._bones[i].invalidUpdate();
+                }
+
+                if (updateSlotDisplay) {
+                    for (let i = 0, l = this._slots.length; i < l; ++i) {
+                        this._slots[i].invalidUpdate();
+                    }
+                }
+            }
+        }
+        /**
+         * @language zh_CN
+         * 判断点是否在所有插槽的自定义包围盒内。
          * @param x 点的水平坐标。（骨架内坐标系）
          * @param y 点的垂直坐标。（骨架内坐标系）
-         * @param color 指定的包围盒颜色。 [0: 与所有包围盒进行判断, N: 仅当包围盒的颜色为 N 时才进行判断]
-         * @version DragonBones 4.5
+         * @version DragonBones 5.0
          */
-        public containsPoint(x: number, y: number, color: number = 0): Slot {
+        public containsPoint(x: number, y: number): Slot {
             for (let i = 0, l = this._slots.length; i < l; ++i) {
                 const slot = this._slots[i];
-                if (slot.containsPoint(x, y, color)) {
+                if (slot.containsPoint(x, y)) {
                     return slot;
                 }
             }
@@ -419,45 +473,43 @@ namespace dragonBones {
         }
         /**
          * @language zh_CN
-         * 判断指定的线段与骨架的所有插槽的自定义包围盒是否相交。
+         * 判断线段是否与骨架的所有插槽的自定义包围盒相交。
          * @param xA 线段起点的水平坐标。（骨架内坐标系）
          * @param yA 线段起点的垂直坐标。（骨架内坐标系）
          * @param xB 线段终点的水平坐标。（骨架内坐标系）
          * @param yB 线段终点的垂直坐标。（骨架内坐标系）
-         * @param color 指定的包围盒颜色。 [0: 与所有包围盒进行判断, N: 仅当包围盒的颜色为 N 时才进行判断]
          * @param intersectionPointA 线段从起点到终点与包围盒相交的第一个交点。（骨架内坐标系）
          * @param intersectionPointB 线段从终点到起点与包围盒相交的第一个交点。（骨架内坐标系）
          * @param normalRadians 碰撞点处包围盒切线的法线弧度。 [x: 第一个碰撞点处切线的法线弧度, y: 第二个碰撞点处切线的法线弧度]
          * @returns 线段从起点到终点相交的第一个自定义包围盒的插槽。
-         * @version DragonBones 4.5
+         * @version DragonBones 5.0
          */
         public intersectsSegment(
             xA: number, yA: number, xB: number, yB: number,
-            color: number = 0,
             intersectionPointA: { x: number, y: number } = null,
             intersectionPointB: { x: number, y: number } = null,
             normalRadians: { x: number, y: number } = null
         ): Slot {
-            const isV = xA == xB;
-            let dMin = 0;
-            let dMax = 0;
-            let intXA = 0;
-            let intYA = 0;
-            let intXB = 0;
-            let intYB = 0;
-            let intAN = 0;
-            let intBN = 0;
+            const isV = xA === xB;
+            let dMin = 0.0;
+            let dMax = 0.0;
+            let intXA = 0.0;
+            let intYA = 0.0;
+            let intXB = 0.0;
+            let intYB = 0.0;
+            let intAN = 0.0;
+            let intBN = 0.0;
             let intSlotA: Slot = null;
             let intSlotB: Slot = null;
 
             for (let i = 0, l = this._slots.length; i < l; ++i) {
                 const slot = this._slots[i];
-                const intersectionCount = slot.intersectsSegment(xA, yA, xB, yB, color, intersectionPointA, intersectionPointB, normalRadians);
+                const intersectionCount = slot.intersectsSegment(xA, yA, xB, yB, intersectionPointA, intersectionPointB, normalRadians);
                 if (intersectionCount > 0) {
                     if (intersectionPointA || intersectionPointB) {
                         if (intersectionPointA) {
                             let d = isV ? intersectionPointA.y - yA : intersectionPointA.x - xA;
-                            if (d < 0) {
+                            if (d < 0.0) {
                                 d = -d;
                             }
 
@@ -475,7 +527,7 @@ namespace dragonBones {
 
                         if (intersectionPointB) {
                             let d = intersectionPointB.x - xA;
-                            if (d < 0) {
+                            if (d < 0.0) {
                                 d = -d;
                             }
 
@@ -520,43 +572,6 @@ namespace dragonBones {
         }
         /**
          * @language zh_CN
-         * 更新骨骼和插槽的变换。 (当骨骼没有动画状态或动画状态播放完成时，骨骼将不在更新)
-         * @param boneName 指定的骨骼名称，如果未设置，将更新所有骨骼。
-         * @param updateSlotDisplay 是否更新插槽的显示对象。
-         * @see dragonBones.Bone
-         * @see dragonBones.Slot
-         * @version DragonBones 3.0
-         */
-        public invalidUpdate(boneName: string = null, updateSlotDisplay: boolean = false): void {
-            if (boneName) {
-                const bone = this.getBone(boneName);
-                if (bone) {
-                    bone.invalidUpdate();
-
-                    if (updateSlotDisplay) {
-                        for (let i = 0, l = this._slots.length; i < l; ++i) {
-                            const slot = this._slots[i];
-                            if (slot.parent == bone) {
-                                slot.invalidUpdate();
-                            }
-                        }
-                    }
-                }
-            }
-            else {
-                for (let i = 0, l = this._bones.length; i < l; ++i) {
-                    this._bones[i].invalidUpdate();
-                }
-
-                if (updateSlotDisplay) {
-                    for (let i = 0, l = this._slots.length; i < l; ++i) {
-                        this._slots[i].invalidUpdate();
-                    }
-                }
-            }
-        }
-        /**
-         * @language zh_CN
          * 获取指定名称的骨骼。
          * @param name 骨骼的名称。
          * @returns 骨骼。
@@ -566,7 +581,7 @@ namespace dragonBones {
         public getBone(name: string): Bone {
             for (let i = 0, l = this._bones.length; i < l; ++i) {
                 const bone = this._bones[i];
-                if (bone.name == name) {
+                if (bone.name === name) {
                     return bone;
                 }
             }
@@ -588,7 +603,7 @@ namespace dragonBones {
         }
         /**
          * @language zh_CN
-         * 获取指定名称的插槽。
+         * 获取插槽。
          * @param name 插槽的名称。
          * @returns 插槽。
          * @see dragonBones.Slot
@@ -597,7 +612,7 @@ namespace dragonBones {
         public getSlot(name: string): Slot {
             for (let i = 0, l = this._slots.length; i < l; ++i) {
                 const slot = this._slots[i];
-                if (slot.name == name) {
+                if (slot.name === name) {
                     return slot;
                 }
             }
@@ -616,7 +631,7 @@ namespace dragonBones {
             if (display) {
                 for (let i = 0, l = this._slots.length; i < l; ++i) {
                     const slot = this._slots[i];
-                    if (slot.display == display) {
+                    if (slot.display === display) {
                         return slot;
                     }
                 }
@@ -625,8 +640,57 @@ namespace dragonBones {
             return null;
         }
         /**
+         * @deprecated
+         */
+        public addBone(value: Bone, parentName: string = null): void {
+            if (value) {
+                value._setArmature(this);
+                value._setParent(parentName ? this.getBone(parentName) : null);
+            }
+            else {
+                throw new Error(DragonBones.ARGUMENT_ERROR);
+            }
+        }
+        /**
+         * @deprecated
+         */
+        public removeBone(value: Bone): void {
+            if (value && value.armature === this) {
+                value._setParent(null);
+                value._setArmature(null);
+            }
+            else {
+                throw new Error(DragonBones.ARGUMENT_ERROR);
+            }
+        }
+        /**
+         * @deprecated
+         */
+        public addSlot(value: Slot, parentName: string): void {
+            const bone = this.getBone(parentName);
+            if (bone) {
+                value._setArmature(this);
+                value._setParent(bone);
+            }
+            else {
+                throw new Error(DragonBones.ARGUMENT_ERROR);
+            }
+        }
+        /**
+         * @deprecated
+         */
+        public removeSlot(value: Slot): void {
+            if (value && value.armature === this) {
+                value._setParent(null);
+                value._setArmature(null);
+            }
+            else {
+                throw new Error(DragonBones.ARGUMENT_ERROR);
+            }
+        }
+        /**
          * @language zh_CN
-         * 替换骨架的主贴图，根据渲染引擎的不同，提供不同的贴图数据。
+         * 替换骨架的主贴图，根据渲染引擎的不同，提供不同的贴图类型。
          * @param texture 贴图。
          * @version DragonBones 4.5
          */
@@ -680,10 +744,18 @@ namespace dragonBones {
         }
         /**
          * @language zh_CN
+         * 获取事件监听器。
+         * @version DragonBones 5.0
+         */
+        public get eventDispatcher(): IEventDispatcher {
+            return this._proxy;
+        }
+        /**
+         * @language zh_CN
          * 获取显示容器，插槽的显示对象都会以此显示容器为父级，根据渲染平台的不同，类型会不同，通常是 DisplayObjectContainer 类型。
          * @version DragonBones 3.0
          */
-        public get display(): IArmatureDisplay | any {
+        public get display(): any {
             return this._display;
         }
         /**
@@ -697,7 +769,7 @@ namespace dragonBones {
         }
         /**
          * @language zh_CN
-         * 动画缓存的帧率，当设置一个大于 0 的帧率时，将会开启动画缓存。
+         * 动画缓存帧率，当设置的值大于 0 的时，将会开启动画缓存。
          * 通过将动画数据缓存在内存中来提高运行性能，会有一定的内存开销。
          * 帧率不宜设置的过高，通常跟动画的帧率相当且低于程序运行的帧率。
          * 开启动画缓存后，某些功能将会失效，比如 Bone 和 Slot 的 offset 属性等。
@@ -709,16 +781,45 @@ namespace dragonBones {
             return this._armatureData.cacheFrameRate;
         }
         public set cacheFrameRate(value: number) {
-            if (this._armatureData.cacheFrameRate != value) {
+            if (this._armatureData.cacheFrameRate !== value) {
                 this._armatureData.cacheFrames(value);
 
                 // Set child armature frameRate.
                 for (let i = 0, l = this._slots.length; i < l; ++i) {
-                    const slot = this._slots[i];
-                    const childArmature = slot.childArmature;
-                    if (childArmature && childArmature.cacheFrameRate == 0) {
+                    const childArmature = this._slots[i].childArmature;
+                    if (childArmature) {
                         childArmature.cacheFrameRate = value;
                     }
+                }
+            }
+        }
+        /**
+         * @inheritDoc
+         */
+        public get clock(): WorldClock {
+            return this._clock;
+        }
+        public set clock(value: WorldClock) {
+            if (this._clock === value) {
+                return;
+            }
+
+            const prevClock = this._clock;
+            this._clock = value;
+
+            if (prevClock) {
+                prevClock.remove(this);
+            }
+
+            if (this._clock) {
+                this._clock.add(this);
+            }
+
+            // Update childArmature clock.
+            for (let i = 0, l = this._slots.length; i < l; ++i) {
+                const childArmature = this._slots[i].childArmature;
+                if (childArmature) {
+                    childArmature.clock = this._clock;
                 }
             }
         }
@@ -731,104 +832,47 @@ namespace dragonBones {
             return this._replacedTexture;
         }
         public set replacedTexture(value: any) {
-            this._display._onReplaceTexture(value);
+            if (this._replaceTextureAtlasData) {
+                this._replaceTextureAtlasData.returnToPool();
+                this._replaceTextureAtlasData = null;
+            }
 
             this._replacedTexture = value;
 
             for (let i = 0, l = this._slots.length; i < l; ++i) {
-                this._slots[i].invalidUpdate();
+                const slot = this._slots[i];
+                slot.invalidUpdate();
+                slot._update(-1);
             }
         }
 
         /**
-         * @language zh_CN
-         * 开启动画缓存。
-         * @param frameRate 动画缓存的帧率
+         * @deprecated
+         * @see dragonBones.Armature#eventDispatcher
+         */
+        public hasEventListener(type: EventStringType): boolean {
+            return this._proxy.hasEvent(type);
+        }
+        /**
+         * @deprecated
+         * @see dragonBones.Armature#eventDispatcher
+         */
+        public addEventListener(type: EventStringType, listener: Function, target: any): void {
+            this._proxy.addEvent(type, listener, target);
+        }
+        /**
+         * @deprecated
+         * @see dragonBones.Armature#eventDispatcher
+         */
+        public removeEventListener(type: EventStringType, listener: Function, target: any): void {
+            this._proxy.removeEvent(type, listener, target);
+        }
+        /**
+         * @deprecated
          * @see #cacheFrameRate
-         * @version DragonBones 4.5
          */
         public enableAnimationCache(frameRate: number): void {
             this.cacheFrameRate = frameRate;
-        }
-        /**
-         * @language zh_CN
-         * 是否包含指定类型的事件。
-         * @param type 事件类型。
-         * @returns  [true: 包含, false: 不包含]
-         * @version DragonBones 3.0
-         */
-        public hasEventListener(type: EventStringType): boolean {
-            return this._display.hasEvent(type);
-        }
-        /**
-         * @language zh_CN
-         * 添加事件。
-         * @param type 事件类型。
-         * @param listener 事件回调。
-         * @version DragonBones 3.0
-         */
-        public addEventListener(type: EventStringType, listener: Function, target: any): void {
-            this._display.addEvent(type, listener, target);
-        }
-        /**
-         * @language zh_CN
-         * 移除事件。
-         * @param type 事件类型。
-         * @param listener 事件回调。
-         * @version DragonBones 3.0
-         */
-        public removeEventListener(type: EventStringType, listener: Function, target: any): void {
-            this._display.removeEvent(type, listener, target);
-        }
-
-        /**
-         * @deprecated
-         */
-        public addBone(value: Bone, parentName: string = null): void {
-            if (value) {
-                value._setArmature(this);
-                value._setParent(parentName ? this.getBone(parentName) : null);
-            }
-            else {
-                throw new Error();
-            }
-        }
-        /**
-         * @deprecated
-         */
-        public addSlot(value: Slot, parentName: string): void {
-            const bone = this.getBone(parentName);
-            if (bone) {
-                value._setArmature(this);
-                value._setParent(bone);
-            }
-            else {
-                throw new Error();
-            }
-        }
-        /**
-         * @deprecated
-         */
-        public removeBone(value: Bone): void {
-            if (value && value.armature == this) {
-                value._setParent(null);
-                value._setArmature(null);
-            }
-            else {
-                throw new Error();
-            }
-        }
-        /**
-         * @deprecated
-         */
-        public removeSlot(value: Slot): void {
-            if (value && value.armature == this) {
-                value._setParent(null);
-                value._setArmature(null);
-            }
-            else {
-                throw new Error();
-            }
         }
         /**
          * @deprecated

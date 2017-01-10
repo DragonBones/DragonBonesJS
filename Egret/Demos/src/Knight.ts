@@ -21,7 +21,7 @@ namespace demosEgret {
 
                 Game.instance = this;
 
-                this._resourceConfigURL = "resource/Knight.res.json";
+                this._resourceConfigURL = "resource/knight.res.json";
             }
 
             protected _onStart(): void {
@@ -41,12 +41,12 @@ namespace demosEgret {
                 this._player = new Hero();
 
                 const text = new egret.TextField();
+                text.size = 20;
+                text.textAlign = egret.HorizontalAlign.CENTER;
+                text.text = "Press W/A/S/D to move. Press SPACE to switch weapons. Press Q/E to upgrade weapon. \nClick to attack.";
+                text.width = Game.STAGE_WIDTH;
                 text.x = 0;
                 text.y = Game.STAGE_HEIGHT - 60;
-                text.width = Game.STAGE_WIDTH;
-                text.textAlign = egret.HorizontalAlign.CENTER;
-                text.size = 20;
-                text.text = "Press W/A/S/D to move. Press SPACE to switch weapons. Press Q/E to upgrade weapon. \nClick to attack.";
                 this.addChild(text);
             }
 

@@ -60,6 +60,9 @@ function _dragHandler(event: egret.TouchEvent): void {
     }
 }
 
+/**
+ *
+ */
 class BoundingBoxTester extends egret.DisplayObjectContainer {
     public armatureDisplay: dragonBones.EgretArmatureDisplay = null;
 
@@ -101,7 +104,7 @@ class BoundingBoxTester extends egret.DisplayObjectContainer {
 
         const containsSlotA = this.armatureDisplay.armature.containsPoint(this._helpPointA.x, this._helpPointA.y);
         const containsSlotB = this.armatureDisplay.armature.containsPoint(this._helpPointB.x, this._helpPointB.y);
-        const intersectsSlot = this.armatureDisplay.armature.intersectsSegment(this._helpPointA.x, this._helpPointA.y, this._helpPointB.x, this._helpPointB.y, 0, this._helpPointA, this._helpPointB, this._helpPointC);
+        const intersectsSlots = this.armatureDisplay.armature.intersectsSegment(this._helpPointA.x, this._helpPointA.y, this._helpPointB.x, this._helpPointB.y, this._helpPointA, this._helpPointB, this._helpPointC);
 
         //
         const containsPointAColor = containsSlotA ? 0x00FF00 : 0xFF0000;
@@ -123,7 +126,7 @@ class BoundingBoxTester extends egret.DisplayObjectContainer {
         this._pointB.graphics.endFill();
 
         //
-        const intersectsSegmentColor = intersectsSlot ? 0x00FF00 : 0xFF0000;
+        const intersectsSegmentColor = intersectsSlots ? 0x00FF00 : 0xFF0000;
         this._background.graphics.clear();
         this._background.graphics.lineStyle(20, intersectsSegmentColor, 0);
         this._background.graphics.moveTo(this._pointA.x, this._pointA.y);
@@ -133,7 +136,7 @@ class BoundingBoxTester extends egret.DisplayObjectContainer {
         this._background.graphics.lineTo(this._pointB.x, this._pointB.y);
 
         //
-        if (intersectsSlot) {
+        if (intersectsSlots) {
             this.armatureDisplay.localToGlobal(this._helpPointA.x, this._helpPointA.y, this._helpPointA);
             this.armatureDisplay.localToGlobal(this._helpPointB.x, this._helpPointB.y, this._helpPointB);
             this.globalToLocal(this._helpPointA.x, this._helpPointA.y, this._helpPointA);

@@ -7,36 +7,26 @@ namespace dragonBones {
     export abstract class TransformObject extends BaseObject {
         /**
          * @language zh_CN
-         * 可以用于存储临时数据。
-         * @version DragonBones 3.0
-         */
-        public userData: any;
-        /**
-         * @language zh_CN
          * 对象的名称。
+         * @readOnly
          * @version DragonBones 3.0
          */
         public name: string;
         /**
          * @language zh_CN
          * 相对于骨架坐标系的矩阵。
+         * @readOnly
          * @version DragonBones 3.0
          */
-        public globalTransformMatrix: Matrix;
+        public globalTransformMatrix: Matrix = new Matrix();
         /**
          * @language zh_CN
          * 相对于骨架坐标系的变换。
          * @see dragonBones.Transform
+         * @readOnly
          * @version DragonBones 3.0
          */
         public global: Transform = new Transform();
-        /**
-         * @language zh_CN
-         * 相对于骨架或父骨骼坐标系的绑定变换。
-         * @see dragonBones.Transform
-         * @version DragonBones 3.0
-         */
-        public origin: Transform = new Transform();
         /**
          * @language zh_CN
          * 相对于骨架或父骨骼坐标系的偏移变换。
@@ -44,6 +34,20 @@ namespace dragonBones {
          * @version DragonBones 3.0
          */
         public offset: Transform = new Transform();
+        /**
+         * @language zh_CN
+         * 相对于骨架或父骨骼坐标系的绑定变换。
+         * @readOnly
+         * @see dragonBones.Transform
+         * @version DragonBones 3.0
+         */
+        public origin: Transform;
+        /**
+         * @language zh_CN
+         * 可以用于存储临时数据。
+         * @version DragonBones 3.0
+         */
+        public userData: any;
         /**
          * @private
          */
@@ -53,10 +57,6 @@ namespace dragonBones {
          */
         public _parent: Bone;
         /**
-         * @private
-         */
-        protected _globalTransformMatrix: Matrix = new Matrix();
-        /**
          * @internal
          * @private
          */
@@ -64,19 +64,18 @@ namespace dragonBones {
             super();
         }
         /**
-         * @inheritDoc
+         * @private
          */
         protected _onClear(): void {
-            this.userData = null;
             this.name = null;
-            this.globalTransformMatrix = this._globalTransformMatrix;
             this.global.identity();
-            this.origin.identity();
             this.offset.identity();
+            this.globalTransformMatrix.identity();
+            this.origin = null;
+            this.userData = null;
 
             this._armature = null;
             this._parent = null;
-            this._globalTransformMatrix.identity();
         }
         /**
          * @internal

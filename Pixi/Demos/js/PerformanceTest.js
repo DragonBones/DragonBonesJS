@@ -33,6 +33,9 @@ var demosPixi;
             if (this._dragonBonesData) {
                 // Add infomation.            
                 this._text = new PIXI.Text("", { align: "center" });
+                this._text.scale.x = 0.6;
+                this._text.scale.y = 0.6;
+                this._text.y = this._renderer.height - 60;
                 this._stage.addChild(this._text);
                 // Add event listeners.
                 this._stage.interactive = true;
@@ -89,9 +92,9 @@ var demosPixi;
         PerformanceTest.prototype._addArmature = function () {
             var armature = dragonBones.PixiFactory.factory.buildArmature("DragonBoy");
             var armatureDisplay = armature.display;
-            armatureDisplay.scale.x = armatureDisplay.scale.y = 0.5;
+            armatureDisplay.scale.x = armatureDisplay.scale.y = 0.7;
             this._stage.addChild(armatureDisplay);
-            armature.cacheFrameRate = 24;
+            //armature.cacheFrameRate = 24;
             armature.animation.play("walk", 0);
             dragonBones.WorldClock.clock.add(armature);
             this._armatures.push(armature);
@@ -128,12 +131,8 @@ var demosPixi;
             }
         };
         PerformanceTest.prototype._updateText = function () {
-            this._text.x = 0;
-            this._text.y = this._renderer.height - 60;
-            this._text.width = this._renderer.width;
-            this._text.text = "Count: " + this._armatures.length + " \nTouch screen left to decrease count / right to increase count.";
-            this._text.scale.x = 0.8;
-            this._text.scale.y = 0.8;
+            this._text.text = "Count: " + this._armatures.length + " \nTouch screen left / right to decrease / increase count.";
+            this._text.x = (this._renderer.width - this._text.width) * 0.5;
         };
         return PerformanceTest;
     }(demosPixi.BaseTest));

@@ -24,7 +24,7 @@ namespace dragonBones {
             super();
         }
         /**
-         * @inheritDoc
+         * @private
          */
         protected _onClear(): void {
             super._onClear();
@@ -37,7 +37,7 @@ namespace dragonBones {
         /**
          * @private
          */
-        public generateTextureData(): TextureData {
+        public generateTexture(): TextureData {
             return BaseObject.borrowObject(PixiTextureData);
         }
     }
@@ -54,14 +54,12 @@ namespace dragonBones {
         public constructor() {
             super();
         }
-        /**
-         * @inheritDoc
-         */
+
         protected _onClear(): void {
             super._onClear();
 
             if (this.texture) {
-                this.texture.destroy(false);
+                this.texture.destroy();
                 this.texture = null;
             }
         }

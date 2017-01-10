@@ -1,53 +1,5 @@
 namespace dragonBones {
     /**
-     * @private
-     */
-    export type EventStringType =
-        string | "start" | "loopComplete" | "complete" |
-        "fadeIn" | "fadeInComplete" | "fadeOut" | "fadeOutComplete" |
-        "frameEvent" | "soundEvent";
-    /**
-     * @language zh_CN
-     * 事件接口。
-     * @version DragonBones 4.5
-     */
-    export interface IEventDispatcher {
-        /**
-         * @internal
-         * @private
-         */
-        _onClear(): void;
-        /**
-         * @internal
-         * @private
-         */
-        _dispatchEvent(eventObject: EventObject): void;
-        /**
-         * @language zh_CN
-         * 是否包含指定类型的事件。
-         * @param type 事件类型。
-         * @returns  [true: 包含, false: 不包含]
-         * @version DragonBones 4.5
-         */
-        hasEvent(type: EventStringType): boolean;
-        /**
-         * @language zh_CN
-         * 添加事件。
-         * @param type 事件类型。
-         * @param listener 事件回调。
-         * @version DragonBones 4.5
-         */
-        addEvent(type: EventStringType, listener: Function, target: any): void;
-        /**
-         * @language zh_CN
-         * 移除事件。
-         * @param type 事件类型。
-         * @param listener 事件回调。
-         * @version DragonBones 4.5
-         */
-        removeEvent(type: EventStringType, listener: Function, target: any): void;
-    }
-    /**
      * @language zh_CN
      * 事件数据。
      * @version DragonBones 4.5
@@ -127,6 +79,17 @@ namespace dragonBones {
          */
         public name: string;
         /**
+         * @private
+         */
+        public frame: AnimationFrameData;
+        /**
+         * @language zh_CN
+         * 自定义数据
+         * @see dragonBones.CustomData
+         * @version DragonBones 5.0
+         */
+        public data: CustomData;
+        /**
          * @language zh_CN
          * 发出事件的骨架。
          * @version DragonBones 4.5
@@ -151,20 +114,6 @@ namespace dragonBones {
          */
         public animationState: AnimationState;
         /**
-         * @private
-         */
-        public frame: AnimationFrameData;
-        /**
-         * @private
-         */
-        public data: EventData;
-        /**
-         * @language zh_CN
-         * 用户数据。
-         * @version DragonBones 4.5
-         */
-        public userData: any;
-        /**
          * @internal
          * @private
          */
@@ -172,30 +121,17 @@ namespace dragonBones {
             super();
         }
         /**
-         * @inheritDoc
+         * @private
          */
         protected _onClear(): void {
             this.type = null;
             this.name = null;
+            this.frame = null;
+            this.data = null;
             this.armature = null;
             this.bone = null;
             this.slot = null;
             this.animationState = null;
-            this.frame = null;
-            this.data = null;
-            this.userData = null;
-        }
-
-        public getInt(index: number): number {
-            return this.data ? this.data.ints[index] : 0;
-        }
-
-        public getFloat(index: number): number {
-            return this.data ? this.data.floats[index] : 0;
-        }
-
-        public getString(index: number): string {
-            return this.data ? this.data.strings[index] : null;
         }
     }
 }

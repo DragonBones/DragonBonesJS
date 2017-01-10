@@ -7,7 +7,7 @@ namespace dragonBones {
     export abstract class TextureAtlasData extends BaseObject {
         /**
          * @language zh_CN
-         * 是否开启共享搜索。 [true: 开启, false: 不开启]
+         * 是否开启共享搜索。
          * @default false
          * @version DragonBones 4.5
          */
@@ -18,6 +18,14 @@ namespace dragonBones {
          * @version DragonBones 3.0
          */
         public scale: number;
+        /**
+         * @private
+         */
+        public width: number;
+        /**
+         * @private
+         */
+        public height: number;
         /**
          * @language zh_CN
          * 贴图集名称。
@@ -31,7 +39,6 @@ namespace dragonBones {
          */
         public imagePath: string;
         /**
-         * @internal
          * @private
          */
         public textures: Map<TextureData> = {};
@@ -43,26 +50,27 @@ namespace dragonBones {
             super();
         }
         /**
-         * @inheritDoc
+         * @private
          */
         protected _onClear(): void {
-            for (let i in this.textures) {
-                this.textures[i].returnToPool();
-                delete this.textures[i];
+            for (let k in this.textures) {
+                this.textures[k].returnToPool();
+                delete this.textures[k];
             }
 
             this.autoSearch = false;
-            this.scale = 1;
+            this.scale = 1.0;
+            this.width = 0.0;
+            this.height = 0.0;
+            //this.textures.clear();
             this.name = null;
             this.imagePath = null;
         }
         /**
-         * @internal
          * @private
          */
-        public abstract generateTextureData(): TextureData;
+        public abstract generateTexture(): TextureData;
         /**
-         * @internal
          * @private
          */
         public addTexture(value: TextureData): void {
@@ -71,7 +79,7 @@ namespace dragonBones {
                 value.parent = this;
             }
             else {
-                throw new Error();
+                throw new Error(DragonBones.ARGUMENT_ERROR);
             }
         }
         /**
@@ -79,6 +87,28 @@ namespace dragonBones {
          */
         public getTexture(name: string): TextureData {
             return this.textures[name];
+        }
+        /**
+         * @private
+         */
+        public copyFrom(value: TextureAtlasData): void {
+            this.autoSearch = value.autoSearch;
+            this.scale = value.scale;
+            this.width = value.width;
+            this.height = value.height;
+            this.name = value.name;
+            this.imagePath = value.imagePath;
+
+            for (let k in this.textures) {
+                this.textures[k].returnToPool();
+                delete this.textures[k];
+            }
+
+            for (let k in value.textures) {
+                const texture = this.generateTexture();
+                texture.copyFrom(value.textures[k]);
+                this.textures[k] = texture;
+            }
         }
     }
     /**
@@ -91,22 +121,39 @@ namespace dragonBones {
 
         public rotated: boolean;
         public name: string;
+        public region: Rectangle = new Rectangle();
         public frame: Rectangle;
         public parent: TextureAtlasData;
-        public region: Rectangle = new Rectangle();
 
         public constructor() {
             super();
         }
-        /**
-         * @inheritDoc
-         */
+
         protected _onClear(): void {
             this.rotated = false;
             this.name = null;
+            this.region.clear();
             this.frame = null;
             this.parent = null;
-            this.region.clear();
+        }
+
+        public copyFrom(value: TextureData): void {
+            this.rotated = value.rotated;
+            this.name = value.name;
+
+            if (!this.frame && value.frame) {
+                this.frame = TextureData.generateRectangle();
+            }
+            else if (this.frame && !value.frame) {
+                this.frame = null;
+            }
+
+            if (this.frame && value.frame) {
+                this.frame.copyFrom(value.frame);
+            }
+
+            this.parent = value.parent;
+            this.region.copyFrom(value.region);
         }
     }
 }

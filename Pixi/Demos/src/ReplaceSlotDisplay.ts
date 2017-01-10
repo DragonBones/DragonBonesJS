@@ -42,7 +42,8 @@ namespace demosPixi {
             this._stage.on("touchstart", touchHandler, this);
             this._stage.on("mousedown", touchHandler, this);
 
-            document.addEventListener("keydown", (event: KeyboardEvent): void => {
+            // Replace armature texture.
+            document.addEventListener("keydown", (event): void => {
                 if (this._armatureDisplay.armature.replacedTexture) {
                     this._armatureDisplay.armature.replacedTexture = null;
                 }
@@ -53,8 +54,7 @@ namespace demosPixi {
         }
 
         private _replaceDisplay(): void {
-            this._displayIndex++;
-            this._displayIndex %= this._replaceDisplays.length;
+            this._displayIndex = (this._displayIndex + 1) % this._replaceDisplays.length;
 
             const replaceDisplayName = this._replaceDisplays[this._displayIndex];
 

@@ -2,11 +2,19 @@ namespace demosPixi {
     /**
      * How to use
      * 1. Load data.
-     * 2. factory.parseDragonBonesData();
-     *    factory.parseTextureAtlasData();
-     * 3. armatureDisplay = factory.buildArmatureDisplay("armatureName");
-     * 4. armatureDisplay.animation.play("animationName");
-     * 5. addChild(armatureDisplay);
+     *
+     * 2. ParseData.
+     *  factory.parseDragonBonesData();
+     *  factory.parseTextureAtlasData();
+     *
+     * 3. Build armature.
+     *  armatureDisplay = factory.buildArmatureDisplay("armatureName");
+     *
+     * 4. Play animation.
+     *  armatureDisplay.animation.play("animationName");
+     *
+     * 5. Add armature to stage.
+     *  addChild(armatureDisplay);
      */
     export class HelloDragonBones extends BaseTest {
         private _isDown: boolean = false;
@@ -17,6 +25,7 @@ namespace demosPixi {
         private _prevArmatureScale: number = 1;
         private _prevAnimationScale: number = 1;
         private _startPoint: PIXI.Point = new PIXI.Point();
+        private _text: PIXI.Text = new PIXI.Text("", { align: "center" });
 
         private _dragonBonesData: dragonBones.DragonBonesData = null;
         private _armatureDisplay: dragonBones.PixiArmatureDisplay = null;
@@ -24,9 +33,9 @@ namespace demosPixi {
         protected _onStart(): void {
             // Load data.
             PIXI.loader
-                .add("dragonBonesData", "./resource/assets/Old/Warrior/skeleton.json")
-                .add("textureDataA", "./resource/assets/Old/Warrior/texture.json")
-                .add("textureA", "./resource/assets/Old/Warrior/texture.png");
+                .add("dragonBonesData", "./resource/assets/DragonBoy/DragonBoy.json")
+                .add("textureDataA", "./resource/assets/DragonBoy/DragonBoy_texture_1.json")
+                .add("textureA", "./resource/assets/DragonBoy/DragonBoy_texture_1.png");
             PIXI.loader.once("complete", this._loadComplateHandler, this);
             PIXI.loader.load();
         }
@@ -46,25 +55,24 @@ namespace demosPixi {
                 this._stage.on("mouseup", this._touchHandler, this);
                 this._stage.on("mousemove", this._touchHandler, this);
 
-                // Add Armature.            
+                // Add armature.
                 this._changeArmature();
 
-                // Add infomation.            
-                const text = new PIXI.Text("", { align: "center" });
-                text.x = 0;
-                text.y = this._renderer.height - 60;
-                text.scale.x = 0.8;
-                text.scale.y = 0.8;
-                text.text = "Touch screen left to change Armature / right to change Animation.\nTouch move to scale Armatrue and Animation.";
-                this._stage.addChild(text);
+                // Add infomation.
+                this._text.scale.x = 0.6;
+                this._text.scale.y = 0.6;
+                this._text.x = (this._renderer.width - this._text.width) * 0.5;
+                this._text.y = this._renderer.height - 60;
+
+                this._stage.addChild(this._text);
             } else {
                 throw new Error();
             }
         }
         /** 
          * Touch event listeners.
-         * Touch to change Armature and Animation.
-         * Touch move to change Armature and Animation scale.
+         * Touch to change armature and animation.
+         * Touch move to scale armature and animation.
          */
         private _touchHandler(event: PIXI.interaction.InteractionEvent): void {
             switch (event.type) {
@@ -86,8 +94,6 @@ namespace demosPixi {
                         if (this._dragonBonesData.armatureNames.length > 1 && !touchRight) {
                             this._changeArmature();
                         }
-
-                        this._changeAnimation();
                     }
                     break;
 
@@ -121,7 +127,7 @@ namespace demosPixi {
             }
         }
         /** 
-         * Change Armature.
+         * Change armature.
          */
         private _changeArmature(): void {
             const armatureNames = this._dragonBonesData.armatureNames;
@@ -129,13 +135,17 @@ namespace demosPixi {
                 return;
             }
 
-            // Remove prev Armature.
+            // Remove prev armature.
             if (this._armatureDisplay) {
+                this._armatureDisplay.removeEvent(dragonBones.EventObject.START, this._armatureEventHandler, this);
+                this._armatureDisplay.removeEvent(dragonBones.EventObject.LOOP_COMPLETE, this._armatureEventHandler, this);
+                this._armatureDisplay.removeEvent(dragonBones.EventObject.COMPLETE, this._armatureEventHandler, this);
+                this._armatureDisplay.removeEvent(dragonBones.EventObject.FRAME_EVENT, this._armatureEventHandler, this);
                 this._armatureDisplay.dispose();
                 this._stage.removeChild(this._armatureDisplay);
             }
 
-            // Get next Armature name.
+            // Get next armature name.
             this._animationIndex = 0;
             this._armatureIndex++;
             if (this._armatureIndex >= armatureNames.length) {
@@ -144,20 +154,25 @@ namespace demosPixi {
 
             const armatureName = armatureNames[this._armatureIndex];
 
-            // Build Armature display. (Factory.buildArmatureDisplay() will update Armature animation by Armature display)
+            // Build armature.
             this._armatureDisplay = dragonBones.PixiFactory.factory.buildArmatureDisplay(armatureName);
 
-            // Add FrameEvent listener.
-            this._armatureDisplay.addEvent(dragonBones.EventObject.FRAME_EVENT, this._frameEventHandler, this);
+            // Add event listener.
+            this._armatureDisplay.addEvent(dragonBones.EventObject.START, this._armatureEventHandler, this);
+            this._armatureDisplay.addEvent(dragonBones.EventObject.LOOP_COMPLETE, this._armatureEventHandler, this);
+            this._armatureDisplay.addEvent(dragonBones.EventObject.COMPLETE, this._armatureEventHandler, this);
+            this._armatureDisplay.addEvent(dragonBones.EventObject.FRAME_EVENT, this._armatureEventHandler, this);
 
-            // Add Armature display.
+            // Add armature to stage.
             this._armatureDisplay.x = this._renderer.width * 0.5;
             this._armatureDisplay.y = this._renderer.height * 0.5 + 100;
             this._stage.addChild(this._armatureDisplay);
 
+            // Change animation.            
+            this._changeAnimation();
         }
         /** 
-         * Change Armature animation.
+         * Change armature animation.
          */
         private _changeAnimation(): void {
             if (!this._armatureDisplay) {
@@ -179,12 +194,20 @@ namespace demosPixi {
 
             // Play animation.
             this._armatureDisplay.animation.play(animationName);
+
+            // Update infomation.
+            this._text.text =
+                "DragonBones: " + this._armatureDisplay.armature.armatureData.parent.name +
+                "    Armature: " + this._armatureDisplay.armature.name +
+                "    Animation: " + this._armatureDisplay.armature.animation.lastAnimationName +
+                "\nTouch screen left / right to change armature / animation.\nTouch move to scale armatrue / animation.";
+            this._text.x = (this._renderer.width - this._text.width) * 0.5;
         }
         /** 
-         * FrameEvent listener. (If animation has FrameEvent)
+         * Armature event listener.
          */
-        private _frameEventHandler(event: dragonBones.EventObject): void {
-            console.log(event.animationState.name, event.name);
+        private _armatureEventHandler(event: dragonBones.EventObject): void {
+            console.log(event.type, event.animationState.name, event.name || "");
         }
     }
 }

@@ -37,7 +37,7 @@ var dragonBones;
         /**
          * @private
          */
-        EgretTextureAtlasData.prototype.generateTextureData = function () {
+        EgretTextureAtlasData.prototype.generateTexture = function () {
             return dragonBones.BaseObject.borrowObject(EgretTextureData);
         };
         /**
@@ -85,6 +85,7 @@ var dragonBones;
     var EgretEvent = (function (_super) {
         __extends(EgretEvent, _super);
         /**
+         * @internal
          * @private
          */
         function EgretEvent(type, bubbles, cancelable, data) {
@@ -94,6 +95,7 @@ var dragonBones;
             /**
              * @language zh_CN
              * 事件对象。
+             * @see dragonBones.EventObject
              * @version DragonBones 4.5
              */
             get: function () {
@@ -104,6 +106,8 @@ var dragonBones;
         });
         Object.defineProperty(EgretEvent.prototype, "animationName", {
             /**
+             * @deprecated
+             * @see #eventObject
              * @see dragonBones.EventObject#animationName
              */
             get: function () {
@@ -114,6 +118,8 @@ var dragonBones;
         });
         Object.defineProperty(EgretEvent.prototype, "armature", {
             /**
+             * @deprecated
+             * @see #eventObject
              * @see dragonBones.EventObject#armature
              */
             get: function () {
@@ -124,6 +130,8 @@ var dragonBones;
         });
         Object.defineProperty(EgretEvent.prototype, "bone", {
             /**
+             * @deprecated
+             * @see #eventObject
              * @see dragonBones.EventObject#bone
              */
             get: function () {
@@ -134,6 +142,8 @@ var dragonBones;
         });
         Object.defineProperty(EgretEvent.prototype, "slot", {
             /**
+             * @deprecated
+             * @see #eventObject
              * @see dragonBones.EventObject#slot
              */
             get: function () {
@@ -144,6 +154,8 @@ var dragonBones;
         });
         Object.defineProperty(EgretEvent.prototype, "animationState", {
             /**
+             * @deprecated
+             * @see #eventObject
              * @see dragonBones.EventObject#animationState
              */
             get: function () {
@@ -186,38 +198,47 @@ var dragonBones;
             configurable: true
         });
         /**
+         * @deprecated
          * @see dragonBones.EventObject.START
          */
         EgretEvent.START = dragonBones.EventObject.START;
         /**
+         * @deprecated
          * @see dragonBones.EventObject.LOOP_COMPLETE
          */
         EgretEvent.LOOP_COMPLETE = dragonBones.EventObject.LOOP_COMPLETE;
         /**
+         * @deprecated
          * @see dragonBones.EventObject.COMPLETE
          */
         EgretEvent.COMPLETE = dragonBones.EventObject.COMPLETE;
         /**
+         * @deprecated
          * @see dragonBones.EventObject.FADE_IN
          */
         EgretEvent.FADE_IN = dragonBones.EventObject.FADE_IN;
         /**
+         * @deprecated
          * @see dragonBones.EventObject.FADE_IN_COMPLETE
          */
         EgretEvent.FADE_IN_COMPLETE = dragonBones.EventObject.FADE_IN_COMPLETE;
         /**
+         * @deprecated
          * @see dragonBones.EventObject.FADE_OUT
          */
         EgretEvent.FADE_OUT = dragonBones.EventObject.FADE_OUT;
         /**
+         * @deprecated
          * @see dragonBones.EventObject.FADE_OUT_COMPLETE
          */
         EgretEvent.FADE_OUT_COMPLETE = dragonBones.EventObject.FADE_OUT_COMPLETE;
         /**
+         * @deprecated
          * @see dragonBones.EventObject.FRAME_EVENT
          */
         EgretEvent.FRAME_EVENT = dragonBones.EventObject.FRAME_EVENT;
         /**
+         * @deprecated
          * @see dragonBones.EventObject.SOUND_EVENT
          */
         EgretEvent.SOUND_EVENT = dragonBones.EventObject.SOUND_EVENT;
@@ -255,43 +276,35 @@ var dragonBones;
          */
         function EgretArmatureDisplay() {
             _super.call(this);
-            /**
-             * @internal
-             * @private
-             */
-            this._subTextures = {};
         }
         /**
-         * @inheritDoc
+         * @internal
+         * @private
          */
         EgretArmatureDisplay.prototype._onClear = function () {
-            for (var i in this._subTextures) {
-                //this._subTextures[i].dispose();
-                delete this._subTextures[i];
-            }
-            if (this._armature) {
-                this.advanceTimeBySelf(false);
-            }
+            this._disposeProxy = false;
             this._armature = null;
             this._debugDrawer = null;
         };
         /**
-         * @inheritDoc
+         * @internal
+         * @private
          */
-        EgretArmatureDisplay.prototype._dispatchEvent = function (eventObject) {
-            var event = egret.Event.create(EgretEvent, eventObject.type);
+        EgretArmatureDisplay.prototype._dispatchEvent = function (type, eventObject) {
+            var event = egret.Event.create(EgretEvent, type);
             event.data = eventObject;
-            this.dispatchEvent(event);
+            _super.prototype.dispatchEvent.call(this, event);
             egret.Event.release(event);
         };
         /**
-         * @inheritDoc
+         * @internal
+         * @private
          */
         EgretArmatureDisplay.prototype._debugDraw = function (isEnabled) {
-            if (!this._debugDrawer) {
-                this._debugDrawer = new egret.Sprite();
-            }
             if (isEnabled) {
+                if (!this._debugDrawer) {
+                    this._debugDrawer = new egret.Sprite();
+                }
                 this.addChild(this._debugDrawer);
                 this._debugDrawer.graphics.clear();
                 var bones = this._armature.getBones();
@@ -302,20 +315,19 @@ var dragonBones;
                     var startY = bone.globalTransformMatrix.ty;
                     var endX = startX + bone.globalTransformMatrix.a * boneLength;
                     var endY = startY + bone.globalTransformMatrix.b * boneLength;
-                    this._debugDrawer.graphics.lineStyle(2, bone.ik ? 0xFF0000 : 0x00FFFF, 0.7);
+                    this._debugDrawer.graphics.lineStyle(2.0, bone.ik ? 0xFF0000 : 0x00FFFF, 0.7);
                     this._debugDrawer.graphics.moveTo(startX, startY);
                     this._debugDrawer.graphics.lineTo(endX, endY);
-                    this._debugDrawer.graphics.lineStyle(0, 0, 0);
+                    this._debugDrawer.graphics.lineStyle(0.0, 0, 0);
                     this._debugDrawer.graphics.beginFill(0x00FFFF, 0.7);
-                    this._debugDrawer.graphics.drawCircle(startX, startY, 3);
+                    this._debugDrawer.graphics.drawCircle(startX, startY, 3.0);
                     this._debugDrawer.graphics.endFill();
                 }
                 var slots = this._armature.getSlots();
                 for (var i = 0, l = slots.length; i < l; ++i) {
                     var slot = slots[i];
-                    var displayData = slot.displayData;
-                    if (displayData && displayData.boundingBox) {
-                        var boundingBox = displayData.boundingBox;
+                    var boundingBoxData = slot.boundingBoxData;
+                    if (boundingBoxData) {
                         var child = this._debugDrawer.getChildByName(slot.name);
                         if (!child) {
                             child = new egret.Shape();
@@ -323,22 +335,22 @@ var dragonBones;
                             this._debugDrawer.addChild(child);
                         }
                         child.graphics.clear();
-                        child.graphics.beginFill(0xFF00FF, 0.3);
-                        switch (boundingBox.type) {
+                        child.graphics.beginFill(boundingBoxData.color ? boundingBoxData.color : 0xFF00FF, 0.3);
+                        switch (boundingBoxData.type) {
                             case 0 /* Rectangle */:
-                                child.graphics.drawRect(-boundingBox.width * 0.5, -boundingBox.height * 0.5, boundingBox.width, boundingBox.height);
+                                child.graphics.drawRect(-boundingBoxData.width * 0.5, -boundingBoxData.height * 0.5, boundingBoxData.width, boundingBoxData.height);
                                 break;
                             case 1 /* Ellipse */:
-                                child.graphics.drawEllipse(-boundingBox.width * 0.5, -boundingBox.height * 0.5, boundingBox.width, boundingBox.height);
+                                child.graphics.drawEllipse(-boundingBoxData.width * 0.5, -boundingBoxData.height * 0.5, boundingBoxData.width, boundingBoxData.height);
                                 break;
                             case 2 /* Polygon */:
-                                var vertices = boundingBox.vertices;
-                                for (var i_1 = 0, l_1 = boundingBox.vertices.length; i_1 < l_1; i_1 += 2) {
-                                    if (i_1 == 0) {
-                                        child.graphics.moveTo(vertices[i_1], vertices[i_1 + 1]);
+                                var vertices = boundingBoxData.vertices;
+                                for (var iA = 0, lA = boundingBoxData.vertices.length; iA < lA; iA += 2) {
+                                    if (iA === 0) {
+                                        child.graphics.moveTo(vertices[iA], vertices[iA + 1]);
                                     }
                                     else {
-                                        child.graphics.lineTo(vertices[i_1], vertices[i_1 + 1]);
+                                        child.graphics.lineTo(vertices[iA], vertices[iA + 1]);
                                     }
                                 }
                                 break;
@@ -346,11 +358,7 @@ var dragonBones;
                                 break;
                         }
                         child.graphics.endFill();
-                        if (slot._blendIndex == 0) {
-                            slot._blendIndex = 1;
-                            slot["_updateLocalTransformMatrix"]();
-                            slot["_updateGlobalTransformMatrix"]();
-                        }
+                        slot._updateTransformAndMatrix();
                         child.$setMatrix(slot.globalTransformMatrix, false);
                     }
                     else {
@@ -361,17 +369,19 @@ var dragonBones;
                     }
                 }
             }
-            else if (this._debugDrawer && this.contains(this._debugDrawer)) {
+            else if (this._debugDrawer && this._debugDrawer.parent === this) {
                 this.removeChild(this._debugDrawer);
             }
         };
         /**
          * @inheritDoc
          */
-        EgretArmatureDisplay.prototype._onReplaceTexture = function (texture) {
-            for (var i in this._subTextures) {
-                //this._subTextures[i].dispose();
-                delete this._subTextures[i];
+        EgretArmatureDisplay.prototype.dispose = function (disposeProxy) {
+            if (disposeProxy === void 0) { disposeProxy = true; }
+            this._disposeProxy = disposeProxy;
+            if (this._armature) {
+                this._armature.dispose();
+                this._armature = null;
             }
         };
         /**
@@ -391,27 +401,6 @@ var dragonBones;
          */
         EgretArmatureDisplay.prototype.removeEvent = function (type, listener, target) {
             this.removeEventListener(type, listener, target);
-        };
-        /**
-         * @inheritDoc
-         */
-        EgretArmatureDisplay.prototype.dispose = function () {
-            if (this._armature) {
-                this.advanceTimeBySelf(false);
-                this._armature.dispose();
-                this._armature = null;
-            }
-        };
-        /**
-         * @inheritDoc
-         */
-        EgretArmatureDisplay.prototype.advanceTimeBySelf = function (on) {
-            if (on) {
-                dragonBones.EgretFactory._clock.add(this._armature);
-            }
-            else {
-                dragonBones.EgretFactory._clock.remove(this._armature);
-            }
         };
         Object.defineProperty(EgretArmatureDisplay.prototype, "armature", {
             /**
@@ -433,6 +422,19 @@ var dragonBones;
             enumerable: true,
             configurable: true
         });
+        /**
+         * @deprecated
+         * @see dragonBones.Animation#timescale
+         * @see dragonBones.Animation#stop()
+         */
+        EgretArmatureDisplay.prototype.advanceTimeBySelf = function (on) {
+            if (on) {
+                this._armature.clock = dragonBones.EgretFactory._clock;
+            }
+            else {
+                this._armature.clock = null;
+            }
+        };
         return EgretArmatureDisplay;
     }(egret.DisplayObjectContainer));
     dragonBones.EgretArmatureDisplay = EgretArmatureDisplay;
@@ -569,9 +571,8 @@ var dragonBones;
     var EgretSlot = (function (_super) {
         __extends(EgretSlot, _super);
         /**
-         * @language zh_CN
-         * 创建一个空的插槽。
-         * @version DragonBones 3.0
+         * @internal
+         * @private
          */
         function EgretSlot() {
             _super.call(this);
@@ -582,18 +583,8 @@ var dragonBones;
         EgretSlot.toString = function () {
             return "[class dragonBones.EgretSlot]";
         };
-        EgretSlot.prototype._createTexture = function (textureData, textureAtlas) {
-            var textureAtlasWidth = textureAtlas.width;
-            var textureAtlasHeight = textureAtlas.height;
-            var subTextureWidth = Math.min(textureData.region.width, textureAtlasWidth - textureData.region.x); // TODO need remove
-            var subTextureHeight = Math.min(textureData.region.height, textureAtlasHeight - textureData.region.y); // TODO need remove
-            var texture = new egret.Texture();
-            texture._bitmapData = textureAtlas;
-            texture.$initData(textureData.region.x, textureData.region.y, subTextureWidth, subTextureHeight, 0, 0, subTextureWidth, subTextureHeight, textureAtlasWidth, textureAtlasHeight);
-            return texture;
-        };
         /**
-         * @inheritDoc
+         * @private
          */
         EgretSlot.prototype._onClear = function () {
             _super.prototype._onClear.call(this);
@@ -615,23 +606,20 @@ var dragonBones;
          * @private
          */
         EgretSlot.prototype._onUpdateDisplay = function () {
-            if (!this._rawDisplay) {
-                this._rawDisplay = new egret.Bitmap();
-            }
-            this._renderDisplay = (this._display || this._rawDisplay);
+            this._renderDisplay = (this._display ? this._display : this._rawDisplay);
         };
         /**
          * @private
          */
         EgretSlot.prototype._addDisplay = function () {
-            var container = this._armature._display;
+            var container = this._armature.display;
             container.addChild(this._renderDisplay);
         };
         /**
          * @private
          */
         EgretSlot.prototype._replaceDisplay = function (value) {
-            var container = this._armature._display;
+            var container = this._armature.display;
             var prevDisplay = value;
             container.addChild(this._renderDisplay);
             container.swapChildren(this._renderDisplay, prevDisplay);
@@ -647,9 +635,9 @@ var dragonBones;
          * @private
          */
         EgretSlot.prototype._updateZOrder = function () {
-            var container = this._armature._display;
+            var container = this._armature.display;
             var index = container.getChildIndex(this._renderDisplay);
-            if (index == this._zOrder) {
+            if (index === this._zOrder) {
                 return;
             }
             container.addChildAt(this._renderDisplay, index < this._zOrder ? this._zOrder : this._zOrder + 1);
@@ -683,13 +671,13 @@ var dragonBones;
          * @private
          */
         EgretSlot.prototype._updateColor = function () {
-            if (this._colorTransform.redMultiplier != 1 ||
-                this._colorTransform.greenMultiplier != 1 ||
-                this._colorTransform.blueMultiplier != 1 ||
-                this._colorTransform.redOffset != 0 ||
-                this._colorTransform.greenOffset != 0 ||
-                this._colorTransform.blueOffset != 0 ||
-                this._colorTransform.alphaOffset != 0) {
+            if (this._colorTransform.redMultiplier !== 1 ||
+                this._colorTransform.greenMultiplier !== 1 ||
+                this._colorTransform.blueMultiplier !== 1 ||
+                this._colorTransform.redOffset !== 0 ||
+                this._colorTransform.greenOffset !== 0 ||
+                this._colorTransform.blueOffset !== 0 ||
+                this._colorTransform.alphaOffset !== 0) {
                 if (!this._colorFilter) {
                     this._colorFilter = new egret.ColorMatrixFilter();
                 }
@@ -723,88 +711,82 @@ var dragonBones;
         /**
          * @private
          */
-        EgretSlot.prototype._updateFilters = function () { };
-        /**
-         * @private
-         */
         EgretSlot.prototype._updateFrame = function () {
-            if (this._display && this._displayIndex >= 0) {
-                var rawDisplayData = this._displayIndex < this._displayDataSet.displays.length ? this._displayDataSet.displays[this._displayIndex] : null;
-                var replacedDisplayData = this._displayIndex < this._replacedDisplayDataSet.length ? this._replacedDisplayDataSet[this._displayIndex] : null;
-                var currentDisplayData = replacedDisplayData || rawDisplayData;
-                var currentTextureData = currentDisplayData.texture;
-                if (currentTextureData) {
-                    var currentTextureAtlasData = currentTextureData.parent;
-                    var replacedTextureAtlas = this._armature.replacedTexture ? this._armature.replacedTexture._bitmapData : null;
-                    var currentTextureAtlas = (replacedTextureAtlas && currentDisplayData.texture.parent == rawDisplayData.texture.parent) ?
-                        replacedTextureAtlas : (currentTextureAtlasData.texture ? currentTextureAtlasData.texture._bitmapData : null);
-                    if (currentTextureAtlas) {
-                        var currentTexture = currentTextureData.texture;
-                        if (currentTextureAtlas == replacedTextureAtlas) {
-                            var armatureDisplay = this._armature._display;
-                            var textureName = currentTextureData.name;
-                            currentTexture = armatureDisplay._subTextures[textureName];
-                            if (!currentTexture) {
-                                currentTexture = this._createTexture(currentTextureData, currentTextureAtlas);
-                                armatureDisplay._subTextures[textureName] = currentTexture;
-                            }
-                        }
-                        else if (!currentTextureData.texture) {
-                            currentTexture = this._createTexture(currentTextureData, currentTextureAtlas);
-                            currentTextureData.texture = currentTexture;
-                        }
-                        this._updatePivot(rawDisplayData, currentDisplayData, currentTextureData);
-                        if (this._meshData && this._display == this._meshDisplay) {
-                            var meshDisplay = this._meshDisplay;
-                            var meshNode = meshDisplay.$renderNode;
-                            meshNode.uvs.length = 0;
-                            meshNode.vertices.length = 0;
-                            meshNode.indices.length = 0;
-                            for (var i = 0, l = this._meshData.vertices.length; i < l; ++i) {
-                                meshNode.uvs[i] = this._meshData.uvs[i];
-                                meshNode.vertices[i] = this._meshData.vertices[i];
-                            }
-                            for (var i = 0, l = this._meshData.vertexIndices.length; i < l; ++i) {
-                                meshNode.indices[i] = this._meshData.vertexIndices[i];
-                            }
-                            meshDisplay.$setBitmapData(currentTexture);
-                            meshDisplay.$setAnchorOffsetX(this._pivotX);
-                            meshDisplay.$setAnchorOffsetY(this._pivotY);
-                            meshDisplay.$updateVertices();
-                            meshDisplay.$invalidateTransform();
-                            // Identity transform.
-                            if (this._meshData.skinned) {
-                                var transformationMatrix = meshDisplay.matrix;
-                                transformationMatrix.identity();
-                                meshDisplay.matrix = transformationMatrix;
-                            }
-                        }
-                        else {
-                            var frameDisplay_1 = this._display;
-                            frameDisplay_1.$setBitmapData(currentTexture);
-                            frameDisplay_1.$setAnchorOffsetX(this._pivotX);
-                            frameDisplay_1.$setAnchorOffsetY(this._pivotY);
-                        }
-                        this._updateVisible();
-                        return;
+            var isMeshDisplay = this._meshData && this._display === this._meshDisplay;
+            var currentTextureData = this._textureData;
+            if (this._displayIndex >= 0 && this._display && currentTextureData) {
+                var currentTextureAtlasData = currentTextureData.parent;
+                // Update replaced texture atlas.
+                if (this._armature.replacedTexture && this._displayData && currentTextureAtlasData === this._displayData.texture.parent) {
+                    currentTextureAtlasData = this._armature._replaceTextureAtlasData;
+                    if (!currentTextureAtlasData) {
+                        currentTextureAtlasData = dragonBones.BaseObject.borrowObject(dragonBones.EgretTextureAtlasData);
+                        currentTextureAtlasData.copyFrom(this._textureData.parent);
+                        currentTextureAtlasData.texture = this._armature.replacedTexture;
+                        this._armature._replaceTextureAtlasData = currentTextureAtlasData;
                     }
+                    currentTextureData = currentTextureAtlasData.getTexture(currentTextureData.name);
+                }
+                var currentTextureAtlas = currentTextureAtlasData.texture ? currentTextureAtlasData.texture._bitmapData : null;
+                if (currentTextureAtlas) {
+                    if (!currentTextureData.texture) {
+                        var textureAtlasWidth = currentTextureAtlas.width;
+                        var textureAtlasHeight = currentTextureAtlas.height;
+                        var subTextureWidth = Math.min(currentTextureData.region.width, textureAtlasWidth - currentTextureData.region.x); // TODO need remove
+                        var subTextureHeight = Math.min(currentTextureData.region.height, textureAtlasHeight - currentTextureData.region.y); // TODO need remove
+                        currentTextureData.texture = new egret.Texture();
+                        currentTextureData.texture._bitmapData = currentTextureAtlas;
+                        currentTextureData.texture.$initData(currentTextureData.region.x, currentTextureData.region.y, subTextureWidth, subTextureHeight, 0, 0, subTextureWidth, subTextureHeight, textureAtlasWidth, textureAtlasHeight);
+                    }
+                    if (isMeshDisplay) {
+                        var meshDisplay = this._renderDisplay;
+                        var meshNode = meshDisplay.$renderNode;
+                        meshNode.uvs.length = 0;
+                        meshNode.vertices.length = 0;
+                        meshNode.indices.length = 0;
+                        for (var i = 0, l = this._meshData.vertices.length; i < l; ++i) {
+                            meshNode.uvs[i] = this._meshData.uvs[i];
+                            meshNode.vertices[i] = this._meshData.vertices[i];
+                        }
+                        for (var i = 0, l = this._meshData.vertexIndices.length; i < l; ++i) {
+                            meshNode.indices[i] = this._meshData.vertexIndices[i];
+                        }
+                        meshDisplay.$setBitmapData(currentTextureData.texture);
+                        meshDisplay.$setAnchorOffsetX(this._pivotX);
+                        meshDisplay.$setAnchorOffsetY(this._pivotY);
+                        meshDisplay.$updateVertices();
+                        meshDisplay.$invalidateTransform();
+                    }
+                    else {
+                        var normalDisplay = this._renderDisplay;
+                        normalDisplay.$setBitmapData(currentTextureData.texture);
+                        normalDisplay.$setAnchorOffsetX(this._pivotX);
+                        normalDisplay.$setAnchorOffsetY(this._pivotY);
+                    }
+                    this._updateVisible();
+                    return;
                 }
             }
-            this._pivotX = 0;
-            this._pivotY = 0;
-            var frameDisplay = this._renderDisplay;
-            frameDisplay.visible = false;
-            frameDisplay.$setBitmapData(null);
-            frameDisplay.$setAnchorOffsetX(this._pivotX);
-            frameDisplay.$setAnchorOffsetY(this._pivotY);
-            frameDisplay.x = this.origin.x;
-            frameDisplay.y = this.origin.y;
+            if (isMeshDisplay) {
+                var meshDisplay = this._renderDisplay;
+                meshDisplay.visible = false;
+                meshDisplay.$setBitmapData(null);
+                meshDisplay.x = 0.0;
+                meshDisplay.y = 0.0;
+            }
+            else {
+                var normalDisplay = this._renderDisplay;
+                normalDisplay.visible = false;
+                normalDisplay.$setBitmapData(null);
+                normalDisplay.x = 0.0;
+                normalDisplay.y = 0.0;
+            }
         };
         /**
          * @private
          */
         EgretSlot.prototype._updateMesh = function () {
-            var meshDisplay = this._meshDisplay;
+            var meshDisplay = this._renderDisplay;
             var meshNode = meshDisplay.$renderNode;
             var hasFFD = this._ffdVertices.length > 0;
             if (this._meshData.skinned) {
@@ -852,23 +834,30 @@ var dragonBones;
         /**
          * @private
          */
-        EgretSlot.prototype._updateTransform = function () {
-            if (this.transformUpdateEnabled) {
-                this._renderDisplay.$setMatrix(this.globalTransformMatrix, this.transformUpdateEnabled);
-                this._renderDisplay.$setAnchorOffsetX(this._pivotX);
-                this._renderDisplay.$setAnchorOffsetX(this._pivotY);
+        EgretSlot.prototype._updateTransform = function (isSkinnedMesh) {
+            if (isSkinnedMesh) {
+                var transformationMatrix = this._renderDisplay.matrix;
+                transformationMatrix.identity();
+                this._renderDisplay.$setMatrix(transformationMatrix, this.transformUpdateEnabled);
             }
             else {
-                var values = this._renderDisplay.$DisplayObject;
-                var displayMatrix = values[6];
-                displayMatrix.a = this.globalTransformMatrix.a;
-                displayMatrix.b = this.globalTransformMatrix.b;
-                displayMatrix.c = this.globalTransformMatrix.c;
-                displayMatrix.d = this.globalTransformMatrix.d;
-                displayMatrix.tx = this.globalTransformMatrix.tx;
-                displayMatrix.ty = this.globalTransformMatrix.ty;
-                this._renderDisplay.$removeFlags(8);
-                this._renderDisplay.$invalidatePosition();
+                if (this.transformUpdateEnabled) {
+                    this._renderDisplay.$setMatrix(this.globalTransformMatrix, this.transformUpdateEnabled);
+                    this._renderDisplay.$setAnchorOffsetX(this._pivotX);
+                    this._renderDisplay.$setAnchorOffsetX(this._pivotY);
+                }
+                else {
+                    var values = this._renderDisplay.$DisplayObject;
+                    var displayMatrix = values[6];
+                    displayMatrix.a = this.globalTransformMatrix.a;
+                    displayMatrix.b = this.globalTransformMatrix.b;
+                    displayMatrix.c = this.globalTransformMatrix.c;
+                    displayMatrix.d = this.globalTransformMatrix.d;
+                    displayMatrix.tx = this.globalTransformMatrix.tx;
+                    displayMatrix.ty = this.globalTransformMatrix.ty;
+                    this._renderDisplay.$removeFlags(8);
+                    this._renderDisplay.$invalidatePosition();
+                }
             }
         };
         return EgretSlot;
@@ -910,7 +899,7 @@ var dragonBones;
         Object.defineProperty(EgretFactory, "factory", {
             /**
              * @language zh_CN
-             * 一个可以直接使用的全局工厂实例.
+             * 一个可以直接使用的全局工厂实例。
              * @version DragonBones 4.7
              */
             get: function () {
@@ -939,56 +928,52 @@ var dragonBones;
          */
         EgretFactory.prototype._generateArmature = function (dataPackage) {
             var armature = dragonBones.BaseObject.borrowObject(dragonBones.Armature);
-            var armatureDisplayContainer = new dragonBones.EgretArmatureDisplay();
-            armature._armatureData = dataPackage.armature;
-            armature._skinData = dataPackage.skin;
-            armature._animation = dragonBones.BaseObject.borrowObject(dragonBones.Animation);
-            armature._display = armatureDisplayContainer;
-            armature._eventManager = EgretFactory._eventManager;
-            armatureDisplayContainer._armature = armature;
-            armature._animation._armature = armature;
-            armature.animation.animations = dataPackage.armature.animations;
+            var armatureDisplay = new dragonBones.EgretArmatureDisplay();
+            armatureDisplay._armature = armature;
+            armature._init(dataPackage.armature, dataPackage.skin, armatureDisplay, armatureDisplay, EgretFactory._eventManager);
             return armature;
         };
         /**
          * @private
          */
-        EgretFactory.prototype._generateSlot = function (dataPackage, slotDisplayDataSet, armature) {
+        EgretFactory.prototype._generateSlot = function (dataPackage, skinSlotData, armature) {
+            var slotData = skinSlotData.slot;
             var slot = dragonBones.BaseObject.borrowObject(dragonBones.EgretSlot);
-            var slotData = slotDisplayDataSet.slot;
             var displayList = [];
-            slot.name = slotData.name;
-            slot._rawDisplay = new egret.Bitmap();
-            slot._meshDisplay = new egret.Mesh();
-            for (var i = 0, l = slotDisplayDataSet.displays.length; i < l; ++i) {
-                var displayData = slotDisplayDataSet.displays[i];
+            slot._init(skinSlotData, new egret.Bitmap(), new egret.Mesh());
+            for (var i = 0, l = skinSlotData.displays.length; i < l; ++i) {
+                var displayData = skinSlotData.displays[i];
                 switch (displayData.type) {
                     case 0 /* Image */:
                         if (!displayData.texture || dataPackage.textureAtlasName) {
                             displayData.texture = this._getTextureData(dataPackage.textureAtlasName || dataPackage.dataName, displayData.path);
                         }
-                        displayList.push(slot._rawDisplay);
+                        displayList.push(slot.rawDisplay);
                         break;
                     case 2 /* Mesh */:
                         if (!displayData.texture || dataPackage.textureAtlasName) {
                             displayData.texture = this._getTextureData(dataPackage.textureAtlasName || dataPackage.dataName, displayData.path);
                         }
-                        if (egret.Capabilities.renderMode == "webgl") {
-                            displayList.push(slot._meshDisplay);
+                        if (!displayData.mesh && displayData.share) {
+                            displayData.mesh = skinSlotData.getMesh(displayData.share);
+                        }
+                        if (egret.Capabilities.renderMode === "webgl" || egret.Capabilities.runtimeType === egret.RuntimeType.NATIVE) {
+                            displayList.push(slot.meshDisplay);
                         }
                         else {
                             console.warn("Canvas can not support mesh, please change renderMode to webgl.");
-                            displayList.push(slot._rawDisplay);
+                            displayList.push(slot.rawDisplay);
                         }
                         break;
                     case 1 /* Armature */:
                         var childArmature = this.buildArmature(displayData.path, dataPackage.dataName, null, dataPackage.textureAtlasName);
                         if (childArmature) {
-                            if (!slot.inheritAnimation) {
+                            childArmature.inheritAnimation = displayData.inheritAnimation;
+                            if (!childArmature.inheritAnimation) {
                                 var actions = slotData.actions.length > 0 ? slotData.actions : childArmature.armatureData.actions;
                                 if (actions.length > 0) {
-                                    for (var i_2 = 0, l_2 = actions.length; i_2 < l_2; ++i_2) {
-                                        childArmature._bufferAction(actions[i_2]);
+                                    for (var i_1 = 0, l_1 = actions.length; i_1 < l_1; ++i_1) {
+                                        childArmature._bufferAction(actions[i_1]);
                                     }
                                 }
                                 else {
@@ -1023,11 +1008,11 @@ var dragonBones;
             if (skinName === void 0) { skinName = null; }
             if (textureAtlasName === void 0) { textureAtlasName = null; }
             var armature = this.buildArmature(armatureName, dragonBonesName, skinName, textureAtlasName);
-            var armatureDisplay = armature ? armature._display : null;
-            if (armatureDisplay) {
-                armatureDisplay.advanceTimeBySelf(true);
+            if (armature) {
+                EgretFactory._clock.add(armature);
+                return armature.display;
             }
-            return armatureDisplay;
+            return null;
         };
         /**
          * @language zh_CN
@@ -1050,7 +1035,7 @@ var dragonBones;
             }
             return null;
         };
-        Object.defineProperty(EgretFactory.prototype, "soundEventManater", {
+        Object.defineProperty(EgretFactory.prototype, "soundEventManager", {
             /**
              * @language zh_CN
              * 获取全局声音事件管理器。
@@ -1122,6 +1107,17 @@ var dragonBones;
         EgretFactory.prototype.dispose = function () {
             this.clear();
         };
+        Object.defineProperty(EgretFactory.prototype, "soundEventManater", {
+            /**
+             * @deprecated
+             * @see dragonBones.EgretFactory#soundEventManager()
+             */
+            get: function () {
+                return EgretFactory._eventManager;
+            },
+            enumerable: true,
+            configurable: true
+        });
         EgretFactory._factory = null;
         /**
          * @private
@@ -1134,4 +1130,1193 @@ var dragonBones;
         return EgretFactory;
     }(dragonBones.BaseFactory));
     dragonBones.EgretFactory = EgretFactory;
+})(dragonBones || (dragonBones = {}));
+var dragonBones;
+(function (dragonBones) {
+    /**
+     * @private
+     */
+    var Slot = (function (_super) {
+        __extends(Slot, _super);
+        function Slot(slotConfig) {
+            _super.call(this);
+            this.displayIndex = -1;
+            this.colorIndex = -1;
+            this.transformIndex = -1;
+            this.config = null;
+            this.displayConfig = null;
+            this.display = null;
+            this.childMovie = null;
+            this.colorFilter = null;
+            this.rawDisplay = new egret.Bitmap();
+            this.childMovies = {};
+            this.display = this.rawDisplay;
+            this.config = slotConfig;
+            this.rawDisplay.name = this.config.name;
+            if (this.config.blendMode == null) {
+                this.config.blendMode = 0 /* Normal */;
+            }
+        }
+        Slot.prototype.dispose = function () {
+            this.config = null;
+            this.displayConfig = null;
+            this.display = null;
+            this.childMovie = null;
+            this.colorFilter = null;
+            this.rawDisplay = null;
+            this.childMovies = null;
+        };
+        return Slot;
+    }(egret.HashObject));
+    /**
+     * @private
+     */
+    var _helpRectangle = new egret.Rectangle();
+    /**
+     * @private
+     */
+    var _helpMatrix = new egret.Matrix();
+    /**
+     * @private
+     */
+    var _groupConfigMap = {};
+    /**
+     * @private
+     */
+    function _findObjectInArray(array, name) {
+        for (var i = 0, l = array.length; i < l; ++i) {
+            var data = array[i];
+            if (data.name === name) {
+                return data;
+            }
+        }
+        return null;
+    }
+    /**
+     * @private
+     */
+    function _fillCreateMovieHelper(createMovieHelper) {
+        if (createMovieHelper.groupName) {
+            var groupConfig = _groupConfigMap[createMovieHelper.groupName];
+            if (groupConfig) {
+                var movieConfig = _findObjectInArray(groupConfig.movie, createMovieHelper.movieName);
+                if (movieConfig) {
+                    createMovieHelper.groupConfig = groupConfig;
+                    createMovieHelper.movieConfig = movieConfig;
+                    return true;
+                }
+            }
+        }
+        if (!createMovieHelper.groupName) {
+            for (var groupName in _groupConfigMap) {
+                var groupConfig = _groupConfigMap[groupName];
+                if (!createMovieHelper.groupName) {
+                    var movieConfig = _findObjectInArray(groupConfig.movie, createMovieHelper.movieName);
+                    if (movieConfig) {
+                        createMovieHelper.groupName = groupName;
+                        createMovieHelper.groupConfig = groupConfig;
+                        createMovieHelper.movieConfig = movieConfig;
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+    /**
+     * @language zh_CN
+     * 是否包含指定名称的动画组。
+     * @param groupName 动画组的名称。
+     * @version DragonBones 4.7
+     */
+    function hasMovieGroup(groupName) {
+        return _groupConfigMap[groupName] != null;
+    }
+    dragonBones.hasMovieGroup = hasMovieGroup;
+    /**
+     * @language zh_CN
+     * 添加动画组。
+     * @param groupData 动画二进制数据。
+     * @param textureAtlas 贴图集或贴图集列表。
+     * @param groupName 为动画组指定一个名称，如果未设置，则使用数据中的名称。
+     * @version DragonBones 4.7
+     */
+    function addMovieGroup(groupData, textureAtlas, groupName) {
+        if (groupName === void 0) { groupName = null; }
+        if (groupData) {
+            var byteArray = new egret.ByteArray(groupData);
+            byteArray.endian = egret.Endian.LITTLE_ENDIAN;
+            byteArray.position = 8; // TODO format
+            var groupConfig = JSON.parse(byteArray.readUTF());
+            groupConfig.offset = byteArray.position;
+            groupConfig.arrayBuffer = groupData;
+            groupConfig.textures = [];
+            var p = groupConfig.offset % 4;
+            if (p) {
+                groupConfig.offset += 4 - p;
+            }
+            for (var i = 0, l = groupConfig.position.length; i < l; i += 3) {
+                switch (i / 3) {
+                    case 1:
+                        groupConfig.displayFrameArray = new Int16Array(groupConfig.arrayBuffer, groupConfig.offset + groupConfig.position[i], groupConfig.position[i + 1] / groupConfig.position[i + 2]);
+                        break;
+                    case 2:
+                        groupConfig.rectangleArray = new Float32Array(groupConfig.arrayBuffer, groupConfig.offset + groupConfig.position[i], groupConfig.position[i + 1] / groupConfig.position[i + 2]);
+                        break;
+                    case 3:
+                        groupConfig.transformArray = new Float32Array(groupConfig.arrayBuffer, groupConfig.offset + groupConfig.position[i], groupConfig.position[i + 1] / groupConfig.position[i + 2]);
+                        break;
+                    case 4:
+                        groupConfig.colorArray = new Int16Array(groupConfig.arrayBuffer, groupConfig.offset + groupConfig.position[i], groupConfig.position[i + 1] / groupConfig.position[i + 2]);
+                        break;
+                }
+            }
+            groupName = groupName || groupConfig.name;
+            if (_groupConfigMap[groupName]) {
+            }
+            _groupConfigMap[groupName] = groupConfig;
+            //
+            if (textureAtlas instanceof Array) {
+                for (var i = 0, l = textureAtlas.length; i < l; ++i) {
+                    var texture = textureAtlas[i];
+                    groupConfig.textures.push(texture);
+                }
+            }
+            else {
+                groupConfig.textures.push(textureAtlas);
+            }
+        }
+        else {
+            throw new Error();
+        }
+    }
+    dragonBones.addMovieGroup = addMovieGroup;
+    /**
+     * @language zh_CN
+     * 移除动画组。
+     * @param groupName 动画组的名称。
+     * @version DragonBones 4.7
+     */
+    function removeMovieGroup(groupName) {
+        var groupConfig = _groupConfigMap[groupName];
+        if (groupConfig) {
+            delete _groupConfigMap[groupName];
+        }
+    }
+    dragonBones.removeMovieGroup = removeMovieGroup;
+    /**
+     * @language zh_CN
+     * 移除所有的动画组。
+     * @param groupName 动画组的名称。
+     * @version DragonBones 4.7
+     */
+    function removeAllMovieGroup() {
+        for (var i in _groupConfigMap) {
+            delete _groupConfigMap[i];
+        }
+    }
+    dragonBones.removeAllMovieGroup = removeAllMovieGroup;
+    /**
+     * @language zh_CN
+     * 创建一个动画。
+     * @param movieName 动画的名称。
+     * @param groupName 动画组的名称，如果未设置，将检索所有的动画组，当多个动画组中包含同名的动画时，可能无法创建出准确的动画。
+     * @version DragonBones 4.7
+     */
+    function buildMovie(movieName, groupName) {
+        if (groupName === void 0) { groupName = null; }
+        var createMovieHelper = { movieName: movieName, groupName: groupName };
+        if (_fillCreateMovieHelper(createMovieHelper)) {
+            var movie = new Movie(createMovieHelper);
+            return movie;
+        }
+        else {
+            console.warn("No movie named: " + movieName);
+        }
+        return null;
+    }
+    dragonBones.buildMovie = buildMovie;
+    /**
+     * @language zh_CN
+     * 获取指定动画组内包含的所有动画名称。
+     * @param groupName 动画组的名称。
+     * @version DragonBones 4.7
+     */
+    function getMovieNames(groupName) {
+        var groupConfig = _groupConfigMap[groupName];
+        if (groupConfig) {
+            var movieNameGroup = [];
+            for (var i = 0, l = groupConfig.movie.length; i < l; ++i) {
+                movieNameGroup.push(groupConfig.movie[i].name);
+            }
+            return movieNameGroup;
+        }
+        else {
+            console.warn("No group named: " + groupName);
+        }
+        return null;
+    }
+    dragonBones.getMovieNames = getMovieNames;
+    /**
+     * @language zh_CN
+     * 动画事件。
+     * @version DragonBones 4.7
+     */
+    var MovieEvent = (function (_super) {
+        __extends(MovieEvent, _super);
+        /**
+         * @private
+         */
+        function MovieEvent(type) {
+            _super.call(this, type);
+            /**
+             * @language zh_CN
+             * 事件名称。 (帧标签的名称或声音的名称)
+             * @version DragonBones 4.7
+             */
+            this.name = null;
+            /**
+             * @language zh_CN
+             * 发出事件的插槽名称。
+             * @version DragonBones 4.7
+             */
+            this.slotName = null;
+            /**
+             * @language zh_CN
+             * 发出事件的动画剪辑名称。
+             * @version DragonBones 4.7
+             */
+            this.clipName = null;
+            /**
+             * @language zh_CN
+             * 发出事件的动画。
+             * @version DragonBones 4.7
+             */
+            this.movie = null;
+        }
+        /**
+         * @language zh_CN
+         * 动画剪辑开始播放。
+         * @version DragonBones 4.7
+         */
+        MovieEvent.START = "start";
+        /**
+         * @language zh_CN
+         * 动画剪辑循环播放一次完成。
+         * @version DragonBones 4.7
+         */
+        MovieEvent.LOOP_COMPLETE = "loopComplete";
+        /**
+         * @language zh_CN
+         * 动画剪辑播放完成。
+         * @version DragonBones 4.7
+         */
+        MovieEvent.COMPLETE = "complete";
+        /**
+         * @language zh_CN
+         * 动画剪辑帧事件。
+         * @version DragonBones 4.7
+         */
+        MovieEvent.FRAME_EVENT = "frameEvent";
+        /**
+         * @language zh_CN
+         * 动画剪辑声音事件。
+         * @version DragonBones 4.7
+         */
+        MovieEvent.SOUND_EVENT = "soundEvent";
+        return MovieEvent;
+    }(egret.Event));
+    dragonBones.MovieEvent = MovieEvent;
+    /**
+     * @language zh_CN
+     * 通过读取缓存的二进制动画数据来更新动画，具有良好的运行性能，同时对内存的占用也非常低。
+     * @see dragonBones.buildMovie
+     * @version DragonBones 4.7
+     */
+    var Movie = (function (_super) {
+        __extends(Movie, _super);
+        /**
+         * @internal
+         * @private
+         */
+        function Movie(createMovieHelper) {
+            _super.call(this);
+            /**
+             * @language zh_CN
+             * 动画的播放速度。 [(-N~0): 倒转播放, 0: 停止播放, (0~1): 慢速播放, 1: 正常播放, (1~N): 快速播放]
+             * @default 1
+             * @version DragonBones 4.7
+             */
+            this.timeScale = 1;
+            /**
+             * @language zh_CN
+             * 动画剪辑的播放速度。 [(-N~0): 倒转播放, 0: 停止播放, (0~1): 慢速播放, 1: 正常播放, (1~N): 快速播放]
+             * （当再次播放其他动画剪辑时，此值将被重置为 1）
+             * @default 1
+             * @version DragonBones 4.7
+             */
+            this.clipTimeScale = 1;
+            this._batchEnabled = true;
+            this._isLockDispose = false;
+            this._isDelayDispose = false;
+            this._isStarted = false;
+            this._isPlaying = false;
+            this._isReversing = false;
+            this._isCompleted = false;
+            this._playTimes = 0;
+            this._time = 0;
+            this._currentTime = 0;
+            this._timeStamp = 0;
+            this._currentPlayTimes = 0;
+            this._cacheFrameIndex = 0;
+            this._frameSize = 0;
+            this._cacheRectangle = null;
+            this._clock = null;
+            this._groupConfig = null;
+            this._config = null;
+            this._clipConfig = null;
+            this._currentFrameConfig = null;
+            this._clipArray = null;
+            this._clipNames = [];
+            this._slots = [];
+            this._childMovies = [];
+            this._groupConfig = createMovieHelper.groupConfig;
+            this._config = createMovieHelper.movieConfig;
+            this._batchEnabled = !this._config.isNested;
+            if (this._batchEnabled) {
+                this.$renderNode = new egret.sys.GroupNode();
+                this.$renderNode.cleanBeforeRender = Movie._cleanBeforeRender;
+            }
+            this._clipNames.length = 0;
+            for (var i = 0, l = this._config.clip.length; i < l; ++i) {
+                this._clipNames.push(this._config.clip[i].name);
+            }
+            for (var i = 0, l = this._config.slot.length; i < l; ++i) {
+                var slot = new Slot(this._config.slot[i]);
+                this._updateSlotBlendMode(slot);
+                this._slots.push(slot);
+                if (this._batchEnabled) {
+                    this.$renderNode.addNode(slot.rawDisplay.$renderNode);
+                }
+                else {
+                    this.addChild(slot.rawDisplay);
+                }
+            }
+            this._frameSize = (1 + 1) * this._slots.length; // displayFrame, transformFrame.
+            dragonBones.EgretFactory.factory; //
+            this.advanceTimeBySelf(true);
+            this.name = this._config.name;
+            this.play();
+            this.advanceTime(0.000001);
+            this.stop();
+        }
+        Movie._cleanBeforeRender = function () { };
+        Movie.prototype._configToEvent = function (config, event) {
+            event.movie = this;
+            event.clipName = this._clipConfig.name;
+            event.name = config.name;
+            event.slotName = config.slot;
+        };
+        Movie.prototype._onCrossFrame = function (frameConfig) {
+            for (var i = 0, l = frameConfig.actionAndEvent.length; i < l; ++i) {
+                var actionAndEvent = frameConfig.actionAndEvent[i];
+                if (actionAndEvent) {
+                    switch (actionAndEvent.type) {
+                        case 11 /* Sound */:
+                            if (dragonBones.EgretFactory.factory.soundEventManater.hasEventListener(MovieEvent.SOUND_EVENT)) {
+                                var event_1 = egret.Event.create(MovieEvent, MovieEvent.SOUND_EVENT);
+                                this._configToEvent(actionAndEvent, event_1);
+                                dragonBones.EgretFactory.factory.soundEventManater.dispatchEvent(event_1);
+                                egret.Event.release(event_1);
+                            }
+                            break;
+                        case 10 /* Frame */:
+                            if (this.hasEventListener(MovieEvent.FRAME_EVENT)) {
+                                var event_2 = egret.Event.create(MovieEvent, MovieEvent.FRAME_EVENT);
+                                this._configToEvent(actionAndEvent, event_2);
+                                this.dispatchEvent(event_2);
+                                egret.Event.release(event_2);
+                            }
+                            break;
+                        case 0 /* Play */:
+                        case 4 /* Fade */:
+                            if (actionAndEvent.slot) {
+                                var slot = this._getSlot(actionAndEvent.slot);
+                                if (slot && slot.childMovie) {
+                                    slot.childMovie.play(actionAndEvent.name);
+                                }
+                            }
+                            else {
+                                this.play(actionAndEvent.name);
+                            }
+                            break;
+                    }
+                }
+            }
+        };
+        Movie.prototype._updateSlotBlendMode = function (slot) {
+            var blendMode = "";
+            switch (slot.config.blendMode) {
+                case 0 /* Normal */:
+                    blendMode = egret.BlendMode.NORMAL;
+                    break;
+                case 1 /* Add */:
+                    blendMode = egret.BlendMode.ADD;
+                    break;
+                case 5 /* Erase */:
+                    blendMode = egret.BlendMode.ERASE;
+                    break;
+                default:
+                    break;
+            }
+            if (blendMode) {
+                if (this._batchEnabled) {
+                    // RenderNode display.
+                    slot.display.$renderNode.blendMode = egret.sys.blendModeToNumber(blendMode);
+                }
+                else {
+                    // Classic display.
+                    slot.display.blendMode = blendMode;
+                }
+            }
+        };
+        Movie.prototype._updateSlotColor = function (slot, aM, rM, gM, bM, aO, rO, gO, bO) {
+            if (rM !== 1 ||
+                gM !== 1 ||
+                bM !== 1 ||
+                rO !== 0 ||
+                gO !== 0 ||
+                bO !== 0 ||
+                aO !== 0) {
+                if (!slot.colorFilter) {
+                    slot.colorFilter = new egret.ColorMatrixFilter();
+                }
+                var colorMatrix = slot.colorFilter.matrix;
+                colorMatrix[0] = rM;
+                colorMatrix[6] = gM;
+                colorMatrix[12] = bM;
+                colorMatrix[18] = aM;
+                colorMatrix[4] = rO;
+                colorMatrix[9] = gO;
+                colorMatrix[14] = bO;
+                colorMatrix[19] = aO;
+                slot.colorFilter.matrix = colorMatrix;
+                if (this._batchEnabled) {
+                    // RenderNode display.
+                    var filter = slot.display.$renderNode.filter;
+                    slot.display.$renderNode.filter = slot.colorFilter;
+                }
+                else {
+                    // Classic display.
+                    var filters = slot.display.filters;
+                    if (!filters) {
+                        filters = [];
+                    }
+                    if (filters.indexOf(slot.colorFilter) < 0) {
+                        filters.push(slot.colorFilter);
+                    }
+                    slot.display.filters = filters;
+                }
+            }
+            else {
+                if (slot.colorFilter) {
+                    slot.colorFilter = null;
+                }
+                if (this._batchEnabled) {
+                    // RenderNode display.
+                    slot.display.$renderNode.filter = null;
+                    slot.display.$renderNode.alpha = aM;
+                }
+                else {
+                    // Classic display.
+                    slot.display.filters = null;
+                    slot.display.$setAlpha(aM);
+                }
+            }
+        };
+        Movie.prototype._updateSlotDisplay = function (slot) {
+            var prevDisplay = slot.display || slot.rawDisplay;
+            var prevChildMovie = slot.childMovie;
+            if (slot.displayIndex >= 0) {
+                slot.displayConfig = this._groupConfig.display[slot.displayIndex];
+                if (slot.displayConfig.type === 1 /* Armature */) {
+                    var childMovie = slot.childMovies[slot.displayConfig.name];
+                    if (!childMovie) {
+                        childMovie = buildMovie(slot.displayConfig.name, this._groupConfig.name);
+                        childMovie.advanceTimeBySelf(false);
+                        slot.childMovies[slot.displayConfig.name] = childMovie;
+                    }
+                    slot.display = childMovie;
+                    slot.childMovie = childMovie;
+                }
+                else {
+                    slot.display = slot.rawDisplay;
+                    slot.childMovie = null;
+                }
+            }
+            else {
+                slot.displayConfig = null;
+                slot.display = slot.rawDisplay;
+                slot.childMovie = null;
+            }
+            if (slot.display !== prevDisplay) {
+                if (prevDisplay) {
+                    this.addChild(slot.display);
+                    this.swapChildren(slot.display, prevDisplay);
+                    this.removeChild(prevDisplay);
+                }
+                // Update blendMode.
+                this._updateSlotBlendMode(slot);
+            }
+            // Update frame.
+            if (slot.display === slot.rawDisplay) {
+                if (slot.displayConfig && slot.displayConfig.regionIndex != null) {
+                    if (!slot.displayConfig.texture) {
+                        var textureAtlasTexture = this._groupConfig.textures[0]; // TODO
+                        var regionIndex = slot.displayConfig.regionIndex * 4;
+                        var x = this._groupConfig.rectangleArray[regionIndex];
+                        var y = this._groupConfig.rectangleArray[regionIndex + 1];
+                        var width = this._groupConfig.rectangleArray[regionIndex + 2];
+                        var height = this._groupConfig.rectangleArray[regionIndex + 3];
+                        slot.displayConfig.texture = new egret.Texture();
+                        slot.displayConfig.texture._bitmapData = textureAtlasTexture._bitmapData;
+                        slot.displayConfig.texture.$initData(x, y, Math.min(width, textureAtlasTexture.textureWidth - x), Math.min(height, textureAtlasTexture.textureHeight - y), 0, 0, Math.min(width, textureAtlasTexture.textureWidth - x), Math.min(height, textureAtlasTexture.textureHeight - y), textureAtlasTexture.textureWidth, textureAtlasTexture.textureHeight);
+                    }
+                    if (this._batchEnabled) {
+                        // RenderNode display.
+                        var texture = slot.displayConfig.texture;
+                        var bitmapNode = slot.rawDisplay.$renderNode;
+                        egret.sys.RenderNode.prototype.cleanBeforeRender.call(slot.rawDisplay.$renderNode);
+                        bitmapNode.image = texture._bitmapData;
+                        bitmapNode.drawImage(texture._bitmapX, texture._bitmapY, texture._bitmapWidth, texture._bitmapHeight, texture._offsetX, texture._offsetY, texture.textureWidth, texture.textureHeight);
+                        bitmapNode.imageWidth = texture._sourceWidth;
+                        bitmapNode.imageHeight = texture._sourceHeight;
+                    }
+                    else {
+                        // Classic display.
+                        slot.rawDisplay.visible = true;
+                        slot.rawDisplay.$setBitmapData(slot.displayConfig.texture);
+                    }
+                }
+                else {
+                    if (this._batchEnabled) {
+                        // RenderNode display.
+                        slot.rawDisplay.$renderNode.image = null;
+                    }
+                    else {
+                        // Classic display.
+                        slot.rawDisplay.visible = false;
+                        slot.rawDisplay.$setBitmapData(null);
+                    }
+                }
+            }
+            // Update child movie.
+            if (slot.childMovie !== prevChildMovie) {
+                if (prevChildMovie) {
+                    prevChildMovie.stop();
+                    this._childMovies.slice(this._childMovies.indexOf(prevChildMovie), 1);
+                }
+                if (slot.childMovie) {
+                    if (this._childMovies.indexOf(slot.childMovie) < 0) {
+                        this._childMovies.push(slot.childMovie);
+                    }
+                    if (slot.config.action) {
+                        slot.childMovie.play(slot.config.action);
+                    }
+                    else {
+                        slot.childMovie.play(slot.childMovie._config.action);
+                    }
+                }
+            }
+        };
+        Movie.prototype._getSlot = function (name) {
+            for (var i = 0, l = this._slots.length; i < l; ++i) {
+                var slot = this._slots[i];
+                if (slot.config.name === name) {
+                    return slot;
+                }
+            }
+            return null;
+        };
+        /**
+         * @inheritDoc
+         */
+        Movie.prototype.$render = function () {
+            if (this._batchEnabled) {
+            }
+            else {
+                // Classic display.
+                _super.prototype.$render.call(this);
+            }
+        };
+        /**
+         * @inheritDoc
+         */
+        Movie.prototype.$measureContentBounds = function (bounds) {
+            if (this._batchEnabled && this._cacheRectangle) {
+                // RenderNode display.
+                bounds.setTo(this._cacheRectangle.x, this._cacheRectangle.y, this._cacheRectangle.width - this._cacheRectangle.x, this._cacheRectangle.height - this._cacheRectangle.y);
+            }
+            else {
+                // Classic display.
+                _super.prototype.$measureContentBounds.call(this, bounds);
+            }
+        };
+        /**
+         * @inheritDoc
+         */
+        Movie.prototype.$doAddChild = function (child, index, notifyListeners) {
+            if (this._batchEnabled) {
+                // RenderNode display.
+                console.warn("Can not add child.");
+                return null;
+            }
+            // Classic display.
+            return _super.prototype.$doAddChild.call(this, child, index, notifyListeners);
+        };
+        /**
+         * @inheritDoc
+         */
+        Movie.prototype.$doRemoveChild = function (index, notifyListeners) {
+            if (this._batchEnabled) {
+                // RenderNode display.
+                console.warn("Can not remove child.");
+                return null;
+            }
+            // Classic display.
+            return _super.prototype.$doRemoveChild.call(this, index, notifyListeners);
+        };
+        /**
+         * @language zh_CN
+         * 释放动画。
+         * @version DragonBones 3.0
+         */
+        Movie.prototype.dispose = function () {
+            if (this._isLockDispose) {
+                this._isDelayDispose = true;
+            }
+            else {
+                if (this._clock) {
+                    this._clock.remove(this);
+                }
+                if (this._slots) {
+                    for (var i = 0, l = this._slots.length; i < l; ++i) {
+                        this._slots[i].dispose();
+                    }
+                }
+                this._isPlaying = false;
+                this._cacheRectangle = null;
+                this._clock = null;
+                this._groupConfig = null;
+                this._config = null;
+                this._clipConfig = null;
+                this._currentFrameConfig = null;
+                this._clipArray = null;
+                this._clipNames = null;
+                this._slots = null;
+                this._childMovies = null;
+            }
+        };
+        /**
+         * @inheritDoc
+         */
+        Movie.prototype.advanceTime = function (passedTime) {
+            if (!this._isPlaying) {
+                return;
+            }
+            this._isLockDispose = true;
+            if (passedTime < 0) {
+                passedTime = -passedTime;
+            }
+            passedTime *= this.timeScale;
+            this._time += passedTime * this.clipTimeScale;
+            // Modify time.            
+            var duration = this._clipConfig.duration;
+            var totalTime = duration * this._playTimes;
+            var currentTime = this._time;
+            var currentPlayTimes = this._currentPlayTimes;
+            if (this._playTimes > 0 && (currentTime >= totalTime || currentTime <= -totalTime)) {
+                this._isCompleted = true;
+                currentPlayTimes = this._playTimes;
+                if (currentTime < 0) {
+                    currentTime = 0;
+                }
+                else {
+                    currentTime = duration;
+                }
+            }
+            else {
+                this._isCompleted = false;
+                if (currentTime < 0) {
+                    currentPlayTimes = Math.floor(-currentTime / duration);
+                    currentTime = duration - (-currentTime % duration);
+                }
+                else {
+                    currentPlayTimes = Math.floor(currentTime / duration);
+                    currentTime %= duration;
+                }
+                if (this._playTimes > 0 && currentPlayTimes > this._playTimes) {
+                    currentPlayTimes = this._playTimes;
+                }
+            }
+            if (this._currentTime === currentTime) {
+                return;
+            }
+            var cacheFrameIndex = Math.floor(currentTime * this._clipConfig.cacheTimeToFrameScale);
+            if (this._cacheFrameIndex !== cacheFrameIndex) {
+                this._cacheFrameIndex = cacheFrameIndex;
+                var displayFrameArray = this._groupConfig.displayFrameArray;
+                var transformArray = this._groupConfig.transformArray;
+                var colorArray = this._groupConfig.colorArray;
+                //
+                var isFirst = true;
+                var hasDisplay = false;
+                var needCacheRectangle = false;
+                var prevCacheRectangle = this._cacheRectangle;
+                this._cacheRectangle = this._clipConfig.cacheRectangles[this._cacheFrameIndex];
+                if (this._batchEnabled && !this._cacheRectangle) {
+                    needCacheRectangle = true;
+                    this._cacheRectangle = new egret.Rectangle();
+                    this._clipConfig.cacheRectangles[this._cacheFrameIndex] = this._cacheRectangle;
+                }
+                // Update slots.
+                for (var i = 0, l = this._slots.length; i < l; ++i) {
+                    var slot = this._slots[i];
+                    var clipFrameIndex = this._frameSize * this._cacheFrameIndex + i * 2;
+                    var displayFrameIndex = this._clipArray[clipFrameIndex] * 2;
+                    if (displayFrameIndex >= 0) {
+                        var displayIndex = displayFrameArray[displayFrameIndex];
+                        var colorIndex = displayFrameArray[displayFrameIndex + 1] * 8;
+                        var transformIndex = this._clipArray[clipFrameIndex + 1] * 6;
+                        var colorChange = false;
+                        if (slot.displayIndex !== displayIndex) {
+                            slot.displayIndex = displayIndex;
+                            colorChange = true;
+                            this._updateSlotDisplay(slot);
+                        }
+                        if (slot.colorIndex !== colorIndex || colorChange) {
+                            slot.colorIndex = colorIndex;
+                            if (slot.colorIndex >= 0) {
+                                this._updateSlotColor(slot, colorArray[colorIndex] * 0.01, colorArray[colorIndex + 1] * 0.01, colorArray[colorIndex + 2] * 0.01, colorArray[colorIndex + 3] * 0.01, colorArray[colorIndex + 4], colorArray[colorIndex + 5], colorArray[colorIndex + 6], colorArray[colorIndex + 7]);
+                            }
+                            else {
+                                this._updateSlotColor(slot, 1, 1, 1, 1, 0, 0, 0, 0);
+                            }
+                        }
+                        hasDisplay = true;
+                        if (slot.transformIndex !== transformIndex) {
+                            slot.transformIndex = transformIndex;
+                            if (this._batchEnabled) {
+                                // RenderNode display.
+                                var matrix = slot.display.$renderNode.matrix;
+                                if (!matrix) {
+                                    matrix = slot.display.$renderNode.matrix = new egret.Matrix();
+                                }
+                                matrix.a = transformArray[transformIndex];
+                                matrix.b = transformArray[transformIndex + 1];
+                                matrix.c = transformArray[transformIndex + 2];
+                                matrix.d = transformArray[transformIndex + 3];
+                                matrix.tx = transformArray[transformIndex + 4];
+                                matrix.ty = transformArray[transformIndex + 5];
+                            }
+                            else {
+                                // Classic display.
+                                _helpMatrix.a = transformArray[transformIndex];
+                                _helpMatrix.b = transformArray[transformIndex + 1];
+                                _helpMatrix.c = transformArray[transformIndex + 2];
+                                _helpMatrix.d = transformArray[transformIndex + 3];
+                                _helpMatrix.tx = transformArray[transformIndex + 4];
+                                _helpMatrix.ty = transformArray[transformIndex + 5];
+                                slot.display.$setMatrix(_helpMatrix);
+                            }
+                        }
+                        // 
+                        if (this._batchEnabled && needCacheRectangle) {
+                            // RenderNode display.
+                            var matrix = slot.display.$renderNode.matrix;
+                            _helpRectangle.x = 0;
+                            _helpRectangle.y = 0;
+                            _helpRectangle.width = slot.displayConfig.texture.textureWidth;
+                            _helpRectangle.height = slot.displayConfig.texture.textureHeight;
+                            matrix.$transformBounds(_helpRectangle);
+                            if (isFirst) {
+                                isFirst = false;
+                                this._cacheRectangle.x = _helpRectangle.x;
+                                this._cacheRectangle.width = _helpRectangle.x + _helpRectangle.width;
+                                this._cacheRectangle.y = _helpRectangle.y;
+                                this._cacheRectangle.height = _helpRectangle.y + _helpRectangle.height;
+                            }
+                            else {
+                                this._cacheRectangle.x = Math.min(this._cacheRectangle.x, _helpRectangle.x);
+                                this._cacheRectangle.width = Math.max(this._cacheRectangle.width, _helpRectangle.x + _helpRectangle.width);
+                                this._cacheRectangle.y = Math.min(this._cacheRectangle.y, _helpRectangle.y);
+                                this._cacheRectangle.height = Math.max(this._cacheRectangle.height, _helpRectangle.y + _helpRectangle.height);
+                            }
+                        }
+                    }
+                    else if (slot.displayIndex !== -1) {
+                        slot.displayIndex = -1;
+                        this._updateSlotDisplay(slot);
+                    }
+                }
+                //
+                if (this._cacheRectangle) {
+                    if (hasDisplay && needCacheRectangle && isFirst && prevCacheRectangle) {
+                        this._cacheRectangle.x = prevCacheRectangle.x;
+                        this._cacheRectangle.y = prevCacheRectangle.y;
+                        this._cacheRectangle.width = prevCacheRectangle.width;
+                        this._cacheRectangle.height = prevCacheRectangle.height;
+                    }
+                    this.$invalidateContentBounds();
+                }
+            }
+            if (this._isCompleted) {
+                this._isPlaying = false;
+            }
+            if (!this._isStarted) {
+                this._isStarted = true;
+                if (this.hasEventListener(MovieEvent.START)) {
+                    var event_3 = egret.Event.create(MovieEvent, MovieEvent.START);
+                    event_3.movie = this;
+                    event_3.clipName = this._clipConfig.name;
+                    event_3.name = null;
+                    event_3.slotName = null;
+                    this.dispatchEvent(event_3);
+                }
+            }
+            this._isReversing = this._currentTime > currentTime && this._currentPlayTimes === currentPlayTimes;
+            // Action and event.
+            var frameCount = this._clipConfig.frame ? this._clipConfig.frame.length : 0;
+            if (frameCount > 0) {
+                var currentFrameIndex = Math.floor(this._currentTime * this._config.frameRate);
+                var currentFrameConfig = this._groupConfig.frame[this._clipConfig.frame[currentFrameIndex]];
+                if (this._currentFrameConfig !== currentFrameConfig) {
+                    if (frameCount > 1) {
+                        var crossedFrameConfig = this._currentFrameConfig;
+                        this._currentFrameConfig = currentFrameConfig;
+                        if (!crossedFrameConfig) {
+                            var prevFrameIndex = Math.floor(this._currentTime * this._config.frameRate);
+                            crossedFrameConfig = this._groupConfig.frame[this._clipConfig.frame[prevFrameIndex]];
+                            if (this._isReversing) {
+                            }
+                            else {
+                                if (this._currentTime <= crossedFrameConfig.position ||
+                                    this._currentPlayTimes !== currentPlayTimes) {
+                                    crossedFrameConfig = this._groupConfig.frame[crossedFrameConfig.prev];
+                                }
+                            }
+                        }
+                        if (this._isReversing) {
+                            while (crossedFrameConfig !== currentFrameConfig) {
+                                this._onCrossFrame(crossedFrameConfig);
+                                crossedFrameConfig = this._groupConfig.frame[crossedFrameConfig.prev];
+                            }
+                        }
+                        else {
+                            while (crossedFrameConfig !== currentFrameConfig) {
+                                crossedFrameConfig = this._groupConfig.frame[crossedFrameConfig.next];
+                                this._onCrossFrame(crossedFrameConfig);
+                            }
+                        }
+                    }
+                    else {
+                        this._currentFrameConfig = currentFrameConfig;
+                        if (this._currentFrameConfig) {
+                            this._onCrossFrame(this._currentFrameConfig);
+                        }
+                    }
+                }
+            }
+            this._currentTime = currentTime;
+            // Advance child armatre time.
+            for (var i = 0, l = this._childMovies.length; i < l; ++i) {
+                this._childMovies[i].advanceTime(passedTime);
+            }
+            if (this._currentPlayTimes !== currentPlayTimes) {
+                this._currentPlayTimes = currentPlayTimes;
+                if (this.hasEventListener(MovieEvent.LOOP_COMPLETE)) {
+                    var event_4 = egret.Event.create(MovieEvent, MovieEvent.LOOP_COMPLETE);
+                    event_4.movie = this;
+                    event_4.clipName = this._clipConfig.name;
+                    event_4.name = null;
+                    event_4.slotName = null;
+                    this.dispatchEvent(event_4);
+                    egret.Event.release(event_4);
+                }
+                if (this._isCompleted && this.hasEventListener(MovieEvent.COMPLETE)) {
+                    var event_5 = egret.Event.create(MovieEvent, MovieEvent.COMPLETE);
+                    event_5.movie = this;
+                    event_5.clipName = this._clipConfig.name;
+                    event_5.name = null;
+                    event_5.slotName = null;
+                    this.dispatchEvent(event_5);
+                    egret.Event.release(event_5);
+                }
+            }
+            this._isLockDispose = false;
+            if (this._isDelayDispose) {
+                this.dispose();
+            }
+        };
+        /**
+         * @language zh_CN
+         * 播放动画剪辑。
+         * @param clipName 动画剪辑的名称，如果未设置，则播放默认动画剪辑，或将暂停状态切换为播放状态，或重新播放上一个正在播放的动画剪辑。
+         * @param playTimes 动画剪辑需要播放的次数。 [-1: 使用动画剪辑默认值, 0: 无限循环播放, [1~N]: 循环播放 N 次]
+         * @version DragonBones 4.7
+         */
+        Movie.prototype.play = function (clipName, playTimes) {
+            if (clipName === void 0) { clipName = null; }
+            if (playTimes === void 0) { playTimes = -1; }
+            if (clipName) {
+                var clipConfig = null;
+                for (var i = 0, l = this._config.clip.length; i < l; ++i) {
+                    var data = this._config.clip[i];
+                    if (data.name === clipName) {
+                        clipConfig = data;
+                    }
+                }
+                if (clipConfig) {
+                    this._clipConfig = clipConfig;
+                    this._clipArray = new Int16Array(this._groupConfig.arrayBuffer, this._groupConfig.offset + this._groupConfig.position[0] + this._clipConfig.p, this._clipConfig.s / this._groupConfig.position[2]);
+                    if (!this._clipConfig.cacheRectangles) {
+                        this._clipConfig.cacheRectangles = [];
+                    }
+                    this._isPlaying = true;
+                    this._isStarted = false;
+                    this._isCompleted = false;
+                    if (playTimes < 0 || playTimes !== playTimes) {
+                        this._playTimes = this._clipConfig.playTimes;
+                    }
+                    else {
+                        this._playTimes = playTimes;
+                    }
+                    this._time = 0;
+                    this._currentTime = 0;
+                    this._currentPlayTimes = 0;
+                    this._cacheFrameIndex = -1;
+                    this._currentFrameConfig = null;
+                    this._cacheRectangle = null;
+                    this.clipTimeScale = 1 / this._clipConfig.scale;
+                }
+                else {
+                    console.warn("No clip in movie.", this._config.name, clipName);
+                }
+            }
+            else if (this._clipConfig) {
+                if (this._isPlaying || this._isCompleted) {
+                    this.play(this._clipConfig.name, this._playTimes);
+                }
+                else {
+                    this._isPlaying = true;
+                }
+            }
+            else if (this._config.action) {
+                this.play(this._config.action, playTimes);
+            }
+        };
+        /**
+         * @language zh_CN
+         * 暂停播放动画。
+         * @version DragonBones 4.7
+         */
+        Movie.prototype.stop = function () {
+            this._isPlaying = false;
+        };
+        /**
+         * @language zh_CN
+         * 从指定时间播放动画。
+         * @param clipName 动画剪辑的名称。
+         * @param time 指定时间。（以秒为单位）
+         * @param playTimes 动画剪辑需要播放的次数。 [-1: 使用动画剪辑默认值, 0: 无限循环播放, [1~N]: 循环播放 N 次]
+         * @version DragonBones 4.7
+         */
+        Movie.prototype.gotoAndPlay = function (clipName, time, playTimes) {
+            if (clipName === void 0) { clipName = null; }
+            if (playTimes === void 0) { playTimes = -1; }
+            time %= this._clipConfig.duration;
+            if (time < 0) {
+                time += this._clipConfig.duration;
+            }
+            this.play(clipName, playTimes);
+            this._time = time;
+            this._currentTime = time;
+        };
+        /**
+         * @language zh_CN
+         * 将动画停止到指定时间。
+         * @param clipName 动画剪辑的名称。
+         * @param time 指定时间。（以秒为单位）
+         * @version DragonBones 4.7
+         */
+        Movie.prototype.gotoAndStop = function (clipName, time) {
+            if (clipName === void 0) { clipName = null; }
+            time %= this._clipConfig.duration;
+            if (time < 0) {
+                time += this._clipConfig.duration;
+            }
+            this.play(clipName, 1);
+            this._time = time;
+            this._currentTime = time;
+            this.advanceTime(0.001);
+            this.stop();
+        };
+        /**
+         * @language zh_CN
+         * 是否包含指定动画剪辑。
+         * @param clipName 动画剪辑的名称。
+         * @version DragonBones 4.7
+         */
+        Movie.prototype.hasClip = function (clipName) {
+            for (var i = 0, l = this._config.clip.length; i < l; ++i) {
+                var clip = this._config.clip[i];
+                if (clip.name === clipName) {
+                    return true;
+                }
+            }
+            return false;
+        };
+        Object.defineProperty(Movie.prototype, "isPlaying", {
+            /**
+             * @language zh_CN
+             * 动画剪辑是否处正在播放。
+             * @version DragonBones 4.7
+             */
+            get: function () {
+                return this._isPlaying && !this._isCompleted;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Movie.prototype, "isComplete", {
+            /**
+             * @language zh_CN
+             * 动画剪辑是否均播放完毕。
+             * @version DragonBones 4.7
+             */
+            get: function () {
+                return this._isCompleted;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Movie.prototype, "currentTime", {
+            /**
+             * @language zh_CN
+             * 当前动画剪辑的播放时间。 (以秒为单位)
+             * @version DragonBones 4.7
+             */
+            get: function () {
+                return this._currentTime;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Movie.prototype, "totalTime", {
+            /**
+             * @language zh_CN
+             * 当前动画剪辑的总时间。 (以秒为单位)
+             * @version DragonBones 4.7
+             */
+            get: function () {
+                return this._clipConfig ? this._clipConfig.duration : 0;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Movie.prototype, "currentPlayTimes", {
+            /**
+             * @language zh_CN
+             * 当前动画剪辑的播放次数。
+             * @version DragonBones 4.7
+             */
+            get: function () {
+                return this._currentPlayTimes;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Movie.prototype, "playTimes", {
+            /**
+             * @language zh_CN
+             * 当前动画剪辑需要播放的次数。 [0: 无限循环播放, [1~N]: 循环播放 N 次]
+             * @version DragonBones 4.7
+             */
+            get: function () {
+                return this._playTimes;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Movie.prototype, "groupName", {
+            get: function () {
+                return this._groupConfig.name;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Movie.prototype, "clipName", {
+            /**
+             * @language zh_CN
+             * 正在播放的动画剪辑名称。
+             * @version DragonBones 4.7
+             */
+            get: function () {
+                return this._clipConfig ? this._clipConfig.name : null;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Movie.prototype, "clipNames", {
+            /**
+             * @language zh_CN
+             * 所有动画剪辑的名称。
+             * @version DragonBones 4.7
+             */
+            get: function () {
+                return this._clipNames;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Movie.prototype, "clock", {
+            /**
+             * @inheritDoc
+             */
+            get: function () {
+                return this._clock;
+            },
+            set: function (value) {
+                if (this._clock === value) {
+                    return;
+                }
+                var prevClock = this._clock;
+                this._clock = value;
+                if (prevClock) {
+                    prevClock.remove(this);
+                }
+                if (this._clock) {
+                    this._clock.add(this);
+                }
+            },
+            enumerable: true,
+            configurable: true
+        });
+        /**
+         * @language zh_CN
+         * 由 Movie 自己来更新动画。
+         * @param on 开启或关闭 Movie 自己对动画的更新。
+         * @version DragonBones 4.7
+         */
+        Movie.prototype.advanceTimeBySelf = function (on) {
+            if (on) {
+                this.clock = dragonBones.EgretFactory._clock;
+            }
+            else {
+                this.clock = null;
+            }
+        };
+        return Movie;
+    }(egret.DisplayObjectContainer));
+    dragonBones.Movie = Movie;
 })(dragonBones || (dragonBones = {}));

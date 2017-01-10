@@ -2,60 +2,6 @@ namespace dragonBones {
     /**
      * @private
      */
-    export class ActionData extends BaseObject {
-        public static toString(): string {
-            return "[class dragonBones.ActionData]";
-        }
-
-        public type: ActionType;
-        public bone: BoneData;
-        public slot: SlotData;
-        public data: Array<any> = [];
-
-        public constructor() {
-            super();
-        }
-
-        protected _onClear(): void {
-            this.type = ActionType.None;
-            this.bone = null;
-            this.slot = null;
-            this.data.length = 0;
-        }
-    }
-    /**
-     * @private
-     */
-    export class EventData extends BaseObject {
-        public static toString(): string {
-            return "[class dragonBones.EventData]";
-        }
-
-        public type: EventType;
-        public name: string;
-        public ints: Array<number> = [];
-        public floats: Array<number> = [];
-        public strings: Array<string> = [];
-        public bone: BoneData;
-        public slot: SlotData;
-
-        public constructor() {
-            super();
-        }
-
-        protected _onClear(): void {
-            this.type = EventType.None;
-            this.name = null;
-            this.ints.length = 0;
-            this.floats.length = 0;
-            this.strings.length = 0;
-            this.bone = null;
-            this.slot = null;
-        }
-    }
-    /**
-     * @private
-     */
     export abstract class FrameData<T> extends BaseObject {
         public position: number;
         public duration: number;
@@ -65,12 +11,10 @@ namespace dragonBones {
         public constructor() {
             super();
         }
-        /**
-         * @inheritDoc
-         */
+
         protected _onClear(): void {
-            this.position = 0;
-            this.duration = 0;
+            this.position = 0.0;
+            this.duration = 0.0;
             this.prev = null;
             this.next = null;
         }
@@ -79,13 +23,13 @@ namespace dragonBones {
      * @private
      */
     export abstract class TweenFrameData<T> extends FrameData<T> {
-        private static _getCurvePoint(x1: number, y1: number, x2: number, y2: number, x3: number, y3: number, x4: number, y4: number, t: number, result: Point) {
+        private static _getCurvePoint(x1: number, y1: number, x2: number, y2: number, x3: number, y3: number, x4: number, y4: number, t: number, result: Point): void {
             const l_t = 1 - t;
             const powA = l_t * l_t;
             const powB = t * t;
             const kA = l_t * powA;
-            const kB = 3 * t * powA;
-            const kC = 3 * l_t * powB;
+            const kB = 3.0 * t * powA;
+            const kC = 3.0 * l_t * powB;
             const kD = t * powB;
 
             result.x = kA * x1 + kB * x2 + kC * x3 + kD * x4;
@@ -104,23 +48,24 @@ namespace dragonBones {
                 }
 
                 const isInCurve = stepIndex >= 0 && stepIndex + 6 < curveCount;
-                const x1 = isInCurve ? curve[stepIndex] : 0;
-                const y1 = isInCurve ? curve[stepIndex + 1] : 0;
+                const x1 = isInCurve ? curve[stepIndex] : 0.0;
+                const y1 = isInCurve ? curve[stepIndex + 1] : 0.0;
                 const x2 = curve[stepIndex + 2];
                 const y2 = curve[stepIndex + 3];
                 const x3 = curve[stepIndex + 4];
                 const y3 = curve[stepIndex + 5];
-                const x4 = isInCurve ? curve[stepIndex + 6] : 1;
-                const y4 = isInCurve ? curve[stepIndex + 7] : 1;
+                const x4 = isInCurve ? curve[stepIndex + 6] : 1.0;
+                const y4 = isInCurve ? curve[stepIndex + 7] : 1.0;
 
-                let lower = 0;
-                let higher = 1;
+                let lower = 0.0;
+                let higher = 1.0;
                 while (higher - lower > 0.01) {
-                    const percentage = (higher + lower) / 2;
+                    const percentage = (higher + lower) / 2.0;
                     TweenFrameData._getCurvePoint(x1, y1, x2, y2, x3, y3, x4, y4, percentage, result);
-                    if (t - result.x > 0) {
+                    if (t - result.x > 0.0) {
                         lower = percentage;
-                    } else {
+                    }
+                    else {
                         higher = percentage;
                     }
                 }
@@ -135,13 +80,11 @@ namespace dragonBones {
         public constructor() {
             super();
         }
-        /**
-         * @inheritDoc
-         */
+
         protected _onClear(): void {
             super._onClear();
 
-            this.tweenEasing = 0;
+            this.tweenEasing = 0.0;
             this.curve = null;
         }
     }
@@ -159,9 +102,7 @@ namespace dragonBones {
         public constructor() {
             super();
         }
-        /**
-         * @inheritDoc
-         */
+
         protected _onClear(): void {
             super._onClear();
 
@@ -182,12 +123,11 @@ namespace dragonBones {
      */
     export class ZOrderFrameData extends FrameData<ZOrderFrameData> {
         public zOrder: Array<number> = [];
+
         public constructor() {
             super();
         }
-        /**
-         * @inheritDoc
-         */
+
         protected _onClear(): void {
             super._onClear();
 
@@ -209,14 +149,12 @@ namespace dragonBones {
         public constructor() {
             super();
         }
-        /**
-         * @inheritDoc
-         */
+
         protected _onClear(): void {
             super._onClear();
 
             this.tweenScale = false;
-            this.tweenRotate = 0;
+            this.tweenRotate = 0.0;
             this.transform.identity();
         }
     }
@@ -225,6 +163,7 @@ namespace dragonBones {
      */
     export class SlotFrameData extends TweenFrameData<SlotFrameData> {
         public static DEFAULT_COLOR: ColorTransform = new ColorTransform();
+
         public static generateColor(): ColorTransform {
             return new ColorTransform();
         }
@@ -238,9 +177,7 @@ namespace dragonBones {
         public constructor() {
             super();
         }
-        /**
-         * @inheritDoc
-         */
+
         protected _onClear(): void {
             super._onClear();
 
@@ -256,22 +193,16 @@ namespace dragonBones {
             return "[class dragonBones.ExtensionFrameData]";
         }
 
-        public type: ExtensionType;
         public tweens: Array<number> = [];
-        public keys: Array<number> = [];
 
         public constructor() {
             super();
         }
-        /**
-         * @inheritDoc
-         */
+
         protected _onClear(): void {
             super._onClear();
 
-            this.type = ExtensionType.None;
             this.tweens.length = 0;
-            this.keys.length = 0;
         }
     }
 }

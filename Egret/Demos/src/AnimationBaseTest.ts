@@ -3,44 +3,41 @@ namespace demosEgret {
         public constructor() {
             super();
 
-            this._resourceConfigURL = "resource/AnimationBaseTest.res.json";
+            this._resourceGroup = "animationBaseTest";
+            this._resourceConfigURL = "resource/test.res.json";
         }
 
         private _armatureDisplay: dragonBones.EgretArmatureDisplay = null;
 
         protected _onStart(): void {
-            const dragonBonesData = dragonBones.EgretFactory.factory.parseDragonBonesData(RES.getRes("dragonBonesData"));
-            dragonBones.EgretFactory.factory.parseTextureAtlasData(RES.getRes("textureDataA"), RES.getRes("textureA"));
+            dragonBones.EgretFactory.factory.parseDragonBonesData(RES.getRes(this._resourceGroup));
+            dragonBones.EgretFactory.factory.parseTextureAtlasData(RES.getRes(this._resourceGroup + "_textureData"), RES.getRes(this._resourceGroup + "_texture"));
 
-            if (dragonBonesData) {
-                this._armatureDisplay = dragonBones.EgretFactory.factory.buildArmatureDisplay(dragonBonesData.armatureNames[0]);
-                this._armatureDisplay.x = this.stage.stageWidth * 0.5;
-                this._armatureDisplay.y = this.stage.stageHeight * 0.5;
-                this._armatureDisplay.scaleX = this._armatureDisplay.scaleY = this.stage.stageWidth >= 300 ? 1 : this.stage.stageWidth / 330;
-                this.addChild(this._armatureDisplay);
+            this._armatureDisplay = dragonBones.EgretFactory.factory.buildArmatureDisplay("progressBar");
+            this._armatureDisplay.x = this.stage.stageWidth * 0.5;
+            this._armatureDisplay.y = this.stage.stageHeight * 0.5;
+            this._armatureDisplay.scaleX = this._armatureDisplay.scaleY = this.stage.stageWidth >= 300 ? 1 : this.stage.stageWidth / 330;
+            this.addChild(this._armatureDisplay);
 
-                // Test animation event
-                this._armatureDisplay.addEventListener(dragonBones.EventObject.START, this._animationEventHandler, this);
-                this._armatureDisplay.addEventListener(dragonBones.EventObject.LOOP_COMPLETE, this._animationEventHandler, this);
-                this._armatureDisplay.addEventListener(dragonBones.EventObject.COMPLETE, this._animationEventHandler, this);
-                this._armatureDisplay.addEventListener(dragonBones.EventObject.FADE_IN, this._animationEventHandler, this);
-                this._armatureDisplay.addEventListener(dragonBones.EventObject.FADE_IN_COMPLETE, this._animationEventHandler, this);
-                this._armatureDisplay.addEventListener(dragonBones.EventObject.FADE_OUT, this._animationEventHandler, this);
-                this._armatureDisplay.addEventListener(dragonBones.EventObject.FADE_OUT_COMPLETE, this._animationEventHandler, this);
+            // Test animation event
+            this._armatureDisplay.addEventListener(dragonBones.EventObject.START, this._animationEventHandler, this);
+            this._armatureDisplay.addEventListener(dragonBones.EventObject.LOOP_COMPLETE, this._animationEventHandler, this);
+            this._armatureDisplay.addEventListener(dragonBones.EventObject.COMPLETE, this._animationEventHandler, this);
+            this._armatureDisplay.addEventListener(dragonBones.EventObject.FADE_IN, this._animationEventHandler, this);
+            this._armatureDisplay.addEventListener(dragonBones.EventObject.FADE_IN_COMPLETE, this._animationEventHandler, this);
+            this._armatureDisplay.addEventListener(dragonBones.EventObject.FADE_OUT, this._animationEventHandler, this);
+            this._armatureDisplay.addEventListener(dragonBones.EventObject.FADE_OUT_COMPLETE, this._animationEventHandler, this);
 
-                // Test frame event
-                this._armatureDisplay.addEventListener(dragonBones.EventObject.FRAME_EVENT, this._animationEventHandler, this);
+            // Test frame event
+            this._armatureDisplay.addEventListener(dragonBones.EventObject.FRAME_EVENT, this._animationEventHandler, this);
 
-                //this.addEventListener(Event.ENTER_FRAME, _enterFrameHandler);
-                this.stage.addEventListener(egret.TouchEvent.TOUCH_BEGIN, this._touchHandler, this);
-                this.stage.addEventListener(egret.TouchEvent.TOUCH_END, this._touchHandler, this);
-                this.stage.addEventListener(egret.TouchEvent.TOUCH_MOVE, this._touchHandler, this);
+            //this.addEventListener(Event.ENTER_FRAME, _enterFrameHandler);
+            this.stage.addEventListener(egret.TouchEvent.TOUCH_BEGIN, this._touchHandler, this);
+            this.stage.addEventListener(egret.TouchEvent.TOUCH_END, this._touchHandler, this);
+            this.stage.addEventListener(egret.TouchEvent.TOUCH_MOVE, this._touchHandler, this);
 
-                // Play default animaiton.
-                this._armatureDisplay.animation.play();
-            } else {
-                throw new Error();
-            }
+            // Play default animaiton.
+            this._armatureDisplay.animation.play();
         }
 
         private _touchHandler(event: egret.TouchEvent): void {

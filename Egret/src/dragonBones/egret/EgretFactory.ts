@@ -26,7 +26,7 @@ namespace dragonBones {
         }
         /**
          * @language zh_CN
-         * 一个可以直接使用的全局工厂实例.
+         * 一个可以直接使用的全局工厂实例。
          * @version DragonBones 4.7
          */
         public static get factory(): EgretFactory {
@@ -36,7 +36,6 @@ namespace dragonBones {
 
             return EgretFactory._factory;
         }
-
         /**
          * @language zh_CN
          * 创建一个工厂。 (通常只需要一个全局工厂实例)
@@ -71,42 +70,39 @@ namespace dragonBones {
          */
         protected _generateArmature(dataPackage: BuildArmaturePackage): Armature {
             const armature = BaseObject.borrowObject(Armature);
-            const armatureDisplayContainer = new EgretArmatureDisplay();
+            const armatureDisplay = new EgretArmatureDisplay();
+            armatureDisplay._armature = armature;
 
-            armature._armatureData = dataPackage.armature;
-            armature._skinData = dataPackage.skin;
-            armature._animation = BaseObject.borrowObject(Animation);
-            armature._display = armatureDisplayContainer;
-            armature._eventManager = EgretFactory._eventManager;
-
-            armatureDisplayContainer._armature = armature;
-            armature._animation._armature = armature;
-
-            armature.animation.animations = dataPackage.armature.animations;
+            armature._init(
+                dataPackage.armature, dataPackage.skin,
+                armatureDisplay, armatureDisplay, EgretFactory._eventManager
+            );
 
             return armature;
         }
         /**
          * @private
          */
-        protected _generateSlot(dataPackage: BuildArmaturePackage, slotDisplayDataSet: SlotDisplayDataSet, armature: Armature): Slot {
+        protected _generateSlot(dataPackage: BuildArmaturePackage, skinSlotData: SkinSlotData, armature: Armature): Slot {
+            const slotData = skinSlotData.slot;
             const slot = BaseObject.borrowObject(EgretSlot);
-            const slotData = slotDisplayDataSet.slot;
             const displayList = [];
 
-            slot.name = slotData.name;
-            slot._rawDisplay = new egret.Bitmap();
-            slot._meshDisplay = new egret.Mesh();
+            slot._init(
+                skinSlotData,
+                new egret.Bitmap(),
+                new egret.Mesh()
+            );
 
-            for (let i = 0, l = slotDisplayDataSet.displays.length; i < l; ++i) {
-                const displayData = slotDisplayDataSet.displays[i];
+            for (let i = 0, l = skinSlotData.displays.length; i < l; ++i) {
+                const displayData = skinSlotData.displays[i];
                 switch (displayData.type) {
                     case DisplayType.Image:
                         if (!displayData.texture || dataPackage.textureAtlasName) {
                             displayData.texture = this._getTextureData(dataPackage.textureAtlasName || dataPackage.dataName, displayData.path);
                         }
 
-                        displayList.push(slot._rawDisplay);
+                        displayList.push(slot.rawDisplay);
                         break;
 
                     case DisplayType.Mesh:
@@ -114,19 +110,24 @@ namespace dragonBones {
                             displayData.texture = this._getTextureData(dataPackage.textureAtlasName || dataPackage.dataName, displayData.path);
                         }
 
-                        if (egret.Capabilities.renderMode == "webgl") {
-                            displayList.push(slot._meshDisplay);
+                        if (!displayData.mesh && displayData.share) {
+                            displayData.mesh = skinSlotData.getMesh(displayData.share);
+                        }
+
+                        if (egret.Capabilities.renderMode === "webgl" || egret.Capabilities.runtimeType === egret.RuntimeType.NATIVE) {
+                            displayList.push(slot.meshDisplay);
                         }
                         else {
                             console.warn("Canvas can not support mesh, please change renderMode to webgl.");
-                            displayList.push(slot._rawDisplay);
+                            displayList.push(slot.rawDisplay);
                         }
                         break;
 
                     case DisplayType.Armature:
                         const childArmature = this.buildArmature(displayData.path, dataPackage.dataName, null, dataPackage.textureAtlasName);
                         if (childArmature) {
-                            if (!slot.inheritAnimation) {
+                            childArmature.inheritAnimation = displayData.inheritAnimation;
+                            if (!childArmature.inheritAnimation) {
                                 const actions = slotData.actions.length > 0 ? slotData.actions : childArmature.armatureData.actions;
                                 if (actions.length > 0) {
                                     for (let i = 0, l = actions.length; i < l; ++i) {
@@ -160,19 +161,19 @@ namespace dragonBones {
          * @param armatureName 骨架名称。
          * @param dragonBonesName 龙骨数据名称，如果未设置，将检索所有的龙骨数据，如果多个数据中包含同名的骨架数据，可能无法创建出准确的骨架。
          * @param skinName 皮肤名称，如果未设置，则使用默认皮肤。
-		 * @param textureAtlasName 贴图集数据名称，如果未设置，则使用龙骨数据。
+         * @param textureAtlasName 贴图集数据名称，如果未设置，则使用龙骨数据。
          * @returns 骨架的显示容器。
          * @see dragonBones.EgretArmatureDisplay
          * @version DragonBones 4.5
          */
         public buildArmatureDisplay(armatureName: string, dragonBonesName: string = null, skinName: string = null, textureAtlasName: string = null): EgretArmatureDisplay {
             const armature = this.buildArmature(armatureName, dragonBonesName, skinName, textureAtlasName);
-            const armatureDisplay = armature ? <EgretArmatureDisplay>armature._display : null;
-            if (armatureDisplay) {
-                armatureDisplay.advanceTimeBySelf(true);
+            if (armature) {
+                EgretFactory._clock.add(armature);
+                return armature.display as EgretArmatureDisplay;
             }
 
-            return armatureDisplay;
+            return null;
         }
         /**
          * @language zh_CN
@@ -208,7 +209,7 @@ namespace dragonBones {
          * 获取全局声音事件管理器。
          * @version DragonBones 4.5
          */
-        public get soundEventManater(): EgretArmatureDisplay {
+        public get soundEventManager(): EgretArmatureDisplay {
             return EgretFactory._eventManager;
         }
 
@@ -267,6 +268,13 @@ namespace dragonBones {
          */
         public dispose(): void {
             this.clear();
+        }
+        /**
+         * @deprecated
+         * @see dragonBones.EgretFactory#soundEventManager()
+         */
+        public get soundEventManater(): EgretArmatureDisplay {
+            return EgretFactory._eventManager;
         }
     }
 }

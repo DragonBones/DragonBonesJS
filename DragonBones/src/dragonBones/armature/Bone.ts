@@ -8,7 +8,6 @@ namespace dragonBones {
         Self = 1,
         All = 2
     }
-
     /**
      * @language zh_CN
      * 骨骼，一个骨架中可以包含多个骨骼，骨骼以树状结构组成骨架。
@@ -25,37 +24,28 @@ namespace dragonBones {
         public static toString(): string {
             return "[class dragonBones.Bone]";
         }
-
         /**
          * @language zh_CN
-         * 是否继承父骨骼的平移。 [true: 继承, false: 不继承]
+         * 是否继承父骨骼的平移。
          * @version DragonBones 3.0
          */
         public inheritTranslation: boolean;
         /**
          * @language zh_CN
-         * 是否继承父骨骼的旋转。 [true: 继承, false: 不继承]
+         * 是否继承父骨骼的旋转。
          * @version DragonBones 3.0
          */
         public inheritRotation: boolean;
         /**
          * @language zh_CN
-         * 是否继承父骨骼的缩放。 [true: 继承, false: 不继承]
+         * 是否继承父骨骼的缩放。
          * @version DragonBones 4.5
          */
         public inheritScale: boolean;
         /**
-         * @language zh_CN
-         * IK 约束时骨骼方向是否为顺时针方向。 [true: 顺时针, false: 逆时针]
-         * @version DragonBones 4.5
+         * @private
          */
         public ikBendPositive: boolean;
-        /**
-         * @language zh_CN
-         * IK 约束的权重。
-         * @version DragonBones 4.5
-         */
-        public ikWeight: number;
         /**
          * @language zh_CN
          * 骨骼长度。
@@ -63,49 +53,52 @@ namespace dragonBones {
          */
         public length: number;
         /**
+         * @private
+         */
+        public ikWeight: number;
+        /**
          * @internal
          * @private
          */
         public _transformDirty: BoneTransformDirty;
+        private _visible: boolean;
+        private _cachedFrameIndex: number;
+        private _ikChain: number;
+        private _ikChainIndex: number;
         /**
          * @internal
          * @private
          */
-        public _blendIndex: number;
+        public _updateState: number;
         /**
          * @internal
          * @private
          */
-        public _cacheFrames: Array<Matrix>;
+        public _blendLayer: number;
+        /**
+         * @internal
+         * @private
+         */
+        public _blendLeftWeight: number;
+        /**
+         * @internal
+         * @private
+         */
+        public _blendTotalWeight: number;
         /**
          * @internal
          * @private
          */
         public _animationPose: Transform = new Transform();
-        /**
-         * @private
-         */
-        private _visible: boolean;
-        /**
-         * @private
-         */
-        private _ikChain: number;
-        /**
-         * @private
-         */
-        private _ikChainIndex: number;
-        /**
-         * @private
-         */
+        private _bones: Array<Bone> = [];
+        private _slots: Array<Slot> = [];
+        private _boneData: BoneData;
         private _ik: Bone;
         /**
+         * @internal
          * @private
          */
-        private _bones: Array<Bone> = [];
-        /**
-         * @private
-         */
-        private _slots: Array<Slot> = [];
+        public _cachedFrameIndices: Array<number>;
         /**
          * @internal
          * @private
@@ -114,7 +107,7 @@ namespace dragonBones {
             super();
         }
         /**
-         * @inheritDoc
+         * @private
          */
         protected _onClear(): void {
             super._onClear();
@@ -123,25 +116,36 @@ namespace dragonBones {
             this.inheritRotation = false;
             this.inheritScale = false;
             this.ikBendPositive = false;
-            this.ikWeight = 0;
-            this.length = 0;
+            this.length = 0.0;
+            this.ikWeight = 0.0;
 
-            this._transformDirty = BoneTransformDirty.All; // Update
-            this._blendIndex = 0;
-            this._cacheFrames = null;
-            this._animationPose.identity();
-
+            this._transformDirty = BoneTransformDirty.None;
             this._visible = true;
+            this._cachedFrameIndex = -1;
             this._ikChain = 0;
             this._ikChainIndex = 0;
-            this._ik = null;
+            this._updateState = -1;
+            this._blendLayer = 0;
+            this._blendLeftWeight = 1.0;
+            this._blendTotalWeight = 0.0;
+            this._animationPose.identity();
             this._bones.length = 0;
             this._slots.length = 0;
+            this._boneData = null;
+            this._ik = null;
+            this._cachedFrameIndices = null;
         }
         /**
          * @private
          */
         private _updateGlobalTransformMatrix(): void {
+            this.global.x = this.origin.x + this.offset.x + this._animationPose.x;
+            this.global.y = this.origin.y + this.offset.y + this._animationPose.y;
+            this.global.skewX = this.origin.skewX + this.offset.skewX + this._animationPose.skewX;
+            this.global.skewY = this.origin.skewY + this.offset.skewY + this._animationPose.skewY;
+            this.global.scaleX = this.origin.scaleX * this.offset.scaleX * this._animationPose.scaleX;
+            this.global.scaleY = this.origin.scaleY * this.offset.scaleY * this._animationPose.scaleY;
+
             if (this._parent) {
                 const parentRotation = this._parent.global.skewY; // Only inherit skew y.
                 const parentMatrix = this._parent.globalTransformMatrix;
@@ -180,6 +184,15 @@ namespace dragonBones {
             }
             else {
                 this.global.toMatrix(this.globalTransformMatrix);
+            }
+
+            if (this._ik && this._ikChainIndex === this._ikChain && this.ikWeight > 0) {
+                if (this.inheritTranslation && this._ikChain > 0 && this._parent) {
+                    this._computeIKB();
+                }
+                else {
+                    this._computeIKA();
+                }
             }
         }
         /**
@@ -276,10 +289,29 @@ namespace dragonBones {
             this.global.toMatrix(this.globalTransformMatrix);
         }
         /**
-         * @inheritDoc
+         * @internal
+         * @private
+         */
+        public _init(boneData: BoneData): void {
+            if (this._boneData) {
+                return;
+            }
+
+            this._boneData = boneData;
+
+            this.inheritTranslation = this._boneData.inheritTranslation;
+            this.inheritRotation = this._boneData.inheritRotation;
+            this.inheritScale = this._boneData.inheritScale;
+            this.length = this._boneData.length;
+            this.name = this._boneData.name;
+            this.origin = this._boneData.transform;
+        }
+        /**
+         * @internal
+         * @private
          */
         public _setArmature(value: Armature): void {
-            if (this._armature == value) {
+            if (this._armature === value) {
                 return;
             }
 
@@ -303,7 +335,7 @@ namespace dragonBones {
             if (oldSlots) {
                 for (let i = 0, l = oldSlots.length; i < l; ++i) {
                     const slot = oldSlots[i];
-                    if (slot.parent == this) {
+                    if (slot.parent === this) {
                         slot._setArmature(this._armature);
                     }
                 }
@@ -312,7 +344,7 @@ namespace dragonBones {
             if (oldBones) {
                 for (let i = 0, l = oldBones.length; i < l; ++i) {
                     const bone = oldBones[i];
-                    if (bone.parent == this) {
+                    if (bone.parent === this) {
                         bone._setArmature(this._armature);
                     }
                 }
@@ -324,7 +356,7 @@ namespace dragonBones {
          */
         public _setIK(value: Bone, chain: number, chainIndex: number): void {
             if (value) {
-                if (chain == chainIndex) {
+                if (chain === chainIndex) {
                     let chainEnd = this._parent;
                     if (chain && chainEnd) {
                         chain = 1;
@@ -335,7 +367,7 @@ namespace dragonBones {
                         chainEnd = this;
                     }
 
-                    if (chainEnd == value || chainEnd.contains(value)) {
+                    if (chainEnd === value || chainEnd.contains(value)) {
                         value = null;
                         chain = 0;
                         chainIndex = 0;
@@ -373,77 +405,63 @@ namespace dragonBones {
          * @private
          */
         public _update(cacheFrameIndex: number): void {
-            const self = this;
+            this._updateState = -1;
 
-            self._blendIndex = 0;
-
-            if (cacheFrameIndex >= 0) {
-                const cacheFrame = self._cacheFrames[cacheFrameIndex];
-
-                if (self.globalTransformMatrix == cacheFrame) { // Same cache.
-                    self._transformDirty = BoneTransformDirty.None;
+            if (cacheFrameIndex >= 0 && this._cachedFrameIndices) {
+                const cachedFrameIndex = this._cachedFrameIndices[cacheFrameIndex];
+                if (cachedFrameIndex >= 0 && this._cachedFrameIndex === cachedFrameIndex) { // Same cache.
+                    this._transformDirty = BoneTransformDirty.None;
                 }
-                else if (cacheFrame) { // Has been Cached.
-                    self._transformDirty = BoneTransformDirty.All; // For update children and ik children.
-                    self.globalTransformMatrix = cacheFrame;
+                else if (cachedFrameIndex >= 0) { // Has been Cached.
+                    this._transformDirty = BoneTransformDirty.All;
+                    this._cachedFrameIndex = cachedFrameIndex;
                 }
-                else if ( // Dirty.
-                    self._transformDirty == BoneTransformDirty.All ||
-                    (self._parent && self._parent._transformDirty != BoneTransformDirty.None) ||
-                    (self._ik && self.ikWeight > 0 && self._ik._transformDirty != BoneTransformDirty.None)
-                ) {
-                    self._transformDirty = BoneTransformDirty.All; // For update children and ik children.
-                    self.globalTransformMatrix = self._globalTransformMatrix;
+                else if (
+                    this._transformDirty === BoneTransformDirty.All ||
+                    (this._parent && this._parent._transformDirty !== BoneTransformDirty.None) ||
+                    (this._ik && this.ikWeight > 0 && this._ik._transformDirty !== BoneTransformDirty.None)
+                ) { // Dirty.
+                    this._transformDirty = BoneTransformDirty.All;
+                    this._cachedFrameIndex = -1;
                 }
-                else if (self.globalTransformMatrix != self._globalTransformMatrix) { // Same cache but not cached yet.
-                    self._transformDirty = BoneTransformDirty.None;
-                    self._cacheFrames[cacheFrameIndex] = self.globalTransformMatrix;
+                else if (this._cachedFrameIndex >= 0) { // Same cache, but not set index yet.
+                    this._transformDirty = BoneTransformDirty.None;
+                    this._cachedFrameIndices[cacheFrameIndex] = this._cachedFrameIndex;
                 }
                 else { // Dirty.
-                    self._transformDirty = BoneTransformDirty.All;
-                    self.globalTransformMatrix = self._globalTransformMatrix;
+                    this._transformDirty = BoneTransformDirty.All;
+                    this._cachedFrameIndex = -1;
                 }
             }
             else if (
-                self._transformDirty == BoneTransformDirty.All ||
-                (self._parent && self._parent._transformDirty != BoneTransformDirty.None) ||
-                (self._ik && self.ikWeight > 0 && self._ik._transformDirty != BoneTransformDirty.None)
-            ) {
-                self._transformDirty = BoneTransformDirty.All; // For update children and ik children.
-                self.globalTransformMatrix = self._globalTransformMatrix;
+                this._transformDirty === BoneTransformDirty.All ||
+                (this._parent && this._parent._transformDirty !== BoneTransformDirty.None) ||
+                (this._ik && this.ikWeight > 0 && this._ik._transformDirty !== BoneTransformDirty.None)
+            ) { // Dirty.
+                cacheFrameIndex = -1;
+                this._transformDirty = BoneTransformDirty.All;
+                this._cachedFrameIndex = -1;
             }
 
-            if (self._transformDirty != BoneTransformDirty.None) {
-                if (self._transformDirty == BoneTransformDirty.All) {
-                    self._transformDirty = BoneTransformDirty.Self;
+            if (this._transformDirty !== BoneTransformDirty.None) {
+                if (this._transformDirty === BoneTransformDirty.All) {
+                    this._transformDirty = BoneTransformDirty.Self;
 
-                    if (self.globalTransformMatrix == self._globalTransformMatrix) {
-                        /*self.global.copyFrom(self.origin).add(self.offset).add(self._animationPose);*/
-                        self.global.x = self.origin.x + self.offset.x + self._animationPose.x;
-                        self.global.y = self.origin.y + self.offset.y + self._animationPose.y;
-                        self.global.skewX = self.origin.skewX + self.offset.skewX + self._animationPose.skewX;
-                        self.global.skewY = self.origin.skewY + self.offset.skewY + self._animationPose.skewY;
-                        self.global.scaleX = self.origin.scaleX * self.offset.scaleX * self._animationPose.scaleX;
-                        self.global.scaleY = self.origin.scaleY * self.offset.scaleY * self._animationPose.scaleY;
+                    if (this._cachedFrameIndex < 0) {
+                        this._updateGlobalTransformMatrix();
 
-                        self._updateGlobalTransformMatrix();
-
-                        if (self._ik && self._ikChainIndex == self._ikChain && self.ikWeight > 0) {
-                            if (self.inheritTranslation && self._ikChain > 0 && self._parent) {
-                                self._computeIKB();
-                            }
-                            else {
-                                self._computeIKA();
-                            }
-                        }
-
-                        if (cacheFrameIndex >= 0 && !self._cacheFrames[cacheFrameIndex]) {
-                            self.globalTransformMatrix = BoneTimelineData.cacheFrame(self._cacheFrames, cacheFrameIndex, self._globalTransformMatrix);
+                        if (cacheFrameIndex >= 0) {
+                            this._cachedFrameIndex = this._cachedFrameIndices[cacheFrameIndex] = this._armature._armatureData.setCacheFrame(this.globalTransformMatrix, this.global);
                         }
                     }
+                    else {
+                        this._armature._armatureData.getCacheFrame(this.globalTransformMatrix, this.global, this._cachedFrameIndex);
+                    }
+
+                    this._updateState = 0;
                 }
                 else {
-                    self._transformDirty = BoneTransformDirty.None;
+                    this._transformDirty = BoneTransformDirty.None;
                 }
             }
         }
@@ -457,23 +475,23 @@ namespace dragonBones {
         }
         /**
          * @language zh_CN
-         * 是否包含某个指定的骨骼或插槽。
-         * @returns [true: 包含，false: 不包含]
+         * 是否包含骨骼或插槽。
+         * @returns
          * @see dragonBones.TransformObject
          * @version DragonBones 3.0
          */
         public contains(child: TransformObject): boolean {
             if (child) {
-                if (child == this) {
+                if (child === this) {
                     return false;
                 }
 
                 let ancestor = child;
-                while (ancestor != this && ancestor) {
+                while (ancestor !== this && ancestor) {
                     ancestor = ancestor.parent;
                 }
 
-                return ancestor == this;
+                return ancestor === this;
             }
 
             return false;
@@ -489,7 +507,7 @@ namespace dragonBones {
             const bones = this._armature.getBones();
             for (let i = 0, l = bones.length; i < l; ++i) {
                 const bone = bones[i];
-                if (bone.parent == this) {
+                if (bone.parent === this) {
                     this._bones.push(bone);
                 }
             }
@@ -508,7 +526,7 @@ namespace dragonBones {
             const slots = this._armature.getSlots();
             for (let i = 0, l = slots.length; i < l; ++i) {
                 const slot = slots[i];
-                if (slot.parent == this) {
+                if (slot.parent === this) {
                     this._slots.push(slot);
                 }
             }
@@ -516,28 +534,8 @@ namespace dragonBones {
             return this._slots;
         }
         /**
-         * @private
-         */
-        public get ikChain(): number {
-            return this._ikChain;
-        }
-        /**
-         * @private
-         */
-        public get ikChainIndex(): number {
-            return this._ikChainIndex;
-        }
-        /**
          * @language zh_CN
-         * 当前的 IK 约束目标。
-         * @version DragonBones 4.5
-         */
-        public get ik(): Bone {
-            return this._ik;
-        }
-        /**
-         * @language zh_CN
-         * 控制此骨骼所有插槽的显示。
+         * 控制此骨骼所有插槽的可见。
          * @default true
          * @see dragonBones.Slot
          * @version DragonBones 3.0
@@ -546,15 +544,16 @@ namespace dragonBones {
             return this._visible;
         }
         public set visible(value: boolean) {
-            if (this._visible == value) {
+            if (this._visible === value) {
                 return;
             }
 
             this._visible = value;
+            
             const slots = this._armature.getSlots();
             for (let i = 0, l = slots.length; i < l; ++i) {
                 const slot = slots[i];
-                if (slot._parent == this) {
+                if (slot._parent === this) {
                     slot._updateVisible();
                 }
             }
@@ -568,12 +567,30 @@ namespace dragonBones {
             const slots = this._armature.getSlots();
             for (let i = 0, l = slots.length; i < l; ++i) {
                 const slot = slots[i];
-                if (slot.parent == this) {
+                if (slot.parent === this) {
                     return slot;
                 }
             }
 
             return null;
+        }
+        /**
+         * @deprecated
+         */
+        public get ikChain(): number {
+            return this._ikChain;
+        }
+        /**
+         * @deprecated
+         */
+        public get ikChainIndex(): number {
+            return this._ikChainIndex;
+        }
+        /**
+         * @deprecated
+         */
+        public get ik(): Bone {
+            return this._ik;
         }
     }
 }

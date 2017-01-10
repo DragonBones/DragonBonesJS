@@ -9,58 +9,56 @@ namespace dragonBones {
          * @private
          */
         public static normalizeRadian(value: number): number {
-            value = (value + Math.PI) % (Math.PI * 2);
-            value += value > 0 ? -Math.PI : Math.PI;
+            value = (value + Math.PI) % (Math.PI * 2.0);
+            value += value > 0.0 ? -Math.PI : Math.PI;
 
             return value;
         }
-        /**
-         * @private
-         */
+
         public constructor(
             /**
              * @language zh_CN
              * 水平位移。
              * @version DragonBones 3.0
              */
-            public x: number = 0,
+            public x: number = 0.0,
             /**
              * @language zh_CN
              * 垂直位移。
              * @version DragonBones 3.0
              */
-            public y: number = 0,
+            public y: number = 0.0,
             /**
              * @language zh_CN
              * 水平倾斜。 (以弧度为单位)
              * @version DragonBones 3.0
              */
-            public skewX: number = 0,
+            public skewX: number = 0.0,
             /**
              * @language zh_CN
              * 垂直倾斜。 (以弧度为单位)
              * @version DragonBones 3.0
              */
-            public skewY: number = 0,
+            public skewY: number = 0.0,
             /**
              * @language zh_CN
              * 水平缩放。
              * @version DragonBones 3.0
              */
-            public scaleX: number = 1,
+            public scaleX: number = 1.0,
             /**
              * @language zh_CN
              * 垂直缩放。
              * @version DragonBones 3.0
              */
-            public scaleY: number = 1
+            public scaleY: number = 1.0
         ) {
         }
         /**
          * @private
          */
         public toString(): string {
-            return "[object dragonBones.Transform] x:" + this.x + " y:" + this.y + " skewX:" + this.skewX * 180 / Math.PI + " skewY:" + this.skewY * 180 / Math.PI + " scaleX:" + this.scaleX + " scaleY:" + this.scaleY;
+            return "[object dragonBones.Transform] x:" + this.x + " y:" + this.y + " skewX:" + this.skewX * 180.0 / Math.PI + " skewY:" + this.skewY * 180.0 / Math.PI + " scaleX:" + this.scaleX + " scaleY:" + this.scaleY;
         }
         /**
          * @private
@@ -79,8 +77,8 @@ namespace dragonBones {
          * @private
          */
         public identity(): Transform {
-            this.x = this.y = this.skewX = this.skewY = 0;
-            this.scaleX = this.scaleY = 1;
+            this.x = this.y = this.skewX = this.skewY = 0.0;
+            this.scaleX = this.scaleY = 1.0;
 
             return this;
         }
@@ -111,30 +109,37 @@ namespace dragonBones {
             return this;
         }
         /**
-         * @private
+         * @language zh_CN
+         * 矩阵转换为变换。
+         * @param 矩阵。
+         * @version DragonBones 3.0
          */
         public fromMatrix(matrix: Matrix): Transform {
-            const PI_Q = Math.PI * 0.25;
-
+            const PI_Q = DragonBones.PI_Q;
             const backupScaleX = this.scaleX, backupScaleY = this.scaleY;
 
             this.x = matrix.tx;
             this.y = matrix.ty;
-
             this.skewX = Math.atan(-matrix.c / matrix.d);
             this.skewY = Math.atan(matrix.b / matrix.a);
-            if (this.skewX != this.skewX) this.skewX = 0;
-            if (this.skewY != this.skewY) this.skewY = 0;
+
+            if (this.skewX !== this.skewX) {
+                this.skewX = 0.0;
+            }
+
+            if (this.skewY !== this.skewY) {
+                this.skewY = 0.0;
+            }
 
             this.scaleY = (this.skewX > -PI_Q && this.skewX < PI_Q) ? matrix.d / Math.cos(this.skewX) : -matrix.c / Math.sin(this.skewX);
             this.scaleX = (this.skewY > -PI_Q && this.skewY < PI_Q) ? matrix.a / Math.cos(this.skewY) : matrix.b / Math.sin(this.skewY);
 
-            if (backupScaleX >= 0 && this.scaleX < 0) {
+            if (backupScaleX >= 0.0 && this.scaleX < 0.0) {
                 this.scaleX = -this.scaleX;
                 this.skewY = this.skewY - Math.PI;
             }
 
-            if (backupScaleY >= 0 && this.scaleY < 0) {
+            if (backupScaleY >= 0.0 && this.scaleY < 0.0) {
                 this.scaleY = -this.scaleY;
                 this.skewX = this.skewX - Math.PI;
             }
@@ -148,10 +153,33 @@ namespace dragonBones {
          * @version DragonBones 3.0
          */
         public toMatrix(matrix: Matrix): Transform {
-            matrix.a = this.scaleX * Math.cos(this.skewY);
-            matrix.b = this.scaleX * Math.sin(this.skewY);
-            matrix.c = -this.scaleY * Math.sin(this.skewX);
-            matrix.d = this.scaleY * Math.cos(this.skewX);
+            if (this.skewX !== 0.0 || this.skewY !== 0.0) {
+                matrix.a = Math.cos(this.skewY);
+                matrix.b = Math.sin(this.skewY);
+
+                if (this.skewX === this.skewY) {
+                    matrix.c = -matrix.b;
+                    matrix.d = matrix.a;
+                }
+                else {
+                    matrix.c = -Math.sin(this.skewX);
+                    matrix.d = Math.cos(this.skewX);
+                }
+
+                if (this.scaleX !== 1.0 || this.scaleY !== 1.0) {
+                    matrix.a *= this.scaleX;
+                    matrix.b *= this.scaleX;
+                    matrix.c *= this.scaleY;
+                    matrix.d *= this.scaleY;
+                }
+            }
+            else {
+                matrix.a = this.scaleX;
+                matrix.b = 0.0;
+                matrix.c = 0.0;
+                matrix.d = this.scaleY;
+            }
+
             matrix.tx = this.x;
             matrix.ty = this.y;
 

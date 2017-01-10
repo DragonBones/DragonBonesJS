@@ -37,7 +37,7 @@ namespace dragonBones {
         /**
          * @private
          */
-        public generateTextureData(): TextureData {
+        public generateTexture(): TextureData {
             return BaseObject.borrowObject(EgretTextureData);
         }
         /**

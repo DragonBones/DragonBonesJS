@@ -2,28 +2,33 @@ namespace demosEgret {
     /**
      * How to use
      * 1. Load data.
-     * 2. factory.parseDragonBonesData();
-     *    factory.parseTextureAtlasData();
-     * 3. armatureDisplay = factory.buildArmatureDisplay("armatureName");
-     * 4. armatureDisplay.animation.play("animationName");
-     * 5. addChild(armatureDisplay);
+     *
+     * 2. ParseData.
+     *  factory.parseDragonBonesData();
+     *  factory.parseTextureAtlasData();
+     *
+     * 3. Build armature.
+     *  armatureDisplay = factory.buildArmatureDisplay("armatureName");
+     *
+     * 4. Play animation.
+     *  armatureDisplay.animation.play("animationName");
+     *
+     * 5. Add armature to stage.
+     *  addChild(armatureDisplay);
      */
     export class HelloDragonBones extends BaseTest {
         public constructor() {
             super();
 
-            this._resourceConfigURL = "resource/HelloDragonBones.res.json";
+            this._resourceConfigURL = "resource/hello_dragonbones.res.json";
         }
 
-        /** 
-         * Init.
-         */
         protected _onStart(): void {
             dragonBones.EgretFactory.factory.parseDragonBonesData(RES.getRes("dragonBonesData"));
             dragonBones.EgretFactory.factory.parseTextureAtlasData(RES.getRes("textureDataA"), RES.getRes("textureA"));
 
             const armatureDisplay = dragonBones.EgretFactory.factory.buildArmatureDisplay("DragonBoy");
-            armatureDisplay.animation.play("walk");
+            armatureDisplay.animation.play("fallEnd");
             this.addChild(armatureDisplay);
 
             armatureDisplay.x = this.stage.stageWidth * 0.5;

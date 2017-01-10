@@ -2,7 +2,13 @@ namespace dragonBones {
     /**
      * @private
      */
-    export type BuildArmaturePackage = { dataName?: string, textureAtlasName?: string, data?: DragonBonesData, armature?: ArmatureData, skin?: SkinData };
+    export type BuildArmaturePackage = {
+        dataName?: string,
+        textureAtlasName?: string,
+        data?: DragonBonesData,
+        armature?: ArmatureData,
+        skin?: SkinData
+    };
 
     /**
      * @language zh_CN
@@ -14,11 +20,13 @@ namespace dragonBones {
      * @version DragonBones 3.0
      */
     export abstract class BaseFactory {
+        /**
+         * @private
+         */
         protected static _defaultParser: ObjectDataParser = null;
-
         /**
          * @language zh_CN
-         * 是否开启共享搜索。 [true: 开启, false: 不开启]
+         * 是否开启共享搜索。
          * 如果开启，创建一个骨架时，可以从多个龙骨数据中寻找骨架数据，或贴图集数据中寻找贴图数据。 (通常在有共享导出的数据时开启)
          * @see dragonBones.DragonBonesData#autoSearch
          * @see dragonBones.TextureAtlasData#autoSearch
@@ -28,15 +36,15 @@ namespace dragonBones {
         /**
          * @private
          */
-        protected _dataParser: DataParser = null;
-        /**
-         * @private
-         */
         protected _dragonBonesDataMap: Map<DragonBonesData> = {};
         /**
          * @private
          */
         protected _textureAtlasDataMap: Map<Array<TextureAtlasData>> = {};
+        /**
+         * @private
+         */
+        protected _dataParser: DataParser = null;
         /** 
          * @private 
          */
@@ -66,10 +74,10 @@ namespace dragonBones {
             }
 
             if (this.autoSearch) { // Will be search all data, if the autoSearch is true.
-                for (let i in this._textureAtlasDataMap) {
-                    textureAtlasDataList = this._textureAtlasDataMap[i];
-                    for (let j = 0, lJ = textureAtlasDataList.length; j < lJ; ++j) {
-                        const textureAtlasData = textureAtlasDataList[j];
+                for (let textureAtlasName in this._textureAtlasDataMap) {
+                    textureAtlasDataList = this._textureAtlasDataMap[textureAtlasName];
+                    for (let i = 0, l = textureAtlasDataList.length; i < l; ++i) {
+                        const textureAtlasData = textureAtlasDataList[i];
                         if (textureAtlasData.autoSearch) {
                             const textureData = textureAtlasData.getTexture(textureName);
                             if (textureData) {
@@ -132,12 +140,7 @@ namespace dragonBones {
             for (let i = 0, l = bones.length; i < l; ++i) {
                 const boneData = bones[i];
                 const bone = BaseObject.borrowObject(Bone);
-                bone.name = boneData.name;
-                bone.inheritTranslation = boneData.inheritTranslation;
-                bone.inheritRotation = boneData.inheritRotation;
-                bone.inheritScale = boneData.inheritScale;
-                bone.length = boneData.length;
-                bone.origin.copyFrom(boneData.transform);
+                bone._init(boneData);
 
                 if (boneData.parent) {
                     armature.addBone(bone, boneData.parent.name);
@@ -159,36 +162,32 @@ namespace dragonBones {
         protected _buildSlots(dataPackage: BuildArmaturePackage, armature: Armature): void {
             const currentSkin = dataPackage.skin;
             const defaultSkin = dataPackage.armature.defaultSkin;
-            const slotDisplayDataSetMap: Map<SlotDisplayDataSet> = {};
+            const skinSlotDatas: Map<SkinSlotData> = {};
 
-            for (let i in defaultSkin.slots) {
-                const slotDisplayDataSet = defaultSkin.slots[i];
-                slotDisplayDataSetMap[slotDisplayDataSet.slot.name] = slotDisplayDataSet;
+            for (let k in defaultSkin.slots) {
+                const skinSlotData = defaultSkin.slots[k];
+                skinSlotDatas[skinSlotData.slot.name] = skinSlotData;
             }
 
-            if (currentSkin != defaultSkin) {
-                for (let i in currentSkin.slots) {
-                    const slotDisplayDataSet = currentSkin.slots[i];
-                    slotDisplayDataSetMap[slotDisplayDataSet.slot.name] = slotDisplayDataSet;
+            if (currentSkin !== defaultSkin) {
+                for (let k in currentSkin.slots) {
+                    const skinSlotData = currentSkin.slots[k];
+                    skinSlotDatas[skinSlotData.slot.name] = skinSlotData;
                 }
             }
 
             const slots = dataPackage.armature.sortedSlots;
             for (let i = 0, l = slots.length; i < l; ++i) {
                 const slotData = slots[i];
-                const slotDisplayDataSet = slotDisplayDataSetMap[slotData.name];
-                if (!slotDisplayDataSet) {
+                const skinSlotData = skinSlotDatas[slotData.name];
+                if (!skinSlotData) {
                     continue;
                 }
 
-                const slot = this._generateSlot(dataPackage, slotDisplayDataSet, armature);
+                const slot = this._generateSlot(dataPackage, skinSlotData, armature);
                 if (slot) {
-                    slot._displayDataSet = slotDisplayDataSet;
-                    slot._setDisplayIndex(slotData.displayIndex);
-                    slot._setBlendMode(slotData.blendMode);
-                    slot._setColor(slotData.color);
-
                     armature.addSlot(slot, slotData.parent.name);
+                    slot._setDisplayIndex(slotData.displayIndex);
                 }
             }
         }
@@ -206,24 +205,25 @@ namespace dragonBones {
                     displayList.length = displayIndex + 1;
                 }
 
-                if (slot._replacedDisplayDataSet.length <= displayIndex) {
-                    slot._replacedDisplayDataSet.length = displayIndex + 1;
+                if (slot._replacedDisplayDatas.length <= displayIndex) {
+                    slot._replacedDisplayDatas.length = displayIndex + 1;
                 }
 
-                slot._replacedDisplayDataSet[displayIndex] = displayData;
+                slot._replacedDisplayDatas[displayIndex] = displayData;
 
-                if (displayData.type == DisplayType.Armature) {
+                if (displayData.type === DisplayType.Armature) {
                     const childArmature = this.buildArmature(displayData.path, dataPackage.dataName, null, dataPackage.textureAtlasName);
                     displayList[displayIndex] = childArmature;
                 }
                 else {
                     if (!displayData.texture || dataPackage.textureAtlasName) {
-                        displayData.texture = this._getTextureData(dataPackage.textureAtlasName || dataPackage.dataName, displayData.path);
+                        displayData.texture = this._getTextureData(dataPackage.textureAtlasName ? dataPackage.textureAtlasName : dataPackage.dataName, displayData.path);
                     }
 
+                    const displayDatas = slot.skinSlotData.displays;
                     if (
                         displayData.mesh ||
-                        (displayIndex < slot._displayDataSet.displays.length && slot._displayDataSet.displays[displayIndex].mesh)
+                        (displayIndex < displayDatas.length && displayDatas[displayIndex].mesh)
                     ) {
                         displayList[displayIndex] = slot.meshDisplay;
                     }
@@ -233,7 +233,6 @@ namespace dragonBones {
                 }
 
                 slot.displayList = displayList;
-                slot.invalidUpdate();
             }
         }
         /** 
@@ -247,7 +246,7 @@ namespace dragonBones {
         /** 
          * @private 
          */
-        protected abstract _generateSlot(dataPackage: BuildArmaturePackage, slotDisplayDataSet: SlotDisplayDataSet, armature: Armature): Slot;
+        protected abstract _generateSlot(dataPackage: BuildArmaturePackage, skinSlotData: SkinSlotData, armature: Armature): Slot;
         /**
          * @language zh_CN
          * 解析并添加龙骨数据。
@@ -260,7 +259,7 @@ namespace dragonBones {
          * @see dragonBones.DragonBonesData
          * @version DragonBones 4.5
          */
-        public parseDragonBonesData(rawData: any, name: string = null, scale: number = 1): DragonBonesData {
+        public parseDragonBonesData(rawData: any, name: string = null, scale: number = 1.0): DragonBonesData {
             const dragonBonesData = this._dataParser.parseDragonBonesData(rawData, scale);
             this.addDragonBonesData(dragonBonesData, name);
 
@@ -280,7 +279,7 @@ namespace dragonBones {
          * @see dragonBones.TextureAtlasData
          * @version DragonBones 4.5
          */
-        public parseTextureAtlasData(rawData: any, textureAtlas: Object, name: string = null, scale: number = 0): TextureAtlasData {
+        public parseTextureAtlasData(rawData: any, textureAtlas: Object, name: string = null, scale: number = 0.0): TextureAtlasData {
             const textureAtlasData = this._generateTextureAtlasData(null, null);
             this._dataParser.parseTextureAtlasData(rawData, textureAtlasData, scale);
 
@@ -330,14 +329,14 @@ namespace dragonBones {
                 }
             }
             else {
-                throw new Error();
+                throw new Error(DragonBones.ARGUMENT_ERROR);
             }
         }
         /**
          * @language zh_CN
          * 移除龙骨数据。
          * @param name 数据名称。
-         * @param disposeData 是否释放数据。 [false: 不释放, true: 释放]
+         * @param disposeData 是否释放数据。
          * @see #parseDragonBonesData()
          * @see #getDragonBonesData()
          * @see #addDragonBonesData()
@@ -348,16 +347,6 @@ namespace dragonBones {
             const dragonBonesData = this._dragonBonesDataMap[name];
             if (dragonBonesData) {
                 if (disposeData) {
-
-                    if (DragonBones.debug) {
-                        for (let i = 0, l = DragonBones._armatures.length; i < l; ++i) {
-                            const armature = DragonBones._armatures[i];
-                            if (armature.armatureData.parent == dragonBonesData) {
-                                throw new Error("ArmatureData: " + armature.armatureData.name + " DragonBonesData: " + name);
-                            }
-                        }
-                    }
-
                     dragonBonesData.returnToPool();
                 }
 
@@ -393,7 +382,7 @@ namespace dragonBones {
             if (data) {
                 name = name || data.name;
                 if (name) {
-                    const textureAtlasList = this._textureAtlasDataMap[name] = this._textureAtlasDataMap[name] || [];
+                    const textureAtlasList = this._textureAtlasDataMap[name] ? this._textureAtlasDataMap[name] : (this._textureAtlasDataMap[name] = []);
                     if (textureAtlasList.indexOf(data) < 0) {
                         textureAtlasList.push(data);
                     }
@@ -403,14 +392,14 @@ namespace dragonBones {
                 }
             }
             else {
-                throw new Error();
+                throw new Error(DragonBones.ARGUMENT_ERROR);
             }
         }
         /**
          * @language zh_CN
          * 移除贴图集数据。
          * @param name 数据名称。
-         * @param disposeData 是否释放数据。 [false: 不释放, true: 释放]
+         * @param disposeData 是否释放数据。
          * @see #parseTextureAtlasData()
          * @see #getTextureAtlasData()
          * @see #addTextureAtlasData()
@@ -432,37 +421,38 @@ namespace dragonBones {
         /**
          * @language zh_CN
          * 清除所有的数据。
-         * @param disposeData 是否释放数据。 [false: 不释放, true: 释放]
+         * @param disposeData 是否释放数据。
          * @version DragonBones 4.5
          */
         public clear(disposeData: boolean = true): void {
-            for (let i in this._dragonBonesDataMap) {
+            for (let k in this._dragonBonesDataMap) {
                 if (disposeData) {
-                    this._dragonBonesDataMap[i].returnToPool();
+                    this._dragonBonesDataMap[k].returnToPool();
                 }
 
-                delete this._dragonBonesDataMap[i];
+                delete this._dragonBonesDataMap[k];
             }
 
-            for (let i in this._textureAtlasDataMap) {
+            for (let k in this._textureAtlasDataMap) {
                 if (disposeData) {
-                    const textureAtlasDataList = this._textureAtlasDataMap[i];
+                    const textureAtlasDataList = this._textureAtlasDataMap[k];
                     for (let i = 0, l = textureAtlasDataList.length; i < l; ++i) {
                         textureAtlasDataList[i].returnToPool();
                     }
                 }
 
-                delete this._textureAtlasDataMap[i];
+                delete this._textureAtlasDataMap[k];
             }
         }
         /**
          * @language zh_CN
-         * 创建一个指定名称的骨架。
+         * 创建一个骨架。
          * @param armatureName 骨架数据名称。
          * @param dragonBonesName 龙骨数据名称，如果未设置，将检索所有的龙骨数据，当多个龙骨数据中包含同名的骨架数据时，可能无法创建出准确的骨架。
          * @param skinName 皮肤名称，如果未设置，则使用默认皮肤。
-		 * @param textureAtlasName 贴图集数据名称，如果未设置，则使用龙骨数据。
+         * @param textureAtlasName 贴图集数据名称，如果未设置，则使用龙骨数据名称。
          * @returns 骨架
+         * @see dragonBones.ArmatureData
          * @see dragonBones.Armature
          * @version DragonBones 3.0
          */
@@ -473,35 +463,37 @@ namespace dragonBones {
                 this._buildBones(dataPackage, armature);
                 this._buildSlots(dataPackage, armature);
 
-                armature.advanceTime(0); // Update armature pose.
+                armature.invalidUpdate(null, true);
+                armature.advanceTime(0.0); // Update armature pose.
 
                 return armature;
             }
 
-            console.warn("No armature data.", armatureName, dragonBonesName || "");
+            console.warn("No armature data.", armatureName, dragonBonesName ? dragonBonesName : "");
 
             return null;
         }
         /**
          * @language zh_CN
-         * 将指定骨架的动画替换成其他骨架的动画。 (通常这些骨架应该具有相同的骨架结构)
+         * 将骨架的动画替换成其他骨架的动画。 (通常这些骨架应该具有相同的骨架结构)
          * @param toArmature 指定的骨架。
          * @param fromArmatreName 其他骨架的名称。
          * @param fromSkinName 其他骨架的皮肤名称，如果未设置，则使用默认皮肤。
          * @param fromDragonBonesDataName 其他骨架属于的龙骨数据名称，如果未设置，则检索所有的龙骨数据。
-         * @param ifRemoveOriginalAnimationList 是否移除原有的动画。 [true: 移除, false: 不移除]
-         * @returns 是否替换成功。 [true: 成功, false: 不成功]
+         * @param replaceOriginalAnimation 是否替换原有的同名动画。
+         * @returns 是否替换成功。
          * @see dragonBones.Armature
+         * @see dragonBones.ArmatureData
          * @version DragonBones 4.5
          */
         public copyAnimationsToArmature(
             toArmature: Armature, fromArmatreName: string, fromSkinName: string = null,
-            fromDragonBonesDataName: string = null, ifRemoveOriginalAnimationList: boolean = true
+            fromDragonBonesDataName: string = null, replaceOriginalAnimation: boolean = true
         ): boolean {
             const dataPackage: BuildArmaturePackage = {};
             if (this._fillBuildArmaturePackage(dataPackage, fromDragonBonesDataName, fromArmatreName, fromSkinName, null)) {
                 const fromArmatureData = dataPackage.armature;
-                if (ifRemoveOriginalAnimationList) {
+                if (replaceOriginalAnimation) {
                     toArmature.animation.animations = fromArmatureData.animations;
                 }
                 else {
@@ -522,14 +514,14 @@ namespace dragonBones {
                     for (let i = 0, l = slots.length; i < l; ++i) {
                         const toSlot = slots[i];
                         const toSlotDisplayList = toSlot.displayList;
-                        for (let i = 0, l = toSlotDisplayList.length; i < l; ++i) {
-                            const toDisplayObject = toSlotDisplayList[i];
+                        for (let iA = 0, lA = toSlotDisplayList.length; iA < lA; ++iA) {
+                            const toDisplayObject = toSlotDisplayList[iA];
                             if (toDisplayObject instanceof Armature) {
                                 const displays = dataPackage.skin.getSlot(toSlot.name).displays;
-                                if (i < displays.length) {
-                                    const fromDisplayData = displays[i];
-                                    if (fromDisplayData.type == DisplayType.Armature) {
-                                        this.copyAnimationsToArmature(<Armature>toDisplayObject, fromDisplayData.path, fromSkinName, fromDragonBonesDataName, ifRemoveOriginalAnimationList);
+                                if (iA < displays.length) {
+                                    const fromDisplayData = displays[iA];
+                                    if (fromDisplayData.type === DisplayType.Armature) {
+                                        this.copyAnimationsToArmature(<Armature>toDisplayObject, fromDisplayData.path, fromSkinName, fromDragonBonesDataName, replaceOriginalAnimation);
                                     }
                                 }
                             }
@@ -544,7 +536,7 @@ namespace dragonBones {
         }
         /**
          * @language zh_CN
-         * 将指定插槽的显示对象替换为指定资源创造出的显示对象。
+         * 用指定资源替换插槽的显示对象。
          * @param dragonBonesName 指定的龙骨数据名称。
          * @param armatureName 指定的骨架名称。
          * @param slotName 指定的插槽名称。
@@ -556,11 +548,11 @@ namespace dragonBones {
         public replaceSlotDisplay(dragonBonesName: string, armatureName: string, slotName: string, displayName: string, slot: Slot, displayIndex: number = -1): void {
             const dataPackage: BuildArmaturePackage = {};
             if (this._fillBuildArmaturePackage(dataPackage, dragonBonesName, armatureName, null, null)) {
-                const slotDisplayDataSet = dataPackage.skin.getSlot(slotName);
-                if (slotDisplayDataSet) {
-                    for (let i = 0, l = slotDisplayDataSet.displays.length; i < l; ++i) {
-                        const displayData = slotDisplayDataSet.displays[i];
-                        if (displayData.path == displayName) {
+                const skinSlotData = dataPackage.skin.getSlot(slotName);
+                if (skinSlotData) {
+                    for (let i = 0, l = skinSlotData.displays.length; i < l; ++i) {
+                        const displayData = skinSlotData.displays[i];
+                        if (displayData.name === displayName) {
                             this._replaceSlotDisplay(dataPackage, displayData, slot, displayIndex);
                             break;
                         }
@@ -570,7 +562,7 @@ namespace dragonBones {
         }
         /**
          * @language zh_CN
-         * 将指定插槽的显示对象列表替换为指定资源创造出的显示对象列表。
+         * 用指定资源列表替换插槽的显示对象列表。
          * @param dragonBonesName 指定的 DragonBonesData 名称。
          * @param armatureName 指定的骨架名称。
          * @param slotName 指定的插槽名称。
@@ -580,24 +572,21 @@ namespace dragonBones {
         public replaceSlotDisplayList(dragonBonesName: string, armatureName: string, slotName: string, slot: Slot): void {
             const dataPackage: BuildArmaturePackage = {};
             if (this._fillBuildArmaturePackage(dataPackage, dragonBonesName, armatureName, null, null)) {
-                const slotDisplayDataSet = dataPackage.skin.getSlot(slotName);
-                if (slotDisplayDataSet) {
-                    let displayIndex = 0;
-                    for (let i = 0, l = slotDisplayDataSet.displays.length; i < l; ++i) {
-                        const displayData = slotDisplayDataSet.displays[i];
-                        this._replaceSlotDisplay(dataPackage, displayData, slot, displayIndex++);
+                const skinSlotData = dataPackage.skin.getSlot(slotName);
+                if (skinSlotData) {
+                    for (let i = 0, l = skinSlotData.displays.length; i < l; ++i) {
+                        const displayData = skinSlotData.displays[i];
+                        this._replaceSlotDisplay(dataPackage, displayData, slot, i);
                     }
                 }
             }
         }
-
         /** 
          * @private 
          */
         public getAllDragonBonesData(): Map<DragonBonesData> {
             return this._dragonBonesDataMap;
         }
-
         /** 
          * @private 
          */

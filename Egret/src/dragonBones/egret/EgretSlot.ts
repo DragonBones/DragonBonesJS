@@ -11,7 +11,6 @@ namespace dragonBones {
         public static toString(): string {
             return "[class dragonBones.EgretSlot]";
         }
-
         /**
          * @language zh_CN
          * 是否更新显示对象的变换属性。
@@ -23,36 +22,15 @@ namespace dragonBones {
 
         private _renderDisplay: egret.DisplayObject;
         private _colorFilter: egret.ColorMatrixFilter;
-
         /**
-         * @language zh_CN
-         * 创建一个空的插槽。
-         * @version DragonBones 3.0
+         * @internal
+         * @private
          */
         public constructor() {
             super();
         }
-
-        private _createTexture(textureData: EgretTextureData, textureAtlas: egret.BitmapData): egret.Texture {
-            const textureAtlasWidth = textureAtlas.width;
-            const textureAtlasHeight = textureAtlas.height;
-            const subTextureWidth = Math.min(textureData.region.width, textureAtlasWidth - textureData.region.x); // TODO need remove
-            const subTextureHeight = Math.min(textureData.region.height, textureAtlasHeight - textureData.region.y); // TODO need remove
-
-            const texture = new egret.Texture();
-            texture._bitmapData = textureAtlas;
-            texture.$initData(
-                textureData.region.x, textureData.region.y,
-                subTextureWidth, subTextureHeight,
-                0, 0,
-                subTextureWidth, subTextureHeight,
-                textureAtlasWidth, textureAtlasHeight
-            );
-
-            return texture;
-        }
         /**
-         * @inheritDoc
+         * @private
          */
         protected _onClear(): void {
             super._onClear();
@@ -62,7 +40,6 @@ namespace dragonBones {
             this._renderDisplay = null;
             this._colorFilter = null;
         }
-
         /**
          * @private
          */
@@ -77,24 +54,20 @@ namespace dragonBones {
          * @private
          */
         protected _onUpdateDisplay(): void {
-            if (!this._rawDisplay) {
-                this._rawDisplay = new egret.Bitmap();
-            }
-
-            this._renderDisplay = (this._display || this._rawDisplay) as egret.DisplayObject;
+            this._renderDisplay = (this._display ? this._display : this._rawDisplay) as egret.DisplayObject;
         }
         /**
          * @private
          */
         protected _addDisplay(): void {
-            const container = this._armature._display as EgretArmatureDisplay;
+            const container = this._armature.display as EgretArmatureDisplay;
             container.addChild(this._renderDisplay);
         }
         /**
          * @private
          */
         protected _replaceDisplay(value: any): void {
-            const container = this._armature._display as EgretArmatureDisplay;
+            const container = this._armature.display as EgretArmatureDisplay;
             const prevDisplay = value as egret.DisplayObject;
             container.addChild(this._renderDisplay);
             container.swapChildren(this._renderDisplay, prevDisplay);
@@ -110,9 +83,9 @@ namespace dragonBones {
          * @private
          */
         protected _updateZOrder(): void {
-            const container = this._armature._display as EgretArmatureDisplay;
+            const container = this._armature.display as EgretArmatureDisplay;
             const index = container.getChildIndex(this._renderDisplay);
-            if (index == this._zOrder) {
+            if (index === this._zOrder) {
                 return;
             }
 
@@ -151,13 +124,13 @@ namespace dragonBones {
          */
         protected _updateColor(): void {
             if (
-                this._colorTransform.redMultiplier != 1 ||
-                this._colorTransform.greenMultiplier != 1 ||
-                this._colorTransform.blueMultiplier != 1 ||
-                this._colorTransform.redOffset != 0 ||
-                this._colorTransform.greenOffset != 0 ||
-                this._colorTransform.blueOffset != 0 ||
-                this._colorTransform.alphaOffset != 0
+                this._colorTransform.redMultiplier !== 1 ||
+                this._colorTransform.greenMultiplier !== 1 ||
+                this._colorTransform.blueMultiplier !== 1 ||
+                this._colorTransform.redOffset !== 0 ||
+                this._colorTransform.greenOffset !== 0 ||
+                this._colorTransform.blueOffset !== 0 ||
+                this._colorTransform.alphaOffset !== 0
             ) {
                 if (!this._colorFilter) {
                     this._colorFilter = new egret.ColorMatrixFilter();
@@ -197,101 +170,101 @@ namespace dragonBones {
         /**
          * @private
          */
-        protected _updateFilters(): void { }
-        /**
-         * @private
-         */
         protected _updateFrame(): void {
-            if (this._display && this._displayIndex >= 0) {
-                const rawDisplayData = this._displayIndex < this._displayDataSet.displays.length ? this._displayDataSet.displays[this._displayIndex] : null;
-                const replacedDisplayData = this._displayIndex < this._replacedDisplayDataSet.length ? this._replacedDisplayDataSet[this._displayIndex] : null;
-                const currentDisplayData = replacedDisplayData || rawDisplayData;
-                const currentTextureData = currentDisplayData.texture as EgretTextureData;
-                if (currentTextureData) {
-                    const currentTextureAtlasData = currentTextureData.parent as EgretTextureAtlasData;
-                    const replacedTextureAtlas = this._armature.replacedTexture ? (this._armature.replacedTexture as egret.Texture)._bitmapData : null;
-                    const currentTextureAtlas = (replacedTextureAtlas && currentDisplayData.texture.parent == rawDisplayData.texture.parent) ?
-                        replacedTextureAtlas : (currentTextureAtlasData.texture ? currentTextureAtlasData.texture._bitmapData : null);
-                    if (currentTextureAtlas) {
-                        let currentTexture = currentTextureData.texture;
+            const isMeshDisplay = this._meshData && this._display === this._meshDisplay;
+            let currentTextureData = this._textureData as EgretTextureData;
 
-                        if (currentTextureAtlas == replacedTextureAtlas) {
-                            const armatureDisplay = this._armature._display as EgretArmatureDisplay;
-                            const textureName = currentTextureData.name;
-                            currentTexture = armatureDisplay._subTextures[textureName];
-                            if (!currentTexture) {
-                                currentTexture = this._createTexture(currentTextureData, currentTextureAtlas);
-                                armatureDisplay._subTextures[textureName] = currentTexture;
-                            }
-                        }
-                        else if (!currentTextureData.texture) {
-                            currentTexture = this._createTexture(currentTextureData, currentTextureAtlas);
-                            currentTextureData.texture = currentTexture;
-                        }
+            if (this._displayIndex >= 0 && this._display && currentTextureData) {
+                let currentTextureAtlasData = currentTextureData.parent as EgretTextureAtlasData;
 
-                        this._updatePivot(rawDisplayData, currentDisplayData, currentTextureData);
-
-                        if (this._meshData && this._display == this._meshDisplay) { // Mesh.
-                            const meshDisplay = this._meshDisplay as egret.Mesh;
-                            const meshNode = meshDisplay.$renderNode as egret.sys.MeshNode;
-
-                            meshNode.uvs.length = 0;
-                            meshNode.vertices.length = 0;
-                            meshNode.indices.length = 0;
-
-                            for (let i = 0, l = this._meshData.vertices.length; i < l; ++i) {
-                                meshNode.uvs[i] = this._meshData.uvs[i];
-                                meshNode.vertices[i] = this._meshData.vertices[i];
-                            }
-
-                            for (let i = 0, l = this._meshData.vertexIndices.length; i < l; ++i) {
-                                meshNode.indices[i] = this._meshData.vertexIndices[i];
-                            }
-
-                            meshDisplay.$setBitmapData(currentTexture);
-                            meshDisplay.$setAnchorOffsetX(this._pivotX);
-                            meshDisplay.$setAnchorOffsetY(this._pivotY);
-
-                            meshDisplay.$updateVertices();
-                            meshDisplay.$invalidateTransform();
-
-                            // Identity transform.
-                            if (this._meshData.skinned) {
-                                const transformationMatrix = meshDisplay.matrix;
-                                transformationMatrix.identity();
-                                meshDisplay.matrix = transformationMatrix;
-                            }
-                        }
-                        else { // Normal texture.
-                            const frameDisplay = this._display as egret.Bitmap;
-                            frameDisplay.$setBitmapData(currentTexture);
-                            frameDisplay.$setAnchorOffsetX(this._pivotX);
-                            frameDisplay.$setAnchorOffsetY(this._pivotY);
-                        }
-
-                        this._updateVisible();
-
-                        return;
+                // Update replaced texture atlas.
+                if (this._armature.replacedTexture && this._displayData && currentTextureAtlasData === this._displayData.texture.parent) {
+                    currentTextureAtlasData = this._armature._replaceTextureAtlasData as EgretTextureAtlasData;
+                    if (!currentTextureAtlasData) {
+                        currentTextureAtlasData = BaseObject.borrowObject(EgretTextureAtlasData);
+                        currentTextureAtlasData.copyFrom(this._textureData.parent);
+                        currentTextureAtlasData.texture = this._armature.replacedTexture;
+                        this._armature._replaceTextureAtlasData = currentTextureAtlasData;
                     }
+
+                    currentTextureData = currentTextureAtlasData.getTexture(currentTextureData.name) as EgretTextureData;
+                }
+
+                const currentTextureAtlas = currentTextureAtlasData.texture ? currentTextureAtlasData.texture._bitmapData : null;
+                if (currentTextureAtlas) {
+                    if (!currentTextureData.texture) { // Create texture.
+                        const textureAtlasWidth = currentTextureAtlas.width;
+                        const textureAtlasHeight = currentTextureAtlas.height;
+                        const subTextureWidth = Math.min(currentTextureData.region.width, textureAtlasWidth - currentTextureData.region.x); // TODO need remove
+                        const subTextureHeight = Math.min(currentTextureData.region.height, textureAtlasHeight - currentTextureData.region.y); // TODO need remove
+
+                        currentTextureData.texture = new egret.Texture();
+                        currentTextureData.texture._bitmapData = currentTextureAtlas;
+                        currentTextureData.texture.$initData(
+                            currentTextureData.region.x, currentTextureData.region.y,
+                            subTextureWidth, subTextureHeight,
+                            0, 0,
+                            subTextureWidth, subTextureHeight,
+                            textureAtlasWidth, textureAtlasHeight
+                        );
+                    }
+
+                    if (isMeshDisplay) { // Mesh.
+                        const meshDisplay = this._renderDisplay as egret.Mesh;
+                        const meshNode = meshDisplay.$renderNode as egret.sys.MeshNode;
+
+                        meshNode.uvs.length = 0;
+                        meshNode.vertices.length = 0;
+                        meshNode.indices.length = 0;
+
+                        for (let i = 0, l = this._meshData.vertices.length; i < l; ++i) {
+                            meshNode.uvs[i] = this._meshData.uvs[i];
+                            meshNode.vertices[i] = this._meshData.vertices[i];
+                        }
+
+                        for (let i = 0, l = this._meshData.vertexIndices.length; i < l; ++i) {
+                            meshNode.indices[i] = this._meshData.vertexIndices[i];
+                        }
+
+                        meshDisplay.$setBitmapData(currentTextureData.texture);
+                        meshDisplay.$setAnchorOffsetX(this._pivotX);
+                        meshDisplay.$setAnchorOffsetY(this._pivotY);
+                        meshDisplay.$updateVertices();
+                        meshDisplay.$invalidateTransform();
+                    }
+                    else { // Normal texture.
+                        const normalDisplay = this._renderDisplay as egret.Bitmap;
+                        normalDisplay.$setBitmapData(currentTextureData.texture);
+                        normalDisplay.$setAnchorOffsetX(this._pivotX);
+                        normalDisplay.$setAnchorOffsetY(this._pivotY);
+                    }
+
+                    this._updateVisible();
+
+                    return;
                 }
             }
 
-            this._pivotX = 0;
-            this._pivotY = 0;
-
-            const frameDisplay = this._renderDisplay as egret.Bitmap;
-            frameDisplay.visible = false;
-            frameDisplay.$setBitmapData(null);
-            frameDisplay.$setAnchorOffsetX(this._pivotX);
-            frameDisplay.$setAnchorOffsetY(this._pivotY);
-            frameDisplay.x = this.origin.x;
-            frameDisplay.y = this.origin.y;
+            if (isMeshDisplay) {
+                const meshDisplay = this._renderDisplay as egret.Mesh;
+                meshDisplay.visible = false;
+                meshDisplay.$setBitmapData(null);
+                meshDisplay.x = 0.0;
+                meshDisplay.y = 0.0;
+            }
+            else {
+                const normalDisplay = this._renderDisplay as egret.Bitmap;
+                normalDisplay.visible = false;
+                normalDisplay.$setBitmapData(null);
+                normalDisplay.x = 0.0;
+                normalDisplay.y = 0.0;
+            }
         }
         /**
          * @private
          */
         protected _updateMesh(): void {
-            const meshDisplay = this._meshDisplay as egret.Mesh;
+            const meshDisplay = this._renderDisplay as egret.Mesh;
             const meshNode = meshDisplay.$renderNode as egret.sys.MeshNode;
             const hasFFD = this._ffdVertices.length > 0;
 
@@ -349,24 +322,31 @@ namespace dragonBones {
         /**
          * @private
          */
-        protected _updateTransform(): void {
-            if (this.transformUpdateEnabled) {
-                this._renderDisplay.$setMatrix(this.globalTransformMatrix as egret.Matrix, this.transformUpdateEnabled);
-                this._renderDisplay.$setAnchorOffsetX(this._pivotX);
-                this._renderDisplay.$setAnchorOffsetX(this._pivotY);
+        protected _updateTransform(isSkinnedMesh: boolean): void {
+            if (isSkinnedMesh) { // Identity transform.
+                const transformationMatrix = this._renderDisplay.matrix;
+                transformationMatrix.identity();
+                this._renderDisplay.$setMatrix(transformationMatrix, this.transformUpdateEnabled);
             }
             else {
-                const values = this._renderDisplay.$DisplayObject;
-                const displayMatrix = values[6];
-                displayMatrix.a = this.globalTransformMatrix.a;
-                displayMatrix.b = this.globalTransformMatrix.b;
-                displayMatrix.c = this.globalTransformMatrix.c;
-                displayMatrix.d = this.globalTransformMatrix.d;
-                displayMatrix.tx = this.globalTransformMatrix.tx;
-                displayMatrix.ty = this.globalTransformMatrix.ty;
+                if (this.transformUpdateEnabled) {
+                    this._renderDisplay.$setMatrix((<any>this.globalTransformMatrix) as egret.Matrix, this.transformUpdateEnabled);
+                    this._renderDisplay.$setAnchorOffsetX(this._pivotX);
+                    this._renderDisplay.$setAnchorOffsetX(this._pivotY);
+                }
+                else {
+                    const values = this._renderDisplay.$DisplayObject;
+                    const displayMatrix = values[6];
+                    displayMatrix.a = this.globalTransformMatrix.a;
+                    displayMatrix.b = this.globalTransformMatrix.b;
+                    displayMatrix.c = this.globalTransformMatrix.c;
+                    displayMatrix.d = this.globalTransformMatrix.d;
+                    displayMatrix.tx = this.globalTransformMatrix.tx;
+                    displayMatrix.ty = this.globalTransformMatrix.ty;
 
-                this._renderDisplay.$removeFlags(8);
-                this._renderDisplay.$invalidatePosition();
+                    this._renderDisplay.$removeFlags(8);
+                    this._renderDisplay.$invalidatePosition();
+                }
             }
         }
     }

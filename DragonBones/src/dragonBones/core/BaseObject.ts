@@ -24,7 +24,6 @@ namespace dragonBones {
                 }
             }
         }
-
         /**
          * @language zh_CN
          * 设置每种对象池的最大缓存数量。
@@ -33,7 +32,7 @@ namespace dragonBones {
          * @version DragonBones 4.5
          */
         public static setMaxCount(objectConstructor: typeof BaseObject, maxCount: number): void {
-            if (maxCount < 0 || maxCount != maxCount) {
+            if (maxCount < 0 || maxCount !== maxCount) {
                 maxCount = 0;
             }
 
@@ -78,8 +77,8 @@ namespace dragonBones {
                 }
             }
             else {
-                for (let iP in BaseObject._poolsMap) {
-                    const pool = BaseObject._poolsMap[iP];
+                for (let k in BaseObject._poolsMap) {
+                    const pool = BaseObject._poolsMap[k];
                     pool.length = 0;
                 }
             }
@@ -92,7 +91,7 @@ namespace dragonBones {
          */
         public static borrowObject<T extends BaseObject>(objectConstructor: { new (): T; }): T {
             const pool = BaseObject._poolsMap[String(objectConstructor)];
-            if (pool && pool.length) {
+            if (pool && pool.length > 0) {
                 return <T>pool.pop();
             }
             else {

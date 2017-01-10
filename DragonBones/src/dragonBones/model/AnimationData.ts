@@ -11,11 +11,6 @@ namespace dragonBones {
         public static toString(): string {
             return "[class dragonBones.AnimationData]";
         }
-
-        /**
-         * @private
-         */
-        public hasAsynchronyTimeline: boolean;
         /**
          * @language zh_CN
          * 持续的帧数。
@@ -24,25 +19,19 @@ namespace dragonBones {
         public frameCount: number;
         /**
          * @language zh_CN
-         * 循环播放的次数。 [0: 无限循环播放, [1~N]: 循环播放 N 次]
+         * 播放次数。 [0: 无限循环播放, [1~N]: 循环播放 N 次]
          * @version DragonBones 3.0
          */
         public playTimes: number;
         /**
          * @language zh_CN
-         * 开始的时间。 (以秒为单位)
-         * @version DragonBones 3.0
-         */
-        public position: number;
-        /**
-         * @language zh_CN
-         * 持续的时间。 (以秒为单位)
+         * 持续时间。 (以秒为单位)
          * @version DragonBones 3.0
          */
         public duration: number;
         /**
          * @language zh_CN
-         * 淡入混合的时间。 (以秒为单位)
+         * 淡入时间。 (以秒为单位)
          * @version DragonBones 3.0
          */
         public fadeInTime: number;
@@ -59,10 +48,6 @@ namespace dragonBones {
         /**
          * @private
          */
-        public animation: AnimationData;
-        /**
-         * @private
-         */
         public zOrderTimeline: TimelineData<ZOrderFrameData>;
         /**
          * @private
@@ -75,80 +60,99 @@ namespace dragonBones {
         /**
          * @private
          */
-        public ffdTimelines: Map<Map<Map<FFDTimelineData>>> = {}; // skin slot displayIndex
+        public ffdTimelines: Map<Map<Map<FFDTimelineData>>> = {}; // skin slot mesh
         /**
          * @private
          */
         public cachedFrames: Array<boolean> = [];
-
         /**
+         * @private
+         */
+        public boneCachedFrameIndices: Map<Array<number>> = {};
+        /**
+         * @private
+         */
+        public slotCachedFrameIndices: Map<Array<number>> = {};
+        /**
+         * @internal
          * @private
          */
         public constructor() {
             super();
         }
         /**
-         * @inheritDoc
+         * @private
          */
         protected _onClear(): void {
             super._onClear();
+
+            for (let k in this.boneTimelines) {
+                this.boneTimelines[k].returnToPool();
+                delete this.boneTimelines[k];
+            }
+
+            for (let k in this.slotTimelines) {
+                this.slotTimelines[k].returnToPool();
+                delete this.slotTimelines[k];
+            }
+
+            for (let k in this.ffdTimelines) {
+                for (let kA in this.ffdTimelines[k]) {
+                    for (let kB in this.ffdTimelines[k][kA]) {
+                        this.ffdTimelines[k][kA][kB].returnToPool();
+                    }
+                }
+
+                delete this.ffdTimelines[k];
+            }
+
+            for (let k in this.boneCachedFrameIndices) {
+                // this.boneCachedFrameIndices[i].length = 0;
+                delete this.boneCachedFrameIndices[k];
+            }
+
+            for (let k in this.slotCachedFrameIndices) {
+                // this.slotCachedFrameIndices[i].length = 0;
+                delete this.slotCachedFrameIndices[k];
+            }
 
             if (this.zOrderTimeline) {
                 this.zOrderTimeline.returnToPool();
             }
 
-            for (let i in this.boneTimelines) {
-                this.boneTimelines[i].returnToPool();
-                delete this.boneTimelines[i];
-            }
-
-            for (let i in this.slotTimelines) {
-                this.slotTimelines[i].returnToPool();
-                delete this.slotTimelines[i];
-            }
-
-            for (let i in this.ffdTimelines) {
-                for (let j in this.ffdTimelines[i]) {
-                    for (let k in this.ffdTimelines[i][j]) {
-                        this.ffdTimelines[i][j][k].returnToPool();
-                    }
-                }
-
-                delete this.ffdTimelines[i];
-            }
-
-            this.hasAsynchronyTimeline = false;
             this.frameCount = 0;
             this.playTimes = 0;
-            this.position = 0;
-            this.duration = 0;
-            this.fadeInTime = 0;
-            this.cacheFrameRate = 0;
+            this.duration = 0.0;
+            this.fadeInTime = 0.0;
+            this.cacheFrameRate = 0.0;
             this.name = null;
-            this.animation = null;
-            this.zOrderTimeline = null;
+            //this.boneTimelines.clear();
+            //this.slotTimelines.clear();
+            //this.ffdTimelines.clear();
             this.cachedFrames.length = 0;
+            //this.boneCachedFrameIndices.clear();
+            //this.boneCachedFrameIndices.clear();
+            this.zOrderTimeline = null;
         }
         /**
          * @private
          */
-        public cacheFrames(cacheFrameRate: number): void {
-            if (this.animation) {
+        public cacheFrames(frameRate: number): void {
+            if (this.cacheFrameRate > 0.0) {
                 return;
             }
 
-            this.cacheFrameRate = Math.max(Math.ceil(cacheFrameRate * this.scale), 1);
-
-            const cacheFrameCount = Math.ceil(this.cacheFrameRate * this.duration) + 1;
+            this.cacheFrameRate = Math.max(Math.ceil(frameRate * this.scale), 1.0);
+            const cacheFrameCount = Math.ceil(this.cacheFrameRate * this.duration) + 1; // uint
             this.cachedFrames.length = 0;
             this.cachedFrames.length = cacheFrameCount;
 
-            for (let i in this.boneTimelines) {
-                this.boneTimelines[i].cacheFrames(cacheFrameCount);
+            for (let k in this.boneTimelines) {
+                this.boneCachedFrameIndices[k] = new Array(cacheFrameCount);
             }
 
-            for (let i in this.slotTimelines) {
-                this.slotTimelines[i].cacheFrames(cacheFrameCount);
+            for (let k in this.slotTimelines) {
+                this.slotCachedFrameIndices[k] = new Array(cacheFrameCount);
             }
         }
         /**
@@ -159,7 +163,7 @@ namespace dragonBones {
                 this.boneTimelines[value.bone.name] = value;
             }
             else {
-                throw new Error();
+                throw new Error(DragonBones.ARGUMENT_ERROR);
             }
         }
         /**
@@ -170,7 +174,7 @@ namespace dragonBones {
                 this.slotTimelines[value.slot.name] = value;
             }
             else {
-                throw new Error();
+                throw new Error(DragonBones.ARGUMENT_ERROR);
             }
         }
         /**
@@ -184,11 +188,11 @@ namespace dragonBones {
                     slot[value.display.name] = value;
                 }
                 else {
-                    throw new Error();
+                    throw new Error(DragonBones.ARGUMENT_ERROR);
                 }
             }
             else {
-                throw new Error();
+                throw new Error(DragonBones.ARGUMENT_ERROR);
             }
         }
         /**
@@ -206,16 +210,25 @@ namespace dragonBones {
         /**
          * @private
          */
-        public getFFDTimeline(skinName: string, slotName: string, displayName: string): FFDTimelineData {
+        public getFFDTimeline(skinName: string, slotName: string): Map<FFDTimelineData> {
             const skin = this.ffdTimelines[skinName];
             if (skin) {
-                const slot = skin[slotName];
-                if (slot) {
-                    return slot[displayName];
-                }
+                return skin[slotName];
             }
 
             return null;
+        }
+        /**
+         * @private
+         */
+        public getBoneCachedFrameIndices(name: string): Array<number> {
+            return this.boneCachedFrameIndices[name];
+        }
+        /**
+         * @private
+         */
+        public getSlotCachedFrameIndices(name: string): Array<number> {
+            return this.slotCachedFrameIndices[name];
         }
     }
 }

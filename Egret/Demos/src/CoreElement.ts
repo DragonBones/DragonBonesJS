@@ -21,7 +21,7 @@ namespace demosEgret {
 
                 Game.instance = this;
 
-                this._resourceConfigURL = "resource/CoreElement.res.json";
+                this._resourceConfigURL = "resource/core_element.res.json";
             }
 
             protected _onStart(): void {
@@ -50,12 +50,12 @@ namespace demosEgret {
                 this._player = new Mecha();
 
                 const text = new egret.TextField();
+                text.size = 20;
+                text.textAlign = egret.HorizontalAlign.CENTER;
+                text.text = "Press W/A/S/D to move. Press Q/E/SPACE to switch weapons.\nMouse Move to aim. Click to fire.";
+                text.width = Game.STAGE_WIDTH;
                 text.x = 0;
                 text.y = Game.STAGE_HEIGHT - 60;
-                text.width = Game.STAGE_WIDTH;
-                text.textAlign = egret.HorizontalAlign.CENTER;
-                text.size = 20;
-                text.text = "Press W/A/S/D to move. Press Q/E/SPACE to switch weapons.\nMouse Move to aim. Click to fire.";
                 this.addChild(text);
             }
 

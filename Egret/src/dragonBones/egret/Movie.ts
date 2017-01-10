@@ -1,4 +1,7 @@
 namespace dragonBones {
+    /**
+     * @private
+     */
     type GroupConfig = {
         name: string,
         version: number,
@@ -18,7 +21,9 @@ namespace dragonBones {
         colorArray?: Int8Array,
         textures?: egret.Texture[],
     };
-
+    /**
+     * @private
+     */
     type DisplayConfig = {
         name: string,
         type: DisplayType,
@@ -28,14 +33,18 @@ namespace dragonBones {
         // Runtime
         texture?: egret.Texture
     };
-
+    /**
+     * @private
+     */
     type ActionAndEventConfig = {
         type: ActionType | EventType,
         name: string,
         data?: any,
         slot?: string
     };
-
+    /**
+     * @private
+     */
     type MovieConfig = {
         name: string,
         frameRate: number,
@@ -46,13 +55,17 @@ namespace dragonBones {
         slot?: SlotConfig[],
         clip?: ClipConfig[]
     };
-
+    /**
+     * @private
+     */
     type SlotConfig = {
         name: string,
         blendMode?: BlendMode,
         action?: string
     };
-
+    /**
+     * @private
+     */
     type ClipConfig = {
         name: string,
         playTimes: number,
@@ -67,21 +80,27 @@ namespace dragonBones {
         // Runtime
         cacheRectangles: egret.Rectangle[]
     };
-
+    /**
+     * @private
+     */
     type FrameConfig = {
         prev: number,
         next: number,
         position: number,
         actionAndEvent: ActionAndEventConfig[]
     };
-
+    /**
+     * @private
+     */
     type CreateMovieHelper = {
         groupName?: string,
         movieName: string,
         groupConfig?: GroupConfig,
         movieConfig?: MovieConfig
     };
-
+    /**
+     * @private
+     */
     class Slot extends egret.HashObject {
         public displayIndex: number = -1;
         public colorIndex: number = -1;
@@ -116,22 +135,34 @@ namespace dragonBones {
             this.childMovies = null;
         }
     }
-
+    /**
+     * @private
+     */
     let _helpRectangle: egret.Rectangle = new egret.Rectangle();
+    /**
+     * @private
+     */
     let _helpMatrix: egret.Matrix = new egret.Matrix();
+    /**
+     * @private
+     */
     let _groupConfigMap: Map<GroupConfig> = {};
-
+    /**
+     * @private
+     */
     function _findObjectInArray<T extends { name: string }>(array: T[], name: string): T {
         for (let i = 0, l = array.length; i < l; ++i) {
             const data = array[i];
-            if (data.name == name) {
+            if (data.name === name) {
                 return data;
             }
         }
 
         return null;
     }
-
+    /**
+     * @private
+     */
     function _fillCreateMovieHelper(createMovieHelper: CreateMovieHelper): boolean {
         if (createMovieHelper.groupName) {
             const groupConfig = _groupConfigMap[createMovieHelper.groupName];
@@ -404,6 +435,7 @@ namespace dragonBones {
         private _cacheFrameIndex: number = 0;
         private _frameSize: number = 0;
         private _cacheRectangle: egret.Rectangle = null;
+        private _clock: WorldClock = null;
 
         private _groupConfig: GroupConfig = null;
         private _config: MovieConfig = null;
@@ -490,7 +522,7 @@ namespace dragonBones {
                             break;
 
                         case ActionType.Play:
-                        case ActionType.FadeIn:
+                        case ActionType.Fade:
                             if (actionAndEvent.slot) {
                                 const slot = this._getSlot(actionAndEvent.slot);
                                 if (slot && slot.childMovie) {
@@ -500,18 +532,6 @@ namespace dragonBones {
                             else {
                                 this.play(actionAndEvent.name);
                             }
-                            break;
-
-                        case ActionType.Stop:
-                            // TODO
-                            break;
-
-                        case ActionType.GotoAndPlay:
-                            // TODO
-                            break;
-
-                        case ActionType.GotoAndStop:
-                            // TODO
                             break;
                     }
                 }
@@ -552,13 +572,13 @@ namespace dragonBones {
 
         private _updateSlotColor(slot: Slot, aM: number, rM: number, gM: number, bM: number, aO: number, rO: number, gO: number, bO: number): void {
             if (
-                rM != 1 ||
-                gM != 1 ||
-                bM != 1 ||
-                rO != 0 ||
-                gO != 0 ||
-                bO != 0 ||
-                aO != 0
+                rM !== 1 ||
+                gM !== 1 ||
+                bM !== 1 ||
+                rO !== 0 ||
+                gO !== 0 ||
+                bO !== 0 ||
+                aO !== 0
             ) {
                 if (!slot.colorFilter) {
                     slot.colorFilter = new egret.ColorMatrixFilter();
@@ -619,7 +639,7 @@ namespace dragonBones {
 
             if (slot.displayIndex >= 0) {
                 slot.displayConfig = this._groupConfig.display[slot.displayIndex];
-                if (slot.displayConfig.type == DisplayType.Armature) {
+                if (slot.displayConfig.type === DisplayType.Armature) {
                     let childMovie = slot.childMovies[slot.displayConfig.name];
 
                     if (!childMovie) {
@@ -642,7 +662,7 @@ namespace dragonBones {
                 slot.childMovie = null;
             }
 
-            if (slot.display != prevDisplay) {
+            if (slot.display !== prevDisplay) {
                 if (prevDisplay) {
                     this.addChild(slot.display);
                     this.swapChildren(slot.display, prevDisplay);
@@ -654,7 +674,7 @@ namespace dragonBones {
             }
 
             // Update frame.
-            if (slot.display == slot.rawDisplay) {
+            if (slot.display === slot.rawDisplay) {
                 if (slot.displayConfig && slot.displayConfig.regionIndex != null) {
                     if (!slot.displayConfig.texture) {
                         const textureAtlasTexture = this._groupConfig.textures[0]; // TODO
@@ -711,7 +731,7 @@ namespace dragonBones {
             }
 
             // Update child movie.
-            if (slot.childMovie != prevChildMovie) {
+            if (slot.childMovie !== prevChildMovie) {
                 if (prevChildMovie) {
                     prevChildMovie.stop();
                     this._childMovies.slice(this._childMovies.indexOf(prevChildMovie), 1);
@@ -735,7 +755,7 @@ namespace dragonBones {
         private _getSlot(name: string): Slot {
             for (let i = 0, l = this._slots.length; i < l; ++i) {
                 const slot = this._slots[i];
-                if (slot.config.name == name) {
+                if (slot.config.name === name) {
                     return slot;
                 }
             }
@@ -803,17 +823,25 @@ namespace dragonBones {
                 this._isDelayDispose = true;
             }
             else {
-                this.advanceTimeBySelf(false);
+                if (this._clock) {
+                    this._clock.remove(this);
+                }
 
-                for (let i = 0, l = this._slots.length; i < l; ++i) {
-                    this._slots[i].dispose();
+                if (this._slots) {
+                    for (let i = 0, l = this._slots.length; i < l; ++i) {
+                        this._slots[i].dispose();
+                    }
                 }
 
                 this._isPlaying = false;
                 this._cacheRectangle = null;
+                this._clock = null;
                 this._groupConfig = null;
+                this._config = null;
                 this._clipConfig = null;
                 this._currentFrameConfig = null;
+                this._clipArray = null;
+
                 this._clipNames = null;
                 this._slots = null;
                 this._childMovies = null;
@@ -867,12 +895,12 @@ namespace dragonBones {
                 }
             }
 
-            if (this._currentTime == currentTime) {
+            if (this._currentTime === currentTime) {
                 return;
             }
 
             const cacheFrameIndex = Math.floor(currentTime * this._clipConfig.cacheTimeToFrameScale);
-            if (this._cacheFrameIndex != cacheFrameIndex) {
+            if (this._cacheFrameIndex !== cacheFrameIndex) {
                 this._cacheFrameIndex = cacheFrameIndex;
 
                 const displayFrameArray = this._groupConfig.displayFrameArray;
@@ -902,13 +930,13 @@ namespace dragonBones {
                         const transformIndex = this._clipArray[clipFrameIndex + 1] * 6;
                         let colorChange = false;
 
-                        if (slot.displayIndex != displayIndex) {
+                        if (slot.displayIndex !== displayIndex) {
                             slot.displayIndex = displayIndex;
                             colorChange = true;
                             this._updateSlotDisplay(slot);
                         }
 
-                        if (slot.colorIndex != colorIndex || colorChange) {
+                        if (slot.colorIndex !== colorIndex || colorChange) {
                             slot.colorIndex = colorIndex;
                             if (slot.colorIndex >= 0) {
                                 this._updateSlotColor(
@@ -930,7 +958,7 @@ namespace dragonBones {
 
                         hasDisplay = true;
 
-                        if (slot.transformIndex != transformIndex) {
+                        if (slot.transformIndex !== transformIndex) {
                             slot.transformIndex = transformIndex;
 
                             if (this._batchEnabled) {
@@ -986,7 +1014,7 @@ namespace dragonBones {
                             }
                         }
                     }
-                    else if (slot.displayIndex != -1) {
+                    else if (slot.displayIndex !== -1) {
                         slot.displayIndex = -1;
                         this._updateSlotDisplay(slot);
                     }
@@ -1021,14 +1049,14 @@ namespace dragonBones {
                 }
             }
 
-            this._isReversing = this._currentTime > currentTime && this._currentPlayTimes == currentPlayTimes;
+            this._isReversing = this._currentTime > currentTime && this._currentPlayTimes === currentPlayTimes;
 
             // Action and event.
             const frameCount = this._clipConfig.frame ? this._clipConfig.frame.length : 0;
             if (frameCount > 0) {
                 const currentFrameIndex = Math.floor(this._currentTime * this._config.frameRate);
                 const currentFrameConfig = this._groupConfig.frame[this._clipConfig.frame[currentFrameIndex]];
-                if (this._currentFrameConfig != currentFrameConfig) {
+                if (this._currentFrameConfig !== currentFrameConfig) {
                     if (frameCount > 1) {
                         let crossedFrameConfig = this._currentFrameConfig;
                         this._currentFrameConfig = currentFrameConfig;
@@ -1043,7 +1071,7 @@ namespace dragonBones {
                             else {
                                 if (
                                     this._currentTime <= crossedFrameConfig.position ||
-                                    this._currentPlayTimes != currentPlayTimes
+                                    this._currentPlayTimes !== currentPlayTimes
                                 ) {
                                     crossedFrameConfig = this._groupConfig.frame[crossedFrameConfig.prev];
                                 }
@@ -1051,13 +1079,13 @@ namespace dragonBones {
                         }
 
                         if (this._isReversing) {
-                            while (crossedFrameConfig != currentFrameConfig) {
+                            while (crossedFrameConfig !== currentFrameConfig) {
                                 this._onCrossFrame(crossedFrameConfig);
                                 crossedFrameConfig = this._groupConfig.frame[crossedFrameConfig.prev];
                             }
                         }
                         else {
-                            while (crossedFrameConfig != currentFrameConfig) {
+                            while (crossedFrameConfig !== currentFrameConfig) {
                                 crossedFrameConfig = this._groupConfig.frame[crossedFrameConfig.next];
                                 this._onCrossFrame(crossedFrameConfig);
                             }
@@ -1079,7 +1107,7 @@ namespace dragonBones {
                 this._childMovies[i].advanceTime(passedTime);
             }
 
-            if (this._currentPlayTimes != currentPlayTimes) {
+            if (this._currentPlayTimes !== currentPlayTimes) {
                 this._currentPlayTimes = currentPlayTimes;
                 if (this.hasEventListener(MovieEvent.LOOP_COMPLETE)) {
                     const event = egret.Event.create(MovieEvent, MovieEvent.LOOP_COMPLETE);
@@ -1119,7 +1147,7 @@ namespace dragonBones {
                 let clipConfig = <ClipConfig>null;
                 for (let i = 0, l = this._config.clip.length; i < l; ++i) {
                     const data = this._config.clip[i];
-                    if (data.name == clipName) {
+                    if (data.name === clipName) {
                         clipConfig = data;
                     }
                 }
@@ -1136,7 +1164,7 @@ namespace dragonBones {
                     this._isStarted = false;
                     this._isCompleted = false;
 
-                    if (playTimes < 0 || playTimes != playTimes) {
+                    if (playTimes < 0 || playTimes !== playTimes) {
                         this._playTimes = this._clipConfig.playTimes;
                     }
                     else {
@@ -1217,26 +1245,19 @@ namespace dragonBones {
         }
         /**
          * @language zh_CN
-         * 由 Movie 自己来更新动画。
-         * @param on 开启或关闭 Movie 自己对动画的更新。
-         * @version DragonBones 4.7
-         */
-        public advanceTimeBySelf(on: boolean): void {
-            if (on) {
-                EgretFactory._clock.add(this);
-            }
-            else {
-                EgretFactory._clock.remove(this);
-            }
-        }
-        /**
-         * @language zh_CN
          * 是否包含指定动画剪辑。
          * @param clipName 动画剪辑的名称。
          * @version DragonBones 4.7
          */
         public hasClip(clipName: string): boolean {
-            return this._config.clip[clipName] != null;
+            for (let i = 0, l = this._config.clip.length; i < l; ++i) {
+                const clip = this._config.clip[i];
+                if (clip.name === clipName) {
+                    return true;
+                }
+            }
+
+            return false;
         }
         /**
          * @language zh_CN
@@ -1305,6 +1326,43 @@ namespace dragonBones {
          */
         public get clipNames(): string[] {
             return this._clipNames;
+        }
+        /**
+         * @inheritDoc
+         */
+        public get clock(): WorldClock {
+            return this._clock;
+        }
+        public set clock(value: WorldClock) {
+            if (this._clock === value) {
+                return;
+            }
+
+            const prevClock = this._clock;
+            this._clock = value;
+
+            if (prevClock) {
+                prevClock.remove(this);
+            }
+
+            if (this._clock) {
+                this._clock.add(this);
+            }
+        }
+
+        /**
+         * @language zh_CN
+         * 由 Movie 自己来更新动画。
+         * @param on 开启或关闭 Movie 自己对动画的更新。
+         * @version DragonBones 4.7
+         */
+        public advanceTimeBySelf(on: boolean): void {
+            if (on) {
+                this.clock = EgretFactory._clock;
+            }
+            else {
+                this.clock = null;
+            }
         }
     }
 }
