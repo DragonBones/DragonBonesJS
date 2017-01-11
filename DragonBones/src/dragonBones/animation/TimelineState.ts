@@ -97,8 +97,8 @@ namespace dragonBones {
                             }
                             else {
                                 if (
-                                    prevTime <= crossedFrame.position ||
-                                    prevPlayTimes !== this._currentPlayTimes
+                                    prevTime <= crossedFrame.position
+                                    // || prevPlayTimes !== this._currentPlayTimes ?
                                 ) {
                                     crossedFrame = crossedFrame.prev;
                                 }

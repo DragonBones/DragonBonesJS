@@ -37,7 +37,7 @@ namespace demosEgret {
             this.stage.addEventListener(egret.TouchEvent.TOUCH_MOVE, this._touchHandler, this);
 
             // Play default animaiton.
-            this._armatureDisplay.animation.play();
+            this._armatureDisplay.animation.play(null, 0);
         }
 
         private _touchHandler(event: egret.TouchEvent): void {

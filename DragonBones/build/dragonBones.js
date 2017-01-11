@@ -8136,8 +8136,7 @@ var dragonBones;
                             if (isReverse) {
                             }
                             else {
-                                if (prevTime <= crossedFrame.position ||
-                                    prevPlayTimes !== this._currentPlayTimes) {
+                                if (prevTime <= crossedFrame.position) {
                                     crossedFrame = crossedFrame.prev;
                                 }
                             }
