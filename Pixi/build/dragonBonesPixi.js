@@ -1,8 +1,13 @@
-var __extends = (this && this.__extends) || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-};
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
 var dragonBones;
 (function (dragonBones) {
     /**
@@ -16,7 +21,7 @@ var dragonBones;
          * @private
          */
         function PixiTextureAtlasData() {
-            _super.call(this);
+            return _super.call(this) || this;
         }
         /**
          * @private
@@ -49,7 +54,7 @@ var dragonBones;
     var PixiTextureData = (function (_super) {
         __extends(PixiTextureData, _super);
         function PixiTextureData() {
-            _super.call(this);
+            return _super.call(this) || this;
         }
         PixiTextureData.toString = function () {
             return "[class dragonBones.PixiTextureData]";
@@ -77,7 +82,7 @@ var dragonBones;
          * @private
          */
         function PixiArmatureDisplay() {
-            _super.call(this);
+            return _super.call(this) || this;
         }
         /**
          * @private
@@ -256,7 +261,7 @@ var dragonBones;
          * @private
          */
         function PixiSlot() {
-            _super.call(this);
+            return _super.call(this) || this;
         }
         /**
          * @private
@@ -480,12 +485,12 @@ var dragonBones;
          */
         PixiSlot.prototype._updateTransform = function (isSkinnedMesh) {
             if (isSkinnedMesh) {
+                this._renderDisplay.setTransform(0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+            }
+            else {
                 var x = this.globalTransformMatrix.tx - (this.globalTransformMatrix.a * this._pivotX + this.globalTransformMatrix.c * this._pivotY);
                 var y = this.globalTransformMatrix.ty - (this.globalTransformMatrix.b * this._pivotX + this.globalTransformMatrix.d * this._pivotY);
                 this._renderDisplay.setTransform(x, y, this.global.scaleX, this.global.scaleY, this.global.skewY, this.global.skewX - this.global.skewY, 0.0);
-            }
-            else {
-                this._renderDisplay.setTransform(0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0);
             }
         };
         return PixiSlot;
@@ -509,12 +514,13 @@ var dragonBones;
          */
         function PixiFactory(dataParser) {
             if (dataParser === void 0) { dataParser = null; }
-            _super.call(this, dataParser);
+            var _this = _super.call(this, dataParser) || this;
             if (!PixiFactory._eventManager) {
                 PixiFactory._eventManager = new dragonBones.PixiArmatureDisplay();
                 PixiFactory._clock = new dragonBones.WorldClock();
                 PIXI.ticker.shared.add(PixiFactory._clockHandler, PixiFactory);
             }
+            return _this;
         }
         PixiFactory._clockHandler = function (passedTime) {
             PixiFactory._clock.advanceTime(-1); // passedTime !?
@@ -663,16 +669,16 @@ var dragonBones;
             enumerable: true,
             configurable: true
         });
-        PixiFactory._factory = null;
-        /**
-         * @private
-         */
-        PixiFactory._eventManager = null;
-        /**
-         * @private
-         */
-        PixiFactory._clock = null;
         return PixiFactory;
     }(dragonBones.BaseFactory));
+    PixiFactory._factory = null;
+    /**
+     * @private
+     */
+    PixiFactory._eventManager = null;
+    /**
+     * @private
+     */
+    PixiFactory._clock = null;
     dragonBones.PixiFactory = PixiFactory;
 })(dragonBones || (dragonBones = {}));

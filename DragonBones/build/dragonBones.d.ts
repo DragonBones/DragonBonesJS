@@ -1008,26 +1008,26 @@ declare namespace dragonBones {
          * @see #armatures
          * @version DragonBones 3.0
          */
-        animationNames: Array<string>;
+        readonly animationNames: Array<string>;
         /**
          * @private
          */
-        sortedBones: Array<BoneData>;
+        readonly sortedBones: Array<BoneData>;
         /**
          * @private
          */
-        sortedSlots: Array<SlotData>;
+        readonly sortedSlots: Array<SlotData>;
         /**
          * @private
          */
-        defaultSkin: SkinData;
+        readonly defaultSkin: SkinData;
         /**
          * @language zh_CN
          * 获取默认动画数据。
          * @see dragonBones.AnimationData
          * @version DragonBones 4.5
          */
-        defaultAnimation: AnimationData;
+        readonly defaultAnimation: AnimationData;
     }
     /**
      * @language zh_CN
@@ -1476,7 +1476,7 @@ declare namespace dragonBones {
          * @see #armatures
          * @version DragonBones 3.0
          */
-        armatureNames: Array<string>;
+        readonly armatureNames: Array<string>;
         /**
          * @deprecated
          * @see dragonBones.BaseFactory#removeDragonBonesData()
@@ -1971,14 +1971,14 @@ declare namespace dragonBones {
          * @see dragonBones.Armature
          * @version DragonBones 3.0
          */
-        armature: Armature;
+        readonly armature: Armature;
         /**
          * @language zh_CN
          * 所属的父骨骼。
          * @see dragonBones.Bone
          * @version DragonBones 3.0
          */
-        parent: Bone;
+        readonly parent: Bone;
     }
 }
 declare namespace dragonBones {
@@ -2091,19 +2091,19 @@ declare namespace dragonBones {
          * @deprecated
          * @see dragonBones.Armature#getSlot()
          */
-        slot: Slot;
+        readonly slot: Slot;
         /**
          * @deprecated
          */
-        ikChain: number;
+        readonly ikChain: number;
         /**
          * @deprecated
          */
-        ikChainIndex: number;
+        readonly ikChainIndex: number;
         /**
          * @deprecated
          */
-        ik: Bone;
+        readonly ik: Bone;
     }
 }
 declare namespace dragonBones {
@@ -2374,22 +2374,22 @@ declare namespace dragonBones {
         /**
          * @private
          */
-        skinSlotData: SkinSlotData;
+        readonly skinSlotData: SkinSlotData;
         /**
          * @language zh_CN
          * 插槽此时的自定义包围盒数据。
          * @see dragonBones.Armature
          * @version DragonBones 3.0
          */
-        boundingBoxData: BoundingBoxData;
+        readonly boundingBoxData: BoundingBoxData;
         /**
          * @private
          */
-        rawDisplay: any;
+        readonly rawDisplay: any;
         /**
          * @private
          */
-        meshDisplay: any;
+        readonly meshDisplay: any;
         /**
          * @language zh_CN
          * 此时显示的显示对象在显示列表中的索引。
@@ -2640,40 +2640,40 @@ declare namespace dragonBones {
          * @see dragonBones.ArmatureData#name
          * @version DragonBones 3.0
          */
-        name: string;
+        readonly name: string;
         /**
          * @language zh_CN
          * 获取骨架数据。
          * @see dragonBones.ArmatureData
          * @version DragonBones 4.5
          */
-        armatureData: ArmatureData;
+        readonly armatureData: ArmatureData;
         /**
          * @language zh_CN
          * 获得动画控制器。
          * @see dragonBones.Animation
          * @version DragonBones 3.0
          */
-        animation: Animation;
+        readonly animation: Animation;
         /**
          * @language zh_CN
          * 获取事件监听器。
          * @version DragonBones 5.0
          */
-        eventDispatcher: IEventDispatcher;
+        readonly eventDispatcher: IEventDispatcher;
         /**
          * @language zh_CN
          * 获取显示容器，插槽的显示对象都会以此显示容器为父级，根据渲染平台的不同，类型会不同，通常是 DisplayObjectContainer 类型。
          * @version DragonBones 3.0
          */
-        display: any;
+        readonly display: any;
         /**
          * @language zh_CN
          * 获取父插槽。 (当此骨架是某个骨架的子骨架时，可以通过此属性向上查找从属关系)
          * @see dragonBones.Slot
          * @version DragonBones 4.5
          */
-        parent: Slot;
+        readonly parent: Slot;
         /**
          * @language zh_CN
          * 动画缓存帧率，当设置的值大于 0 的时，将会开启动画缓存。
@@ -2923,42 +2923,42 @@ declare namespace dragonBones {
          * 动画是否处于播放状态。
          * @version DragonBones 3.0
          */
-        isPlaying: boolean;
+        readonly isPlaying: boolean;
         /**
          * @language zh_CN
          * 所有动画状态是否均已播放完毕。
          * @see dragonBones.AnimationState
          * @version DragonBones 3.0
          */
-        isCompleted: boolean;
+        readonly isCompleted: boolean;
         /**
          * @language zh_CN
          * 上一个正在播放的动画状态名称。
          * @see #lastAnimationState
          * @version DragonBones 3.0
          */
-        lastAnimationName: string;
+        readonly lastAnimationName: string;
         /**
          * @language zh_CN
          * 上一个正在播放的动画状态。
          * @see dragonBones.AnimationState
          * @version DragonBones 3.0
          */
-        lastAnimationState: AnimationState;
+        readonly lastAnimationState: AnimationState;
         /**
          * @language zh_CN
          * 一个可以快速使用的动画配置实例。
          * @see dragonBones.AnimationConfig
          * @version DragonBones 5.0
          */
-        animationConfig: AnimationConfig;
+        readonly animationConfig: AnimationConfig;
         /**
          * @language zh_CN
          * 所有动画数据名称。
          * @see #animations
          * @version DragonBones 4.5
          */
-        animationNames: Array<string>;
+        readonly animationNames: Array<string>;
         /**
          * @language zh_CN
          * 所有动画数据。
@@ -2987,13 +2987,13 @@ declare namespace dragonBones {
          * @see #animationNames
          * @see #animations
          */
-        animationList: Array<string>;
+        readonly animationList: Array<string>;
         /**
          * @deprecated
          * @see #animationNames
          * @see #animations
          */
-        animationDataList: Array<AnimationData>;
+        readonly animationDataList: Array<AnimationData>;
         /**
          * @deprecated
          * @see dragonBones.AnimationFadeOutMode.None
@@ -3185,50 +3185,50 @@ declare namespace dragonBones {
          * 混合图层。
          * @version DragonBones 3.0
          */
-        layer: number;
+        readonly layer: number;
         /**
          * @language zh_CN
          * 混合组。
          * @version DragonBones 3.0
          */
-        group: string;
+        readonly group: string;
         /**
          * @language zh_CN
          * 动画名称。
          * @version DragonBones 3.0
          */
-        name: string;
+        readonly name: string;
         /**
          * @language zh_CN
          * 动画数据。
          * @see dragonBones.AnimationData
          * @version DragonBones 3.0
          */
-        animationData: AnimationData;
+        readonly animationData: AnimationData;
         /**
          * @language zh_CN
          * 是否播放完毕。
          * @version DragonBones 3.0
          */
-        isCompleted: boolean;
+        readonly isCompleted: boolean;
         /**
          * @language zh_CN
          * 是否正在播放。
          * @version DragonBones 3.0
          */
-        isPlaying: boolean;
+        readonly isPlaying: boolean;
         /**
          * @language zh_CN
          * 当前播放次数。
          * @version DragonBones 3.0
          */
-        currentPlayTimes: number;
+        readonly currentPlayTimes: number;
         /**
          * @language zh_CN
          * 动画的总时间。 (以秒为单位)
          * @version DragonBones 3.0
          */
-        totalTime: number;
+        readonly totalTime: number;
         /**
          * @language zh_CN
          * 动画播放的时间。 (以秒为单位)
@@ -3243,7 +3243,7 @@ declare namespace dragonBones {
          * @deprecated
          * @see #animationData
          */
-        clip: AnimationData;
+        readonly clip: AnimationData;
     }
 }
 declare namespace dragonBones {
@@ -3265,7 +3265,7 @@ declare namespace dragonBones {
          * 一个可以直接使用的全局 WorldClock 实例.
          * @version DragonBones 3.0
          */
-        static clock: WorldClock;
+        static readonly clock: WorldClock;
         /**
          * @language zh_CN
          * 当前时间。 (以秒为单位)

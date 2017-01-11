@@ -28,7 +28,7 @@ namespace demosEgret {
             dragonBones.EgretFactory.factory.parseTextureAtlasData(RES.getRes("textureDataA"), RES.getRes("textureA"));
 
             const armatureDisplay = dragonBones.EgretFactory.factory.buildArmatureDisplay("DragonBoy");
-            armatureDisplay.animation.play("fallEnd");
+            armatureDisplay.animation.play("walk");
             this.addChild(armatureDisplay);
 
             armatureDisplay.x = this.stage.stageWidth * 0.5;

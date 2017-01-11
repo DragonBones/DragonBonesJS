@@ -4,36 +4,28 @@ namespace demosPixi {
         type ArmatureDisplayType = dragonBones.PixiArmatureDisplay;
         type EventType = dragonBones.EventObject;
 
-        export class Game {
+        export class Game extends BaseTest {
             public static STAGE_WIDTH: number = 0;
             public static STAGE_HEIGHT: number = 0;
             public static GROUND: number = 300;
             public static G: number = 0.6;
             public static instance: Game = null;
 
-            public renderer = new PIXI.WebGLRenderer(800, 600, { backgroundColor: 0x666666 });
-            public stage = new PIXI.Container();
-
-            private _backgroud: PIXI.Sprite = new PIXI.Sprite(PIXI.Texture.EMPTY);
-
             private _left: boolean = false;
             private _right: boolean = false;
             private _player: Mecha = null;
             private _bullets: Array<Bullet> = [];
 
-            public constructor() {
-                Game.instance = this;
-
-                this._init();
+            public get stage(): PIXI.Container {
+                return this._stage;
             }
 
-            private _init(): void {
-                Game.STAGE_WIDTH = this.renderer.width;
-                Game.STAGE_HEIGHT = this.renderer.height;
+            protected _onStart(): void {
+                Game.STAGE_WIDTH = this._renderer.width;
+                Game.STAGE_HEIGHT = this._renderer.height;
                 Game.GROUND = Game.STAGE_HEIGHT - 100;
+                Game.instance = this;
 
-                document.body.appendChild(this.renderer.view);
-                PIXI.ticker.shared.add(this._renderHandler, this);
                 PIXI.loader
                     .add("dragonBonesData", "./resource/assets/CoreElement/CoreElement.json")
                     .add("textureDataA", "./resource/assets/CoreElement/CoreElement_texture_1.json")
@@ -46,14 +38,14 @@ namespace demosPixi {
                 dragonBones.PixiFactory.factory.parseDragonBonesData(object["dragonBonesData"].data);
                 dragonBones.PixiFactory.factory.parseTextureAtlasData(object["textureDataA"].data, object["textureA"].texture);
 
-                this.stage.interactive = true;
-                this.stage.on('touchstart', this._touchHandler, this);
-                this.stage.on('touchend', this._touchHandler, this);
-                this.stage.on('touchmove', this._touchHandler, this);
-                this.stage.on('mousedown', this._touchHandler, this);
-                this.stage.on('mouseup', this._touchHandler, this);
-                this.stage.on('mousemove', this._touchHandler, this);
-                this.stage.addChild(this._backgroud);
+                this._stage.interactive = true;
+                this._stage.on('touchstart', this._touchHandler, this);
+                this._stage.on('touchend', this._touchHandler, this);
+                this._stage.on('touchmove', this._touchHandler, this);
+                this._stage.on('mousedown', this._touchHandler, this);
+                this._stage.on('mouseup', this._touchHandler, this);
+                this._stage.on('mousemove', this._touchHandler, this);
+                this._stage.addChild(this._backgroud);
                 this._backgroud.width = Game.STAGE_WIDTH;
                 this._backgroud.height = Game.STAGE_HEIGHT;
 
@@ -68,7 +60,7 @@ namespace demosPixi {
                 text.scale.x = 0.8;
                 text.scale.y = 0.8;
                 text.text = "Press W/A/S/D to move. Press Q/E/SPACE to switch weapons.\nMouse Move to aim. Click to fire.";
-                this.stage.addChild(text);
+                this._stage.addChild(text);
             }
 
             public addBullet(bullet: Bullet): void {
@@ -133,7 +125,7 @@ namespace demosPixi {
                 }
             }
 
-            private _renderHandler(deltaTime: number): void {
+            protected _renderHandler(deltaTime: number): void {
                 if (this._player) {
                     this._player.update();
                 }
@@ -148,7 +140,7 @@ namespace demosPixi {
 
                 dragonBones.WorldClock.clock.advanceTime(-1);
 
-                this.renderer.render(this.stage);
+                super._renderHandler(deltaTime);
             }
 
             private _updateMove(dir: number): void {

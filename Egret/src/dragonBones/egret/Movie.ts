@@ -101,7 +101,7 @@ namespace dragonBones {
     /**
      * @private
      */
-    class Slot extends egret.HashObject {
+    class MovieSlot extends egret.HashObject {
         public displayIndex: number = -1;
         public colorIndex: number = -1;
         public transformIndex: number = -1;
@@ -444,7 +444,7 @@ namespace dragonBones {
         private _clipArray: Int16Array = null;
 
         private _clipNames: string[] = [];
-        private _slots: Slot[] = [];
+        private _slots: MovieSlot[] = [];
         private _childMovies: Movie[] = [];
         /**
          * @internal
@@ -469,7 +469,7 @@ namespace dragonBones {
             }
 
             for (let i = 0, l = this._config.slot.length; i < l; ++i) {
-                const slot = new Slot(this._config.slot[i]);
+                const slot = new MovieSlot(this._config.slot[i]);
                 this._updateSlotBlendMode(slot);
                 this._slots.push(slot);
 
@@ -504,10 +504,10 @@ namespace dragonBones {
                 if (actionAndEvent) {
                     switch (actionAndEvent.type) {
                         case EventType.Sound:
-                            if (EgretFactory.factory.soundEventManater.hasEventListener(MovieEvent.SOUND_EVENT)) {
+                            if (EgretFactory.factory.soundEventManager.hasEventListener(MovieEvent.SOUND_EVENT)) {
                                 const event = egret.Event.create(MovieEvent, MovieEvent.SOUND_EVENT);
                                 this._configToEvent(actionAndEvent, event);
-                                EgretFactory.factory.soundEventManater.dispatchEvent(event);
+                                EgretFactory.factory.soundEventManager.dispatchEvent(event);
                                 egret.Event.release(event);
                             }
                             break;
@@ -538,7 +538,7 @@ namespace dragonBones {
             }
         }
 
-        private _updateSlotBlendMode(slot: Slot): void {
+        private _updateSlotBlendMode(slot: MovieSlot): void {
             let blendMode = "";
 
             switch (slot.config.blendMode) {
@@ -570,7 +570,7 @@ namespace dragonBones {
             }
         }
 
-        private _updateSlotColor(slot: Slot, aM: number, rM: number, gM: number, bM: number, aO: number, rO: number, gO: number, bO: number): void {
+        private _updateSlotColor(slot: MovieSlot, aM: number, rM: number, gM: number, bM: number, aO: number, rO: number, gO: number, bO: number): void {
             if (
                 rM !== 1 ||
                 gM !== 1 ||
@@ -633,7 +633,7 @@ namespace dragonBones {
             }
         }
 
-        private _updateSlotDisplay(slot: Slot): void {
+        private _updateSlotDisplay(slot: MovieSlot): void {
             const prevDisplay = slot.display || slot.rawDisplay;
             const prevChildMovie = slot.childMovie;
 
@@ -752,7 +752,7 @@ namespace dragonBones {
             }
         }
 
-        private _getSlot(name: string): Slot {
+        private _getSlot(name: string): MovieSlot {
             for (let i = 0, l = this._slots.length; i < l; ++i) {
                 const slot = this._slots[i];
                 if (slot.config.name === name) {

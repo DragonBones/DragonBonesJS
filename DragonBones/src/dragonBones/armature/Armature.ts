@@ -263,7 +263,7 @@ namespace dragonBones {
          */
         public _sortZOrder(slotIndices: Array<number>): void {
             const sortedSlots = this._armatureData.sortedSlots;
-            const isOriginal = slotIndices.length < 1;
+            const isOriginal = !slotIndices || slotIndices.length < 1;
 
             for (let i = 0, l = sortedSlots.length; i < l; ++i) {
                 const slotIndex = isOriginal ? i : slotIndices[i];

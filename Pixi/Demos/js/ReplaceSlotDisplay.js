@@ -1,23 +1,29 @@
-var __extends = (this && this.__extends) || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-};
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
 var demosPixi;
 (function (demosPixi) {
     var ReplaceSlotDisplay = (function (_super) {
         __extends(ReplaceSlotDisplay, _super);
         function ReplaceSlotDisplay() {
-            _super.apply(this, arguments);
-            this._displayIndex = 0;
-            this._replaceDisplays = [
+            var _this = _super !== null && _super.apply(this, arguments) || this;
+            _this._displayIndex = 0;
+            _this._replaceDisplays = [
                 // Replace normal display.
                 "display0002", "display0003", "display0004", "display0005", "display0006", "display0007", "display0008", "display0009", "display0010",
                 // Replace mesh display.
                 "meshA", "meshB", "mesh",
             ];
-            this._factory = dragonBones.PixiFactory.factory;
-            this._armatureDisplay = null;
+            _this._factory = dragonBones.PixiFactory.factory;
+            _this._armatureDisplay = null;
+            return _this;
         }
         ReplaceSlotDisplay.prototype._onStart = function () {
             // Load data.

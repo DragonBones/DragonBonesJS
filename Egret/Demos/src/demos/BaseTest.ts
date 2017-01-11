@@ -77,9 +77,9 @@ class BoundingBoxTester extends egret.DisplayObjectContainer {
         super();
 
         this._pointA.x = 0;
-        this._pointA.y = -100;
-        this._pointB.x = 0;
-        this._pointB.y = 100;
+        this._pointA.y = 0;
+        this._pointB.x = 200;
+        this._pointB.y = 200;
 
         this.addChild(this._background);
         this.addChild(this._pointA);
@@ -165,6 +165,7 @@ class BoundingBoxTester extends egret.DisplayObjectContainer {
 abstract class BaseTest extends egret.DisplayObjectContainer {
     protected _resourceGroup: string = null;
     protected _resourceConfigURL: string = null;
+    protected _background: egret.Shape = new egret.Shape();
 
     /**
      * 加载进度界面
@@ -180,6 +181,10 @@ abstract class BaseTest extends egret.DisplayObjectContainer {
 
     private onAddToStage(): void {
         if (this._resourceConfigURL) {
+            this._background.graphics.beginFill(0x666666, 1.0);
+            this._background.graphics.drawRect(0.0, 0.0, this.stage.stageWidth, this.stage.stageHeight);
+
+            this.addChild(this._background);
             //设置加载进度界面
             //Config to load process interface
             this.loadingView = new LoadingView();
@@ -189,6 +194,7 @@ abstract class BaseTest extends egret.DisplayObjectContainer {
             //initiate Resource loading library
             RES.addEventListener(RES.ResourceEvent.CONFIG_COMPLETE, this.onConfigComplete, this);
             RES.loadConfig(this._resourceConfigURL, "resource/");
+
         }
         else {
             throw new Error();

@@ -14,12 +14,17 @@
             "name": "textureA",
             "type": "image",
             "url": "assets/ReplaceSlotDisplay/texture.png"
-        }
+        },
+		{
+			"name": "textureRP",
+			"type": "image",
+			"url": "assets/ReplaceSlotDisplay/textureReplace.png"
+		}
     ],
     "groups": [
         {
             "name": "preload",
-            "keys": "dragonBonesData,textureDataA,textureA"
+            "keys": "dragonBonesData,textureDataA,textureA,textureRP"
         }
     ]
 }

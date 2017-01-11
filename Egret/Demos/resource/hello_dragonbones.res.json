@@ -3,17 +3,17 @@
         {
             "name": "dragonBonesData",
             "type": "json",
-            "url": "assets/AnimationBaseTest/AnimationBaseTest.json"
+            "url": "assets/DragonBoy/DragonBoy.json"
         },
         {
             "name": "textureDataA",
             "type": "json",
-            "url": "assets/AnimationBaseTest/texture.json"
+            "url": "assets/DragonBoy/DragonBoy_texture_1.json"
         },
         {
             "name": "textureA",
             "type": "image",
-            "url": "assets/AnimationBaseTest/texture.png"
+            "url": "assets/DragonBoy/DragonBoy_texture_1.png"
         }
     ],
     "groups": [

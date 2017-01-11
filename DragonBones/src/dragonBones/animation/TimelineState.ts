@@ -65,6 +65,11 @@ namespace dragonBones {
                 const eventDispatcher = this._armature.eventDispatcher;
 
                 if (prevState < 0 && this._playState !== prevState) {
+
+                    if (this._animationState.displayControl) {
+                        this._armature._sortZOrder(null);
+                    }
+
                     if (eventDispatcher.hasEvent(EventObject.START)) {
                         const eventObject = BaseObject.borrowObject(EventObject);
                         eventObject.animationState = this._animationState;

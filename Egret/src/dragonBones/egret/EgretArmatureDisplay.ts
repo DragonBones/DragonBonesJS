@@ -419,7 +419,7 @@ namespace dragonBones {
          * @see dragonBones.EgretFactory#soundEventManater
          */
         public static getInstance(): EgretArmatureDisplay {
-            return EgretFactory._eventManager;
+            return EgretFactory.factory.soundEventManager;
         }
     }
     /**

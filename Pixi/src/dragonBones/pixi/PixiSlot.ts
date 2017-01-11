@@ -271,6 +271,9 @@ namespace dragonBones {
          */
         protected _updateTransform(isSkinnedMesh: boolean): void {
             if (isSkinnedMesh) { // Identity transform.
+                this._renderDisplay.setTransform(0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+            }
+            else {
                 const x = this.globalTransformMatrix.tx - (this.globalTransformMatrix.a * this._pivotX + this.globalTransformMatrix.c * this._pivotY);
                 const y = this.globalTransformMatrix.ty - (this.globalTransformMatrix.b * this._pivotX + this.globalTransformMatrix.d * this._pivotY);
 
@@ -288,9 +291,6 @@ namespace dragonBones {
                 //     this.global.skewX - this.global.skewY, 0,
                 //     this._pivotX, this._pivotY
                 // );
-            }
-            else {
-                this._renderDisplay.setTransform(0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0);
             }
         }
     }

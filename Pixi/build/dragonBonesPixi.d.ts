@@ -79,11 +79,11 @@ declare namespace dragonBones {
         /**
          * @inheritDoc
          */
-        armature: Armature;
+        readonly armature: Armature;
         /**
          * @inheritDoc
          */
-        animation: Animation;
+        readonly animation: Animation;
         /**
          * @deprecated
          * @see dragonBones.Animation#timescale
@@ -180,7 +180,7 @@ declare namespace dragonBones {
          * 一个可以直接使用的全局工厂实例。
          * @version DragonBones 4.7
          */
-        static factory: PixiFactory;
+        static readonly factory: PixiFactory;
         /**
          * @language zh_CN
          * 创建一个工厂。 (通常只需要一个全局工厂实例)
@@ -225,6 +225,6 @@ declare namespace dragonBones {
          * 获取全局声音事件管理器。
          * @version DragonBones 4.5
          */
-        soundEventManater: PixiArmatureDisplay;
+        readonly soundEventManater: PixiArmatureDisplay;
     }
 }

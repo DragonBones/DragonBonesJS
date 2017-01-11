@@ -5,11 +5,8 @@ namespace dragonBones {
      * @version DragonBones 3.0
      */
     export class EgretFactory extends BaseFactory {
-        public static _factory: EgretFactory = null;
-        /**
-         * @private
-         */
-        public static _eventManager: EgretArmatureDisplay = null;
+        private static _factory: EgretFactory = null;
+        private static _eventManager: EgretArmatureDisplay = null;
         /**
          * @private
          */

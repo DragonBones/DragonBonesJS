@@ -17,7 +17,6 @@ namespace demosPixi {
 
         protected _renderHandler(deltaTime: number): void {
             this._renderer.render(this._stage);
-            
         }
 
         protected abstract _onStart(): void;

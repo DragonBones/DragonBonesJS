@@ -1,8 +1,13 @@
-var __extends = (this && this.__extends) || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-};
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
 var dragonBones;
 (function (dragonBones) {
     /**
@@ -16,7 +21,7 @@ var dragonBones;
          * @private
          */
         function EgretTextureAtlasData() {
-            _super.call(this);
+            return _super.call(this) || this;
         }
         /**
          * @private
@@ -56,7 +61,7 @@ var dragonBones;
     var EgretTextureData = (function (_super) {
         __extends(EgretTextureData, _super);
         function EgretTextureData() {
-            _super.call(this);
+            return _super.call(this) || this;
         }
         EgretTextureData.toString = function () {
             return "[class dragonBones.EgretTextureData]";
@@ -89,7 +94,7 @@ var dragonBones;
          * @private
          */
         function EgretEvent(type, bubbles, cancelable, data) {
-            _super.call(this, type, bubbles, cancelable, data);
+            return _super.call(this, type, bubbles, cancelable, data) || this;
         }
         Object.defineProperty(EgretEvent.prototype, "eventObject", {
             /**
@@ -197,73 +202,73 @@ var dragonBones;
             enumerable: true,
             configurable: true
         });
-        /**
-         * @deprecated
-         * @see dragonBones.EventObject.START
-         */
-        EgretEvent.START = dragonBones.EventObject.START;
-        /**
-         * @deprecated
-         * @see dragonBones.EventObject.LOOP_COMPLETE
-         */
-        EgretEvent.LOOP_COMPLETE = dragonBones.EventObject.LOOP_COMPLETE;
-        /**
-         * @deprecated
-         * @see dragonBones.EventObject.COMPLETE
-         */
-        EgretEvent.COMPLETE = dragonBones.EventObject.COMPLETE;
-        /**
-         * @deprecated
-         * @see dragonBones.EventObject.FADE_IN
-         */
-        EgretEvent.FADE_IN = dragonBones.EventObject.FADE_IN;
-        /**
-         * @deprecated
-         * @see dragonBones.EventObject.FADE_IN_COMPLETE
-         */
-        EgretEvent.FADE_IN_COMPLETE = dragonBones.EventObject.FADE_IN_COMPLETE;
-        /**
-         * @deprecated
-         * @see dragonBones.EventObject.FADE_OUT
-         */
-        EgretEvent.FADE_OUT = dragonBones.EventObject.FADE_OUT;
-        /**
-         * @deprecated
-         * @see dragonBones.EventObject.FADE_OUT_COMPLETE
-         */
-        EgretEvent.FADE_OUT_COMPLETE = dragonBones.EventObject.FADE_OUT_COMPLETE;
-        /**
-         * @deprecated
-         * @see dragonBones.EventObject.FRAME_EVENT
-         */
-        EgretEvent.FRAME_EVENT = dragonBones.EventObject.FRAME_EVENT;
-        /**
-         * @deprecated
-         * @see dragonBones.EventObject.SOUND_EVENT
-         */
-        EgretEvent.SOUND_EVENT = dragonBones.EventObject.SOUND_EVENT;
-        /**
-         * @deprecated
-         * @see dragonBones.EventObject.FRAME_EVENT
-         */
-        EgretEvent.ANIMATION_FRAME_EVENT = dragonBones.EventObject.FRAME_EVENT;
-        /**
-         * @deprecated
-         * @see dragonBones.EventObject.FRAME_EVENT
-         */
-        EgretEvent.BONE_FRAME_EVENT = dragonBones.EventObject.FRAME_EVENT;
-        /**
-         * @deprecated
-         * @see dragonBones.EventObject.FRAME_EVENT
-         */
-        EgretEvent.MOVEMENT_FRAME_EVENT = dragonBones.EventObject.FRAME_EVENT;
-        /**
-         * @deprecated
-         * @see dragonBones.EventObject.SOUND_EVENT
-         */
-        EgretEvent.SOUND = dragonBones.EventObject.SOUND_EVENT;
         return EgretEvent;
     }(egret.Event));
+    /**
+     * @deprecated
+     * @see dragonBones.EventObject.START
+     */
+    EgretEvent.START = dragonBones.EventObject.START;
+    /**
+     * @deprecated
+     * @see dragonBones.EventObject.LOOP_COMPLETE
+     */
+    EgretEvent.LOOP_COMPLETE = dragonBones.EventObject.LOOP_COMPLETE;
+    /**
+     * @deprecated
+     * @see dragonBones.EventObject.COMPLETE
+     */
+    EgretEvent.COMPLETE = dragonBones.EventObject.COMPLETE;
+    /**
+     * @deprecated
+     * @see dragonBones.EventObject.FADE_IN
+     */
+    EgretEvent.FADE_IN = dragonBones.EventObject.FADE_IN;
+    /**
+     * @deprecated
+     * @see dragonBones.EventObject.FADE_IN_COMPLETE
+     */
+    EgretEvent.FADE_IN_COMPLETE = dragonBones.EventObject.FADE_IN_COMPLETE;
+    /**
+     * @deprecated
+     * @see dragonBones.EventObject.FADE_OUT
+     */
+    EgretEvent.FADE_OUT = dragonBones.EventObject.FADE_OUT;
+    /**
+     * @deprecated
+     * @see dragonBones.EventObject.FADE_OUT_COMPLETE
+     */
+    EgretEvent.FADE_OUT_COMPLETE = dragonBones.EventObject.FADE_OUT_COMPLETE;
+    /**
+     * @deprecated
+     * @see dragonBones.EventObject.FRAME_EVENT
+     */
+    EgretEvent.FRAME_EVENT = dragonBones.EventObject.FRAME_EVENT;
+    /**
+     * @deprecated
+     * @see dragonBones.EventObject.SOUND_EVENT
+     */
+    EgretEvent.SOUND_EVENT = dragonBones.EventObject.SOUND_EVENT;
+    /**
+     * @deprecated
+     * @see dragonBones.EventObject.FRAME_EVENT
+     */
+    EgretEvent.ANIMATION_FRAME_EVENT = dragonBones.EventObject.FRAME_EVENT;
+    /**
+     * @deprecated
+     * @see dragonBones.EventObject.FRAME_EVENT
+     */
+    EgretEvent.BONE_FRAME_EVENT = dragonBones.EventObject.FRAME_EVENT;
+    /**
+     * @deprecated
+     * @see dragonBones.EventObject.FRAME_EVENT
+     */
+    EgretEvent.MOVEMENT_FRAME_EVENT = dragonBones.EventObject.FRAME_EVENT;
+    /**
+     * @deprecated
+     * @see dragonBones.EventObject.SOUND_EVENT
+     */
+    EgretEvent.SOUND = dragonBones.EventObject.SOUND_EVENT;
     dragonBones.EgretEvent = EgretEvent;
     /**
      * @inheritDoc
@@ -275,7 +280,7 @@ var dragonBones;
          * @private
          */
         function EgretArmatureDisplay() {
-            _super.call(this);
+            return _super.call(this) || this;
         }
         /**
          * @internal
@@ -445,7 +450,7 @@ var dragonBones;
     var Event = (function (_super) {
         __extends(Event, _super);
         function Event() {
-            _super.apply(this, arguments);
+            return _super !== null && _super.apply(this, arguments) || this;
         }
         return Event;
     }(EgretEvent));
@@ -457,7 +462,7 @@ var dragonBones;
     var ArmatureEvent = (function (_super) {
         __extends(ArmatureEvent, _super);
         function ArmatureEvent() {
-            _super.apply(this, arguments);
+            return _super !== null && _super.apply(this, arguments) || this;
         }
         return ArmatureEvent;
     }(EgretEvent));
@@ -469,7 +474,7 @@ var dragonBones;
     var AnimationEvent = (function (_super) {
         __extends(AnimationEvent, _super);
         function AnimationEvent() {
-            _super.apply(this, arguments);
+            return _super !== null && _super.apply(this, arguments) || this;
         }
         return AnimationEvent;
     }(EgretEvent));
@@ -481,7 +486,7 @@ var dragonBones;
     var FrameEvent = (function (_super) {
         __extends(FrameEvent, _super);
         function FrameEvent() {
-            _super.apply(this, arguments);
+            return _super !== null && _super.apply(this, arguments) || this;
         }
         return FrameEvent;
     }(EgretEvent));
@@ -493,7 +498,7 @@ var dragonBones;
     var SoundEvent = (function (_super) {
         __extends(SoundEvent, _super);
         function SoundEvent() {
-            _super.apply(this, arguments);
+            return _super !== null && _super.apply(this, arguments) || this;
         }
         return SoundEvent;
     }(EgretEvent));
@@ -506,10 +511,11 @@ var dragonBones;
         __extends(EgretTextureAtlas, _super);
         function EgretTextureAtlas(texture, rawData, scale) {
             if (scale === void 0) { scale = 1; }
-            _super.call(this);
-            this._onClear();
-            this.texture = texture;
-            dragonBones.ObjectDataParser.getInstance().parseTextureAtlasData(rawData, this, scale);
+            var _this = _super.call(this) || this;
+            _this._onClear();
+            _this.texture = texture;
+            dragonBones.ObjectDataParser.getInstance().parseTextureAtlasData(rawData, _this, scale);
+            return _this;
         }
         /**
          * @private
@@ -527,7 +533,7 @@ var dragonBones;
     var EgretSheetAtlas = (function (_super) {
         __extends(EgretSheetAtlas, _super);
         function EgretSheetAtlas() {
-            _super.apply(this, arguments);
+            return _super !== null && _super.apply(this, arguments) || this;
         }
         return EgretSheetAtlas;
     }(EgretTextureAtlas));
@@ -544,7 +550,7 @@ var dragonBones;
          * @see dragonBones.EgretFactory#soundEventManater
          */
         SoundEventManager.getInstance = function () {
-            return dragonBones.EgretFactory._eventManager;
+            return dragonBones.EgretFactory.factory.soundEventManager;
         };
         return SoundEventManager;
     }());
@@ -575,7 +581,7 @@ var dragonBones;
          * @private
          */
         function EgretSlot() {
-            _super.call(this);
+            return _super.call(this) || this;
         }
         /**
          * @private
@@ -881,13 +887,14 @@ var dragonBones;
          */
         function EgretFactory(dataParser) {
             if (dataParser === void 0) { dataParser = null; }
-            _super.call(this, dataParser);
+            var _this = _super.call(this, dataParser) || this;
             if (!EgretFactory._eventManager) {
                 EgretFactory._eventManager = new dragonBones.EgretArmatureDisplay();
                 EgretFactory._clock = new dragonBones.WorldClock();
                 EgretFactory._clock.time = egret.getTimer() * 0.001;
                 egret.startTick(EgretFactory._clockHandler, EgretFactory);
             }
+            return _this;
         }
         EgretFactory._clockHandler = function (time) {
             time *= 0.001;
@@ -1118,17 +1125,14 @@ var dragonBones;
             enumerable: true,
             configurable: true
         });
-        EgretFactory._factory = null;
-        /**
-         * @private
-         */
-        EgretFactory._eventManager = null;
-        /**
-         * @private
-         */
-        EgretFactory._clock = null;
         return EgretFactory;
     }(dragonBones.BaseFactory));
+    EgretFactory._factory = null;
+    EgretFactory._eventManager = null;
+    /**
+     * @private
+     */
+    EgretFactory._clock = null;
     dragonBones.EgretFactory = EgretFactory;
 })(dragonBones || (dragonBones = {}));
 var dragonBones;
@@ -1136,28 +1140,29 @@ var dragonBones;
     /**
      * @private
      */
-    var Slot = (function (_super) {
-        __extends(Slot, _super);
-        function Slot(slotConfig) {
-            _super.call(this);
-            this.displayIndex = -1;
-            this.colorIndex = -1;
-            this.transformIndex = -1;
-            this.config = null;
-            this.displayConfig = null;
-            this.display = null;
-            this.childMovie = null;
-            this.colorFilter = null;
-            this.rawDisplay = new egret.Bitmap();
-            this.childMovies = {};
-            this.display = this.rawDisplay;
-            this.config = slotConfig;
-            this.rawDisplay.name = this.config.name;
-            if (this.config.blendMode == null) {
-                this.config.blendMode = 0 /* Normal */;
+    var MovieSlot = (function (_super) {
+        __extends(MovieSlot, _super);
+        function MovieSlot(slotConfig) {
+            var _this = _super.call(this) || this;
+            _this.displayIndex = -1;
+            _this.colorIndex = -1;
+            _this.transformIndex = -1;
+            _this.config = null;
+            _this.displayConfig = null;
+            _this.display = null;
+            _this.childMovie = null;
+            _this.colorFilter = null;
+            _this.rawDisplay = new egret.Bitmap();
+            _this.childMovies = {};
+            _this.display = _this.rawDisplay;
+            _this.config = slotConfig;
+            _this.rawDisplay.name = _this.config.name;
+            if (_this.config.blendMode == null) {
+                _this.config.blendMode = 0 /* Normal */;
             }
+            return _this;
         }
-        Slot.prototype.dispose = function () {
+        MovieSlot.prototype.dispose = function () {
             this.config = null;
             this.displayConfig = null;
             this.display = null;
@@ -1166,7 +1171,7 @@ var dragonBones;
             this.rawDisplay = null;
             this.childMovies = null;
         };
-        return Slot;
+        return MovieSlot;
     }(egret.HashObject));
     /**
      * @private
@@ -1368,64 +1373,65 @@ var dragonBones;
          * @private
          */
         function MovieEvent(type) {
-            _super.call(this, type);
+            var _this = _super.call(this, type) || this;
             /**
              * @language zh_CN
              * 事件名称。 (帧标签的名称或声音的名称)
              * @version DragonBones 4.7
              */
-            this.name = null;
+            _this.name = null;
             /**
              * @language zh_CN
              * 发出事件的插槽名称。
              * @version DragonBones 4.7
              */
-            this.slotName = null;
+            _this.slotName = null;
             /**
              * @language zh_CN
              * 发出事件的动画剪辑名称。
              * @version DragonBones 4.7
              */
-            this.clipName = null;
+            _this.clipName = null;
             /**
              * @language zh_CN
              * 发出事件的动画。
              * @version DragonBones 4.7
              */
-            this.movie = null;
+            _this.movie = null;
+            return _this;
         }
-        /**
-         * @language zh_CN
-         * 动画剪辑开始播放。
-         * @version DragonBones 4.7
-         */
-        MovieEvent.START = "start";
-        /**
-         * @language zh_CN
-         * 动画剪辑循环播放一次完成。
-         * @version DragonBones 4.7
-         */
-        MovieEvent.LOOP_COMPLETE = "loopComplete";
-        /**
-         * @language zh_CN
-         * 动画剪辑播放完成。
-         * @version DragonBones 4.7
-         */
-        MovieEvent.COMPLETE = "complete";
-        /**
-         * @language zh_CN
-         * 动画剪辑帧事件。
-         * @version DragonBones 4.7
-         */
-        MovieEvent.FRAME_EVENT = "frameEvent";
-        /**
-         * @language zh_CN
-         * 动画剪辑声音事件。
-         * @version DragonBones 4.7
-         */
-        MovieEvent.SOUND_EVENT = "soundEvent";
         return MovieEvent;
     }(egret.Event));
+    /**
+     * @language zh_CN
+     * 动画剪辑开始播放。
+     * @version DragonBones 4.7
+     */
+    MovieEvent.START = "start";
+    /**
+     * @language zh_CN
+     * 动画剪辑循环播放一次完成。
+     * @version DragonBones 4.7
+     */
+    MovieEvent.LOOP_COMPLETE = "loopComplete";
+    /**
+     * @language zh_CN
+     * 动画剪辑播放完成。
+     * @version DragonBones 4.7
+     */
+    MovieEvent.COMPLETE = "complete";
+    /**
+     * @language zh_CN
+     * 动画剪辑帧事件。
+     * @version DragonBones 4.7
+     */
+    MovieEvent.FRAME_EVENT = "frameEvent";
+    /**
+     * @language zh_CN
+     * 动画剪辑声音事件。
+     * @version DragonBones 4.7
+     */
+    MovieEvent.SOUND_EVENT = "soundEvent";
     dragonBones.MovieEvent = MovieEvent;
     /**
      * @language zh_CN
@@ -1440,14 +1446,14 @@ var dragonBones;
          * @private
          */
         function Movie(createMovieHelper) {
-            _super.call(this);
+            var _this = _super.call(this) || this;
             /**
              * @language zh_CN
              * 动画的播放速度。 [(-N~0): 倒转播放, 0: 停止播放, (0~1): 慢速播放, 1: 正常播放, (1~N): 快速播放]
              * @default 1
              * @version DragonBones 4.7
              */
-            this.timeScale = 1;
+            _this.timeScale = 1;
             /**
              * @language zh_CN
              * 动画剪辑的播放速度。 [(-N~0): 倒转播放, 0: 停止播放, (0~1): 慢速播放, 1: 正常播放, (1~N): 快速播放]
@@ -1455,60 +1461,61 @@ var dragonBones;
              * @default 1
              * @version DragonBones 4.7
              */
-            this.clipTimeScale = 1;
-            this._batchEnabled = true;
-            this._isLockDispose = false;
-            this._isDelayDispose = false;
-            this._isStarted = false;
-            this._isPlaying = false;
-            this._isReversing = false;
-            this._isCompleted = false;
-            this._playTimes = 0;
-            this._time = 0;
-            this._currentTime = 0;
-            this._timeStamp = 0;
-            this._currentPlayTimes = 0;
-            this._cacheFrameIndex = 0;
-            this._frameSize = 0;
-            this._cacheRectangle = null;
-            this._clock = null;
-            this._groupConfig = null;
-            this._config = null;
-            this._clipConfig = null;
-            this._currentFrameConfig = null;
-            this._clipArray = null;
-            this._clipNames = [];
-            this._slots = [];
-            this._childMovies = [];
-            this._groupConfig = createMovieHelper.groupConfig;
-            this._config = createMovieHelper.movieConfig;
-            this._batchEnabled = !this._config.isNested;
-            if (this._batchEnabled) {
-                this.$renderNode = new egret.sys.GroupNode();
-                this.$renderNode.cleanBeforeRender = Movie._cleanBeforeRender;
+            _this.clipTimeScale = 1;
+            _this._batchEnabled = true;
+            _this._isLockDispose = false;
+            _this._isDelayDispose = false;
+            _this._isStarted = false;
+            _this._isPlaying = false;
+            _this._isReversing = false;
+            _this._isCompleted = false;
+            _this._playTimes = 0;
+            _this._time = 0;
+            _this._currentTime = 0;
+            _this._timeStamp = 0;
+            _this._currentPlayTimes = 0;
+            _this._cacheFrameIndex = 0;
+            _this._frameSize = 0;
+            _this._cacheRectangle = null;
+            _this._clock = null;
+            _this._groupConfig = null;
+            _this._config = null;
+            _this._clipConfig = null;
+            _this._currentFrameConfig = null;
+            _this._clipArray = null;
+            _this._clipNames = [];
+            _this._slots = [];
+            _this._childMovies = [];
+            _this._groupConfig = createMovieHelper.groupConfig;
+            _this._config = createMovieHelper.movieConfig;
+            _this._batchEnabled = !_this._config.isNested;
+            if (_this._batchEnabled) {
+                _this.$renderNode = new egret.sys.GroupNode();
+                _this.$renderNode.cleanBeforeRender = Movie._cleanBeforeRender;
             }
-            this._clipNames.length = 0;
-            for (var i = 0, l = this._config.clip.length; i < l; ++i) {
-                this._clipNames.push(this._config.clip[i].name);
+            _this._clipNames.length = 0;
+            for (var i = 0, l = _this._config.clip.length; i < l; ++i) {
+                _this._clipNames.push(_this._config.clip[i].name);
             }
-            for (var i = 0, l = this._config.slot.length; i < l; ++i) {
-                var slot = new Slot(this._config.slot[i]);
-                this._updateSlotBlendMode(slot);
-                this._slots.push(slot);
-                if (this._batchEnabled) {
-                    this.$renderNode.addNode(slot.rawDisplay.$renderNode);
+            for (var i = 0, l = _this._config.slot.length; i < l; ++i) {
+                var slot = new MovieSlot(_this._config.slot[i]);
+                _this._updateSlotBlendMode(slot);
+                _this._slots.push(slot);
+                if (_this._batchEnabled) {
+                    _this.$renderNode.addNode(slot.rawDisplay.$renderNode);
                 }
                 else {
-                    this.addChild(slot.rawDisplay);
+                    _this.addChild(slot.rawDisplay);
                 }
             }
-            this._frameSize = (1 + 1) * this._slots.length; // displayFrame, transformFrame.
+            _this._frameSize = (1 + 1) * _this._slots.length; // displayFrame, transformFrame.
             dragonBones.EgretFactory.factory; //
-            this.advanceTimeBySelf(true);
-            this.name = this._config.name;
-            this.play();
-            this.advanceTime(0.000001);
-            this.stop();
+            _this.advanceTimeBySelf(true);
+            _this.name = _this._config.name;
+            _this.play();
+            _this.advanceTime(0.000001);
+            _this.stop();
+            return _this;
         }
         Movie._cleanBeforeRender = function () { };
         Movie.prototype._configToEvent = function (config, event) {
@@ -1523,10 +1530,10 @@ var dragonBones;
                 if (actionAndEvent) {
                     switch (actionAndEvent.type) {
                         case 11 /* Sound */:
-                            if (dragonBones.EgretFactory.factory.soundEventManater.hasEventListener(MovieEvent.SOUND_EVENT)) {
+                            if (dragonBones.EgretFactory.factory.soundEventManager.hasEventListener(MovieEvent.SOUND_EVENT)) {
                                 var event_1 = egret.Event.create(MovieEvent, MovieEvent.SOUND_EVENT);
                                 this._configToEvent(actionAndEvent, event_1);
-                                dragonBones.EgretFactory.factory.soundEventManater.dispatchEvent(event_1);
+                                dragonBones.EgretFactory.factory.soundEventManager.dispatchEvent(event_1);
                                 egret.Event.release(event_1);
                             }
                             break;

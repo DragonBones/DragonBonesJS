@@ -304,6 +304,7 @@ namespace dragonBones {
         protected _updateDisplayData(): void {
             const prevDisplayData = this._displayData;
             const prevReplaceDisplayData = this._replacedDisplayData;
+            const prevTextureData = this._textureData;
             const prevMeshData = this._meshData;
 
             if (this._displayIndex >= 0 && this._displayIndex < this._skinSlotData.displays.length) {
@@ -419,6 +420,9 @@ namespace dragonBones {
                             this._meshBones.length = 0;
                             this._ffdVertices.length = 0;
                         }
+                    }
+                    else if (this._textureData !== prevTextureData) {
+                        this._meshDirty = true;
                     }
                 }
                 else {

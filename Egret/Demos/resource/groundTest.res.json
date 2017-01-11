@@ -1,0 +1,30 @@
+{
+    "resources": [
+        {
+            "name": "ground",
+            "type": "json",
+            "url": "assets/ground/ground_ske.json"
+        },
+        {
+            "name": "mecha_1008d",
+            "type": "json",
+            "url": "assets/mecha_1008d/mecha_1008d_ske.json"
+        },
+        {
+            "name": "mecha_1008d_texture_config",
+            "type": "json",
+            "url": "assets/mecha_1008d/mecha_1008d_tex.json"
+        },
+        {
+            "name": "mecha_1008d_texture",
+            "type": "image",
+            "url": "assets/mecha_1008d/mecha_1008d_tex.png"
+        }
+    ],
+    "groups": [
+        {
+            "name": "groundTest",
+            "keys": "ground,mecha_1008d,mecha_1008d_texture_config,mecha_1008d_texture"
+        }
+    ]
+}
