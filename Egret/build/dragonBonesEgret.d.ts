@@ -696,7 +696,7 @@ declare namespace dragonBones {
          * @param clipName 动画剪辑的名称。
          * @param time 指定时间。（以秒为单位）
          * @param playTimes 动画剪辑需要播放的次数。 [-1: 使用动画剪辑默认值, 0: 无限循环播放, [1~N]: 循环播放 N 次]
-         * @version DragonBones 4.7
+         * @version DragonBones 5.0
          */
         gotoAndPlay(clipName: string, time: number, playTimes?: number): void;
         /**
@@ -704,7 +704,7 @@ declare namespace dragonBones {
          * 将动画停止到指定时间。
          * @param clipName 动画剪辑的名称。
          * @param time 指定时间。（以秒为单位）
-         * @version DragonBones 4.7
+         * @version DragonBones 5.0
          */
         gotoAndStop(clipName: string, time: number): void;
         /**

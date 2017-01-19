@@ -89,7 +89,7 @@ namespace dragonBones {
                 return;
             }
 
-            container.addChildAt(this._renderDisplay, index < this._zOrder ? this._zOrder : this._zOrder + 1);
+            container.addChildAt(this._renderDisplay, this._zOrder < index ? this._zOrder : this._zOrder + 1);
         }
         /**
          * @internal
@@ -193,8 +193,8 @@ namespace dragonBones {
                 const currentTextureAtlas = currentTextureAtlasData.texture ? currentTextureAtlasData.texture._bitmapData : null;
                 if (currentTextureAtlas) {
                     if (!currentTextureData.texture) { // Create texture.
-                        const textureAtlasWidth = currentTextureAtlas.width;
-                        const textureAtlasHeight = currentTextureAtlas.height;
+                        const textureAtlasWidth = currentTextureAtlasData.width > 0.0 ? currentTextureAtlasData.width : currentTextureAtlas.width;
+                        const textureAtlasHeight = currentTextureAtlasData.height > 0.0 ? currentTextureAtlasData.height : currentTextureAtlas.height;
                         const subTextureWidth = Math.min(currentTextureData.region.width, textureAtlasWidth - currentTextureData.region.x); // TODO need remove
                         const subTextureHeight = Math.min(currentTextureData.region.height, textureAtlasHeight - currentTextureData.region.y); // TODO need remove
 

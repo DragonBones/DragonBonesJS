@@ -179,7 +179,7 @@ namespace dragonBones {
                         null,
                         <PIXI.Rectangle><any>textureData.region,
                         originSize,
-                        textureData.rotated
+                        textureData.rotated as any // .d.ts bug
                     );
                 }
 

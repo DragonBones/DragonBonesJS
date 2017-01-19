@@ -29,6 +29,7 @@ namespace dragonBones {
         protected _currentFrame: T;
         protected _armature: Armature;
         protected _animationState: AnimationState;
+        protected _mainTimeline: AnimationTimelineState;
 
         public constructor() {
             super();
@@ -51,37 +52,39 @@ namespace dragonBones {
             this._currentFrame = null;
             this._armature = null;
             this._animationState = null;
+            this._mainTimeline = null;
         }
 
         protected _onUpdateFrame(): void { }
         protected _onArriveAtFrame(): void { }
 
-        protected _setCurrentTime(passedTime: number, normalizedTime: number): boolean {
+        protected _setCurrentTime(passedTime: number): boolean {
             const prevState = this._playState;
             let currentPlayTimes = 0;
-            let currentTime = normalizedTime;
+            let currentTime = 0.0;
 
-            if (this._keyFrameCount === 1 && this !== this._animationState._timeline as any) {
-                this._playState = this._animationState._timeline._playState >= 0 ? 1 : -1;
+            if (this._mainTimeline && this._keyFrameCount === 1) {
+                this._playState = this._mainTimeline._playState >= 0 ? 1 : -1;
                 currentPlayTimes = 1;
+                currentTime = this._mainTimeline._currentTime;
             }
-            else if (normalizedTime < 0.0 || this._timeScale !== 1.0 || this._timeOffset !== 0.0) { // Scale and offset.
+            else if (!this._mainTimeline || this._timeScale !== 1.0 || this._timeOffset !== 0.0) { // Scale and offset.
                 const playTimes = this._animationState.playTimes;
                 const totalTime = playTimes * this._duration;
 
-                currentTime = passedTime * this._timeScale;
+                passedTime *= this._timeScale;
                 if (this._timeOffset !== 0.0) {
-                    currentTime += this._timeOffset * this._animationDutation;
+                    passedTime += this._timeOffset * this._animationDutation;
                 }
 
-                if (playTimes > 0 && (currentTime >= totalTime || currentTime <= -totalTime)) {
+                if (playTimes > 0 && (passedTime >= totalTime || passedTime <= -totalTime)) {
                     if (this._playState <= 0 && this._animationState._playheadState === 3) {
                         this._playState = 1;
                     }
 
                     currentPlayTimes = playTimes;
 
-                    if (currentTime < 0.0) {
+                    if (passedTime < 0.0) {
                         currentTime = 0.0;
                     }
                     else {
@@ -93,20 +96,21 @@ namespace dragonBones {
                         this._playState = 0;
                     }
 
-                    if (currentTime < 0.0) {
-                        currentTime = -currentTime;
-                        currentPlayTimes = Math.floor(currentTime / this._duration);
-                        currentTime = this._duration - (currentTime % this._duration);
+                    if (passedTime < 0.0) {
+                        passedTime = -passedTime;
+                        currentPlayTimes = Math.floor(passedTime / this._duration);
+                        currentTime = this._duration - (passedTime % this._duration);
                     }
                     else {
-                        currentPlayTimes = Math.floor(currentTime / this._duration);
-                        currentTime %= this._duration;
+                        currentPlayTimes = Math.floor(passedTime / this._duration);
+                        currentTime = passedTime % this._duration;
                     }
                 }
             }
             else {
-                this._playState = this._animationState._timeline._playState;
-                currentPlayTimes = this._animationState._timeline._currentPlayTimes;
+                this._playState = this._mainTimeline._playState;
+                currentPlayTimes = this._mainTimeline._currentPlayTimes;
+                currentTime = this._mainTimeline._currentTime;
             }
 
             currentTime += this._position;
@@ -133,8 +137,11 @@ namespace dragonBones {
             this._armature = armature;
             this._animationState = animationState;
             this._timelineData = timelineData;
+            this._mainTimeline = this._animationState._timeline;
 
-            const isMainTimeline = this === <any>this._animationState._timeline;
+            if (this as any === this._mainTimeline) {
+                this._mainTimeline = null;
+            }
 
             this._frameRate = this._armature.armatureData.frameRate;
             this._keyFrameCount = this._timelineData.frames.length;
@@ -142,14 +149,14 @@ namespace dragonBones {
             this._position = this._animationState._position;
             this._duration = this._animationState._duration;
             this._animationDutation = this._animationState.animationData.duration;
-            this._timeScale = isMainTimeline ? 1.0 : (1.0 / this._timelineData.scale);
-            this._timeOffset = isMainTimeline ? 0.0 : this._timelineData.offset;
+            this._timeScale = !this._mainTimeline ? 1.0 : (1.0 / this._timelineData.scale);
+            this._timeOffset = !this._mainTimeline ? 0.0 : this._timelineData.offset;
         }
 
         public fadeOut(): void { }
 
-        public update(passedTime: number, normalizedTime: number): void {
-            if (this._playState <= 0 && this._setCurrentTime(passedTime, normalizedTime)) {
+        public update(passedTime: number): void {
+            if (this._playState <= 0 && this._setCurrentTime(passedTime)) {
                 const currentFrameIndex = this._keyFrameCount > 1 ? Math.floor(this._currentTime * this._frameRate) : 0; // uint
                 const currentFrame = this._timelineData.frames[currentFrameIndex];
 

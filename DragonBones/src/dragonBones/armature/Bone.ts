@@ -549,7 +549,7 @@ namespace dragonBones {
             }
 
             this._visible = value;
-            
+
             const slots = this._armature.getSlots();
             for (let i = 0, l = slots.length; i < l; ++i) {
                 const slot = slots[i];

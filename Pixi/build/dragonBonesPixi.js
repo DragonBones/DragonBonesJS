@@ -186,7 +186,7 @@ var dragonBones;
          * @inheritDoc
          */
         PixiArmatureDisplay.prototype.hasEvent = function (type) {
-            return this.listeners(type, true);
+            return this.listeners(type, true); // .d.ts bug
         };
         /**
          * @inheritDoc
@@ -261,7 +261,9 @@ var dragonBones;
          * @private
          */
         function PixiSlot() {
-            return _super.call(this) || this;
+            var _this = _super.call(this) || this;
+            _this._updateTransform = PIXI.VERSION[0] === "3" ? _this._updateTransformV3 : _this._updateTransformV4;
+            return _this;
         }
         /**
          * @private
@@ -270,7 +272,7 @@ var dragonBones;
             return "[class dragonBones.PixiSlot]";
         };
         /**
-         * @inheritDoc
+         * @private
          */
         PixiSlot.prototype._onClear = function () {
             _super.prototype._onClear.call(this);
@@ -321,7 +323,11 @@ var dragonBones;
          */
         PixiSlot.prototype._updateZOrder = function () {
             var container = this._armature.display;
-            container.addChildAt(this._renderDisplay, this._zOrder);
+            var index = container.getChildIndex(this._renderDisplay);
+            if (index === this._zOrder) {
+                return;
+            }
+            container.addChildAt(this._renderDisplay, this._zOrder < index ? this._zOrder : this._zOrder + 1);
         };
         /**
          * @internal
@@ -395,12 +401,13 @@ var dragonBones;
                 if (currentTextureAtlas) {
                     if (!currentTextureData.texture) {
                         currentTextureData.texture = new PIXI.Texture(currentTextureAtlas, currentTextureData.region, // No need to set frame.
-                        currentTextureData.region, new PIXI.Rectangle(0, 0, currentTextureData.region.width, currentTextureData.region.height), currentTextureData.rotated);
+                        currentTextureData.region, new PIXI.Rectangle(0, 0, currentTextureData.region.width, currentTextureData.region.height), currentTextureData.rotated // .d.ts bug
+                        );
                     }
                     if (isMeshDisplay) {
                         var meshDisplay = this._renderDisplay;
-                        var textureAtlasWidth = currentTextureAtlas ? currentTextureAtlas.width : 1;
-                        var textureAtlasHeight = currentTextureAtlas ? currentTextureAtlas.height : 1;
+                        var textureAtlasWidth = currentTextureAtlasData.width > 0.0 ? currentTextureAtlasData.width : currentTextureAtlas.width;
+                        var textureAtlasHeight = currentTextureAtlasData.height > 0.0 ? currentTextureAtlasData.height : currentTextureAtlas.height;
                         meshDisplay.uvs = new Float32Array(this._meshData.uvs);
                         meshDisplay.vertices = new Float32Array(this._meshData.vertices);
                         meshDisplay.indices = new Uint16Array(this._meshData.vertexIndices);
@@ -411,7 +418,8 @@ var dragonBones;
                             meshDisplay.uvs[i + 1] = (currentTextureData.region.y + v * currentTextureData.region.height) / textureAtlasHeight;
                         }
                         meshDisplay.texture = currentTextureData.texture;
-                        meshDisplay.dirty = true;
+                        //meshDisplay.dirty = true; // Pixi 3.x
+                        meshDisplay.dirty++; // Pixi 4.x Can not support change mesh vertice count.
                     }
                     else {
                         var normalDisplay = this._renderDisplay;
@@ -484,6 +492,12 @@ var dragonBones;
          * @private
          */
         PixiSlot.prototype._updateTransform = function (isSkinnedMesh) {
+            throw new Error();
+        };
+        /**
+         * @private
+         */
+        PixiSlot.prototype._updateTransformV3 = function (isSkinnedMesh) {
             if (isSkinnedMesh) {
                 this._renderDisplay.setTransform(0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0);
             }
@@ -491,6 +505,17 @@ var dragonBones;
                 var x = this.globalTransformMatrix.tx - (this.globalTransformMatrix.a * this._pivotX + this.globalTransformMatrix.c * this._pivotY);
                 var y = this.globalTransformMatrix.ty - (this.globalTransformMatrix.b * this._pivotX + this.globalTransformMatrix.d * this._pivotY);
                 this._renderDisplay.setTransform(x, y, this.global.scaleX, this.global.scaleY, this.global.skewY, this.global.skewX - this.global.skewY, 0.0);
+            }
+        };
+        /**
+         * @private
+         */
+        PixiSlot.prototype._updateTransformV4 = function (isSkinnedMesh) {
+            if (isSkinnedMesh) {
+                this._renderDisplay.setTransform(0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+            }
+            else {
+                this._renderDisplay.setTransform(this.globalTransformMatrix.tx, this.globalTransformMatrix.ty, this.global.scaleX, this.global.scaleY, this.global.skewX, 0.0, this.global.skewY - this.global.skewX, this._pivotX, this._pivotY);
             }
         };
         return PixiSlot;
@@ -651,7 +676,8 @@ var dragonBones;
                 if (!textureData.texture) {
                     var textureAtlasTexture = textureData.parent.texture;
                     var originSize = new PIXI.Rectangle(0, 0, textureData.region.width, textureData.region.height);
-                    textureData.texture = new PIXI.Texture(textureAtlasTexture, null, textureData.region, originSize, textureData.rotated);
+                    textureData.texture = new PIXI.Texture(textureAtlasTexture, null, textureData.region, originSize, textureData.rotated // .d.ts bug
+                    );
                 }
                 return new PIXI.Sprite(textureData.texture);
             }

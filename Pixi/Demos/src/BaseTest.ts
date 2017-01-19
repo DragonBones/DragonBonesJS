@@ -1,6 +1,6 @@
 namespace demosPixi {
     export abstract class BaseTest {
-        protected _renderer = new PIXI.WebGLRenderer(800, 600, { backgroundColor: 0x666666 });
+        protected _renderer = new PIXI.WebGLRenderer(800, 600);
         protected _stage = new PIXI.Container();
         protected _backgroud: PIXI.Sprite = new PIXI.Sprite(PIXI.Texture.EMPTY);
 

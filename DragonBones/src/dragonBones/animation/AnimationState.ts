@@ -470,30 +470,27 @@ namespace dragonBones {
             // Weight.
             this._weightResult = this.weight * this._fadeProgress;
             if (this._weightResult !== 0.0) {
+                const isCacheEnabled = this._fadeState === 0 && cacheFrameRate > 0.0;
                 let isUpdatesTimeline = true;
                 let isUpdatesBoneTimeline = true;
                 let time = this._time;
 
-                // Cache time internval.
-                const isCacheEnabled = this._fadeState === 0 && cacheFrameRate > 0.0;
-                if (isCacheEnabled) {
-                    time = cacheFrameRate * 2.0;
-                    time = Math.floor(this._time * time) / time;
-                }
-
                 // Update main timeline.
-                this._timeline.update(time, -1.0);
+                this._timeline.update(time);
 
-                const normalizedTime = this._timeline._currentTime;
+                // Cache time internval.
+                if (isCacheEnabled) {
+                    this._timeline._currentTime = Math.floor(this._timeline._currentTime * cacheFrameRate) / cacheFrameRate;
+                }
 
                 // Update zOrder timeline.
                 if (this._zOrderTimeline) {
-                    this._zOrderTimeline.update(time, normalizedTime);
+                    this._zOrderTimeline.update(time);
                 }
 
                 // Update cache.
                 if (isCacheEnabled) {
-                    const cacheFrameIndex = Math.floor(normalizedTime * cacheFrameRate); // uint
+                    const cacheFrameIndex = Math.floor(this._timeline._currentTime * cacheFrameRate); // uint
                     if (this._armature.animation._cacheFrameIndex === cacheFrameIndex) { // Same cache.
                         isUpdatesTimeline = false;
                         isUpdatesBoneTimeline = false;
@@ -514,16 +511,16 @@ namespace dragonBones {
                 if (isUpdatesTimeline) {
                     if (isUpdatesBoneTimeline) {
                         for (let i = 0, l = this._boneTimelines.length; i < l; ++i) {
-                            this._boneTimelines[i].update(time, normalizedTime);
+                            this._boneTimelines[i].update(time);
                         }
                     }
 
                     for (let i = 0, l = this._slotTimelines.length; i < l; ++i) {
-                        this._slotTimelines[i].update(time, normalizedTime);
+                        this._slotTimelines[i].update(time);
                     }
 
                     for (let i = 0, l = this._ffdTimelines.length; i < l; ++i) {
-                        this._ffdTimelines[i].update(time, normalizedTime);
+                        this._ffdTimelines[i].update(time);
                     }
                 }
             }

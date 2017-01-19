@@ -2,7 +2,7 @@ var demosPixi;
 (function (demosPixi) {
     var BaseTest = (function () {
         function BaseTest() {
-            this._renderer = new PIXI.WebGLRenderer(800, 600, { backgroundColor: 0x666666 });
+            this._renderer = new PIXI.WebGLRenderer(800, 600);
             this._stage = new PIXI.Container();
             this._backgroud = new PIXI.Sprite(PIXI.Texture.EMPTY);
             this._backgroud.width = this._renderer.width;

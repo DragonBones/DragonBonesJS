@@ -105,7 +105,7 @@ declare namespace dragonBones {
         static toString(): string;
         private _renderDisplay;
         /**
-         * @inheritDoc
+         * @private
          */
         protected _onClear(): void;
         /**
@@ -156,6 +156,14 @@ declare namespace dragonBones {
          * @private
          */
         protected _updateTransform(isSkinnedMesh: boolean): void;
+        /**
+         * @private
+         */
+        protected _updateTransformV3(isSkinnedMesh: boolean): void;
+        /**
+         * @private
+         */
+        protected _updateTransformV4(isSkinnedMesh: boolean): void;
     }
 }
 declare namespace dragonBones {

@@ -11,6 +11,7 @@ namespace dragonBones {
         display: DisplayConfig[],
         frame: FrameConfig[],
         movie: MovieConfig[],
+        animation: MovieConfig[], // 兼容旧数据
 
         // Runtime
         offset?: number,
@@ -18,7 +19,7 @@ namespace dragonBones {
         displayFrameArray?: Int16Array,
         rectangleArray?: Float32Array,
         transformArray?: Float32Array,
-        colorArray?: Int8Array,
+        colorArray?: Int16Array,
         textures?: egret.Texture[],
     };
     /**
@@ -51,6 +52,7 @@ namespace dragonBones {
         type?: number,
         action?: string,
         isNested?: boolean,
+        hasChildAnimation?: boolean, // 兼容旧数据
 
         slot?: SlotConfig[],
         clip?: ClipConfig[]
@@ -105,13 +107,13 @@ namespace dragonBones {
         public displayIndex: number = -1;
         public colorIndex: number = -1;
         public transformIndex: number = -1;
+        public rawDisplay: egret.Bitmap = new egret.Bitmap();
+        public childMovies: Map<Movie> = {};
         public config: SlotConfig = null;
         public displayConfig: DisplayConfig = null;
         public display: egret.DisplayObject = null;
         public childMovie: Movie = null;
         public colorFilter: egret.ColorMatrixFilter = null;
-        public rawDisplay: egret.Bitmap = new egret.Bitmap();
-        public childMovies: Map<Movie> = {};
 
         public constructor(slotConfig: SlotConfig) {
             super();
@@ -126,13 +128,13 @@ namespace dragonBones {
         }
 
         public dispose(): void {
+            this.rawDisplay = null;
+            this.childMovies = null;
             this.config = null;
             this.displayConfig = null;
             this.display = null;
             this.childMovie = null;
             this.colorFilter = null;
-            this.rawDisplay = null;
-            this.childMovies = null;
         }
     }
     /**
@@ -1211,7 +1213,7 @@ namespace dragonBones {
          * @param clipName 动画剪辑的名称。 
          * @param time 指定时间。（以秒为单位）
          * @param playTimes 动画剪辑需要播放的次数。 [-1: 使用动画剪辑默认值, 0: 无限循环播放, [1~N]: 循环播放 N 次]
-         * @version DragonBones 4.7
+         * @version DragonBones 5.0
          */
         public gotoAndPlay(clipName: string = null, time: number, playTimes: number = -1): void {
             time %= this._clipConfig.duration;
@@ -1228,7 +1230,7 @@ namespace dragonBones {
          * 将动画停止到指定时间。
          * @param clipName 动画剪辑的名称。 
          * @param time 指定时间。（以秒为单位）
-         * @version DragonBones 4.7
+         * @version DragonBones 5.0
          */
         public gotoAndStop(clipName: string = null, time: number): void {
             time %= this._clipConfig.duration;

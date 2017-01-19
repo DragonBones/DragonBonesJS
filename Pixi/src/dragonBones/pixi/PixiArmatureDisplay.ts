@@ -136,7 +136,7 @@ namespace dragonBones {
          * @inheritDoc
          */
         public hasEvent(type: EventStringType): boolean {
-            return this.listeners(type, true) as boolean;
+            return this.listeners(type, true) as boolean; // .d.ts bug
         }
         /**
          * @inheritDoc

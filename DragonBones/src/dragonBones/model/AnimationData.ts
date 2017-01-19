@@ -148,11 +148,21 @@ namespace dragonBones {
             this.cachedFrames.length = cacheFrameCount;
 
             for (let k in this.boneTimelines) {
-                this.boneCachedFrameIndices[k] = new Array(cacheFrameCount);
+                const indices: Array<number> = new Array(cacheFrameCount);
+                for (let i = 0, l = indices.length; i < l; ++i) {
+                    indices[i] = -1;
+                }
+
+                this.boneCachedFrameIndices[k] = indices;
             }
 
             for (let k in this.slotTimelines) {
-                this.slotCachedFrameIndices[k] = new Array(cacheFrameCount);
+                const indices: Array<number> = new Array(cacheFrameCount);
+                for (let i = 0, l = indices.length; i < l; ++i) {
+                    indices[i] = -1;
+                }
+
+                this.slotCachedFrameIndices[k] = indices;
             }
         }
         /**

@@ -56,12 +56,12 @@ namespace dragonBones {
             }
         }
 
-        public update(passedTime: number, normalizedTime: number): void {
+        public update(passedTime: number): void {
             const prevState = this._playState;
             const prevPlayTimes = this._currentPlayTimes;
             const prevTime = this._currentTime;
 
-            if (this._playState <= 0 && this._setCurrentTime(passedTime, normalizedTime)) {
+            if (this._playState <= 0 && this._setCurrentTime(passedTime)) {
                 const eventDispatcher = this._armature.eventDispatcher;
 
                 if (prevState < 0 && this._playState !== prevState) {
@@ -142,7 +142,7 @@ namespace dragonBones {
         }
 
         public setCurrentTime(value: number): void {
-            this._setCurrentTime(value, -1.0);
+            this._setCurrentTime(value);
             this._currentFrame = null;
         }
     }
@@ -176,6 +176,7 @@ namespace dragonBones {
 
         public bone: Bone;
 
+        private _transformDirty: boolean;
         private _tweenTransform: TweenType;
         private _tweenRotate: TweenType;
         private _tweenScale: TweenType;
@@ -193,6 +194,7 @@ namespace dragonBones {
 
             this.bone = null;
 
+            this._transformDirty = false;
             this._tweenTransform = TweenType.None;
             this._tweenRotate = TweenType.None;
             this._tweenScale = TweenType.None;
@@ -271,7 +273,7 @@ namespace dragonBones {
 
         protected _onUpdateFrame(): void {
             super._onUpdateFrame();
-
+            
             let tweenProgress = 0.0;
             const currentTransform = this._currentFrame.transform;
 
@@ -292,6 +294,8 @@ namespace dragonBones {
                     this._transform.x = this._originalTransform.x + currentTransform.x + this._durationTransform.x * tweenProgress;
                     this._transform.y = this._originalTransform.y + currentTransform.y + this._durationTransform.y * tweenProgress;
                 }
+
+                this._transformDirty = true;
             }
 
             if (this._tweenRotate !== TweenType.None) {
@@ -311,6 +315,8 @@ namespace dragonBones {
                     this._transform.skewX = this._originalTransform.skewX + currentTransform.skewX + this._durationTransform.skewX * tweenProgress;
                     this._transform.skewY = this._originalTransform.skewY + currentTransform.skewY + this._durationTransform.skewY * tweenProgress;
                 }
+
+                this._transformDirty = true;
             }
 
             if (this._tweenScale !== TweenType.None) {
@@ -330,9 +336,9 @@ namespace dragonBones {
                     this._transform.scaleX = this._originalTransform.scaleX * (currentTransform.scaleX + this._durationTransform.scaleX * tweenProgress);
                     this._transform.scaleY = this._originalTransform.scaleY * (currentTransform.scaleY + this._durationTransform.scaleY * tweenProgress);
                 }
-            }
 
-            this.bone.invalidUpdate();
+                this._transformDirty = true;
+            }
         }
 
         public _init(armature: Armature, animationState: AnimationState, timelineData: BoneTimelineData): void {
@@ -347,13 +353,13 @@ namespace dragonBones {
             this._transform.skewY = Transform.normalizeRadian(this._transform.skewY);
         }
 
-        public update(passedTime: number, normalizedTime: number): void {
+        public update(passedTime: number): void {
             // Blend animation state.
             const animationLayer = this._animationState._layer;
             let weight = this._animationState._weightResult;
 
             if (this.bone._updateState <= 0) {
-                super.update(passedTime, normalizedTime);
+                super.update(passedTime);
 
                 this.bone._blendLayer = animationLayer;
                 this.bone._blendLeftWeight = 1.0;
@@ -382,7 +388,7 @@ namespace dragonBones {
 
                 weight *= this.bone._blendLeftWeight;
                 if (weight >= 0.0) {
-                    super.update(passedTime, normalizedTime);
+                    super.update(passedTime);
 
                     this.bone._blendTotalWeight += weight;
 
@@ -398,7 +404,9 @@ namespace dragonBones {
             }
 
             if (this.bone._updateState > 0) {
-                if (this._animationState._fadeState !== 0 || this._animationState._subFadeState !== 0) {
+                if (this._transformDirty || this._animationState._fadeState !== 0 || this._animationState._subFadeState !== 0) {
+                    this._transformDirty = false;
+
                     this.bone.invalidUpdate();
                 }
             }
@@ -545,8 +553,8 @@ namespace dragonBones {
             this._tweenColor = TweenType.None;
         }
 
-        public update(passedTime: number, normalizedTime: number): void {
-            super.update(passedTime, normalizedTime);
+        public update(passedTime: number): void {
+            super.update(passedTime);
 
             // Fade animation.
             if (this._tweenColor !== TweenType.None || this._colorDirty) {
@@ -691,8 +699,8 @@ namespace dragonBones {
             this._tweenFFD = TweenType.None;
         }
 
-        public update(passedTime: number, normalizedTime: number): void {
-            super.update(passedTime, normalizedTime);
+        public update(passedTime: number): void {
+            super.update(passedTime);
 
             if (this.slot._meshData !== this._timelineData.display.mesh) {
                 return;

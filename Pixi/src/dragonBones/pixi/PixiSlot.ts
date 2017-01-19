@@ -19,9 +19,11 @@ namespace dragonBones {
          */
         public constructor() {
             super();
+
+            this._updateTransform = PIXI.VERSION[0] === "3" ? this._updateTransformV3 : this._updateTransformV4;
         }
         /**
-         * @inheritDoc
+         * @private
          */
         protected _onClear(): void {
             super._onClear();
@@ -73,7 +75,12 @@ namespace dragonBones {
          */
         protected _updateZOrder(): void {
             const container = this._armature.display as PixiArmatureDisplay;
-            container.addChildAt(this._renderDisplay, this._zOrder);
+            const index = container.getChildIndex(this._renderDisplay);
+            if (index === this._zOrder) {
+                return;
+            }
+
+            container.addChildAt(this._renderDisplay, this._zOrder < index ? this._zOrder : this._zOrder + 1);
         }
         /**
          * @internal
@@ -161,17 +168,17 @@ namespace dragonBones {
                     if (!currentTextureData.texture) {
                         currentTextureData.texture = new PIXI.Texture(
                             currentTextureAtlas,
-                            <PIXI.Rectangle><any>currentTextureData.region, // No need to set frame.
-                            <PIXI.Rectangle><any>currentTextureData.region,
+                            <any>currentTextureData.region as PIXI.Rectangle, // No need to set frame.
+                            <any>currentTextureData.region as PIXI.Rectangle,
                             new PIXI.Rectangle(0, 0, currentTextureData.region.width, currentTextureData.region.height),
-                            currentTextureData.rotated
+                            currentTextureData.rotated as any // .d.ts bug
                         );
                     }
 
                     if (isMeshDisplay) { // Mesh.
                         const meshDisplay = this._renderDisplay as PIXI.mesh.Mesh;
-                        const textureAtlasWidth = currentTextureAtlas ? currentTextureAtlas.width : 1;
-                        const textureAtlasHeight = currentTextureAtlas ? currentTextureAtlas.height : 1;
+                        const textureAtlasWidth = currentTextureAtlasData.width > 0.0 ? currentTextureAtlasData.width : currentTextureAtlas.width;
+                        const textureAtlasHeight = currentTextureAtlasData.height > 0.0 ? currentTextureAtlasData.height : currentTextureAtlas.height;
 
                         meshDisplay.uvs = <any>new Float32Array(this._meshData.uvs);
                         meshDisplay.vertices = <any>new Float32Array(this._meshData.vertices);
@@ -185,7 +192,8 @@ namespace dragonBones {
                         }
 
                         meshDisplay.texture = currentTextureData.texture;
-                        meshDisplay.dirty = true;
+                        //meshDisplay.dirty = true; // Pixi 3.x
+                        meshDisplay.dirty++; // Pixi 4.x Can not support change mesh vertice count.
                     }
                     else { // Normal texture.
                         const normalDisplay = this._renderDisplay as PIXI.Sprite;
@@ -270,6 +278,12 @@ namespace dragonBones {
          * @private
          */
         protected _updateTransform(isSkinnedMesh: boolean): void {
+            throw new Error();
+        }
+        /**
+         * @private
+         */
+        protected _updateTransformV3(isSkinnedMesh: boolean): void {
             if (isSkinnedMesh) { // Identity transform.
                 this._renderDisplay.setTransform(0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0);
             }
@@ -283,14 +297,23 @@ namespace dragonBones {
                     this.global.skewY,
                     this.global.skewX - this.global.skewY, 0.0
                 );
-
-                // this._renderDisplay.setTransform(
-                //     x, y,
-                //     this.global.scaleX, this.global.scaleY,
-                //     this.global.skewY,
-                //     this.global.skewX - this.global.skewY, 0,
-                //     this._pivotX, this._pivotY
-                // );
+            }
+        }
+        /**
+         * @private
+         */
+        protected _updateTransformV4(isSkinnedMesh: boolean): void {
+            if (isSkinnedMesh) { // Identity transform.
+                this._renderDisplay.setTransform(0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+            }
+            else {
+                this._renderDisplay.setTransform(
+                    this.globalTransformMatrix.tx, this.globalTransformMatrix.ty,
+                    this.global.scaleX, this.global.scaleY,
+                    this.global.skewX,
+                    0.0, this.global.skewY - this.global.skewX,
+                    this._pivotX, this._pivotY
+                );
             }
         }
     }

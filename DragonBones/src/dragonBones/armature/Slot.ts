@@ -306,6 +306,7 @@ namespace dragonBones {
             const prevReplaceDisplayData = this._replacedDisplayData;
             const prevTextureData = this._textureData;
             const prevMeshData = this._meshData;
+            const currentDisplay = this._displayIndex >= 0 && this._displayIndex < this._displayList.length ? this._displayList[this._displayIndex] : null;
 
             if (this._displayIndex >= 0 && this._displayIndex < this._skinSlotData.displays.length) {
                 this._displayData = this._skinSlotData.displays[this._displayIndex];
@@ -321,10 +322,9 @@ namespace dragonBones {
                 this._replacedDisplayData = null;
             }
 
-            if (this._displayData !== prevDisplayData || this._replacedDisplayData !== prevReplaceDisplayData) {
+            if (this._displayData !== prevDisplayData || this._replacedDisplayData !== prevReplaceDisplayData || this._display != currentDisplay) {
                 const currentDisplayData = this._replacedDisplayData ? this._replacedDisplayData : this._displayData;
-                const currentDisplay = this._displayIndex >= 0 && this._displayIndex < this._displayList.length ? this._displayList[this._displayIndex] : null;
-                if (currentDisplayData && currentDisplay === this._rawDisplay || currentDisplay === this._meshDisplay) {
+                if (currentDisplayData && (currentDisplay === this._rawDisplay || currentDisplay === this._meshDisplay)) {
                     this._textureData = this._replacedDisplayData ? this._replacedDisplayData.texture : this._displayData.texture;
                     if (currentDisplay === this._meshDisplay) {
                         if (this._replacedDisplayData && this._replacedDisplayData.mesh) {
@@ -699,6 +699,8 @@ namespace dragonBones {
                 }
 
                 this._updateTransform(false);
+
+                this._updateState = 0;
             }
         }
         /**
@@ -884,6 +886,7 @@ namespace dragonBones {
          */
         public invalidUpdate(): void {
             this._displayDirty = true;
+            this._transformDirty = true;
         }
         /**
          * @private

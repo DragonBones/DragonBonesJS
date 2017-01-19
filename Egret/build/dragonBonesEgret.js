@@ -646,7 +646,7 @@ var dragonBones;
             if (index === this._zOrder) {
                 return;
             }
-            container.addChildAt(this._renderDisplay, index < this._zOrder ? this._zOrder : this._zOrder + 1);
+            container.addChildAt(this._renderDisplay, this._zOrder < index ? this._zOrder : this._zOrder + 1);
         };
         /**
          * @internal
@@ -736,8 +736,8 @@ var dragonBones;
                 var currentTextureAtlas = currentTextureAtlasData.texture ? currentTextureAtlasData.texture._bitmapData : null;
                 if (currentTextureAtlas) {
                     if (!currentTextureData.texture) {
-                        var textureAtlasWidth = currentTextureAtlas.width;
-                        var textureAtlasHeight = currentTextureAtlas.height;
+                        var textureAtlasWidth = currentTextureAtlasData.width > 0.0 ? currentTextureAtlasData.width : currentTextureAtlas.width;
+                        var textureAtlasHeight = currentTextureAtlasData.height > 0.0 ? currentTextureAtlasData.height : currentTextureAtlas.height;
                         var subTextureWidth = Math.min(currentTextureData.region.width, textureAtlasWidth - currentTextureData.region.x); // TODO need remove
                         var subTextureHeight = Math.min(currentTextureData.region.height, textureAtlasHeight - currentTextureData.region.y); // TODO need remove
                         currentTextureData.texture = new egret.Texture();
@@ -1147,13 +1147,13 @@ var dragonBones;
             _this.displayIndex = -1;
             _this.colorIndex = -1;
             _this.transformIndex = -1;
+            _this.rawDisplay = new egret.Bitmap();
+            _this.childMovies = {};
             _this.config = null;
             _this.displayConfig = null;
             _this.display = null;
             _this.childMovie = null;
             _this.colorFilter = null;
-            _this.rawDisplay = new egret.Bitmap();
-            _this.childMovies = {};
             _this.display = _this.rawDisplay;
             _this.config = slotConfig;
             _this.rawDisplay.name = _this.config.name;
@@ -1163,13 +1163,13 @@ var dragonBones;
             return _this;
         }
         MovieSlot.prototype.dispose = function () {
+            this.rawDisplay = null;
+            this.childMovies = null;
             this.config = null;
             this.displayConfig = null;
             this.display = null;
             this.childMovie = null;
             this.colorFilter = null;
-            this.rawDisplay = null;
-            this.childMovies = null;
         };
         return MovieSlot;
     }(egret.HashObject));
@@ -2136,7 +2136,7 @@ var dragonBones;
          * @param clipName 动画剪辑的名称。
          * @param time 指定时间。（以秒为单位）
          * @param playTimes 动画剪辑需要播放的次数。 [-1: 使用动画剪辑默认值, 0: 无限循环播放, [1~N]: 循环播放 N 次]
-         * @version DragonBones 4.7
+         * @version DragonBones 5.0
          */
         Movie.prototype.gotoAndPlay = function (clipName, time, playTimes) {
             if (clipName === void 0) { clipName = null; }
@@ -2154,7 +2154,7 @@ var dragonBones;
          * 将动画停止到指定时间。
          * @param clipName 动画剪辑的名称。
          * @param time 指定时间。（以秒为单位）
-         * @version DragonBones 4.7
+         * @version DragonBones 5.0
          */
         Movie.prototype.gotoAndStop = function (clipName, time) {
             if (clipName === void 0) { clipName = null; }
