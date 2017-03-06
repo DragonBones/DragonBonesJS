@@ -169,7 +169,6 @@ namespace dragonBones {
             super();
         }
         /**
-         * @internal
          * @private
          */
         public _onClear(): void {
@@ -178,7 +177,6 @@ namespace dragonBones {
             this._debugDrawer = null;
         }
         /**
-         * @internal
          * @private
          */
         public _dispatchEvent(type: EventStringType, eventObject: EventObject): void {
@@ -188,7 +186,6 @@ namespace dragonBones {
             egret.Event.release(event);
         }
         /**
-         * @internal
          * @private
          */
         public _debugDraw(isEnabled: boolean): void {
@@ -203,7 +200,7 @@ namespace dragonBones {
                 const bones = this._armature.getBones();
                 for (let i = 0, l = bones.length; i < l; ++i) {
                     const bone = bones[i];
-                    const boneLength = bone.length;
+                    const boneLength = bone.boneData.length;
                     const startX = bone.globalTransformMatrix.tx;
                     const startY = bone.globalTransformMatrix.ty;
                     const endX = startX + bone.globalTransformMatrix.a * boneLength;
@@ -261,6 +258,7 @@ namespace dragonBones {
 
                         child.graphics.endFill();
                         slot._updateTransformAndMatrix();
+                        slot.updateGlobalTransform();
                         child.$setMatrix((<any>slot.globalTransformMatrix) as egret.Matrix, false);
                     }
                     else {

@@ -151,12 +151,16 @@ namespace dragonBones {
         /**
          * @private
          */
+        public static yDown: boolean = true;
+        /**
+         * @private
+         */
         public static debug: boolean = false;
         /**
          * @private
          */
         public static debugDraw: boolean = false;
-
+        
         /**
          * @internal
          * @private

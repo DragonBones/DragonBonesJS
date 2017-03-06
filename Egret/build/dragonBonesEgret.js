@@ -30,14 +30,13 @@ var dragonBones;
             return "[class dragonBones.EgretTextureAtlasData]";
         };
         /**
-         * @inheritDoc
+         * @private
          */
         EgretTextureAtlasData.prototype._onClear = function () {
             _super.prototype._onClear.call(this);
             if (this.texture) {
-                //this.texture.dispose();
-                this.texture = null;
             }
+            this.texture = null;
         };
         /**
          * @private
@@ -67,14 +66,13 @@ var dragonBones;
             return "[class dragonBones.EgretTextureData]";
         };
         /**
-         * @inheritDoc
+         * @private
          */
         EgretTextureData.prototype._onClear = function () {
             _super.prototype._onClear.call(this);
             if (this.texture) {
-                //this.texture.dispose();
-                this.texture = null;
             }
+            this.texture = null;
         };
         return EgretTextureData;
     }(dragonBones.TextureData));
@@ -276,14 +274,12 @@ var dragonBones;
     var EgretArmatureDisplay = (function (_super) {
         __extends(EgretArmatureDisplay, _super);
         /**
-         * @internal
          * @private
          */
         function EgretArmatureDisplay() {
             return _super.call(this) || this;
         }
         /**
-         * @internal
          * @private
          */
         EgretArmatureDisplay.prototype._onClear = function () {
@@ -292,7 +288,6 @@ var dragonBones;
             this._debugDrawer = null;
         };
         /**
-         * @internal
          * @private
          */
         EgretArmatureDisplay.prototype._dispatchEvent = function (type, eventObject) {
@@ -302,7 +297,6 @@ var dragonBones;
             egret.Event.release(event);
         };
         /**
-         * @internal
          * @private
          */
         EgretArmatureDisplay.prototype._debugDraw = function (isEnabled) {
@@ -315,7 +309,7 @@ var dragonBones;
                 var bones = this._armature.getBones();
                 for (var i = 0, l = bones.length; i < l; ++i) {
                     var bone = bones[i];
-                    var boneLength = bone.length;
+                    var boneLength = bone.boneData.length;
                     var startX = bone.globalTransformMatrix.tx;
                     var startY = bone.globalTransformMatrix.ty;
                     var endX = startX + bone.globalTransformMatrix.a * boneLength;
@@ -364,6 +358,7 @@ var dragonBones;
                         }
                         child.graphics.endFill();
                         slot._updateTransformAndMatrix();
+                        slot.updateGlobalTransform();
                         child.$setMatrix(slot.globalTransformMatrix, false);
                     }
                     else {
@@ -705,6 +700,7 @@ var dragonBones;
                     filters.push(this._colorFilter);
                 }
                 this._renderDisplay.filters = filters;
+                this._renderDisplay.$setAlpha(1.0);
             }
             else {
                 if (this._colorFilter) {
@@ -769,20 +765,17 @@ var dragonBones;
                         normalDisplay.$setAnchorOffsetX(this._pivotX);
                         normalDisplay.$setAnchorOffsetY(this._pivotY);
                     }
-                    this._updateVisible();
                     return;
                 }
             }
             if (isMeshDisplay) {
                 var meshDisplay = this._renderDisplay;
-                meshDisplay.visible = false;
                 meshDisplay.$setBitmapData(null);
                 meshDisplay.x = 0.0;
                 meshDisplay.y = 0.0;
             }
             else {
                 var normalDisplay = this._renderDisplay;
-                normalDisplay.visible = false;
                 normalDisplay.$setBitmapData(null);
                 normalDisplay.x = 0.0;
                 normalDisplay.y = 0.0;
@@ -848,9 +841,7 @@ var dragonBones;
             }
             else {
                 if (this.transformUpdateEnabled) {
-                    this._renderDisplay.$setMatrix(this.globalTransformMatrix, this.transformUpdateEnabled);
-                    this._renderDisplay.$setAnchorOffsetX(this._pivotX);
-                    this._renderDisplay.$setAnchorOffsetX(this._pivotY);
+                    this._renderDisplay.$setMatrix(this.globalTransformMatrix, true);
                 }
                 else {
                     var values = this._renderDisplay.$DisplayObject;
@@ -899,7 +890,7 @@ var dragonBones;
         EgretFactory._clockHandler = function (time) {
             time *= 0.001;
             var passedTime = time - EgretFactory._clock.time;
-            EgretFactory._clock.advanceTime(passedTime);
+            EgretFactory._clock.advanceTime(0.01);
             EgretFactory._clock.time = time;
             return false;
         };
@@ -952,24 +943,30 @@ var dragonBones;
                 var displayData = skinSlotData.displays[i];
                 switch (displayData.type) {
                     case 0 /* Image */:
-                        if (!displayData.texture || dataPackage.textureAtlasName) {
-                            displayData.texture = this._getTextureData(dataPackage.textureAtlasName || dataPackage.dataName, displayData.path);
+                        if (!displayData.texture) {
+                            displayData.texture = this._getTextureData(dataPackage.dataName, displayData.path);
                         }
-                        displayList.push(slot.rawDisplay);
+                        if (dataPackage.textureAtlasName) {
+                            slot._textureDatas[i] = this._getTextureData(dataPackage.textureAtlasName, displayData.path);
+                        }
+                        displayList[i] = slot.rawDisplay;
                         break;
                     case 2 /* Mesh */:
-                        if (!displayData.texture || dataPackage.textureAtlasName) {
-                            displayData.texture = this._getTextureData(dataPackage.textureAtlasName || dataPackage.dataName, displayData.path);
+                        if (!displayData.texture) {
+                            displayData.texture = this._getTextureData(dataPackage.dataName, displayData.path);
+                        }
+                        if (dataPackage.textureAtlasName) {
+                            slot._textureDatas[i] = this._getTextureData(dataPackage.textureAtlasName, displayData.path);
                         }
                         if (!displayData.mesh && displayData.share) {
                             displayData.mesh = skinSlotData.getMesh(displayData.share);
                         }
                         if (egret.Capabilities.renderMode === "webgl" || egret.Capabilities.runtimeType === egret.RuntimeType.NATIVE) {
-                            displayList.push(slot.meshDisplay);
+                            displayList[i] = slot.meshDisplay;
                         }
                         else {
                             console.warn("Canvas can not support mesh, please change renderMode to webgl.");
-                            displayList.push(slot.rawDisplay);
+                            displayList[i] = slot.rawDisplay;
                         }
                         break;
                     case 1 /* Armature */:
@@ -989,10 +986,10 @@ var dragonBones;
                             }
                             displayData.armature = childArmature.armatureData; // 
                         }
-                        displayList.push(childArmature);
+                        displayList[i] = childArmature;
                         break;
                     default:
-                        displayList.push(null);
+                        displayList[i] = null;
                         break;
                 }
             }
@@ -1612,6 +1609,7 @@ var dragonBones;
                     // RenderNode display.
                     var filter = slot.display.$renderNode.filter;
                     slot.display.$renderNode.filter = slot.colorFilter;
+                    slot.display.$renderNode.alpha = 1.0;
                 }
                 else {
                     // Classic display.
@@ -1623,6 +1621,7 @@ var dragonBones;
                         filters.push(slot.colorFilter);
                     }
                     slot.display.filters = filters;
+                    slot.display.$setAlpha(1.0);
                 }
             }
             else {
@@ -1828,236 +1827,238 @@ var dragonBones;
          * @inheritDoc
          */
         Movie.prototype.advanceTime = function (passedTime) {
-            if (!this._isPlaying) {
-                return;
-            }
-            this._isLockDispose = true;
-            if (passedTime < 0) {
-                passedTime = -passedTime;
-            }
-            passedTime *= this.timeScale;
-            this._time += passedTime * this.clipTimeScale;
-            // Modify time.            
-            var duration = this._clipConfig.duration;
-            var totalTime = duration * this._playTimes;
-            var currentTime = this._time;
-            var currentPlayTimes = this._currentPlayTimes;
-            if (this._playTimes > 0 && (currentTime >= totalTime || currentTime <= -totalTime)) {
-                this._isCompleted = true;
-                currentPlayTimes = this._playTimes;
-                if (currentTime < 0) {
-                    currentTime = 0;
-                }
-                else {
-                    currentTime = duration;
-                }
-            }
-            else {
-                this._isCompleted = false;
-                if (currentTime < 0) {
-                    currentPlayTimes = Math.floor(-currentTime / duration);
-                    currentTime = duration - (-currentTime % duration);
-                }
-                else {
-                    currentPlayTimes = Math.floor(currentTime / duration);
-                    currentTime %= duration;
-                }
-                if (this._playTimes > 0 && currentPlayTimes > this._playTimes) {
-                    currentPlayTimes = this._playTimes;
-                }
-            }
-            if (this._currentTime === currentTime) {
-                return;
-            }
-            var cacheFrameIndex = Math.floor(currentTime * this._clipConfig.cacheTimeToFrameScale);
-            if (this._cacheFrameIndex !== cacheFrameIndex) {
-                this._cacheFrameIndex = cacheFrameIndex;
-                var displayFrameArray = this._groupConfig.displayFrameArray;
-                var transformArray = this._groupConfig.transformArray;
-                var colorArray = this._groupConfig.colorArray;
-                //
-                var isFirst = true;
-                var hasDisplay = false;
-                var needCacheRectangle = false;
-                var prevCacheRectangle = this._cacheRectangle;
-                this._cacheRectangle = this._clipConfig.cacheRectangles[this._cacheFrameIndex];
-                if (this._batchEnabled && !this._cacheRectangle) {
-                    needCacheRectangle = true;
-                    this._cacheRectangle = new egret.Rectangle();
-                    this._clipConfig.cacheRectangles[this._cacheFrameIndex] = this._cacheRectangle;
-                }
-                // Update slots.
-                for (var i = 0, l = this._slots.length; i < l; ++i) {
-                    var slot = this._slots[i];
-                    var clipFrameIndex = this._frameSize * this._cacheFrameIndex + i * 2;
-                    var displayFrameIndex = this._clipArray[clipFrameIndex] * 2;
-                    if (displayFrameIndex >= 0) {
-                        var displayIndex = displayFrameArray[displayFrameIndex];
-                        var colorIndex = displayFrameArray[displayFrameIndex + 1] * 8;
-                        var transformIndex = this._clipArray[clipFrameIndex + 1] * 6;
-                        var colorChange = false;
-                        if (slot.displayIndex !== displayIndex) {
-                            slot.displayIndex = displayIndex;
-                            colorChange = true;
-                            this._updateSlotDisplay(slot);
-                        }
-                        if (slot.colorIndex !== colorIndex || colorChange) {
-                            slot.colorIndex = colorIndex;
-                            if (slot.colorIndex >= 0) {
-                                this._updateSlotColor(slot, colorArray[colorIndex] * 0.01, colorArray[colorIndex + 1] * 0.01, colorArray[colorIndex + 2] * 0.01, colorArray[colorIndex + 3] * 0.01, colorArray[colorIndex + 4], colorArray[colorIndex + 5], colorArray[colorIndex + 6], colorArray[colorIndex + 7]);
-                            }
-                            else {
-                                this._updateSlotColor(slot, 1, 1, 1, 1, 0, 0, 0, 0);
-                            }
-                        }
-                        hasDisplay = true;
-                        if (slot.transformIndex !== transformIndex) {
-                            slot.transformIndex = transformIndex;
-                            if (this._batchEnabled) {
-                                // RenderNode display.
-                                var matrix = slot.display.$renderNode.matrix;
-                                if (!matrix) {
-                                    matrix = slot.display.$renderNode.matrix = new egret.Matrix();
-                                }
-                                matrix.a = transformArray[transformIndex];
-                                matrix.b = transformArray[transformIndex + 1];
-                                matrix.c = transformArray[transformIndex + 2];
-                                matrix.d = transformArray[transformIndex + 3];
-                                matrix.tx = transformArray[transformIndex + 4];
-                                matrix.ty = transformArray[transformIndex + 5];
-                            }
-                            else {
-                                // Classic display.
-                                _helpMatrix.a = transformArray[transformIndex];
-                                _helpMatrix.b = transformArray[transformIndex + 1];
-                                _helpMatrix.c = transformArray[transformIndex + 2];
-                                _helpMatrix.d = transformArray[transformIndex + 3];
-                                _helpMatrix.tx = transformArray[transformIndex + 4];
-                                _helpMatrix.ty = transformArray[transformIndex + 5];
-                                slot.display.$setMatrix(_helpMatrix);
-                            }
-                        }
-                        // 
-                        if (this._batchEnabled && needCacheRectangle) {
-                            // RenderNode display.
-                            var matrix = slot.display.$renderNode.matrix;
-                            _helpRectangle.x = 0;
-                            _helpRectangle.y = 0;
-                            _helpRectangle.width = slot.displayConfig.texture.textureWidth;
-                            _helpRectangle.height = slot.displayConfig.texture.textureHeight;
-                            matrix.$transformBounds(_helpRectangle);
-                            if (isFirst) {
-                                isFirst = false;
-                                this._cacheRectangle.x = _helpRectangle.x;
-                                this._cacheRectangle.width = _helpRectangle.x + _helpRectangle.width;
-                                this._cacheRectangle.y = _helpRectangle.y;
-                                this._cacheRectangle.height = _helpRectangle.y + _helpRectangle.height;
-                            }
-                            else {
-                                this._cacheRectangle.x = Math.min(this._cacheRectangle.x, _helpRectangle.x);
-                                this._cacheRectangle.width = Math.max(this._cacheRectangle.width, _helpRectangle.x + _helpRectangle.width);
-                                this._cacheRectangle.y = Math.min(this._cacheRectangle.y, _helpRectangle.y);
-                                this._cacheRectangle.height = Math.max(this._cacheRectangle.height, _helpRectangle.y + _helpRectangle.height);
-                            }
-                        }
-                    }
-                    else if (slot.displayIndex !== -1) {
-                        slot.displayIndex = -1;
-                        this._updateSlotDisplay(slot);
-                    }
-                }
-                //
-                if (this._cacheRectangle) {
-                    if (hasDisplay && needCacheRectangle && isFirst && prevCacheRectangle) {
-                        this._cacheRectangle.x = prevCacheRectangle.x;
-                        this._cacheRectangle.y = prevCacheRectangle.y;
-                        this._cacheRectangle.width = prevCacheRectangle.width;
-                        this._cacheRectangle.height = prevCacheRectangle.height;
-                    }
-                    this.$invalidateContentBounds();
-                }
-            }
-            if (this._isCompleted) {
-                this._isPlaying = false;
-            }
-            if (!this._isStarted) {
-                this._isStarted = true;
-                if (this.hasEventListener(MovieEvent.START)) {
-                    var event_3 = egret.Event.create(MovieEvent, MovieEvent.START);
-                    event_3.movie = this;
-                    event_3.clipName = this._clipConfig.name;
-                    event_3.name = null;
-                    event_3.slotName = null;
-                    this.dispatchEvent(event_3);
-                }
-            }
-            this._isReversing = this._currentTime > currentTime && this._currentPlayTimes === currentPlayTimes;
-            // Action and event.
-            var frameCount = this._clipConfig.frame ? this._clipConfig.frame.length : 0;
-            if (frameCount > 0) {
-                var currentFrameIndex = Math.floor(this._currentTime * this._config.frameRate);
-                var currentFrameConfig = this._groupConfig.frame[this._clipConfig.frame[currentFrameIndex]];
-                if (this._currentFrameConfig !== currentFrameConfig) {
-                    if (frameCount > 1) {
-                        var crossedFrameConfig = this._currentFrameConfig;
-                        this._currentFrameConfig = currentFrameConfig;
-                        if (!crossedFrameConfig) {
-                            var prevFrameIndex = Math.floor(this._currentTime * this._config.frameRate);
-                            crossedFrameConfig = this._groupConfig.frame[this._clipConfig.frame[prevFrameIndex]];
-                            if (this._isReversing) {
-                            }
-                            else {
-                                if (this._currentTime <= crossedFrameConfig.position ||
-                                    this._currentPlayTimes !== currentPlayTimes) {
-                                    crossedFrameConfig = this._groupConfig.frame[crossedFrameConfig.prev];
-                                }
-                            }
-                        }
-                        if (this._isReversing) {
-                            while (crossedFrameConfig !== currentFrameConfig) {
-                                this._onCrossFrame(crossedFrameConfig);
-                                crossedFrameConfig = this._groupConfig.frame[crossedFrameConfig.prev];
-                            }
-                        }
-                        else {
-                            while (crossedFrameConfig !== currentFrameConfig) {
-                                crossedFrameConfig = this._groupConfig.frame[crossedFrameConfig.next];
-                                this._onCrossFrame(crossedFrameConfig);
-                            }
-                        }
-                    }
-                    else {
-                        this._currentFrameConfig = currentFrameConfig;
-                        if (this._currentFrameConfig) {
-                            this._onCrossFrame(this._currentFrameConfig);
-                        }
-                    }
-                }
-            }
-            this._currentTime = currentTime;
             // Advance child armatre time.
             for (var i = 0, l = this._childMovies.length; i < l; ++i) {
                 this._childMovies[i].advanceTime(passedTime);
             }
-            if (this._currentPlayTimes !== currentPlayTimes) {
-                this._currentPlayTimes = currentPlayTimes;
-                if (this.hasEventListener(MovieEvent.LOOP_COMPLETE)) {
-                    var event_4 = egret.Event.create(MovieEvent, MovieEvent.LOOP_COMPLETE);
-                    event_4.movie = this;
-                    event_4.clipName = this._clipConfig.name;
-                    event_4.name = null;
-                    event_4.slotName = null;
-                    this.dispatchEvent(event_4);
-                    egret.Event.release(event_4);
+            if (this._isPlaying) {
+                this._isLockDispose = true;
+                if (passedTime < 0) {
+                    passedTime = -passedTime;
                 }
-                if (this._isCompleted && this.hasEventListener(MovieEvent.COMPLETE)) {
-                    var event_5 = egret.Event.create(MovieEvent, MovieEvent.COMPLETE);
-                    event_5.movie = this;
-                    event_5.clipName = this._clipConfig.name;
-                    event_5.name = null;
-                    event_5.slotName = null;
-                    this.dispatchEvent(event_5);
-                    egret.Event.release(event_5);
+                passedTime *= this.timeScale;
+                this._time += passedTime * this.clipTimeScale;
+                // Modify time.            
+                var duration = this._clipConfig.duration;
+                var totalTime = duration * this._playTimes;
+                var currentTime = this._time;
+                var currentPlayTimes = this._currentPlayTimes;
+                if (this._playTimes > 0 && (currentTime >= totalTime || currentTime <= -totalTime)) {
+                    this._isCompleted = true;
+                    currentPlayTimes = this._playTimes;
+                    if (currentTime < 0) {
+                        currentTime = 0;
+                    }
+                    else {
+                        currentTime = duration;
+                    }
+                }
+                else {
+                    this._isCompleted = false;
+                    if (currentTime < 0) {
+                        currentPlayTimes = Math.floor(-currentTime / duration);
+                        currentTime = duration - (-currentTime % duration);
+                    }
+                    else {
+                        currentPlayTimes = Math.floor(currentTime / duration);
+                        currentTime %= duration;
+                    }
+                    if (this._playTimes > 0 && currentPlayTimes > this._playTimes) {
+                        currentPlayTimes = this._playTimes;
+                    }
+                }
+                if (this._currentTime === currentTime) {
+                    return;
+                }
+                var cacheFrameIndex = Math.floor(currentTime * this._clipConfig.cacheTimeToFrameScale);
+                if (this._cacheFrameIndex !== cacheFrameIndex) {
+                    this._cacheFrameIndex = cacheFrameIndex;
+                    var displayFrameArray = this._groupConfig.displayFrameArray;
+                    var transformArray = this._groupConfig.transformArray;
+                    var colorArray = this._groupConfig.colorArray;
+                    //
+                    var isFirst = true;
+                    var hasDisplay = false;
+                    var needCacheRectangle = false;
+                    var prevCacheRectangle = this._cacheRectangle;
+                    this._cacheRectangle = this._clipConfig.cacheRectangles[this._cacheFrameIndex];
+                    if (this._batchEnabled && !this._cacheRectangle) {
+                        needCacheRectangle = true;
+                        this._cacheRectangle = new egret.Rectangle();
+                        this._clipConfig.cacheRectangles[this._cacheFrameIndex] = this._cacheRectangle;
+                    }
+                    // Update slots.
+                    for (var i = 0, l = this._slots.length; i < l; ++i) {
+                        var slot = this._slots[i];
+                        var clipFrameIndex = this._frameSize * this._cacheFrameIndex + i * 2;
+                        if (clipFrameIndex >= this._clipArray.length) {
+                            clipFrameIndex = this._frameSize * (this._cacheFrameIndex - 1) + i * 2;
+                        }
+                        var displayFrameIndex = this._clipArray[clipFrameIndex] * 2;
+                        if (displayFrameIndex >= 0) {
+                            var displayIndex = displayFrameArray[displayFrameIndex];
+                            var colorIndex = displayFrameArray[displayFrameIndex + 1] * 8;
+                            var transformIndex = this._clipArray[clipFrameIndex + 1] * 6;
+                            var colorChange = false;
+                            if (slot.displayIndex !== displayIndex) {
+                                slot.displayIndex = displayIndex;
+                                colorChange = true;
+                                this._updateSlotDisplay(slot);
+                            }
+                            if (slot.colorIndex !== colorIndex || colorChange) {
+                                slot.colorIndex = colorIndex;
+                                if (slot.colorIndex >= 0) {
+                                    this._updateSlotColor(slot, colorArray[colorIndex] * 0.01, colorArray[colorIndex + 1] * 0.01, colorArray[colorIndex + 2] * 0.01, colorArray[colorIndex + 3] * 0.01, colorArray[colorIndex + 4], colorArray[colorIndex + 5], colorArray[colorIndex + 6], colorArray[colorIndex + 7]);
+                                }
+                                else {
+                                    this._updateSlotColor(slot, 1, 1, 1, 1, 0, 0, 0, 0);
+                                }
+                            }
+                            hasDisplay = true;
+                            if (slot.transformIndex !== transformIndex) {
+                                slot.transformIndex = transformIndex;
+                                if (this._batchEnabled) {
+                                    // RenderNode display.
+                                    var matrix = slot.display.$renderNode.matrix;
+                                    if (!matrix) {
+                                        matrix = slot.display.$renderNode.matrix = new egret.Matrix();
+                                    }
+                                    matrix.a = transformArray[transformIndex];
+                                    matrix.b = transformArray[transformIndex + 1];
+                                    matrix.c = transformArray[transformIndex + 2];
+                                    matrix.d = transformArray[transformIndex + 3];
+                                    matrix.tx = transformArray[transformIndex + 4];
+                                    matrix.ty = transformArray[transformIndex + 5];
+                                }
+                                else {
+                                    // Classic display.
+                                    _helpMatrix.a = transformArray[transformIndex];
+                                    _helpMatrix.b = transformArray[transformIndex + 1];
+                                    _helpMatrix.c = transformArray[transformIndex + 2];
+                                    _helpMatrix.d = transformArray[transformIndex + 3];
+                                    _helpMatrix.tx = transformArray[transformIndex + 4];
+                                    _helpMatrix.ty = transformArray[transformIndex + 5];
+                                    slot.display.$setMatrix(_helpMatrix);
+                                }
+                            }
+                            // 
+                            if (this._batchEnabled && needCacheRectangle) {
+                                // RenderNode display.
+                                var matrix = slot.display.$renderNode.matrix;
+                                _helpRectangle.x = 0;
+                                _helpRectangle.y = 0;
+                                _helpRectangle.width = slot.displayConfig.texture.textureWidth;
+                                _helpRectangle.height = slot.displayConfig.texture.textureHeight;
+                                matrix.$transformBounds(_helpRectangle);
+                                if (isFirst) {
+                                    isFirst = false;
+                                    this._cacheRectangle.x = _helpRectangle.x;
+                                    this._cacheRectangle.width = _helpRectangle.x + _helpRectangle.width;
+                                    this._cacheRectangle.y = _helpRectangle.y;
+                                    this._cacheRectangle.height = _helpRectangle.y + _helpRectangle.height;
+                                }
+                                else {
+                                    this._cacheRectangle.x = Math.min(this._cacheRectangle.x, _helpRectangle.x);
+                                    this._cacheRectangle.width = Math.max(this._cacheRectangle.width, _helpRectangle.x + _helpRectangle.width);
+                                    this._cacheRectangle.y = Math.min(this._cacheRectangle.y, _helpRectangle.y);
+                                    this._cacheRectangle.height = Math.max(this._cacheRectangle.height, _helpRectangle.y + _helpRectangle.height);
+                                }
+                            }
+                        }
+                        else if (slot.displayIndex !== -1) {
+                            slot.displayIndex = -1;
+                            this._updateSlotDisplay(slot);
+                        }
+                    }
+                    //
+                    if (this._cacheRectangle) {
+                        if (hasDisplay && needCacheRectangle && isFirst && prevCacheRectangle) {
+                            this._cacheRectangle.x = prevCacheRectangle.x;
+                            this._cacheRectangle.y = prevCacheRectangle.y;
+                            this._cacheRectangle.width = prevCacheRectangle.width;
+                            this._cacheRectangle.height = prevCacheRectangle.height;
+                        }
+                        this.$invalidateContentBounds();
+                    }
+                }
+                if (this._isCompleted) {
+                    this._isPlaying = false;
+                }
+                if (!this._isStarted) {
+                    this._isStarted = true;
+                    if (this.hasEventListener(MovieEvent.START)) {
+                        var event_3 = egret.Event.create(MovieEvent, MovieEvent.START);
+                        event_3.movie = this;
+                        event_3.clipName = this._clipConfig.name;
+                        event_3.name = null;
+                        event_3.slotName = null;
+                        this.dispatchEvent(event_3);
+                    }
+                }
+                this._isReversing = this._currentTime > currentTime && this._currentPlayTimes === currentPlayTimes;
+                this._currentTime = currentTime;
+                // Action and event.
+                var frameCount = this._clipConfig.frame ? this._clipConfig.frame.length : 0;
+                if (frameCount > 0) {
+                    var currentFrameIndex = Math.floor(this._currentTime * this._config.frameRate);
+                    var currentFrameConfig = this._groupConfig.frame[this._clipConfig.frame[currentFrameIndex]];
+                    if (this._currentFrameConfig !== currentFrameConfig) {
+                        if (frameCount > 1) {
+                            var crossedFrameConfig = this._currentFrameConfig;
+                            this._currentFrameConfig = currentFrameConfig;
+                            if (!crossedFrameConfig) {
+                                var prevFrameIndex = Math.floor(this._currentTime * this._config.frameRate);
+                                crossedFrameConfig = this._groupConfig.frame[this._clipConfig.frame[prevFrameIndex]];
+                                if (this._isReversing) {
+                                }
+                                else {
+                                    if (this._currentTime <= crossedFrameConfig.position ||
+                                        this._currentPlayTimes !== currentPlayTimes) {
+                                        crossedFrameConfig = this._groupConfig.frame[crossedFrameConfig.prev];
+                                    }
+                                }
+                            }
+                            if (this._isReversing) {
+                                while (crossedFrameConfig !== currentFrameConfig) {
+                                    this._onCrossFrame(crossedFrameConfig);
+                                    crossedFrameConfig = this._groupConfig.frame[crossedFrameConfig.prev];
+                                }
+                            }
+                            else {
+                                while (crossedFrameConfig !== currentFrameConfig) {
+                                    crossedFrameConfig = this._groupConfig.frame[crossedFrameConfig.next];
+                                    this._onCrossFrame(crossedFrameConfig);
+                                }
+                            }
+                        }
+                        else {
+                            this._currentFrameConfig = currentFrameConfig;
+                            if (this._currentFrameConfig) {
+                                this._onCrossFrame(this._currentFrameConfig);
+                            }
+                        }
+                    }
+                }
+                if (this._currentPlayTimes !== currentPlayTimes) {
+                    this._currentPlayTimes = currentPlayTimes;
+                    if (this.hasEventListener(MovieEvent.LOOP_COMPLETE)) {
+                        var event_4 = egret.Event.create(MovieEvent, MovieEvent.LOOP_COMPLETE);
+                        event_4.movie = this;
+                        event_4.clipName = this._clipConfig.name;
+                        event_4.name = null;
+                        event_4.slotName = null;
+                        this.dispatchEvent(event_4);
+                        egret.Event.release(event_4);
+                    }
+                    if (this._isCompleted && this.hasEventListener(MovieEvent.COMPLETE)) {
+                        var event_5 = egret.Event.create(MovieEvent, MovieEvent.COMPLETE);
+                        event_5.movie = this;
+                        event_5.clipName = this._clipConfig.name;
+                        event_5.name = null;
+                        event_5.slotName = null;
+                        this.dispatchEvent(event_5);
+                        egret.Event.release(event_5);
+                    }
                 }
             }
             this._isLockDispose = false;

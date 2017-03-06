@@ -115,33 +115,35 @@ namespace dragonBones {
          * @version DragonBones 3.0
          */
         public fromMatrix(matrix: Matrix): Transform {
-            const PI_Q = DragonBones.PI_Q;
-            const backupScaleX = this.scaleX, backupScaleY = this.scaleY;
 
             this.x = matrix.tx;
             this.y = matrix.ty;
             this.skewX = Math.atan(-matrix.c / matrix.d);
             this.skewY = Math.atan(matrix.b / matrix.a);
 
-            if (this.skewX !== this.skewX) {
-                this.skewX = 0.0;
+            const backupScaleX = this.scaleX, backupScaleY = this.scaleY;
+            const PI_Q = DragonBones.PI_Q;
+            const dSkew = this.skewX - this.skewY;
+            const cos = Math.cos(this.skewX);
+            const sin = Math.sin(this.skewX);
+
+            if (-0.01 < dSkew && dSkew < 0.01) {
+                this.scaleX = (this.skewY > -PI_Q && this.skewY < PI_Q) ? matrix.a / cos : matrix.b / sin;
+            }
+            else {
+                this.scaleX = (this.skewY > -PI_Q && this.skewY < PI_Q) ? matrix.a / Math.cos(this.skewY) : matrix.b / Math.sin(this.skewY);
             }
 
-            if (this.skewY !== this.skewY) {
-                this.skewY = 0.0;
-            }
-
-            this.scaleY = (this.skewX > -PI_Q && this.skewX < PI_Q) ? matrix.d / Math.cos(this.skewX) : -matrix.c / Math.sin(this.skewX);
-            this.scaleX = (this.skewY > -PI_Q && this.skewY < PI_Q) ? matrix.a / Math.cos(this.skewY) : matrix.b / Math.sin(this.skewY);
+            this.scaleY = (this.skewX > -PI_Q && this.skewX < PI_Q) ? matrix.d / cos : -matrix.c / sin;
 
             if (backupScaleX >= 0.0 && this.scaleX < 0.0) {
                 this.scaleX = -this.scaleX;
-                this.skewY = this.skewY - Math.PI;
+                this.skewY = Transform.normalizeRadian(this.skewY - Math.PI);
             }
 
             if (backupScaleY >= 0.0 && this.scaleY < 0.0) {
                 this.scaleY = -this.scaleY;
-                this.skewX = this.skewX - Math.PI;
+                this.skewX = Transform.normalizeRadian(this.skewX - Math.PI);
             }
 
             return this;
@@ -157,7 +159,8 @@ namespace dragonBones {
                 matrix.a = Math.cos(this.skewY);
                 matrix.b = Math.sin(this.skewY);
 
-                if (this.skewX === this.skewY) {
+                const dSkew = this.skewX - this.skewY;
+                if (-0.01 < dSkew && dSkew < 0.01) {
                     matrix.c = -matrix.b;
                     matrix.d = matrix.a;
                 }
@@ -166,9 +169,12 @@ namespace dragonBones {
                     matrix.d = Math.cos(this.skewX);
                 }
 
-                if (this.scaleX !== 1.0 || this.scaleY !== 1.0) {
+                if (this.scaleX !== 1.0) {
                     matrix.a *= this.scaleX;
                     matrix.b *= this.scaleX;
+                }
+
+                if (this.scaleY !== 1.0) {
                     matrix.c *= this.scaleY;
                     matrix.d *= this.scaleY;
                 }
@@ -191,10 +197,10 @@ namespace dragonBones {
          * @version DragonBones 3.0
          */
         public get rotation(): number {
-            return this.skewY;
+            return this.scaleX >= 0.0 ? this.skewY : this.skewY + Math.PI;
         }
         public set rotation(value: number) {
-            const dValue = value - this.skewY;
+            const dValue = this.scaleX >= 0.0 ? (value - this.skewY) : (value - this.skewY - Math.PI);
             this.skewX += dValue;
             this.skewY += dValue;
         }

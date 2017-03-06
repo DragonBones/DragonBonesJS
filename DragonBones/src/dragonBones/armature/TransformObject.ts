@@ -6,6 +6,18 @@ namespace dragonBones {
      */
     export abstract class TransformObject extends BaseObject {
         /**
+         * @private
+         */
+        protected static _helpPoint: Point = new Point();
+        /**
+         * @private
+         */
+        protected static _helpTransform: Transform = new Transform();
+        /**
+         * @private
+         */
+        protected static _helpMatrix: Matrix = new Matrix();
+        /**
          * @language zh_CN
          * 对象的名称。
          * @readOnly
@@ -57,6 +69,10 @@ namespace dragonBones {
          */
         public _parent: Bone;
         /**
+         * @private
+         */
+        protected _globalDirty: boolean;
+        /**
          * @internal
          * @private
          */
@@ -76,6 +92,7 @@ namespace dragonBones {
 
             this._armature = null;
             this._parent = null;
+            this._globalDirty = false;
         }
         /**
          * @internal
@@ -90,6 +107,15 @@ namespace dragonBones {
          */
         public _setParent(value: Bone): void {
             this._parent = value;
+        }
+        /**
+         * @private
+         */
+        public updateGlobalTransform(): void {
+            if (this._globalDirty) {
+                this._globalDirty = false;
+                this.global.fromMatrix(this.globalTransformMatrix);
+            }
         }
         /**
          * @language zh_CN

@@ -74,9 +74,9 @@ namespace dragonBones {
 
             if (this.b !== 0.0 || this.c !== 0.0) {
                 aA += this.b * value.c;
-                dA += this.c * value.b;
                 bA += this.b * value.d;
                 cA += this.c * value.a;
+                dA += this.c * value.b;
             }
 
             if (value.b !== 0.0 || value.c !== 0.0) {

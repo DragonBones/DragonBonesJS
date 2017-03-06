@@ -31,13 +31,29 @@ namespace demosEgret {
             // Test frame event
             this._armatureDisplay.addEventListener(dragonBones.EventObject.FRAME_EVENT, this._animationEventHandler, this);
 
-            //this.addEventListener(Event.ENTER_FRAME, _enterFrameHandler);
+            // Test animation config.
+            let animaitonConfig = this._armatureDisplay.animation.animationConfig;
+            animaitonConfig.name = "test"; // Animation state name.
+            animaitonConfig.animationName = "idle"; // Animation name.
+
+            animaitonConfig.playTimes = 1; // Play one time.
+            //animaitonConfig.playTimes = 3; // Play several times.
+            //animaitonConfig.playTimes = 0; // Loop play.
+
+            //animaitonConfig.timeScale = 1.0; // Play speed.
+            //animaitonConfig.timeScale = -1.0; // Reverse play.
+
+            //animaitonConfig.position = 1.0; // Goto and play.
+            //animaitonConfig.duration = 0.0; // Goto and stop.
+            //animaitonConfig.duration = 3.0; // Interval play.
+
+            this._armatureDisplay.animation.playConfig(animaitonConfig);
+            //this._armatureDisplay.animation.stop();
+
+            //            
             this.stage.addEventListener(egret.TouchEvent.TOUCH_BEGIN, this._touchHandler, this);
             this.stage.addEventListener(egret.TouchEvent.TOUCH_END, this._touchHandler, this);
             this.stage.addEventListener(egret.TouchEvent.TOUCH_MOVE, this._touchHandler, this);
-
-            // Play default animaiton.
-            this._armatureDisplay.animation.play(null, 0);
         }
 
         private _touchHandler(event: egret.TouchEvent): void {
@@ -66,7 +82,11 @@ namespace demosEgret {
 
                 case egret.TouchEvent.TOUCH_MOVE:
                     if (event.touchDown) {
-                        this._armatureDisplay.animation.gotoAndStopByProgress("idle", progress);
+                        const animationState = this._armatureDisplay.animation.getState("idle");
+                        if (animationState){ 
+                            animationState.currentTime = animationState.totalTime * progress;
+                        }
+                        //this._armatureDisplay.animation.gotoAndStopByProgress("idle", progress);
                     }
                     break;
             }

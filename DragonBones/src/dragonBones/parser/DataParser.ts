@@ -68,6 +68,7 @@ namespace dragonBones {
         protected static INHERIT_TRANSLATION: string = "inheritTranslation";
         protected static INHERIT_ROTATION: string = "inheritRotation";
         protected static INHERIT_SCALE: string = "inheritScale";
+        protected static INHERIT_REFLECTION: string = "inheritReflection";
         protected static INHERIT_ANIMATION: string = "inheritAnimation";
         protected static INHERIT_FFD: string = "inheritFFD";
         protected static BEND_POSITIVE: string = "bendPositive";
@@ -235,7 +236,7 @@ namespace dragonBones {
                     return ActionType.None;
             }
         }
-
+        
         protected _isOldData: boolean = false; // For 2.x ~ 3.x
         protected _isGlobalTransform: boolean = false; // For 2.x ~ 3.x
         protected _isAutoTween: boolean = false; // For 2.x ~ 3.x

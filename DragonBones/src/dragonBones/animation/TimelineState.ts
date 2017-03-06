@@ -65,7 +65,6 @@ namespace dragonBones {
                 const eventDispatcher = this._armature.eventDispatcher;
 
                 if (prevState < 0 && this._playState !== prevState) {
-
                     if (this._animationState.displayControl) {
                         this._armature._sortZOrder(null);
                     }
@@ -81,62 +80,134 @@ namespace dragonBones {
                     return;
                 }
 
-                if (this._keyFrameCount > 1) {
-                    const currentFrameIndex = Math.floor(this._currentTime * this._frameRate); // uint
-                    const currentFrame = this._timelineData.frames[currentFrameIndex];
-                    if (this._currentFrame !== currentFrame) {
-                        const isReverse = this._currentPlayTimes === prevPlayTimes && prevTime > this._currentTime;
-                        let crossedFrame = this._currentFrame;
-                        this._currentFrame = currentFrame;
-
-                        if (!crossedFrame) {
-                            const prevFrameIndex = Math.floor(prevTime * this._frameRate);
-                            crossedFrame = this._timelineData.frames[prevFrameIndex];
-
-                            if (isReverse) {
-                            }
-                            else {
-                                if (
-                                    prevTime <= crossedFrame.position
-                                    // || prevPlayTimes !== this._currentPlayTimes ?
-                                ) {
-                                    crossedFrame = crossedFrame.prev;
-                                }
-                            }
-                        }
-
-                        // TODO 1 2 3 key frame loop, first key frame after loop complete.
-                        if (isReverse) {
-                            while (crossedFrame !== currentFrame) {
-                                this._onCrossFrame(crossedFrame);
-                                crossedFrame = crossedFrame.prev;
-                            }
-                        }
-                        else {
-                            while (crossedFrame !== currentFrame) {
-                                crossedFrame = crossedFrame.next;
-                                this._onCrossFrame(crossedFrame);
-                            }
-                        }
-                    }
-                }
-                else if (this._keyFrameCount > 0 && !this._currentFrame) {
-                    this._currentFrame = this._timelineData.frames[0];
-                    this._onCrossFrame(this._currentFrame);
-                }
+                let isReverse = false;
+                let loopCompleteEvent: EventObject = null;
+                let completeEvent: EventObject = null;
 
                 if (this._currentPlayTimes !== prevPlayTimes) {
                     if (eventDispatcher.hasEvent(EventObject.LOOP_COMPLETE)) {
-                        const eventObject = BaseObject.borrowObject(EventObject);
-                        eventObject.animationState = this._animationState;
-                        this._armature._bufferEvent(eventObject, EventObject.LOOP_COMPLETE);
+                        loopCompleteEvent = BaseObject.borrowObject(EventObject);
+                        loopCompleteEvent.animationState = this._animationState;
                     }
 
-                    if (this._playState > 0 && eventDispatcher.hasEvent(EventObject.COMPLETE)) {
-                        const eventObject = BaseObject.borrowObject(EventObject);
-                        eventObject.animationState = this._animationState;
-                        this._armature._bufferEvent(eventObject, EventObject.COMPLETE);
+                    if (this._playState > 0) {
+                        if (eventDispatcher.hasEvent(EventObject.COMPLETE)) {
+                            completeEvent = BaseObject.borrowObject(EventObject);
+                            completeEvent.animationState = this._animationState;
+                        }
+
+                        isReverse = prevTime > this._currentTime;
                     }
+                    else {
+                        isReverse = prevTime < this._currentTime;
+                    }
+                }
+                else {
+                    isReverse = prevTime > this._currentTime;
+                }
+
+                if (this._frameCount > 1) {
+                    const currentFrameIndex = Math.floor(this._currentTime * this._frameRate); // uint
+                    const currentFrame = this._timelineData.frames[currentFrameIndex];
+                    if (this._currentFrame !== currentFrame) {
+                        let crossedFrame = this._currentFrame;
+                        this._currentFrame = currentFrame;
+
+                        if (isReverse) {
+                            if (!crossedFrame) {
+                                const prevFrameIndex = Math.floor(prevTime * this._frameRate);
+                                crossedFrame = this._timelineData.frames[prevFrameIndex];
+
+                                if (this._currentPlayTimes === prevPlayTimes) { // Start.
+                                    if (crossedFrame === currentFrame) { // Uncrossed.
+                                        crossedFrame = null;
+                                    }
+                                }
+                            }
+
+                            while (crossedFrame) {
+                                if (
+                                    this._position <= crossedFrame.position &&
+                                    crossedFrame.position <= this._position + this._duration
+                                ) { // Support interval play.
+                                    this._onCrossFrame(crossedFrame);
+                                }
+
+                                if (loopCompleteEvent && crossedFrame === this._timelineData.frames[0]) { // Add loop complete event after first frame.
+                                    this._armature._bufferEvent(loopCompleteEvent, EventObject.LOOP_COMPLETE);
+                                    loopCompleteEvent = null;
+                                }
+
+                                crossedFrame = crossedFrame.prev;
+
+                                if (crossedFrame === currentFrame) {
+                                    break;
+                                }
+                            }
+                        }
+                        else {
+                            if (!crossedFrame) {
+                                const prevFrameIndex = Math.floor(prevTime * this._frameRate);
+                                crossedFrame = this._timelineData.frames[prevFrameIndex];
+
+                                if (this._currentPlayTimes === prevPlayTimes) { // Start.
+                                    if (prevTime <= crossedFrame.position) { // Crossed.
+                                        crossedFrame = crossedFrame.prev;
+                                    }
+                                    else if (crossedFrame === currentFrame) { // Uncrossed.
+                                        crossedFrame = null;
+                                    }
+                                }
+                            }
+
+                            while (crossedFrame) {
+                                crossedFrame = crossedFrame.next;
+
+                                if (loopCompleteEvent && crossedFrame === this._timelineData.frames[0]) { // Add loop complete event before first frame.
+                                    this._armature._bufferEvent(loopCompleteEvent, EventObject.LOOP_COMPLETE);
+                                    loopCompleteEvent = null;
+                                }
+
+                                if (
+                                    this._position <= crossedFrame.position &&
+                                    crossedFrame.position <= this._position + this._duration
+                                ) { // Support interval play.
+                                    this._onCrossFrame(crossedFrame);
+                                }
+
+                                if (crossedFrame === currentFrame) {
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+                else if (this._frameCount > 0 && !this._currentFrame) {
+                    this._currentFrame = this._timelineData.frames[0];
+
+                    if (this._currentPlayTimes === prevPlayTimes) { // Start.
+                        if (prevTime <= this._currentFrame.position) {
+                            this._onCrossFrame(this._currentFrame);
+                        }
+                    }
+                    else if (this._position <= this._currentFrame.position) { // Loop complete.
+                        if (!isReverse && loopCompleteEvent) { // Add loop complete event before first frame.
+                            this._armature._bufferEvent(loopCompleteEvent, EventObject.LOOP_COMPLETE);
+                            loopCompleteEvent = null;
+                        }
+
+                        this._onCrossFrame(this._currentFrame);
+                    }
+                }
+
+                if (loopCompleteEvent) {
+                    this._armature._bufferEvent(loopCompleteEvent, EventObject.LOOP_COMPLETE);
+                    loopCompleteEvent = null;
+                }
+
+                if (completeEvent) {
+                    this._armature._bufferEvent(completeEvent, EventObject.COMPLETE);
+                    completeEvent = null;
                 }
             }
         }
@@ -211,7 +282,7 @@ namespace dragonBones {
             this._tweenRotate = TweenType.Once;
             this._tweenScale = TweenType.Once;
 
-            if (this._keyFrameCount > 1 && (this._tweenEasing !== DragonBones.NO_TWEEN || this._curve)) {
+            if (this._frameCount > 1 && (this._tweenEasing !== DragonBones.NO_TWEEN || this._curve)) {
                 const currentTransform = this._currentFrame.transform;
                 const nextFrame = this._currentFrame.next;
                 const nextTransform = nextFrame.transform;
@@ -273,7 +344,7 @@ namespace dragonBones {
 
         protected _onUpdateFrame(): void {
             super._onUpdateFrame();
-            
+
             let tweenProgress = 0.0;
             const currentTransform = this._currentFrame.transform;
 
@@ -358,7 +429,7 @@ namespace dragonBones {
             const animationLayer = this._animationState._layer;
             let weight = this._animationState._weightResult;
 
-            if (this.bone._updateState <= 0) {
+            if (!this.bone._blendDirty) {
                 super.update(passedTime);
 
                 this.bone._blendLayer = animationLayer;
@@ -372,7 +443,7 @@ namespace dragonBones {
                 this._boneTransform.scaleX = (this._transform.scaleX - 1.0) * weight + 1.0;
                 this._boneTransform.scaleY = (this._transform.scaleY - 1.0) * weight + 1.0;
 
-                this.bone._updateState = 1;
+                this.bone._blendDirty = true;
             }
             else if (this.bone._blendLeftWeight > 0.0) {
                 if (this.bone._blendLayer !== animationLayer) {
@@ -398,17 +469,13 @@ namespace dragonBones {
                     this._boneTransform.skewY += this._transform.skewY * weight;
                     this._boneTransform.scaleX += (this._transform.scaleX - 1) * weight;
                     this._boneTransform.scaleY += (this._transform.scaleY - 1) * weight;
-
-                    this.bone._updateState++;
                 }
             }
 
-            if (this.bone._updateState > 0) {
-                if (this._transformDirty || this._animationState._fadeState !== 0 || this._animationState._subFadeState !== 0) {
-                    this._transformDirty = false;
+            if (this._transformDirty || this._animationState._fadeState !== 0 || this._animationState._subFadeState !== 0) {
+                this._transformDirty = false;
 
-                    this.bone.invalidUpdate();
-                }
+                this.bone.invalidUpdate();
             }
         }
     }

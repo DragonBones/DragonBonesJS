@@ -33,12 +33,12 @@ namespace dragonBones {
         /**
          * @private
          */
-        protected _initDisplay(value: Object): void {
+        protected _initDisplay(value: any): void {
         }
         /**
          * @private
          */
-        protected _disposeDisplay(value: Object): void {
+        protected _disposeDisplay(value: any): void {
             (value as PIXI.DisplayObject).destroy();
         }
         /**
@@ -57,7 +57,7 @@ namespace dragonBones {
         /**
          * @private
          */
-        protected _replaceDisplay(value: Object): void {
+        protected _replaceDisplay(value: any): void {
             const container = this._armature.display as PixiArmatureDisplay;
             const prevDisplay = value as PIXI.DisplayObject;
             container.addChild(this._renderDisplay);
@@ -288,14 +288,16 @@ namespace dragonBones {
                 this._renderDisplay.setTransform(0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0);
             }
             else {
-                const x = this.globalTransformMatrix.tx - (this.globalTransformMatrix.a * this._pivotX + this.globalTransformMatrix.c * this._pivotY);
-                const y = this.globalTransformMatrix.ty - (this.globalTransformMatrix.b * this._pivotX + this.globalTransformMatrix.d * this._pivotY);
+                this.updateGlobalTransform(); // Update transform.
 
+                const x = this.globalTransformMatrix.tx - (this.globalTransformMatrix.a * this._pivotX + this.globalTransformMatrix.c * this._pivotY); // Pixi pivot do not work.
+                const y = this.globalTransformMatrix.ty - (this.globalTransformMatrix.b * this._pivotX + this.globalTransformMatrix.d * this._pivotY); // Pixi pivot do not work.
+                const transform = this.global;
                 this._renderDisplay.setTransform(
                     x, y,
-                    this.global.scaleX, this.global.scaleY,
-                    this.global.skewY,
-                    this.global.skewX - this.global.skewY, 0.0
+                    transform.scaleX, transform.scaleY,
+                    transform.skewX,
+                    0.0, transform.skewY - transform.skewX
                 );
             }
         }
@@ -307,11 +309,14 @@ namespace dragonBones {
                 this._renderDisplay.setTransform(0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0);
             }
             else {
+                this.updateGlobalTransform(); // Update transform.
+
+                const transform = this.global;
                 this._renderDisplay.setTransform(
-                    this.globalTransformMatrix.tx, this.globalTransformMatrix.ty,
-                    this.global.scaleX, this.global.scaleY,
-                    this.global.skewX,
-                    0.0, this.global.skewY - this.global.skewX,
+                    transform.x, transform.y,
+                    transform.scaleX, transform.scaleY,
+                    transform.skewX,
+                    0.0, transform.skewY - transform.skewX,
                     this._pivotX, this._pivotY
                 );
             }

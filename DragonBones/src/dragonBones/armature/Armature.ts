@@ -45,6 +45,9 @@ namespace dragonBones {
          */
         public _bonesDirty: boolean;
         private _slotsDirty: boolean;
+        private _zOrderDirty: boolean;
+        private _flipX: boolean;
+        private _flipY: boolean;
         private _bones: Array<Bone> = [];
         private _slots: Array<Slot> = [];
         private _actions: Array<ActionData> = [];
@@ -121,6 +124,9 @@ namespace dragonBones {
             this._lockDispose = false;
             this._bonesDirty = false;
             this._slotsDirty = false;
+            this._zOrderDirty = false;
+            this._flipX = false;
+            this._flipY = false;
             this._bones.length = 0;
             this._slots.length = 0;
             this._actions.length = 0;
@@ -262,20 +268,25 @@ namespace dragonBones {
          * @private
          */
         public _sortZOrder(slotIndices: Array<number>): void {
-            const sortedSlots = this._armatureData.sortedSlots;
+            const slots = this._armatureData.sortedSlots;
             const isOriginal = !slotIndices || slotIndices.length < 1;
 
-            for (let i = 0, l = sortedSlots.length; i < l; ++i) {
-                const slotIndex = isOriginal ? i : slotIndices[i];
-                const slotData = sortedSlots[slotIndex];
-                const slot = this.getSlot(slotData.name);
+            if (this._zOrderDirty || !isOriginal) {
+                for (let i = 0, l = slots.length; i < l; ++i) {
+                    const slotIndex = isOriginal ? i : slotIndices[i];
+                    const slotData = slots[slotIndex];
 
-                if (slot) {
-                    slot._setZorder(i);
+                    if (slotData) {
+                        const slot = this.getSlot(slotData.name);
+                        if (slot) {
+                            slot._setZorder(i);
+                        }
+                    }
                 }
-            }
 
-            this._slotsDirty = true;
+                this._slotsDirty = true;
+                this._zOrderDirty = !isOriginal;
+            }
         }
         /**
          * @private
@@ -298,10 +309,13 @@ namespace dragonBones {
          * @version DragonBones 3.0
          */
         public dispose(): void {
-            this._delayDispose = true;
-
-            if (!this._lockDispose && this._armatureData) {
-                this.returnToPool();
+            if (this._armatureData) {
+                if (this._lockDispose) {
+                    this._delayDispose = true;
+                }
+                else {
+                    this.returnToPool();
+                }
             }
         }
         /**
@@ -767,6 +781,28 @@ namespace dragonBones {
         public get parent(): Slot {
             return this._parent;
         }
+
+        public get flipX(): boolean {
+            return this._flipX;
+        }
+        public set flipX(value: boolean) {
+            if (this._flipX === value) {
+                return;
+            }
+
+            this._flipX = value;
+        }
+
+        public get flipY(): boolean {
+            return this._flipY;
+        }
+        public set flipY(value: boolean) {
+            if (this._flipY === value) {
+                return;
+            }
+
+            this._flipY = value;
+        }
         /**
          * @language zh_CN
          * 动画缓存帧率，当设置的值大于 0 的时，将会开启动画缓存。
@@ -832,6 +868,10 @@ namespace dragonBones {
             return this._replacedTexture;
         }
         public set replacedTexture(value: any) {
+            if (this._replacedTexture === value) {
+                return;
+            }
+
             if (this._replaceTextureAtlasData) {
                 this._replaceTextureAtlasData.returnToPool();
                 this._replaceTextureAtlasData = null;

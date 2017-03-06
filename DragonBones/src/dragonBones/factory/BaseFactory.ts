@@ -279,7 +279,7 @@ namespace dragonBones {
          * @see dragonBones.TextureAtlasData
          * @version DragonBones 4.5
          */
-        public parseTextureAtlasData(rawData: any, textureAtlas: Object, name: string = null, scale: number = 0.0): TextureAtlasData {
+        public parseTextureAtlasData(rawData: any, textureAtlas: any, name: string = null, scale: number = 0.0): TextureAtlasData {
             const textureAtlasData = this._generateTextureAtlasData(null, null);
             this._dataParser.parseTextureAtlasData(rawData, textureAtlasData, scale);
 

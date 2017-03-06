@@ -31,8 +31,9 @@ namespace dragonBones {
 
             if (this.texture) {
                 //this.texture.dispose();
-                this.texture = null;
             }
+
+            this.texture = null;
         }
         /**
          * @private
@@ -60,8 +61,9 @@ namespace dragonBones {
 
             if (this.texture) {
                 this.texture.destroy();
-                this.texture = null;
             }
+            
+            this.texture = null;
         }
     }
 }

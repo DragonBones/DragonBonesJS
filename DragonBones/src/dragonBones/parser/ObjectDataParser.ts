@@ -70,6 +70,7 @@ namespace dragonBones {
          */
         protected _parseArmature(rawData: any, scale: number): ArmatureData {
             const armature = BaseObject.borrowObject(ArmatureData);
+            armature.isRightTransform = ObjectDataParser.DATA_VERSIONS.indexOf(this._data.version) > ObjectDataParser.DATA_VERSIONS.indexOf(ObjectDataParser.DATA_VERSION_4_5);
             armature.name = ObjectDataParser._getString(rawData, ObjectDataParser.NAME, null);
             armature.frameRate = ObjectDataParser._getNumber(rawData, ObjectDataParser.FRAME_RATE, this._data.frameRate);
             armature.scale = scale;
@@ -159,6 +160,7 @@ namespace dragonBones {
             bone.inheritTranslation = ObjectDataParser._getBoolean(rawData, ObjectDataParser.INHERIT_TRANSLATION, true);
             bone.inheritRotation = ObjectDataParser._getBoolean(rawData, ObjectDataParser.INHERIT_ROTATION, true);
             bone.inheritScale = ObjectDataParser._getBoolean(rawData, ObjectDataParser.INHERIT_SCALE, true);
+            bone.inheritReflection = ObjectDataParser._getBoolean(rawData, ObjectDataParser.INHERIT_REFLECTION, true);
             bone.length = ObjectDataParser._getNumber(rawData, ObjectDataParser.LENGTH, 0) * this._armature.scale;
             bone.name = ObjectDataParser._getString(rawData, ObjectDataParser.NAME, null);
 
@@ -760,7 +762,7 @@ namespace dragonBones {
         /**
          * @private
          */
-        protected _parseBoneFrame(rawData: Object, frameStart: number, frameCount: number): BoneFrameData {
+        protected _parseBoneFrame(rawData: any, frameStart: number, frameCount: number): BoneFrameData {
             const frame = BaseObject.borrowObject(BoneFrameData);
             frame.tweenRotate = ObjectDataParser._getNumber(rawData, ObjectDataParser.TWEEN_ROTATE, 0.0);
             frame.tweenScale = ObjectDataParser._getBoolean(rawData, ObjectDataParser.TWEEN_SCALE, true);
@@ -916,7 +918,7 @@ namespace dragonBones {
         /**
          * @private
          */
-        protected _parseTimeline<T extends FrameData<T>>(rawData: Object, timeline: TimelineData<T>, frameParser: (rawData: any, frameStart: number, frameCount: number) => T): void {
+        protected _parseTimeline<T extends FrameData<T>>(rawData: any, timeline: TimelineData<T>, frameParser: (rawData: any, frameStart: number, frameCount: number) => T): void {
             timeline.scale = ObjectDataParser._getNumber(rawData, ObjectDataParser.SCALE, 1);
             timeline.offset = ObjectDataParser._getNumber(rawData, ObjectDataParser.OFFSET, 0);
 
@@ -1101,7 +1103,7 @@ namespace dragonBones {
         /**
          * @private
          */
-        protected _parseTransform(rawData: Object, transform: Transform): void {
+        protected _parseTransform(rawData: any, transform: Transform): void {
             transform.x = ObjectDataParser._getNumber(rawData, ObjectDataParser.X, 0.0) * this._armature.scale;
             transform.y = ObjectDataParser._getNumber(rawData, ObjectDataParser.Y, 0.0) * this._armature.scale;
             transform.skewX = ObjectDataParser._getNumber(rawData, ObjectDataParser.SKEW_X, 0.0) * DragonBones.ANGLE_TO_RADIAN;
@@ -1112,7 +1114,7 @@ namespace dragonBones {
         /**
          * @private
          */
-        protected _parseColorTransform(rawData: Object, color: ColorTransform): void {
+        protected _parseColorTransform(rawData: any, color: ColorTransform): void {
             color.alphaMultiplier = ObjectDataParser._getNumber(rawData, ObjectDataParser.ALPHA_MULTIPLIER, 100) * 0.01;
             color.redMultiplier = ObjectDataParser._getNumber(rawData, ObjectDataParser.RED_MULTIPLIER, 100) * 0.01;
             color.greenMultiplier = ObjectDataParser._getNumber(rawData, ObjectDataParser.GREEN_MULTIPLIER, 100) * 0.01;
@@ -1143,6 +1145,7 @@ namespace dragonBones {
                     ObjectDataParser.DATA_VERSIONS.indexOf(compatibleVersion) >= 0
                 ) {
                     const data = BaseObject.borrowObject(DragonBonesData);
+                    data.version = version;
                     data.name = ObjectDataParser._getString(rawData, ObjectDataParser.NAME, null);
                     data.frameRate = ObjectDataParser._getNumber(rawData, ObjectDataParser.FRAME_RATE, 24);
                     if (data.frameRate === 0) {

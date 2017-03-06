@@ -155,6 +155,10 @@ namespace dragonBones {
          */
         public frameRate: number;
         /**
+         * @private
+         */
+        public version: string;
+        /**
          * @language zh_CN
          * 数据名称。
          * @version DragonBones 3.0
@@ -208,6 +212,7 @@ namespace dragonBones {
 
             this.autoSearch = false;
             this.frameRate = 0;
+            this.version = null;
             this.name = null;
             //this.armatures.clear();
             this.cachedFrames.length = 0;

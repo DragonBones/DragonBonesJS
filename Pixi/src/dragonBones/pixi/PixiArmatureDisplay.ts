@@ -4,6 +4,7 @@ namespace dragonBones {
      */
     export class PixiArmatureDisplay extends PIXI.Container implements IArmatureProxy {
         /**
+         * @internal
          * @private
          */
         public _armature: Armature;
@@ -52,7 +53,7 @@ namespace dragonBones {
                 const bones = this._armature.getBones();
                 for (let i = 0, l = bones.length; i < l; ++i) {
                     const bone = bones[i];
-                    const boneLength = bone.length;
+                    const boneLength = bone.boneData.length;
                     const startX = bone.globalTransformMatrix.tx;
                     const startY = bone.globalTransformMatrix.ty;
                     const endX = startX + bone.globalTransformMatrix.a * boneLength;
@@ -109,15 +110,17 @@ namespace dragonBones {
                         }
 
                         child.endFill();
+
                         slot._updateTransformAndMatrix();
+                        slot.updateGlobalTransform();
 
-                        const x = slot.globalTransformMatrix.tx - (slot.globalTransformMatrix.a * slot._pivotX + slot.globalTransformMatrix.c * slot._pivotY);
-                        const y = slot.globalTransformMatrix.ty - (slot.globalTransformMatrix.b * slot._pivotX + slot.globalTransformMatrix.d * slot._pivotY);
-
+                        const transform = slot.global;
                         child.setTransform(
-                            x, y,
-                            slot.global.scaleX, slot.global.scaleY,
-                            slot.global.skewY, slot.global.skewX - slot.global.skewY
+                            transform.x, transform.y,
+                            transform.scaleX, transform.scaleY,
+                            transform.skewX,
+                            0.0, transform.skewY - transform.skewX,
+                            slot._pivotX, slot._pivotY
                         );
                     }
                     else {

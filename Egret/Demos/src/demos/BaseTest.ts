@@ -194,10 +194,6 @@ abstract class BaseTest extends egret.DisplayObjectContainer {
             //initiate Resource loading library
             RES.addEventListener(RES.ResourceEvent.CONFIG_COMPLETE, this.onConfigComplete, this);
             RES.loadConfig(this._resourceConfigURL, "resource/");
-
-        }
-        else {
-            throw new Error();
         }
     }
 

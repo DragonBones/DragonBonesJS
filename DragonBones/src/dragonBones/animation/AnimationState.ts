@@ -114,7 +114,6 @@ namespace dragonBones {
          */
         private _name: string;
         /**
-         * @internal
          * @private
          */
         private _group: string;
@@ -291,16 +290,31 @@ namespace dragonBones {
             this._fadeState = -1;
             this._subFadeState = -1;
             this._layer = animationConfig.layer;
-            this._time = animationConfig.position;
             this._group = animationConfig.group;
 
             if (animationConfig.duration < 0.0) {
                 this._position = 0.0;
                 this._duration = this._animationData.duration;
+                if (animationConfig.position !== 0.0) {
+                    if (this.timeScale >= 0.0) {
+                        this._time = animationConfig.position;
+                    }
+                    else {
+                        this._time = animationConfig.position - this._duration;
+                    }
+                }
+                else {
+                    this._time = 0.0;
+                }
             }
             else {
                 this._position = animationConfig.position;
                 this._duration = animationConfig.duration;
+                this._time = 0.0;
+            }
+
+            if (this.timeScale < 0.0 && this._time === 0.0) {
+                this._time = -0.000001; // Can not cross last frame event.
             }
 
             if (this.fadeTotalTime <= 0.0) {
@@ -480,7 +494,8 @@ namespace dragonBones {
 
                 // Cache time internval.
                 if (isCacheEnabled) {
-                    this._timeline._currentTime = Math.floor(this._timeline._currentTime * cacheFrameRate) / cacheFrameRate;
+                    const internval = cacheFrameRate * 2.0;
+                    this._timeline._currentTime = Math.floor(this._timeline._currentTime * internval) / internval;
                 }
 
                 // Update zOrder timeline.

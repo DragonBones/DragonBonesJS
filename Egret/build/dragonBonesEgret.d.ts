@@ -20,7 +20,7 @@ declare namespace dragonBones {
          */
         constructor();
         /**
-         * @inheritDoc
+         * @private
          */
         protected _onClear(): void;
         /**
@@ -41,7 +41,7 @@ declare namespace dragonBones {
         texture: egret.Texture;
         constructor();
         /**
-         * @inheritDoc
+         * @private
          */
         protected _onClear(): void;
     }
@@ -177,6 +177,22 @@ declare namespace dragonBones {
     class EgretArmatureDisplay extends egret.DisplayObjectContainer implements IArmatureDisplay, IEventDispatcher {
         private _disposeProxy;
         private _debugDrawer;
+        /**
+         * @private
+         */
+        constructor();
+        /**
+         * @private
+         */
+        _onClear(): void;
+        /**
+         * @private
+         */
+        _dispatchEvent(type: EventStringType, eventObject: EventObject): void;
+        /**
+         * @private
+         */
+        _debugDraw(isEnabled: boolean): void;
         /**
          * @inheritDoc
          */

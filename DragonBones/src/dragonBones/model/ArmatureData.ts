@@ -16,6 +16,10 @@ namespace dragonBones {
             return a.zOrder > b.zOrder ? 1 : -1;
         }
         /**
+         * @private
+         */
+        public isRightTransform: boolean;
+        /**
          * @language zh_CN
          * 动画帧率。
          * @version DragonBones 3.0
@@ -135,6 +139,7 @@ namespace dragonBones {
                 this.userData.returnToPool();
             }
 
+            this.isRightTransform = false;
             this.frameRate = 0;
             this.type = ArmatureType.None;
             this.cacheFrameRate = 0;
@@ -219,9 +224,11 @@ namespace dragonBones {
         /**
          * @private
          */
-        public setCacheFrame(globalTransformMatrix: Matrix, transform: Transform): number {
+        public setCacheFrame(globalTransformMatrix: Matrix, transform: Transform, arrayOffset: number = -1): number {
             const dataArray = this.parent.cachedFrames;
-            const arrayOffset = dataArray.length;
+            if (arrayOffset < 0) {
+                arrayOffset = dataArray.length;
+            }
 
             dataArray.length += 10;
             dataArray[arrayOffset] = globalTransformMatrix.a;
@@ -253,6 +260,8 @@ namespace dragonBones {
             transform.skewY = dataArray[arrayOffset + 7];
             transform.scaleX = dataArray[arrayOffset + 8];
             transform.scaleY = dataArray[arrayOffset + 9];
+            transform.x = globalTransformMatrix.tx;
+            transform.y = globalTransformMatrix.ty;
         }
         /**
          * @private
@@ -443,6 +452,10 @@ namespace dragonBones {
         /**
          * @private
          */
+        public inheritReflection: boolean;
+        /**
+         * @private
+         */
         public bendPositive: boolean;
         /**
          * @private
@@ -502,6 +515,7 @@ namespace dragonBones {
             this.inheritTranslation = false;
             this.inheritRotation = false;
             this.inheritScale = false;
+            this.inheritReflection = false;
             this.bendPositive = false;
             this.chain = 0;
             this.chainIndex = 0;

@@ -14,7 +14,6 @@ namespace dragonBones {
      */
     export interface IEventDispatcher {
         /**
-         * @internal
          * @private
          */
         _dispatchEvent(type: EventStringType, eventObject: EventObject): void;

@@ -16,12 +16,8 @@ namespace dragonBones {
             const pool = BaseObject._poolsMap[classType] = BaseObject._poolsMap[classType] || [];
 
             if (pool.length < maxCount) {
-                if (pool.indexOf(object) < 0) {
-                    pool.push(object);
-                }
-                else {
-                    throw new Error();
-                }
+                //console.assert(pool.indexOf(object) < 0);
+                pool.push(object);
             }
         }
         /**

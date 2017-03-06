@@ -19,7 +19,6 @@ namespace dragonBones {
         public _timelineData: M;
 
         protected _frameRate: number;
-        protected _keyFrameCount: number;
         protected _frameCount: number;
         protected _position: number;
         protected _duration: number;
@@ -42,7 +41,6 @@ namespace dragonBones {
             this._timelineData = null;
 
             this._frameRate = 0;
-            this._keyFrameCount = 0;
             this._frameCount = 0;
             this._position = 0.0;
             this._duration = 0.0;
@@ -63,7 +61,7 @@ namespace dragonBones {
             let currentPlayTimes = 0;
             let currentTime = 0.0;
 
-            if (this._mainTimeline && this._keyFrameCount === 1) {
+            if (this._mainTimeline && this._frameCount === 1) {
                 this._playState = this._mainTimeline._playState >= 0 ? 1 : -1;
                 currentPlayTimes = 1;
                 currentTime = this._mainTimeline._currentTime;
@@ -106,14 +104,14 @@ namespace dragonBones {
                         currentTime = passedTime % this._duration;
                     }
                 }
+
+                currentTime += this._position;
             }
             else {
                 this._playState = this._mainTimeline._playState;
                 currentPlayTimes = this._mainTimeline._currentPlayTimes;
                 currentTime = this._mainTimeline._currentTime;
             }
-
-            currentTime += this._position;
 
             if (this._currentPlayTimes === currentPlayTimes && this._currentTime === currentTime) {
                 return false;
@@ -144,8 +142,7 @@ namespace dragonBones {
             }
 
             this._frameRate = this._armature.armatureData.frameRate;
-            this._keyFrameCount = this._timelineData.frames.length;
-            this._frameCount = this._animationState.animationData.frameCount;
+            this._frameCount = this._timelineData.frames.length;
             this._position = this._animationState._position;
             this._duration = this._animationState._duration;
             this._animationDutation = this._animationState.animationData.duration;
@@ -157,7 +154,7 @@ namespace dragonBones {
 
         public update(passedTime: number): void {
             if (this._playState <= 0 && this._setCurrentTime(passedTime)) {
-                const currentFrameIndex = this._keyFrameCount > 1 ? Math.floor(this._currentTime * this._frameRate) : 0; // uint
+                const currentFrameIndex = this._frameCount > 1 ? Math.floor(this._currentTime * this._frameRate) : 0; // uint
                 const currentFrame = this._timelineData.frames[currentFrameIndex];
 
                 if (this._currentFrame !== currentFrame) {
@@ -222,7 +219,7 @@ namespace dragonBones {
             const fromValue = valueIndex === 0 ? 0.0 : samples[valueIndex - 1];
             const toValue = (valueIndex === segmentCount - 1) ? 1.0 : samples[valueIndex];
 
-            return fromValue + (toValue - fromValue) * (progress - valueIndex / segmentCount);
+            return fromValue + (toValue - fromValue) * (progress * segmentCount - valueIndex);
         }
 
         protected _tweenProgress: number;
@@ -243,7 +240,7 @@ namespace dragonBones {
 
         protected _onArriveAtFrame(): void {
             if (
-                this._keyFrameCount > 1 &&
+                this._frameCount > 1 &&
                 (
                     this._currentFrame.next !== this._timelineData.frames[0] ||
                     this._animationState.playTimes === 0 ||
@@ -261,13 +258,13 @@ namespace dragonBones {
 
         protected _onUpdateFrame(): void {
             if (this._tweenEasing !== DragonBones.NO_TWEEN) {
-                this._tweenProgress = (this._currentTime - this._currentFrame.position + this._position) / this._currentFrame.duration;
+                this._tweenProgress = (this._currentTime - this._currentFrame.position) / this._currentFrame.duration;
                 if (this._tweenEasing !== 0.0) {
                     this._tweenProgress = TweenTimelineState._getEasingValue(this._tweenProgress, this._tweenEasing);
                 }
             }
             else if (this._curve) {
-                this._tweenProgress = (this._currentTime - this._currentFrame.position + this._position) / this._currentFrame.duration;
+                this._tweenProgress = (this._currentTime - this._currentFrame.position) / this._currentFrame.duration;
                 this._tweenProgress = TweenTimelineState._getEasingCurveValue(this._tweenProgress, this._curve);
             }
             else {

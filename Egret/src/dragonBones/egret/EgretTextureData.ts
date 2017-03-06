@@ -24,15 +24,16 @@ namespace dragonBones {
             super();
         }
         /**
-         * @inheritDoc
+         * @private
          */
         protected _onClear(): void {
             super._onClear();
 
             if (this.texture) {
                 //this.texture.dispose();
-                this.texture = null;
             }
+
+            this.texture = null;
         }
         /**
          * @private
@@ -62,15 +63,16 @@ namespace dragonBones {
             super();
         }
         /**
-         * @inheritDoc
+         * @private
          */
         protected _onClear(): void {
             super._onClear();
 
             if (this.texture) {
                 //this.texture.dispose();
-                this.texture = null;
             }
+            
+            this.texture = null;
         }
     }
 }

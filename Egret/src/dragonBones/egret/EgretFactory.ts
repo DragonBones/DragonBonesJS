@@ -95,16 +95,24 @@ namespace dragonBones {
                 const displayData = skinSlotData.displays[i];
                 switch (displayData.type) {
                     case DisplayType.Image:
-                        if (!displayData.texture || dataPackage.textureAtlasName) {
-                            displayData.texture = this._getTextureData(dataPackage.textureAtlasName || dataPackage.dataName, displayData.path);
+                        if (!displayData.texture) {
+                            displayData.texture = this._getTextureData(dataPackage.dataName, displayData.path);
                         }
 
-                        displayList.push(slot.rawDisplay);
+                        if (dataPackage.textureAtlasName) {
+                            slot._textureDatas[i] = this._getTextureData(dataPackage.textureAtlasName, displayData.path);
+                        }
+
+                        displayList[i] = slot.rawDisplay;
                         break;
 
                     case DisplayType.Mesh:
-                        if (!displayData.texture || dataPackage.textureAtlasName) {
-                            displayData.texture = this._getTextureData(dataPackage.textureAtlasName || dataPackage.dataName, displayData.path);
+                        if (!displayData.texture) {
+                            displayData.texture = this._getTextureData(dataPackage.dataName, displayData.path);
+                        }
+
+                        if (dataPackage.textureAtlasName) {
+                            slot._textureDatas[i] = this._getTextureData(dataPackage.textureAtlasName, displayData.path);
                         }
 
                         if (!displayData.mesh && displayData.share) {
@@ -112,11 +120,11 @@ namespace dragonBones {
                         }
 
                         if (egret.Capabilities.renderMode === "webgl" || egret.Capabilities.runtimeType === egret.RuntimeType.NATIVE) {
-                            displayList.push(slot.meshDisplay);
+                            displayList[i] = slot.meshDisplay;
                         }
                         else {
                             console.warn("Canvas can not support mesh, please change renderMode to webgl.");
-                            displayList.push(slot.rawDisplay);
+                            displayList[i] = slot.rawDisplay;
                         }
                         break;
 
@@ -139,11 +147,11 @@ namespace dragonBones {
                             displayData.armature = childArmature.armatureData; // 
                         }
 
-                        displayList.push(childArmature);
+                        displayList[i] = childArmature;
                         break;
 
                     default:
-                        displayList.push(null);
+                        displayList[i] = null;
                         break;
                 }
             }

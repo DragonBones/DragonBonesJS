@@ -157,6 +157,7 @@ namespace dragonBones {
                 }
 
                 this._renderDisplay.filters = filters;
+                this._renderDisplay.$setAlpha(1.0);
             }
             else {
                 if (this._colorFilter) {
@@ -330,13 +331,12 @@ namespace dragonBones {
             }
             else {
                 if (this.transformUpdateEnabled) {
-                    this._renderDisplay.$setMatrix((<any>this.globalTransformMatrix) as egret.Matrix, this.transformUpdateEnabled);
-                    this._renderDisplay.$setAnchorOffsetX(this._pivotX);
-                    this._renderDisplay.$setAnchorOffsetX(this._pivotY);
+                    this._renderDisplay.$setMatrix((<any>this.globalTransformMatrix) as egret.Matrix, true);
                 }
                 else {
                     const values = this._renderDisplay.$DisplayObject;
                     const displayMatrix = values[6];
+
                     displayMatrix.a = this.globalTransformMatrix.a;
                     displayMatrix.b = this.globalTransformMatrix.b;
                     displayMatrix.c = this.globalTransformMatrix.c;

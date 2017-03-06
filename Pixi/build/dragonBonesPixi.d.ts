@@ -43,10 +43,6 @@ declare namespace dragonBones {
      * @inheritDoc
      */
     class PixiArmatureDisplay extends PIXI.Container implements IArmatureProxy {
-        /**
-         * @private
-         */
-        _armature: Armature;
         private _debugDrawer;
         /**
          * @private
@@ -111,11 +107,11 @@ declare namespace dragonBones {
         /**
          * @private
          */
-        protected _initDisplay(value: Object): void;
+        protected _initDisplay(value: any): void;
         /**
          * @private
          */
-        protected _disposeDisplay(value: Object): void;
+        protected _disposeDisplay(value: any): void;
         /**
          * @private
          */
@@ -127,7 +123,7 @@ declare namespace dragonBones {
         /**
          * @private
          */
-        protected _replaceDisplay(value: Object): void;
+        protected _replaceDisplay(value: any): void;
         /**
          * @private
          */

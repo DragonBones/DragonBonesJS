@@ -14,18 +14,18 @@ var demosPixi;
      * How to use
      * 1. Load data.
      *
-     * 2. ParseData.
-     *  factory.parseDragonBonesData();
-     *  factory.parseTextureAtlasData();
+     * 2. Parse data.
+     *    factory.parseDragonBonesData();
+     *    factory.parseTextureAtlasData();
      *
      * 3. Build armature.
-     *  armatureDisplay = factory.buildArmatureDisplay("armatureName");
+     *    armatureDisplay = factory.buildArmatureDisplay("armatureName");
      *
      * 4. Play animation.
-     *  armatureDisplay.animation.play("animationName");
+     *    armatureDisplay.animation.play("animationName");
      *
      * 5. Add armature to stage.
-     *  addChild(armatureDisplay);
+     *    addChild(armatureDisplay);
      */
     var HelloDragonBones = (function (_super) {
         __extends(HelloDragonBones, _super);
@@ -33,18 +33,17 @@ var demosPixi;
             return _super !== null && _super.apply(this, arguments) || this;
         }
         HelloDragonBones.prototype._onStart = function () {
-            // Load data.
             PIXI.loader
-                .add("dragonBonesData", "./resource/assets/DragonBoy/DragonBoy.json")
-                .add("textureDataA", "./resource/assets/DragonBoy/DragonBoy_texture_1.json")
-                .add("textureA", "./resource/assets/DragonBoy/DragonBoy_texture_1.png");
+                .add("dragonBonesData", "./resource/assets/Ubbie/Ubbie.json")
+                .add("textureDataA", "./resource/assets/Ubbie/texture.json")
+                .add("textureA", "./resource/assets/Ubbie/texture.png");
             PIXI.loader.once("complete", this._loadComplateHandler, this);
             PIXI.loader.load();
         };
         HelloDragonBones.prototype._loadComplateHandler = function (loader, resources) {
             dragonBones.PixiFactory.factory.parseDragonBonesData(resources["dragonBonesData"].data);
             dragonBones.PixiFactory.factory.parseTextureAtlasData(resources["textureDataA"].data, resources["textureA"].texture);
-            var armatureDisplay = dragonBones.PixiFactory.factory.buildArmatureDisplay("DragonBoy");
+            var armatureDisplay = dragonBones.PixiFactory.factory.buildArmatureDisplay("ubbie");
             armatureDisplay.animation.play("walk");
             this._stage.addChild(armatureDisplay);
             armatureDisplay.x = this._renderer.width * 0.5;

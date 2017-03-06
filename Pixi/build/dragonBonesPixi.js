@@ -35,9 +35,8 @@ var dragonBones;
         PixiTextureAtlasData.prototype._onClear = function () {
             _super.prototype._onClear.call(this);
             if (this.texture) {
-                //this.texture.dispose();
-                this.texture = null;
             }
+            this.texture = null;
         };
         /**
          * @private
@@ -63,8 +62,8 @@ var dragonBones;
             _super.prototype._onClear.call(this);
             if (this.texture) {
                 this.texture.destroy();
-                this.texture = null;
             }
+            this.texture = null;
         };
         return PixiTextureData;
     }(dragonBones.TextureData));
@@ -117,7 +116,7 @@ var dragonBones;
                 var bones = this._armature.getBones();
                 for (var i = 0, l = bones.length; i < l; ++i) {
                     var bone = bones[i];
-                    var boneLength = bone.length;
+                    var boneLength = bone.boneData.length;
                     var startX = bone.globalTransformMatrix.tx;
                     var startY = bone.globalTransformMatrix.ty;
                     var endX = startX + bone.globalTransformMatrix.a * boneLength;
@@ -166,9 +165,9 @@ var dragonBones;
                         }
                         child.endFill();
                         slot._updateTransformAndMatrix();
-                        var x = slot.globalTransformMatrix.tx - (slot.globalTransformMatrix.a * slot._pivotX + slot.globalTransformMatrix.c * slot._pivotY);
-                        var y = slot.globalTransformMatrix.ty - (slot.globalTransformMatrix.b * slot._pivotX + slot.globalTransformMatrix.d * slot._pivotY);
-                        child.setTransform(x, y, slot.global.scaleX, slot.global.scaleY, slot.global.skewY, slot.global.skewX - slot.global.skewY);
+                        slot.updateGlobalTransform();
+                        var transform = slot.global;
+                        child.setTransform(transform.x, transform.y, transform.scaleX, transform.scaleY, transform.skewX, 0.0, transform.skewY - transform.skewX, slot._pivotX, slot._pivotY);
                     }
                     else {
                         var child = this._debugDrawer.getChildByName(slot.name);
@@ -425,20 +424,17 @@ var dragonBones;
                         var normalDisplay = this._renderDisplay;
                         normalDisplay.texture = currentTextureData.texture;
                     }
-                    this._updateVisible();
                     return;
                 }
             }
             if (isMeshDisplay) {
                 var meshDisplay = this._renderDisplay;
-                meshDisplay.visible = false;
                 meshDisplay.texture = null;
                 meshDisplay.x = 0.0;
                 meshDisplay.y = 0.0;
             }
             else {
                 var normalDisplay = this._renderDisplay;
-                normalDisplay.visible = false;
                 normalDisplay.texture = null;
                 normalDisplay.x = 0.0;
                 normalDisplay.y = 0.0;
@@ -502,9 +498,11 @@ var dragonBones;
                 this._renderDisplay.setTransform(0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0);
             }
             else {
-                var x = this.globalTransformMatrix.tx - (this.globalTransformMatrix.a * this._pivotX + this.globalTransformMatrix.c * this._pivotY);
-                var y = this.globalTransformMatrix.ty - (this.globalTransformMatrix.b * this._pivotX + this.globalTransformMatrix.d * this._pivotY);
-                this._renderDisplay.setTransform(x, y, this.global.scaleX, this.global.scaleY, this.global.skewY, this.global.skewX - this.global.skewY, 0.0);
+                this.updateGlobalTransform(); // Update transform.
+                var x = this.globalTransformMatrix.tx - (this.globalTransformMatrix.a * this._pivotX + this.globalTransformMatrix.c * this._pivotY); // Pixi pivot do not work.
+                var y = this.globalTransformMatrix.ty - (this.globalTransformMatrix.b * this._pivotX + this.globalTransformMatrix.d * this._pivotY); // Pixi pivot do not work.
+                var transform = this.global;
+                this._renderDisplay.setTransform(x, y, transform.scaleX, transform.scaleY, transform.skewX, 0.0, transform.skewY - transform.skewX);
             }
         };
         /**
@@ -515,7 +513,9 @@ var dragonBones;
                 this._renderDisplay.setTransform(0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0);
             }
             else {
-                this._renderDisplay.setTransform(this.globalTransformMatrix.tx, this.globalTransformMatrix.ty, this.global.scaleX, this.global.scaleY, this.global.skewX, 0.0, this.global.skewY - this.global.skewX, this._pivotX, this._pivotY);
+                this.updateGlobalTransform(); // Update transform.
+                var transform = this.global;
+                this._renderDisplay.setTransform(transform.x, transform.y, transform.scaleX, transform.scaleY, transform.skewX, 0.0, transform.skewY - transform.skewX, this._pivotX, this._pivotY);
             }
         };
         return PixiSlot;

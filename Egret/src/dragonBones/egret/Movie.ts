@@ -602,6 +602,7 @@ namespace dragonBones {
                     // RenderNode display.
                     let filter = (<egret.sys.BitmapNode>slot.display.$renderNode).filter;
                     (<egret.sys.BitmapNode>slot.display.$renderNode).filter = slot.colorFilter;
+                    (<egret.sys.BitmapNode>slot.display.$renderNode).alpha = 1.0;
                 }
                 else {
                     // Classic display.
@@ -615,6 +616,7 @@ namespace dragonBones {
                     }
 
                     slot.display.filters = filters;
+                    slot.display.$setAlpha(1.0);
                 }
             }
             else {
@@ -853,282 +855,282 @@ namespace dragonBones {
          * @inheritDoc
          */
         public advanceTime(passedTime: number): void {
-            if (!this._isPlaying) {
-                return;
-            }
-
-            this._isLockDispose = true;
-            if (passedTime < 0) {
-                passedTime = -passedTime;
-            }
-            passedTime *= this.timeScale;
-            this._time += passedTime * this.clipTimeScale;
-
-            // Modify time.            
-            const duration = this._clipConfig.duration;
-            const totalTime = duration * this._playTimes;
-            let currentTime = this._time;
-            let currentPlayTimes = this._currentPlayTimes;
-            if (this._playTimes > 0 && (currentTime >= totalTime || currentTime <= -totalTime)) {
-                this._isCompleted = true;
-                currentPlayTimes = this._playTimes;
-
-                if (currentTime < 0) {
-                    currentTime = 0;
-                }
-                else {
-                    currentTime = duration;
-                }
-            }
-            else {
-                this._isCompleted = false;
-
-                if (currentTime < 0) {
-                    currentPlayTimes = Math.floor(-currentTime / duration);
-                    currentTime = duration - (-currentTime % duration);
-                }
-                else {
-                    currentPlayTimes = Math.floor(currentTime / duration);
-                    currentTime %= duration;
-                }
-
-                if (this._playTimes > 0 && currentPlayTimes > this._playTimes) {
-                    currentPlayTimes = this._playTimes;
-                }
-            }
-
-            if (this._currentTime === currentTime) {
-                return;
-            }
-
-            const cacheFrameIndex = Math.floor(currentTime * this._clipConfig.cacheTimeToFrameScale);
-            if (this._cacheFrameIndex !== cacheFrameIndex) {
-                this._cacheFrameIndex = cacheFrameIndex;
-
-                const displayFrameArray = this._groupConfig.displayFrameArray;
-                const transformArray = this._groupConfig.transformArray;
-                const colorArray = this._groupConfig.colorArray;
-
-                //
-                let isFirst = true;
-                let hasDisplay = false;
-                let needCacheRectangle = false;
-                const prevCacheRectangle = this._cacheRectangle;
-                this._cacheRectangle = this._clipConfig.cacheRectangles[this._cacheFrameIndex];
-                if (this._batchEnabled && !this._cacheRectangle) {
-                    needCacheRectangle = true;
-                    this._cacheRectangle = new egret.Rectangle();
-                    this._clipConfig.cacheRectangles[this._cacheFrameIndex] = this._cacheRectangle;
-                }
-
-                // Update slots.
-                for (let i = 0, l = this._slots.length; i < l; ++i) {
-                    const slot = this._slots[i];
-                    const clipFrameIndex = this._frameSize * this._cacheFrameIndex + i * 2;
-                    const displayFrameIndex = this._clipArray[clipFrameIndex] * 2;
-                    if (displayFrameIndex >= 0) {
-                        const displayIndex = displayFrameArray[displayFrameIndex];
-                        const colorIndex = displayFrameArray[displayFrameIndex + 1] * 8;
-                        const transformIndex = this._clipArray[clipFrameIndex + 1] * 6;
-                        let colorChange = false;
-
-                        if (slot.displayIndex !== displayIndex) {
-                            slot.displayIndex = displayIndex;
-                            colorChange = true;
-                            this._updateSlotDisplay(slot);
-                        }
-
-                        if (slot.colorIndex !== colorIndex || colorChange) {
-                            slot.colorIndex = colorIndex;
-                            if (slot.colorIndex >= 0) {
-                                this._updateSlotColor(
-                                    slot,
-                                    colorArray[colorIndex] * 0.01,
-                                    colorArray[colorIndex + 1] * 0.01,
-                                    colorArray[colorIndex + 2] * 0.01,
-                                    colorArray[colorIndex + 3] * 0.01,
-                                    colorArray[colorIndex + 4],
-                                    colorArray[colorIndex + 5],
-                                    colorArray[colorIndex + 6],
-                                    colorArray[colorIndex + 7]
-                                );
-                            }
-                            else {
-                                this._updateSlotColor(slot, 1, 1, 1, 1, 0, 0, 0, 0);
-                            }
-                        }
-
-                        hasDisplay = true;
-
-                        if (slot.transformIndex !== transformIndex) {
-                            slot.transformIndex = transformIndex;
-
-                            if (this._batchEnabled) {
-                                // RenderNode display.
-                                let matrix = (<egret.sys.BitmapNode>slot.display.$renderNode).matrix;
-                                if (!matrix) {
-                                    matrix = (<egret.sys.BitmapNode>slot.display.$renderNode).matrix = new egret.Matrix();
-                                }
-
-                                matrix.a = transformArray[transformIndex];
-                                matrix.b = transformArray[transformIndex + 1];
-                                matrix.c = transformArray[transformIndex + 2];
-                                matrix.d = transformArray[transformIndex + 3];
-                                matrix.tx = transformArray[transformIndex + 4];
-                                matrix.ty = transformArray[transformIndex + 5];
-                            }
-                            else {
-                                // Classic display.
-                                _helpMatrix.a = transformArray[transformIndex];
-                                _helpMatrix.b = transformArray[transformIndex + 1];
-                                _helpMatrix.c = transformArray[transformIndex + 2];
-                                _helpMatrix.d = transformArray[transformIndex + 3];
-                                _helpMatrix.tx = transformArray[transformIndex + 4];
-                                _helpMatrix.ty = transformArray[transformIndex + 5];
-
-                                slot.display.$setMatrix(_helpMatrix);
-                            }
-                        }
-
-                        // 
-                        if (this._batchEnabled && needCacheRectangle) {
-                            // RenderNode display.
-                            const matrix = (<egret.sys.BitmapNode>slot.display.$renderNode).matrix;
-
-                            _helpRectangle.x = 0;
-                            _helpRectangle.y = 0;
-                            _helpRectangle.width = slot.displayConfig.texture.textureWidth;
-                            _helpRectangle.height = slot.displayConfig.texture.textureHeight;
-                            matrix.$transformBounds(_helpRectangle);
-
-                            if (isFirst) {
-                                isFirst = false;
-                                this._cacheRectangle.x = _helpRectangle.x;
-                                this._cacheRectangle.width = _helpRectangle.x + _helpRectangle.width;
-                                this._cacheRectangle.y = _helpRectangle.y;
-                                this._cacheRectangle.height = _helpRectangle.y + _helpRectangle.height;
-                            }
-                            else {
-                                this._cacheRectangle.x = Math.min(this._cacheRectangle.x, _helpRectangle.x);
-                                this._cacheRectangle.width = Math.max(this._cacheRectangle.width, _helpRectangle.x + _helpRectangle.width);
-                                this._cacheRectangle.y = Math.min(this._cacheRectangle.y, _helpRectangle.y);
-                                this._cacheRectangle.height = Math.max(this._cacheRectangle.height, _helpRectangle.y + _helpRectangle.height);
-                            }
-                        }
-                    }
-                    else if (slot.displayIndex !== -1) {
-                        slot.displayIndex = -1;
-                        this._updateSlotDisplay(slot);
-                    }
-                }
-
-                //
-                if (this._cacheRectangle) {
-                    if (hasDisplay && needCacheRectangle && isFirst && prevCacheRectangle) {
-                        this._cacheRectangle.x = prevCacheRectangle.x;
-                        this._cacheRectangle.y = prevCacheRectangle.y;
-                        this._cacheRectangle.width = prevCacheRectangle.width;
-                        this._cacheRectangle.height = prevCacheRectangle.height;
-                    }
-
-                    this.$invalidateContentBounds();
-                }
-            }
-
-            if (this._isCompleted) {
-                this._isPlaying = false;
-            }
-
-            if (!this._isStarted) {
-                this._isStarted = true;
-                if (this.hasEventListener(MovieEvent.START)) {
-                    const event = egret.Event.create(MovieEvent, MovieEvent.START);
-                    event.movie = this;
-                    event.clipName = this._clipConfig.name;
-                    event.name = null;
-                    event.slotName = null;
-                    this.dispatchEvent(event);
-                }
-            }
-
-            this._isReversing = this._currentTime > currentTime && this._currentPlayTimes === currentPlayTimes;
-
-            // Action and event.
-            const frameCount = this._clipConfig.frame ? this._clipConfig.frame.length : 0;
-            if (frameCount > 0) {
-                const currentFrameIndex = Math.floor(this._currentTime * this._config.frameRate);
-                const currentFrameConfig = this._groupConfig.frame[this._clipConfig.frame[currentFrameIndex]];
-                if (this._currentFrameConfig !== currentFrameConfig) {
-                    if (frameCount > 1) {
-                        let crossedFrameConfig = this._currentFrameConfig;
-                        this._currentFrameConfig = currentFrameConfig;
-
-                        if (!crossedFrameConfig) {
-                            const prevFrameIndex = Math.floor(this._currentTime * this._config.frameRate);
-                            crossedFrameConfig = this._groupConfig.frame[this._clipConfig.frame[prevFrameIndex]];
-
-                            if (this._isReversing) {
-
-                            }
-                            else {
-                                if (
-                                    this._currentTime <= crossedFrameConfig.position ||
-                                    this._currentPlayTimes !== currentPlayTimes
-                                ) {
-                                    crossedFrameConfig = this._groupConfig.frame[crossedFrameConfig.prev];
-                                }
-                            }
-                        }
-
-                        if (this._isReversing) {
-                            while (crossedFrameConfig !== currentFrameConfig) {
-                                this._onCrossFrame(crossedFrameConfig);
-                                crossedFrameConfig = this._groupConfig.frame[crossedFrameConfig.prev];
-                            }
-                        }
-                        else {
-                            while (crossedFrameConfig !== currentFrameConfig) {
-                                crossedFrameConfig = this._groupConfig.frame[crossedFrameConfig.next];
-                                this._onCrossFrame(crossedFrameConfig);
-                            }
-                        }
-                    }
-                    else {
-                        this._currentFrameConfig = currentFrameConfig;
-                        if (this._currentFrameConfig) {
-                            this._onCrossFrame(this._currentFrameConfig);
-                        }
-                    }
-                }
-            }
-
-            this._currentTime = currentTime;
-
             // Advance child armatre time.
             for (let i = 0, l = this._childMovies.length; i < l; ++i) {
                 this._childMovies[i].advanceTime(passedTime);
             }
 
-            if (this._currentPlayTimes !== currentPlayTimes) {
-                this._currentPlayTimes = currentPlayTimes;
-                if (this.hasEventListener(MovieEvent.LOOP_COMPLETE)) {
-                    const event = egret.Event.create(MovieEvent, MovieEvent.LOOP_COMPLETE);
-                    event.movie = this;
-                    event.clipName = this._clipConfig.name;
-                    event.name = null;
-                    event.slotName = null;
-                    this.dispatchEvent(event);
-                    egret.Event.release(event);
+            if (this._isPlaying) {
+                this._isLockDispose = true;
+                if (passedTime < 0) {
+                    passedTime = -passedTime;
+                }
+                passedTime *= this.timeScale;
+                this._time += passedTime * this.clipTimeScale;
+
+                // Modify time.            
+                const duration = this._clipConfig.duration;
+                const totalTime = duration * this._playTimes;
+                let currentTime = this._time;
+                let currentPlayTimes = this._currentPlayTimes;
+                if (this._playTimes > 0 && (currentTime >= totalTime || currentTime <= -totalTime)) {
+                    this._isCompleted = true;
+                    currentPlayTimes = this._playTimes;
+
+                    if (currentTime < 0) {
+                        currentTime = 0;
+                    }
+                    else {
+                        currentTime = duration;
+                    }
+                }
+                else {
+                    this._isCompleted = false;
+
+                    if (currentTime < 0) {
+                        currentPlayTimes = Math.floor(-currentTime / duration);
+                        currentTime = duration - (-currentTime % duration);
+                    }
+                    else {
+                        currentPlayTimes = Math.floor(currentTime / duration);
+                        currentTime %= duration;
+                    }
+
+                    if (this._playTimes > 0 && currentPlayTimes > this._playTimes) {
+                        currentPlayTimes = this._playTimes;
+                    }
                 }
 
-                if (this._isCompleted && this.hasEventListener(MovieEvent.COMPLETE)) {
-                    const event = egret.Event.create(MovieEvent, MovieEvent.COMPLETE);
-                    event.movie = this;
-                    event.clipName = this._clipConfig.name;
-                    event.name = null;
-                    event.slotName = null;
-                    this.dispatchEvent(event);
-                    egret.Event.release(event);
+                if (this._currentTime === currentTime) {
+                    return;
+                }
+
+                const cacheFrameIndex = Math.floor(currentTime * this._clipConfig.cacheTimeToFrameScale);
+                if (this._cacheFrameIndex !== cacheFrameIndex) {
+                    this._cacheFrameIndex = cacheFrameIndex;
+
+                    const displayFrameArray = this._groupConfig.displayFrameArray;
+                    const transformArray = this._groupConfig.transformArray;
+                    const colorArray = this._groupConfig.colorArray;
+
+                    //
+                    let isFirst = true;
+                    let hasDisplay = false;
+                    let needCacheRectangle = false;
+                    const prevCacheRectangle = this._cacheRectangle;
+                    this._cacheRectangle = this._clipConfig.cacheRectangles[this._cacheFrameIndex];
+                    if (this._batchEnabled && !this._cacheRectangle) {
+                        needCacheRectangle = true;
+                        this._cacheRectangle = new egret.Rectangle();
+                        this._clipConfig.cacheRectangles[this._cacheFrameIndex] = this._cacheRectangle;
+                    }
+
+                    // Update slots.
+                    for (let i = 0, l = this._slots.length; i < l; ++i) {
+                        const slot = this._slots[i];
+                        let clipFrameIndex = this._frameSize * this._cacheFrameIndex + i * 2;
+                        if (clipFrameIndex >= this._clipArray.length) {
+                            clipFrameIndex = this._frameSize * (this._cacheFrameIndex - 1) + i * 2;
+                        }
+                        const displayFrameIndex = this._clipArray[clipFrameIndex] * 2;
+                        if (displayFrameIndex >= 0) {
+                            const displayIndex = displayFrameArray[displayFrameIndex];
+                            const colorIndex = displayFrameArray[displayFrameIndex + 1] * 8;
+                            const transformIndex = this._clipArray[clipFrameIndex + 1] * 6;
+                            let colorChange = false;
+
+                            if (slot.displayIndex !== displayIndex) {
+                                slot.displayIndex = displayIndex;
+                                colorChange = true;
+                                this._updateSlotDisplay(slot);
+                            }
+
+                            if (slot.colorIndex !== colorIndex || colorChange) {
+                                slot.colorIndex = colorIndex;
+                                if (slot.colorIndex >= 0) {
+                                    this._updateSlotColor(
+                                        slot,
+                                        colorArray[colorIndex] * 0.01,
+                                        colorArray[colorIndex + 1] * 0.01,
+                                        colorArray[colorIndex + 2] * 0.01,
+                                        colorArray[colorIndex + 3] * 0.01,
+                                        colorArray[colorIndex + 4],
+                                        colorArray[colorIndex + 5],
+                                        colorArray[colorIndex + 6],
+                                        colorArray[colorIndex + 7]
+                                    );
+                                }
+                                else {
+                                    this._updateSlotColor(slot, 1, 1, 1, 1, 0, 0, 0, 0);
+                                }
+                            }
+
+                            hasDisplay = true;
+
+                            if (slot.transformIndex !== transformIndex) {
+                                slot.transformIndex = transformIndex;
+
+                                if (this._batchEnabled) {
+                                    // RenderNode display.
+                                    let matrix = (<egret.sys.BitmapNode>slot.display.$renderNode).matrix;
+                                    if (!matrix) {
+                                        matrix = (<egret.sys.BitmapNode>slot.display.$renderNode).matrix = new egret.Matrix();
+                                    }
+
+                                    matrix.a = transformArray[transformIndex];
+                                    matrix.b = transformArray[transformIndex + 1];
+                                    matrix.c = transformArray[transformIndex + 2];
+                                    matrix.d = transformArray[transformIndex + 3];
+                                    matrix.tx = transformArray[transformIndex + 4];
+                                    matrix.ty = transformArray[transformIndex + 5];
+                                }
+                                else {
+                                    // Classic display.
+                                    _helpMatrix.a = transformArray[transformIndex];
+                                    _helpMatrix.b = transformArray[transformIndex + 1];
+                                    _helpMatrix.c = transformArray[transformIndex + 2];
+                                    _helpMatrix.d = transformArray[transformIndex + 3];
+                                    _helpMatrix.tx = transformArray[transformIndex + 4];
+                                    _helpMatrix.ty = transformArray[transformIndex + 5];
+
+                                    slot.display.$setMatrix(_helpMatrix);
+                                }
+                            }
+
+                            // 
+                            if (this._batchEnabled && needCacheRectangle) {
+                                // RenderNode display.
+                                const matrix = (<egret.sys.BitmapNode>slot.display.$renderNode).matrix;
+
+                                _helpRectangle.x = 0;
+                                _helpRectangle.y = 0;
+                                _helpRectangle.width = slot.displayConfig.texture.textureWidth;
+                                _helpRectangle.height = slot.displayConfig.texture.textureHeight;
+                                matrix.$transformBounds(_helpRectangle);
+
+                                if (isFirst) {
+                                    isFirst = false;
+                                    this._cacheRectangle.x = _helpRectangle.x;
+                                    this._cacheRectangle.width = _helpRectangle.x + _helpRectangle.width;
+                                    this._cacheRectangle.y = _helpRectangle.y;
+                                    this._cacheRectangle.height = _helpRectangle.y + _helpRectangle.height;
+                                }
+                                else {
+                                    this._cacheRectangle.x = Math.min(this._cacheRectangle.x, _helpRectangle.x);
+                                    this._cacheRectangle.width = Math.max(this._cacheRectangle.width, _helpRectangle.x + _helpRectangle.width);
+                                    this._cacheRectangle.y = Math.min(this._cacheRectangle.y, _helpRectangle.y);
+                                    this._cacheRectangle.height = Math.max(this._cacheRectangle.height, _helpRectangle.y + _helpRectangle.height);
+                                }
+                            }
+                        }
+                        else if (slot.displayIndex !== -1) {
+                            slot.displayIndex = -1;
+                            this._updateSlotDisplay(slot);
+                        }
+                    }
+
+                    //
+                    if (this._cacheRectangle) {
+                        if (hasDisplay && needCacheRectangle && isFirst && prevCacheRectangle) {
+                            this._cacheRectangle.x = prevCacheRectangle.x;
+                            this._cacheRectangle.y = prevCacheRectangle.y;
+                            this._cacheRectangle.width = prevCacheRectangle.width;
+                            this._cacheRectangle.height = prevCacheRectangle.height;
+                        }
+
+                        this.$invalidateContentBounds();
+                    }
+                }
+
+                if (this._isCompleted) {
+                    this._isPlaying = false;
+                }
+
+                if (!this._isStarted) {
+                    this._isStarted = true;
+                    if (this.hasEventListener(MovieEvent.START)) {
+                        const event = egret.Event.create(MovieEvent, MovieEvent.START);
+                        event.movie = this;
+                        event.clipName = this._clipConfig.name;
+                        event.name = null;
+                        event.slotName = null;
+                        this.dispatchEvent(event);
+                    }
+                }
+
+                this._isReversing = this._currentTime > currentTime && this._currentPlayTimes === currentPlayTimes;
+                this._currentTime = currentTime;
+
+                // Action and event.
+                const frameCount = this._clipConfig.frame ? this._clipConfig.frame.length : 0;
+                if (frameCount > 0) {
+                    const currentFrameIndex = Math.floor(this._currentTime * this._config.frameRate);
+                    const currentFrameConfig = this._groupConfig.frame[this._clipConfig.frame[currentFrameIndex]];
+                    if (this._currentFrameConfig !== currentFrameConfig) {
+                        if (frameCount > 1) {
+                            let crossedFrameConfig = this._currentFrameConfig;
+                            this._currentFrameConfig = currentFrameConfig;
+
+                            if (!crossedFrameConfig) {
+                                const prevFrameIndex = Math.floor(this._currentTime * this._config.frameRate);
+                                crossedFrameConfig = this._groupConfig.frame[this._clipConfig.frame[prevFrameIndex]];
+
+                                if (this._isReversing) {
+
+                                }
+                                else {
+                                    if (
+                                        this._currentTime <= crossedFrameConfig.position ||
+                                        this._currentPlayTimes !== currentPlayTimes
+                                    ) {
+                                        crossedFrameConfig = this._groupConfig.frame[crossedFrameConfig.prev];
+                                    }
+                                }
+                            }
+
+                            if (this._isReversing) {
+                                while (crossedFrameConfig !== currentFrameConfig) {
+                                    this._onCrossFrame(crossedFrameConfig);
+                                    crossedFrameConfig = this._groupConfig.frame[crossedFrameConfig.prev];
+                                }
+                            }
+                            else {
+                                while (crossedFrameConfig !== currentFrameConfig) {
+                                    crossedFrameConfig = this._groupConfig.frame[crossedFrameConfig.next];
+                                    this._onCrossFrame(crossedFrameConfig);
+                                }
+                            }
+                        }
+                        else {
+                            this._currentFrameConfig = currentFrameConfig;
+                            if (this._currentFrameConfig) {
+                                this._onCrossFrame(this._currentFrameConfig);
+                            }
+                        }
+                    }
+                }
+
+                if (this._currentPlayTimes !== currentPlayTimes) {
+                    this._currentPlayTimes = currentPlayTimes;
+                    if (this.hasEventListener(MovieEvent.LOOP_COMPLETE)) {
+                        const event = egret.Event.create(MovieEvent, MovieEvent.LOOP_COMPLETE);
+                        event.movie = this;
+                        event.clipName = this._clipConfig.name;
+                        event.name = null;
+                        event.slotName = null;
+                        this.dispatchEvent(event);
+                        egret.Event.release(event);
+                    }
+
+                    if (this._isCompleted && this.hasEventListener(MovieEvent.COMPLETE)) {
+                        const event = egret.Event.create(MovieEvent, MovieEvent.COMPLETE);
+                        event.movie = this;
+                        event.clipName = this._clipConfig.name;
+                        event.name = null;
+                        event.slotName = null;
+                        this.dispatchEvent(event);
+                        egret.Event.release(event);
+                    }
                 }
             }
 

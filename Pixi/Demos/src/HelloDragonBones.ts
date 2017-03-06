@@ -3,22 +3,21 @@ namespace demosPixi {
      * How to use
      * 1. Load data.
      *
-     * 2. ParseData.
-     *  factory.parseDragonBonesData();
-     *  factory.parseTextureAtlasData();
+     * 2. Parse data.
+     *    factory.parseDragonBonesData();
+     *    factory.parseTextureAtlasData();
      *
      * 3. Build armature.
-     *  armatureDisplay = factory.buildArmatureDisplay("armatureName");
+     *    armatureDisplay = factory.buildArmatureDisplay("armatureName");
      *
      * 4. Play animation.
-     *  armatureDisplay.animation.play("animationName");
+     *    armatureDisplay.animation.play("animationName");
      *
      * 5. Add armature to stage.
-     *  addChild(armatureDisplay);
+     *    addChild(armatureDisplay);
      */
     export class HelloDragonBones extends BaseTest {
         protected _onStart(): void {
-            // Load data.
             PIXI.loader
                 .add("dragonBonesData", "./resource/assets/DragonBoy/DragonBoy.json")
                 .add("textureDataA", "./resource/assets/DragonBoy/DragonBoy_texture_1.json")

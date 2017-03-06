@@ -18,7 +18,7 @@ namespace dragonBones {
         }
         /**
          * @language zh_CN
-         * 动画播放速度。 [(-N~0): 倒转播放, 0: 停止播放, (0~1): 慢速播放, 1: 正常播放, (1~N): 快速播放]
+         * 播放速度。 [0: 停止播放, (0~1): 慢速播放, 1: 正常播放, (1~N): 快速播放]
          * @default 1
          * @version DragonBones 3.0
          */
@@ -303,10 +303,6 @@ namespace dragonBones {
 
             this._isPlaying = true;
 
-            if (animationConfig.playTimes < 0) {
-                animationConfig.playTimes = animationData.playTimes;
-            }
-
             if (animationConfig.fadeInTime < 0.0 || animationConfig.fadeInTime !== animationConfig.fadeInTime) {
                 if (this._lastAnimationState) {
                     animationConfig.fadeInTime = animationData.fadeInTime;
@@ -324,7 +320,7 @@ namespace dragonBones {
                 animationConfig.timeScale = 1.0 / animationData.scale;
             }
 
-            if (animationData.duration > 0.0) {
+            if (animationData.frameCount > 1) {
                 if (animationConfig.position !== animationConfig.position) {
                     animationConfig.position = 0.0;
                 }
@@ -333,26 +329,32 @@ namespace dragonBones {
                     animationConfig.position = animationData.duration - animationConfig.position;
                 }
                 else if (animationConfig.position === animationData.duration) {
-                    animationConfig.position -= 0.001;
+                    animationConfig.position -= 0.000001;
                 }
                 else if (animationConfig.position > animationData.duration) {
                     animationConfig.position %= animationData.duration;
                 }
 
-                if (animationConfig.position + animationConfig.duration > animationData.duration) {
+                if (animationConfig.duration > 0.0 && animationConfig.position + animationConfig.duration > animationData.duration) {
                     animationConfig.duration = animationData.duration - animationConfig.position;
+                }
+
+                if (animationConfig.playTimes < 0) {
+                    animationConfig.playTimes = animationData.playTimes;
                 }
             }
             else {
+                animationConfig.playTimes = 1;
                 animationConfig.position = 0.0;
-                animationConfig.duration = -1.0;
+                if (animationConfig.duration > 0.0) {
+                    animationConfig.duration = 0.0;
+                }
             }
 
-            const isStop = animationConfig.duration === 0.0;
-            if (isStop) {
-                animationConfig.playTimes = 1;
+            let isStop = false;
+            if (animationConfig.duration === 0.0) {
                 animationConfig.duration = -1.0;
-                animationConfig.fadeInTime = 0.0;
+                isStop = true;
             }
 
             this._fadeOut(animationConfig);
@@ -660,6 +662,7 @@ namespace dragonBones {
          * @version DragonBones 5.0
          */
         public get animationConfig(): AnimationConfig {
+            this._animationConfig.clear();
             return this._animationConfig;
         }
         /**
@@ -721,7 +724,7 @@ namespace dragonBones {
             this._animationConfig.group = group;
 
             const animationData = this._animations[animationName];
-            if (animationData && duration > 0) {
+            if (animationData && duration > 0.0) {
                 this._animationConfig.timeScale = animationData.duration / duration;
             }
 
