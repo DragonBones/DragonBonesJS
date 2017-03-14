@@ -77,34 +77,45 @@ namespace dragonBones {
          * @private
          */
         protected _generateSlot(dataPackage: BuildArmaturePackage, skinSlotData: SkinSlotData, armature: Armature): Slot {
+            const slotData = skinSlotData.slot;
             const slot = BaseObject.borrowObject(PixiSlot);
-            slot._init(skinSlotData,
+            const displayList = [];
+
+            slot._init(
+                skinSlotData,
                 new PIXI.Sprite(),
                 new PIXI.mesh.Mesh(null, null, null, null, PIXI.mesh.Mesh.DRAW_MODES.TRIANGLES)
             );
 
-            const displayList = [];
             for (let i = 0, l = skinSlotData.displays.length; i < l; ++i) {
                 const displayData = skinSlotData.displays[i];
                 switch (displayData.type) {
                     case DisplayType.Image:
-                        if (!displayData.texture || dataPackage.textureAtlasName) {
-                            displayData.texture = this._getTextureData(dataPackage.textureAtlasName || dataPackage.dataName, displayData.path);
+                        if (!displayData.texture) {
+                            displayData.texture = this._getTextureData(dataPackage.dataName, displayData.path);
                         }
 
-                        displayList.push(slot.rawDisplay);
+                        if (dataPackage.textureAtlasName) {
+                            slot._textureDatas[i] = this._getTextureData(dataPackage.textureAtlasName, displayData.path);
+                        }
+
+                        displayList[i] = slot.rawDisplay;
                         break;
 
                     case DisplayType.Mesh:
-                        if (!displayData.texture || dataPackage.textureAtlasName) {
-                            displayData.texture = this._getTextureData(dataPackage.textureAtlasName || dataPackage.dataName, displayData.path);
+                        if (!displayData.texture) {
+                            displayData.texture = this._getTextureData(dataPackage.dataName, displayData.path);
+                        }
+
+                        if (dataPackage.textureAtlasName) {
+                            slot._textureDatas[i] = this._getTextureData(dataPackage.textureAtlasName, displayData.path);
                         }
 
                         if (!displayData.mesh && displayData.share) {
                             displayData.mesh = skinSlotData.getMesh(displayData.share);
                         }
 
-                        displayList.push(slot.meshDisplay);
+                        displayList[i] = slot.meshDisplay;
                         break;
 
                     case DisplayType.Armature:
@@ -112,7 +123,7 @@ namespace dragonBones {
                         if (childArmature) {
                             childArmature.inheritAnimation = displayData.inheritAnimation;
                             if (!childArmature.inheritAnimation) {
-                                const actions = skinSlotData.slot.actions.length > 0 ? skinSlotData.slot.actions : childArmature.armatureData.actions;
+                                const actions = slotData.actions.length > 0 ? slotData.actions : childArmature.armatureData.actions;
                                 if (actions.length > 0) {
                                     for (let i = 0, l = actions.length; i < l; ++i) {
                                         childArmature._bufferAction(actions[i]);
@@ -126,11 +137,11 @@ namespace dragonBones {
                             displayData.armature = childArmature.armatureData; // 
                         }
 
-                        displayList.push(childArmature);
+                        displayList[i] = childArmature;
                         break;
 
                     default:
-                        displayList.push(null);
+                        displayList[i] = null;
                         break;
                 }
             }

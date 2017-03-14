@@ -34,16 +34,16 @@ var demosPixi;
         }
         HelloDragonBones.prototype._onStart = function () {
             PIXI.loader
-                .add("dragonBonesData", "./resource/assets/Ubbie/Ubbie.json")
-                .add("textureDataA", "./resource/assets/Ubbie/texture.json")
-                .add("textureA", "./resource/assets/Ubbie/texture.png");
+                .add("dragonBonesData", "./resource/assets/DragonBoy/DragonBoy.json")
+                .add("textureDataA", "./resource/assets/DragonBoy/DragonBoy_texture_1.json")
+                .add("textureA", "./resource/assets/DragonBoy/DragonBoy_texture_1.png");
             PIXI.loader.once("complete", this._loadComplateHandler, this);
             PIXI.loader.load();
         };
         HelloDragonBones.prototype._loadComplateHandler = function (loader, resources) {
             dragonBones.PixiFactory.factory.parseDragonBonesData(resources["dragonBonesData"].data);
             dragonBones.PixiFactory.factory.parseTextureAtlasData(resources["textureDataA"].data, resources["textureA"].texture);
-            var armatureDisplay = dragonBones.PixiFactory.factory.buildArmatureDisplay("ubbie");
+            var armatureDisplay = dragonBones.PixiFactory.factory.buildArmatureDisplay("DragonBoy");
             armatureDisplay.animation.play("walk");
             this._stage.addChild(armatureDisplay);
             armatureDisplay.x = this._renderer.width * 0.5;

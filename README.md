@@ -3,8 +3,8 @@
 * Highly suggest use [DragonBones Pro](http://dragonbones.github.io/) to create aniamtion.
 
 ## Supported engines
-* [Egret](http://www.egret.com/) / [How to use DragonBones in Egret](./Egret/)
-* [Pixi](http://www.pixijs.com/) / [How to use DragonBones in Pixi](./Pixi/)
+* [Egret](http://www.egret.com/) - [How to use DragonBones in Egret](./Egret/)
+* [Pixi](http://www.pixijs.com/) - [How to use DragonBones in Pixi](./Pixi/)
 
 ## How to use
 1. Make sure you have installed some JavaScript / TypeScript IDE.

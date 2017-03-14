@@ -180,10 +180,6 @@ declare namespace dragonBones {
         /**
          * @private
          */
-        constructor();
-        /**
-         * @private
-         */
         _onClear(): void;
         /**
          * @private

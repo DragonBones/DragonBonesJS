@@ -274,6 +274,7 @@ var dragonBones;
     var EgretArmatureDisplay = (function (_super) {
         __extends(EgretArmatureDisplay, _super);
         /**
+         * @internal
          * @private
          */
         function EgretArmatureDisplay() {
@@ -765,6 +766,7 @@ var dragonBones;
                         normalDisplay.$setAnchorOffsetX(this._pivotX);
                         normalDisplay.$setAnchorOffsetY(this._pivotY);
                     }
+                    this._updateVisible();
                     return;
                 }
             }
@@ -773,12 +775,14 @@ var dragonBones;
                 meshDisplay.$setBitmapData(null);
                 meshDisplay.x = 0.0;
                 meshDisplay.y = 0.0;
+                meshDisplay.visible = false;
             }
             else {
                 var normalDisplay = this._renderDisplay;
                 normalDisplay.$setBitmapData(null);
                 normalDisplay.x = 0.0;
                 normalDisplay.y = 0.0;
+                normalDisplay.visible = false;
             }
         };
         /**
@@ -890,7 +894,7 @@ var dragonBones;
         EgretFactory._clockHandler = function (time) {
             time *= 0.001;
             var passedTime = time - EgretFactory._clock.time;
-            EgretFactory._clock.advanceTime(0.01);
+            EgretFactory._clock.advanceTime(passedTime);
             EgretFactory._clock.time = time;
             return false;
         };

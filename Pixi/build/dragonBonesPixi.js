@@ -424,6 +424,7 @@ var dragonBones;
                         var normalDisplay = this._renderDisplay;
                         normalDisplay.texture = currentTextureData.texture;
                     }
+                    this._updateVisible();
                     return;
                 }
             }
@@ -432,12 +433,14 @@ var dragonBones;
                 meshDisplay.texture = null;
                 meshDisplay.x = 0.0;
                 meshDisplay.y = 0.0;
+                meshDisplay.visible = false;
             }
             else {
                 var normalDisplay = this._renderDisplay;
                 normalDisplay.texture = null;
                 normalDisplay.x = 0.0;
                 normalDisplay.y = 0.0;
+                normalDisplay.visible = false;
             }
         };
         /**
@@ -591,33 +594,40 @@ var dragonBones;
          * @private
          */
         PixiFactory.prototype._generateSlot = function (dataPackage, skinSlotData, armature) {
+            var slotData = skinSlotData.slot;
             var slot = dragonBones.BaseObject.borrowObject(dragonBones.PixiSlot);
-            slot._init(skinSlotData, new PIXI.Sprite(), new PIXI.mesh.Mesh(null, null, null, null, PIXI.mesh.Mesh.DRAW_MODES.TRIANGLES));
             var displayList = [];
+            slot._init(skinSlotData, new PIXI.Sprite(), new PIXI.mesh.Mesh(null, null, null, null, PIXI.mesh.Mesh.DRAW_MODES.TRIANGLES));
             for (var i = 0, l = skinSlotData.displays.length; i < l; ++i) {
                 var displayData = skinSlotData.displays[i];
                 switch (displayData.type) {
                     case 0 /* Image */:
-                        if (!displayData.texture || dataPackage.textureAtlasName) {
-                            displayData.texture = this._getTextureData(dataPackage.textureAtlasName || dataPackage.dataName, displayData.path);
+                        if (!displayData.texture) {
+                            displayData.texture = this._getTextureData(dataPackage.dataName, displayData.path);
                         }
-                        displayList.push(slot.rawDisplay);
+                        if (dataPackage.textureAtlasName) {
+                            slot._textureDatas[i] = this._getTextureData(dataPackage.textureAtlasName, displayData.path);
+                        }
+                        displayList[i] = slot.rawDisplay;
                         break;
                     case 2 /* Mesh */:
-                        if (!displayData.texture || dataPackage.textureAtlasName) {
-                            displayData.texture = this._getTextureData(dataPackage.textureAtlasName || dataPackage.dataName, displayData.path);
+                        if (!displayData.texture) {
+                            displayData.texture = this._getTextureData(dataPackage.dataName, displayData.path);
+                        }
+                        if (dataPackage.textureAtlasName) {
+                            slot._textureDatas[i] = this._getTextureData(dataPackage.textureAtlasName, displayData.path);
                         }
                         if (!displayData.mesh && displayData.share) {
                             displayData.mesh = skinSlotData.getMesh(displayData.share);
                         }
-                        displayList.push(slot.meshDisplay);
+                        displayList[i] = slot.meshDisplay;
                         break;
                     case 1 /* Armature */:
                         var childArmature = this.buildArmature(displayData.path, dataPackage.dataName, null, dataPackage.textureAtlasName);
                         if (childArmature) {
                             childArmature.inheritAnimation = displayData.inheritAnimation;
                             if (!childArmature.inheritAnimation) {
-                                var actions = skinSlotData.slot.actions.length > 0 ? skinSlotData.slot.actions : childArmature.armatureData.actions;
+                                var actions = slotData.actions.length > 0 ? slotData.actions : childArmature.armatureData.actions;
                                 if (actions.length > 0) {
                                     for (var i_2 = 0, l_2 = actions.length; i_2 < l_2; ++i_2) {
                                         childArmature._bufferAction(actions[i_2]);
@@ -629,10 +639,10 @@ var dragonBones;
                             }
                             displayData.armature = childArmature.armatureData; // 
                         }
-                        displayList.push(childArmature);
+                        displayList[i] = childArmature;
                         break;
                     default:
-                        displayList.push(null);
+                        displayList[i] = null;
                         break;
                 }
             }

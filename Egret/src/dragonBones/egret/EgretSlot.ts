@@ -241,24 +241,23 @@ namespace dragonBones {
                     }
 
                     this._updateVisible();
-
                     return;
                 }
             }
 
             if (isMeshDisplay) {
                 const meshDisplay = this._renderDisplay as egret.Mesh;
-                meshDisplay.visible = false;
                 meshDisplay.$setBitmapData(null);
                 meshDisplay.x = 0.0;
                 meshDisplay.y = 0.0;
+                meshDisplay.visible = false;
             }
             else {
                 const normalDisplay = this._renderDisplay as egret.Bitmap;
-                normalDisplay.visible = false;
                 normalDisplay.$setBitmapData(null);
                 normalDisplay.x = 0.0;
                 normalDisplay.y = 0.0;
+                normalDisplay.visible = false;
             }
         }
         /**
