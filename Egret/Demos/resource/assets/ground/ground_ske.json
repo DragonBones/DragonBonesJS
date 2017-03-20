@@ -1,0 +1,108 @@
+{
+    "frameRate": 24,
+    "armature": [
+        {
+            "type": "Armature",
+            "frameRate": 24,
+            "aabb": {
+                "width": 0,
+                "y": 0,
+                "height": 0,
+                "x": 0
+            },
+            "bone": [
+                {
+                    "name": "root"
+                }
+            ],
+            "slot": [
+                {
+                    "name": "root",
+                    "parent": "root"
+                },
+                {
+                    "name": "rootB",
+                    "parent": "root"
+                },
+                {
+                    "name": "rootC",
+                    "parent": "root"
+                }
+            ],
+            "skin": [
+                {
+                    "name": "",
+                    "slot": [
+                        {
+                            "name": "root",
+                            "display": [
+                                {
+                                    "name": "",
+                                    "type": "boundingBox",
+                                    "subType": "polygon",
+                                    "vertices": [
+                                        311.55,
+                                        -91.05,
+                                        456.1,
+                                        54.05,
+                                        310.1,
+                                        86.05,
+                                        -388.75,
+                                        31.8,
+                                        -506.8,
+                                        -75.85,
+                                        -218.55,
+                                        -160.8,
+                                        65.25,
+                                        -61.05
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "name": "rootB",
+                            "display": [
+                                {
+                                    "name": "",
+                                    "type": "boundingBox",
+                                    "subType": "rectangle",
+                                    "transform": {
+                                        "x": 400,
+                                        "y": 100,
+                                        "skX": 20,
+                                        "skY": 20
+                                    },
+                                    "width": 400,
+                                    "height": 100
+                                }
+                            ]
+                        },
+                        {
+                            "name": "rootC",
+                            "display": [
+                                {
+                                    "name": "",
+                                    "type": "boundingBox",
+                                    "subType": "ellipse",
+                                    "transform": {
+                                        "x": -400,
+                                        "y": -100,
+                                        "skX": -20,
+                                        "skY": -20
+                                    },
+                                    "width": 400,
+                                    "height": 200
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ],
+            "animation": [],
+            "name": "ground_1"
+        }
+    ],
+    "name": "ground",
+    "version": "4.5",
+    "isGlobal": 0
+}
