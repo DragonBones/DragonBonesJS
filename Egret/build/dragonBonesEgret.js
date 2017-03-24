@@ -425,12 +425,14 @@ var dragonBones;
         });
         /**
          * @deprecated
+         * @see dragonBones.Armature#clock
+         * @see dragonBones.EgretFactory#clock
          * @see dragonBones.Animation#timescale
          * @see dragonBones.Animation#stop()
          */
         EgretArmatureDisplay.prototype.advanceTimeBySelf = function (on) {
             if (on) {
-                this._armature.clock = dragonBones.EgretFactory._clock;
+                this._armature.clock = dragonBones.EgretFactory.clock;
             }
             else {
                 this._armature.clock = null;
@@ -642,7 +644,7 @@ var dragonBones;
             if (index === this._zOrder) {
                 return;
             }
-            container.addChildAt(this._renderDisplay, this._zOrder < index ? this._zOrder : this._zOrder + 1);
+            container.addChildAt(this._renderDisplay, this._zOrder);
         };
         /**
          * @internal
@@ -913,6 +915,18 @@ var dragonBones;
             enumerable: true,
             configurable: true
         });
+        Object.defineProperty(EgretFactory, "clock", {
+            /**
+             * @language zh_CN
+             * 一个可以直接使用的全局 WorldClock 实例.
+             * @version DragonBones 5.0
+             */
+            get: function () {
+                return EgretFactory._clock;
+            },
+            enumerable: true,
+            configurable: true
+        });
         /**
          * @private
          */
@@ -1130,9 +1144,6 @@ var dragonBones;
     }(dragonBones.BaseFactory));
     EgretFactory._factory = null;
     EgretFactory._eventManager = null;
-    /**
-     * @private
-     */
     EgretFactory._clock = null;
     dragonBones.EgretFactory = EgretFactory;
 })(dragonBones || (dragonBones = {}));
@@ -1682,7 +1693,7 @@ var dragonBones;
             if (slot.display === slot.rawDisplay) {
                 if (slot.displayConfig && slot.displayConfig.regionIndex != null) {
                     if (!slot.displayConfig.texture) {
-                        var textureAtlasTexture = this._groupConfig.textures[0]; // TODO
+                        var textureAtlasTexture = this._groupConfig.textures[slot.displayConfig.textureIndex || 0];
                         var regionIndex = slot.displayConfig.regionIndex * 4;
                         var x = this._groupConfig.rectangleArray[regionIndex];
                         var y = this._groupConfig.rectangleArray[regionIndex + 1];
@@ -2322,7 +2333,7 @@ var dragonBones;
          */
         Movie.prototype.advanceTimeBySelf = function (on) {
             if (on) {
-                this.clock = dragonBones.EgretFactory._clock;
+                this.clock = dragonBones.EgretFactory.clock;
             }
             else {
                 this.clock = null;

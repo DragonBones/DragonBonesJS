@@ -7,10 +7,7 @@ namespace dragonBones {
     export class EgretFactory extends BaseFactory {
         private static _factory: EgretFactory = null;
         private static _eventManager: EgretArmatureDisplay = null;
-        /**
-         * @private
-         */
-        public static _clock: WorldClock = null;
+        private static _clock: WorldClock = null;
 
         private static _clockHandler(time: number): boolean {
             time *= 0.001;
@@ -32,6 +29,14 @@ namespace dragonBones {
             }
 
             return EgretFactory._factory;
+        }
+        /**
+         * @language zh_CN
+         * 一个可以直接使用的全局 WorldClock 实例.
+         * @version DragonBones 5.0
+         */
+        public static get clock(): WorldClock {
+            return EgretFactory._clock;
         }
         /**
          * @language zh_CN

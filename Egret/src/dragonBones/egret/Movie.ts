@@ -681,7 +681,7 @@ namespace dragonBones {
             if (slot.display === slot.rawDisplay) {
                 if (slot.displayConfig && slot.displayConfig.regionIndex != null) {
                     if (!slot.displayConfig.texture) {
-                        const textureAtlasTexture = this._groupConfig.textures[0]; // TODO
+                        const textureAtlasTexture = this._groupConfig.textures[slot.displayConfig.textureIndex || 0];
                         const regionIndex = slot.displayConfig.regionIndex * 4;
                         const x = this._groupConfig.rectangleArray[regionIndex];
                         const y = this._groupConfig.rectangleArray[regionIndex + 1];
@@ -1362,7 +1362,7 @@ namespace dragonBones {
          */
         public advanceTimeBySelf(on: boolean): void {
             if (on) {
-                this.clock = EgretFactory._clock;
+                this.clock = EgretFactory.clock;
             }
             else {
                 this.clock = null;

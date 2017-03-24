@@ -317,12 +317,14 @@ namespace dragonBones {
 
         /**
          * @deprecated
+         * @see dragonBones.Armature#clock
+         * @see dragonBones.EgretFactory#clock
          * @see dragonBones.Animation#timescale
          * @see dragonBones.Animation#stop()
          */
         public advanceTimeBySelf(on: boolean): void {
             if (on) {
-                this._armature.clock = EgretFactory._clock;
+                this._armature.clock = EgretFactory.clock;
             }
             else {
                 this._armature.clock = null;

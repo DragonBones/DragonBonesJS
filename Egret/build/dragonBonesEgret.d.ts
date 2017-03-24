@@ -215,6 +215,8 @@ declare namespace dragonBones {
         readonly animation: Animation;
         /**
          * @deprecated
+         * @see dragonBones.Armature#clock
+         * @see dragonBones.EgretFactory#clock
          * @see dragonBones.Animation#timescale
          * @see dragonBones.Animation#stop()
          */
@@ -395,10 +397,7 @@ declare namespace dragonBones {
     class EgretFactory extends BaseFactory {
         private static _factory;
         private static _eventManager;
-        /**
-         * @private
-         */
-        static _clock: WorldClock;
+        private static _clock;
         private static _clockHandler(time);
         /**
          * @language zh_CN
@@ -406,6 +405,12 @@ declare namespace dragonBones {
          * @version DragonBones 4.7
          */
         static readonly factory: EgretFactory;
+        /**
+         * @language zh_CN
+         * 一个可以直接使用的全局 WorldClock 实例.
+         * @version DragonBones 5.0
+         */
+        static readonly clock: WorldClock;
         /**
          * @language zh_CN
          * 创建一个工厂。 (通常只需要一个全局工厂实例)

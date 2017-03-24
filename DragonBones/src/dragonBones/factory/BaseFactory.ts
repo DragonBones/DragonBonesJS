@@ -536,7 +536,7 @@ namespace dragonBones {
         }
         /**
          * @language zh_CN
-         * 用指定资源替换插槽的显示对象。
+         * 用指定资源替换指定插槽的显示对象。(用 "dragonBonesName/armatureName/slotName/displayName" 的资源替换 "slot" 的显示对象)
          * @param dragonBonesName 指定的龙骨数据名称。
          * @param armatureName 指定的骨架名称。
          * @param slotName 指定的插槽名称。

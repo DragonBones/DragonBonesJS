@@ -89,7 +89,7 @@ namespace dragonBones {
                 return;
             }
 
-            container.addChildAt(this._renderDisplay, this._zOrder < index ? this._zOrder : this._zOrder + 1);
+            container.addChildAt(this._renderDisplay, this._zOrder);
         }
         /**
          * @internal

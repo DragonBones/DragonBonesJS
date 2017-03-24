@@ -177,12 +177,14 @@ namespace dragonBones {
 
         /**
          * @deprecated
+         * @see dragonBones.Armature#clock
+         * @see dragonBones.PixiFactory#clock
          * @see dragonBones.Animation#timescale
          * @see dragonBones.Animation#stop()
          */
         public advanceTimeBySelf(on: boolean): void {
             if (on) {
-                this._armature.clock = PixiFactory._clock;
+                this._armature.clock = PixiFactory.clock;
             }
             else {
                 this._armature.clock = null;

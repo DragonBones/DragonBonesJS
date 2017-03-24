@@ -20,22 +20,14 @@ namespace demosEgret {
         public constructor() {
             super();
 
-            //this._resourceConfigURL = "resource/hello_dragonbones.res.json";
+            this._resourceConfigURL = "resource/hello_dragonbones.res.json";
 
             this.addEventListener(egret.Event.ADDED_TO_STAGE, this._onStart, this);
         }
 
         protected _onStart(): void {
-            //dragonBones.EgretFactory.factory.parseDragonBonesData(RES.getRes("dragonBonesData"));
-            //dragonBones.EgretFactory.factory.parseTextureAtlasData(RES.getRes("textureDataA"), RES.getRes("textureA"));
-
-            const dbd = JSON.parse(document.getElementById("dbd").innerHTML);
-            const dbtd = JSON.parse(document.getElementById("dbtd").innerHTML);
-            const dbt = new egret.Texture();
-            dbt.bitmapData = new egret.BitmapData(document.getElementById("dbt"));
-
-            dragonBones.EgretFactory.factory.parseDragonBonesData(dbd);
-            dragonBones.EgretFactory.factory.parseTextureAtlasData(dbtd, dbt);
+            dragonBones.EgretFactory.factory.parseDragonBonesData(RES.getRes("dragonBonesData"));
+            dragonBones.EgretFactory.factory.parseTextureAtlasData(RES.getRes("textureDataA"), RES.getRes("textureA"));
 
             const armatureDisplay = dragonBones.EgretFactory.factory.buildArmatureDisplay("DragonBoy");
             armatureDisplay.animation.play("walk");

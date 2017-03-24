@@ -6014,6 +6014,10 @@ var dragonBones;
             else if (!this._armatureData.parent) {
                 throw new Error("The armature data has been disposed.");
             }
+            var prevCacheFrameIndex = this._animation._cacheFrameIndex;
+            // Update nimation.
+            this._animation._advanceTime(passedTime);
+            var currentCacheFrameIndex = this._animation._cacheFrameIndex;
             // Sort bones and slots.
             if (this._bonesDirty) {
                 this._bonesDirty = false;
@@ -6023,10 +6027,6 @@ var dragonBones;
                 this._slotsDirty = false;
                 this._sortSlots();
             }
-            var prevCacheFrameIndex = this._animation._cacheFrameIndex;
-            // Update nimation.
-            this._animation._advanceTime(passedTime);
-            var currentCacheFrameIndex = this._animation._cacheFrameIndex;
             var i = 0, l = 0;
             // Update bones and slots.
             if (currentCacheFrameIndex < 0 || currentCacheFrameIndex !== prevCacheFrameIndex) {
@@ -7679,12 +7679,12 @@ var dragonBones;
                 this._time += passedTime;
             }
             // Weight.
-            this._weightResult = this.weight * this._fadeProgress;
-            if (this._weightResult !== 0.0) {
+            if (this.weight !== 0.0) {
                 var isCacheEnabled = this._fadeState === 0 && cacheFrameRate > 0.0;
                 var isUpdatesTimeline = true;
                 var isUpdatesBoneTimeline = true;
                 var time = this._time;
+                this._weightResult = this.weight * this._fadeProgress;
                 // Update main timeline.
                 this._timeline.update(time);
                 // Cache time internval.
@@ -9679,7 +9679,7 @@ var dragonBones;
         };
         /**
          * @language zh_CN
-         * 用指定资源替换插槽的显示对象。
+         * 用指定资源替换指定插槽的显示对象。(用 "dragonBonesName/armatureName/slotName/displayName" 的资源替换 "slot" 的显示对象)
          * @param dragonBonesName 指定的龙骨数据名称。
          * @param armatureName 指定的骨架名称。
          * @param slotName 指定的插槽名称。

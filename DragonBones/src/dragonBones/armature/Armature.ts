@@ -336,6 +336,13 @@ namespace dragonBones {
                 //return;
             }
 
+            const prevCacheFrameIndex = this._animation._cacheFrameIndex;
+
+            // Update nimation.
+            this._animation._advanceTime(passedTime);
+
+            const currentCacheFrameIndex = this._animation._cacheFrameIndex;
+
             // Sort bones and slots.
             if (this._bonesDirty) {
                 this._bonesDirty = false;
@@ -346,13 +353,6 @@ namespace dragonBones {
                 this._slotsDirty = false;
                 this._sortSlots();
             }
-
-            const prevCacheFrameIndex = this._animation._cacheFrameIndex;
-
-            // Update nimation.
-            this._animation._advanceTime(passedTime);
-
-            const currentCacheFrameIndex = this._animation._cacheFrameIndex;
 
             let i = 0, l = 0;
 

@@ -6,14 +6,8 @@ namespace dragonBones {
      */
     export class PixiFactory extends BaseFactory {
         private static _factory: PixiFactory = null;
-        /**
-         * @private
-         */
-        public static _eventManager: PixiArmatureDisplay = null;
-        /**
-         * @private
-         */
-        public static _clock: WorldClock = null;
+        private static _eventManager: PixiArmatureDisplay = null;
+        private static _clock: WorldClock = null;
 
         private static _clockHandler(passedTime: number): void {
             PixiFactory._clock.advanceTime(-1); // passedTime !?
@@ -29,6 +23,14 @@ namespace dragonBones {
             }
 
             return PixiFactory._factory;
+        }
+        /**
+         * @language zh_CN
+         * 一个可以直接使用的全局 WorldClock 实例.
+         * @version DragonBones 5.0
+         */
+        public static get clock(): WorldClock {
+            return PixiFactory._clock;
         }
         /**
          * @language zh_CN

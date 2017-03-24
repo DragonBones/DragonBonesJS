@@ -482,12 +482,12 @@ namespace dragonBones {
             }
 
             // Weight.
-            this._weightResult = this.weight * this._fadeProgress;
-            if (this._weightResult !== 0.0) {
+            if (this.weight !== 0.0) {
                 const isCacheEnabled = this._fadeState === 0 && cacheFrameRate > 0.0;
                 let isUpdatesTimeline = true;
                 let isUpdatesBoneTimeline = true;
                 let time = this._time;
+                this._weightResult = this.weight * this._fadeProgress;
 
                 // Update main timeline.
                 this._timeline.update(time);

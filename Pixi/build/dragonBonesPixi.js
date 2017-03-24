@@ -231,12 +231,14 @@ var dragonBones;
         });
         /**
          * @deprecated
+         * @see dragonBones.Armature#clock
+         * @see dragonBones.PixiFactory#clock
          * @see dragonBones.Animation#timescale
          * @see dragonBones.Animation#stop()
          */
         PixiArmatureDisplay.prototype.advanceTimeBySelf = function (on) {
             if (on) {
-                this._armature.clock = dragonBones.PixiFactory._clock;
+                this._armature.clock = dragonBones.PixiFactory.clock;
             }
             else {
                 this._armature.clock = null;
@@ -326,7 +328,7 @@ var dragonBones;
             if (index === this._zOrder) {
                 return;
             }
-            container.addChildAt(this._renderDisplay, this._zOrder < index ? this._zOrder : this._zOrder + 1);
+            container.addChildAt(this._renderDisplay, this._zOrder);
         };
         /**
          * @internal
@@ -568,6 +570,18 @@ var dragonBones;
             enumerable: true,
             configurable: true
         });
+        Object.defineProperty(PixiFactory, "clock", {
+            /**
+             * @language zh_CN
+             * 一个可以直接使用的全局 WorldClock 实例.
+             * @version DragonBones 5.0
+             */
+            get: function () {
+                return PixiFactory._clock;
+            },
+            enumerable: true,
+            configurable: true
+        });
         /**
          * @private
          */
@@ -708,13 +722,7 @@ var dragonBones;
         return PixiFactory;
     }(dragonBones.BaseFactory));
     PixiFactory._factory = null;
-    /**
-     * @private
-     */
     PixiFactory._eventManager = null;
-    /**
-     * @private
-     */
     PixiFactory._clock = null;
     dragonBones.PixiFactory = PixiFactory;
 })(dragonBones || (dragonBones = {}));
