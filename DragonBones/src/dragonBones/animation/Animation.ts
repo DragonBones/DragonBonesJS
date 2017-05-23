@@ -226,7 +226,7 @@ namespace dragonBones {
                         }
                     }
                 }
-
+                
                 this._cacheFrameIndex = -1;
             }
             else {
@@ -288,7 +288,7 @@ namespace dragonBones {
                 //return null;
             }
 
-            const animationName = animationConfig.animationName ? animationConfig.animationName : animationConfig.name;
+            const animationName = animationConfig.animation ? animationConfig.animation : animationConfig.name;
             const animationData = this._animations[animationName];
             if (!animationData) {
                 console.warn(
@@ -415,7 +415,7 @@ namespace dragonBones {
             this._animationConfig.playTimes = playTimes;
             this._animationConfig.layer = layer;
             this._animationConfig.fadeInTime = fadeInTime;
-            this._animationConfig.animationName = animationName;
+            this._animationConfig.animation = animationName;
             this._animationConfig.group = group;
 
             return this.playConfig(this._animationConfig);
@@ -433,7 +433,7 @@ namespace dragonBones {
             this._animationConfig.clear();
             this._animationConfig.playTimes = playTimes;
             this._animationConfig.fadeInTime = 0.0;
-            this._animationConfig.animationName = animationName;
+            this._animationConfig.animation = animationName;
 
             if (animationName) {
                 this.playConfig(this._animationConfig);
@@ -441,7 +441,7 @@ namespace dragonBones {
             else if (!this._lastAnimationState) {
                 const defaultAnimation = this._armature.armatureData.defaultAnimation;
                 if (defaultAnimation) {
-                    this._animationConfig.animationName = defaultAnimation.name;
+                    this._animationConfig.animation = defaultAnimation.name;
                     this.playConfig(this._animationConfig);
                 }
             }
@@ -450,7 +450,7 @@ namespace dragonBones {
                 this._lastAnimationState.play();
             }
             else {
-                this._animationConfig.animationName = this._lastAnimationState.name;
+                this._animationConfig.animation = this._lastAnimationState.name;
                 this.playConfig(this._animationConfig);
             }
 
@@ -471,7 +471,7 @@ namespace dragonBones {
             this._animationConfig.playTimes = playTimes;
             this._animationConfig.position = time;
             this._animationConfig.fadeInTime = 0.0;
-            this._animationConfig.animationName = animationName;
+            this._animationConfig.animation = animationName;
 
             return this.playConfig(this._animationConfig);
         }
@@ -489,7 +489,7 @@ namespace dragonBones {
             this._animationConfig.clear();
             this._animationConfig.playTimes = playTimes;
             this._animationConfig.fadeInTime = 0.0;
-            this._animationConfig.animationName = animationName;
+            this._animationConfig.animation = animationName;
 
             const animationData = this._animations[animationName];
             if (animationData) {
@@ -512,7 +512,7 @@ namespace dragonBones {
             this._animationConfig.clear();
             this._animationConfig.playTimes = playTimes;
             this._animationConfig.fadeInTime = 0.0;
-            this._animationConfig.animationName = animationName;
+            this._animationConfig.animation = animationName;
 
             const animationData = this._animations[animationName];
             if (animationData) {
@@ -720,7 +720,7 @@ namespace dragonBones {
             this._animationConfig.playTimes = playTimes;
             this._animationConfig.layer = layer;
             this._animationConfig.fadeInTime = fadeInTime;
-            this._animationConfig.animationName = animationName;
+            this._animationConfig.animation = animationName;
             this._animationConfig.group = group;
 
             const animationData = this._animations[animationName];

@@ -35,6 +35,7 @@ var dragonBones;
         EgretTextureAtlasData.prototype._onClear = function () {
             _super.prototype._onClear.call(this);
             if (this.texture) {
+                //this.texture.dispose();
             }
             this.texture = null;
         };
@@ -71,6 +72,7 @@ var dragonBones;
         EgretTextureData.prototype._onClear = function () {
             _super.prototype._onClear.call(this);
             if (this.texture) {
+                //this.texture.dispose();
             }
             this.texture = null;
         };
@@ -310,6 +312,7 @@ var dragonBones;
                 var bones = this._armature.getBones();
                 for (var i = 0, l = bones.length; i < l; ++i) {
                     var bone = bones[i];
+                    bone.updateGlobalTransform();
                     var boneLength = bone.boneData.length;
                     var startX = bone.globalTransformMatrix.tx;
                     var startY = bone.globalTransformMatrix.ty;
@@ -1152,42 +1155,6 @@ var dragonBones;
     /**
      * @private
      */
-    var MovieSlot = (function (_super) {
-        __extends(MovieSlot, _super);
-        function MovieSlot(slotConfig) {
-            var _this = _super.call(this) || this;
-            _this.displayIndex = -1;
-            _this.colorIndex = -1;
-            _this.transformIndex = -1;
-            _this.rawDisplay = new egret.Bitmap();
-            _this.childMovies = {};
-            _this.config = null;
-            _this.displayConfig = null;
-            _this.display = null;
-            _this.childMovie = null;
-            _this.colorFilter = null;
-            _this.display = _this.rawDisplay;
-            _this.config = slotConfig;
-            _this.rawDisplay.name = _this.config.name;
-            if (_this.config.blendMode == null) {
-                _this.config.blendMode = 0 /* Normal */;
-            }
-            return _this;
-        }
-        MovieSlot.prototype.dispose = function () {
-            this.rawDisplay = null;
-            this.childMovies = null;
-            this.config = null;
-            this.displayConfig = null;
-            this.display = null;
-            this.childMovie = null;
-            this.colorFilter = null;
-        };
-        return MovieSlot;
-    }(egret.HashObject));
-    /**
-     * @private
-     */
     var _helpRectangle = new egret.Rectangle();
     /**
      * @private
@@ -1216,7 +1183,7 @@ var dragonBones;
         if (createMovieHelper.groupName) {
             var groupConfig = _groupConfigMap[createMovieHelper.groupName];
             if (groupConfig) {
-                var movieConfig = _findObjectInArray(groupConfig.movie, createMovieHelper.movieName);
+                var movieConfig = _findObjectInArray(groupConfig.movie || groupConfig.animation, createMovieHelper.movieName);
                 if (movieConfig) {
                     createMovieHelper.groupConfig = groupConfig;
                     createMovieHelper.movieConfig = movieConfig;
@@ -1228,7 +1195,7 @@ var dragonBones;
             for (var groupName in _groupConfigMap) {
                 var groupConfig = _groupConfigMap[groupName];
                 if (!createMovieHelper.groupName) {
-                    var movieConfig = _findObjectInArray(groupConfig.movie, createMovieHelper.movieName);
+                    var movieConfig = _findObjectInArray(groupConfig.movie || groupConfig.animation, createMovieHelper.movieName);
                     if (movieConfig) {
                         createMovieHelper.groupName = groupName;
                         createMovieHelper.groupConfig = groupConfig;
@@ -1290,6 +1257,7 @@ var dragonBones;
             }
             groupName = groupName || groupConfig.name;
             if (_groupConfigMap[groupName]) {
+                // TODO
             }
             _groupConfigMap[groupName] = groupConfig;
             //
@@ -1345,6 +1313,8 @@ var dragonBones;
         var createMovieHelper = { movieName: movieName, groupName: groupName };
         if (_fillCreateMovieHelper(createMovieHelper)) {
             var movie = new Movie(createMovieHelper);
+            dragonBones.EgretFactory.factory;
+            movie.clock = dragonBones.EgretFactory.clock;
             return movie;
         }
         else {
@@ -1363,8 +1333,9 @@ var dragonBones;
         var groupConfig = _groupConfigMap[groupName];
         if (groupConfig) {
             var movieNameGroup = [];
-            for (var i = 0, l = groupConfig.movie.length; i < l; ++i) {
-                movieNameGroup.push(groupConfig.movie[i].name);
+            var movie = groupConfig.movie || groupConfig.animation;
+            for (var i = 0, l = movie.length; i < l; ++i) {
+                movieNameGroup.push(movie[i].name);
             }
             return movieNameGroup;
         }
@@ -1412,6 +1383,57 @@ var dragonBones;
             _this.movie = null;
             return _this;
         }
+        Object.defineProperty(MovieEvent.prototype, "armature", {
+            //========================================= // 兼容旧数据
+            /**
+             * @private
+             */
+            get: function () {
+                return this.movie;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(MovieEvent.prototype, "bone", {
+            /**
+             * @private
+             */
+            get: function () {
+                return null;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(MovieEvent.prototype, "animationState", {
+            /**
+             * @private
+             */
+            get: function () {
+                return { name: this.clipName };
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(MovieEvent.prototype, "frameLabel", {
+            /**
+             * @private
+             */
+            get: function () {
+                return this.name;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(MovieEvent.prototype, "movementID", {
+            /**
+             * @private
+             */
+            get: function () {
+                return this.clipName;
+            },
+            enumerable: true,
+            configurable: true
+        });
         return MovieEvent;
     }(egret.Event));
     /**
@@ -1445,6 +1467,42 @@ var dragonBones;
      */
     MovieEvent.SOUND_EVENT = "soundEvent";
     dragonBones.MovieEvent = MovieEvent;
+    /**
+     * @private
+     */
+    var MovieSlot = (function (_super) {
+        __extends(MovieSlot, _super);
+        function MovieSlot(slotConfig) {
+            var _this = _super.call(this) || this;
+            _this.displayIndex = -1;
+            _this.colorIndex = -1;
+            _this.transformIndex = -1;
+            _this.rawDisplay = new egret.Bitmap();
+            _this.childMovies = {};
+            _this.config = null;
+            _this.displayConfig = null;
+            _this.display = null;
+            _this.childMovie = null;
+            _this.colorFilter = null;
+            _this.display = _this.rawDisplay;
+            _this.config = slotConfig;
+            _this.rawDisplay.name = _this.config.name;
+            if (_this.config.blendMode == null) {
+                _this.config.blendMode = 0 /* Normal */;
+            }
+            return _this;
+        }
+        MovieSlot.prototype.dispose = function () {
+            this.rawDisplay = null;
+            this.childMovies = null;
+            this.config = null;
+            this.displayConfig = null;
+            this.display = null;
+            this.childMovie = null;
+            this.colorFilter = null;
+        };
+        return MovieSlot;
+    }(egret.HashObject));
     /**
      * @language zh_CN
      * 通过读取缓存的二进制动画数据来更新动画，具有良好的运行性能，同时对内存的占用也非常低。
@@ -1500,7 +1558,7 @@ var dragonBones;
             _this._childMovies = [];
             _this._groupConfig = createMovieHelper.groupConfig;
             _this._config = createMovieHelper.movieConfig;
-            _this._batchEnabled = !_this._config.isNested;
+            _this._batchEnabled = !(_this._config.isNested || _this._config.hasChildAnimation);
             if (_this._batchEnabled) {
                 _this.$renderNode = new egret.sys.GroupNode();
                 _this.$renderNode.cleanBeforeRender = Movie._cleanBeforeRender;
@@ -1521,8 +1579,6 @@ var dragonBones;
                 }
             }
             _this._frameSize = (1 + 1) * _this._slots.length; // displayFrame, transformFrame.
-            dragonBones.EgretFactory.factory; //
-            _this.advanceTimeBySelf(true);
             _this.name = _this._config.name;
             _this.play();
             _this.advanceTime(0.000001);
@@ -1664,7 +1720,6 @@ var dragonBones;
                     var childMovie = slot.childMovies[slot.displayConfig.name];
                     if (!childMovie) {
                         childMovie = buildMovie(slot.displayConfig.name, this._groupConfig.name);
-                        childMovie.advanceTimeBySelf(false);
                         slot.childMovies[slot.displayConfig.name] = childMovie;
                     }
                     slot.display = childMovie;
@@ -1764,6 +1819,7 @@ var dragonBones;
          */
         Movie.prototype.$render = function () {
             if (this._batchEnabled) {
+                // RenderNode display.
             }
             else {
                 // Classic display.
@@ -1842,10 +1898,6 @@ var dragonBones;
          * @inheritDoc
          */
         Movie.prototype.advanceTime = function (passedTime) {
-            // Advance child armatre time.
-            for (var i = 0, l = this._childMovies.length; i < l; ++i) {
-                this._childMovies[i].advanceTime(passedTime);
-            }
             if (this._isPlaying) {
                 this._isLockDispose = true;
                 if (passedTime < 0) {
@@ -2133,6 +2185,7 @@ var dragonBones;
                 else {
                     this._isPlaying = true;
                 }
+                // playTimes
             }
             else if (this._config.action) {
                 this.play(this._config.action, playTimes);
@@ -2314,10 +2367,10 @@ var dragonBones;
                     return;
                 }
                 var prevClock = this._clock;
-                this._clock = value;
                 if (prevClock) {
                     prevClock.remove(this);
                 }
+                this._clock = value;
                 if (this._clock) {
                     this._clock.add(this);
                 }
@@ -2326,10 +2379,11 @@ var dragonBones;
             configurable: true
         });
         /**
-         * @language zh_CN
-         * 由 Movie 自己来更新动画。
-         * @param on 开启或关闭 Movie 自己对动画的更新。
-         * @version DragonBones 4.7
+         * @deprecated
+         * @see dragonBones.Movie#clock
+         * @see dragonBones.EgretFactory#clock
+         * @see dragonBones.Movie#timescale
+         * @see dragonBones.Movie#stop()
          */
         Movie.prototype.advanceTimeBySelf = function (on) {
             if (on) {
@@ -2339,6 +2393,100 @@ var dragonBones;
                 this.clock = null;
             }
         };
+        Object.defineProperty(Movie.prototype, "display", {
+            //========================================= // 兼容旧数据
+            /**
+             * @private
+             */
+            get: function () {
+                return this;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Movie.prototype, "animation", {
+            /**
+             * @private
+             */
+            get: function () {
+                return this;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Movie.prototype, "armature", {
+            /**
+             * @private
+             */
+            get: function () {
+                return this;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        /**
+         * @private
+         */
+        Movie.prototype.getAnimation = function () {
+            return this;
+        };
+        /**
+         * @private
+         */
+        Movie.prototype.getArmature = function () {
+            return this;
+        };
+        /**
+         * @private
+         */
+        Movie.prototype.getDisplay = function () {
+            return this;
+        };
+        /**
+         * @private
+         */
+        Movie.prototype.hasAnimation = function (name) {
+            return this.hasClip(name);
+        };
+        /**
+         * @private
+         */
+        Movie.prototype.invalidUpdate = function () {
+            var arg = [];
+            for (var _i = 0; _i < arguments.length; _i++) {
+                arg[_i] = arguments[_i];
+            }
+        };
+        Object.defineProperty(Movie.prototype, "lastAnimationName", {
+            /**
+             * @private
+             */
+            get: function () {
+                return this.clipName;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Movie.prototype, "animationNames", {
+            /**
+             * @private
+             */
+            get: function () {
+                return this.clipNames;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Movie.prototype, "animationList", {
+            /**
+             * @private
+             */
+            get: function () {
+                return this.clipNames;
+            },
+            enumerable: true,
+            configurable: true
+        });
         return Movie;
     }(egret.DisplayObjectContainer));
     dragonBones.Movie = Movie;

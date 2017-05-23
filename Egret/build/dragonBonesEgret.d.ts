@@ -613,6 +613,26 @@ declare namespace dragonBones {
          * @private
          */
         constructor(type: string);
+        /**
+         * @private
+         */
+        readonly armature: any;
+        /**
+         * @private
+         */
+        readonly bone: any;
+        /**
+         * @private
+         */
+        readonly animationState: any;
+        /**
+         * @private
+         */
+        readonly frameLabel: any;
+        /**
+         * @private
+         */
+        readonly movementID: any;
     }
     /**
      * @language zh_CN
@@ -785,11 +805,56 @@ declare namespace dragonBones {
          */
         clock: WorldClock;
         /**
-         * @language zh_CN
-         * 由 Movie 自己来更新动画。
-         * @param on 开启或关闭 Movie 自己对动画的更新。
-         * @version DragonBones 4.7
+         * @deprecated
+         * @see dragonBones.Movie#clock
+         * @see dragonBones.EgretFactory#clock
+         * @see dragonBones.Movie#timescale
+         * @see dragonBones.Movie#stop()
          */
         advanceTimeBySelf(on: boolean): void;
+        /**
+         * @private
+         */
+        readonly display: any;
+        /**
+         * @private
+         */
+        readonly animation: any;
+        /**
+         * @private
+         */
+        readonly armature: any;
+        /**
+         * @private
+         */
+        getAnimation(): any;
+        /**
+         * @private
+         */
+        getArmature(): any;
+        /**
+         * @private
+         */
+        getDisplay(): any;
+        /**
+         * @private
+         */
+        hasAnimation(name: string): boolean;
+        /**
+         * @private
+         */
+        invalidUpdate(...arg: any[]): void;
+        /**
+         * @private
+         */
+        readonly lastAnimationName: string;
+        /**
+         * @private
+         */
+        readonly animationNames: string[];
+        /**
+         * @private
+         */
+        readonly animationList: string[];
     }
 }

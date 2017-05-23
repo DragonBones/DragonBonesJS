@@ -189,6 +189,7 @@ namespace dragonBones {
                     bone.parent.ik = bone.ik;
                     bone.parent.chainIndex = 0;
                     bone.parent.chain = 0;
+                    bone.parent.weight = bone.weight;
                     bone.chainIndex = 1;
                 }
                 else {
@@ -207,7 +208,7 @@ namespace dragonBones {
             slot.name = ObjectDataParser._getString(rawData, ObjectDataParser.NAME, null);
             slot.parent = this._armature.getBone(ObjectDataParser._getString(rawData, ObjectDataParser.PARENT, null));
 
-            if ((ObjectDataParser.COLOR in rawData) || (ObjectDataParser.COLOR_TRANSFORM in rawData)) {
+            if ((ObjectDataParser.COLOR in rawData) || (ObjectDataParser.COLOR_TRANSFORM in rawData)) { // Support 2.x ~ 3.x data.
                 slot.color = SlotData.generateColor();
                 this._parseColorTransform(rawData[ObjectDataParser.COLOR] || rawData[ObjectDataParser.COLOR_TRANSFORM], slot.color);
             }
@@ -224,16 +225,6 @@ namespace dragonBones {
 
             if ((ObjectDataParser.ACTIONS in rawData) || (ObjectDataParser.DEFAULT_ACTIONS in rawData)) {
                 this._parseActionData(rawData, slot.actions, null, null);
-            }
-
-            if (this._isOldData) { // Support 2.x ~ 3.x data.
-                if (ObjectDataParser.COLOR_TRANSFORM in rawData) {
-                    slot.color = SlotData.generateColor();
-                    this._parseColorTransform(rawData[ObjectDataParser.COLOR_TRANSFORM], slot.color);
-                }
-                else {
-                    slot.color = SlotData.DEFAULT_COLOR;
-                }
             }
 
             return slot;
@@ -849,13 +840,24 @@ namespace dragonBones {
             let x = 0.0;
             let y = 0.0;
             for (let i = 0, l = mesh.vertices.length; i < l; i += 2) {
-                if (!rawVertices || i < offset || i - offset >= rawVertices.length) { // Fill 0.
+                if (!rawVertices) {
                     x = 0.0;
                     y = 0.0;
                 }
                 else {
-                    x = rawVertices[i - offset] * this._armature.scale;
-                    y = rawVertices[i + 1 - offset] * this._armature.scale;
+                    if (i < offset || i - offset >= rawVertices.length) {
+                        x = 0.0;
+                    }
+                    else {
+                        x = rawVertices[i - offset] * this._armature.scale;
+                    }
+
+                    if (i + 1 < offset || i + 1 - offset >= rawVertices.length) {
+                        y = 0.0;
+                    }
+                    else {
+                        y = rawVertices[i + 1 - offset] * this._armature.scale;
+                    }
                 }
 
                 if (mesh.skinned) { // If mesh is skinned, transform point by bone bind pose.
@@ -989,7 +991,7 @@ namespace dragonBones {
                 actionData.bone = bone;
                 actionData.slot = slot;
                 actionData.animationConfig = BaseObject.borrowObject(AnimationConfig);
-                actionData.animationConfig.animationName = rawActions;
+                actionData.animationConfig.animation = rawActions;
                 actions.push(actionData);
             }
             else if (rawActions instanceof Array) { // Support [{gotoAndPlay: "animationName"}, ...] or [["gotoAndPlay", "animationName", ...], ...]
@@ -1015,7 +1017,7 @@ namespace dragonBones {
                     switch (actionData.type) {
                         case ActionType.Play:
                             actionData.animationConfig = BaseObject.borrowObject(AnimationConfig);
-                            actionData.animationConfig.animationName = animationName;
+                            actionData.animationConfig.animation = animationName;
                             break;
 
                         default:
@@ -1106,8 +1108,8 @@ namespace dragonBones {
         protected _parseTransform(rawData: any, transform: Transform): void {
             transform.x = ObjectDataParser._getNumber(rawData, ObjectDataParser.X, 0.0) * this._armature.scale;
             transform.y = ObjectDataParser._getNumber(rawData, ObjectDataParser.Y, 0.0) * this._armature.scale;
-            transform.skewX = ObjectDataParser._getNumber(rawData, ObjectDataParser.SKEW_X, 0.0) * DragonBones.ANGLE_TO_RADIAN;
-            transform.skewY = ObjectDataParser._getNumber(rawData, ObjectDataParser.SKEW_Y, 0.0) * DragonBones.ANGLE_TO_RADIAN;
+            transform.skewX = Transform.normalizeRadian(ObjectDataParser._getNumber(rawData, ObjectDataParser.SKEW_X, 0.0) * DragonBones.ANGLE_TO_RADIAN);
+            transform.skewY = Transform.normalizeRadian(ObjectDataParser._getNumber(rawData, ObjectDataParser.SKEW_Y, 0.0) * DragonBones.ANGLE_TO_RADIAN);
             transform.scaleX = ObjectDataParser._getNumber(rawData, ObjectDataParser.SCALE_X, 1.0);
             transform.scaleY = ObjectDataParser._getNumber(rawData, ObjectDataParser.SCALE_Y, 1.0);
         }

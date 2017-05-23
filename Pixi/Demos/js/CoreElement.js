@@ -393,6 +393,8 @@ var demosPixi;
                     else {
                         this._aimState = this._armature.animation.fadeIn("aimDown", 0, 1, 0, Mecha.AIM_ANIMATION_GROUP, 2 /* SameGroup */);
                     }
+                    // Add bone mask.
+                    //_aimState.addBoneMask("pelvis");
                 }
                 this._aimState.weight = Math.abs(this._aimRadian / Math.PI * 2);
                 //_armature.invalidUpdate("pelvis"); // Only update bone mask.

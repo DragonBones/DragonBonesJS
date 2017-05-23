@@ -35,6 +35,7 @@ var dragonBones;
         PixiTextureAtlasData.prototype._onClear = function () {
             _super.prototype._onClear.call(this);
             if (this.texture) {
+                //this.texture.dispose();
             }
             this.texture = null;
         };
@@ -700,7 +701,7 @@ var dragonBones;
                 if (!textureData.texture) {
                     var textureAtlasTexture = textureData.parent.texture;
                     var originSize = new PIXI.Rectangle(0, 0, textureData.region.width, textureData.region.height);
-                    textureData.texture = new PIXI.Texture(textureAtlasTexture, null, textureData.region, originSize, textureData.rotated // .d.ts bug
+                    textureData.texture = new PIXI.Texture(textureAtlasTexture, textureData.region, textureData.region, originSize, textureData.rotated // .d.ts bug
                     );
                 }
                 return new PIXI.Sprite(textureData.texture);

@@ -193,6 +193,7 @@ declare namespace dragonBones {
          * @version DragonBones 4.5
          */
         hashCode: number;
+        private _isInPool;
         /**
          * @private
          */
@@ -573,7 +574,7 @@ declare namespace dragonBones {
          * 动画数据名。
          * @version DragonBones 5.0
          */
-        animationName: string;
+        animation: string;
         /**
          * @language zh_CN
          * 混合组，用于动画状态编组，方便控制淡出。

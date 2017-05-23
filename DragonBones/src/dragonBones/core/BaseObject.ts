@@ -16,8 +16,10 @@ namespace dragonBones {
             const pool = BaseObject._poolsMap[classType] = BaseObject._poolsMap[classType] || [];
 
             if (pool.length < maxCount) {
-                //console.assert(pool.indexOf(object) < 0);
-                pool.push(object);
+                if (!object._isInPool) {
+                    object._isInPool = true;
+                    pool.push(object);
+                }
             }
         }
         /**
@@ -88,7 +90,9 @@ namespace dragonBones {
         public static borrowObject<T extends BaseObject>(objectConstructor: { new (): T; }): T {
             const pool = BaseObject._poolsMap[String(objectConstructor)];
             if (pool && pool.length > 0) {
-                return <T>pool.pop();
+                const object = pool.pop() as T;
+                object._isInPool = false;
+                return object;
             }
             else {
                 const object = new objectConstructor();
@@ -102,6 +106,7 @@ namespace dragonBones {
          * @version DragonBones 4.5
          */
         public hashCode: number = BaseObject._hashCode++;
+        private _isInPool: boolean = false;
         /**
          * @internal
          * @private

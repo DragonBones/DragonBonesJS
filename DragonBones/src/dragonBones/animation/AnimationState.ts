@@ -269,7 +269,7 @@ namespace dragonBones {
         public _init(armature: Armature, animationData: AnimationData, animationConfig: AnimationConfig): void {
             this._armature = armature;
             this._animationData = animationData;
-            this._name = animationConfig.name ? animationConfig.name : animationConfig.animationName;
+            this._name = animationConfig.name ? animationConfig.name : animationConfig.animation;
 
             this.actionEnabled = animationConfig.actionEnabled;
             this.additiveBlending = animationConfig.additiveBlending;
@@ -608,7 +608,7 @@ namespace dragonBones {
             }
 
             if (this._fadeState > 0) {
-                if (fadeOutTime > fadeOutTime - this._fadeTime) {
+                if (fadeOutTime > this.fadeTotalTime - this._fadeTime) {
                     // If the animation is already in fade out, the new fade out will be ignored.
                     return;
                 }
@@ -799,12 +799,18 @@ namespace dragonBones {
             return this._timeline._currentTime;
         }
         public set currentTime(value: number) {
-            if (value < 0.0 || value !== value) {
+            if (value !== value) {
                 value = 0.0;
             }
 
             const currentPlayTimes = this._timeline._currentPlayTimes - (this._timeline._playState > 0 ? 1 : 0);
             value = (value % this._duration) + currentPlayTimes * this._duration;
+            if (value < 0 || this._duration < value) {
+                value = (value % this._duration) + currentPlayTimes * this._duration;
+                if (value < 0) {
+                    value += this._duration;
+                }
+            }
             if (this._time === value) {
                 return;
             }

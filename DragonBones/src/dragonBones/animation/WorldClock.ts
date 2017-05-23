@@ -171,12 +171,11 @@ namespace dragonBones {
             }
 
             const prevClock = this._clock;
-            this._clock = value;
-
             if (prevClock) {
                 prevClock.remove(this);
             }
 
+            this._clock = value;
             if (this._clock) {
                 this._clock.add(this);
             }

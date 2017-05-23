@@ -20,7 +20,7 @@ namespace dragonBones {
         rectangleArray?: Float32Array,
         transformArray?: Float32Array,
         colorArray?: Int16Array,
-        textures?: egret.Texture[],
+        textures?: egret.Texture[]
     };
     /**
      * @private
@@ -29,7 +29,7 @@ namespace dragonBones {
         name: string,
         type: DisplayType,
         textureIndex?: number,
-        regionIndex?: number
+        regionIndex?: number,
 
         // Runtime
         texture?: egret.Texture
@@ -103,43 +103,6 @@ namespace dragonBones {
     /**
      * @private
      */
-    class MovieSlot extends egret.HashObject {
-        public displayIndex: number = -1;
-        public colorIndex: number = -1;
-        public transformIndex: number = -1;
-        public rawDisplay: egret.Bitmap = new egret.Bitmap();
-        public childMovies: Map<Movie> = {};
-        public config: SlotConfig = null;
-        public displayConfig: DisplayConfig = null;
-        public display: egret.DisplayObject = null;
-        public childMovie: Movie = null;
-        public colorFilter: egret.ColorMatrixFilter = null;
-
-        public constructor(slotConfig: SlotConfig) {
-            super();
-
-            this.display = this.rawDisplay;
-            this.config = slotConfig;
-            this.rawDisplay.name = this.config.name;
-
-            if (this.config.blendMode == null) {
-                this.config.blendMode = BlendMode.Normal;
-            }
-        }
-
-        public dispose(): void {
-            this.rawDisplay = null;
-            this.childMovies = null;
-            this.config = null;
-            this.displayConfig = null;
-            this.display = null;
-            this.childMovie = null;
-            this.colorFilter = null;
-        }
-    }
-    /**
-     * @private
-     */
     let _helpRectangle: egret.Rectangle = new egret.Rectangle();
     /**
      * @private
@@ -169,7 +132,7 @@ namespace dragonBones {
         if (createMovieHelper.groupName) {
             const groupConfig = _groupConfigMap[createMovieHelper.groupName];
             if (groupConfig) {
-                const movieConfig = _findObjectInArray(groupConfig.movie, createMovieHelper.movieName);
+                const movieConfig = _findObjectInArray(groupConfig.movie || groupConfig.animation, createMovieHelper.movieName);
                 if (movieConfig) {
                     createMovieHelper.groupConfig = groupConfig;
                     createMovieHelper.movieConfig = movieConfig;
@@ -182,7 +145,7 @@ namespace dragonBones {
             for (let groupName in _groupConfigMap) {
                 const groupConfig = _groupConfigMap[groupName];
                 if (!createMovieHelper.groupName) { // || groupConfig.autoSearch
-                    const movieConfig = _findObjectInArray(groupConfig.movie, createMovieHelper.movieName);
+                    const movieConfig = _findObjectInArray(groupConfig.movie || groupConfig.animation, createMovieHelper.movieName);
                     if (movieConfig) {
                         createMovieHelper.groupName = groupName;
                         createMovieHelper.groupConfig = groupConfig;
@@ -301,6 +264,8 @@ namespace dragonBones {
         const createMovieHelper = <CreateMovieHelper>{ movieName: movieName, groupName: groupName };
         if (_fillCreateMovieHelper(createMovieHelper)) {
             const movie = new Movie(createMovieHelper);
+            dragonBones.EgretFactory.factory;
+            movie.clock = dragonBones.EgretFactory.clock;
             return movie;
         }
         else {
@@ -319,8 +284,9 @@ namespace dragonBones {
         const groupConfig = _groupConfigMap[groupName];
         if (groupConfig) {
             const movieNameGroup = <string[]>[];
-            for (let i = 0, l = groupConfig.movie.length; i < l; ++i) {
-                movieNameGroup.push(groupConfig.movie[i].name);
+            const movie = groupConfig.movie || groupConfig.animation;
+            for (let i = 0, l = movie.length; i < l; ++i) {
+                movieNameGroup.push(movie[i].name);
             }
 
             return movieNameGroup;
@@ -397,6 +363,76 @@ namespace dragonBones {
         public constructor(type: string) {
             super(type);
         }
+
+        //========================================= // 兼容旧数据
+        /**
+         * @private
+         */
+        public get armature(): any {
+            return this.movie;
+        }
+        /**
+         * @private
+         */
+        public get bone(): any {
+            return null;
+        }
+        /**
+         * @private
+         */
+        public get animationState(): any {
+            return { name: this.clipName };
+        }
+        /**
+         * @private
+         */
+        public get frameLabel(): any {
+            return this.name;
+        }
+        /**
+         * @private
+         */
+        public get movementID(): any {
+            return this.clipName;
+        }
+        //=========================================
+    }
+    /**
+     * @private
+     */
+    class MovieSlot extends egret.HashObject {
+        public displayIndex: number = -1;
+        public colorIndex: number = -1;
+        public transformIndex: number = -1;
+        public rawDisplay: egret.Bitmap = new egret.Bitmap();
+        public childMovies: Map<Movie> = {};
+        public config: SlotConfig = null;
+        public displayConfig: DisplayConfig = null;
+        public display: egret.DisplayObject = null;
+        public childMovie: Movie = null;
+        public colorFilter: egret.ColorMatrixFilter = null;
+
+        public constructor(slotConfig: SlotConfig) {
+            super();
+
+            this.display = this.rawDisplay;
+            this.config = slotConfig;
+            this.rawDisplay.name = this.config.name;
+
+            if (this.config.blendMode == null) {
+                this.config.blendMode = BlendMode.Normal;
+            }
+        }
+
+        public dispose(): void {
+            this.rawDisplay = null;
+            this.childMovies = null;
+            this.config = null;
+            this.displayConfig = null;
+            this.display = null;
+            this.childMovie = null;
+            this.colorFilter = null;
+        }
     }
     /**
      * @language zh_CN
@@ -458,7 +494,7 @@ namespace dragonBones {
             this._groupConfig = (<CreateMovieHelper>createMovieHelper).groupConfig;
             this._config = (<CreateMovieHelper>createMovieHelper).movieConfig;
 
-            this._batchEnabled = !this._config.isNested;
+            this._batchEnabled = !(this._config.isNested || this._config.hasChildAnimation);
 
             if (this._batchEnabled) {
                 this.$renderNode = new egret.sys.GroupNode();
@@ -484,9 +520,6 @@ namespace dragonBones {
             }
 
             this._frameSize = (1 + 1) * this._slots.length; // displayFrame, transformFrame.
-
-            EgretFactory.factory; //
-            this.advanceTimeBySelf(true);
             this.name = this._config.name;
             this.play();
             this.advanceTime(0.000001);
@@ -648,7 +681,6 @@ namespace dragonBones {
 
                     if (!childMovie) {
                         childMovie = buildMovie(slot.displayConfig.name, this._groupConfig.name);
-                        childMovie.advanceTimeBySelf(false);
                         slot.childMovies[slot.displayConfig.name] = childMovie;
                     }
 
@@ -855,11 +887,6 @@ namespace dragonBones {
          * @inheritDoc
          */
         public advanceTime(passedTime: number): void {
-            // Advance child armatre time.
-            for (let i = 0, l = this._childMovies.length; i < l; ++i) {
-                this._childMovies[i].advanceTime(passedTime);
-            }
-
             if (this._isPlaying) {
                 this._isLockDispose = true;
                 if (passedTime < 0) {
@@ -1343,22 +1370,22 @@ namespace dragonBones {
             }
 
             const prevClock = this._clock;
-            this._clock = value;
-
             if (prevClock) {
                 prevClock.remove(this);
             }
 
+            this._clock = value;
             if (this._clock) {
                 this._clock.add(this);
             }
         }
 
         /**
-         * @language zh_CN
-         * 由 Movie 自己来更新动画。
-         * @param on 开启或关闭 Movie 自己对动画的更新。
-         * @version DragonBones 4.7
+         * @deprecated
+         * @see dragonBones.Movie#clock
+         * @see dragonBones.EgretFactory#clock
+         * @see dragonBones.Movie#timescale
+         * @see dragonBones.Movie#stop()
          */
         public advanceTimeBySelf(on: boolean): void {
             if (on) {
@@ -1368,5 +1395,73 @@ namespace dragonBones {
                 this.clock = null;
             }
         }
+
+        //========================================= // 兼容旧数据
+        /**
+         * @private
+         */
+        public get display(): any {
+            return this;
+        }
+        /**
+         * @private
+         */
+        public get animation(): any {
+            return this;
+        }
+        /**
+         * @private
+         */
+        public get armature(): any {
+            return this;
+        }
+        /**
+         * @private
+         */
+        public getAnimation(): any {
+            return this;
+        }
+        /**
+         * @private
+         */
+        public getArmature(): any {
+            return this;
+        }
+        /**
+         * @private
+         */
+        public getDisplay(): any {
+            return this;
+        }
+        /**
+         * @private
+         */
+        public hasAnimation(name: string): boolean {
+            return this.hasClip(name);
+        }
+        /**
+         * @private
+         */
+        public invalidUpdate(...arg): void {
+        }
+        /**
+         * @private
+         */
+        public get lastAnimationName(): string {
+            return this.clipName;
+        }
+        /**
+         * @private
+         */
+        public get animationNames(): string[] {
+            return this.clipNames;
+        }
+        /**
+         * @private
+         */
+        public get animationList(): string[] {
+            return this.clipNames;
+        }
+        //=========================================
     }
 }

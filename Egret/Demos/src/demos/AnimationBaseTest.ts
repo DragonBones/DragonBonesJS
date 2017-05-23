@@ -34,7 +34,7 @@ namespace demosEgret {
             // Test animation config.
             let animaitonConfig = this._armatureDisplay.animation.animationConfig;
             animaitonConfig.name = "test"; // Animation state name.
-            animaitonConfig.animationName = "idle"; // Animation name.
+            animaitonConfig.animation = "idle"; // Animation name.
 
             animaitonConfig.playTimes = 1; // Play one time.
             //animaitonConfig.playTimes = 3; // Play several times.

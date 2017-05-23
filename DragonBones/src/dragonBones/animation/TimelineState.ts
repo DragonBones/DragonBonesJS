@@ -383,8 +383,8 @@ namespace dragonBones {
                     this._transform.skewY = currentTransform.skewY + this._durationTransform.skewY * tweenProgress;
                 }
                 else { // Normal blending.
-                    this._transform.skewX = this._originalTransform.skewX + currentTransform.skewX + this._durationTransform.skewX * tweenProgress;
-                    this._transform.skewY = this._originalTransform.skewY + currentTransform.skewY + this._durationTransform.skewY * tweenProgress;
+                    this._transform.skewX = Transform.normalizeRadian(this._originalTransform.skewX + currentTransform.skewX + this._durationTransform.skewX * tweenProgress);
+                    this._transform.skewY = Transform.normalizeRadian(this._originalTransform.skewY + currentTransform.skewY + this._durationTransform.skewY * tweenProgress);
                 }
 
                 this._transformDirty = true;

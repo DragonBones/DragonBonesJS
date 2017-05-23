@@ -141,7 +141,7 @@ namespace dragonBones {
          * 动画数据名。
          * @version DragonBones 5.0
          */
-        public animationName: string;
+        public animation: string;
         /**
          * @language zh_CN
          * 混合组，用于动画状态编组，方便控制淡出。
@@ -189,7 +189,7 @@ namespace dragonBones {
             this.fadeInEasing = 0.0;
             this.weight = 1.0;
             this.name = null;
-            this.animationName = null;
+            this.animation = null;
             this.group = null;
             this.boneMask.length = 0;
             this.animationNames.length = 0;
@@ -219,7 +219,7 @@ namespace dragonBones {
             this.fadeInEasing = value.fadeInEasing;
             this.weight = value.weight;
             this.name = value.name;
-            this.animationName = value.animationName;
+            this.animation = value.animation;
             this.group = value.group;
 
             this.boneMask.length = value.boneMask.length;

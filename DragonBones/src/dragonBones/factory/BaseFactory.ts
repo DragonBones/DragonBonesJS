@@ -162,6 +162,10 @@ namespace dragonBones {
         protected _buildSlots(dataPackage: BuildArmaturePackage, armature: Armature): void {
             const currentSkin = dataPackage.skin;
             const defaultSkin = dataPackage.armature.defaultSkin;
+            if (!currentSkin || !defaultSkin){ 
+                return;
+            }
+            
             const skinSlotDatas: Map<SkinSlotData> = {};
 
             for (let k in defaultSkin.slots) {
