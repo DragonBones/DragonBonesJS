@@ -189,7 +189,7 @@ namespace dragonBones {
                     const originSize = new PIXI.Rectangle(0, 0, textureData.region.width, textureData.region.height);
                     textureData.texture = new PIXI.Texture(
                         textureAtlasTexture,
-                        null,
+                        <PIXI.Rectangle><any>textureData.region,
                         <PIXI.Rectangle><any>textureData.region,
                         originSize,
                         textureData.rotated as any // .d.ts bug
