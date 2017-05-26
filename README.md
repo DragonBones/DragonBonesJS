@@ -1,6 +1,6 @@
 # DragonBones JavaScript / TypeScript Runtime
 * [DragonBones common library](./DragonBones/)
-* Highly suggest use [DragonBones Pro](http://dragonbones.github.io/) to create aniamtion.
+* Highly suggest use [DragonBones Pro](http://www.dragonbones.com/) to create aniamtion.
 
 ## Supported engines
 * [Egret](http://www.egret.com/) - [How to use DragonBones in Egret](./Egret/)
@@ -12,10 +12,11 @@
 3. Import engine source code such as [Egret source code](https://github.com/egret-labs/egret-core/) and [DragonBones Egret source code](./Egret/src).
 4. Build project and have fun.
 
+## Demos
+<iframe src="http://www.dragonbones.com/demo/" width="800px" height="600px" frameborder="0" scrolling="no"></iframe>
+
 ## To learn more about
-* [DragonBones WebSite](http://dragonbones.github.io/)
-* [DragonBones Pro WebSite](http://www.egret.com/products/dragonbones.html)
-* [Demos](http://dragonbones.github.io/demo.html)
+* [DragonBones WebSite](http://www.dragonbones.com/)
 
 ## Release Notes
 * [DragonBones 4.7 release notes](https://github.com/DragonBones/DragonBonesJS/blob/master/docs/DragonBones_4.7_release_notes_zh.md)
