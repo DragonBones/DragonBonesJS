@@ -21,8 +21,6 @@ namespace demosEgret {
             super();
 
             this._resourceConfigURL = "resource/hello_dragonbones.res.json";
-
-            this.addEventListener(egret.Event.ADDED_TO_STAGE, this._onStart, this);
         }
 
         protected _onStart(): void {
