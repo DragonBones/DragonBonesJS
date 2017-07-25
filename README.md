@@ -12,9 +12,6 @@
 3. Import engine source code such as [Egret source code](https://github.com/egret-labs/egret-core/) and [DragonBones Egret source code](./Egret/src).
 4. Build project and have fun.
 
-## Demos
-<iframe src="http://www.dragonbones.com/demo/" width="800px" height="600px" frameborder="0" scrolling="no"></iframe>
-
 ## To learn more about
 * [DragonBones WebSite](http://www.dragonbones.com/)
 
