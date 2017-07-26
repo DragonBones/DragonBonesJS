@@ -1,0 +1,28 @@
+{
+  "native": {
+    "path_ignore": []
+  },
+  "publish": {
+    "web": 0,
+    "native": 1,
+    "path": "bin-release"
+  },
+  "template": {},
+  "egret_version": "5.0.2",
+  "modules": [
+    {
+      "name": "egret"
+    },
+    {
+      "name": "dragonBones",
+      "path": "../4.x/out/"
+    },
+    {
+      "name": "res"
+    },
+    {
+      "name": "promise",
+      "path": "./libs/promise/"
+    }
+  ]
+}
