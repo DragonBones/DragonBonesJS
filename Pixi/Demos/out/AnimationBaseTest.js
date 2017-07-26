@@ -62,6 +62,13 @@ var AnimationBaseTest = (function (_super) {
             _this.stage.addListener("mousedown", _this._touchHandler, _this);
             _this.stage.addListener("mouseup", _this._touchHandler, _this);
             _this.stage.addListener("mousemove", _this._touchHandler, _this);
+            var text = new PIXI.Text("", { align: "center" });
+            text.text = "Click to control animation play progress.";
+            text.scale.x = 0.7;
+            text.scale.y = 0.7;
+            text.x = (_this.renderer.width - text.width) * 0.5;
+            text.y = _this.renderer.height - 60;
+            _this._stage.addChild(text);
             //
             _this._startRenderTick();
         });
