@@ -3,12 +3,18 @@ bin-debug/
 bin-release/
 bin/
 libs/
+node_modules/
+modules/
 
-# Project property files
-.settings/
-.actionScriptProperties
-.flexProperties
-.project
-.flexLibProperties
-*.swf
-*.fla
+pids
+logs
+results
+
+lib-cov
+*.seed
+*.log
+*.csv
+*.dat
+*.out
+*.pid
+*.gz
