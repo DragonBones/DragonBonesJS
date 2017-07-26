@@ -75,6 +75,12 @@ var dragonBones;
         return DragonBones;
     }());
     dragonBones.DragonBones = DragonBones;
+    if (!console.warn) {
+        console.warn = function () { };
+    }
+    if (!console.assert) {
+        console.assert = function () { };
+    }
 })(dragonBones || (dragonBones = {}));
 var dragonBones;
 (function (dragonBones) {
@@ -5290,9 +5296,9 @@ var dragonBones;
                     childArmature.animation.fadeIn(animationName); //
                 }
             }
-            // if (animationConfig.fadeInTime <= 0.0) { // Blend animation state, update armature.
-            //     this._armature.advanceTime(0.0);
-            // }
+            if (animationConfig.fadeInTime <= 0.0) {
+                this._armature.advanceTime(0.0);
+            }
             this._lastAnimationState = animationState;
             return animationState;
         };

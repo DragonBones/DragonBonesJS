@@ -3,7 +3,10 @@
   "version": "5.1.0",
   "main": "",
   "scripts": {
-    "build": "tsc & uglifyjs ./out/dragonBones.js -o ./out/dragonBones.min.js -m"
+    "build": "tsc & uglifyjs ./out/dragonBones.js -o ./out/dragonBones.min.js -m",
+    "build-egret": "cd.. & cd Egret & cd 4.x & npm run build & cd.. & cd.. & cd DragonBones",
+    "build-pixi": "cd.. & cd Pixi & cd 4.x & npm run build & cd.. & cd Demos & tsc & cd.. & cd.. & cd DragonBones",
+    "build-all": "npm run build & npm run build-egret & npm run build-pixi"
   },
   "devDependencies": {
     "typescript": "^2.4.2",

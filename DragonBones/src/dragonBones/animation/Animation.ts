@@ -355,9 +355,9 @@ namespace dragonBones {
                 }
             }
 
-            // if (animationConfig.fadeInTime <= 0.0) { // Blend animation state, update armature.
-            //     this._armature.advanceTime(0.0);
-            // }
+            if (animationConfig.fadeInTime <= 0.0) { // Blend animation state, update armature.
+                this._armature.advanceTime(0.0);
+            }
 
             this._lastAnimationState = animationState;
 
@@ -675,7 +675,7 @@ namespace dragonBones {
         public get lastAnimationState(): AnimationState | null {
             return this._lastAnimationState;
         }
-        
+
         /**
          * @deprecated
          * 已废弃，请参考 @see
