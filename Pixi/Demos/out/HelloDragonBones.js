@@ -34,7 +34,7 @@ var HelloDragonBones = (function (_super) {
     HelloDragonBones.prototype._onStart = function () {
         var _this = this;
         PIXI.loader
-            .add("dragonBonesData", "./resource/assets/dragon_boy_ske.json")
+            .add("dragonBonesData", "./resource/assets/dragon_boy_ske.dbbin", { loadType: PIXI.loaders.Resource.LOAD_TYPE.XHR, xhrType: PIXI.loaders.Resource.XHR_RESPONSE_TYPE.BUFFER })
             .add("textureData", "./resource/assets/dragon_boy_tex.json")
             .add("texture", "./resource/assets/dragon_boy_tex.png");
         PIXI.loader.once("complete", function (loader, resources) {
