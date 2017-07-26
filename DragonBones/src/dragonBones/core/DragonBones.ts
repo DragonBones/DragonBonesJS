@@ -250,4 +250,12 @@ namespace dragonBones {
             return this._eventManager;
         }
     }
+
+    if (!console.warn) {
+        console.warn = function () { };
+    }
+
+    if (!console.assert) {
+        console.assert = function () { };
+    }
 }
