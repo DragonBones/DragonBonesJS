@@ -3,479 +3,380 @@ namespace dragonBones {
      * @internal
      * @private
      */
-    export class AnimationTimelineState extends TimelineState<AnimationFrameData, AnimationData> {
+    export class ActionTimelineState extends TimelineState {
         public static toString(): string {
-            return "[class dragonBones.AnimationTimelineState]";
+            return "[class dragonBones.ActionTimelineState]";
         }
 
-        public constructor() {
-            super();
-        }
-
-        protected _onCrossFrame(frame: AnimationFrameData): void {
-            if (this._animationState.actionEnabled) {
-                const actions = frame.actions;
-                for (let i = 0, l = actions.length; i < l; ++i) {
-                    this._armature._bufferAction(actions[i]);
-                }
-            }
-
+        private _onCrossFrame(frameIndex: number): void {
             const eventDispatcher = this._armature.eventDispatcher;
-            const events = frame.events;
-            for (let i = 0, l = events.length; i < l; ++i) {
-                const eventData = events[i];
-
-                let eventType: string = null;
-                switch (eventData.type) {
-                    case EventType.Frame:
-                        eventType = EventObject.FRAME_EVENT;
-                        break;
-
-                    case EventType.Sound:
-                        eventType = EventObject.SOUND_EVENT;
-                        break;
-                }
-
-                if (eventDispatcher.hasEvent(eventType) || eventData.type === EventType.Sound) {
-                    const eventObject = BaseObject.borrowObject(EventObject);
-                    eventObject.name = eventData.name;
-                    eventObject.frame = frame;
-                    eventObject.data = eventData.data;
-                    eventObject.animationState = this._animationState;
-
-                    if (eventData.bone) {
-                        eventObject.bone = this._armature.getBone(eventData.bone.name);
-                    }
-
-                    if (eventData.slot) {
-                        eventObject.slot = this._armature.getSlot(eventData.slot.name);
-                    }
-
-                    this._armature._bufferEvent(eventObject, eventType);
-                }
-            }
-        }
-
-        public update(passedTime: number): void {
-            const prevState = this._playState;
-            const prevPlayTimes = this._currentPlayTimes;
-            const prevTime = this._currentTime;
-
-            if (this._playState <= 0 && this._setCurrentTime(passedTime)) {
-                const eventDispatcher = this._armature.eventDispatcher;
-
-                if (prevState < 0 && this._playState !== prevState) {
-                    if (this._animationState.displayControl) {
-                        this._armature._sortZOrder(null);
-                    }
-
-                    if (eventDispatcher.hasEvent(EventObject.START)) {
-                        const eventObject = BaseObject.borrowObject(EventObject);
-                        eventObject.animationState = this._animationState;
-                        this._armature._bufferEvent(eventObject, EventObject.START);
-                    }
-                }
-
-                if (prevTime < 0.0) {
-                    return;
-                }
-
-                let isReverse = false;
-                let loopCompleteEvent: EventObject = null;
-                let completeEvent: EventObject = null;
-
-                if (this._currentPlayTimes !== prevPlayTimes) {
-                    if (eventDispatcher.hasEvent(EventObject.LOOP_COMPLETE)) {
-                        loopCompleteEvent = BaseObject.borrowObject(EventObject);
-                        loopCompleteEvent.animationState = this._animationState;
-                    }
-
-                    if (this._playState > 0) {
-                        if (eventDispatcher.hasEvent(EventObject.COMPLETE)) {
-                            completeEvent = BaseObject.borrowObject(EventObject);
-                            completeEvent.animationState = this._animationState;
-                        }
-
-                        isReverse = prevTime > this._currentTime;
-                    }
-                    else {
-                        isReverse = prevTime < this._currentTime;
-                    }
-                }
-                else {
-                    isReverse = prevTime > this._currentTime;
-                }
-
-                if (this._frameCount > 1) {
-                    const currentFrameIndex = Math.floor(this._currentTime * this._frameRate); // uint
-                    const currentFrame = this._timelineData.frames[currentFrameIndex];
-                    if (this._currentFrame !== currentFrame) {
-                        let crossedFrame = this._currentFrame;
-                        this._currentFrame = currentFrame;
-
-                        if (isReverse) {
-                            if (!crossedFrame) {
-                                const prevFrameIndex = Math.floor(prevTime * this._frameRate);
-                                crossedFrame = this._timelineData.frames[prevFrameIndex];
-
-                                if (this._currentPlayTimes === prevPlayTimes) { // Start.
-                                    if (crossedFrame === currentFrame) { // Uncrossed.
-                                        crossedFrame = null;
-                                    }
+            if (this._animationState.actionEnabled) {
+                const frameOffset = this._animationData.frameOffset + this._timelineArray[(this._timelineData as TimelineData).offset + BinaryOffset.TimelineFrameOffset + frameIndex];
+                const actionCount = this._frameArray[frameOffset + 1];
+                const actions = this._armature.armatureData.actions;
+                for (let i = 0; i < actionCount; ++i) {
+                    const actionIndex = this._frameArray[frameOffset + 2 + i];
+                    const action = actions[actionIndex];
+                    if (action.type === ActionType.Play) {
+                        // TODO action should be do after displayIndex change.
+                        if (action.slot !== null) {
+                            const slot = this._armature.getSlot(action.slot.name);
+                            if (slot !== null) {
+                                const childArmature = slot.childArmature;
+                                if (childArmature !== null) {
+                                    childArmature.animation.fadeIn(action.name);
                                 }
                             }
-
-                            while (crossedFrame) {
-                                if (
-                                    this._position <= crossedFrame.position &&
-                                    crossedFrame.position <= this._position + this._duration
-                                ) { // Support interval play.
-                                    this._onCrossFrame(crossedFrame);
-                                }
-
-                                if (loopCompleteEvent && crossedFrame === this._timelineData.frames[0]) { // Add loop complete event after first frame.
-                                    this._armature._bufferEvent(loopCompleteEvent, EventObject.LOOP_COMPLETE);
-                                    loopCompleteEvent = null;
-                                }
-
-                                crossedFrame = crossedFrame.prev;
-
-                                if (crossedFrame === currentFrame) {
-                                    break;
+                        }
+                        else if (action.bone !== null) {
+                            for (const slot of this._armature.getSlots()) {
+                                const childArmature = slot.childArmature;
+                                if (childArmature !== null && slot.parent.boneData === action.bone) {
+                                    childArmature.animation.fadeIn(action.name);
                                 }
                             }
                         }
                         else {
-                            if (!crossedFrame) {
-                                const prevFrameIndex = Math.floor(prevTime * this._frameRate);
-                                crossedFrame = this._timelineData.frames[prevFrameIndex];
+                            this._armature.animation.fadeIn(action.name);
+                        }
+                    }
+                    else {
+                        const eventType = action.type === ActionType.Frame ? EventObject.FRAME_EVENT : EventObject.SOUND_EVENT;
+                        if (action.type === ActionType.Sound || eventDispatcher.hasEvent(eventType)) {
+                            const eventObject = BaseObject.borrowObject(EventObject);
+                            eventObject.time = this._frameArray[frameOffset] * this._frameRateR;
+                            eventObject.type = eventType;
+                            eventObject.name = action.name;
+                            eventObject.data = action.data;
+                            eventObject.armature = this._armature;
+                            eventObject.animationState = this._animationState;
 
-                                if (this._currentPlayTimes === prevPlayTimes) { // Start.
-                                    if (prevTime <= crossedFrame.position) { // Crossed.
-                                        crossedFrame = crossedFrame.prev;
+                            if (action.bone !== null) {
+                                eventObject.bone = this._armature.getBone(action.bone.name);
+                            }
+
+                            if (action.slot !== null) {
+                                eventObject.slot = this._armature.getSlot(action.slot.name);
+                            }
+
+                            this._armature._dragonBones.bufferEvent(eventObject);
+                        }
+                    }
+                }
+            }
+        }
+
+        protected _onArriveAtFrame(): void { }
+        protected _onUpdateFrame(): void { }
+
+        public update(passedTime: number): void {
+            const prevState = this.playState;
+            let prevPlayTimes = this.currentPlayTimes;
+            let prevTime = this.currentTime;
+
+            if (this.playState <= 0 && this._setCurrentTime(passedTime)) {
+                const eventDispatcher = this._armature.eventDispatcher;
+
+                if (prevState < 0) {
+                    if (this.playState !== prevState) {
+                        if (this._animationState.displayControl && this._animationState.resetToPose) { // Reset zorder to pose.
+                            this._armature._sortZOrder(null, 0);
+                        }
+
+                        prevPlayTimes = this.currentPlayTimes;
+
+                        if (eventDispatcher.hasEvent(EventObject.START)) {
+                            const eventObject = BaseObject.borrowObject(EventObject);
+                            eventObject.type = EventObject.START;
+                            eventObject.armature = this._armature;
+                            eventObject.animationState = this._animationState;
+                            this._armature._dragonBones.bufferEvent(eventObject);
+                        }
+                    }
+                    else {
+                        return;
+                    }
+                }
+
+                const isReverse = this._animationState.timeScale < 0;
+                let loopCompleteEvent: EventObject | null = null;
+                let completeEvent: EventObject | null = null;
+                if (this.currentPlayTimes !== prevPlayTimes) {
+                    if (eventDispatcher.hasEvent(EventObject.LOOP_COMPLETE)) {
+                        loopCompleteEvent = BaseObject.borrowObject(EventObject);
+                        loopCompleteEvent.type = EventObject.LOOP_COMPLETE;
+                        loopCompleteEvent.armature = this._armature;
+                        loopCompleteEvent.animationState = this._animationState;
+                    }
+
+                    if (this.playState > 0) {
+                        if (eventDispatcher.hasEvent(EventObject.COMPLETE)) {
+                            completeEvent = BaseObject.borrowObject(EventObject);
+                            completeEvent.type = EventObject.COMPLETE;
+                            completeEvent.armature = this._armature;
+                            completeEvent.animationState = this._animationState;
+                        }
+
+                    }
+                }
+
+                if (this._frameCount > 1) {
+                    const timelineData = this._timelineData as TimelineData;
+                    const timelineFrameIndex = Math.floor(this.currentTime * this._frameRate); // uint
+                    const frameIndex = this._frameIndices[timelineData.frameIndicesOffset + timelineFrameIndex];
+                    if (this._frameIndex !== frameIndex) { // Arrive at frame.                   
+                        let crossedFrameIndex = this._frameIndex;
+                        this._frameIndex = frameIndex;
+                        if (this._timelineArray !== null) {
+                            this._frameOffset = this._animationData.frameOffset + this._timelineArray[timelineData.offset + BinaryOffset.TimelineFrameOffset + this._frameIndex];
+                            if (isReverse) {
+                                if (crossedFrameIndex < 0) {
+                                    const prevFrameIndex = Math.floor(prevTime * this._frameRate);
+                                    crossedFrameIndex = this._frameIndices[timelineData.frameIndicesOffset + prevFrameIndex];
+                                    if (this.currentPlayTimes === prevPlayTimes) { // Start.
+                                        if (crossedFrameIndex === frameIndex) { // Uncrossed.
+                                            crossedFrameIndex = -1;
+                                        }
                                     }
-                                    else if (crossedFrame === currentFrame) { // Uncrossed.
-                                        crossedFrame = null;
+                                }
+
+                                while (crossedFrameIndex >= 0) {
+                                    const frameOffset = this._animationData.frameOffset + this._timelineArray[timelineData.offset + BinaryOffset.TimelineFrameOffset + crossedFrameIndex];
+                                    const framePosition = this._frameArray[frameOffset] * this._frameRateR;
+                                    if (
+                                        this._position <= framePosition &&
+                                        framePosition <= this._position + this._duration
+                                    ) { // Support interval play.
+                                        this._onCrossFrame(crossedFrameIndex);
+                                    }
+
+                                    if (loopCompleteEvent !== null && crossedFrameIndex === 0) { // Add loop complete event after first frame.
+                                        this._armature._dragonBones.bufferEvent(loopCompleteEvent);
+                                        loopCompleteEvent = null;
+                                    }
+
+                                    if (crossedFrameIndex > 0) {
+                                        crossedFrameIndex--;
+                                    }
+                                    else {
+                                        crossedFrameIndex = this._frameCount - 1;
+                                    }
+
+                                    if (crossedFrameIndex === frameIndex) {
+                                        break;
                                     }
                                 }
                             }
-
-                            while (crossedFrame) {
-                                crossedFrame = crossedFrame.next;
-
-                                if (loopCompleteEvent && crossedFrame === this._timelineData.frames[0]) { // Add loop complete event before first frame.
-                                    this._armature._bufferEvent(loopCompleteEvent, EventObject.LOOP_COMPLETE);
-                                    loopCompleteEvent = null;
+                            else {
+                                if (crossedFrameIndex < 0) {
+                                    const prevFrameIndex = Math.floor(prevTime * this._frameRate);
+                                    crossedFrameIndex = this._frameIndices[timelineData.frameIndicesOffset + prevFrameIndex];
+                                    const frameOffset = this._animationData.frameOffset + this._timelineArray[timelineData.offset + BinaryOffset.TimelineFrameOffset + crossedFrameIndex];
+                                    const framePosition = this._frameArray[frameOffset] * this._frameRateR;
+                                    if (this.currentPlayTimes === prevPlayTimes) { // Start.
+                                        if (prevTime <= framePosition) { // Crossed.
+                                            if (crossedFrameIndex > 0) {
+                                                crossedFrameIndex--;
+                                            }
+                                            else {
+                                                crossedFrameIndex = this._frameCount - 1;
+                                            }
+                                        }
+                                        else if (crossedFrameIndex === frameIndex) { // Uncrossed.
+                                            crossedFrameIndex = -1;
+                                        }
+                                    }
                                 }
 
-                                if (
-                                    this._position <= crossedFrame.position &&
-                                    crossedFrame.position <= this._position + this._duration
-                                ) { // Support interval play.
-                                    this._onCrossFrame(crossedFrame);
-                                }
+                                while (crossedFrameIndex >= 0) {
+                                    if (crossedFrameIndex < this._frameCount - 1) {
+                                        crossedFrameIndex++;
+                                    }
+                                    else {
+                                        crossedFrameIndex = 0;
+                                    }
 
-                                if (crossedFrame === currentFrame) {
-                                    break;
+                                    const frameOffset = this._animationData.frameOffset + this._timelineArray[timelineData.offset + BinaryOffset.TimelineFrameOffset + crossedFrameIndex];
+                                    const framePosition = this._frameArray[frameOffset] * this._frameRateR;
+                                    if (
+                                        this._position <= framePosition &&
+                                        framePosition <= this._position + this._duration
+                                    ) { // Support interval play.
+                                        this._onCrossFrame(crossedFrameIndex);
+                                    }
+
+                                    if (loopCompleteEvent !== null && crossedFrameIndex === 0) { // Add loop complete event before first frame.
+                                        this._armature._dragonBones.bufferEvent(loopCompleteEvent);
+                                        loopCompleteEvent = null;
+                                    }
+
+                                    if (crossedFrameIndex === frameIndex) {
+                                        break;
+                                    }
                                 }
                             }
                         }
                     }
                 }
-                else if (this._frameCount > 0 && !this._currentFrame) {
-                    this._currentFrame = this._timelineData.frames[0];
-
-                    if (this._currentPlayTimes === prevPlayTimes) { // Start.
-                        if (prevTime <= this._currentFrame.position) {
-                            this._onCrossFrame(this._currentFrame);
+                else if (this._frameIndex < 0) {
+                    this._frameIndex = 0;
+                    if (this._timelineData !== null) {
+                        this._frameOffset = this._animationData.frameOffset + this._timelineArray[this._timelineData.offset + BinaryOffset.TimelineFrameOffset];
+                        // Arrive at frame.
+                        const framePosition = this._frameArray[this._frameOffset] * this._frameRateR;
+                        if (this.currentPlayTimes === prevPlayTimes) { // Start.
+                            if (prevTime <= framePosition) {
+                                this._onCrossFrame(this._frameIndex);
+                            }
                         }
-                    }
-                    else if (this._position <= this._currentFrame.position) { // Loop complete.
-                        if (!isReverse && loopCompleteEvent) { // Add loop complete event before first frame.
-                            this._armature._bufferEvent(loopCompleteEvent, EventObject.LOOP_COMPLETE);
-                            loopCompleteEvent = null;
-                        }
+                        else if (this._position <= framePosition) { // Loop complete.
+                            if (!isReverse && loopCompleteEvent !== null) { // Add loop complete event before first frame.
+                                this._armature._dragonBones.bufferEvent(loopCompleteEvent);
+                                loopCompleteEvent = null;
+                            }
 
-                        this._onCrossFrame(this._currentFrame);
+                            this._onCrossFrame(this._frameIndex);
+                        }
                     }
                 }
 
-                if (loopCompleteEvent) {
-                    this._armature._bufferEvent(loopCompleteEvent, EventObject.LOOP_COMPLETE);
-                    loopCompleteEvent = null;
+                if (loopCompleteEvent !== null) {
+                    this._armature._dragonBones.bufferEvent(loopCompleteEvent);
                 }
 
-                if (completeEvent) {
-                    this._armature._bufferEvent(completeEvent, EventObject.COMPLETE);
-                    completeEvent = null;
+                if (completeEvent !== null) {
+                    this._armature._dragonBones.bufferEvent(completeEvent);
                 }
             }
         }
 
         public setCurrentTime(value: number): void {
             this._setCurrentTime(value);
-            this._currentFrame = null;
+            this._frameIndex = -1;
         }
     }
     /**
      * @internal
      * @private
      */
-    export class ZOrderTimelineState extends TimelineState<ZOrderFrameData, ZOrderTimelineData> {
+    export class ZOrderTimelineState extends TimelineState {
         public static toString(): string {
             return "[class dragonBones.ZOrderTimelineState]";
         }
 
-        public constructor() {
-            super();
-        }
-
         protected _onArriveAtFrame(): void {
-            super._onArriveAtFrame();
-
-            this._armature._sortZOrder(this._currentFrame.zOrder);
+            if (this.playState >= 0) {
+                const count = this._frameArray[this._frameOffset + 1];
+                if (count > 0) {
+                    this._armature._sortZOrder(this._frameArray, this._frameOffset + 2);
+                }
+                else {
+                    this._armature._sortZOrder(null, 0);
+                }
+            }
         }
+
+        protected _onUpdateFrame(): void { }
     }
     /**
      * @internal
      * @private
      */
-    export class BoneTimelineState extends TweenTimelineState<BoneFrameData, BoneTimelineData> {
+    export class BoneAllTimelineState extends BoneTimelineState {
         public static toString(): string {
-            return "[class dragonBones.BoneTimelineState]";
-        }
-
-        public bone: Bone;
-
-        private _transformDirty: boolean;
-        private _tweenTransform: TweenType;
-        private _tweenRotate: TweenType;
-        private _tweenScale: TweenType;
-        private _transform: Transform = new Transform();
-        private _durationTransform: Transform = new Transform();
-        private _boneTransform: Transform;
-        private _originalTransform: Transform;
-
-        public constructor() {
-            super();
-        }
-
-        protected _onClear(): void {
-            super._onClear();
-
-            this.bone = null;
-
-            this._transformDirty = false;
-            this._tweenTransform = TweenType.None;
-            this._tweenRotate = TweenType.None;
-            this._tweenScale = TweenType.None;
-            this._transform.identity();
-            this._durationTransform.identity();
-            this._boneTransform = null;
-            this._originalTransform = null;
+            return "[class dragonBones.BoneAllTimelineState]";
         }
 
         protected _onArriveAtFrame(): void {
             super._onArriveAtFrame();
 
-            this._tweenTransform = TweenType.Once;
-            this._tweenRotate = TweenType.Once;
-            this._tweenScale = TweenType.Once;
+            if (this._timelineData !== null) {
+                const frameFloatArray = this._dragonBonesData.frameFloatArray;
+                const current = this.bonePose.current;
+                const delta = this.bonePose.delta;
+                let valueOffset = this._animationData.frameFloatOffset + this._frameValueOffset + this._frameIndex * 6; // ...(timeline value offset)|xxxxxx|xxxxxx|(Value offset)xxxxx|(Next offset)xxxxx|xxxxxx|xxxxxx|...
 
-            if (this._frameCount > 1 && (this._tweenEasing !== DragonBones.NO_TWEEN || this._curve)) {
-                const currentTransform = this._currentFrame.transform;
-                const nextFrame = this._currentFrame.next;
-                const nextTransform = nextFrame.transform;
+                current.x = frameFloatArray[valueOffset++];
+                current.y = frameFloatArray[valueOffset++];
+                current.rotation = frameFloatArray[valueOffset++];
+                current.skew = frameFloatArray[valueOffset++];
+                current.scaleX = frameFloatArray[valueOffset++];
+                current.scaleY = frameFloatArray[valueOffset++];
 
-                // Transform.
-                this._durationTransform.x = nextTransform.x - currentTransform.x;
-                this._durationTransform.y = nextTransform.y - currentTransform.y;
-                if (this._durationTransform.x !== 0.0 || this._durationTransform.y !== 0.0) {
-                    this._tweenTransform = TweenType.Always;
-                }
-
-                // Rotate.
-                let tweenRotate = this._currentFrame.tweenRotate;
-                if (tweenRotate !== DragonBones.NO_TWEEN) {
-                    if (tweenRotate) {
-                        if (tweenRotate > 0.0 ? nextTransform.skewY >= currentTransform.skewY : nextTransform.skewY <= currentTransform.skewY) {
-                            tweenRotate = tweenRotate > 0.0 ? tweenRotate - 1.0 : tweenRotate + 1.0;
-                        }
-
-                        this._durationTransform.skewX = nextTransform.skewX - currentTransform.skewX + DragonBones.PI_D * tweenRotate;
-                        this._durationTransform.skewY = nextTransform.skewY - currentTransform.skewY + DragonBones.PI_D * tweenRotate;
-                    }
-                    else {
-                        this._durationTransform.skewX = Transform.normalizeRadian(nextTransform.skewX - currentTransform.skewX);
-                        this._durationTransform.skewY = Transform.normalizeRadian(nextTransform.skewY - currentTransform.skewY);
+                if (this._tweenState === TweenState.Always) {
+                    if (this._frameIndex === this._frameCount - 1) {
+                        valueOffset = this._animationData.frameFloatOffset + this._frameValueOffset;
                     }
 
-                    if (this._durationTransform.skewX !== 0.0 || this._durationTransform.skewY !== 0.0) {
-                        this._tweenRotate = TweenType.Always;
-                    }
+                    delta.x = frameFloatArray[valueOffset++] - current.x;
+                    delta.y = frameFloatArray[valueOffset++] - current.y;
+                    delta.rotation = frameFloatArray[valueOffset++] - current.rotation;
+                    delta.skew = frameFloatArray[valueOffset++] - current.skew;
+                    delta.scaleX = frameFloatArray[valueOffset++] - current.scaleX;
+                    delta.scaleY = frameFloatArray[valueOffset++] - current.scaleY;
                 }
-                else {
-                    this._durationTransform.skewX = 0.0;
-                    this._durationTransform.skewY = 0.0;
-                }
-
-                // Scale.
-                if (this._currentFrame.tweenScale) {
-                    this._durationTransform.scaleX = nextTransform.scaleX - currentTransform.scaleX;
-                    this._durationTransform.scaleY = nextTransform.scaleY - currentTransform.scaleY;
-                    if (this._durationTransform.scaleX !== 0.0 || this._durationTransform.scaleY !== 0.0) {
-                        this._tweenScale = TweenType.Always;
-                    }
-                }
-                else {
-                    this._durationTransform.scaleX = 0.0;
-                    this._durationTransform.scaleY = 0.0;
-                }
+                // else {
+                //     delta.x = 0.0;
+                //     delta.y = 0.0;
+                //     delta.rotation = 0.0;
+                //     delta.skew = 0.0;
+                //     delta.scaleX = 0.0;
+                //     delta.scaleY = 0.0;
+                // }
             }
-            else {
-                this._durationTransform.x = 0.0;
-                this._durationTransform.y = 0.0;
-                this._durationTransform.skewX = 0.0;
-                this._durationTransform.skewY = 0.0;
-                this._durationTransform.scaleX = 0.0;
-                this._durationTransform.scaleY = 0.0;
+            else { // Pose.
+                const current = this.bonePose.current;
+                current.x = 0.0;
+                current.y = 0.0;
+                current.rotation = 0.0;
+                current.skew = 0.0;
+                current.scaleX = 1.0;
+                current.scaleY = 1.0;
             }
         }
 
         protected _onUpdateFrame(): void {
             super._onUpdateFrame();
 
-            let tweenProgress = 0.0;
-            const currentTransform = this._currentFrame.transform;
+            const current = this.bonePose.current;
+            const delta = this.bonePose.delta;
+            const result = this.bonePose.result;
 
-            if (this._tweenTransform !== TweenType.None) {
-                if (this._tweenTransform === TweenType.Once) {
-                    this._tweenTransform = TweenType.None;
-                    tweenProgress = 0.0;
-                }
-                else {
-                    tweenProgress = this._tweenProgress;
-                }
-
-                if (this._animationState.additiveBlending) { // Additive blending.
-                    this._transform.x = currentTransform.x + this._durationTransform.x * tweenProgress;
-                    this._transform.y = currentTransform.y + this._durationTransform.y * tweenProgress;
-                }
-                else { // Normal blending.
-                    this._transform.x = this._originalTransform.x + currentTransform.x + this._durationTransform.x * tweenProgress;
-                    this._transform.y = this._originalTransform.y + currentTransform.y + this._durationTransform.y * tweenProgress;
-                }
-
-                this._transformDirty = true;
+            this.bone._transformDirty = true;
+            if (this._tweenState !== TweenState.Always) {
+                this._tweenState = TweenState.None;
             }
 
-            if (this._tweenRotate !== TweenType.None) {
-                if (this._tweenRotate === TweenType.Once) {
-                    this._tweenRotate = TweenType.None;
-                    tweenProgress = 0.0;
-                }
-                else {
-                    tweenProgress = this._tweenProgress;
-                }
-
-                if (this._animationState.additiveBlending) { // Additive blending.
-                    this._transform.skewX = currentTransform.skewX + this._durationTransform.skewX * tweenProgress;
-                    this._transform.skewY = currentTransform.skewY + this._durationTransform.skewY * tweenProgress;
-                }
-                else { // Normal blending.
-                    this._transform.skewX = Transform.normalizeRadian(this._originalTransform.skewX + currentTransform.skewX + this._durationTransform.skewX * tweenProgress);
-                    this._transform.skewY = Transform.normalizeRadian(this._originalTransform.skewY + currentTransform.skewY + this._durationTransform.skewY * tweenProgress);
-                }
-
-                this._transformDirty = true;
-            }
-
-            if (this._tweenScale !== TweenType.None) {
-                if (this._tweenScale === TweenType.Once) {
-                    this._tweenScale = TweenType.None;
-                    tweenProgress = 0.0;
-                }
-                else {
-                    tweenProgress = this._tweenProgress;
-                }
-
-                if (this._animationState.additiveBlending) { // Additive blending.
-                    this._transform.scaleX = currentTransform.scaleX + this._durationTransform.scaleX * tweenProgress;
-                    this._transform.scaleY = currentTransform.scaleY + this._durationTransform.scaleY * tweenProgress;
-                }
-                else { // Normal blending.
-                    this._transform.scaleX = this._originalTransform.scaleX * (currentTransform.scaleX + this._durationTransform.scaleX * tweenProgress);
-                    this._transform.scaleY = this._originalTransform.scaleY * (currentTransform.scaleY + this._durationTransform.scaleY * tweenProgress);
-                }
-
-                this._transformDirty = true;
-            }
-        }
-
-        public _init(armature: Armature, animationState: AnimationState, timelineData: BoneTimelineData): void {
-            super._init(armature, animationState, timelineData);
-
-            this._originalTransform = this._timelineData.originalTransform;
-            this._boneTransform = this.bone._animationPose;
+            const scale = this._armature.armatureData.scale;
+            result.x = (current.x + delta.x * this._tweenProgress) * scale;
+            result.y = (current.y + delta.y * this._tweenProgress) * scale;
+            result.rotation = current.rotation + delta.rotation * this._tweenProgress;
+            result.skew = current.skew + delta.skew * this._tweenProgress;
+            result.scaleX = current.scaleX + delta.scaleX * this._tweenProgress;
+            result.scaleY = current.scaleY + delta.scaleY * this._tweenProgress;
         }
 
         public fadeOut(): void {
-            this._transform.skewX = Transform.normalizeRadian(this._transform.skewX);
-            this._transform.skewY = Transform.normalizeRadian(this._transform.skewY);
+            const result = this.bonePose.result;
+            result.rotation = Transform.normalizeRadian(result.rotation);
+            result.skew = Transform.normalizeRadian(result.skew);
+        }
+    }
+    /**
+     * @internal
+     * @private
+     */
+    export class SlotDislayIndexTimelineState extends SlotTimelineState {
+        public static toString(): string {
+            return "[class dragonBones.SlotDislayIndexTimelineState]";
         }
 
-        public update(passedTime: number): void {
-            // Blend animation state.
-            const animationLayer = this._animationState._layer;
-            let weight = this._animationState._weightResult;
-
-            if (!this.bone._blendDirty) {
-                super.update(passedTime);
-
-                this.bone._blendLayer = animationLayer;
-                this.bone._blendLeftWeight = 1.0;
-                this.bone._blendTotalWeight = weight;
-
-                this._boneTransform.x = this._transform.x * weight;
-                this._boneTransform.y = this._transform.y * weight;
-                this._boneTransform.skewX = this._transform.skewX * weight;
-                this._boneTransform.skewY = this._transform.skewY * weight;
-                this._boneTransform.scaleX = (this._transform.scaleX - 1.0) * weight + 1.0;
-                this._boneTransform.scaleY = (this._transform.scaleY - 1.0) * weight + 1.0;
-
-                this.bone._blendDirty = true;
-            }
-            else if (this.bone._blendLeftWeight > 0.0) {
-                if (this.bone._blendLayer !== animationLayer) {
-                    if (this.bone._blendTotalWeight >= this.bone._blendLeftWeight) {
-                        this.bone._blendLeftWeight = 0.0;
-                    }
-                    else {
-                        this.bone._blendLayer = animationLayer;
-                        this.bone._blendLeftWeight -= this.bone._blendTotalWeight;
-                        this.bone._blendTotalWeight = 0.0;
-                    }
+        protected _onArriveAtFrame(): void {
+            if (this.playState >= 0) {
+                const displayIndex = this._timelineData !== null ? this._frameArray[this._frameOffset + 1] : this.slot.slotData.displayIndex;
+                if (this.slot.displayIndex !== displayIndex) {
+                    this.slot._setDisplayIndex(displayIndex, true);
                 }
-
-                weight *= this.bone._blendLeftWeight;
-                if (weight >= 0.0) {
-                    super.update(passedTime);
-
-                    this.bone._blendTotalWeight += weight;
-
-                    this._boneTransform.x += this._transform.x * weight;
-                    this._boneTransform.y += this._transform.y * weight;
-                    this._boneTransform.skewX += this._transform.skewX * weight;
-                    this._boneTransform.skewY += this._transform.skewY * weight;
-                    this._boneTransform.scaleX += (this._transform.scaleX - 1) * weight;
-                    this._boneTransform.scaleY += (this._transform.scaleY - 1) * weight;
-                }
-            }
-
-            if (this._transformDirty || this._animationState._fadeState !== 0 || this._animationState._subFadeState !== 0) {
-                this._transformDirty = false;
-
-                this.bone.invalidUpdate();
             }
         }
     }
@@ -483,175 +384,148 @@ namespace dragonBones {
      * @internal
      * @private
      */
-    export class SlotTimelineState extends TweenTimelineState<SlotFrameData, SlotTimelineData> {
+    export class SlotColorTimelineState extends SlotTimelineState {
         public static toString(): string {
-            return "[class dragonBones.SlotTimelineState]";
+            return "[class dragonBones.SlotColorTimelineState]";
         }
 
-        public slot: Slot;
-
-        private _colorDirty: boolean;
-        private _tweenColor: TweenType;
-        private _color: ColorTransform = new ColorTransform();
-        private _durationColor: ColorTransform = new ColorTransform();
-        private _slotColor: ColorTransform;
-
-        public constructor() {
-            super();
-        }
+        private _dirty: boolean;
+        private readonly _current: Array<number> = [0, 0, 0, 0, 0, 0, 0, 0];
+        private readonly _delta: Array<number> = [0, 0, 0, 0, 0, 0, 0, 0];
+        private readonly _result: Array<number> = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0];
 
         protected _onClear(): void {
             super._onClear();
 
-            this.slot = null;
-
-            this._colorDirty = false;
-            this._tweenColor = TweenType.None;
-            this._color.identity();
-            this._durationColor.identity();
-            this._slotColor = null;
+            this._dirty = false;
         }
 
         protected _onArriveAtFrame(): void {
             super._onArriveAtFrame();
 
-            if (this._animationState._isDisabled(this.slot)) {
-                this._tweenEasing = DragonBones.NO_TWEEN;
-                this._curve = null;
-                this._tweenColor = TweenType.None;
-                return;
-            }
+            if (this._timelineData !== null) {
+                const intArray = this._dragonBonesData.intArray;
+                const frameIntArray = this._dragonBonesData.frameIntArray;
+                const valueOffset = this._animationData.frameIntOffset + this._frameValueOffset + this._frameIndex * 1; // ...(timeline value offset)|x|x|(Value offset)|(Next offset)|x|x|...
+                let colorOffset = frameIntArray[valueOffset];
+                this._current[0] = intArray[colorOffset++];
+                this._current[1] = intArray[colorOffset++];
+                this._current[2] = intArray[colorOffset++];
+                this._current[3] = intArray[colorOffset++];
+                this._current[4] = intArray[colorOffset++];
+                this._current[5] = intArray[colorOffset++];
+                this._current[6] = intArray[colorOffset++];
+                this._current[7] = intArray[colorOffset++];
 
-            const displayIndex = this._currentFrame.displayIndex;
-            if (this._playState >= 0 && this.slot.displayIndex !== displayIndex) {
-                this.slot._setDisplayIndex(displayIndex);
-            }
-
-            if (displayIndex >= 0) {
-                this._tweenColor = TweenType.None;
-
-                const currentColor = this._currentFrame.color;
-
-                if (this._tweenEasing !== DragonBones.NO_TWEEN || this._curve) {
-                    const nextFrame = this._currentFrame.next;
-                    const nextColor = nextFrame.color;
-                    if (currentColor !== nextColor) {
-                        this._durationColor.alphaMultiplier = nextColor.alphaMultiplier - currentColor.alphaMultiplier;
-                        this._durationColor.redMultiplier = nextColor.redMultiplier - currentColor.redMultiplier;
-                        this._durationColor.greenMultiplier = nextColor.greenMultiplier - currentColor.greenMultiplier;
-                        this._durationColor.blueMultiplier = nextColor.blueMultiplier - currentColor.blueMultiplier;
-                        this._durationColor.alphaOffset = nextColor.alphaOffset - currentColor.alphaOffset;
-                        this._durationColor.redOffset = nextColor.redOffset - currentColor.redOffset;
-                        this._durationColor.greenOffset = nextColor.greenOffset - currentColor.greenOffset;
-                        this._durationColor.blueOffset = nextColor.blueOffset - currentColor.blueOffset;
-
-                        if (
-                            this._durationColor.alphaMultiplier !== 0.0 ||
-                            this._durationColor.redMultiplier !== 0.0 ||
-                            this._durationColor.greenMultiplier !== 0.0 ||
-                            this._durationColor.blueMultiplier !== 0.0 ||
-                            this._durationColor.alphaOffset !== 0 ||
-                            this._durationColor.redOffset !== 0 ||
-                            this._durationColor.greenOffset !== 0 ||
-                            this._durationColor.blueOffset !== 0
-                        ) {
-                            this._tweenColor = TweenType.Always;
-                        }
+                if (this._tweenState === TweenState.Always) {
+                    if (this._frameIndex === this._frameCount - 1) {
+                        colorOffset = frameIntArray[this._animationData.frameIntOffset + this._frameValueOffset];
                     }
-                }
+                    else {
+                        colorOffset = frameIntArray[valueOffset + 1 * 1];
+                    }
 
-                if (this._tweenColor === TweenType.None) {
+                    this._delta[0] = intArray[colorOffset++] - this._current[0];
+                    this._delta[1] = intArray[colorOffset++] - this._current[1];
+                    this._delta[2] = intArray[colorOffset++] - this._current[2];
+                    this._delta[3] = intArray[colorOffset++] - this._current[3];
+                    this._delta[4] = intArray[colorOffset++] - this._current[4];
+                    this._delta[5] = intArray[colorOffset++] - this._current[5];
+                    this._delta[6] = intArray[colorOffset++] - this._current[6];
+                    this._delta[7] = intArray[colorOffset++] - this._current[7];
+                }
+            }
+            else { // Pose.
+                const color = this.slot.slotData.color;
+                this._current[0] = color.alphaMultiplier * 100.0;
+                this._current[1] = color.redMultiplier * 100.0;
+                this._current[2] = color.greenMultiplier * 100.0;
+                this._current[3] = color.blueMultiplier * 100.0;
+                this._current[4] = color.alphaOffset;
+                this._current[5] = color.redOffset;
+                this._current[6] = color.greenOffset;
+                this._current[7] = color.blueOffset;
+            }
+        }
+
+        protected _onUpdateFrame(): void {
+            super._onUpdateFrame();
+
+            this._dirty = true;
+            if (this._tweenState !== TweenState.Always) {
+                this._tweenState = TweenState.None;
+            }
+
+            this._result[0] = (this._current[0] + this._delta[0] * this._tweenProgress) * 0.01;
+            this._result[1] = (this._current[1] + this._delta[1] * this._tweenProgress) * 0.01;
+            this._result[2] = (this._current[2] + this._delta[2] * this._tweenProgress) * 0.01;
+            this._result[3] = (this._current[3] + this._delta[3] * this._tweenProgress) * 0.01;
+            this._result[4] = this._current[4] + this._delta[4] * this._tweenProgress;
+            this._result[5] = this._current[5] + this._delta[5] * this._tweenProgress;
+            this._result[6] = this._current[6] + this._delta[6] * this._tweenProgress;
+            this._result[7] = this._current[7] + this._delta[7] * this._tweenProgress;
+        }
+
+        public fadeOut(): void {
+            this._tweenState = TweenState.None;
+            this._dirty = false;
+        }
+
+        public update(passedTime: number): void {
+            super.update(passedTime);
+
+            // Fade animation.
+            if (this._tweenState !== TweenState.None || this._dirty) {
+                const result = this.slot._colorTransform;
+
+                if (this._animationState._fadeState !== 0 || this._animationState._subFadeState !== 0) {
                     if (
-                        this._slotColor.alphaMultiplier !== currentColor.alphaMultiplier ||
-                        this._slotColor.redMultiplier !== currentColor.redMultiplier ||
-                        this._slotColor.greenMultiplier !== currentColor.greenMultiplier ||
-                        this._slotColor.blueMultiplier !== currentColor.blueMultiplier ||
-                        this._slotColor.alphaOffset !== currentColor.alphaOffset ||
-                        this._slotColor.redOffset !== currentColor.redOffset ||
-                        this._slotColor.greenOffset !== currentColor.greenOffset ||
-                        this._slotColor.blueOffset !== currentColor.blueOffset
+                        result.alphaMultiplier !== this._result[0] ||
+                        result.redMultiplier !== this._result[1] ||
+                        result.greenMultiplier !== this._result[2] ||
+                        result.blueMultiplier !== this._result[3] ||
+                        result.alphaOffset !== this._result[4] ||
+                        result.redOffset !== this._result[5] ||
+                        result.greenOffset !== this._result[6] ||
+                        result.blueOffset !== this._result[7]
                     ) {
-                        this._tweenColor = TweenType.Once;
+                        const fadeProgress = Math.pow(this._animationState._fadeProgress, 4);
+
+                        result.alphaMultiplier += (this._result[0] - result.alphaMultiplier) * fadeProgress;
+                        result.redMultiplier += (this._result[1] - result.redMultiplier) * fadeProgress;
+                        result.greenMultiplier += (this._result[2] - result.greenMultiplier) * fadeProgress;
+                        result.blueMultiplier += (this._result[3] - result.blueMultiplier) * fadeProgress;
+                        result.alphaOffset += (this._result[4] - result.alphaOffset) * fadeProgress;
+                        result.redOffset += (this._result[5] - result.redOffset) * fadeProgress;
+                        result.greenOffset += (this._result[6] - result.greenOffset) * fadeProgress;
+                        result.blueOffset += (this._result[7] - result.blueOffset) * fadeProgress;
+
+                        this.slot._colorDirty = true;
                     }
                 }
-            }
-            else {
-                this._tweenEasing = DragonBones.NO_TWEEN;
-                this._curve = null;
-                this._tweenColor = TweenType.None;
-            }
-        }
+                else if (this._dirty) {
+                    this._dirty = false;
+                    if (
+                        result.alphaMultiplier !== this._result[0] ||
+                        result.redMultiplier !== this._result[1] ||
+                        result.greenMultiplier !== this._result[2] ||
+                        result.blueMultiplier !== this._result[3] ||
+                        result.alphaOffset !== this._result[4] ||
+                        result.redOffset !== this._result[5] ||
+                        result.greenOffset !== this._result[6] ||
+                        result.blueOffset !== this._result[7]
+                    ) {
+                        result.alphaMultiplier = this._result[0];
+                        result.redMultiplier = this._result[1];
+                        result.greenMultiplier = this._result[2];
+                        result.blueMultiplier = this._result[3];
+                        result.alphaOffset = this._result[4];
+                        result.redOffset = this._result[5];
+                        result.greenOffset = this._result[6];
+                        result.blueOffset = this._result[7];
 
-        protected _onUpdateFrame(): void {
-            super._onUpdateFrame();
-
-            let tweenProgress = 0.0;
-
-            if (this._tweenColor !== TweenType.None && this.slot.parent._blendLayer >= this._animationState._layer) {
-                if (this._tweenColor === TweenType.Once) {
-                    this._tweenColor = TweenType.None;
-                    tweenProgress = 0.0;
-                }
-                else {
-                    tweenProgress = this._tweenProgress;
-                }
-
-                const currentColor = this._currentFrame.color;
-                this._color.alphaMultiplier = currentColor.alphaMultiplier + this._durationColor.alphaMultiplier * tweenProgress;
-                this._color.redMultiplier = currentColor.redMultiplier + this._durationColor.redMultiplier * tweenProgress;
-                this._color.greenMultiplier = currentColor.greenMultiplier + this._durationColor.greenMultiplier * tweenProgress;
-                this._color.blueMultiplier = currentColor.blueMultiplier + this._durationColor.blueMultiplier * tweenProgress;
-                this._color.alphaOffset = currentColor.alphaOffset + this._durationColor.alphaOffset * tweenProgress;
-                this._color.redOffset = currentColor.redOffset + this._durationColor.redOffset * tweenProgress;
-                this._color.greenOffset = currentColor.greenOffset + this._durationColor.greenOffset * tweenProgress;
-                this._color.blueOffset = currentColor.blueOffset + this._durationColor.blueOffset * tweenProgress;
-
-                this._colorDirty = true;
-            }
-        }
-
-        public _init(armature: Armature, animationState: AnimationState, timelineData: SlotTimelineData): void {
-            super._init(armature, animationState, timelineData);
-
-            this._slotColor = this.slot._colorTransform;
-        }
-
-        public fadeOut(): void {
-            this._tweenColor = TweenType.None;
-        }
-
-        public update(passedTime: number): void {
-            super.update(passedTime);
-
-            // Fade animation.
-            if (this._tweenColor !== TweenType.None || this._colorDirty) {
-                if (this._animationState._fadeState !== 0 || this._animationState._subFadeState !== 0) {
-                    const fadeProgress = Math.pow(this._animationState._fadeProgress, 4);
-
-                    this._slotColor.alphaMultiplier += (this._color.alphaMultiplier - this._slotColor.alphaMultiplier) * fadeProgress;
-                    this._slotColor.redMultiplier += (this._color.redMultiplier - this._slotColor.redMultiplier) * fadeProgress;
-                    this._slotColor.greenMultiplier += (this._color.greenMultiplier - this._slotColor.greenMultiplier) * fadeProgress;
-                    this._slotColor.blueMultiplier += (this._color.blueMultiplier - this._slotColor.blueMultiplier) * fadeProgress;
-                    this._slotColor.alphaOffset += (this._color.alphaOffset - this._slotColor.alphaOffset) * fadeProgress;
-                    this._slotColor.redOffset += (this._color.redOffset - this._slotColor.redOffset) * fadeProgress;
-                    this._slotColor.greenOffset += (this._color.greenOffset - this._slotColor.greenOffset) * fadeProgress;
-                    this._slotColor.blueOffset += (this._color.blueOffset - this._slotColor.blueOffset) * fadeProgress;
-
-                    this.slot._colorDirty = true;
-                }
-                else if (this._colorDirty) {
-                    this._colorDirty = false;
-
-                    this._slotColor.alphaMultiplier = this._color.alphaMultiplier;
-                    this._slotColor.redMultiplier = this._color.redMultiplier;
-                    this._slotColor.greenMultiplier = this._color.greenMultiplier;
-                    this._slotColor.blueMultiplier = this._color.blueMultiplier;
-                    this._slotColor.alphaOffset = this._color.alphaOffset;
-                    this._slotColor.redOffset = this._color.redOffset;
-                    this._slotColor.greenOffset = this._color.greenOffset;
-                    this._slotColor.blueOffset = this._color.blueOffset;
-
-                    this.slot._colorDirty = true;
+                        this.slot._colorDirty = true;
+                    }
                 }
             }
         }
@@ -660,65 +534,64 @@ namespace dragonBones {
      * @internal
      * @private
      */
-    export class FFDTimelineState extends TweenTimelineState<ExtensionFrameData, FFDTimelineData> {
+    export class SlotFFDTimelineState extends SlotTimelineState {
         public static toString(): string {
-            return "[class dragonBones.FFDTimelineState]";
+            return "[class dragonBones.SlotFFDTimelineState]";
         }
 
-        public slot: Slot;
+        public meshOffset: number;
 
-        private _ffdDirty: boolean;
-        private _tweenFFD: TweenType;
-        private _ffdVertices: Array<number> = [];
-        private _durationFFDVertices: Array<number> = [];
-        private _slotFFDVertices: Array<number>;
-
-        public constructor() {
-            super();
-        }
+        private _dirty: boolean;
+        private _frameFloatOffset: number;
+        private _valueCount: number;
+        private _ffdCount: number;
+        private _valueOffset: number;
+        private readonly _current: Array<number> = [];
+        private readonly _delta: Array<number> = [];
+        private readonly _result: Array<number> = [];
 
         protected _onClear(): void {
             super._onClear();
 
-            this.slot = null;
+            this.meshOffset = 0;
 
-            this._ffdDirty = false;
-            this._tweenFFD = TweenType.None;
-            this._ffdVertices.length = 0;
-            this._durationFFDVertices.length = 0;
-            this._slotFFDVertices = null;
+            this._dirty = false;
+            this._frameFloatOffset = 0;
+            this._valueCount = 0;
+            this._ffdCount = 0;
+            this._valueOffset = 0;
+            this._current.length = 0;
+            this._delta.length = 0;
+            this._result.length = 0;
         }
 
         protected _onArriveAtFrame(): void {
             super._onArriveAtFrame();
 
-            if (this.slot.displayIndex >= 0 && this._animationState._isDisabled(this.slot)) {
-                this._tweenEasing = DragonBones.NO_TWEEN;
-                this._curve = null;
-                this._tweenFFD = TweenType.None;
-                return;
-            }
+            if (this._timelineData !== null) {
+                const isTween = this._tweenState === TweenState.Always;
+                const frameFloatArray = this._dragonBonesData.frameFloatArray;
+                const valueOffset = this._animationData.frameFloatOffset + this._frameValueOffset + this._frameIndex * this._valueCount;
 
-            this._tweenFFD = TweenType.None;
+                if (isTween) {
+                    let nextValueOffset = valueOffset + this._valueCount;
+                    if (this._frameIndex === this._frameCount - 1) {
+                        nextValueOffset = this._animationData.frameFloatOffset + this._frameValueOffset;
+                    }
 
-            if (this._tweenEasing !== DragonBones.NO_TWEEN || this._curve) {
-                const currentFFDVertices = this._currentFrame.tweens;
-                const nextFFDVertices = this._currentFrame.next.tweens;
-                for (let i = 0, l = currentFFDVertices.length; i < l; ++i) {
-                    const duration = nextFFDVertices[i] - currentFFDVertices[i];
-                    this._durationFFDVertices[i] = duration;
-                    if (duration !== 0.0) {
-                        this._tweenFFD = TweenType.Always;
+                    for (let i = 0; i < this._valueCount; ++i) {
+                        this._delta[i] = frameFloatArray[nextValueOffset + i] - (this._current[i] = frameFloatArray[valueOffset + i]);
+                    }
+                }
+                else {
+                    for (let i = 0; i < this._valueCount; ++i) {
+                        this._current[i] = frameFloatArray[valueOffset + i];
                     }
                 }
             }
-
-            //
-            if (this._tweenFFD === TweenType.None) {
-                this._tweenFFD = TweenType.Once;
-
-                for (let i = 0, l = this._durationFFDVertices.length; i < l; ++i) {
-                    this._durationFFDVertices[i] = 0;
+            else {
+                for (let i = 0; i < this._valueCount; ++i) {
+                    this._current[i] = 0.0;
                 }
             }
         }
@@ -726,72 +599,112 @@ namespace dragonBones {
         protected _onUpdateFrame(): void {
             super._onUpdateFrame();
 
-            let tweenProgress = 0.0;
+            this._dirty = true;
+            if (this._tweenState !== TweenState.Always) {
+                this._tweenState = TweenState.None;
+            }
 
-            if (this._tweenFFD !== TweenType.None && this.slot.parent._blendLayer >= this._animationState._layer) {
-                if (this._tweenFFD === TweenType.Once) {
-                    this._tweenFFD = TweenType.None;
-                    tweenProgress = 0.0;
-                }
-                else {
-                    tweenProgress = this._tweenProgress;
-                }
-
-                const currentFFDVertices = this._currentFrame.tweens;
-                for (let i = 0, l = currentFFDVertices.length; i < l; ++i) {
-                    this._ffdVertices[i] = currentFFDVertices[i] + this._durationFFDVertices[i] * tweenProgress;
-                }
-
-                this._ffdDirty = true;
+            for (let i = 0; i < this._valueCount; ++i) {
+                this._result[i] = this._current[i] + this._delta[i] * this._tweenProgress;
             }
         }
 
-        public _init(armature: Armature, animationState: AnimationState, timelineData: FFDTimelineData): void {
-            super._init(armature, animationState, timelineData);
+        public init(armature: Armature, animationState: AnimationState, timelineData: TimelineData | null): void {
+            super.init(armature, animationState, timelineData);
 
-            this._slotFFDVertices = this.slot._ffdVertices;
-            this._ffdVertices.length = this._timelineData.frames[0].tweens.length;
-            this._durationFFDVertices.length = this._ffdVertices.length;
-
-            for (let i = 0, l = this._ffdVertices.length; i < l; ++i) {
-                this._ffdVertices[i] = 0.0;
+            if (this._timelineData !== null) {
+                const frameIntArray = this._dragonBonesData.frameIntArray;
+                const frameIntOffset = this._animationData.frameIntOffset + this._timelineArray[this._timelineData.offset + BinaryOffset.TimelineFrameValueCount];
+                this.meshOffset = frameIntArray[frameIntOffset + BinaryOffset.FFDTimelineMeshOffset];
+                this._ffdCount = frameIntArray[frameIntOffset + BinaryOffset.FFDTimelineFFDCount];
+                this._valueCount = frameIntArray[frameIntOffset + BinaryOffset.FFDTimelineValueCount];
+                this._valueOffset = frameIntArray[frameIntOffset + BinaryOffset.FFDTimelineValueOffset];
+                this._frameFloatOffset = frameIntArray[frameIntOffset + BinaryOffset.FFDTimelineFloatOffset] + this._animationData.frameFloatOffset;
+            }
+            else {
+                this._valueCount = 0;
             }
 
-            for (let i = 0, l = this._durationFFDVertices.length; i < l; ++i) {
-                this._durationFFDVertices[i] = 0.0;
+            this._current.length = this._valueCount;
+            this._delta.length = this._valueCount;
+            this._result.length = this._valueCount;
+
+            for (let i = 0; i < this._valueCount; ++i) {
+                this._delta[i] = 0.0;
             }
         }
 
         public fadeOut(): void {
-            this._tweenFFD = TweenType.None;
+            this._tweenState = TweenState.None;
+            this._dirty = false;
         }
 
         public update(passedTime: number): void {
-            super.update(passedTime);
-
-            if (this.slot._meshData !== this._timelineData.display.mesh) {
+            if (this.slot._meshData === null || (this._timelineData !== null && this.slot._meshData.offset !== this.meshOffset)) {
                 return;
             }
 
+            super.update(passedTime);
+
             // Fade animation.
-            if (this._tweenFFD !== TweenType.None || this._ffdDirty) {
-                if (this._animationState._fadeState !== 0 || this._animationState._subFadeState !== 0) {
-                    const fadeProgress = Math.pow(this._animationState._fadeProgress, 4.0);
+            if (this._tweenState !== TweenState.None || this._dirty) {
+                const result = this.slot._ffdVertices;
+                if (this._timelineData !== null) {
+                    const frameFloatArray = this._dragonBonesData.frameFloatArray;
+                    if (this._animationState._fadeState !== 0 || this._animationState._subFadeState !== 0) {
+                        const fadeProgress = Math.pow(this._animationState._fadeProgress, 2);
 
-                    for (let i = 0, l = this._ffdVertices.length; i < l; ++i) {
-                        this._slotFFDVertices[i] += (this._ffdVertices[i] - this._slotFFDVertices[i]) * fadeProgress;
+                        for (let i = 0; i < this._ffdCount; ++i) {
+                            if (i < this._valueOffset) {
+                                result[i] += (frameFloatArray[this._frameFloatOffset + i] - result[i]) * fadeProgress;
+                            }
+                            else if (i < this._valueOffset + this._valueCount) {
+                                result[i] += (this._result[i - this._valueOffset] - result[i]) * fadeProgress;
+                            }
+                            else {
+                                result[i] += (frameFloatArray[this._frameFloatOffset + i - this._valueCount] - result[i]) * fadeProgress;
+                            }
+                        }
+
+                        this.slot._meshDirty = true;
                     }
+                    else if (this._dirty) {
+                        this._dirty = false;
 
-                    this.slot._meshDirty = true;
+                        for (let i = 0; i < this._ffdCount; ++i) {
+                            if (i < this._valueOffset) {
+                                result[i] = frameFloatArray[this._frameFloatOffset + i];
+                            }
+                            else if (i < this._valueOffset + this._valueCount) {
+                                result[i] = this._result[i - this._valueOffset];
+                            }
+                            else {
+                                result[i] = frameFloatArray[this._frameFloatOffset + i - this._valueCount];
+                            }
+                        }
+
+                        this.slot._meshDirty = true;
+                    }
                 }
-                else if (this._ffdDirty) {
-                    this._ffdDirty = false;
+                else {
+                    this._ffdCount = result.length; //
+                    if (this._animationState._fadeState !== 0 || this._animationState._subFadeState !== 0) {
+                        const fadeProgress = Math.pow(this._animationState._fadeProgress, 2);
+                        for (let i = 0; i < this._ffdCount; ++i) {
+                            result[i] += (0.0 - result[i]) * fadeProgress;
+                        }
 
-                    for (let i = 0, l = this._ffdVertices.length; i < l; ++i) {
-                        this._slotFFDVertices[i] = this._ffdVertices[i];
+                        this.slot._meshDirty = true;
                     }
+                    else if (this._dirty) {
+                        this._dirty = false;
 
-                    this.slot._meshDirty = true;
+                        for (let i = 0; i < this._ffdCount; ++i) {
+                            result[i] = 0.0;
+                        }
+
+                        this.slot._meshDirty = true;
+                    }
                 }
             }
         }

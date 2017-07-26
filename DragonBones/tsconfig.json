@@ -1,0 +1,69 @@
+{
+	"compilerOptions": {
+		"watch": false,
+		"sourceMap": true,
+		"declaration": true,
+		"alwaysStrict": true,
+		"noImplicitAny": true,
+		"noImplicitThis": true,
+		"noUnusedLocals": true,
+		"noUnusedParameters": true,
+		"strictNullChecks": true,
+		"experimentalDecorators": true,
+		"allowSyntheticDefaultImports": true,
+		"target": "es5",
+		"outFile": "out/dragonBones.js",
+		"lib": [
+			"es5",
+			"dom",
+			"es2015.promise"
+		]
+	},
+	"exclude": [
+		"node_modules",
+		"out"
+	],
+	"files": [
+		"./src/dragonBones/core/DragonBones.ts",
+		"./src/dragonBones/core/BaseObject.ts",
+
+		"./src/dragonBones/geom/Matrix.ts",
+		"./src/dragonBones/geom/Transform.ts",
+		"./src/dragonBones/geom/ColorTransform.ts",
+		"./src/dragonBones/geom/Point.ts",
+		"./src/dragonBones/geom/Rectangle.ts",
+
+		"./src/dragonBones/model/UserData.ts",
+		"./src/dragonBones/model/DragonBonesData.ts",
+		"./src/dragonBones/model/ArmatureData.ts",
+		"./src/dragonBones/model/ConstraintData.ts",
+		"./src/dragonBones/model/DisplayData.ts",
+		"./src/dragonBones/model/BoundingBoxData.ts",
+		"./src/dragonBones/model/AnimationData.ts",
+		"./src/dragonBones/model/AnimationConfig.ts",
+		"./src/dragonBones/model/TextureAtlasData.ts",
+
+		"./src/dragonBones/armature/IArmatureProxy.ts",
+		"./src/dragonBones/armature/Armature.ts",
+		"./src/dragonBones/armature/TransformObject.ts",
+		"./src/dragonBones/armature/Bone.ts",
+		"./src/dragonBones/armature/Slot.ts",
+		"./src/dragonBones/armature/Constraint.ts",
+
+		"./src/dragonBones/animation/IAnimateble.ts",
+		"./src/dragonBones/animation/WorldClock.ts",
+		"./src/dragonBones/animation/Animation.ts",
+		"./src/dragonBones/animation/AnimationState.ts",
+		"./src/dragonBones/animation/BaseTimelineState.ts",
+		"./src/dragonBones/animation/TimelineState.ts",
+		
+		"./src/dragonBones/event/EventObject.ts",
+		"./src/dragonBones/event/IEventDispatcher.ts",
+
+		"./src/dragonBones/parser/DataParser.ts",
+		"./src/dragonBones/parser/ObjectDataParser.ts",
+		"./src/dragonBones/parser/BinaryDataParser.ts",
+
+		"./src/dragonBones/factory/BaseFactory.ts"
+	]
+}

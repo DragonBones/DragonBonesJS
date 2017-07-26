@@ -1,10 +1,30 @@
 namespace dragonBones {
     /**
-     * @language zh_CN
      * 2D 变换。
      * @version DragonBones 3.0
+     * @language zh_CN
      */
     export class Transform {
+        /**
+         * @private
+         */
+        public static readonly PI_D: number = Math.PI * 2.0;
+        /**
+         * @private
+         */
+        public static readonly PI_H: number = Math.PI / 2.0;
+        /**
+         * @private
+         */
+        public static readonly PI_Q: number = Math.PI / 4.0;
+        /**
+         * @private
+         */
+        public static readonly RAD_DEG: number = 180.0 / Math.PI;
+        /**
+         * @private
+         */
+        public static readonly DEG_RAD: number = Math.PI / 180.0;
         /**
          * @private
          */
@@ -17,39 +37,39 @@ namespace dragonBones {
 
         public constructor(
             /**
-             * @language zh_CN
              * 水平位移。
              * @version DragonBones 3.0
+             * @language zh_CN
              */
             public x: number = 0.0,
             /**
-             * @language zh_CN
              * 垂直位移。
              * @version DragonBones 3.0
+             * @language zh_CN
              */
             public y: number = 0.0,
             /**
-             * @language zh_CN
-             * 水平倾斜。 (以弧度为单位)
+             * 倾斜。 (以弧度为单位)
              * @version DragonBones 3.0
-             */
-            public skewX: number = 0.0,
-            /**
              * @language zh_CN
-             * 垂直倾斜。 (以弧度为单位)
+             */
+            public skew: number = 0.0,
+            /**
+             * 旋转。 (以弧度为单位)
              * @version DragonBones 3.0
-             */
-            public skewY: number = 0.0,
-            /**
              * @language zh_CN
+             */
+            public rotation: number = 0.0,
+            /**
              * 水平缩放。
              * @version DragonBones 3.0
+             * @language zh_CN
              */
             public scaleX: number = 1.0,
             /**
-             * @language zh_CN
              * 垂直缩放。
              * @version DragonBones 3.0
+             * @language zh_CN
              */
             public scaleY: number = 1.0
         ) {
@@ -58,7 +78,7 @@ namespace dragonBones {
          * @private
          */
         public toString(): string {
-            return "[object dragonBones.Transform] x:" + this.x + " y:" + this.y + " skewX:" + this.skewX * 180.0 / Math.PI + " skewY:" + this.skewY * 180.0 / Math.PI + " scaleX:" + this.scaleX + " scaleY:" + this.scaleY;
+            return "[object dragonBones.Transform] x:" + this.x + " y:" + this.y + " skewX:" + this.skew * 180.0 / Math.PI + " skewY:" + this.rotation * 180.0 / Math.PI + " scaleX:" + this.scaleX + " scaleY:" + this.scaleY;
         }
         /**
          * @private
@@ -66,8 +86,8 @@ namespace dragonBones {
         public copyFrom(value: Transform): Transform {
             this.x = value.x;
             this.y = value.y;
-            this.skewX = value.skewX;
-            this.skewY = value.skewY;
+            this.skew = value.skew;
+            this.rotation = value.rotation;
             this.scaleX = value.scaleX;
             this.scaleY = value.scaleY;
 
@@ -77,7 +97,8 @@ namespace dragonBones {
          * @private
          */
         public identity(): Transform {
-            this.x = this.y = this.skewX = this.skewY = 0.0;
+            this.x = this.y = 0.0;
+            this.skew = this.rotation = 0.0;
             this.scaleX = this.scaleY = 1.0;
 
             return this;
@@ -88,8 +109,8 @@ namespace dragonBones {
         public add(value: Transform): Transform {
             this.x += value.x;
             this.y += value.y;
-            this.skewX += value.skewX;
-            this.skewY += value.skewY;
+            this.skew += value.skew;
+            this.rotation += value.rotation;
             this.scaleX *= value.scaleX;
             this.scaleY *= value.scaleY;
 
@@ -101,72 +122,63 @@ namespace dragonBones {
         public minus(value: Transform): Transform {
             this.x -= value.x;
             this.y -= value.y;
-            this.skewX = Transform.normalizeRadian(this.skewX - value.skewX);
-            this.skewY = Transform.normalizeRadian(this.skewY - value.skewY);
+            this.skew -= value.skew;
+            this.rotation -= value.rotation;
             this.scaleX /= value.scaleX;
             this.scaleY /= value.scaleY;
 
             return this;
         }
         /**
-         * @language zh_CN
          * 矩阵转换为变换。
-         * @param 矩阵。
+         * @param matrix 矩阵。
          * @version DragonBones 3.0
+         * @language zh_CN
          */
         public fromMatrix(matrix: Matrix): Transform {
+            const backupScaleX = this.scaleX, backupScaleY = this.scaleY;
+            const PI_Q = Transform.PI_Q;
 
             this.x = matrix.tx;
             this.y = matrix.ty;
-            this.skewX = Math.atan(-matrix.c / matrix.d);
-            this.skewY = Math.atan(matrix.b / matrix.a);
+            this.rotation = Math.atan(matrix.b / matrix.a);
+            let skewX = Math.atan(-matrix.c / matrix.d);
 
-            const backupScaleX = this.scaleX, backupScaleY = this.scaleY;
-            const PI_Q = DragonBones.PI_Q;
-            const dSkew = this.skewX - this.skewY;
-            const cos = Math.cos(this.skewX);
-            const sin = Math.sin(this.skewX);
-
-            if (-0.01 < dSkew && dSkew < 0.01) {
-                this.scaleX = (this.skewY > -PI_Q && this.skewY < PI_Q) ? matrix.a / cos : matrix.b / sin;
-            }
-            else {
-                this.scaleX = (this.skewY > -PI_Q && this.skewY < PI_Q) ? matrix.a / Math.cos(this.skewY) : matrix.b / Math.sin(this.skewY);
-            }
-
-            this.scaleY = (this.skewX > -PI_Q && this.skewX < PI_Q) ? matrix.d / cos : -matrix.c / sin;
+            this.scaleX = (this.rotation > -PI_Q && this.rotation < PI_Q) ? matrix.a / Math.cos(this.rotation) : matrix.b / Math.sin(this.rotation);
+            this.scaleY = (skewX > -PI_Q && skewX < PI_Q) ? matrix.d / Math.cos(skewX) : -matrix.c / Math.sin(skewX);
 
             if (backupScaleX >= 0.0 && this.scaleX < 0.0) {
                 this.scaleX = -this.scaleX;
-                this.skewY = Transform.normalizeRadian(this.skewY - Math.PI);
+                this.rotation = this.rotation - Math.PI;
             }
 
             if (backupScaleY >= 0.0 && this.scaleY < 0.0) {
                 this.scaleY = -this.scaleY;
-                this.skewX = Transform.normalizeRadian(this.skewX - Math.PI);
+                skewX = skewX - Math.PI;
             }
+
+            this.skew = skewX - this.rotation;
 
             return this;
         }
         /**
-         * @language zh_CN
          * 转换为矩阵。
-         * @param 矩阵。
+         * @param matrix 矩阵。
          * @version DragonBones 3.0
+         * @language zh_CN
          */
         public toMatrix(matrix: Matrix): Transform {
-            if (this.skewX !== 0.0 || this.skewY !== 0.0) {
-                matrix.a = Math.cos(this.skewY);
-                matrix.b = Math.sin(this.skewY);
+            if (this.skew !== 0.0 || this.rotation !== 0.0) {
+                matrix.a = Math.cos(this.rotation);
+                matrix.b = Math.sin(this.rotation);
 
-                const dSkew = this.skewX - this.skewY;
-                if (-0.01 < dSkew && dSkew < 0.01) {
+                if (this.skew === 0.0) {
                     matrix.c = -matrix.b;
                     matrix.d = matrix.a;
                 }
                 else {
-                    matrix.c = -Math.sin(this.skewX);
-                    matrix.d = Math.cos(this.skewX);
+                    matrix.c = -Math.sin(this.skew + this.rotation);
+                    matrix.d = Math.cos(this.skew + this.rotation);
                 }
 
                 if (this.scaleX !== 1.0) {
@@ -190,19 +202,6 @@ namespace dragonBones {
             matrix.ty = this.y;
 
             return this;
-        }
-        /**
-         * @language zh_CN
-         * 旋转。 (以弧度为单位)
-         * @version DragonBones 3.0
-         */
-        public get rotation(): number {
-            return this.scaleX >= 0.0 ? this.skewY : this.skewY + Math.PI;
-        }
-        public set rotation(value: number) {
-            const dValue = this.scaleX >= 0.0 ? (value - this.skewY) : (value - this.skewY - Math.PI);
-            this.skewX += dValue;
-            this.skewY += dValue;
         }
     }
 }

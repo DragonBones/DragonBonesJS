@@ -1,9 +1,42 @@
+declare const Module: any; // TODO need remove.
+
 namespace dragonBones {
     /**
      * @private
      */
+    export const enum BinaryOffset {
+        WeigthBoneCount = 0,
+        WeigthFloatOffset = 1,
+        WeigthBoneIndices = 2,
+
+        MeshVertexCount = 0,
+        MeshTriangleCount = 1,
+        MeshFloatOffset = 2,
+        MeshWeightOffset = 3,
+        MeshVertexIndices = 4,
+
+        TimelineScale = 0,
+        TimelineOffset = 1,
+        TimelineKeyFrameCount = 2,
+        TimelineFrameValueCount = 3,
+        TimelineFrameValueOffset = 4,
+        TimelineFrameOffset = 5,
+
+        FramePosition = 0,
+        FrameTweenType = 1,
+        FrameTweenEasingOrCurveSampleCount = 2,
+        FrameCurveSamples = 3,
+
+        FFDTimelineMeshOffset = 0,
+        FFDTimelineFFDCount = 1,
+        FFDTimelineValueCount = 2,
+        FFDTimelineValueOffset = 3,
+        FFDTimelineFloatOffset = 4
+    }
+    /**
+     * @private
+     */
     export const enum ArmatureType {
-        None = -1,
         Armature = 0,
         MovieClip = 1,
         Stage = 2
@@ -12,7 +45,6 @@ namespace dragonBones {
      * @private
      */
     export const enum DisplayType {
-        None = -1,
         Image = 0,
         Armature = 1,
         Mesh = 2,
@@ -24,7 +56,6 @@ namespace dragonBones {
      * @version DragonBones 5.0
      */
     export const enum BoundingBoxType {
-        None = -1,
         Rectangle = 0,
         Ellipse = 1,
         Polygon = 2
@@ -32,24 +63,15 @@ namespace dragonBones {
     /**
      * @private
      */
-    export const enum EventType {
-        None = -1,
+    export const enum ActionType {
+        Play = 0,
         Frame = 10,
         Sound = 11
     }
     /**
      * @private
      */
-    export const enum ActionType {
-        None = -1,
-        Play = 0,
-        Fade = 4,
-    }
-    /**
-     * @private
-     */
     export const enum BlendMode {
-        None = -1,
         Normal = 0,
         Add = 1,
         Alpha = 2,
@@ -66,133 +88,166 @@ namespace dragonBones {
         Subtract = 13
     }
     /**
+     * @private
+     */
+    export const enum TweenType {
+        None = 0,
+        Line = 1,
+        Curve = 2,
+        QuadIn = 3,
+        QuadOut = 4,
+        QuadInOut = 5
+    }
+    /**
+     * @private
+     */
+    export const enum TimelineType {
+        Action = 0,
+        ZOrder = 1,
+
+        BoneAll = 10,
+
+        BoneT = 11,
+        BoneR = 12,
+        BoneS = 13,
+
+        BoneX = 14,
+        BoneY = 15,
+        BoneRotation = 16,
+        BoneSkew = 17,
+        BoneScaleX = 18,
+        BoneScaleY = 19,
+
+        SlotDisplayIndex = 20,
+        SlotColor = 21,
+        SlotFFD = 22,
+
+        AnimationTime = 40,
+        AnimationWeight = 41
+    }
+    /**
+     * @private
+     */
+    export const enum OffsetMode {
+        None,
+        Additive,
+        Override
+    }
+    /**
      * @language zh_CN
      * 动画混合的淡出方式。
      * @version DragonBones 4.5
      */
     export const enum AnimationFadeOutMode {
         /**
-         * @language zh_CN
          * 不淡出动画。
          * @version DragonBones 4.5
+         * @language zh_CN
          */
         None = 0,
         /**
-        * @language zh_CN
          * 淡出同层的动画。
          * @version DragonBones 4.5
+         * @language zh_CN
          */
         SameLayer = 1,
         /**
-         * @language zh_CN
          * 淡出同组的动画。
          * @version DragonBones 4.5
+         * @language zh_CN
          */
         SameGroup = 2,
         /**
-         * @language zh_CN
          * 淡出同层并且同组的动画。
          * @version DragonBones 4.5
+         * @language zh_CN
          */
         SameLayerAndGroup = 3,
         /**
-         * @language zh_CN
          * 淡出所有动画。
          * @version DragonBones 4.5
+         * @language zh_CN
          */
-        All = 4
+        All = 4,
+        /**
+         * 不替换同名动画。
+         * @version DragonBones 5.1
+         * @language zh_CN
+         */
+        Single = 5
     }
     /**
      * @private
      */
     export interface Map<T> {
-        [key: string]: T
+        [key: string]: T;
     }
     /**
-     * DragonBones
+     * @private
      */
     export class DragonBones {
-        /**
-         * @private
-         */
-        public static PI_D: number = Math.PI * 2.0;
-        /**
-         * @private
-         */
-        public static PI_H: number = Math.PI / 2.0;
-        /**
-         * @private
-         */
-        public static PI_Q: number = Math.PI / 4.0;
-        /**
-         * @private
-         */
-        public static ANGLE_TO_RADIAN: number = Math.PI / 180.0;
-        /**
-         * @private
-         */
-        public static RADIAN_TO_ANGLE: number = 180.0 / Math.PI;
-        /**
-         * @private
-         */
-        public static SECOND_TO_MILLISECOND: number = 1000.0;
-        /**
-         * @internal
-         * @private
-         */
-        public static NO_TWEEN: number = 100;
-
-        public static VERSION: string = "5.0.0";
-        /**
-         * @internal
-         * @private
-         */
-        public static ARGUMENT_ERROR: string = "Argument error.";
-        /**
-         * @private
-         */
         public static yDown: boolean = true;
-        /**
-         * @private
-         */
         public static debug: boolean = false;
-        /**
-         * @private
-         */
         public static debugDraw: boolean = false;
-        
-        /**
-         * @internal
-         * @private
-         */
-        public static _armatures: Array<Armature> = [];
-        /**
-         * @internal
-         * @private
-         */
-        public static hasArmature(value: Armature): boolean {
-            return DragonBones._armatures.indexOf(value) >= 0;
+        public static webAssembly: boolean = false;
+        public static readonly VERSION: string = "5.1.0";
+
+
+        private readonly _events: Array<EventObject> = [];
+        private readonly _objects: Array<BaseObject> = [];
+        private _clock: WorldClock = null as any;
+        private _eventManager: IEventDispatcher = null as any;
+
+        public constructor(eventManager: IEventDispatcher) {
+            this._eventManager = eventManager;
         }
-        /**
-         * @internal
-         * @private
-         */
-        public static addArmature(value: Armature): void {
-            if (value && DragonBones._armatures.indexOf(value) < 0) {
-                DragonBones._armatures.push(value);
-            }
-        }
-        /**
-         * @internal
-         * @private
-         */
-        public static removeArmature(value: Armature): void {
-            if (value) {
-                const index = DragonBones._armatures.indexOf(value);
-                if (index >= 0) {
-                    DragonBones._armatures.splice(index, 1);
+
+        public advanceTime(passedTime: number): void {
+            if (this._objects.length > 0) {
+                for (const object of this._objects) {
+                    object.returnToPool();
                 }
+
+                this._objects.length = 0;
             }
+
+            this._clock.advanceTime(passedTime);
+
+            if (this._events.length > 0) {
+                for (let i = 0; i < this._events.length; ++i) {
+                    const eventObject = this._events[i];
+                    const armature = eventObject.armature;
+
+                    armature.eventDispatcher._dispatchEvent(eventObject.type, eventObject);
+                    if (eventObject.type === EventObject.SOUND_EVENT) {
+                        this._eventManager._dispatchEvent(eventObject.type, eventObject);
+                    }
+
+                    this.bufferObject(eventObject);
+                }
+
+                this._events.length = 0;
+            }
+        }
+
+        public bufferEvent(value: EventObject): void {
+            this._events.push(value);
+        }
+
+        public bufferObject(object: BaseObject): void {
+            this._objects.push(object);
+        }
+
+        public get clock(): WorldClock {
+            if (this._clock === null) {
+                this._clock = new WorldClock();
+            }
+
+            return this._clock;
+        }
+
+        public get eventManager(): IEventDispatcher {
+            return this._eventManager;
         }
     }
 }

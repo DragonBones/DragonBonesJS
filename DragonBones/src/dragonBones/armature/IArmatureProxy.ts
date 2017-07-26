@@ -8,11 +8,11 @@ namespace dragonBones {
         /**
          * @private
          */
-        _onClear(): void;
+        init(armature: Armature): void;
         /**
          * @private
          */
-        _debugDraw(isEnabled: boolean): void;
+        clear(): void;
         /**
          * @language zh_CN
          * 释放代理和骨架。 (骨架会回收到对象池)
@@ -20,26 +20,22 @@ namespace dragonBones {
          */
         dispose(disposeProxy: boolean): void;
         /**
+         * @private
+         */
+        debugUpdate(isEnabled: boolean): void;
+        /**
          * @language zh_CN
          * 获取骨架。
-         * @readOnly
          * @see dragonBones.Armature
          * @version DragonBones 4.5
          */
-        armature: Armature;
+        readonly armature: Armature;
         /**
          * @language zh_CN
          * 获取动画控制器。
-         * @readOnly
          * @see dragonBones.Animation
          * @version DragonBones 4.5
          */
-        animation: Animation;
-    }
-    /**
-     * @deprecated
-     * @see dragonBones.IArmatureProxy
-     */
-    export interface IArmatureDisplay extends IArmatureProxy {
+        readonly animation: Animation;
     }
 }

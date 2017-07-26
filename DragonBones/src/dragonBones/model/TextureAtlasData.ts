@@ -1,23 +1,17 @@
 namespace dragonBones {
     /**
-     * @language zh_CN
      * 贴图集数据。
      * @version DragonBones 3.0
+     * @language zh_CN
      */
     export abstract class TextureAtlasData extends BaseObject {
         /**
-         * @language zh_CN
          * 是否开启共享搜索。
          * @default false
          * @version DragonBones 4.5
+         * @language zh_CN
          */
         public autoSearch: boolean;
-        /**
-         * @language zh_CN
-         * 贴图集缩放系数。
-         * @version DragonBones 3.0
-         */
-        public scale: number;
         /**
          * @private
          */
@@ -27,28 +21,27 @@ namespace dragonBones {
          */
         public height: number;
         /**
+         * 贴图集缩放系数。
+         * @version DragonBones 3.0
          * @language zh_CN
+         */
+        public scale: number;
+        /**
          * 贴图集名称。
          * @version DragonBones 3.0
+         * @language zh_CN
          */
         public name: string;
         /**
-         * @language zh_CN
          * 贴图集图片路径。
          * @version DragonBones 3.0
+         * @language zh_CN
          */
         public imagePath: string;
         /**
          * @private
          */
-        public textures: Map<TextureData> = {};
-        /**
-         * @internal
-         * @private
-         */
-        public constructor() {
-            super();
-        }
+        public readonly textures: Map<TextureData> = {};
         /**
          * @private
          */
@@ -59,34 +52,12 @@ namespace dragonBones {
             }
 
             this.autoSearch = false;
+            this.width = 0;
+            this.height = 0;
             this.scale = 1.0;
-            this.width = 0.0;
-            this.height = 0.0;
-            //this.textures.clear();
-            this.name = null;
-            this.imagePath = null;
-        }
-        /**
-         * @private
-         */
-        public abstract generateTexture(): TextureData;
-        /**
-         * @private
-         */
-        public addTexture(value: TextureData): void {
-            if (value && value.name && !this.textures[value.name]) {
-                this.textures[value.name] = value;
-                value.parent = this;
-            }
-            else {
-                throw new Error(DragonBones.ARGUMENT_ERROR);
-            }
-        }
-        /**
-         * @private
-         */
-        public getTexture(name: string): TextureData {
-            return this.textures[name];
+            // this.textures.clear();
+            this.name = "";
+            this.imagePath = "";
         }
         /**
          * @private
@@ -104,56 +75,75 @@ namespace dragonBones {
                 delete this.textures[k];
             }
 
+            // this.textures.clear();
+
             for (let k in value.textures) {
-                const texture = this.generateTexture();
+                const texture = this.createTexture();
                 texture.copyFrom(value.textures[k]);
                 this.textures[k] = texture;
             }
+        }
+        /**
+         * @private
+         */
+        public abstract createTexture(): TextureData;
+        /**
+         * @private
+         */
+        public addTexture(value: TextureData): void {
+            if (value.name in this.textures) {
+                console.warn("Replace texture: " + value.name);
+                this.textures[value.name].returnToPool();
+            }
+
+            value.parent = this;
+            this.textures[value.name] = value;
+        }
+        /**
+         * @private
+         */
+        public getTexture(name: string): TextureData | null {
+            return name in this.textures ? this.textures[name] : null;
         }
     }
     /**
      * @private
      */
     export abstract class TextureData extends BaseObject {
-        public static generateRectangle(): Rectangle {
+        public static createRectangle(): Rectangle {
             return new Rectangle();
         }
 
         public rotated: boolean;
         public name: string;
-        public region: Rectangle = new Rectangle();
-        public frame: Rectangle;
+        public readonly region: Rectangle = new Rectangle();
         public parent: TextureAtlasData;
-
-        public constructor() {
-            super();
-        }
+        public frame: Rectangle | null = null; // Initial value.
 
         protected _onClear(): void {
             this.rotated = false;
-            this.name = null;
+            this.name = "";
             this.region.clear();
+            this.parent = null as any; //
             this.frame = null;
-            this.parent = null;
         }
 
         public copyFrom(value: TextureData): void {
             this.rotated = value.rotated;
             this.name = value.name;
+            this.region.copyFrom(value.region);
+            this.parent = value.parent;
 
-            if (!this.frame && value.frame) {
-                this.frame = TextureData.generateRectangle();
+            if (this.frame === null && value.frame !== null) {
+                this.frame = TextureData.createRectangle();
             }
-            else if (this.frame && !value.frame) {
+            else if (this.frame !== null && value.frame === null) {
                 this.frame = null;
             }
 
-            if (this.frame && value.frame) {
+            if (this.frame !== null && value.frame !== null) {
                 this.frame.copyFrom(value.frame);
             }
-
-            this.parent = value.parent;
-            this.region.copyFrom(value.region);
         }
     }
 }

@@ -4,10 +4,8 @@ namespace dragonBones {
      */
     export class ColorTransform {
         public constructor(
-            public alphaMultiplier: number = 1.0,
-            public redMultiplier: number = 1.0, public greenMultiplier: number = 1.0, public blueMultiplier: number = 1.0,
-            public alphaOffset: number = 0,
-            public redOffset: number = 0, public greenOffset: number = 0, public blueOffset: number = 0
+            public alphaMultiplier: number = 1.0, public redMultiplier: number = 1.0, public greenMultiplier: number = 1.0, public blueMultiplier: number = 1.0,
+            public alphaOffset: number = 0, public redOffset: number = 0, public greenOffset: number = 0, public blueOffset: number = 0
         ) {
         }
 
@@ -18,8 +16,8 @@ namespace dragonBones {
             this.blueMultiplier = value.blueMultiplier;
             this.alphaOffset = value.alphaOffset;
             this.redOffset = value.redOffset;
-            this.redOffset = value.redOffset;
-            this.greenOffset = value.blueOffset;
+            this.greenOffset = value.greenOffset;
+            this.blueOffset = value.blueOffset;
         }
 
         public identity(): void {

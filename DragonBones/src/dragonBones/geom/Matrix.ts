@@ -1,8 +1,8 @@
 namespace dragonBones {
     /**
-     * @language zh_CN
      * 2D 矩阵。
      * @version DragonBones 3.0
+     * @language zh_CN
      */
     export class Matrix {
         public constructor(
@@ -18,10 +18,7 @@ namespace dragonBones {
             return "[object dragonBones.Matrix] a:" + this.a + " b:" + this.b + " c:" + this.c + " d:" + this.d + " tx:" + this.tx + " ty:" + this.ty;
         }
         /**
-         * @language zh_CN
-         * 复制矩阵。
-         * @param value 需要复制的矩阵。
-         * @version DragonBones 3.0
+         * @private
          */
         public copyFrom(value: Matrix): Matrix {
             this.a = value.a;
@@ -47,9 +44,9 @@ namespace dragonBones {
             return this;
         }
         /**
-         * @language zh_CN
-         * 转换为恒等矩阵。
+         * 转换为单位矩阵。
          * @version DragonBones 3.0
+         * @language zh_CN
          */
         public identity(): Matrix {
             this.a = this.d = 1.0;
@@ -59,10 +56,10 @@ namespace dragonBones {
             return this;
         }
         /**
-         * @language zh_CN
          * 将当前矩阵与另一个矩阵相乘。
          * @param value 需要相乘的矩阵。
          * @version DragonBones 3.0
+         * @language zh_CN
          */
         public concat(value: Matrix): Matrix {
             let aA = this.a * value.a;
@@ -96,9 +93,9 @@ namespace dragonBones {
             return this;
         }
         /**
-         * @language zh_CN
          * 转换为逆矩阵。
          * @version DragonBones 3.0
+         * @language zh_CN
          */
         public invert(): Matrix {
             let aA = this.a;
@@ -143,13 +140,13 @@ namespace dragonBones {
             return this;
         }
         /**
-         * @language zh_CN
          * 将矩阵转换应用于指定点。
          * @param x 横坐标。
          * @param y 纵坐标。
          * @param result 应用转换之后的坐标。
          * @params delta 是否忽略 tx，ty 对坐标的转换。
          * @version DragonBones 3.0
+         * @language zh_CN
          */
         public transformPoint(x: number, y: number, result: { x: number, y: number }, delta: boolean = false): void {
             result.x = this.a * x + this.c * y;

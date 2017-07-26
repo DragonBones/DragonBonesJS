@@ -3,128 +3,122 @@ namespace dragonBones {
      * @private
      */
     export abstract class DataParser {
-        protected static DATA_VERSION_2_3: string = "2.3";
-        protected static DATA_VERSION_3_0: string = "3.0";
-        protected static DATA_VERSION_4_0: string = "4.0";
-        protected static DATA_VERSION_4_5: string = "4.5";
-        protected static DATA_VERSION_5_0: string = "5.0";
-        protected static DATA_VERSION: string = DataParser.DATA_VERSION_5_0;
-        
-        protected static DATA_VERSIONS: Array<string> = [
-            DataParser.DATA_VERSION_5_0,
-            DataParser.DATA_VERSION_4_5,
+        protected static readonly DATA_VERSION_2_3: string = "2.3";
+        protected static readonly DATA_VERSION_3_0: string = "3.0";
+        protected static readonly DATA_VERSION_4_0: string = "4.0";
+        protected static readonly DATA_VERSION_4_5: string = "4.5";
+        protected static readonly DATA_VERSION_5_0: string = "5.0";
+        protected static readonly DATA_VERSION: string = DataParser.DATA_VERSION_5_0;
+
+        protected static readonly DATA_VERSIONS: Array<string> = [
             DataParser.DATA_VERSION_4_0,
-            DataParser.DATA_VERSION_3_0,
-            DataParser.DATA_VERSION_2_3
+            DataParser.DATA_VERSION_4_5,
+            DataParser.DATA_VERSION_5_0
         ];
 
-        protected static TEXTURE_ATLAS: string = "TextureAtlas";
-        protected static SUB_TEXTURE: string = "SubTexture";
-        protected static FORMAT: string = "format";
-        protected static IMAGE_PATH: string = "imagePath";
-        protected static WIDTH: string = "width";
-        protected static HEIGHT: string = "height";
-        protected static ROTATED: string = "rotated";
-        protected static FRAME_X: string = "frameX";
-        protected static FRAME_Y: string = "frameY";
-        protected static FRAME_WIDTH: string = "frameWidth";
-        protected static FRAME_HEIGHT: string = "frameHeight";
+        protected static readonly TEXTURE_ATLAS: string = "textureAtlas";
+        protected static readonly SUB_TEXTURE: string = "SubTexture";
+        protected static readonly FORMAT: string = "format";
+        protected static readonly IMAGE_PATH: string = "imagePath";
+        protected static readonly WIDTH: string = "width";
+        protected static readonly HEIGHT: string = "height";
+        protected static readonly ROTATED: string = "rotated";
+        protected static readonly FRAME_X: string = "frameX";
+        protected static readonly FRAME_Y: string = "frameY";
+        protected static readonly FRAME_WIDTH: string = "frameWidth";
+        protected static readonly FRAME_HEIGHT: string = "frameHeight";
 
-        protected static DRADON_BONES: string = "dragonBones";
-        protected static ARMATURE: string = "armature";
-        protected static BONE: string = "bone";
-        protected static IK: string = "ik";
-        protected static SLOT: string = "slot";
-        protected static SKIN: string = "skin";
-        protected static DISPLAY: string = "display";
-        protected static ANIMATION: string = "animation";
-        protected static Z_ORDER: string = "zOrder";
-        protected static FFD: string = "ffd";
-        protected static FRAME: string = "frame";
-        protected static ACTIONS: string = "actions";
-        protected static EVENTS: string = "events";
-        protected static INTS: string = "ints";
-        protected static FLOATS: string = "floats";
-        protected static STRINGS: string = "strings";
+        protected static readonly DRADON_BONES: string = "dragonBones";
+        protected static readonly USER_DATA: string = "userData";
+        protected static readonly ARMATURE: string = "armature";
+        protected static readonly BONE: string = "bone";
+        protected static readonly IK: string = "ik";
+        protected static readonly SLOT: string = "slot";
+        protected static readonly SKIN: string = "skin";
+        protected static readonly DISPLAY: string = "display";
+        protected static readonly ANIMATION: string = "animation";
+        protected static readonly Z_ORDER: string = "zOrder";
+        protected static readonly FFD: string = "ffd";
+        protected static readonly FRAME: string = "frame";
+        protected static readonly DEFAULT_ACTIONS: string = "defaultActions";
+        protected static readonly ACTIONS: string = "actions";
+        protected static readonly EVENTS: string = "events";
+        protected static readonly INTS: string = "ints";
+        protected static readonly FLOATS: string = "floats";
+        protected static readonly STRINGS: string = "strings";
+        protected static readonly CANVAS: string = "canvas";
 
-        protected static PIVOT: string = "pivot";
-        protected static TRANSFORM: string = "transform";
-        protected static AABB: string = "aabb";
-        protected static COLOR: string = "color";
+        protected static readonly TRANSFORM: string = "transform";
+        protected static readonly PIVOT: string = "pivot";
+        protected static readonly AABB: string = "aabb";
+        protected static readonly COLOR: string = "color";
 
-        protected static VERSION: string = "version";
-        protected static COMPATIBLE_VERSION: string = "compatibleVersion";
-        protected static FRAME_RATE: string = "frameRate";
-        protected static TYPE: string = "type";
-        protected static SUB_TYPE: string = "subType";
-        protected static NAME: string = "name";
-        protected static PARENT: string = "parent";
-        protected static TARGET: string = "target";
-        protected static SHARE: string = "share";
-        protected static PATH: string = "path";
-        protected static LENGTH: string = "length";
-        protected static DISPLAY_INDEX: string = "displayIndex";
-        protected static BLEND_MODE: string = "blendMode";
-        protected static INHERIT_TRANSLATION: string = "inheritTranslation";
-        protected static INHERIT_ROTATION: string = "inheritRotation";
-        protected static INHERIT_SCALE: string = "inheritScale";
-        protected static INHERIT_REFLECTION: string = "inheritReflection";
-        protected static INHERIT_ANIMATION: string = "inheritAnimation";
-        protected static INHERIT_FFD: string = "inheritFFD";
-        protected static BEND_POSITIVE: string = "bendPositive";
-        protected static CHAIN: string = "chain";
-        protected static WEIGHT: string = "weight";
+        protected static readonly VERSION: string = "version";
+        protected static readonly COMPATIBLE_VERSION: string = "compatibleVersion";
+        protected static readonly FRAME_RATE: string = "frameRate";
+        protected static readonly TYPE: string = "type";
+        protected static readonly SUB_TYPE: string = "subType";
+        protected static readonly NAME: string = "name";
+        protected static readonly PARENT: string = "parent";
+        protected static readonly TARGET: string = "target";
+        protected static readonly SHARE: string = "share";
+        protected static readonly PATH: string = "path";
+        protected static readonly LENGTH: string = "length";
+        protected static readonly DISPLAY_INDEX: string = "displayIndex";
+        protected static readonly BLEND_MODE: string = "blendMode";
+        protected static readonly INHERIT_TRANSLATION: string = "inheritTranslation";
+        protected static readonly INHERIT_ROTATION: string = "inheritRotation";
+        protected static readonly INHERIT_SCALE: string = "inheritScale";
+        protected static readonly INHERIT_REFLECTION: string = "inheritReflection";
+        protected static readonly INHERIT_ANIMATION: string = "inheritAnimation";
+        protected static readonly INHERIT_FFD: string = "inheritFFD";
+        protected static readonly BEND_POSITIVE: string = "bendPositive";
+        protected static readonly CHAIN: string = "chain";
+        protected static readonly WEIGHT: string = "weight";
 
-        protected static FADE_IN_TIME: string = "fadeInTime";
-        protected static PLAY_TIMES: string = "playTimes";
-        protected static SCALE: string = "scale";
-        protected static OFFSET: string = "offset";
-        protected static POSITION: string = "position";
-        protected static DURATION: string = "duration";
-        protected static TWEEN_TYPE: string = "tweenType";
-        protected static TWEEN_EASING: string = "tweenEasing";
-        protected static TWEEN_ROTATE: string = "tweenRotate";
-        protected static TWEEN_SCALE: string = "tweenScale";
-        protected static CURVE: string = "curve";
-        protected static EVENT: string = "event";
-        protected static SOUND: string = "sound";
-        protected static ACTION: string = "action";
-        protected static DEFAULT_ACTIONS: string = "defaultActions";
+        protected static readonly FADE_IN_TIME: string = "fadeInTime";
+        protected static readonly PLAY_TIMES: string = "playTimes";
+        protected static readonly SCALE: string = "scale";
+        protected static readonly OFFSET: string = "offset";
+        protected static readonly POSITION: string = "position";
+        protected static readonly DURATION: string = "duration";
+        protected static readonly TWEEN_TYPE: string = "tweenType";
+        protected static readonly TWEEN_EASING: string = "tweenEasing";
+        protected static readonly TWEEN_ROTATE: string = "tweenRotate";
+        protected static readonly TWEEN_SCALE: string = "tweenScale";
+        protected static readonly CURVE: string = "curve";
+        protected static readonly SOUND: string = "sound";
+        protected static readonly EVENT: string = "event";
+        protected static readonly ACTION: string = "action";
 
-        protected static X: string = "x";
-        protected static Y: string = "y";
-        protected static SKEW_X: string = "skX";
-        protected static SKEW_Y: string = "skY";
-        protected static SCALE_X: string = "scX";
-        protected static SCALE_Y: string = "scY";
+        protected static readonly X: string = "x";
+        protected static readonly Y: string = "y";
+        protected static readonly ROTATION: string = "r";
+        protected static readonly SKEW: string = "sk";
+        protected static readonly SKEW_X: string = "skX";
+        protected static readonly SKEW_Y: string = "skY";
+        protected static readonly SCALE_X: string = "scX";
+        protected static readonly SCALE_Y: string = "scY";
 
-        protected static ALPHA_OFFSET: string = "aO";
-        protected static RED_OFFSET: string = "rO";
-        protected static GREEN_OFFSET: string = "gO";
-        protected static BLUE_OFFSET: string = "bO";
-        protected static ALPHA_MULTIPLIER: string = "aM";
-        protected static RED_MULTIPLIER: string = "rM";
-        protected static GREEN_MULTIPLIER: string = "gM";
-        protected static BLUE_MULTIPLIER: string = "bM";
+        protected static readonly ALPHA_OFFSET: string = "aO";
+        protected static readonly RED_OFFSET: string = "rO";
+        protected static readonly GREEN_OFFSET: string = "gO";
+        protected static readonly BLUE_OFFSET: string = "bO";
+        protected static readonly ALPHA_MULTIPLIER: string = "aM";
+        protected static readonly RED_MULTIPLIER: string = "rM";
+        protected static readonly GREEN_MULTIPLIER: string = "gM";
+        protected static readonly BLUE_MULTIPLIER: string = "bM";
 
-        protected static UVS: string = "uvs";
-        protected static VERTICES: string = "vertices";
-        protected static TRIANGLES: string = "triangles";
-        protected static WEIGHTS: string = "weights";
-        protected static SLOT_POSE: string = "slotPose";
-        protected static BONE_POSE: string = "bonePose";
+        protected static readonly UVS: string = "uvs";
+        protected static readonly VERTICES: string = "vertices";
+        protected static readonly TRIANGLES: string = "triangles";
+        protected static readonly WEIGHTS: string = "weights";
+        protected static readonly SLOT_POSE: string = "slotPose";
+        protected static readonly BONE_POSE: string = "bonePose";
 
-        protected static COLOR_TRANSFORM: string = "colorTransform";
-        protected static TIMELINE: string = "timeline";
-        protected static IS_GLOBAL: string = "isGlobal";
-        protected static PIVOT_X: string = "pX";
-        protected static PIVOT_Y: string = "pY";
-        protected static Z: string = "z";
-        protected static LOOP: string = "loop";
-        protected static AUTO_TWEEN: string = "autoTween";
-        protected static HIDE: string = "hide";
+        protected static readonly GOTO_AND_PLAY: string = "gotoAndPlay";
 
-        protected static DEFAULT_NAME: string = "__default";
+        protected static readonly DEFAULT_NAME: string = "default";
 
         protected static _getArmatureType(value: string): ArmatureType {
             switch (value.toLowerCase()) {
@@ -138,7 +132,7 @@ namespace dragonBones {
                     return ArmatureType.MovieClip;
 
                 default:
-                    return ArmatureType.None;
+                    return ArmatureType.Armature;
             }
         }
 
@@ -157,7 +151,7 @@ namespace dragonBones {
                     return DisplayType.BoundingBox;
 
                 default:
-                    return DisplayType.None;
+                    return DisplayType.Image;
             }
         }
 
@@ -173,7 +167,23 @@ namespace dragonBones {
                     return BoundingBoxType.Polygon;
 
                 default:
-                    return BoundingBoxType.None;
+                    return BoundingBoxType.Rectangle;
+            }
+        }
+
+        protected static _getActionType(value: string): ActionType {
+            switch (value.toLowerCase()) {
+                case "play":
+                    return ActionType.Play;
+
+                case "frame":
+                    return ActionType.Frame;
+
+                case "sound":
+                    return ActionType.Sound;
+
+                default:
+                    return ActionType.Play;
             }
         }
 
@@ -222,250 +232,46 @@ namespace dragonBones {
                     return BlendMode.Subtract;
 
                 default:
-                    return BlendMode.None;
+                    return BlendMode.Normal;
             }
         }
-
-        protected static _getActionType(value: string): ActionType {
-            switch (value.toLowerCase()) {
-                case "play":
-                case "gotoandplay":
-                    return ActionType.Play;
-
-                default:
-                    return ActionType.None;
-            }
-        }
-        
-        protected _isOldData: boolean = false; // For 2.x ~ 3.x
-        protected _isGlobalTransform: boolean = false; // For 2.x ~ 3.x
-        protected _isAutoTween: boolean = false; // For 2.x ~ 3.x
-        protected _animationTweenEasing: number = 0.0; // For 2.x ~ 3.x
-        protected _timelinePivot: Point = new Point(); // For 2.x ~ 3.x
-
-        protected _helpPoint: Point = new Point();
-        protected _helpTransformA: Transform = new Transform();
-        protected _helpTransformB: Transform = new Transform();
-        protected _helpMatrix: Matrix = new Matrix();
-        protected _rawBones: Array<BoneData> = []; // For skinned mesh
-
-        protected _data: DragonBonesData = null;
-        protected _armature: ArmatureData = null;
-        protected _skin: SkinData = null;
-        protected _skinSlotData: SkinSlotData = null;
-        protected _animation: AnimationData = null;
-        protected _timeline: any = null;
-
-        public constructor() { }
         /**
          * @private
          */
-        public abstract parseDragonBonesData(rawData: any, scale: number): DragonBonesData;
+        public abstract parseDragonBonesData(rawData: any, scale: number): DragonBonesData | null;
         /**
          * @private
          */
-        public abstract parseTextureAtlasData(rawData: any, textureAtlasData: TextureAtlasData, scale: number): void;
-
-        private _getTimelineFrameMatrix(animation: AnimationData, timeline: BoneTimelineData, position: number, transform: Transform): void { // Support 2.x ~ 3.x data.
-            const frameIndex = Math.floor(position * animation.frameCount / animation.duration);
-            if (timeline.frames.length === 1 || frameIndex >= timeline.frames.length) {
-                transform.copyFrom(timeline.frames[0].transform);
-            }
-            else {
-                const frame = timeline.frames[frameIndex];
-                let tweenProgress = 0.0;
-
-                if (frame.tweenEasing !== DragonBones.NO_TWEEN) {
-                    tweenProgress = (position - frame.position) / frame.duration;
-                    if (frame.tweenEasing !== 0.0) {
-                        tweenProgress = TweenTimelineState._getEasingValue(tweenProgress, frame.tweenEasing);
-                    }
-                }
-                else if (frame.curve) {
-                    tweenProgress = (position - frame.position) / frame.duration;
-                    tweenProgress = TweenTimelineState._getEasingCurveValue(tweenProgress, frame.curve);
-                }
-
-                const nextFrame = frame.next;
-
-                transform.x = nextFrame.transform.x - frame.transform.x;
-                transform.y = nextFrame.transform.y - frame.transform.y;
-                transform.skewX = Transform.normalizeRadian(nextFrame.transform.skewX - frame.transform.skewX);
-                transform.skewY = Transform.normalizeRadian(nextFrame.transform.skewY - frame.transform.skewY);
-                transform.scaleX = nextFrame.transform.scaleX - frame.transform.scaleX;
-                transform.scaleY = nextFrame.transform.scaleY - frame.transform.scaleY;
-
-                transform.x = frame.transform.x + transform.x * tweenProgress;
-                transform.y = frame.transform.y + transform.y * tweenProgress;
-                transform.skewX = frame.transform.skewX + transform.skewX * tweenProgress;
-                transform.skewY = frame.transform.skewY + transform.skewY * tweenProgress;
-                transform.scaleX = frame.transform.scaleX + transform.scaleX * tweenProgress;
-                transform.scaleY = frame.transform.scaleY + transform.scaleY * tweenProgress;
-            }
-
-            transform.add(timeline.originalTransform);
-        }
-
-        protected _globalToLocal(armature: ArmatureData): void { // Support 2.x ~ 3.x data.
-            const keyFrames = new Array<BoneFrameData>();
-            const bones = armature.sortedBones.concat().reverse();
-
-            for (let i = 0, l = bones.length; i < l; ++i) {
-                const bone = bones[i];
-                if (bone.parent) {
-                    bone.parent.transform.toMatrix(this._helpMatrix);
-                    this._helpMatrix.invert();
-                    this._helpMatrix.transformPoint(bone.transform.x, bone.transform.y, this._helpPoint);
-                    bone.transform.x = this._helpPoint.x;
-                    bone.transform.y = this._helpPoint.y;
-                    bone.transform.rotation -= bone.parent.transform.rotation;
-                }
-
-                for (let i in armature.animations) {
-                    const animation = armature.animations[i];
-                    const timeline = animation.getBoneTimeline(bone.name);
-
-                    if (!timeline) {
-                        continue;
-                    }
-
-                    const parentTimeline = bone.parent ? animation.getBoneTimeline(bone.parent.name) : null;
-                    this._helpTransformB.copyFrom(timeline.originalTransform);
-                    keyFrames.length = 0;
-
-                    for (let i = 0, l = timeline.frames.length; i < l; ++i) {
-                        const frame = timeline.frames[i];
-
-                        if (keyFrames.indexOf(frame) >= 0) {
-                            continue;
-                        }
-
-                        keyFrames.push(frame);
-
-                        if (parentTimeline) {
-                            this._getTimelineFrameMatrix(animation, parentTimeline, frame.position, this._helpTransformA);
-                            frame.transform.add(this._helpTransformB);
-                            this._helpTransformA.toMatrix(this._helpMatrix);
-                            this._helpMatrix.invert();
-                            this._helpMatrix.transformPoint(frame.transform.x, frame.transform.y, this._helpPoint);
-                            frame.transform.x = this._helpPoint.x;
-                            frame.transform.y = this._helpPoint.y;
-                            frame.transform.rotation -= this._helpTransformA.rotation;
-                        }
-                        else {
-                            frame.transform.add(this._helpTransformB);
-                        }
-
-                        frame.transform.minus(bone.transform);
-
-                        if (i === 0) {
-                            timeline.originalTransform.copyFrom(frame.transform);
-                            frame.transform.identity();
-                        }
-                        else {
-                            frame.transform.minus(timeline.originalTransform);
-                        }
-                    }
-                }
-            }
-        }
-
-        protected _mergeFrameToAnimationTimeline(framePostion: number, actions: Array<ActionData>, events: Array<EventData>): void {
-            const frameStart = Math.floor(framePostion * this._armature.frameRate); // uint()
-            const frames = this._animation.frames;
-
-            if (frames.length === 0) {
-                const startFrame = BaseObject.borrowObject(AnimationFrameData); // Add start frame.
-                startFrame.position = 0.0;
-
-                if (this._animation.frameCount > 1) {
-                    frames.length = this._animation.frameCount + 1; // One more count for zero duration frame.
-
-                    const endFrame = BaseObject.borrowObject(AnimationFrameData); // Add end frame to keep animation timeline has two different frames atleast.
-                    endFrame.position = this._animation.frameCount / this._armature.frameRate;
-
-                    frames[0] = startFrame;
-                    frames[this._animation.frameCount] = endFrame;
-                }
-            }
-
-            let insertedFrame: AnimationFrameData = null;
-            const replacedFrame = frames[frameStart];
-            if (replacedFrame && (frameStart === 0 || frames[frameStart - 1] === replacedFrame.prev)) { // Key frame.
-                insertedFrame = replacedFrame;
-            }
-            else {
-                insertedFrame = BaseObject.borrowObject(AnimationFrameData); // Create frame.
-                insertedFrame.position = frameStart / this._armature.frameRate;
-                frames[frameStart] = insertedFrame;
-
-                for (let i = frameStart + 1, l = frames.length; i < l; ++i) { // Clear replaced frame.
-                    if (replacedFrame && frames[i] === replacedFrame) {
-                        frames[i] = null;
-                    }
-                }
-            }
-
-            if (actions) { // Merge actions.
-                for (let i = 0, l = actions.length; i < l; ++i) {
-                    insertedFrame.actions.push(actions[i]);
-                }
-            }
-
-            if (events) { // Merge events.
-                for (let i = 0, l = events.length; i < l; ++i) {
-                    insertedFrame.events.push(events[i]);
-                }
-            }
-
-            // Modify frame link and duration.
-            let prevFrame: AnimationFrameData = null;
-            let nextFrame: AnimationFrameData = null;
-            for (let i = 0, l = frames.length; i < l; ++i) {
-                const currentFrame = frames[i];
-                if (currentFrame && nextFrame !== currentFrame) {
-                    nextFrame = currentFrame;
-
-                    if (prevFrame) {
-                        nextFrame.prev = prevFrame;
-                        prevFrame.next = nextFrame;
-                        prevFrame.duration = nextFrame.position - prevFrame.position;
-                    }
-
-                    prevFrame = nextFrame;
-                }
-                else {
-                    frames[i] = prevFrame;
-                }
-            }
-
-            nextFrame.duration = this._animation.duration - nextFrame.position;
-
-            nextFrame = frames[0];
-            prevFrame.next = nextFrame;
-            nextFrame.prev = prevFrame;
-        }
+        public abstract parseTextureAtlasData(rawData: any, textureAtlasData: TextureAtlasData, scale: number): boolean;
 
         /**
          * @deprecated
+         * 已废弃，请参考 @see
          * @see dragonBones.BaseFactory#parseDragonBonesData()
          */
-        public static parseDragonBonesData(rawData: any): DragonBonesData {
-            return ObjectDataParser.getInstance().parseDragonBonesData(rawData);
+        public static parseDragonBonesData(rawData: any): DragonBonesData | null {
+            if (rawData instanceof ArrayBuffer) {
+                return ObjectDataParser.getInstance().parseDragonBonesData(rawData);
+            }
+            else {
+                return BinaryDataParser.getInstance().parseDragonBonesData(rawData);
+            }
         }
         /**
          * @deprecated
+         * 已废弃，请参考 @see
          * @see dragonBones.BaseFactory#parsetTextureAtlasData()
          */
         public static parseTextureAtlasData(rawData: any, scale: number = 1): any {
-            const textureAtlasData = {};
+            console.warn("已废弃，请参考 @see");
+            const textureAtlasData = {} as any;
 
             const subTextureList = rawData[DataParser.SUB_TEXTURE];
             for (let i = 0, len = subTextureList.length; i < len; i++) {
                 const subTextureObject = subTextureList[i];
                 const subTextureName = subTextureObject[DataParser.NAME];
                 const subTextureRegion = new Rectangle();
-                let subTextureFrame: Rectangle = null;
+                let subTextureFrame: Rectangle | null = null;
 
                 subTextureRegion.x = subTextureObject[DataParser.X] / scale;
                 subTextureRegion.y = subTextureObject[DataParser.Y] / scale;

@@ -1,138 +1,10 @@
 namespace dragonBones {
     /**
-     * @language zh_CN
-     * 自定义数据。
-     * @version DragonBones 5.0
-     */
-    export class CustomData extends BaseObject {
-        /**
-         * @private
-         */
-        public static toString(): string {
-            return "[class dragonBones.CustomData]";
-        }
-        /**
-         * @language zh_CN
-         * 自定义整数。
-         * @version DragonBones 5.0
-         */
-        public ints: Array<number> = [];
-        /**
-         * @language zh_CN
-         * 自定义浮点数。
-         * @version DragonBones 5.0
-         */
-        public floats: Array<number> = [];
-        /**
-         * @language zh_CN
-         * 自定义字符串。
-         * @version DragonBones 5.0
-         */
-        public strings: Array<string> = [];
-        /**
-         * @internal
-         * @private
-         */
-        public constructor() {
-            super();
-        }
-        /**
-         * @private
-         */
-        protected _onClear(): void {
-            this.ints.length = 0;
-            this.floats.length = 0;
-            this.strings.length = 0;
-        }
-        /**
-         * @language zh_CN
-         * 获取自定义整数。
-         * @version DragonBones 5.0
-         */
-        public getInt(index: number = 0): number {
-            return index >= 0 && index < this.ints.length ? this.ints[index] : 0;
-        }
-        /**
-         * @language zh_CN
-         * 获取自定义浮点数。
-         * @version DragonBones 5.0
-         */
-        public getFloat(index: number = 0): number {
-            return index >= 0 && index < this.floats.length ? this.floats[index] : 0;
-        }
-        /**
-         * @language zh_CN
-         * 获取自定义字符串。
-         * @version DragonBones 5.0
-         */
-        public getString(index: number = 0): string {
-            return index >= 0 && index < this.strings.length ? this.strings[index] : null;
-        }
-    }
-    /**
-     * @private
-     */
-    export class EventData extends BaseObject {
-        public static toString(): string {
-            return "[class dragonBones.EventData]";
-        }
-
-        public type: EventType;
-        public name: string;
-        public bone: BoneData;
-        public slot: SlotData;
-        public data: CustomData;
-
-        public constructor() {
-            super();
-        }
-
-        protected _onClear(): void {
-            if (this.data) {
-                this.data.returnToPool();
-            }
-
-            this.type = EventType.None;
-            this.name = null;
-            this.bone = null;
-            this.slot = null;
-            this.data = null;
-        }
-    }
-    /**
-     * @private
-     */
-    export class ActionData extends BaseObject {
-        public static toString(): string {
-            return "[class dragonBones.ActionData]";
-        }
-
-        public type: ActionType;
-        public bone: BoneData;
-        public slot: SlotData;
-        public animationConfig: AnimationConfig;
-
-        public constructor() {
-            super();
-        }
-
-        protected _onClear(): void {
-            if (this.animationConfig) {
-                this.animationConfig.returnToPool();
-            }
-
-            this.type = ActionType.None;
-            this.bone = null;
-            this.slot = null;
-            this.animationConfig = null;
-        }
-    }
-    /**
-     * @language zh_CN
      * 龙骨数据。
      * 一个龙骨数据包含多个骨架数据。
      * @see dragonBones.ArmatureData
      * @version DragonBones 3.0
+     * @language zh_CN
      */
     export class DragonBonesData extends BaseObject {
         /**
@@ -142,123 +14,140 @@ namespace dragonBones {
             return "[class dragonBones.DragonBonesData]";
         }
         /**
-         * @language zh_CN
          * 是否开启共享搜索。
          * @default false
          * @version DragonBones 4.5
+         * @language zh_CN
          */
         public autoSearch: boolean;
         /**
-         * @language zh_CN
          * 动画帧频。
          * @version DragonBones 3.0
+         * @language zh_CN
          */
         public frameRate: number;
         /**
-         * @private
+         * 数据版本。
+         * @version DragonBones 3.0
+         * @language zh_CN
          */
         public version: string;
         /**
-         * @language zh_CN
-         * 数据名称。
+         * 数据名称。(该名称与龙骨项目名保持一致)
          * @version DragonBones 3.0
+         * @language zh_CN
          */
         public name: string;
         /**
+         * @private
+         */
+        public readonly frameIndices: Array<number> = [];
+        /**
+         * @private
+         */
+        public readonly cachedFrames: Array<number> = [];
+        /**
+         * 所有骨架数据名称。
+         * @see #armatures
+         * @version DragonBones 3.0
          * @language zh_CN
+         */
+        public readonly armatureNames: Array<string> = [];
+        /**
          * 所有骨架数据。
          * @see dragonBones.ArmatureData
          * @version DragonBones 3.0
+         * @language zh_CN
          */
-        public armatures: Map<ArmatureData> = {};
+        public readonly armatures: Map<ArmatureData> = {};
         /**
          * @private
          */
-        public cachedFrames: Array<number> = [];
+        public intArray: Array<number> | Int16Array;
         /**
          * @private
          */
-        public userData: CustomData;
-
-        private _armatureNames: Array<string> = [];
+        public floatArray: Array<number> | Float32Array;
         /**
-         * @internal
          * @private
          */
-        public constructor() {
-            super();
-        }
+        public frameIntArray: Array<number> | Int16Array;
+        /**
+         * @private
+         */
+        public frameFloatArray: Array<number> | Float32Array;
+        /**
+         * @private
+         */
+        public frameArray: Array<number> | Int16Array;
+        /**
+         * @private
+         */
+        public timelineArray: Array<number> | Uint16Array;
+        /**
+         * @private
+         */
+        public userData: UserData | null = null; // Initial value.
         /**
          * @private
          */
         protected _onClear(): void {
-            if (DragonBones.debug) {
-                for (let i = 0, l = DragonBones._armatures.length; i < l; ++i) {
-                    const armature = DragonBones._armatures[i];
-                    if (armature.armatureData.parent === this) {
-                        throw new Error("The DragonBonesData is being used, please make sure all armature references to the data have been deleted.");
-                    }
-                }
-            }
-
             for (let k in this.armatures) {
                 this.armatures[k].returnToPool();
                 delete this.armatures[k];
             }
 
-            if (this.userData) {
+            if (this.userData !== null) {
                 this.userData.returnToPool();
             }
 
             this.autoSearch = false;
             this.frameRate = 0;
-            this.version = null;
-            this.name = null;
-            //this.armatures.clear();
+            this.version = "";
+            this.name = "";
+            this.frameIndices.length = 0;
             this.cachedFrames.length = 0;
+            this.armatureNames.length = 0;
+            //this.armatures.clear();
+            this.intArray = null as any; //
+            this.floatArray = null as any; //
+            this.frameIntArray = null as any; //
+            this.frameFloatArray = null as any; //
+            this.frameArray = null as any; //
+            this.timelineArray = null as any; //
             this.userData = null;
-
-            this._armatureNames.length = 0;
         }
         /**
          * @private
          */
         public addArmature(value: ArmatureData): void {
-            if (value && value.name && !this.armatures[value.name]) {
-                this.armatures[value.name] = value;
-                this._armatureNames.push(value.name);
+            if (value.name in this.armatures) {
+                console.warn("Replace armature: " + value.name);
+                this.armatures[value.name].returnToPool();
+            }
 
-                value.parent = this;
-            }
-            else {
-                throw new Error(DragonBones.ARGUMENT_ERROR);
-            }
+            value.parent = this;
+            this.armatures[value.name] = value;
+            this.armatureNames.push(value.name);
         }
         /**
-         * @language zh_CN
-         * 获取骨架。
+         * 获取骨架数据。
          * @param name 骨架数据名称。
          * @see dragonBones.ArmatureData
          * @version DragonBones 3.0
-         */
-        public getArmature(name: string): ArmatureData {
-            return this.armatures[name];
-        }
-        /**
          * @language zh_CN
-         * 所有骨架数据名称。
-         * @see #armatures
-         * @version DragonBones 3.0
          */
-        public get armatureNames(): Array<string> {
-            return this._armatureNames;
+        public getArmature(name: string): ArmatureData | null {
+            return name in this.armatures ? this.armatures[name] : null;
         }
 
         /**
          * @deprecated
+         * 已废弃，请参考 @see
          * @see dragonBones.BaseFactory#removeDragonBonesData()
          */
         public dispose(): void {
+            console.warn("已废弃，请参考 @see");
             this.returnToPool();
         }
     }
