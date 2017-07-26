@@ -1,0 +1,16 @@
+{
+  "name": "dragonbones-pixi-demos",
+  "version": "5.1.0",
+  "main": "",
+  "scripts": {
+    "start": "tsc & copyfiles -u 3 -s ../4.x/out/* libs/dragonBones/ & anywhere",
+    "upgradeA": "cd .. & cd 4.x & npm run build & cd .. & cd Demos",
+    "upgradeB": "copyfiles -u 3 ../4.x/out/* libs/dragonBones/",
+    "upgrade": "npm run upgradeA & npm run upgradeB"
+  },
+  "devDependencies": {
+    "anywhere": "^1.4.0",
+    "copyfiles": "^1.2.0",
+    "typescript": "^2.4.2"
+  }
+}
