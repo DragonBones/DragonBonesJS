@@ -1,28 +1,32 @@
 {
-  "native": {
-    "path_ignore": []
-  },
-  "publish": {
-    "web": 0,
-    "native": 1,
-    "path": "bin-release"
-  },
-  "template": {},
-  "egret_version": "5.0.2",
-  "modules": [
-    {
-      "name": "egret"
-    },
-    {
-      "name": "dragonBones",
-      "path": "../4.x/out/"
-    },
-    {
-      "name": "res"
-    },
-    {
-      "name": "promise",
-      "path": "./libs/promise/"
-    }
-  ]
+	"native": {
+		"path_ignore": []
+	},
+	"publish": {
+		"web": 0,
+		"native": 1,
+		"path": "bin-release"
+	},
+	"egret_version": "5.0.2",
+	"modules": [
+		{
+			"name": "egret-wasm",
+			"path": "/Volumes/MacHD/work/egret/wasm-egret2d-js/src/egret"
+		},
+	  {
+			"name": "media",
+			"path": "/Volumes/MacHD/work/egret/wasm-egret2d-js/src/media"
+		},
+		{
+			"name": "dragonBones",
+			"path": "../wasm/out/"
+		},
+		{
+			"name": "res"
+		},
+		{
+			"name": "promise",
+			"path": "./libs/promise/"
+		}
+	]
 }

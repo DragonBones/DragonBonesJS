@@ -28,11 +28,11 @@
          data-orientation="auto"
          data-scale-mode="fixedHeight"
          data-frame-rate="60"
-         data-content-width="1136"
-         data-content-height="640"
+         data-content-width="800"
+         data-content-height="600"
          data-show-paint-rect="false"
          data-multi-fingered="2"
-         data-show-fps="false" data-show-log="false"
+         data-show-fps="true" data-show-log="false"
          data-show-fps-style="x:0,y:0,size:12,textColor:0xffffff,bgAlpha:0.9">
     </div>
 <script>
@@ -78,7 +78,7 @@
              * "retina": //是否基于devicePixelRatio缩放画布
              * }
              **/
-            egret.runEgret({ renderMode: "webgl", audioType: 0 });
+            egret.runEgret({ renderMode: "webgl", audioType: 0, isWasm: 1 });
         });
     });
     xhr.send(null);

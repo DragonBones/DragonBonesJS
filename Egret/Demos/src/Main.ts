@@ -3,10 +3,10 @@ class Main extends egret.DisplayObjectContainer {
         super();
 
         // this.addChild(new HelloDragonBones());
-        this.addChild(new ReplaceSlotDisplay());
+        // this.addChild(new ReplaceSlotDisplay());
         // this.addChild(new coreElement.Game());
 
-        // this.addChild(new PerformanceTest());
+        this.addChild(new PerformanceTest());
         // this.addChild(new AnimationBaseTest());
     }
 }

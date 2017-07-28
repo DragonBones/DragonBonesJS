@@ -136,7 +136,10 @@ namespace dragonBones {
                 const frameIndices = this._data.frameIndices;
                 if (DragonBones.webAssembly) {
                     timeline.frameIndicesOffset = (frameIndices as any).size();
-                    (frameIndices as any).resize(timeline.frameIndicesOffset + totalFrameCount);
+                    // (frameIndices as any).resize(timeline.frameIndicesOffset + totalFrameCount);
+                    for(let j = 0; j < totalFrameCount; ++j){
+                        (frameIndices as any).push_back(0);
+                    }
                 }
                 else {
                     timeline.frameIndicesOffset = frameIndices.length;
@@ -344,11 +347,9 @@ namespace dragonBones {
                     this._timelineArray[i6] = tmpTimelineArray[i6];
                 }
 
-                Module["DragonBonesData"].setDragonBoneData(this._data);
-                Module.ccall(
-                    "set_dbData_buffer_ptr", "number", ["number", "number", "number", "number", "number", "number"],
-                    [intArrayBuf, floatArrayBuf, frameIntArrayBuf, frameFloatArrayBuf, frameArrayBuf, timelineArrayBuf]
-                );
+                Module['DragonBonesData'].setDragonBoneData(this._data);
+                Module.ccall('set_dbData_buffer_ptr', 'number', ['number', 'number', 'number', 'number', 'number', 'number'], 
+                    [intArrayBuf, floatArrayBuf, frameIntArrayBuf, frameFloatArrayBuf, frameArrayBuf, timelineArrayBuf]);
             }
             else {
                 this._data.intArray = this._intArray = new Int16Array(this._binary, this._binaryOffset + offsets[0], offsets[1] / Int16Array.BYTES_PER_ELEMENT);

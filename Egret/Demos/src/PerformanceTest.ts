@@ -20,7 +20,7 @@ class PerformanceTest extends BaseTest {
         this._text.text = "";
         this.addChild(this._text);
 
-        for (let i = 0; i < 100; ++i) {
+        for (let i = 0; i < 300; ++i) {
             this._addArmature();
         }
 
@@ -77,7 +77,7 @@ class PerformanceTest extends BaseTest {
 
         const armatureDisplay = dragonBones.EgretFactory.factory.buildArmatureDisplay("DragonBoy");
         armatureDisplay.scaleX = armatureDisplay.scaleY = 0.7;
-        armatureDisplay.armature.cacheFrameRate = 24;
+        // armatureDisplay.armature.cacheFrameRate = 24;
         armatureDisplay.animation.play("walk", 0);
         this.addChild(armatureDisplay);
 
@@ -120,8 +120,14 @@ class PerformanceTest extends BaseTest {
             const armatureDisplay = this._armatures[i];
             const lineY = Math.floor(i / columnCount);
 
-            armatureDisplay.x = (i % columnCount) * dX + paddingHModify;
-            armatureDisplay.y = lineY * dY + paddingV;
+            paddingHModify;
+            dX;
+            dY;
+            lineY;
+            // armatureDisplay.x = (i % columnCount) * dX + paddingHModify;
+            // armatureDisplay.y = lineY * dY + paddingV;
+            armatureDisplay.x = Math.random() * this.stage.stageWidth;
+            armatureDisplay.y = Math.random() * this.stage.stageHeight;
         }
     }
 
