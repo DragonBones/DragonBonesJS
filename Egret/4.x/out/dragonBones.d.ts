@@ -1,4 +1,3 @@
-declare const Module: any;
 declare namespace dragonBones {
     /**
      * @private
@@ -3843,6 +3842,18 @@ declare namespace dragonBones {
         /**
          * @private
          */
+        private _intArrayJson;
+        private _floatArrayJson;
+        private _frameIntArrayJson;
+        private _frameFloatArrayJson;
+        private _frameArrayJson;
+        private _timelineArrayJson;
+        private _intArrayBuffer;
+        private _floatArrayBuffer;
+        private _frameIntArrayBuffer;
+        private _frameFloatArrayBuffer;
+        private _frameArrayBuffer;
+        private _timelineArrayBuffer;
         protected static _getBoolean(rawData: any, key: string, defaultValue: boolean): boolean;
         /**
          * @private
@@ -3991,6 +4002,10 @@ declare namespace dragonBones {
          * @private
          */
         protected _parseArray(rawData: any): void;
+        /**
+         * @private
+         */
+        protected _parseWASMArray(): void;
         /**
          * @inheritDoc
          */
