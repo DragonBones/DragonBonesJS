@@ -1,7 +1,7 @@
 {
 	"compilerOptions": {
 		"watch": false,
-		"sourceMap": true,
+		"sourceMap": false,
 		"declaration": true,
 		"alwaysStrict": true,
 		"noImplicitAny": true,
@@ -25,6 +25,7 @@
 	],
 	"files": [
 		"./libs/egret.d.ts",
+		"../../DragonBones/src/dragonBone/modules.d.ts",
 		
 		"../../DragonBones/src/dragonBones/core/DragonBones.ts",
 		"../../DragonBones/src/dragonBones/core/BaseObject.ts",
