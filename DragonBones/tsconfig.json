@@ -50,7 +50,7 @@
 		"./src/dragonBones/armature/Slot.ts",
 		"./src/dragonBones/armature/Constraint.ts",
 
-		"./src/dragonBones/animation/IAnimateble.ts",
+		"./src/dragonBones/animation/IAnimatable.ts",
 		"./src/dragonBones/animation/WorldClock.ts",
 		"./src/dragonBones/animation/Animation.ts",
 		"./src/dragonBones/animation/AnimationState.ts",

@@ -71,7 +71,6 @@
 		"./src/dragonBones/egret/EgretTextureAtlasData.ts",
 		"./src/dragonBones/egret/EgretArmatureDisplay.ts",
 		"./src/dragonBones/egret/EgretSlot.ts",
-		"./src/dragonBones/egret/EgretFactory.ts",
-		"./src/dragonBones/egret/Movie.ts"
+		"./src/dragonBones/egret/EgretFactory.ts"
 	]
 }

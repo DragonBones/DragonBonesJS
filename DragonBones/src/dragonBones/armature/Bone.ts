@@ -184,7 +184,7 @@ namespace dragonBones {
                         if (parentMatrix.a * parentMatrix.d - parentMatrix.b * parentMatrix.c < 0.0) {
                             dR -= global.rotation * 2.0;
 
-                            if (flipX != flipY || this.boneData.inheritReflection) {
+                            if (flipX !== flipY || this.boneData.inheritReflection) {
                                 global.skew += Math.PI;
                             }
                         }

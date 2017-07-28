@@ -293,15 +293,24 @@ namespace dragonBones {
             else {
                 this.updateGlobalTransform(); // Update transform.
 
-                const x = this.globalTransformMatrix.tx - (this.globalTransformMatrix.a * this._pivotX + this.globalTransformMatrix.c * this._pivotY); // Pixi pivot do not work.
-                const y = this.globalTransformMatrix.ty - (this.globalTransformMatrix.b * this._pivotX + this.globalTransformMatrix.d * this._pivotY); // Pixi pivot do not work.
                 const transform = this.global;
-                this._renderDisplay.setTransform(
-                    x, y,
-                    transform.scaleX, transform.scaleY,
-                    transform.rotation,
-                    transform.skew, 0.0,
-                );
+                const x = transform.x - (this.globalTransformMatrix.a * this._pivotX + this.globalTransformMatrix.c * this._pivotY);
+                const y = transform.y - (this.globalTransformMatrix.b * this._pivotX + this.globalTransformMatrix.d * this._pivotY);
+
+                if (this._renderDisplay === this._rawDisplay || this._renderDisplay === this._meshDisplay) {
+                    this._renderDisplay.setTransform(
+                        x, y,
+                        transform.scaleX, transform.scaleY,
+                        transform.rotation,
+                        transform.skew, 0.0,
+                    );
+                }
+                else {
+                    this._renderDisplay.position.set(x, y);
+                    this._renderDisplay.rotation = transform.rotation;
+                    this._renderDisplay.skew.set(-transform.skew, 0.0);
+                    this._renderDisplay.scale.set(transform.scaleX, transform.scaleY);
+                }
             }
         }
         /**
@@ -315,13 +324,24 @@ namespace dragonBones {
                 this.updateGlobalTransform(); // Update transform.
 
                 const transform = this.global;
-                this._renderDisplay.setTransform(
-                    transform.x, transform.y,
-                    transform.scaleX, transform.scaleY,
-                    transform.rotation,
-                    -transform.skew, 0.0,
-                    this._pivotX, this._pivotY
-                );
+
+                if (this._renderDisplay === this._rawDisplay || this._renderDisplay === this._meshDisplay) {
+                    this._renderDisplay.setTransform(
+                        transform.x, transform.y,
+                        transform.scaleX, transform.scaleY,
+                        transform.rotation,
+                        -transform.skew, 0.0,
+                        this._pivotX, this._pivotY
+                    );
+                }
+                else {
+                    const x = transform.x - (this.globalTransformMatrix.a * this._pivotX + this.globalTransformMatrix.c * this._pivotY);
+                    const y = transform.y - (this.globalTransformMatrix.b * this._pivotX + this.globalTransformMatrix.d * this._pivotY);
+                    this._renderDisplay.position.set(x, y);
+                    this._renderDisplay.rotation = transform.rotation;
+                    this._renderDisplay.skew.set(-transform.skew, 0.0);
+                    this._renderDisplay.scale.set(transform.scaleX, transform.scaleY);
+                }
             }
         }
     }

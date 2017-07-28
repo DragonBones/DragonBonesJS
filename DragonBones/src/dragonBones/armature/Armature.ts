@@ -8,7 +8,7 @@ namespace dragonBones {
      * @version DragonBones 3.0
      * @language zh_CN
      */
-    export class Armature extends BaseObject implements IAnimateble {
+    export class Armature extends BaseObject implements IAnimatable {
         public static toString(): string {
             return "[class dragonBones.Armature]";
         }
@@ -615,6 +615,7 @@ namespace dragonBones {
             }
 
             this._flipX = value;
+            this.invalidUpdate();
         }
 
         public get flipY(): boolean {
@@ -626,6 +627,7 @@ namespace dragonBones {
             }
 
             this._flipY = value;
+            this.invalidUpdate();
         }
         /**
          * 动画缓存帧率，当设置的值大于 0 的时，将会开启动画缓存。

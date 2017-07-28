@@ -440,7 +440,7 @@ namespace dragonBones {
      * @see dragonBones.buildMovie
      * @version DragonBones 4.7
      */
-    export class Movie extends egret.DisplayObjectContainer implements IAnimateble {
+    export class Movie extends egret.DisplayObjectContainer implements IAnimatable {
         private static _cleanBeforeRender(): void { }
         /**
          * @language zh_CN

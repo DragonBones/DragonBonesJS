@@ -6,7 +6,7 @@ namespace dragonBones {
      * @version DragonBones 3.0
      * @language zh_CN
      */
-    export class WorldClock implements IAnimateble {
+    export class WorldClock implements IAnimatable {
         /**
          * 一个可以直接使用的全局 WorldClock 实例.
          * @version DragonBones 3.0
@@ -26,7 +26,7 @@ namespace dragonBones {
          * @language zh_CN
          */
         public timeScale: number = 1.0;
-        private readonly _animatebles: Array<IAnimateble | null> = [];
+        private readonly _animatebles: Array<IAnimatable | null> = [];
         private _clock: WorldClock | null = null;
         /**
          * 创建一个新的 WorldClock 实例。
@@ -110,7 +110,7 @@ namespace dragonBones {
          * @version DragonBones 3.0
          * @language zh_CN
          */
-        public contains(value: IAnimateble): boolean {
+        public contains(value: IAnimatable): boolean {
             return this._animatebles.indexOf(value) >= 0;
         }
         /**
@@ -119,7 +119,7 @@ namespace dragonBones {
          * @version DragonBones 3.0
          * @language zh_CN
          */
-        public add(value: IAnimateble): void {
+        public add(value: IAnimatable): void {
             if (this._animatebles.indexOf(value) < 0) {
                 this._animatebles.push(value);
                 value.clock = this;
@@ -131,7 +131,7 @@ namespace dragonBones {
          * @version DragonBones 3.0
          * @language zh_CN
          */
-        public remove(value: IAnimateble): void {
+        public remove(value: IAnimatable): void {
             const index = this._animatebles.indexOf(value);
             if (index >= 0) {
                 this._animatebles[index] = null;

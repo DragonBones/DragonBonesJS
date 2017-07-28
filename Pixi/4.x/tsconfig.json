@@ -52,7 +52,7 @@
 		"../../DragonBones/src/dragonBones/armature/Slot.ts",
 		"../../DragonBones/src/dragonBones/armature/Constraint.ts",
 
-		"../../DragonBones/src/dragonBones/animation/IAnimateble.ts",
+		"../../DragonBones/src/dragonBones/animation/IAnimatable.ts",
 		"../../DragonBones/src/dragonBones/animation/WorldClock.ts",
 		"../../DragonBones/src/dragonBones/animation/Animation.ts",
 		"../../DragonBones/src/dragonBones/animation/AnimationState.ts",

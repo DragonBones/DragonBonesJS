@@ -166,25 +166,15 @@ namespace dragonBones {
     /**
      * @inheritDoc
      */
-    export class EgretArmatureDisplay extends egret.DisplayObjectContainer implements IArmatureProxy {
-        private static _cleanBeforeRender(): void { }
-        /**
-         * @internal
-         * @private
-         */
-        public _batchEnabled: boolean = true;
+    export class EgretArmatureDisplay extends egret.DisplayObjectContainer implements IArmatureProxy, IEventDispatcher {
         private _disposeProxy: boolean = false;
-        protected _armature: Armature = null as any; //
+        private _armature: Armature = null as any; //
         private _debugDrawer: egret.Sprite | null = null;
         /**
          * @inheritDoc
          */
         public init(armature: Armature): void {
             this._armature = armature;
-
-            //
-            this.$renderNode = new egret.sys.GroupNode();
-            this.$renderNode.cleanBeforeRender = EgretArmatureDisplay._cleanBeforeRender;
         }
         /**
          * @inheritDoc
@@ -227,7 +217,7 @@ namespace dragonBones {
                     this._debugDrawer.graphics.lineStyle(2.0, 0x00FFFF, 0.7);
                     this._debugDrawer.graphics.moveTo(startX, startY);
                     this._debugDrawer.graphics.lineTo(endX, endY);
-                    this._debugDrawer.graphics.lineStyle(0.0, 0, 0.0);
+                    this._debugDrawer.graphics.lineStyle(0.0, 0, 0);
                     this._debugDrawer.graphics.beginFill(0x00FFFF, 0.7);
                     this._debugDrawer.graphics.drawCircle(startX, startY, 3.0);
                     this._debugDrawer.graphics.endFill();
@@ -316,30 +306,6 @@ namespace dragonBones {
          */
         public removeEvent(type: EventStringType, listener: (event: EgretEvent) => void, target: any): void {
             this.removeEventListener(type, listener, target);
-        }
-        /**
-         * 关闭批次渲染。（批次渲染处于性能考虑，不会更新渲染对象的边界属性，这样无法正确获得渲染对象的绘制区域，如果需要使用这些属性，可以关闭批次渲染）
-         * @version DragonBones 5.1
-         * @language zh_CN
-         */
-        public disableBatch(): void {
-            for (const slot of this._armature.getSlots()) {
-                // (slot as EgretSlot).transformUpdateEnabled = true;
-                const display = (slot.rawDisplay || slot.meshDisplay) as (egret.Bitmap | egret.Mesh);
-                const node = display.$renderNode as (egret.sys.BitmapNode | egret.sys.MeshNode);
-
-                // Transform.
-                if (node.matrix) {
-                    display.$setMatrix(slot.globalTransformMatrix as any, false);
-                }
-
-                // ZOrder.
-                this.addChild(display);
-            }
-
-            this._batchEnabled = false;
-            this.$renderNode.cleanBeforeRender = null as any;
-            this.$renderNode = null as any;
         }
         /**
          * @inheritDoc
@@ -435,7 +401,7 @@ namespace dragonBones {
     /**
      * @deprecated
      * 已废弃，请参考 @see
-     * @see dragonBones.BaseFacory#parseTextureAtlasData()
+     * @see dragonBones.EgretTextureAtlasData
      */
     export class EgretTextureAtlas extends EgretTextureAtlasData {
         /**
@@ -485,8 +451,5 @@ namespace dragonBones {
      * @see dragonBones.Armature#enableAnimationCache()
      */
     export class AnimationCacheManager {
-        public constructor() {
-            console.warn("已废弃，请参考 @see");
-        }
     }
 }
