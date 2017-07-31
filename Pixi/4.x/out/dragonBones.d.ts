@@ -1774,7 +1774,7 @@ declare namespace dragonBones {
      * @version DragonBones 3.0
      * @language zh_CN
      */
-    class Armature extends BaseObject implements IAnimateble {
+    class Armature extends BaseObject implements IAnimatable {
         static toString(): string;
         private static _onSortSlots(a, b);
         /**
@@ -2739,7 +2739,7 @@ declare namespace dragonBones {
      * @version DragonBones 3.0
      * @language zh_CN
      */
-    interface IAnimateble {
+    interface IAnimatable {
         /**
          * 更新时间。
          * @param passedTime 前进的时间。 (以秒为单位)
@@ -2763,7 +2763,7 @@ declare namespace dragonBones {
      * @version DragonBones 3.0
      * @language zh_CN
      */
-    class WorldClock implements IAnimateble {
+    class WorldClock implements IAnimatable {
         /**
          * 一个可以直接使用的全局 WorldClock 实例.
          * @version DragonBones 3.0
@@ -2806,21 +2806,21 @@ declare namespace dragonBones {
          * @version DragonBones 3.0
          * @language zh_CN
          */
-        contains(value: IAnimateble): boolean;
+        contains(value: IAnimatable): boolean;
         /**
          * 添加 IAnimatable 实例。
          * @param value IAnimatable 实例。
          * @version DragonBones 3.0
          * @language zh_CN
          */
-        add(value: IAnimateble): void;
+        add(value: IAnimatable): void;
         /**
          * 移除 IAnimatable 实例。
          * @param value IAnimatable 实例。
          * @version DragonBones 3.0
          * @language zh_CN
          */
-        remove(value: IAnimateble): void;
+        remove(value: IAnimatable): void;
         /**
          * 清除所有的 IAnimatable 实例。
          * @version DragonBones 3.0
@@ -3843,6 +3843,18 @@ declare namespace dragonBones {
         /**
          * @private
          */
+        private _intArrayJson;
+        private _floatArrayJson;
+        private _frameIntArrayJson;
+        private _frameFloatArrayJson;
+        private _frameArrayJson;
+        private _timelineArrayJson;
+        private _intArrayBuffer;
+        private _floatArrayBuffer;
+        private _frameIntArrayBuffer;
+        private _frameFloatArrayBuffer;
+        private _frameArrayBuffer;
+        private _timelineArrayBuffer;
         protected static _getBoolean(rawData: any, key: string, defaultValue: boolean): boolean;
         /**
          * @private
@@ -3991,6 +4003,10 @@ declare namespace dragonBones {
          * @private
          */
         protected _parseArray(rawData: any): void;
+        /**
+         * @private
+         */
+        protected _parseWASMArray(): void;
         /**
          * @inheritDoc
          */

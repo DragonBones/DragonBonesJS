@@ -16,7 +16,7 @@ namespace dragonBones {
         private _timelineArrayJson: Array<number> = [];
 
         private _intArrayBuffer: Int16Array;
-        private _floatArrayBuffer: Float32Array; 
+        private _floatArrayBuffer: Float32Array;
         private _frameIntArrayBuffer: Int16Array;
         private _frameFloatArrayBuffer: Float32Array;
         private _frameArrayBuffer: Int16Array;
@@ -227,7 +227,7 @@ namespace dragonBones {
         }
 
         private _parseCacheActionFrame(frame: ActionFrame): number {
-            const frameArray = DragonBones.webAssembly ? this._frameArrayJson : ( this._data.frameArray as Array<number> );
+            const frameArray = DragonBones.webAssembly ? this._frameArrayJson : (this._data.frameArray as Array<number>);
             const frameOffset = frameArray.length;
             const actionCount = frame.actions.length;
             frameArray.length += 1 + 1 + actionCount;
@@ -443,7 +443,7 @@ namespace dragonBones {
             if (chain > 0) {
                 constraint.root = bone.parent;
             }
-            if(DragonBones.webAssembly) {
+            if (DragonBones.webAssembly) {
                 (bone.constraints as any).push_back(constraint);
             }
             else {
@@ -560,7 +560,7 @@ namespace dragonBones {
                         const displays = this._skin.getDisplays(this._slot.name);
                         if (displays === null ? this._slot.displayIndex === 0 : this._slot.displayIndex === displays.length) {
                             for (const action of this._slotChildActions[this._slot.name]) {
-                                if(DragonBones.webAssembly) {
+                                if (DragonBones.webAssembly) {
                                     (armatureDisplay.actions as any).push_back(action);
                                 }
                                 else {
@@ -774,7 +774,7 @@ namespace dragonBones {
          */
         protected _parsePolygonBoundingBox(rawData: any): PolygonBoundingBoxData {
             const rawVertices = rawData[ObjectDataParser.VERTICES] as Array<number>;
-            const floatArray = DragonBones.webAssembly ? this._floatArrayJson : this._data.floatArray as Array<number>; 
+            const floatArray = DragonBones.webAssembly ? this._floatArrayJson : this._data.floatArray as Array<number>;
             // const polygonBoundingBox = BaseObject.borrowObject(PolygonBoundingBoxData);
             const polygonBoundingBox = DragonBones.webAssembly ? new Module["PolygonBoundingBoxData"]() as PolygonBoundingBoxData : BaseObject.borrowObject(PolygonBoundingBoxData);
 
@@ -834,8 +834,8 @@ namespace dragonBones {
             }
             if (DragonBones.webAssembly) {
                 animation.frameIntOffset = this._frameIntArrayJson.length;
-                animation.frameFloatOffset =this._frameFloatArrayJson.length;
-                animation.frameOffset =this._frameArrayJson.length;
+                animation.frameFloatOffset = this._frameFloatArrayJson.length;
+                animation.frameOffset = this._frameArrayJson.length;
             }
             else {
                 animation.frameIntOffset = this._data.frameIntArray.length;
@@ -925,12 +925,12 @@ namespace dragonBones {
                     timelineArray[timeline.offset + BinaryOffset.TimelineFrameOffset + 0] = this._parseCacheActionFrame(this._actionFrames[0]) - this._animation.frameOffset;
                 }
                 else {
-                    const frameIndices =this._data.frameIndices;
+                    const frameIndices = this._data.frameIndices;
                     const totalFrameCount = this._animation.frameCount + 1; // One more frame than animation.
                     if (DragonBones.webAssembly) {
                         timeline.frameIndicesOffset = (frameIndices as any).size();
                         //(frameIndices as any).resize(timeline.frameIndicesOffset + totalFrameCount);
-                        for(let j = 0; j < totalFrameCount; ++j){
+                        for (let j = 0; j < totalFrameCount; ++j) {
                             (frameIndices as any).push_back(0);
                         }
                     }
@@ -994,7 +994,7 @@ namespace dragonBones {
             }
 
             const timelineArray = DragonBones.webAssembly ? this._timelineArrayJson : this._data.timelineArray as Array<number>;
-            const frameIntArrayLength = DragonBones.webAssembly ? this._frameIntArrayJson.length : this._data.frameIntArray.length; 
+            const frameIntArrayLength = DragonBones.webAssembly ? this._frameIntArrayJson.length : this._data.frameIntArray.length;
             const frameFloatArrayLength = DragonBones.webAssembly ? this._frameFloatArrayJson.length : this._data.frameFloatArray.length;
             // const timeline = BaseObject.borrowObject(TimelineData);
             const timeline = DragonBones.webAssembly ? new Module["TimelineData"]() as TimelineData : BaseObject.borrowObject(TimelineData);
@@ -1024,10 +1024,10 @@ namespace dragonBones {
             else {
                 const frameIndices = this._data.frameIndices;
                 const totalFrameCount = this._animation.frameCount + 1; // One more frame than animation.
-                if(DragonBones.webAssembly) {
+                if (DragonBones.webAssembly) {
                     timeline.frameIndicesOffset = (frameIndices as any).size();
                     // frameIndices.resize( frameIndices.size() + totalFrameCount);
-                    for(let j = 0; j < totalFrameCount; ++j){
+                    for (let j = 0; j < totalFrameCount; ++j) {
                         (frameIndices as any).push_back(0);
                     }
                 }
@@ -1241,7 +1241,7 @@ namespace dragonBones {
          */
         protected _parseBoneFrame(rawData: any, frameStart: number, frameCount: number): number {
             const frameFloatArray = DragonBones.webAssembly ? this._frameFloatArrayJson : this._data.frameFloatArray as Array<number>;
-            const frameArray = DragonBones.webAssembly ? this._frameArrayJson :this._data.frameArray as Array<number>;
+            const frameArray = DragonBones.webAssembly ? this._frameArrayJson : this._data.frameArray as Array<number>;
             const frameOffset = this._parseTweenFrame(rawData, frameStart, frameCount, frameArray);
 
             this._helpTransform.identity();
@@ -1428,7 +1428,7 @@ namespace dragonBones {
             }
 
             if (frameStart === 0) {
-                const frameIntArray = DragonBones.webAssembly ?  this._frameIntArrayJson : this._data.frameIntArray as Array<number>;
+                const frameIntArray = DragonBones.webAssembly ? this._frameIntArrayJson : this._data.frameIntArray as Array<number>;
                 const timelineArray = DragonBones.webAssembly ? this._timelineArrayJson : this._data.timelineArray as Array<number>;
                 const frameIntOffset = frameIntArray.length;
                 frameIntArray.length += 1 + 1 + 1 + 1 + 1;
@@ -1574,7 +1574,7 @@ namespace dragonBones {
         protected _parseArray(rawData: any): void {
             rawData;
 
-            if(DragonBones.webAssembly)  {
+            if (DragonBones.webAssembly) {
                 return;
             }
 
@@ -1592,51 +1592,51 @@ namespace dragonBones {
             let intArrayBuf = Module._malloc(this._intArrayJson.length * 2);
             this._intArrayBuffer = new Int16Array(Module.HEAP16.buffer, intArrayBuf, this._intArrayJson.length);
             // Module.HEAP16.set(tmpIntArray, intArrayBuf);
-            for(let i1= 0; i1 < this._intArrayJson.length; ++i1){
+            for (let i1 = 0; i1 < this._intArrayJson.length; ++i1) {
                 this._intArrayBuffer[i1] = this._intArrayJson[i1];
             }
 
             var floatArrayBuf = Module._malloc(this._floatArrayJson.length * 4);
             // Module.HEAPF32.set(this._floatArrayJson, floatArrayBuf);
             this._floatArrayBuffer = new Float32Array(Module.HEAPF32.buffer, floatArrayBuf, this._floatArrayJson.length);
-            for(let i2= 0; i2 < this._floatArrayJson.length; ++i2){
+            for (let i2 = 0; i2 < this._floatArrayJson.length; ++i2) {
                 this._floatArrayBuffer[i2] = this._floatArrayJson[i2];
             }
-            
+
             var frameIntArrayBuf = Module._malloc(this._frameIntArrayJson.length * 2);
             // Module.HEAP16.set(this._frameIntArrayJson, frameIntArrayBuf);
             this._frameIntArrayBuffer = new Int16Array(Module.HEAP16.buffer, frameIntArrayBuf, this._frameIntArrayJson.length);
-            for(let i3= 0; i3 < this._frameIntArrayJson.length; ++i3){
+            for (let i3 = 0; i3 < this._frameIntArrayJson.length; ++i3) {
                 this._frameIntArrayBuffer[i3] = this._frameIntArrayJson[i3];
             }
 
             var frameFloatArrayBuf = Module._malloc(this._frameFloatArrayJson.length * 4);
             // Module.HEAPF32.set(this._frameFloatArrayJson, frameFloatArrayBuf);
             this._frameFloatArrayBuffer = new Float32Array(Module.HEAPF32.buffer, frameFloatArrayBuf, this._frameFloatArrayJson.length);
-            for(let i4= 0; i4 < this._frameFloatArrayJson.length; ++i4){
+            for (let i4 = 0; i4 < this._frameFloatArrayJson.length; ++i4) {
                 this._frameFloatArrayBuffer[i4] = this._frameFloatArrayJson[i4];
             }
 
             var frameArrayBuf = Module._malloc(this._frameArrayJson.length * 2);
             // Module.HEAP16.set(this._frameArrayJson, frameArrayBuf);
             this._frameArrayBuffer = new Int16Array(Module.HEAP16.buffer, frameArrayBuf, this._frameArrayJson.length);
-            for(let i5= 0; i5 < this._frameArrayJson.length; ++i5){
+            for (let i5 = 0; i5 < this._frameArrayJson.length; ++i5) {
                 this._frameArrayBuffer[i5] = this._frameArrayJson[i5];
             }
 
             var timelineArrayBuf = Module._malloc(this._timelineArrayJson.length * 2);
             // Module.HEAPU16.set(this._timelineArrayJson, timelineArrayBuf);
-            this._timelineArrayBuffer = new Uint16Array(Module.HEAPU16.buffer, timelineArrayBuf ,this._timelineArrayJson.length);
-            for(let i6= 0; i6 < this._timelineArrayJson.length; ++i6){
+            this._timelineArrayBuffer = new Uint16Array(Module.HEAPU16.buffer, timelineArrayBuf, this._timelineArrayJson.length);
+            for (let i6 = 0; i6 < this._timelineArrayJson.length; ++i6) {
                 this._timelineArrayBuffer[i6] = this._timelineArrayJson[i6];
             }
 
             Module['DragonBonesData'].setDragonBoneData(this._data);
-            Module.ccall('set_dbData_buffer_ptr', 'number', ['number', 'number', 'number', 'number', 'number', 'number'], 
+            Module.ccall('set_dbData_buffer_ptr', 'number', ['number', 'number', 'number', 'number', 'number', 'number'],
                 [intArrayBuf, floatArrayBuf, frameIntArrayBuf, frameFloatArrayBuf, frameArrayBuf, timelineArrayBuf]);
 
         }
-        
+
         /**
          * @inheritDoc
          */
@@ -1670,7 +1670,7 @@ namespace dragonBones {
                     for (const rawArmature of rawArmatures) {
                         data.addArmature(this._parseArmature(rawArmature, scale));
                     }
-                    if(this._intArrayJson.length > 0) {
+                    if (this._intArrayJson.length > 0) {
                         this._parseWASMArray();
                     }
 
@@ -1754,7 +1754,7 @@ namespace dragonBones {
                     textureAtlasData.addTexture(textureData);
                 }
             }
-            
+
             return true;
         }
 

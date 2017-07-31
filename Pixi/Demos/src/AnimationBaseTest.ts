@@ -58,6 +58,14 @@ class AnimationBaseTest extends BaseTest {
             this.stage.addListener("mouseup", this._touchHandler, this);
             this.stage.addListener("mousemove", this._touchHandler, this);
 
+            const text = new PIXI.Text("", { align: "center" });
+            text.text = "Click to control animation play progress.";
+            text.scale.x = 0.7;
+            text.scale.y = 0.7;
+            text.x = (this.renderer.width - text.width) * 0.5;
+            text.y = this.renderer.height - 60;
+            this._stage.addChild(text);
+
             //
             this._startRenderTick();
         });

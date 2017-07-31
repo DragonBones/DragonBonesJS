@@ -3834,7 +3834,6 @@ declare namespace dragonBones {
         static parseTextureAtlasData(rawData: any, scale?: number): any;
     }
 }
-declare var Module: any;
 declare namespace dragonBones {
     /**
      * @private

@@ -5298,9 +5298,9 @@ var dragonBones;
                     childArmature.animation.fadeIn(animationName); //
                 }
             }
-            // if (animationConfig.fadeInTime <= 0.0) { // Blend animation state, update armature.
-            //     this._armature.advanceTime(0.0);
-            // }
+            if (animationConfig.fadeInTime <= 0.0) {
+                this._armature.advanceTime(0.0);
+            }
             this._lastAnimationState = animationState;
             return animationState;
         };
@@ -7652,10 +7652,10 @@ var dragonBones;
          */
         DataParser.parseDragonBonesData = function (rawData) {
             if (rawData instanceof ArrayBuffer) {
-                return dragonBones.ObjectDataParser.getInstance().parseDragonBonesData(rawData);
+                return dragonBones.BinaryDataParser.getInstance().parseDragonBonesData(rawData);
             }
             else {
-                return dragonBones.BinaryDataParser.getInstance().parseDragonBonesData(rawData);
+                return dragonBones.ObjectDataParser.getInstance().parseDragonBonesData(rawData);
             }
         };
         /**

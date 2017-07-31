@@ -251,10 +251,10 @@ namespace dragonBones {
          */
         public static parseDragonBonesData(rawData: any): DragonBonesData | null {
             if (rawData instanceof ArrayBuffer) {
-                return ObjectDataParser.getInstance().parseDragonBonesData(rawData);
+                return BinaryDataParser.getInstance().parseDragonBonesData(rawData);
             }
             else {
-                return BinaryDataParser.getInstance().parseDragonBonesData(rawData);
+                return ObjectDataParser.getInstance().parseDragonBonesData(rawData);
             }
         }
         /**

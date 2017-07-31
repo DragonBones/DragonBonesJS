@@ -3106,6 +3106,7 @@ var dragonBones;
                     return;
                 }
                 this._flipX = value;
+                this.invalidUpdate();
             },
             enumerable: true,
             configurable: true
@@ -3119,6 +3120,7 @@ var dragonBones;
                     return;
                 }
                 this._flipY = value;
+                this.invalidUpdate();
             },
             enumerable: true,
             configurable: true
@@ -3577,7 +3579,7 @@ var dragonBones;
                         }
                         if (parentMatrix.a * parentMatrix.d - parentMatrix.b * parentMatrix.c < 0.0) {
                             dR -= global.rotation * 2.0;
-                            if (flipX != flipY || this.boneData.inheritReflection) {
+                            if (flipX !== flipY || this.boneData.inheritReflection) {
                                 global.skew += Math.PI;
                             }
                         }
@@ -5296,9 +5298,9 @@ var dragonBones;
                     childArmature.animation.fadeIn(animationName); //
                 }
             }
-            // if (animationConfig.fadeInTime <= 0.0) { // Blend animation state, update armature.
-            //     this._armature.advanceTime(0.0);
-            // }
+            if (animationConfig.fadeInTime <= 0.0) {
+                this._armature.advanceTime(0.0);
+            }
             this._lastAnimationState = animationState;
             return animationState;
         };
@@ -7650,10 +7652,10 @@ var dragonBones;
          */
         DataParser.parseDragonBonesData = function (rawData) {
             if (rawData instanceof ArrayBuffer) {
-                return dragonBones.ObjectDataParser.getInstance().parseDragonBonesData(rawData);
+                return dragonBones.BinaryDataParser.getInstance().parseDragonBonesData(rawData);
             }
             else {
-                return dragonBones.BinaryDataParser.getInstance().parseDragonBonesData(rawData);
+                return dragonBones.ObjectDataParser.getInstance().parseDragonBonesData(rawData);
             }
         };
         /**
@@ -10785,7 +10787,7 @@ var dragonBones;
              * @internal
              * @private
              */
-            _this._batchEnabled = false;
+            _this._batchEnabled = true;
             _this._disposeProxy = false;
             _this._armature = null; //
             _this._debugDrawer = null;
@@ -10882,7 +10884,7 @@ var dragonBones;
                         child.graphics.endFill();
                         slot.updateTransformAndMatrix();
                         slot.updateGlobalTransform();
-                        child.$setMatrix(slot.globalTransformMatrix, false);
+                        child.$setMatrix(slot.globalTransformMatrix, true);
                     }
                     else {
                         var child = this._debugDrawer.getChildByName(slot.name);
@@ -10931,6 +10933,7 @@ var dragonBones;
         EgretArmatureDisplay.prototype.disableBatch = function () {
             for (var _i = 0, _a = this._armature.getSlots(); _i < _a.length; _i++) {
                 var slot = _a[_i];
+                // (slot as EgretSlot).transformUpdateEnabled = true;
                 var display = (slot.rawDisplay || slot.meshDisplay);
                 var node = display.$renderNode;
                 // Transform.
@@ -11482,8 +11485,20 @@ var dragonBones;
                     displayMatrix.tx = this.globalTransformMatrix.tx - (this.globalTransformMatrix.a * this._pivotX + this.globalTransformMatrix.c * this._pivotY);
                     displayMatrix.ty = this.globalTransformMatrix.ty - (this.globalTransformMatrix.b * this._pivotX + this.globalTransformMatrix.d * this._pivotY);
                 }
+                else if (this.transformUpdateEnabled) {
+                    this._renderDisplay.$setMatrix(globalTransformMatrix, true);
+                }
                 else {
-                    this._renderDisplay.$setMatrix(globalTransformMatrix, this.transformUpdateEnabled);
+                    var values = this._renderDisplay.$DisplayObject;
+                    var displayMatrix = values[6];
+                    displayMatrix.a = this.globalTransformMatrix.a;
+                    displayMatrix.b = this.globalTransformMatrix.b;
+                    displayMatrix.c = this.globalTransformMatrix.c;
+                    displayMatrix.d = this.globalTransformMatrix.d;
+                    displayMatrix.tx = this.globalTransformMatrix.tx;
+                    displayMatrix.ty = this.globalTransformMatrix.ty;
+                    this._renderDisplay.$removeFlags(8);
+                    this._renderDisplay.$invalidatePosition();
                 }
             }
         };
