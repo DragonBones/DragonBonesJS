@@ -393,7 +393,7 @@ namespace dragonBones {
             this._actionTimeline = BaseObject.borrowObject(ActionTimelineState);
             this._actionTimeline.init(this._armature, this, this.animationData.actionTimeline);
             this._actionTimeline.currentTime = this._time;
-            if (this._actionTimeline.currentTime < 0) {
+            if (this._actionTimeline.currentTime < 0.0) {
                 this._actionTimeline.currentTime = this._duration - this._actionTimeline.currentTime;
             }
 

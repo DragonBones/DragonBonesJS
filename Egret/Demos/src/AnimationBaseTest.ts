@@ -72,15 +72,12 @@ class AnimationBaseTest extends BaseTest {
         const progress = Math.min(Math.max((event.stageX - this._armatureDisplay.x + 300 * this._armatureDisplay.scaleX) / 600 * this._armatureDisplay.scaleX, 0), 1);
         switch (event.type) {
             case egret.TouchEvent.TOUCH_BEGIN:
-                // Play animation by time.
                 // this._armatureDisplay.animation.gotoAndPlayByTime("idle", 0.5, 1);
                 // this._armatureDisplay.animation.gotoAndStopByTime("idle", 1);
 
-                // Play animation by frame.
                 // this._armatureDisplay.animation.gotoAndPlayByFrame("idle", 25, 2);
                 // this._armatureDisplay.animation.gotoAndStopByFrame("idle", 50);
 
-                // Play animation by progress.
                 // this._armatureDisplay.animation.gotoAndPlayByProgress("idle", progress, 3);
                 this._armatureDisplay.animation.gotoAndStopByProgress("idle", progress);
                 break;

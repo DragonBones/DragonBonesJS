@@ -34,7 +34,7 @@ class PerformanceTest extends BaseTest {
 
     private _enterFrameHandler(event: egret.Event): void {
         if (this._addingArmature) {
-            for (let i = 0; i < 5; ++i) {
+            for (let i = 0; i < 10; ++i) {
 
                 this._addArmature();
             }
@@ -44,7 +44,7 @@ class PerformanceTest extends BaseTest {
         }
 
         if (this._removingArmature) {
-            for (let i = 0; i < 5; ++i) {
+            for (let i = 0; i < 10; ++i) {
 
                 this._removeArmature();
             }
@@ -76,9 +76,9 @@ class PerformanceTest extends BaseTest {
         }
 
         const armatureDisplay = dragonBones.EgretFactory.factory.buildArmatureDisplay("DragonBoy");
-        armatureDisplay.scaleX = armatureDisplay.scaleY = 0.7;
-        // armatureDisplay.armature.cacheFrameRate = 24;
+        armatureDisplay.armature.cacheFrameRate = 24;
         armatureDisplay.animation.play("walk", 0);
+        armatureDisplay.scaleX = armatureDisplay.scaleY = 0.7;
         this.addChild(armatureDisplay);
 
         this._armatures.push(armatureDisplay);

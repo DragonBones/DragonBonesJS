@@ -43,7 +43,6 @@ class AnimationBaseTest extends BaseTest {
             // animaitonConfig.timeScale = -1.0; // Reverse play.
 
             // animaitonConfig.position = 1.0; // Goto and play.
-            // animaitonConfig.duration = 0.0; // Goto and stop.
             // animaitonConfig.duration = 3.0; // Interval play.
             // this._armatureDisplay.animation.playConfig(animaitonConfig);
 
@@ -73,35 +72,32 @@ class AnimationBaseTest extends BaseTest {
         PIXI.loader.load();
     }
 
-    private _isDown: boolean = false;
+    private _isTouched: boolean = false;
     private _touchHandler(event: PIXI.interaction.InteractionEvent): void {
         const progress = Math.min(Math.max((event.data.global.x - this._armatureDisplay.x + 300) / 600, 0.0), 1.0);
         switch (event.type) {
             case "touchstart":
             case "mousedown":
-                this._isDown = true;
-                // Play animation by time.
+                this._isTouched = true;
                 // this._armatureDisplay.animation.gotoAndPlayByTime("idle", 0.5, 1);
                 // this._armatureDisplay.animation.gotoAndStopByTime("idle", 1);
 
-                // Play animation by frame.
                 // this._armatureDisplay.animation.gotoAndPlayByFrame("idle", 25, 2);
                 // this._armatureDisplay.animation.gotoAndStopByFrame("idle", 50);
 
-                // Play animation by progress.
                 // this._armatureDisplay.animation.gotoAndPlayByProgress("idle", progress, 3);
                 this._armatureDisplay.animation.gotoAndStopByProgress("idle", progress);
                 break;
 
             case "touchend":
             case "mouseup":
-                this._isDown = false;
+                this._isTouched = false;
                 this._armatureDisplay.animation.play();
                 break;
 
             case "touchmove":
             case "mousemove":
-                if (this._isDown) {
+                if (this._isTouched) {
                     const animationState = this._armatureDisplay.animation.getState("idle");
                     animationState.currentTime = animationState.totalTime * progress;
                 }

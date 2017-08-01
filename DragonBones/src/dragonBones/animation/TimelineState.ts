@@ -44,7 +44,8 @@ namespace dragonBones {
                         const eventType = action.type === ActionType.Frame ? EventObject.FRAME_EVENT : EventObject.SOUND_EVENT;
                         if (action.type === ActionType.Sound || eventDispatcher.hasEvent(eventType)) {
                             const eventObject = BaseObject.borrowObject(EventObject);
-                            eventObject.time = this._frameArray[frameOffset] * this._frameRateR;
+                            // eventObject.time = this._frameArray[frameOffset] * this._frameRateR; // Precision problem
+                            eventObject.time = this._frameArray[frameOffset] / this._frameRate;
                             eventObject.type = eventType;
                             eventObject.name = action.name;
                             eventObject.data = action.data;
@@ -76,7 +77,6 @@ namespace dragonBones {
 
             if (this.playState <= 0 && this._setCurrentTime(passedTime)) {
                 const eventDispatcher = this._armature.eventDispatcher;
-
                 if (prevState < 0) {
                     if (this.playState !== prevState) {
                         if (this._animationState.displayControl && this._animationState.resetToPose) { // Reset zorder to pose.
@@ -98,7 +98,7 @@ namespace dragonBones {
                     }
                 }
 
-                const isReverse = this._animationState.timeScale < 0;
+                const isReverse = this._animationState.timeScale < 0.0;
                 let loopCompleteEvent: EventObject | null = null;
                 let completeEvent: EventObject | null = null;
                 if (this.currentPlayTimes !== prevPlayTimes) {
@@ -142,7 +142,8 @@ namespace dragonBones {
 
                                 while (crossedFrameIndex >= 0) {
                                     const frameOffset = this._animationData.frameOffset + this._timelineArray[timelineData.offset + BinaryOffset.TimelineFrameOffset + crossedFrameIndex];
-                                    const framePosition = this._frameArray[frameOffset] * this._frameRateR;
+                                    // const framePosition = this._frameArray[frameOffset] * this._frameRateR; // Precision problem
+                                    const framePosition = this._frameArray[frameOffset] / this._frameRate;
                                     if (
                                         this._position <= framePosition &&
                                         framePosition <= this._position + this._duration
@@ -172,7 +173,8 @@ namespace dragonBones {
                                     const prevFrameIndex = Math.floor(prevTime * this._frameRate);
                                     crossedFrameIndex = this._frameIndices[timelineData.frameIndicesOffset + prevFrameIndex];
                                     const frameOffset = this._animationData.frameOffset + this._timelineArray[timelineData.offset + BinaryOffset.TimelineFrameOffset + crossedFrameIndex];
-                                    const framePosition = this._frameArray[frameOffset] * this._frameRateR;
+                                    // const framePosition = this._frameArray[frameOffset] * this._frameRateR; // Precision problem
+                                    const framePosition = this._frameArray[frameOffset] / this._frameRate;
                                     if (this.currentPlayTimes === prevPlayTimes) { // Start.
                                         if (prevTime <= framePosition) { // Crossed.
                                             if (crossedFrameIndex > 0) {
@@ -197,7 +199,8 @@ namespace dragonBones {
                                     }
 
                                     const frameOffset = this._animationData.frameOffset + this._timelineArray[timelineData.offset + BinaryOffset.TimelineFrameOffset + crossedFrameIndex];
-                                    const framePosition = this._frameArray[frameOffset] * this._frameRateR;
+                                    // const framePosition = this._frameArray[frameOffset] * this._frameRateR; // Precision problem
+                                    const framePosition = this._frameArray[frameOffset] / this._frameRate;
                                     if (
                                         this._position <= framePosition &&
                                         framePosition <= this._position + this._duration
@@ -223,7 +226,7 @@ namespace dragonBones {
                     if (this._timelineData !== null) {
                         this._frameOffset = this._animationData.frameOffset + this._timelineArray[this._timelineData.offset + BinaryOffset.TimelineFrameOffset];
                         // Arrive at frame.
-                        const framePosition = this._frameArray[this._frameOffset] * this._frameRateR;
+                        const framePosition = this._frameArray[this._frameOffset] / this._frameRate;
                         if (this.currentPlayTimes === prevPlayTimes) { // Start.
                             if (prevTime <= framePosition) {
                                 this._onCrossFrame(this._frameIndex);

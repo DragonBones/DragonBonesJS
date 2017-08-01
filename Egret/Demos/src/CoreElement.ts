@@ -177,9 +177,9 @@ namespace coreElement {
         private _isSquating: boolean = false;
         private _isAttackingA: boolean = false;
         private _isAttackingB: boolean = false;
-        private _skinIndex: number = 0;
         private _weaponRIndex: number = 0;
         private _weaponLIndex: number = 0;
+        private _skinIndex: number = 0;
         private _faceDir: number = 1;
         private _aimDir: number = 0;
         private _moveDir: number = 0;
@@ -256,22 +256,22 @@ namespace coreElement {
         }
 
         public switchWeaponL(): void {
+            this._weaponL.eventDispatcher.removeEvent(dragonBones.EventObject.FRAME_EVENT, this._frameEventHandler, this);
+
             this._weaponLIndex++;
             this._weaponLIndex %= Mecha.WEAPON_L_LIST.length;
-
             const weaponName = Mecha.WEAPON_L_LIST[this._weaponLIndex];
-            this._weaponL.eventDispatcher.removeEvent(dragonBones.EventObject.FRAME_EVENT, this._frameEventHandler, this);
             this._weaponL = dragonBones.EgretFactory.factory.buildArmature(weaponName);
             this._armature.getSlot("weapon_l").childArmature = this._weaponL;
             this._weaponL.eventDispatcher.addEvent(dragonBones.EventObject.FRAME_EVENT, this._frameEventHandler, this);
         }
 
         public switchWeaponR(): void {
+            this._weaponR.eventDispatcher.removeEvent(dragonBones.EventObject.FRAME_EVENT, this._frameEventHandler, this);
+
             this._weaponRIndex++;
             this._weaponRIndex %= Mecha.WEAPON_R_LIST.length;
-
             const weaponName = Mecha.WEAPON_R_LIST[this._weaponRIndex];
-            this._weaponR.eventDispatcher.removeEvent(dragonBones.EventObject.FRAME_EVENT, this._frameEventHandler, this);
             this._weaponR = dragonBones.EgretFactory.factory.buildArmature(weaponName);
             this._armature.getSlot("weapon_r").childArmature = this._weaponR;
             this._weaponR.eventDispatcher.addEvent(dragonBones.EventObject.FRAME_EVENT, this._frameEventHandler, this);
@@ -282,7 +282,7 @@ namespace coreElement {
             this._skinIndex %= Mecha.SKINS.length;
             const skinName = Mecha.SKINS[this._skinIndex];
             const skinData = dragonBones.EgretFactory.factory.getArmatureData(skinName).defaultSkin;
-            dragonBones.EgretFactory.factory.changeSkin(this._armature, skinData, ["weapon_r", "weapon_l"]);
+            dragonBones.EgretFactory.factory.changeSkin(this._armature, skinData, ["weapon_l", "weapon_r"]);
         }
 
         public aim(x: number, y: number): void {
@@ -344,9 +344,6 @@ namespace coreElement {
         }
 
         private _fire(firePoint: PointType): void {
-            firePoint.x += Math.random() * 2 - 1;
-            firePoint.y += Math.random() * 2 - 1;
-
             const radian = this._faceDir < 0 ? Math.PI - this._aimRadian : this._aimRadian;
             const bullet = new Bullet("bullet_01", "fire_effect_01", radian + Math.random() * 0.02 - 0.01, 40, firePoint);
             Game.instance.addBullet(bullet);
@@ -438,8 +435,9 @@ namespace coreElement {
 
         private _updateAim(): void {
             this._faceDir = this._target.x > this._armatureDisplay.x ? 1 : -1;
-            if (this._armatureDisplay.scaleX * this._faceDir < 0) {
-                this._armatureDisplay.scaleX *= -1.0;
+            if (this._armatureDisplay.armature.flipX !== this._faceDir < 0) {
+                this._armatureDisplay.armature.flipX = !this._armatureDisplay.armature.flipX;
+
                 if (this._moveDir !== 0) {
                     this._updateAnimation();
                 }
@@ -457,7 +455,7 @@ namespace coreElement {
             }
 
             let aimDir = 0;
-            if (this._aimRadian > 0) {
+            if (this._aimRadian > 0.0) {
                 aimDir = -1;
             }
             else {
@@ -473,15 +471,15 @@ namespace coreElement {
                         "aim_up", -1.0, -1,
                         0, Mecha.AIM_ANIMATION_GROUP
                     );
-                    this._aimState.resetToPose = false;
                 }
                 else {
                     this._aimState = this._armature.animation.fadeIn(
                         "aim_down", -1.0, -1,
                         0, Mecha.AIM_ANIMATION_GROUP
                     );
-                    this._aimState.resetToPose = false;
                 }
+
+                this._aimState.resetToPose = false;
             }
 
             this._aimState.weight = Math.abs(this._aimRadian / Math.PI * 2);
@@ -516,15 +514,15 @@ namespace coreElement {
             this._speedY = Math.sin(radian) * speed;
 
             this._armatureDisplay = dragonBones.EgretFactory.factory.buildArmatureDisplay(armatureName);
-            this._armatureDisplay.x = position.x;
-            this._armatureDisplay.y = position.y;
+            this._armatureDisplay.x = position.x + Math.random() * 2 - 1;
+            this._armatureDisplay.y = position.y + Math.random() * 2 - 1;
             this._armatureDisplay.rotation = radian * 180.0 / Math.PI;
 
             if (effectArmatureName !== null) {
                 this._effecDisplay = dragonBones.EgretFactory.factory.buildArmatureDisplay(effectArmatureName);
                 this._effecDisplay.rotation = radian * 180.0 / Math.PI;
-                this._effecDisplay.x = position.x;
-                this._effecDisplay.y = position.y;
+                this._effecDisplay.x = this._armatureDisplay.x;
+                this._effecDisplay.y = this._armatureDisplay.y;
                 this._effecDisplay.scaleX = 1.0 + Math.random() * 1.0;
                 this._effecDisplay.scaleY = 1.0 + Math.random() * 0.5;
                 if (Math.random() < 0.5) {

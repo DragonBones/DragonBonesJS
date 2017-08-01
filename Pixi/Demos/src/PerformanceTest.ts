@@ -42,8 +42,7 @@ class PerformanceTest extends BaseTest {
 
     private _enterFrameHandler(deltaTime: number): void {
         if (this._addingArmature) {
-            for (let i = 0; i < 5; ++i) {
-
+            for (let i = 0; i < 10; ++i) {
                 this._addArmature();
             }
 
@@ -52,8 +51,7 @@ class PerformanceTest extends BaseTest {
         }
 
         if (this._removingArmature) {
-            for (let i = 0; i < 5; ++i) {
-
+            for (let i = 0; i < 10; ++i) {
                 this._removeArmature();
             }
 
@@ -86,9 +84,9 @@ class PerformanceTest extends BaseTest {
         }
 
         const armatureDisplay = dragonBones.PixiFactory.factory.buildArmatureDisplay("DragonBoy");
-        armatureDisplay.scale.set(0.7, 0.7);
         armatureDisplay.armature.cacheFrameRate = 24;
         armatureDisplay.animation.play("walk", 0);
+        armatureDisplay.scale.set(0.7, 0.7);
         this.stage.addChild(armatureDisplay);
 
         this._armatures.push(armatureDisplay);
@@ -122,7 +120,6 @@ class PerformanceTest extends BaseTest {
         const stageWidth = this.renderer.width - paddingH * 2;
         const columnCount = Math.floor(stageWidth / gapping);
         const paddingHModify = (this.renderer.width - columnCount * gapping) * 0.5;
-
         const dX = stageWidth / columnCount;
         const dY = (this.renderer.height - paddingV * 2) / Math.ceil(armatureCount / columnCount);
 

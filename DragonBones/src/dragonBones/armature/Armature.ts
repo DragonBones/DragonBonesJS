@@ -78,6 +78,10 @@ namespace dragonBones {
          * @private
          */
         protected _onClear(): void {
+            if (this._clock !== null) { // Remove clock first.
+                this._clock.remove(this);
+            }
+
             for (const bone of this._bones) {
                 bone.returnToPool();
             }
@@ -96,10 +100,6 @@ namespace dragonBones {
 
             if (this._replaceTextureAtlasData !== null) {
                 this._replaceTextureAtlasData.returnToPool();
-            }
-
-            if (this._clock !== null) {
-                this._clock.remove(this);
             }
 
             this.inheritAnimation = true;

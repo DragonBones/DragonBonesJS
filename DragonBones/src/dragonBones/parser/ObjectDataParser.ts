@@ -925,8 +925,8 @@ namespace dragonBones {
                     timelineArray[timeline.offset + BinaryOffset.TimelineFrameOffset + 0] = this._parseCacheActionFrame(this._actionFrames[0]) - this._animation.frameOffset;
                 }
                 else {
-                    const frameIndices = this._data.frameIndices;
                     const totalFrameCount = this._animation.frameCount + 1; // One more frame than animation.
+                    const frameIndices = this._data.frameIndices;
                     if (DragonBones.webAssembly) {
                         timeline.frameIndicesOffset = (frameIndices as any).size();
                         //(frameIndices as any).resize(timeline.frameIndicesOffset + totalFrameCount);

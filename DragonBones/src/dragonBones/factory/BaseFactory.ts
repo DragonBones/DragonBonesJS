@@ -335,10 +335,22 @@ namespace dragonBones {
             const displayList = slot.displayList; // Copy.
             if (displayList.length <= displayIndex) {
                 displayList.length = displayIndex + 1;
+
+                for (let i = 0, l = displayList.length; i < l; ++i) { // Clean undefined.
+                    if (!displayList[i]) {
+                        displayList[i] = null;
+                    }
+                }
             }
 
             if (slot._displayDatas.length <= displayIndex) {
                 slot._displayDatas.length = displayIndex + 1;
+
+                for (let i = 0, l = slot._displayDatas.length; i < l; ++i) { // Clean undefined.
+                    if (!slot._displayDatas[i]) {
+                        slot._displayDatas[i] = null;
+                    }
+                }
             }
 
             slot._displayDatas[displayIndex] = displayData;
@@ -715,9 +727,9 @@ namespace dragonBones {
                 }
 
                 slot._rawDisplayDatas = displays;
-                slot._displayDatas.length = slot._rawDisplayDatas.length;
+                slot._displayDatas.length = displays.length;
                 for (let i = 0, l = slot._displayDatas.length; i < l; ++i) {
-                    slot._displayDatas[i] = slot._rawDisplayDatas[i];
+                    slot._displayDatas[i] = displays[i];
                 }
 
                 slot.displayList = displayList;

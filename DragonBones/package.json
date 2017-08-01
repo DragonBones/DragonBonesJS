@@ -6,6 +6,7 @@
     "build": "tsc & uglifyjs ./out/dragonBones.js -o ./out/dragonBones.min.js -m",
     "build-egret-4.x": "cd.. & cd Egret & cd 4.x & npm run build & cd.. & cd.. & cd DragonBones",
     "build-egret-5.x": "cd.. & cd Egret & cd 5.x & npm run build & cd.. & cd.. & cd DragonBones",
+    "build-egret-wasm": "cd.. & cd Egret & cd wasm & npm run build & cd.. & cd.. & cd DragonBones",
     "build-pixi": "cd.. & cd Pixi & cd 4.x & npm run build & cd.. & cd Demos & tsc & cd.. & cd.. & cd DragonBones",
     "build-all": "npm run build & npm run build-egret-4.x & npm run build-egret-5.x & npm run build-pixi"
   },

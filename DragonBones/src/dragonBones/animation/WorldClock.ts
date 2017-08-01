@@ -75,14 +75,14 @@ namespace dragonBones {
 
             let i = 0, r = 0, l = this._animatebles.length;
             for (; i < l; ++i) {
-                const animateble = this._animatebles[i];
-                if (animateble !== null) {
+                const animatable = this._animatebles[i];
+                if (animatable !== null) {
                     if (r > 0) {
-                        this._animatebles[i - r] = animateble;
+                        this._animatebles[i - r] = animatable;
                         this._animatebles[i] = null;
                     }
 
-                    animateble.advanceTime(passedTime);
+                    animatable.advanceTime(passedTime);
                 }
                 else {
                     r++;
@@ -144,9 +144,9 @@ namespace dragonBones {
          * @language zh_CN
          */
         public clear(): void {
-            for (const animateble of this._animatebles) {
-                if (animateble !== null) {
-                    animateble.clock = null;
+            for (const animatable of this._animatebles) {
+                if (animatable !== null) {
+                    animatable.clock = null;
                 }
             }
         }
