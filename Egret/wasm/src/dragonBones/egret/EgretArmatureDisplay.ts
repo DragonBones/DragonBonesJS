@@ -558,21 +558,21 @@ namespace dragonBones {
         (dragonBones.WorldClock as any).prototype._c_contains = dragonBones.WorldClock.prototype.contains;
         (dragonBones.WorldClock as any).prototype._c_add = dragonBones.WorldClock.prototype.add;
         (dragonBones.WorldClock as any).prototype._c_remove = dragonBones.WorldClock.prototype.remove;
-        (dragonBones.WorldClock as any).prototype.contains = function (this: any, value: IAnimateble): boolean { // js call.
+        (dragonBones.WorldClock as any).prototype.contains = function (this: any, value: IAnimatable): boolean { // js call.
             if (value instanceof dragonBones.Armature) {
                 return this._c_contains((value as any).getAnimateble());
             }
 
             return this._c_contains(value);
         };
-        (dragonBones.WorldClock as any).prototype.add = function (this: any, value: IAnimateble): void { // js call.
+        (dragonBones.WorldClock as any).prototype.add = function (this: any, value: IAnimatable): void { // js call.
             if (value instanceof dragonBones.Armature) {
                 return this._c_add((value as any).getAnimateble());
             }
 
             return this._c_add(value);
         };
-        (dragonBones.WorldClock as any).prototype.remove = function (this: any, value: IAnimateble): void { // js call.
+        (dragonBones.WorldClock as any).prototype.remove = function (this: any, value: IAnimatable): void { // js call.
             if (value instanceof dragonBones.Armature) {
                 return this._c_remove((value as any).getAnimateble());
             }
