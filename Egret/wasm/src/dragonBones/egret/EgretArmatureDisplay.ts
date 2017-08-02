@@ -701,7 +701,7 @@ namespace dragonBones {
             setter: []
         },
         Armature: {
-            getter: ["animation", "proxy", "eventDispatcher"], // TODO add animationNames
+            getter: ["animation", "proxy", "eventDispatcher"],
             setter: ["clock"]
         },
         Slot: {
@@ -714,7 +714,8 @@ namespace dragonBones {
         },
         Animation: {
             getter: ["animationConfig"],
-            setter: []
+            setter: [],
+            array: ["animationNames"]
         },
         WorldClock: {
             getter: [],

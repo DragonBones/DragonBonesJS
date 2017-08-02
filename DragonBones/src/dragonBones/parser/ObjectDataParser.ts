@@ -1061,7 +1061,12 @@ namespace dragonBones {
                         iK++;
                     }
 
-                    frameIndices[timeline.frameIndicesOffset + i] = iK - 1;
+                    if (DragonBones.webAssembly) {
+                        (frameIndices as any).set(timeline.frameIndicesOffset + i, iK - 1);
+                    }
+                    else {
+                        frameIndices[timeline.frameIndicesOffset + i] = iK - 1;
+                    }
                 }
             }
 

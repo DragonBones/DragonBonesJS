@@ -28,7 +28,7 @@ namespace dragonBones {
                 const eventObject = events.get(i);
                 const armature = eventObject.armature;
                 const type = eventObject.type;
-                if(armature === null || armature.display === null || armature.display === undefined) {
+                if (armature === null || armature.display === null || armature.display === undefined) {
                     console.log("armature display error!");
                 }
                 armature.display._dispatchEvent(type, eventObject);
@@ -124,7 +124,7 @@ namespace dragonBones {
                 dataPackage.armature,
                 armatureProxy, displayID, EgretFactory._dragonBones
             );
-            armatureDisplay.init(armature); 
+            armatureDisplay.init(armature);
             return armature;
         }
         /**
@@ -180,7 +180,7 @@ namespace dragonBones {
                             const displayWrapper = createEgretDisplay(display, DisplayType.Image);
                             displayList.push_back(displayWrapper);
                         }
-                        else if (display.getDisplayType() == DisplayType.Armature){
+                        else if (display.getDisplayType() == DisplayType.Armature) {
                             const displayWrapper = createEgretDisplay(display, DisplayType.Armature);
                             displayList.push_back(displayWrapper);
                         }
@@ -290,16 +290,16 @@ namespace dragonBones {
                     }
 
                     if (this._isSupportMesh()) {
-                        display = (slot as any).getMeshWASMDisplay;
+                        display = (slot as any).getMeshWASMDisplay();
                     }
                     else {
-                        display = (slot as any).getRawWASMDisplay;
+                        display = (slot as any).getRawWASMDisplay();
                     }
                     break;
 
                 case DisplayType.Armature:
                     const armatureDisplayData = displayData as ArmatureDisplayData;
-                    const childArmature = this.buildArmature(armatureDisplayData.path, dataName, null,  dataPackage !== null ? dataPackage.textureAtlasName : null);
+                    const childArmature = this.buildArmature(armatureDisplayData.path, dataName, null, dataPackage !== null ? dataPackage.textureAtlasName : null);
                     if (childArmature !== null) {
                         childArmature.inheritAnimation = armatureDisplayData.inheritAnimation;
                         if (!childArmature.inheritAnimation) {
@@ -335,11 +335,11 @@ namespace dragonBones {
                     continue;
                 }
                 const displays = (skin.displays as any).get(slot.name);
-                if(displays === null || displays === undefined) {
+                if (displays === null || displays === undefined) {
                     continue;
                 }
                 const displayList = (slot as any).getEgretDisplayList(); // Copy.
-                if(displayList === null || displayList === undefined) {
+                if (displayList === null || displayList === undefined) {
                     console.log("Slot does not has displayList" + slot.name);
                     continue;
                 }
@@ -349,7 +349,7 @@ namespace dragonBones {
                 for (let i = 0, l = displays.size(); i < l; ++i) {
                     let currData = displays.get(i);
                     let currSlot = this._getSlotDisplay(null, currData, null, slot);
-                    if(currSlot.getDisplayType() == DisplayType.Armature) {
+                    if (currSlot.getDisplayType() == DisplayType.Armature) {
                         let displayWrapper = createEgretDisplay(currSlot, DisplayType.Armature);
                         displayList.set(i, displayWrapper);
                     }
