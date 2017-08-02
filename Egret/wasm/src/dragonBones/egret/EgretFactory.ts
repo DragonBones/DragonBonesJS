@@ -77,7 +77,7 @@ namespace dragonBones {
             if (EgretFactory._dragonBones === null) {
                 dragonBones.DragonBones.webAssembly = true;
                 const eventDisplay = new EgretArmatureDisplay();
-                EgretFactory._eventManager = new EgretArmatureProxy(eventDisplay);
+                EgretFactory._eventManager = eventDisplay;
                 EgretFactory._dragonBones = new Module["DragonBones"]();
                 EgretFactory._dragonBones.clock.time = egret.getTimer() * 0.001;
                 egret.startTick(EgretFactory._clockHandler, EgretFactory);

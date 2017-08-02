@@ -10,16 +10,11 @@
 	"egret_version": "5.0.2",
 	"modules": [
 		{
-			"name": "egret-wasm",
-			"path": "/Volumes/MacHD/work/egret/wasm-egret2d-js/src/egret"
-		},
-	  {
-			"name": "media",
-			"path": "/Volumes/MacHD/work/egret/wasm-egret2d-js/src/media"
+			"name": "egret"
 		},
 		{
 			"name": "dragonBones",
-			"path": "../wasm/out/"
+			"path": "../4.x/out/"
 		},
 		{
 			"name": "res"

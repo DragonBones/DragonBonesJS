@@ -119,6 +119,16 @@ namespace dragonBones {
             return result;
         }
 
+        private _getUTF16Key(value: string): string {
+            for (let i = 0, l = value.length; i < l; ++i) {
+                if (value.charCodeAt(i) > 255) {
+                    return encodeURI(value);
+                }
+            }
+
+            return value;
+        }
+
         private _parseBinaryTimeline(type: TimelineType, offset: number, timelineData: TimelineData | null = null): TimelineData {
             // const timeline = timelineData !== null ? timelineData : BaseObject.borrowObject(TimelineData);
             const timeline = timelineData !== null ? timelineData : (DragonBones.webAssembly ? new Module["TimelineData"]() as TimelineData : BaseObject.borrowObject(TimelineData));
@@ -137,7 +147,7 @@ namespace dragonBones {
                 if (DragonBones.webAssembly) {
                     timeline.frameIndicesOffset = (frameIndices as any).size();
                     // (frameIndices as any).resize(timeline.frameIndicesOffset + totalFrameCount);
-                    for(let j = 0; j < totalFrameCount; ++j){
+                    for (let j = 0; j < totalFrameCount; ++j) {
                         (frameIndices as any).push_back(0);
                     }
                 }
@@ -189,11 +199,20 @@ namespace dragonBones {
                 const vertexCount = this._intArray[mesh.offset + BinaryOffset.MeshVertexCount];
                 const boneCount = this._intArray[weightOffset + BinaryOffset.WeigthBoneCount];
                 weight.offset = weightOffset;
-                weight.bones.length = boneCount;
+                if (DragonBones.webAssembly) {
+                    (weight.bones as any).resize(boneCount, null);
+                    for (let i = 0; i < boneCount; ++i) {
+                        const boneIndex = this._intArray[weightOffset + BinaryOffset.WeigthBoneIndices + i];
+                        (weight.bones as any).set(i, this._rawBones[boneIndex]);
+                    }
+                }
+                else {
+                    weight.bones.length = boneCount;
 
-                for (let i = 0; i < boneCount; ++i) {
-                    const boneIndex = this._intArray[weightOffset + BinaryOffset.WeigthBoneIndices + i];
-                    weight.bones[i] = this._rawBones[boneIndex];
+                    for (let i = 0; i < boneCount; ++i) {
+                        const boneIndex = this._intArray[weightOffset + BinaryOffset.WeigthBoneIndices + i];
+                        weight.bones[i] = this._rawBones[boneIndex];
+                    }
                 }
 
                 let boneIndicesOffset = weightOffset + BinaryOffset.WeigthBoneIndices + boneCount;
@@ -252,12 +271,16 @@ namespace dragonBones {
             if (ObjectDataParser.BONE in rawData) {
                 const rawTimeliness = rawData[ObjectDataParser.BONE];
                 for (let k in rawTimeliness) {
+                    const rawTimelines = rawTimeliness[k] as Array<number>;
+                    if (dragonBones.DragonBones.webAssembly) {
+                        k = this._getUTF16Key(k);
+                    }
+
                     const bone = this._armature.getBone(k);
                     if (bone === null) {
                         continue;
                     }
 
-                    const rawTimelines = rawTimeliness[k] as Array<number>;
                     for (let i = 0, l = rawTimelines.length; i < l; i += 2) {
                         const timelineType = rawTimelines[i];
                         const timelineOffset = rawTimelines[i + 1];
@@ -270,12 +293,16 @@ namespace dragonBones {
             if (ObjectDataParser.SLOT in rawData) {
                 const rawTimeliness = rawData[ObjectDataParser.SLOT];
                 for (let k in rawTimeliness) {
+                    const rawTimelines = rawTimeliness[k] as Array<number>;
+                    if (dragonBones.DragonBones.webAssembly) {
+                        k = this._getUTF16Key(k);
+                    }
+
                     const slot = this._armature.getSlot(k);
                     if (slot === null) {
                         continue;
                     }
 
-                    const rawTimelines = rawTimeliness[k] as Array<number>;
                     for (let i = 0, l = rawTimelines.length; i < l; i += 2) {
                         const timelineType = rawTimelines[i];
                         const timelineOffset = rawTimelines[i + 1];
@@ -348,7 +375,7 @@ namespace dragonBones {
                 }
 
                 Module['DragonBonesData'].setDragonBoneData(this._data);
-                Module.ccall('set_dbData_buffer_ptr', 'number', ['number', 'number', 'number', 'number', 'number', 'number'], 
+                Module.ccall('set_dbData_buffer_ptr', 'number', ['number', 'number', 'number', 'number', 'number', 'number'],
                     [intArrayBuf, floatArrayBuf, frameIntArrayBuf, frameFloatArrayBuf, frameArrayBuf, timelineArrayBuf]);
             }
             else {

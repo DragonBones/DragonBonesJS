@@ -64,8 +64,7 @@ namespace dragonBones {
                                 subTextureHeight, subTextureWidth,
                                 0, 0,
                                 subTextureHeight, subTextureWidth,
-                                textureAtlasWidth, textureAtlasHeight,
-                                textureData.rotated
+                                textureAtlasWidth, textureAtlasHeight
                             );
                         }
                         else {

@@ -278,7 +278,7 @@ namespace dragonBones {
                             node.imageHeight = texture._sourceHeight;
                         }
 
-                        meshDisplay.$setBitmapData(currentTextureData.renderTexture);
+                        meshDisplay.texture = currentTextureData.renderTexture;
                         meshDisplay.$setAnchorOffsetX(this._pivotX);
                         meshDisplay.$setAnchorOffsetY(this._pivotY);
                         meshDisplay.$updateVertices();
@@ -286,7 +286,7 @@ namespace dragonBones {
                     }
                     else { // Normal texture.
                         const normalDisplay = this._renderDisplay as egret.Bitmap;
-                        normalDisplay.$setBitmapData(currentTextureData.renderTexture);
+                        normalDisplay.texture = currentTextureData.renderTexture;
 
                         if (this._armatureDisplay._batchEnabled) {
                             const texture = currentTextureData.renderTexture;

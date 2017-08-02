@@ -55,13 +55,25 @@ namespace dragonBones {
 
                     if (textureData.renderTexture === null) {
                         textureData.renderTexture = new egret.Texture();
-                        textureData.renderTexture.$initData(
-                            textureData.region.x, textureData.region.y,
-                            subTextureWidth, subTextureHeight,
-                            0, 0,
-                            subTextureWidth, subTextureHeight,
-                            textureAtlasWidth, textureAtlasHeight
-                        );
+                        if (textureData.rotated) {
+                            textureData.renderTexture.$initData(
+                                textureData.region.x, textureData.region.y,
+                                subTextureHeight, subTextureWidth,
+                                0, 0,
+                                subTextureHeight, subTextureWidth,
+                                textureAtlasWidth, textureAtlasHeight,
+                                textureData.rotated
+                            );
+                        }
+                        else {
+                            textureData.renderTexture.$initData(
+                                textureData.region.x, textureData.region.y,
+                                subTextureWidth, subTextureHeight,
+                                0, 0,
+                                subTextureWidth, subTextureHeight,
+                                textureAtlasWidth, textureAtlasHeight
+                            );
+                        }
                     }
 
                     textureData.renderTexture._bitmapData = bitmapData;

@@ -192,10 +192,9 @@ namespace dragonBones {
         public static webAssembly: boolean = false;
         public static readonly VERSION: string = "5.1.0";
 
-
+        private readonly _clock: WorldClock = new WorldClock();
         private readonly _events: Array<EventObject> = [];
         private readonly _objects: Array<BaseObject> = [];
-        private _clock: WorldClock = null as any;
         private _eventManager: IEventDispatcher = null as any;
 
         public constructor(eventManager: IEventDispatcher) {
@@ -239,10 +238,6 @@ namespace dragonBones {
         }
 
         public get clock(): WorldClock {
-            if (this._clock === null) {
-                this._clock = new WorldClock();
-            }
-
             return this._clock;
         }
 

@@ -73,6 +73,14 @@ namespace dragonBones {
                 const value = rawData[key];
                 const type = typeof value;
                 if (type === "string") {
+                    if (dragonBones.DragonBones.webAssembly) {
+                        for (let i = 0, l = (value as string).length; i < l; ++i) {
+                            if ((value as string).charCodeAt(i) > 255) {
+                                return encodeURI(value);
+                            }
+                        }
+                    }
+
                     return value;
                 }
 

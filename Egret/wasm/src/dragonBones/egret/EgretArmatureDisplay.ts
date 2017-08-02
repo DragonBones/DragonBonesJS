@@ -245,8 +245,8 @@ namespace dragonBones {
         __parent: any;
         _rawDisplay: egret.Bitmap;
         _meshDisplay: egret.Mesh;
-        _rawDisplayWASM : any;
-        _meshDisplayWASM : any;
+        _rawDisplayWASM: any;
+        _meshDisplayWASM: any;
     }
 
     interface PEgretDisplayWrapper {
@@ -269,20 +269,19 @@ namespace dragonBones {
         _renderTexture: egret.Texture | null;
     }
 
-    export let EgretArmatureProxy : any;
-    export let EgretSlot : any;
-    export let EgretTextureAtlasData : any;
-    export let EgretTextureData : any;
-
+    export let EgretArmatureProxy: any;
+    export let EgretSlot: any;
+    export let EgretTextureAtlasData: any;
+    export let EgretTextureData: any;
 
     export function createEgretDisplay(display: egret.DisplayObject | Armature | null, type: DisplayType): any {
         const egretDisplayWrapper = new Module["EgretDisplayWASM"]() as PEgretDisplayWrapper; // TODO 是否可以将 EgretDisplayWASM 改为 EgretDisplayWrapper
         let wasmId;
-        if(display === null) {
+        if (display === null) {
             wasmId = -1;
             egretDisplayWrapper.setDisplayInfo(wasmId, type);
         }
-        else if(type === DisplayType.Armature) {
+        else if (type === DisplayType.Armature) {
             wasmId = (display as any).getEgretArmatureId();
             egretDisplayWrapper.setDisplayInfo(wasmId, type);
             egretDisplayWrapper.setArmature(display as Armature);
@@ -296,7 +295,7 @@ namespace dragonBones {
         return egretDisplayWrapper;
     }
 
-    export function egretWASMInit() : void {
+    export function egretWASMInit(): void {
         /**
          * @private
          * 扩展 c++ EgretArmatureProxy。(在 js 中构造)
@@ -328,7 +327,7 @@ namespace dragonBones {
             hasEvent: function (this: PEgretArmatureProxy, type: string): boolean { // c++ call.
                 return this._display.hasEventListener(type);
             },
-            dispose: function(this: PEgretArmatureProxy, disposeProxy: boolean): void {
+            dispose: function (this: PEgretArmatureProxy, disposeProxy: boolean): void {
                 // TODO lsc
                 disposeProxy;
                 // return this._display.dispose(disposeProxy);
@@ -340,7 +339,6 @@ namespace dragonBones {
                 this._display.removeEvent(type, listener, target);
             }
         });
-
 
         /**
          * @private
@@ -371,24 +369,16 @@ namespace dragonBones {
                     this._meshDisplayWASM
                 );
             },
-            getDisplayList: function (this: PEgretSlot): Array<egret.DisplayObject | null> { // js -> c++
-                console.warn("TODO");
-                return null as any;
-            },
-            setDisplayList: function (this: PEgretSlot, value: Array<egret.DisplayObject | null>): void { // js -> c++
-                console.warn("TODO");
-                value;
-            },
             getRawDisplay: function (this: PEgretSlot): egret.Bitmap {
                 return this._rawDisplay;
             },
             getMeshDisplay: function (this: PEgretSlot): egret.Mesh {
                 return this._meshDisplay;
             },
-            getRawWASMDisplay: function (this: PEgretSlot) : any {
+            getRawWASMDisplay: function (this: PEgretSlot): any {
                 return this._rawDisplayWASM;
             },
-            getMeshWASMDisplay: function (this: PEgretSlot) : any {
+            getMeshWASMDisplay: function (this: PEgretSlot): any {
                 return this._meshDisplayWASM;
             },
             // extend c++ function
@@ -401,7 +391,7 @@ namespace dragonBones {
                 return null;
             },
             setDisplay: function (this: PEgretSlot, value: egret.DisplayObject | Armature | null): void { // js -> c++
-                if( value === this._rawDisplay || value === this._meshDisplay) {
+                if (value === this._rawDisplay || value === this._meshDisplay) {
                     return;
                 }
 
@@ -417,7 +407,6 @@ namespace dragonBones {
             }
         });
 
-        //TODO 
         Object.defineProperty(EgretSlot.prototype, "displayList", {
             get: EgretSlot.prototype.getEgretDisplayList,
             set: EgretSlot.prototype.setEgretDisplayList,
@@ -467,7 +456,7 @@ namespace dragonBones {
                 if (this._texture === value) {
                     return;
                 }
-                if((value as any)["textureId"] === null || (value as any)["textureId"] === undefined) {
+                if ((value as any)["textureId"] === null || (value as any)["textureId"] === undefined) {
                     (egret as any).WebAssemblyNode.setValuesToBitmapData(value);
                 }
                 this._texture = value;
@@ -477,7 +466,14 @@ namespace dragonBones {
                     const bitmapData = this._texture.bitmapData;
                     const textureAtlasWidth = this.width > 0.0 ? this.width : bitmapData.width;
                     const textureAtlasHeight = this.height > 0.0 ? this.height : bitmapData.height;
-                    for (const k of this._textureNames) {
+                    for (let k of this._textureNames) {
+                        for (let i = 0, l = k.length; i < l; ++i) {
+                            if (k.charCodeAt(i) > 255) {
+                                k = encodeURI(k);
+                                break;
+                            }
+                        }
+
                         const textureData = textures.get(k) as PEgretTextureData;
                         const subTextureWidth = Math.min(textureData.region.width, textureAtlasWidth - textureData.region.x); // TODO need remove
                         const subTextureHeight = Math.min(textureData.region.height, textureAtlasHeight - textureData.region.y); // TODO need remove
@@ -587,13 +583,13 @@ namespace dragonBones {
         (dragonBones.Armature as any).prototype._c_addBone = dragonBones.Armature.prototype.addBone;
         (dragonBones.Armature as any).prototype._c_invalidUpdate = dragonBones.Armature.prototype.invalidUpdate;
         dragonBones.Armature.prototype.addBone = function (this: any, bone: Bone, name: string) {
-            if(name === null || name === undefined) {
+            if (name === null || name === undefined) {
                 name = "";
             }
             return this._c_addBone(bone, name);
         }
         dragonBones.Armature.prototype.invalidUpdate = function (this: any, boneName: string | null = null, updateSlotDisplay: boolean = false): void {
-            if(boneName === null) {
+            if (boneName === null) {
                 boneName = "";
             }
             return this._c_invalidUpdate(boneName, updateSlotDisplay);
@@ -615,39 +611,41 @@ namespace dragonBones {
         dragonBones.Animation = Module["Animation"];
         (dragonBones.Animation as any).prototype._c_play = dragonBones.Animation.prototype.play;
         (dragonBones.Animation as any).prototype._c_fadeIn = dragonBones.Animation.prototype.fadeIn;
-        dragonBones.Animation.prototype.play = function (this: any, 
+        dragonBones.Animation.prototype.play = function (this: any,
             animationName: string | null = null, playTimes: number = -1): AnimationState | null {
-                if(animationName === null) {
-                    animationName = "";
-                }
-                return this._c_play(animationName, playTimes);
+            if (animationName === null) {
+                animationName = "";
+            }
+            return this._c_play(animationName, playTimes);
         }
-        dragonBones.Animation.prototype.fadeIn = function (this: any,            
-                animationName: string, fadeInTime: number = -1.0, playTimes: number = -1,
-                layer: number = 0, group: string | null = null, fadeOutMode: AnimationFadeOutMode = AnimationFadeOutMode.SameLayerAndGroup
-            ): AnimationState | null {
-                if(animationName === null) {
-                    animationName = "";
-                }
-                if(group === null) {
-                    group = "";
-                }
-                return this._c_fadeIn( animationName, fadeInTime, playTimes, layer, group, fadeOutMode);
+        dragonBones.Animation.prototype.fadeIn = function (this: any,
+            animationName: string, fadeInTime: number = -1.0, playTimes: number = -1,
+            layer: number = 0, group: string | null = null, fadeOutMode: AnimationFadeOutMode = AnimationFadeOutMode.SameLayerAndGroup
+        ): AnimationState | null {
+            if (animationName === null) {
+                animationName = "";
+            }
+            if (group === null) {
+                group = "";
+            }
+            return this._c_fadeIn(animationName, fadeInTime, playTimes, layer, group, fadeOutMode);
         }
     }
-    
-    const configTables: { [key: string]: { getter?: string[], setter?: string[], static?: string[] } } = {
+
+    const configTables: { [key: string]: { getter?: string[], setter?: string[], static?: string[], array?: string[] } } = {
         ActionData: {
             getter: [],
             setter: ["type", "bone", "slot", "data"]
         },
         DragonBonesData: {
-            getter: ["armatureNames", "frameIndices", "frameIndices"],
-            setter: []
+            getter: ["frameIndices"],
+            setter: [],
+            array: ["armatureNames"]
         },
         ArmatureData: {
             getter: ["defaultActions", "actions"],
-            setter: ["aabb", "defaultAnimation", "defaultSkin", "parent"]
+            setter: ["aabb", "defaultAnimation", "defaultSkin", "parent"],
+            array: ["animationNames"]
         },
         BoneData: {
             getter: ["transform", "constraints"],
@@ -672,11 +670,15 @@ namespace dragonBones {
         },
         ArmatureDisplayData: {
             getter: ["actions"],
-            setter: []
+            setter: [] // armature
         },
         MeshDisplayData: {
             getter: [],
             setter: ["weight"]
+        },
+        WeightData: {
+            getter: ["bones"],
+            setter: []
         },
         AnimationData: {
             getter: [],
@@ -699,7 +701,7 @@ namespace dragonBones {
             setter: []
         },
         Armature: {
-            getter: ["animation", "proxy", "eventDispatcher"],
+            getter: ["animation", "proxy", "eventDispatcher"], // TODO add animationNames
             setter: ["clock"]
         },
         Slot: {
@@ -731,7 +733,6 @@ namespace dragonBones {
             getter: ["clock"],
             setter: []
         }
-        // ArmatureDisplayData: { getter: [], setter: ["armature"] }
     }
 
     function descGetter(funcName: string, target: any) {
@@ -751,6 +752,27 @@ namespace dragonBones {
         };
     }
 
+    function descArrayGetter(funcName: string, target: any) {
+        target;
+        return {
+            get: function (this: any): Array<any> {
+                let array = this["_js_" + funcName];
+                if (!array) {
+                    array = [];
+
+                    const vector = this["_c_get_" + funcName]();
+                    for (let i = 0, l = vector.size(); i < l; ++i) {
+                        array[i] = vector.get(i);
+                    }
+                }
+
+                return array;
+            },
+            enumerable: true,
+            configurable: true
+        };
+    }
+
     export function registerGetterSetter(): void {
         for (let fieldKey in configTables) {
             const getterClass = Module[fieldKey];
@@ -758,6 +780,7 @@ namespace dragonBones {
             const getterArray = configTables[fieldKey].getter;
             const setterArray = configTables[fieldKey].setter;
             const staticArray = configTables[fieldKey].static;
+            const arrayArray = configTables[fieldKey].array;
 
             if (getterArray) {
                 for (let fieldName of getterArray) {
@@ -774,6 +797,12 @@ namespace dragonBones {
             if (staticArray) {
                 for (let fieldName of staticArray) {
                     Object.defineProperty(getterClass, fieldName, descSetter(fieldName, getterClass));
+                }
+            }
+
+            if (arrayArray) {
+                for (let fieldName of arrayArray) {
+                    Object.defineProperty(getterClassProto, fieldName, descArrayGetter(fieldName, getterClass));
                 }
             }
         }
