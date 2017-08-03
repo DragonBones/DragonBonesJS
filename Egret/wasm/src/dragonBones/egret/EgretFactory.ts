@@ -415,10 +415,10 @@ namespace dragonBones {
 
             (slot as any).replaceDisplayData(displayData, displayIndex);
             if (displayData !== null) {
-                displayList[displayIndex] = this._getSlotDisplay(dataPackage, displayData, null, slot);
+                displayList.set(displayIndex, this._getSlotDisplay(dataPackage, displayData, null, slot));
             }
             else {
-                displayList[displayIndex] = null;
+                displayList.set(displayIndex, null);
             }
             (slot as any).setEgretDisplayList(displayList);
         }
