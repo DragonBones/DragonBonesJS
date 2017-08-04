@@ -180,7 +180,7 @@ namespace dragonBones {
                             const displayWrapper = createEgretDisplay(display, DisplayType.Image);
                             displayList.push_back(displayWrapper);
                         }
-                        else if (display.getDisplayType() == DisplayType.Armature) {
+                        else if (display.getDisplayType() === DisplayType.Armature) {
                             const displayWrapper = createEgretDisplay(display, DisplayType.Armature);
                             displayList.push_back(displayWrapper);
                         }
