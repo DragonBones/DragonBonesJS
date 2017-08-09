@@ -995,38 +995,7 @@ namespace dragonBones {
                 return null;
             }
 
-            let rawFrames: Array<any>;
-
-            switch (type) {
-                case TimelineType.BoneT:
-                    rawFrames = rawData[ObjectDataParser.TRANSLATE_FRAME];
-                    break;
-
-                case TimelineType.BoneR:
-                    rawFrames = rawData[ObjectDataParser.ROTATE_FRAME];
-                    break;
-
-                case TimelineType.BoneS:
-                    rawFrames = rawData[ObjectDataParser.SCALE_FRAME];
-                    break;
-
-                case TimelineType.SlotVisible:
-                    rawFrames = rawData[ObjectDataParser.VISIBLE_FRAME];
-                    break;
-
-                case TimelineType.SlotDisplay:
-                    rawFrames = rawData[ObjectDataParser.DISPLAY_FRAME];
-                    break;
-
-                case TimelineType.SlotColor:
-                    rawFrames = rawData[ObjectDataParser.COLOR_FRAME];
-                    break;
-
-                default:
-                    rawFrames = rawData[ObjectDataParser.FRAME];
-                    break;
-            }
-
+            const rawFrames: Array<any> = rawData[ObjectDataParser.FRAME];
             const keyFrameCount = rawFrames.length;
             if (keyFrameCount === 0) {
                 return null;

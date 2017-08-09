@@ -2644,7 +2644,7 @@ var dragonBones;
             this.armatureData = null; //
             this.userData = null;
             this._debugDraw = false;
-            this._delayDispose = false;
+            this._lockUpdate = false;
             this._bonesDirty = false;
             this._slotsDirty = false;
             this._zOrderDirty = false;
@@ -2791,7 +2791,7 @@ var dragonBones;
          */
         Armature.prototype.dispose = function () {
             if (this.armatureData !== null) {
-                this._delayDispose = true;
+                this._lockUpdate = true;
                 this._dragonBones.bufferObject(this);
             }
         };
@@ -2820,7 +2820,7 @@ var dragonBones;
          * @language zh_CN
          */
         Armature.prototype.advanceTime = function (passedTime) {
-            if (this._delayDispose) {
+            if (this._lockUpdate) {
                 return;
             }
             if (this.armatureData === null) {
@@ -2854,6 +2854,7 @@ var dragonBones;
                 }
             }
             if (this._actions.length > 0) {
+                this._lockUpdate = true;
                 for (var _i = 0, _a = this._actions; _i < _a.length; _i++) {
                     var action = _a[_i];
                     if (action.type === 0 /* Play */) {
@@ -2861,6 +2862,7 @@ var dragonBones;
                     }
                 }
                 this._actions.length = 0;
+                this._lockUpdate = false;
             }
             //
             var drawed = this.debugDraw || dragonBones_1.DragonBones.debugDraw;
@@ -8709,30 +8711,7 @@ var dragonBones;
             if (!(ObjectDataParser.FRAME in rawData)) {
                 return null;
             }
-            var rawFrames;
-            switch (type) {
-                case 11 /* BoneT */:
-                    rawFrames = rawData[ObjectDataParser.TRANSLATE_FRAME];
-                    break;
-                case 12 /* BoneR */:
-                    rawFrames = rawData[ObjectDataParser.ROTATE_FRAME];
-                    break;
-                case 13 /* BoneS */:
-                    rawFrames = rawData[ObjectDataParser.SCALE_FRAME];
-                    break;
-                case 23 /* SlotVisible */:
-                    rawFrames = rawData[ObjectDataParser.VISIBLE_FRAME];
-                    break;
-                case 20 /* SlotDisplay */:
-                    rawFrames = rawData[ObjectDataParser.DISPLAY_FRAME];
-                    break;
-                case 21 /* SlotColor */:
-                    rawFrames = rawData[ObjectDataParser.COLOR_FRAME];
-                    break;
-                default:
-                    rawFrames = rawData[ObjectDataParser.FRAME];
-                    break;
-            }
+            var rawFrames = rawData[ObjectDataParser.FRAME];
             var keyFrameCount = rawFrames.length;
             if (keyFrameCount === 0) {
                 return null;

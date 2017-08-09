@@ -1804,7 +1804,7 @@ declare namespace dragonBones {
          */
         userData: any;
         private _debugDraw;
-        private _delayDispose;
+        private _lockUpdate;
         private _bonesDirty;
         private _slotsDirty;
         private _zOrderDirty;

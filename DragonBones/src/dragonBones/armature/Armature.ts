@@ -42,7 +42,7 @@ namespace dragonBones {
         public userData: any;
 
         private _debugDraw: boolean;
-        private _delayDispose: boolean;
+        private _lockUpdate: boolean;
         private _bonesDirty: boolean;
         private _slotsDirty: boolean;
         private _zOrderDirty: boolean;
@@ -113,7 +113,7 @@ namespace dragonBones {
             this.userData = null;
 
             this._debugDraw = false;
-            this._delayDispose = false;
+            this._lockUpdate = false;
             this._bonesDirty = false;
             this._slotsDirty = false;
             this._zOrderDirty = false;
@@ -271,7 +271,7 @@ namespace dragonBones {
          */
         public dispose(): void {
             if (this.armatureData !== null) {
-                this._delayDispose = true;
+                this._lockUpdate = true;
                 this._dragonBones.bufferObject(this);
             }
         }
@@ -305,7 +305,7 @@ namespace dragonBones {
          * @language zh_CN
          */
         public advanceTime(passedTime: number): void {
-            if (this._delayDispose) {
+            if (this._lockUpdate) {
                 return;
             }
 
@@ -347,6 +347,7 @@ namespace dragonBones {
             }
 
             if (this._actions.length > 0) {
+                this._lockUpdate = true;
                 for (const action of this._actions) {
                     if (action.type === ActionType.Play) {
                         this._animation.fadeIn(action.name);
@@ -354,6 +355,7 @@ namespace dragonBones {
                 }
 
                 this._actions.length = 0;
+                this._lockUpdate = false;
             }
 
             //
