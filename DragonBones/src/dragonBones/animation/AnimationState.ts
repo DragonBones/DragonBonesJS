@@ -448,7 +448,7 @@ namespace dragonBones {
 
                                 case TimelineType.BoneX:
                                 case TimelineType.BoneY:
-                                case TimelineType.BoneRotation:
+                                case TimelineType.BoneRotate:
                                 case TimelineType.BoneSkew:
                                 case TimelineType.BoneScaleX:
                                 case TimelineType.BoneScaleY:
@@ -504,7 +504,7 @@ namespace dragonBones {
                     if (timelineDatas !== null) {
                         for (const timelineData of timelineDatas) {
                             switch (timelineData.type) {
-                                case TimelineType.SlotDisplayIndex:
+                                case TimelineType.SlotDisplay:
                                     {
                                         const timeline = BaseObject.borrowObject(SlotDislayIndexTimelineState);
                                         timeline.slot = slot;

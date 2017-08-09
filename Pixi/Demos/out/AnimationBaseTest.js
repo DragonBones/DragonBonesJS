@@ -13,7 +13,7 @@ var AnimationBaseTest = (function (_super) {
     __extends(AnimationBaseTest, _super);
     function AnimationBaseTest() {
         var _this = _super !== null && _super.apply(this, arguments) || this;
-        _this._isDown = false;
+        _this._isTouched = false;
         return _this;
     }
     AnimationBaseTest.prototype._onStart = function () {
@@ -50,7 +50,6 @@ var AnimationBaseTest = (function (_super) {
             // animaitonConfig.timeScale = 1.0; // Play speed.
             // animaitonConfig.timeScale = -1.0; // Reverse play.
             // animaitonConfig.position = 1.0; // Goto and play.
-            // animaitonConfig.duration = 0.0; // Goto and stop.
             // animaitonConfig.duration = 3.0; // Interval play.
             // this._armatureDisplay.animation.playConfig(animaitonConfig);
             _this._armatureDisplay.animation.play("idle", 1);
@@ -79,25 +78,22 @@ var AnimationBaseTest = (function (_super) {
         switch (event.type) {
             case "touchstart":
             case "mousedown":
-                this._isDown = true;
-                // Play animation by time.
+                this._isTouched = true;
                 // this._armatureDisplay.animation.gotoAndPlayByTime("idle", 0.5, 1);
                 // this._armatureDisplay.animation.gotoAndStopByTime("idle", 1);
-                // Play animation by frame.
                 // this._armatureDisplay.animation.gotoAndPlayByFrame("idle", 25, 2);
                 // this._armatureDisplay.animation.gotoAndStopByFrame("idle", 50);
-                // Play animation by progress.
                 // this._armatureDisplay.animation.gotoAndPlayByProgress("idle", progress, 3);
                 this._armatureDisplay.animation.gotoAndStopByProgress("idle", progress);
                 break;
             case "touchend":
             case "mouseup":
-                this._isDown = false;
+                this._isTouched = false;
                 this._armatureDisplay.animation.play();
                 break;
             case "touchmove":
             case "mousemove":
-                if (this._isDown) {
+                if (this._isTouched) {
                     var animationState = this._armatureDisplay.animation.getState("idle");
                     animationState.currentTime = animationState.totalTime * progress;
                 }

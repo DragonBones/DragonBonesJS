@@ -417,8 +417,8 @@ namespace dragonBones {
 
             this._onClear();
 
-            this.renderTexture = texture;
             ObjectDataParser.getInstance().parseTextureAtlasData(rawData, this, scale);
+            this.renderTexture = texture;
         }
     }
     /**

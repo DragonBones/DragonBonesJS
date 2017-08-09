@@ -489,7 +489,7 @@ namespace dragonBones {
 
                         if (actions !== null && actions.length > 0) {
                             for (const action of actions) {
-                                this._childArmature.animation.fadeIn(action.name);
+                                this._childArmature._bufferAction(action, false); // Make sure default action at the beginning.
                             }
                         }
                         else {

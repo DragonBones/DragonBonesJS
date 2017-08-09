@@ -50,14 +50,14 @@ var PerformanceTest = (function (_super) {
     };
     PerformanceTest.prototype._enterFrameHandler = function (deltaTime) {
         if (this._addingArmature) {
-            for (var i = 0; i < 5; ++i) {
+            for (var i = 0; i < 10; ++i) {
                 this._addArmature();
             }
             this._resetPosition();
             this._updateText();
         }
         if (this._removingArmature) {
-            for (var i = 0; i < 5; ++i) {
+            for (var i = 0; i < 10; ++i) {
                 this._removeArmature();
             }
             this._resetPosition();
@@ -85,9 +85,9 @@ var PerformanceTest = (function (_super) {
             dragonBones.PixiFactory.factory.parseTextureAtlasData(this._resources["textureData"].data, this._resources["texture"].texture);
         }
         var armatureDisplay = dragonBones.PixiFactory.factory.buildArmatureDisplay("DragonBoy");
-        armatureDisplay.scale.set(0.7, 0.7);
         armatureDisplay.armature.cacheFrameRate = 24;
         armatureDisplay.animation.play("walk", 0);
+        armatureDisplay.scale.set(0.7, 0.7);
         this.stage.addChild(armatureDisplay);
         this._armatures.push(armatureDisplay);
     };

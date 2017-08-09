@@ -18,13 +18,12 @@ namespace dragonBones {
                     const actionIndex = this._frameArray[frameOffset + 2 + i];
                     const action = actions[actionIndex];
                     if (action.type === ActionType.Play) {
-                        // TODO action should be do after displayIndex change.
                         if (action.slot !== null) {
                             const slot = this._armature.getSlot(action.slot.name);
                             if (slot !== null) {
                                 const childArmature = slot.childArmature;
                                 if (childArmature !== null) {
-                                    childArmature.animation.fadeIn(action.name);
+                                    childArmature._bufferAction(action, true);
                                 }
                             }
                         }
@@ -32,12 +31,12 @@ namespace dragonBones {
                             for (const slot of this._armature.getSlots()) {
                                 const childArmature = slot.childArmature;
                                 if (childArmature !== null && slot.parent.boneData === action.bone) {
-                                    childArmature.animation.fadeIn(action.name);
+                                    childArmature._bufferAction(action, true);
                                 }
                             }
                         }
                         else {
-                            this._armature.animation.fadeIn(action.name);
+                            this._armature._bufferAction(action, true);
                         }
                     }
                     else {

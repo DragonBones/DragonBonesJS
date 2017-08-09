@@ -303,7 +303,7 @@ namespace dragonBones {
                             const actions = armatureDisplayData.actions.length > 0 ? armatureDisplayData.actions : childArmature.armatureData.defaultActions;
                             if (actions.length > 0) {
                                 for (const action of actions) {
-                                    childArmature.animation.fadeIn(action.name); // TODO action should be do after advanceTime.
+                                    childArmature._bufferAction(action, true);
                                 }
                             }
                             else {

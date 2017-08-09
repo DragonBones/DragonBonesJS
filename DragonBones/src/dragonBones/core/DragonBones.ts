@@ -113,12 +113,13 @@ namespace dragonBones {
 
         BoneX = 14,
         BoneY = 15,
-        BoneRotation = 16,
+        BoneRotate = 16,
         BoneSkew = 17,
         BoneScaleX = 18,
         BoneScaleY = 19,
 
-        SlotDisplayIndex = 20,
+        SlotVisible = 23,
+        SlotDisplay = 20,
         SlotColor = 21,
         SlotFFD = 22,
 
@@ -230,11 +231,15 @@ namespace dragonBones {
         }
 
         public bufferEvent(value: EventObject): void {
-            this._events.push(value);
+            if (this._events.indexOf(value) < 0) {
+                this._events.push(value);
+            }
         }
 
         public bufferObject(object: BaseObject): void {
-            this._objects.push(object);
+            if (this._objects.indexOf(object) < 0) {
+                this._objects.push(object);
+            }
         }
 
         public get clock(): WorldClock {

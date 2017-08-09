@@ -55,6 +55,7 @@ namespace dragonBones {
         public _cacheFrameIndex: number;
         private readonly _bones: Array<Bone> = [];
         private readonly _slots: Array<Slot> = [];
+        private readonly _actions: Array<ActionData> = [];
         private _animation: Animation = null as any; // Initial value.
         private _proxy: IArmatureProxy = null as any; // Initial value.
         private _display: any;
@@ -90,6 +91,10 @@ namespace dragonBones {
                 slot.returnToPool();
             }
 
+            for (const action of this._actions) {
+                action.returnToPool();
+            }
+
             if (this._animation !== null) {
                 this._animation.returnToPool();
             }
@@ -117,6 +122,7 @@ namespace dragonBones {
             this._cacheFrameIndex = -1;
             this._bones.length = 0;
             this._slots.length = 0;
+            this._actions.length = 0;
             this._animation = null as any; //
             this._proxy = null as any; //
             this._display = null;
@@ -245,6 +251,20 @@ namespace dragonBones {
             }
         }
         /**
+         * @internal
+         * @private
+         */
+        public _bufferAction(action: ActionData, append: boolean): void {
+            if (this._actions.indexOf(action) < 0) {
+                if (append) {
+                    this._actions.push(action);
+                }
+                else {
+                    this._actions.unshift(action);
+                }
+            }
+        }
+        /**
          * 释放骨架。 (回收到对象池)
          * @version DragonBones 3.0
          * @language zh_CN
@@ -324,6 +344,16 @@ namespace dragonBones {
                 for (i = 0, l = this._slots.length; i < l; ++i) {
                     this._slots[i].update(this._cacheFrameIndex);
                 }
+            }
+
+            if (this._actions.length > 0) {
+                for (const action of this._actions) {
+                    if (action.type === ActionType.Play) {
+                        this._animation.fadeIn(action.name);
+                    }
+                }
+
+                this._actions.length = 0;
             }
 
             //

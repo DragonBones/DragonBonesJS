@@ -40,6 +40,12 @@ namespace dragonBones {
         protected static readonly Z_ORDER: string = "zOrder";
         protected static readonly FFD: string = "ffd";
         protected static readonly FRAME: string = "frame";
+        protected static readonly TRANSLATE_FRAME: string = "translateFrame";
+        protected static readonly ROTATE_FRAME: string = "rotateFrame";
+        protected static readonly SCALE_FRAME: string = "scaleFrame";
+        protected static readonly VISIBLE_FRAME: string = "visibleFrame";
+        protected static readonly DISPLAY_FRAME: string = "displayFrame";
+        protected static readonly COLOR_FRAME: string = "colorFrame";
         protected static readonly DEFAULT_ACTIONS: string = "defaultActions";
         protected static readonly ACTIONS: string = "actions";
         protected static readonly EVENTS: string = "events";
@@ -93,12 +99,13 @@ namespace dragonBones {
 
         protected static readonly X: string = "x";
         protected static readonly Y: string = "y";
-        protected static readonly ROTATION: string = "r";
-        protected static readonly SKEW: string = "sk";
         protected static readonly SKEW_X: string = "skX";
         protected static readonly SKEW_Y: string = "skY";
         protected static readonly SCALE_X: string = "scX";
         protected static readonly SCALE_Y: string = "scY";
+        protected static readonly VALUE: string = "value";
+        protected static readonly ROTATE: string = "rotate";
+        protected static readonly SKEW: string = "skew";
 
         protected static readonly ALPHA_OFFSET: string = "aO";
         protected static readonly RED_OFFSET: string = "rO";

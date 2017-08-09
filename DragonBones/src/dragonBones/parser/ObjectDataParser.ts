@@ -205,7 +205,7 @@ namespace dragonBones {
         }
 
         private _mergeActionFrame(rawData: any, frameStart: number, type: ActionType, bone: BoneData | null, slot: SlotData | null): void {
-            const actionOffset = this._armature.actions.length;
+            const actionOffset = DragonBones.webAssembly ? (this._armature.actions as any).size() : this._armature.actions.length;
             const actionCount = this._parseActionData(rawData, this._armature.actions, type, bone, slot);
             let frame: ActionFrame | null = null;
 
@@ -995,7 +995,38 @@ namespace dragonBones {
                 return null;
             }
 
-            const rawFrames = rawData[ObjectDataParser.FRAME] as Array<any>;
+            let rawFrames: Array<any>;
+
+            switch (type) {
+                case TimelineType.BoneT:
+                    rawFrames = rawData[ObjectDataParser.TRANSLATE_FRAME];
+                    break;
+
+                case TimelineType.BoneR:
+                    rawFrames = rawData[ObjectDataParser.ROTATE_FRAME];
+                    break;
+
+                case TimelineType.BoneS:
+                    rawFrames = rawData[ObjectDataParser.SCALE_FRAME];
+                    break;
+
+                case TimelineType.SlotVisible:
+                    rawFrames = rawData[ObjectDataParser.VISIBLE_FRAME];
+                    break;
+
+                case TimelineType.SlotDisplay:
+                    rawFrames = rawData[ObjectDataParser.DISPLAY_FRAME];
+                    break;
+
+                case TimelineType.SlotColor:
+                    rawFrames = rawData[ObjectDataParser.COLOR_FRAME];
+                    break;
+
+                default:
+                    rawFrames = rawData[ObjectDataParser.FRAME];
+                    break;
+            }
+
             const keyFrameCount = rawFrames.length;
             if (keyFrameCount === 0) {
                 return null;
@@ -1109,7 +1140,7 @@ namespace dragonBones {
 
             this._slot = slot;
 
-            const displayIndexTimeline = this._parseTimeline(rawData, TimelineType.SlotDisplayIndex, false, false, 0, this._parseSlotDisplayIndexFrame);
+            const displayIndexTimeline = this._parseTimeline(rawData, TimelineType.SlotDisplay, false, false, 0, this._parseSlotDisplayIndexFrame);
             if (displayIndexTimeline !== null) {
                 this._animation.addSlotTimeline(slot, displayIndexTimeline);
             }
@@ -1556,8 +1587,8 @@ namespace dragonBones {
             transform.x = ObjectDataParser._getNumber(rawData, ObjectDataParser.X, 0.0) * scale;
             transform.y = ObjectDataParser._getNumber(rawData, ObjectDataParser.Y, 0.0) * scale;
 
-            if (ObjectDataParser.ROTATION in rawData || ObjectDataParser.SKEW in rawData) {
-                transform.rotation = Transform.normalizeRadian(ObjectDataParser._getNumber(rawData, ObjectDataParser.ROTATION, 0.0) * Transform.DEG_RAD);
+            if (ObjectDataParser.ROTATE in rawData || ObjectDataParser.SKEW in rawData) {
+                transform.rotation = Transform.normalizeRadian(ObjectDataParser._getNumber(rawData, ObjectDataParser.ROTATE, 0.0) * Transform.DEG_RAD);
                 transform.skew = Transform.normalizeRadian(ObjectDataParser._getNumber(rawData, ObjectDataParser.SKEW, 0.0) * Transform.DEG_RAD);
             }
             else if (ObjectDataParser.SKEW_X in rawData || ObjectDataParser.SKEW_Y in rawData) {

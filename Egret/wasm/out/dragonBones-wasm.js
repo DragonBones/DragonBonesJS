@@ -10559,131 +10559,231 @@ var dragonBones;
 var dragonBones;
 (function (dragonBones) {
     /**
+     * Egret 事件。
+     * @version DragonBones 4.5
      * @language zh_CN
-     * Pixi 贴图集数据。
-     * @version DragonBones 3.0
      */
-    var PixiTextureAtlasData = (function (_super) {
-        __extends(PixiTextureAtlasData, _super);
-        function PixiTextureAtlasData() {
-            var _this = _super !== null && _super.apply(this, arguments) || this;
-            _this._renderTexture = null; // Initial value.
-            return _this;
+    var EgretEvent = (function (_super) {
+        __extends(EgretEvent, _super);
+        function EgretEvent() {
+            return _super !== null && _super.apply(this, arguments) || this;
         }
-        PixiTextureAtlasData.toString = function () {
-            return "[class dragonBones.PixiTextureAtlasData]";
-        };
-        /**
-         * @private
-         */
-        PixiTextureAtlasData.prototype._onClear = function () {
-            _super.prototype._onClear.call(this);
-            if (this.renderTexture !== null) {
-                //this.texture.dispose();
-            }
-            this.renderTexture = null;
-        };
-        /**
-         * @private
-         */
-        PixiTextureAtlasData.prototype.createTexture = function () {
-            return dragonBones.BaseObject.borrowObject(PixiTextureData);
-        };
-        Object.defineProperty(PixiTextureAtlasData.prototype, "renderTexture", {
+        Object.defineProperty(EgretEvent.prototype, "eventObject", {
             /**
-             * Pixi 贴图。
-             * @version DragonBones 3.0
+             * 事件对象。
+             * @see dragonBones.EventObject
+             * @version DragonBones 4.5
              * @language zh_CN
              */
             get: function () {
-                return this._renderTexture;
-            },
-            set: function (value) {
-                if (this._renderTexture === value) {
-                    return;
-                }
-                this._renderTexture = value;
-                if (this._renderTexture !== null) {
-                    for (var k in this.textures) {
-                        var textureData = this.textures[k];
-                        textureData.renderTexture = new PIXI.Texture(this._renderTexture, textureData.region, // No need to set frame.
-                        textureData.region, new PIXI.Rectangle(0, 0, textureData.region.width, textureData.region.height), textureData.rotated // .d.ts bug
-                        );
-                    }
-                }
-                else {
-                    for (var k in this.textures) {
-                        var textureData = this.textures[k];
-                        textureData.renderTexture = null;
-                    }
-                }
+                return this.data;
             },
             enumerable: true,
             configurable: true
         });
-        return PixiTextureAtlasData;
-    }(dragonBones.TextureAtlasData));
-    dragonBones.PixiTextureAtlasData = PixiTextureAtlasData;
-    /**
-     * @private
-     */
-    var PixiTextureData = (function (_super) {
-        __extends(PixiTextureData, _super);
-        function PixiTextureData() {
-            var _this = _super.call(this) || this;
-            _this.renderTexture = null; // Initial value.
-            return _this;
-        }
-        PixiTextureData.toString = function () {
-            return "[class dragonBones.PixiTextureData]";
-        };
-        PixiTextureData.prototype._onClear = function () {
-            _super.prototype._onClear.call(this);
-            if (this.renderTexture !== null) {
-                this.renderTexture.destroy();
-            }
-            this.renderTexture = null;
-        };
-        return PixiTextureData;
-    }(dragonBones.TextureData));
-    dragonBones.PixiTextureData = PixiTextureData;
-})(dragonBones || (dragonBones = {}));
-var dragonBones;
-(function (dragonBones) {
+        Object.defineProperty(EgretEvent.prototype, "armature", {
+            /**
+             * @deprecated
+             * 已废弃，请参考 @see
+             * @see #eventObject
+             * @see dragonBones.EventObject#armature
+             */
+            get: function () {
+                return this.eventObject.armature;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(EgretEvent.prototype, "bone", {
+            /**
+             * @deprecated
+             * 已废弃，请参考 @see
+             * @see #eventObject
+             * @see dragonBones.EventObject#bone
+             */
+            get: function () {
+                return this.eventObject.bone;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(EgretEvent.prototype, "slot", {
+            /**
+             * @deprecated
+             * 已废弃，请参考 @see
+             * @see #eventObject
+             * @see dragonBones.EventObject#slot
+             */
+            get: function () {
+                return this.eventObject.slot;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(EgretEvent.prototype, "animationState", {
+            /**
+             * @deprecated
+             * 已废弃，请参考 @see
+             * @see #eventObject
+             * @see dragonBones.EventObject#animationState
+             */
+            get: function () {
+                return this.eventObject.animationState;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(EgretEvent.prototype, "animationName", {
+            /**
+             * @deprecated
+             * 已废弃，请参考 @see
+             * @see #eventObject
+             * @see dragonBones.EventObject#animationState
+             */
+            get: function () {
+                var animationState = this.eventObject.animationState;
+                return animationState !== null ? animationState.name : "";
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(EgretEvent.prototype, "frameLabel", {
+            /**
+             * @deprecated
+             * 已废弃，请参考 @see
+             * @see #eventObject
+             * @see dragonBones.EventObject#name
+             */
+            get: function () {
+                return this.eventObject.name;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(EgretEvent.prototype, "sound", {
+            /**
+             * @deprecated
+             * 已废弃，请参考 @see
+             * @see #eventObject
+             * @see dragonBones.EventObject#name
+             */
+            get: function () {
+                return this.eventObject.name;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        /**
+         * @deprecated
+         * 已废弃，请参考 @see
+         * @see dragonBones.EventObject.START
+         */
+        EgretEvent.START = dragonBones.EventObject.START;
+        /**
+         * @deprecated
+         * 已废弃，请参考 @see
+         * @see dragonBones.EventObject.LOOP_COMPLETE
+         */
+        EgretEvent.LOOP_COMPLETE = dragonBones.EventObject.LOOP_COMPLETE;
+        /**
+         * @deprecated
+         * 已废弃，请参考 @see
+         * @see dragonBones.EventObject.COMPLETE
+         */
+        EgretEvent.COMPLETE = dragonBones.EventObject.COMPLETE;
+        /**
+         * @deprecated
+         * 已废弃，请参考 @see
+         * @see dragonBones.EventObject.FADE_IN
+         */
+        EgretEvent.FADE_IN = dragonBones.EventObject.FADE_IN;
+        /**
+         * @deprecated
+         * 已废弃，请参考 @see
+         * @see dragonBones.EventObject.FADE_IN_COMPLETE
+         */
+        EgretEvent.FADE_IN_COMPLETE = dragonBones.EventObject.FADE_IN_COMPLETE;
+        /**
+         * @deprecated
+         * 已废弃，请参考 @see
+         * @see dragonBones.EventObject.FADE_OUT
+         */
+        EgretEvent.FADE_OUT = dragonBones.EventObject.FADE_OUT;
+        /**
+         * @deprecated
+         * 已废弃，请参考 @see
+         * @see dragonBones.EventObject.FADE_OUT_COMPLETE
+         */
+        EgretEvent.FADE_OUT_COMPLETE = dragonBones.EventObject.FADE_OUT_COMPLETE;
+        /**
+         * @deprecated
+         * 已废弃，请参考 @see
+         * @see dragonBones.EventObject.FRAME_EVENT
+         */
+        EgretEvent.FRAME_EVENT = dragonBones.EventObject.FRAME_EVENT;
+        /**
+         * @deprecated
+         * 已废弃，请参考 @see
+         * @see dragonBones.EventObject.SOUND_EVENT
+         */
+        EgretEvent.SOUND_EVENT = dragonBones.EventObject.SOUND_EVENT;
+        /**
+         * @deprecated
+         * 已废弃，请参考 @see
+         * @see dragonBones.EventObject.FRAME_EVENT
+         */
+        EgretEvent.ANIMATION_FRAME_EVENT = dragonBones.EventObject.FRAME_EVENT;
+        /**
+         * @deprecated
+         * 已废弃，请参考 @see
+         * @see dragonBones.EventObject.FRAME_EVENT
+         */
+        EgretEvent.BONE_FRAME_EVENT = dragonBones.EventObject.FRAME_EVENT;
+        /**
+         * @deprecated
+         * 已废弃，请参考 @see
+         * @see dragonBones.EventObject.FRAME_EVENT
+         */
+        EgretEvent.MOVEMENT_FRAME_EVENT = dragonBones.EventObject.FRAME_EVENT;
+        /**
+         * @deprecated
+         * 已废弃，请参考 @see
+         * @see dragonBones.EventObject.SOUND_EVENT
+         */
+        EgretEvent.SOUND = dragonBones.EventObject.SOUND_EVENT;
+        return EgretEvent;
+    }(egret.Event));
+    dragonBones.EgretEvent = EgretEvent;
     /**
      * @inheritDoc
      */
-    var PixiArmatureDisplay = (function (_super) {
-        __extends(PixiArmatureDisplay, _super);
-        function PixiArmatureDisplay() {
+    var EgretArmatureDisplay = (function (_super) {
+        __extends(EgretArmatureDisplay, _super);
+        function EgretArmatureDisplay() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
             _this._disposeProxy = false;
-            _this._armature = null;
+            _this._armature = null; //
             _this._debugDrawer = null;
             return _this;
         }
         /**
          * @inheritDoc
          */
-        PixiArmatureDisplay.prototype.init = function (armature) {
+        EgretArmatureDisplay.prototype.init = function (armature) {
             this._armature = armature;
         };
         /**
          * @inheritDoc
          */
-        PixiArmatureDisplay.prototype.clear = function () {
-            if (this._debugDrawer !== null) {
-                this._debugDrawer.destroy(true);
-            }
+        EgretArmatureDisplay.prototype.clear = function () {
             this._disposeProxy = false;
             this._armature = null;
             this._debugDrawer = null;
-            _super.prototype.destroy.call(this);
         };
         /**
          * @inheritDoc
          */
-        PixiArmatureDisplay.prototype.dispose = function (disposeProxy) {
+        EgretArmatureDisplay.prototype.dispose = function (disposeProxy) {
             if (disposeProxy === void 0) { disposeProxy = true; }
             this._disposeProxy = disposeProxy;
             if (this._armature !== null) {
@@ -10694,116 +10794,37 @@ var dragonBones;
         /**
          * @inheritDoc
          */
-        PixiArmatureDisplay.prototype.destroy = function () {
-            this.dispose();
-        };
-        /**
-         * @private
-         */
-        PixiArmatureDisplay.prototype.debugUpdate = function (isEnabled) {
-            if (isEnabled) {
-                if (this._debugDrawer === null) {
-                    this._debugDrawer = new PIXI.Sprite();
-                    var boneDrawer_1 = new PIXI.Graphics();
-                    this._debugDrawer.addChild(boneDrawer_1);
-                }
-                this.addChild(this._debugDrawer);
-                var boneDrawer = this._debugDrawer.getChildAt(0);
-                boneDrawer.clear();
-                var bones = this._armature.getBones();
-                for (var i = 0, l = bones.length; i < l; ++i) {
-                    var bone = bones[i];
-                    var boneLength = bone.boneData.length;
-                    var startX = bone.globalTransformMatrix.tx;
-                    var startY = bone.globalTransformMatrix.ty;
-                    var endX = startX + bone.globalTransformMatrix.a * boneLength;
-                    var endY = startY + bone.globalTransformMatrix.b * boneLength;
-                    boneDrawer.lineStyle(2.0, 0x00FFFF, 0.7);
-                    boneDrawer.moveTo(startX, startY);
-                    boneDrawer.lineTo(endX, endY);
-                    boneDrawer.lineStyle(0.0, 0, 0.0);
-                    boneDrawer.beginFill(0x00FFFF, 0.7);
-                    boneDrawer.drawCircle(startX, startY, 3.0);
-                    boneDrawer.endFill();
-                }
-                var slots = this._armature.getSlots();
-                for (var i = 0, l = slots.length; i < l; ++i) {
-                    var slot = slots[i];
-                    var boundingBoxData = slot.boundingBoxData;
-                    if (boundingBoxData) {
-                        var child = this._debugDrawer.getChildByName(slot.name);
-                        if (!child) {
-                            child = new PIXI.Graphics();
-                            child.name = slot.name;
-                            this._debugDrawer.addChild(child);
-                        }
-                        child.clear();
-                        child.beginFill(0xFF00FF, 0.3);
-                        switch (boundingBoxData.type) {
-                            case 0 /* Rectangle */:
-                                child.drawRect(-boundingBoxData.width * 0.5, -boundingBoxData.height * 0.5, boundingBoxData.width, boundingBoxData.height);
-                                break;
-                            case 1 /* Ellipse */:
-                                child.drawEllipse(-boundingBoxData.width * 0.5, -boundingBoxData.height * 0.5, boundingBoxData.width, boundingBoxData.height);
-                                break;
-                            case 2 /* Polygon */:
-                                var polygon = boundingBoxData;
-                                var vertices = polygon.vertices;
-                                for (var i_3 = 0, l_1 = polygon.count; i_3 < l_1; i_3 += 2) {
-                                    if (i_3 === 0) {
-                                        child.moveTo(vertices[i_3], vertices[i_3 + 1]);
-                                    }
-                                    else {
-                                        child.lineTo(vertices[i_3], vertices[i_3 + 1]);
-                                    }
-                                }
-                                break;
-                            default:
-                                break;
-                        }
-                        child.endFill();
-                        slot.updateTransformAndMatrix();
-                        slot.updateGlobalTransform();
-                        var transform = slot.global;
-                        child.setTransform(transform.x, transform.y, transform.scaleX, transform.scaleY, transform.rotation, transform.skew, 0.0, slot._pivotX, slot._pivotY);
-                    }
-                    else {
-                        var child = this._debugDrawer.getChildByName(slot.name);
-                        if (child) {
-                            this._debugDrawer.removeChild(child);
-                        }
-                    }
-                }
-            }
-            else if (this._debugDrawer && this._debugDrawer.parent === this) {
-                this.removeChild(this._debugDrawer);
-            }
-        };
-        /**
-         * @private
-         */
-        PixiArmatureDisplay.prototype._dispatchEvent = function (type, eventObject) {
-            this.emit(type, eventObject);
+        EgretArmatureDisplay.prototype.debugUpdate = function (isEnabled) {
+            isEnabled;
         };
         /**
          * @inheritDoc
          */
-        PixiArmatureDisplay.prototype.hasEvent = function (type) {
-            return this.listeners(type, true); // .d.ts bug
+        EgretArmatureDisplay.prototype._dispatchEvent = function (type, eventObject) {
+            var event = egret.Event.create(EgretEvent, type);
+            event.data = eventObject;
+            _super.prototype.dispatchEvent.call(this, event);
+            egret.Event.release(event);
         };
         /**
          * @inheritDoc
          */
-        PixiArmatureDisplay.prototype.addEvent = function (type, listener, target) {
-            this.addListener(type, listener, target);
+        EgretArmatureDisplay.prototype.hasEvent = function (type) {
+            return this.hasEventListener(type);
         };
         /**
          * @inheritDoc
          */
-        PixiArmatureDisplay.prototype.removeEvent = function (type, listener, target) {
-            this.removeListener(type, listener, target);
+        EgretArmatureDisplay.prototype.addEvent = function (type, listener, target) {
+            this.addEventListener(type, listener, target);
         };
-        Object.defineProperty(PixiArmatureDisplay.prototype, "armature", {
+        /**
+         * @inheritDoc
+         */
+        EgretArmatureDisplay.prototype.removeEvent = function (type, listener, target) {
+            this.removeEventListener(type, listener, target);
+        };
+        Object.defineProperty(EgretArmatureDisplay.prototype, "armature", {
             /**
              * @inheritDoc
              */
@@ -10813,7 +10834,7 @@ var dragonBones;
             enumerable: true,
             configurable: true
         });
-        Object.defineProperty(PixiArmatureDisplay.prototype, "animation", {
+        Object.defineProperty(EgretArmatureDisplay.prototype, "animation", {
             /**
              * @inheritDoc
              */
@@ -10823,384 +10844,595 @@ var dragonBones;
             enumerable: true,
             configurable: true
         });
-        /**
-         * @deprecated
-         * 已废弃，请参考 @see
-         * @see dragonBones.Armature#clock
-         * @see dragonBones.PixiFactory#clock
-         * @see dragonBones.Animation#timescale
-         * @see dragonBones.Animation#stop()
-         */
-        PixiArmatureDisplay.prototype.advanceTimeBySelf = function (on) {
-            if (on) {
-                this._armature.clock = dragonBones.PixiFactory.clock;
-            }
-            else {
-                this._armature.clock = null;
-            }
-        };
-        return PixiArmatureDisplay;
-    }(PIXI.Container));
-    dragonBones.PixiArmatureDisplay = PixiArmatureDisplay;
-})(dragonBones || (dragonBones = {}));
-var dragonBones;
-(function (dragonBones) {
-    /**
-     * Pixi 插槽。
-     * @version DragonBones 3.0
-     * @language zh_CN
-     */
-    var PixiSlot = (function (_super) {
-        __extends(PixiSlot, _super);
-        function PixiSlot() {
-            return _super !== null && _super.apply(this, arguments) || this;
+        return EgretArmatureDisplay;
+    }(egret.DisplayObjectContainer));
+    dragonBones.EgretArmatureDisplay = EgretArmatureDisplay;
+    function createEgretDisplay(display, type) {
+        var egretDisplayWrapper = new Module["EgretDisplayWASM"](); // TODO 是否可以将 EgretDisplayWASM 改为 EgretDisplayWrapper
+        var wasmId;
+        if (display === null) {
+            wasmId = -1;
+            egretDisplayWrapper.setDisplayInfo(wasmId, type);
         }
-        PixiSlot.toString = function () {
-            return "[class dragonBones.PixiSlot]";
-        };
+        else if (type === 1 /* Armature */) {
+            wasmId = display.getEgretArmatureId();
+            egretDisplayWrapper.setDisplayInfo(wasmId, type);
+            egretDisplayWrapper.setArmature(display);
+        }
+        else {
+            wasmId = display.$waNode.id;
+            egretDisplayWrapper.setDisplayInfo(wasmId, type);
+        }
+        egretDisplayWrapper._display = display;
+        return egretDisplayWrapper;
+    }
+    dragonBones.createEgretDisplay = createEgretDisplay;
+    function egretWASMInit() {
         /**
          * @private
+         * 扩展 c++ EgretArmatureProxy。(在 js 中构造)
          */
-        PixiSlot.prototype._onClear = function () {
-            _super.prototype._onClear.call(this);
-            this._updateTransform = PIXI.VERSION[0] === "3" ? this._updateTransformV3 : this._updateTransformV4;
-            this._renderDisplay = null;
-        };
-        /**
-         * @private
-         */
-        PixiSlot.prototype._initDisplay = function (value) {
-            value;
-        };
-        /**
-         * @private
-         */
-        PixiSlot.prototype._disposeDisplay = function (value) {
-            value.destroy();
-        };
-        /**
-         * @private
-         */
-        PixiSlot.prototype._onUpdateDisplay = function () {
-            this._renderDisplay = (this._display ? this._display : this._rawDisplay);
-        };
-        /**
-         * @private
-         */
-        PixiSlot.prototype._addDisplay = function () {
-            var container = this._armature.display;
-            container.addChild(this._renderDisplay);
-        };
-        /**
-         * @private
-         */
-        PixiSlot.prototype._replaceDisplay = function (value) {
-            var container = this._armature.display;
-            var prevDisplay = value;
-            container.addChild(this._renderDisplay);
-            container.swapChildren(this._renderDisplay, prevDisplay);
-            container.removeChild(prevDisplay);
-        };
-        /**
-         * @private
-         */
-        PixiSlot.prototype._removeDisplay = function () {
-            this._renderDisplay.parent.removeChild(this._renderDisplay);
-        };
-        /**
-         * @private
-         */
-        PixiSlot.prototype._updateZOrder = function () {
-            var container = this._armature.display;
-            var index = container.getChildIndex(this._renderDisplay);
-            if (index === this._zOrder) {
-                return;
-            }
-            container.addChildAt(this._renderDisplay, this._zOrder);
-        };
-        /**
-         * @internal
-         * @private
-         */
-        PixiSlot.prototype._updateVisible = function () {
-            this._renderDisplay.visible = this._parent.visible;
-        };
-        /**
-         * @private
-         */
-        PixiSlot.prototype._updateBlendMode = function () {
-            switch (this._blendMode) {
-                case 0 /* Normal */:
-                    this._renderDisplay.blendMode = PIXI.BLEND_MODES.NORMAL;
-                    break;
-                case 1 /* Add */:
-                    this._renderDisplay.blendMode = PIXI.BLEND_MODES.ADD;
-                    break;
-                case 3 /* Darken */:
-                    this._renderDisplay.blendMode = PIXI.BLEND_MODES.DARKEN;
-                    break;
-                case 4 /* Difference */:
-                    this._renderDisplay.blendMode = PIXI.BLEND_MODES.DIFFERENCE;
-                    break;
-                case 6 /* HardLight */:
-                    this._renderDisplay.blendMode = PIXI.BLEND_MODES.HARD_LIGHT;
-                    break;
-                case 9 /* Lighten */:
-                    this._renderDisplay.blendMode = PIXI.BLEND_MODES.LIGHTEN;
-                    break;
-                case 10 /* Multiply */:
-                    this._renderDisplay.blendMode = PIXI.BLEND_MODES.MULTIPLY;
-                    break;
-                case 11 /* Overlay */:
-                    this._renderDisplay.blendMode = PIXI.BLEND_MODES.OVERLAY;
-                    break;
-                case 12 /* Screen */:
-                    this._renderDisplay.blendMode = PIXI.BLEND_MODES.SCREEN;
-                    break;
-                default:
-                    break;
-            }
-        };
-        /**
-         * @private
-         */
-        PixiSlot.prototype._updateColor = function () {
-            this._renderDisplay.alpha = this._colorTransform.alphaMultiplier;
-            // TODO
-        };
-        /**
-         * @private
-         */
-        PixiSlot.prototype._updateFrame = function () {
-            var meshData = this._display === this._meshDisplay ? this._meshData : null;
-            var currentTextureData = this._textureData;
-            if (this._displayIndex >= 0 && this._display !== null && currentTextureData !== null) {
-                var currentTextureAtlasData = currentTextureData.parent;
-                if (this._armature.replacedTexture !== null && this._rawDisplayDatas.indexOf(this._displayData) >= 0) {
-                    if (this._armature._replaceTextureAtlasData === null) {
-                        currentTextureAtlasData = dragonBones.BaseObject.borrowObject(dragonBones.PixiTextureAtlasData);
-                        currentTextureAtlasData.copyFrom(currentTextureData.parent);
-                        currentTextureAtlasData.renderTexture = this._armature.replacedTexture;
-                        this._armature._replaceTextureAtlasData = currentTextureAtlasData;
-                    }
-                    else {
-                        currentTextureAtlasData = this._armature._replaceTextureAtlasData;
-                    }
-                    currentTextureData = currentTextureAtlasData.getTexture(currentTextureData.name);
+        dragonBones.EgretArmatureProxy = Module["EgretArmatureDisplayWASM"].extend("EgretArmatureProxy", {
+            __construct: function (display) {
+                this.__parent.__construct.call(this);
+                this._display = display;
+            },
+            __destruct: function () {
+                this.__parent.__destruct.call(this);
+                this._display = null;
+            },
+            clear: function () {
+                if (this._display) {
+                    this._display.clear();
                 }
-                var renderTexture = currentTextureData.renderTexture;
-                if (renderTexture !== null) {
-                    var currentTextureAtlas = currentTextureData.renderTexture;
-                    if (meshData !== null) {
-                        var data = meshData.parent.parent;
-                        var intArray = data.intArray;
-                        var floatArray = data.floatArray;
-                        var vertexCount = intArray[meshData.offset + 0 /* MeshVertexCount */];
-                        var triangleCount = intArray[meshData.offset + 1 /* MeshTriangleCount */];
-                        var verticesOffset = intArray[meshData.offset + 2 /* MeshFloatOffset */];
-                        var uvOffset = verticesOffset + vertexCount * 2;
-                        var meshDisplay = this._renderDisplay;
-                        var textureAtlasWidth = currentTextureAtlasData.width > 0.0 ? currentTextureAtlasData.width : currentTextureAtlas.width;
-                        var textureAtlasHeight = currentTextureAtlasData.height > 0.0 ? currentTextureAtlasData.height : currentTextureAtlas.height;
-                        meshDisplay.vertices = new Float32Array(vertexCount * 2);
-                        meshDisplay.uvs = new Float32Array(vertexCount * 2);
-                        meshDisplay.indices = new Uint16Array(triangleCount * 3);
-                        for (var i = 0, l = vertexCount * 2; i < l; ++i) {
-                            meshDisplay.vertices[i] = floatArray[verticesOffset + i];
-                            meshDisplay.uvs[i] = floatArray[uvOffset + i];
-                        }
-                        for (var i = 0; i < triangleCount * 3; ++i) {
-                            meshDisplay.indices[i] = intArray[meshData.offset + 4 /* MeshVertexIndices */ + i];
-                        }
-                        for (var i = 0, l = meshDisplay.uvs.length; i < l; i += 2) {
-                            var u = meshDisplay.uvs[i];
-                            var v = meshDisplay.uvs[i + 1];
-                            meshDisplay.uvs[i] = (currentTextureData.region.x + u * currentTextureData.region.width) / textureAtlasWidth;
-                            meshDisplay.uvs[i + 1] = (currentTextureData.region.y + v * currentTextureData.region.height) / textureAtlasHeight;
-                        }
-                        meshDisplay.texture = renderTexture;
-                        //meshDisplay.dirty = true; // Pixi 3.x
-                        meshDisplay.dirty++; // Pixi 4.x Can not support change mesh vertice count.
-                    }
-                    else {
-                        var normalDisplay = this._renderDisplay;
-                        normalDisplay.texture = renderTexture;
-                    }
-                    this._updateVisible();
+                this._display = null;
+            },
+            debugUpdate: function (isEnabled) {
+                this._display.debugUpdate(isEnabled);
+            },
+            //extend c++
+            _dispatchEvent: function (type, eventObject) {
+                this._display._dispatchEvent(type, eventObject);
+            },
+            //extend c++
+            hasEvent: function (type) {
+                return this._display.hasEventListener(type);
+            },
+            dispose: function (disposeProxy) {
+                // TODO lsc
+                disposeProxy;
+                // return this._display.dispose(disposeProxy);
+            },
+            addEvent: function (type, listener, target) {
+                this._display.addEvent(type, listener, target);
+            },
+            removeEvent: function (type, listener, target) {
+                this._display.removeEvent(type, listener, target);
+            }
+        });
+        /**
+         * @private
+         */
+        dragonBones.EgretSlot = Module["EgretSlotWASM"].extend("EgretSlotWrapper", {
+            __construct: function () {
+                this.__parent.__construct.call(this);
+                this._rawDisplay = null;
+                this._meshDisplay = null;
+                this._rawDisplayWASM = null;
+                this._meshDisplayWASM = null;
+            },
+            __destruct: function () {
+                this.__parent.__destruct.call(this);
+                this._rawDisplay = null;
+                this._meshDisplay = null;
+            },
+            init: function (slotData, displayDatas, rawDisplay, meshDisplay) {
+                this._rawDisplay = rawDisplay;
+                this._meshDisplay = meshDisplay;
+                this._rawDisplayWASM = createEgretDisplay(this._rawDisplay, 0 /* Image */);
+                this._meshDisplayWASM = createEgretDisplay(this._meshDisplay, 2 /* Mesh */);
+                this.__parent.init.call(this, slotData, displayDatas, this._rawDisplayWASM, this._meshDisplayWASM);
+            },
+            getRawDisplay: function () {
+                return this._rawDisplay;
+            },
+            getMeshDisplay: function () {
+                return this._meshDisplay;
+            },
+            getRawWASMDisplay: function () {
+                return this._rawDisplayWASM;
+            },
+            getMeshWASMDisplay: function () {
+                return this._meshDisplayWASM;
+            },
+            // extend c++ function
+            getDisplay: function () {
+                var displayWrapper = this.__parent.getEgretDisplay.call(this);
+                if (displayWrapper !== null) {
+                    return displayWrapper._display;
+                }
+                return null;
+            },
+            setDisplay: function (value) {
+                if (value === this._rawDisplay || value === this._meshDisplay) {
                     return;
                 }
+                if (value === null || value instanceof egret.Bitmap) {
+                    this.__parent.setEgretDisplay.call(this, createEgretDisplay(value, 0 /* Image */));
+                }
+                else if (value instanceof egret.Mesh) {
+                    this.__parent.setEgretDisplay.call(this, createEgretDisplay(value, 2 /* Mesh */));
+                }
+                else if (value instanceof Module["EgretArmature"]) {
+                    this.__parent.setChildArmature.call(this, value);
+                }
             }
-            if (meshData !== null) {
-                var meshDisplay = this._renderDisplay;
-                meshDisplay.texture = null;
-                meshDisplay.x = 0.0;
-                meshDisplay.y = 0.0;
-                meshDisplay.visible = false;
+        });
+        Object.defineProperty(dragonBones.EgretSlot.prototype, "displayList", {
+            get: dragonBones.EgretSlot.prototype.getEgretDisplayList,
+            set: dragonBones.EgretSlot.prototype.setEgretDisplayList,
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(dragonBones.EgretSlot.prototype, "rawDisplay", {
+            get: dragonBones.EgretSlot.prototype.getRawDisplay,
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(dragonBones.EgretSlot.prototype, "meshDisplay", {
+            get: dragonBones.EgretSlot.prototype.getMeshDisplay,
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(dragonBones.EgretSlot.prototype, "display", {
+            get: dragonBones.EgretSlot.prototype.getDisplay,
+            set: dragonBones.EgretSlot.prototype.setDisplay,
+            enumerable: true,
+            configurable: true
+        });
+        dragonBones.EgretTextureAtlasData = Module["EgretTextureAtlasDataWASM"].extend("EgretTextureAtlasData", {
+            __construct: function (rawTextures) {
+                this.__parent.__construct.call(this);
+                this._textureNames = [];
+                this._texture = null;
+                if (rawTextures) {
+                    for (var _i = 0, rawTextures_1 = rawTextures; _i < rawTextures_1.length; _i++) {
+                        var texture = rawTextures_1[_i];
+                        this._textureNames.push(texture.name);
+                    }
+                }
+            },
+            __destruct: function () {
+                this.__parent.__destruct.call(this);
+                this._textureNames.length = 0;
+                this._texture = null;
             }
-            else {
-                var normalDisplay = this._renderDisplay;
-                normalDisplay.texture = null;
-                normalDisplay.x = 0.0;
-                normalDisplay.y = 0.0;
-                normalDisplay.visible = false;
-            }
-        };
-        /**
-         * @private
-         */
-        PixiSlot.prototype._updateMesh = function () {
-            var hasFFD = this._ffdVertices.length > 0;
-            var meshData = this._meshData;
-            var weight = meshData.weight;
-            var meshDisplay = this._renderDisplay;
-            if (weight !== null) {
-                var data = meshData.parent.parent;
-                var intArray = data.intArray;
-                var floatArray = data.floatArray;
-                var vertexCount = intArray[meshData.offset + 0 /* MeshVertexCount */];
-                var weightFloatOffset = intArray[weight.offset + 1 /* WeigthFloatOffset */];
-                for (var i = 0, iD = 0, iB = weight.offset + 2 /* WeigthBoneIndices */ + weight.bones.length, iV = weightFloatOffset, iF = 0; i < vertexCount; ++i) {
-                    var boneCount = intArray[iB++];
-                    var xG = 0.0, yG = 0.0;
-                    for (var j = 0; j < boneCount; ++j) {
-                        var boneIndex = intArray[iB++];
-                        var bone = this._meshBones[boneIndex];
-                        if (bone !== null) {
-                            var matrix = bone.globalTransformMatrix;
-                            var weight_1 = floatArray[iV++];
-                            var xL = floatArray[iV++];
-                            var yL = floatArray[iV++];
-                            if (hasFFD) {
-                                xL += this._ffdVertices[iF++];
-                                yL += this._ffdVertices[iF++];
+        });
+        Object.defineProperty(dragonBones.EgretTextureAtlasData.prototype, "renderTexture", {
+            get: function () {
+                return this._texture;
+            },
+            set: function (value) {
+                if (this._texture === value) {
+                    return;
+                }
+                if (value["textureId"] === null || value["textureId"] === undefined) {
+                    egret.WebAssemblyNode.setValuesToBitmapData(value);
+                }
+                this._texture = value;
+                var textures = this.textures;
+                if (this._texture !== null) {
+                    var bitmapData = this._texture.bitmapData;
+                    var textureAtlasWidth = this.width > 0.0 ? this.width : bitmapData.width;
+                    var textureAtlasHeight = this.height > 0.0 ? this.height : bitmapData.height;
+                    for (var _i = 0, _a = this._textureNames; _i < _a.length; _i++) {
+                        var k = _a[_i];
+                        for (var i = 0, l = k.length; i < l; ++i) {
+                            if (k.charCodeAt(i) > 255) {
+                                k = encodeURI(k);
+                                break;
                             }
-                            xG += (matrix.a * xL + matrix.c * yL + matrix.tx) * weight_1;
-                            yG += (matrix.b * xL + matrix.d * yL + matrix.ty) * weight_1;
+                        }
+                        var textureData = textures.get(k);
+                        var subTextureWidth = Math.min(textureData.region.width, textureAtlasWidth - textureData.region.x); // TODO need remove
+                        var subTextureHeight = Math.min(textureData.region.height, textureAtlasHeight - textureData.region.y); // TODO need remove
+                        if (!textureData.renderTexture) {
+                            var currTex = new egret.Texture();
+                            currTex._bitmapData = bitmapData;
+                            if (textureData.rotated) {
+                                currTex.$initData(textureData.region.x, textureData.region.y, subTextureHeight, subTextureWidth, 0, 0, subTextureHeight, subTextureWidth, textureAtlasWidth, textureAtlasHeight);
+                            }
+                            else {
+                                currTex.$initData(textureData.region.x, textureData.region.y, subTextureWidth, subTextureHeight, 0, 0, subTextureWidth, subTextureHeight, textureAtlasWidth, textureAtlasHeight);
+                            }
+                            // Egret 5.0
+                            egret.WebAssemblyNode.setValuesToBitmapData(currTex);
+                            textureData.setTextureId(currTex["textureId"]);
+                            textureData.renderTexture = currTex;
                         }
                     }
-                    meshDisplay.vertices[iD++] = xG;
-                    meshDisplay.vertices[iD++] = yG;
-                }
-            }
-            else if (hasFFD) {
-                var data = meshData.parent.parent;
-                var intArray = data.intArray;
-                var floatArray = data.floatArray;
-                var vertexCount = intArray[meshData.offset + 0 /* MeshVertexCount */];
-                var vertexOffset = intArray[meshData.offset + 2 /* MeshFloatOffset */];
-                for (var i = 0, l = vertexCount * 2; i < l; ++i) {
-                    meshDisplay.vertices[i] = floatArray[vertexOffset + i] + this._ffdVertices[i];
-                }
-            }
-        };
-        /**
-         * @private
-         */
-        PixiSlot.prototype._updateTransform = function (isSkinnedMesh) {
-            isSkinnedMesh;
-            throw new Error();
-        };
-        /**
-         * @private
-         */
-        PixiSlot.prototype._updateTransformV3 = function (isSkinnedMesh) {
-            if (isSkinnedMesh) {
-                this._renderDisplay.setTransform(0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0);
-            }
-            else {
-                this.updateGlobalTransform(); // Update transform.
-                var transform = this.global;
-                var x = transform.x - (this.globalTransformMatrix.a * this._pivotX + this.globalTransformMatrix.c * this._pivotY);
-                var y = transform.y - (this.globalTransformMatrix.b * this._pivotX + this.globalTransformMatrix.d * this._pivotY);
-                if (this._renderDisplay === this._rawDisplay || this._renderDisplay === this._meshDisplay) {
-                    this._renderDisplay.setTransform(x, y, transform.scaleX, transform.scaleY, transform.rotation, transform.skew, 0.0);
                 }
                 else {
-                    this._renderDisplay.position.set(x, y);
-                    this._renderDisplay.rotation = transform.rotation;
-                    this._renderDisplay.skew.set(-transform.skew, 0.0);
-                    this._renderDisplay.scale.set(transform.scaleX, transform.scaleY);
+                    for (var _b = 0, _c = this._textureNames; _b < _c.length; _b++) {
+                        var k = _c[_b];
+                        var textureData = textures.get(k);
+                        textureData.renderTexture = null;
+                    }
                 }
-            }
-        };
+            },
+            enumerable: true,
+            configurable: true
+        });
         /**
          * @private
          */
-        PixiSlot.prototype._updateTransformV4 = function (isSkinnedMesh) {
-            if (isSkinnedMesh) {
-                this._renderDisplay.setTransform(0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+        dragonBones.EgretTextureData = Module["EgretTextureDataWASM"].extend("EgretTextureData", {
+            __construct: function () {
+                this.__parent.__construct.call(this);
+                this._renderTexture = null;
+            },
+            __destruct: function () {
+                this.__parent.__destruct.call(this);
+                this._renderTexture = null;
             }
-            else {
-                this.updateGlobalTransform(); // Update transform.
-                var transform = this.global;
-                if (this._renderDisplay === this._rawDisplay || this._renderDisplay === this._meshDisplay) {
-                    this._renderDisplay.setTransform(transform.x, transform.y, transform.scaleX, transform.scaleY, transform.rotation, -transform.skew, 0.0, this._pivotX, this._pivotY);
+        });
+        Object.defineProperty(dragonBones.EgretTextureData.prototype, "renderTexture", {
+            get: function () {
+                return this._renderTexture;
+            },
+            set: function (value) {
+                if (this._renderTexture === value) {
+                    return;
                 }
-                else {
-                    var x = transform.x - (this.globalTransformMatrix.a * this._pivotX + this.globalTransformMatrix.c * this._pivotY);
-                    var y = transform.y - (this.globalTransformMatrix.b * this._pivotX + this.globalTransformMatrix.d * this._pivotY);
-                    this._renderDisplay.position.set(x, y);
-                    this._renderDisplay.rotation = transform.rotation;
-                    this._renderDisplay.skew.set(-transform.skew, 0.0);
-                    this._renderDisplay.scale.set(transform.scaleX, transform.scaleY);
-                }
+                this._renderTexture = value;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        /*
+        * @private
+        * 扩展 c++ WorldClock。(在 c++ 中构造)
+        */
+        dragonBones.WorldClock = Module["WorldClock"];
+        dragonBones.WorldClock.prototype._c_contains = dragonBones.WorldClock.prototype.contains;
+        dragonBones.WorldClock.prototype._c_add = dragonBones.WorldClock.prototype.add;
+        dragonBones.WorldClock.prototype._c_remove = dragonBones.WorldClock.prototype.remove;
+        dragonBones.WorldClock.prototype.contains = function (value) {
+            if (value instanceof dragonBones.Armature) {
+                return this._c_contains(value.getAnimatable());
             }
+            return this._c_contains(value);
         };
-        return PixiSlot;
-    }(dragonBones.Slot));
-    dragonBones.PixiSlot = PixiSlot;
+        dragonBones.WorldClock.prototype.add = function (value) {
+            if (value instanceof dragonBones.Armature) {
+                return this._c_add(value.getAnimatable());
+            }
+            return this._c_add(value);
+        };
+        dragonBones.WorldClock.prototype.remove = function (value) {
+            if (value instanceof dragonBones.Armature) {
+                return this._c_remove(value.getAnimatable());
+            }
+            return this._c_remove(value);
+        };
+        /**
+         * @private
+         * 扩展 c++ EgretArmature。(在 js 中构造)
+         */
+        dragonBones.Armature = Module["EgretArmature"];
+        dragonBones.Armature.prototype._c_addBone = dragonBones.Armature.prototype.addBone;
+        dragonBones.Armature.prototype._c_invalidUpdate = dragonBones.Armature.prototype.invalidUpdate;
+        dragonBones.Armature.prototype.addBone = function (bone, name) {
+            if (name === null || name === undefined) {
+                name = "";
+            }
+            return this._c_addBone(bone, name);
+        };
+        dragonBones.Armature.prototype.invalidUpdate = function (boneName, updateSlotDisplay) {
+            if (boneName === void 0) { boneName = null; }
+            if (updateSlotDisplay === void 0) { updateSlotDisplay = false; }
+            if (boneName === null) {
+                boneName = "";
+            }
+            return this._c_invalidUpdate(boneName, updateSlotDisplay);
+        };
+        dragonBones.Armature.prototype.getDisplay = function () {
+            return this.proxy._display;
+        };
+        Object.defineProperty(dragonBones.Armature.prototype, "display", {
+            get: function () {
+                return this.proxy._display;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        /**
+         * @private
+         * 扩展 c++ Animation
+         */
+        dragonBones.Animation = Module["Animation"];
+        dragonBones.Animation.prototype._c_play = dragonBones.Animation.prototype.play;
+        dragonBones.Animation.prototype._c_fadeIn = dragonBones.Animation.prototype.fadeIn;
+        dragonBones.Animation.prototype.play = function (animationName, playTimes) {
+            if (animationName === void 0) { animationName = null; }
+            if (playTimes === void 0) { playTimes = -1; }
+            if (animationName === null) {
+                animationName = "";
+            }
+            return this._c_play(animationName, playTimes);
+        };
+        dragonBones.Animation.prototype.fadeIn = function (animationName, fadeInTime, playTimes, layer, group, fadeOutMode) {
+            if (fadeInTime === void 0) { fadeInTime = -1.0; }
+            if (playTimes === void 0) { playTimes = -1; }
+            if (layer === void 0) { layer = 0; }
+            if (group === void 0) { group = null; }
+            if (fadeOutMode === void 0) { fadeOutMode = 3 /* SameLayerAndGroup */; }
+            if (animationName === null) {
+                animationName = "";
+            }
+            if (group === null) {
+                group = "";
+            }
+            return this._c_fadeIn(animationName, fadeInTime, playTimes, layer, group, fadeOutMode);
+        };
+    }
+    dragonBones.egretWASMInit = egretWASMInit;
+    var configTables = {
+        ActionData: {
+            getter: [],
+            setter: ["type", "bone", "slot", "data"]
+        },
+        DragonBonesData: {
+            getter: ["frameIndices"],
+            setter: [],
+            array: ["armatureNames"]
+        },
+        ArmatureData: {
+            getter: ["defaultActions", "actions"],
+            setter: ["aabb", "defaultAnimation", "defaultSkin", "parent"],
+            array: ["animationNames"]
+        },
+        BoneData: {
+            getter: ["transform", "constraints"],
+            setter: ["parent"]
+        },
+        SlotData: {
+            getter: [],
+            setter: ["blendMode", "color", "parent"],
+            static: ["DEFAULT_COLOR"]
+        },
+        ConstraintData: {
+            getter: [],
+            setter: ["target", "root", "bone"]
+        },
+        DisplayData: {
+            getter: ["transform"],
+            setter: ["type", "parent"]
+        },
+        ImageDisplayData: {
+            getter: ["pivot"],
+            setter: ["texture"]
+        },
+        ArmatureDisplayData: {
+            getter: ["actions"],
+            setter: [] // armature
+        },
+        MeshDisplayData: {
+            getter: [],
+            setter: ["weight"]
+        },
+        WeightData: {
+            getter: ["bones"],
+            setter: []
+        },
+        AnimationData: {
+            getter: [],
+            setter: ["actionTimeline", "zOrderTimeline", "parent"]
+        },
+        TimelineData: {
+            getter: [],
+            setter: ["type"]
+        },
+        AnimationConfig: {
+            getter: [],
+            setter: ["fadeOutMode", "fadeOutTweenType", "fadeInTweenType"]
+        },
+        TextureData: {
+            getter: ["region"],
+            setter: ["frame"]
+        },
+        TransformObject: {
+            getter: ["globalTransformMatrix", "global", "offset", "origin"],
+            setter: []
+        },
+        Armature: {
+            getter: ["armatureData", "animation", "proxy", "eventDispatcher"],
+            setter: ["clock"]
+        },
+        Slot: {
+            getter: ["boundingBoxData"],
+            setter: ["displayIndex", "childArmature"]
+        },
+        Constraint: {
+            getter: [],
+            setter: ["target", "bone", "root"]
+        },
+        Animation: {
+            getter: ["animationConfig"],
+            setter: [],
+            array: ["animationNames"]
+        },
+        WorldClock: {
+            getter: [],
+            setter: ["clock"],
+            static: ["clock"]
+        },
+        EventObject: {
+            getter: ["armature", "bone", "slot", "animationState", "data"],
+            setter: []
+        },
+        EgretArmatureDisplayWASM: {
+            getter: ["armature", "animation"],
+            setter: []
+        },
+        DragonBones: {
+            getter: ["clock"],
+            setter: []
+        }
+    };
+    function descGetter(funcName, target) {
+        return {
+            get: target["_c_get_" + funcName],
+            enumerable: true,
+            configurable: true
+        };
+    }
+    function descSetter(funcName, target) {
+        return {
+            get: target["_c_get_" + funcName],
+            set: target["_c_set_" + funcName],
+            enumerable: true,
+            configurable: true
+        };
+    }
+    function descArrayGetter(funcName, target) {
+        target;
+        return {
+            get: function () {
+                var array = this["_js_" + funcName];
+                if (!array) {
+                    array = [];
+                    var vector = this["_c_get_" + funcName]();
+                    for (var i = 0, l = vector.size(); i < l; ++i) {
+                        array[i] = vector.get(i);
+                    }
+                }
+                return array;
+            },
+            enumerable: true,
+            configurable: true
+        };
+    }
+    function registerGetterSetter() {
+        for (var fieldKey in configTables) {
+            var getterClass = Module[fieldKey];
+            var getterClassProto = Module[fieldKey].prototype;
+            var getterArray = configTables[fieldKey].getter;
+            var setterArray = configTables[fieldKey].setter;
+            var staticArray = configTables[fieldKey].static;
+            var arrayArray = configTables[fieldKey].array;
+            if (getterArray) {
+                for (var _i = 0, getterArray_1 = getterArray; _i < getterArray_1.length; _i++) {
+                    var fieldName = getterArray_1[_i];
+                    Object.defineProperty(getterClassProto, fieldName, descGetter(fieldName, getterClassProto));
+                }
+            }
+            if (setterArray) {
+                for (var _a = 0, setterArray_1 = setterArray; _a < setterArray_1.length; _a++) {
+                    var fieldName = setterArray_1[_a];
+                    Object.defineProperty(getterClassProto, fieldName, descSetter(fieldName, getterClassProto));
+                }
+            }
+            if (staticArray) {
+                for (var _b = 0, staticArray_1 = staticArray; _b < staticArray_1.length; _b++) {
+                    var fieldName = staticArray_1[_b];
+                    Object.defineProperty(getterClass, fieldName, descSetter(fieldName, getterClass));
+                }
+            }
+            if (arrayArray) {
+                for (var _c = 0, arrayArray_1 = arrayArray; _c < arrayArray_1.length; _c++) {
+                    var fieldName = arrayArray_1[_c];
+                    Object.defineProperty(getterClassProto, fieldName, descArrayGetter(fieldName, getterClass));
+                }
+            }
+        }
+    }
+    dragonBones.registerGetterSetter = registerGetterSetter;
 })(dragonBones || (dragonBones = {}));
 var dragonBones;
 (function (dragonBones) {
     /**
-     * Pixi 工厂。
+     * Egret 工厂。
      * @version DragonBones 3.0
      * @language zh_CN
      */
-    var PixiFactory = (function (_super) {
-        __extends(PixiFactory, _super);
+    var EgretFactory = (function (_super) {
+        __extends(EgretFactory, _super);
         /**
          * @inheritDoc
          */
-        function PixiFactory(dataParser) {
-            if (dataParser === void 0) { dataParser = null; }
-            var _this = _super.call(this, dataParser) || this;
-            if (PixiFactory._dragonBonesInstance === null) {
-                var eventManager = new dragonBones.PixiArmatureDisplay();
-                PixiFactory._dragonBonesInstance = new dragonBones.DragonBones(eventManager);
-                PIXI.ticker.shared.add(PixiFactory._clockHandler, PixiFactory);
+        function EgretFactory() {
+            var _this = _super.call(this) || this;
+            /**
+             * @private
+             */
+            _this._rawTextures = null;
+            if (EgretFactory._dragonBones === null) {
+                dragonBones.DragonBones.webAssembly = true;
+                var eventDisplay = new dragonBones.EgretArmatureDisplay();
+                EgretFactory._eventManager = eventDisplay;
+                EgretFactory._dragonBones = new Module["DragonBones"]();
+                EgretFactory._dragonBones.clock.time = egret.getTimer() * 0.001;
+                egret.startTick(EgretFactory._clockHandler, EgretFactory);
             }
-            _this._dragonBones = PixiFactory._dragonBonesInstance;
             return _this;
         }
-        PixiFactory._clockHandler = function (passedTime) {
-            // PixiFactory._dragonBonesInstance.advanceTime(PIXI.ticker.shared.elapsedMS * passedTime * 0.001);
-            passedTime;
-            PixiFactory._dragonBonesInstance.advanceTime(-1);
+        EgretFactory._clockHandler = function (time) {
+            var dbcore = EgretFactory._dragonBones;
+            //
+            var objects = dbcore.getObjects();
+            for (var i = 0, l = objects.size(); i < l; ++i) {
+                objects.get(i).returnToPool();
+            }
+            objects.resize(0, null);
+            //
+            time *= 0.001;
+            var passedTime = time - EgretFactory._time;
+            dbcore.clock.advanceTime(passedTime);
+            EgretFactory._time = time;
+            //
+            var events = dbcore.getEvents();
+            for (var i = 0, l = events.size(); i < l; ++i) {
+                var eventObject = events.get(i);
+                var armature = eventObject.armature;
+                var type = eventObject.type;
+                if (armature === null || armature.display === null || armature.display === undefined) {
+                    console.log("armature display error!");
+                }
+                armature.display._dispatchEvent(type, eventObject);
+                if (type === dragonBones.EventObject.SOUND_EVENT) {
+                    EgretFactory._eventManager._dispatchEvent(eventObject.type, eventObject);
+                }
+                eventObject.returnToPool();
+            }
+            events.resize(0, null);
+            return false;
         };
-        Object.defineProperty(PixiFactory, "clock", {
+        Object.defineProperty(EgretFactory, "clock", {
             /**
-             * 一个可以直接使用的全局 WorldClock 实例。(由引擎驱动)
+             * 一个可以直接使用的全局 WorldClock 实例.
              * @version DragonBones 5.0
              * @language zh_CN
              */
             get: function () {
-                return PixiFactory._dragonBonesInstance.clock;
+                return EgretFactory._dragonBones.clock;
             },
             enumerable: true,
             configurable: true
         });
-        Object.defineProperty(PixiFactory, "factory", {
+        Object.defineProperty(EgretFactory, "factory", {
             /**
-             * @language zh_CN
              * 一个可以直接使用的全局工厂实例。
              * @version DragonBones 4.7
+             * @language zh_CN
              */
             get: function () {
-                if (PixiFactory._factory === null) {
-                    PixiFactory._factory = new PixiFactory();
+                if (EgretFactory._factory === null) {
+                    dragonBones.registerGetterSetter();
+                    dragonBones.egretWASMInit();
+                    EgretFactory._factory = new EgretFactory();
                 }
-                return PixiFactory._factory;
+                return EgretFactory._factory;
             },
             enumerable: true,
             configurable: true
@@ -11208,33 +11440,124 @@ var dragonBones;
         /**
          * @private
          */
-        PixiFactory.prototype._buildTextureAtlasData = function (textureAtlasData, textureAtlas) {
-            if (textureAtlasData) {
+        EgretFactory.prototype._isSupportMesh = function () {
+            if (egret.Capabilities.renderMode === "webgl" || egret.Capabilities.runtimeType === egret.RuntimeType.NATIVE) {
+                return true;
+            }
+            console.warn("Canvas can not support mesh, please change renderMode to webgl.");
+            return false;
+        };
+        /**
+         * @private
+         */
+        EgretFactory.prototype._buildTextureAtlasData = function (textureAtlasData, textureAtlas) {
+            if (textureAtlasData !== null) {
+                if (textureAtlas["textureId"] === null) {
+                    egret.WebAssemblyNode.setValuesToBitmapData(textureAtlas);
+                }
                 textureAtlasData.renderTexture = textureAtlas;
             }
             else {
-                textureAtlasData = dragonBones.BaseObject.borrowObject(dragonBones.PixiTextureAtlasData);
+                textureAtlasData = new dragonBones.EgretTextureAtlasData(this._rawTextures);
             }
             return textureAtlasData;
         };
         /**
          * @private
          */
-        PixiFactory.prototype._buildArmature = function (dataPackage) {
-            var armature = dragonBones.BaseObject.borrowObject(dragonBones.Armature);
-            var armatureDisplay = new dragonBones.PixiArmatureDisplay();
-            armature.init(dataPackage.armature, armatureDisplay, armatureDisplay, this._dragonBones);
+        EgretFactory.prototype._buildArmature = function (dataPackage) {
+            var armature = new Module['EgretArmature']();
+            var armatureDisplay = new dragonBones.EgretArmatureDisplay();
+            var armatureProxy = new dragonBones.EgretArmatureProxy(armatureDisplay);
+            var displayID = armatureDisplay.$waNode.id;
+            armature.init(dataPackage.armature, armatureProxy, displayID, EgretFactory._dragonBones);
+            armatureDisplay.init(armature);
             return armature;
         };
         /**
          * @private
          */
-        PixiFactory.prototype._buildSlot = function (dataPackage, slotData, displays, armature) {
+        EgretFactory.prototype._buildSlots = function (dataPackage, armature) {
+            var currentSkin = dataPackage.skin;
+            var defaultSkin = dataPackage.armature.defaultSkin;
+            if (currentSkin === null || defaultSkin === null) {
+                return;
+            }
+            var currentSkinSlotNames = currentSkin.getSkinSlotNames();
+            var defaultSkinSlotNames = defaultSkin.getSkinSlotNames();
+            var skinSlots = {};
+            // for (let k in defaultSkin.displays) {
+            for (var i = 0, l = defaultSkinSlotNames.size(); i < l; ++i) {
+                var slotName = defaultSkinSlotNames.get(i);
+                var displays = defaultSkin.getDisplays(slotName);
+                if (displays !== null) {
+                    skinSlots[slotName] = displays;
+                }
+            }
+            if (currentSkin !== defaultSkin) {
+                // for (let k in currentSkin.displays) {
+                for (var i = 0, l = currentSkinSlotNames.size(); i < l; ++i) {
+                    var slotName = currentSkinSlotNames.get(i);
+                    var displays = currentSkin.getDisplays(slotName);
+                    if (displays !== null) {
+                        skinSlots[slotName] = displays;
+                    }
+                }
+            }
+            // for (const slotData of dataPackage.armature.sortedSlots) {
+            var slots = dataPackage.armature.sortedSlots;
+            for (var i = 0, l = slots.size(); i < l; ++i) {
+                var slotData = slots.get(i);
+                if (!(slotData.name in skinSlots)) {
+                    continue;
+                }
+                var displays = skinSlots[slotData.name];
+                var slot = this._buildSlot(dataPackage, slotData, displays, armature);
+                var displayList = new Module["EgretSlotDisplayVector"]();
+                for (var i_3 = 0, l_1 = displays.size(); i_3 < l_1; ++i_3) {
+                    var displayData = displays.get(i_3);
+                    if (displayData !== null) {
+                        var display = this._getSlotDisplay(dataPackage, displayData, null, slot);
+                        if (display === null) {
+                            var displayWrapper = dragonBones.createEgretDisplay(display, 0 /* Image */);
+                            displayList.push_back(displayWrapper);
+                        }
+                        else if (display.getDisplayType() === 1 /* Armature */) {
+                            var displayWrapper = dragonBones.createEgretDisplay(display, 1 /* Armature */);
+                            displayList.push_back(displayWrapper);
+                        }
+                        else {
+                            displayList.push_back(display);
+                        }
+                    }
+                    else {
+                        var displayWrapper = dragonBones.createEgretDisplay(null, 0 /* Image */);
+                        displayList.push_back(displayWrapper);
+                    }
+                }
+                armature.addSlot(slot, slotData.parent.name);
+                slot._setEgretDisplayList(displayList);
+                slot._setDisplayIndex(slotData.displayIndex, true);
+            }
+        };
+        /**
+         * @private
+         */
+        EgretFactory.prototype._buildSlot = function (dataPackage, slotData, displays, armature) {
             dataPackage;
             armature;
-            var slot = dragonBones.BaseObject.borrowObject(dragonBones.PixiSlot);
-            slot.init(slotData, displays, new PIXI.Sprite(), new PIXI.mesh.Mesh(null, null, null, null, PIXI.mesh.Mesh.DRAW_MODES.TRIANGLES));
+            var slot = new dragonBones.EgretSlot();
+            slot.init(slotData, displays, new egret.Bitmap(), new egret.Mesh());
             return slot;
+        };
+        /**
+         * @private
+         */
+        EgretFactory.prototype.parseTextureAtlasData = function (rawData, textureAtlas, name, scale) {
+            if (name === void 0) { name = null; }
+            if (scale === void 0) { scale = 0.0; }
+            this._rawTextures = rawData ? rawData.SubTexture : null;
+            return _super.prototype.parseTextureAtlasData.call(this, rawData, textureAtlas, name, scale);
         };
         /**
          * 创建一个指定名称的骨架。
@@ -11247,13 +11570,13 @@ var dragonBones;
          * @version DragonBones 4.5
          * @language zh_CN
          */
-        PixiFactory.prototype.buildArmatureDisplay = function (armatureName, dragonBonesName, skinName, textureAtlasName) {
+        EgretFactory.prototype.buildArmatureDisplay = function (armatureName, dragonBonesName, skinName, textureAtlasName) {
             if (dragonBonesName === void 0) { dragonBonesName = null; }
             if (skinName === void 0) { skinName = null; }
             if (textureAtlasName === void 0) { textureAtlasName = null; }
             var armature = this.buildArmature(armatureName, dragonBonesName, skinName, textureAtlasName);
             if (armature !== null) {
-                this._dragonBones.clock.add(armature);
+                EgretFactory.clock.add(armature);
                 return armature.display;
             }
             return null;
@@ -11265,30 +11588,184 @@ var dragonBones;
          * @version DragonBones 3.0
          * @language zh_CN
          */
-        PixiFactory.prototype.getTextureDisplay = function (textureName, textureAtlasName) {
+        EgretFactory.prototype.getTextureDisplay = function (textureName, textureAtlasName) {
             if (textureAtlasName === void 0) { textureAtlasName = null; }
             var textureData = this._getTextureData(textureAtlasName !== null ? textureAtlasName : "", textureName);
-            if (textureData !== null && textureData.renderTexture !== null) {
-                return new PIXI.Sprite(textureData.renderTexture);
+            if (textureData !== null && textureData.texture === null) {
+                return new egret.Bitmap(textureData.texture);
             }
             return null;
         };
-        Object.defineProperty(PixiFactory.prototype, "soundEventManager", {
+        /*
+         * @private
+         */
+        EgretFactory.prototype._getSlotDisplay = function (dataPackage, displayData, rawDisplayData, slot) {
+            var dataName = dataPackage !== null ? dataPackage.dataName : displayData.parent.parent.name;
+            var display = null;
+            switch (displayData.type) {
+                case 0 /* Image */:
+                    var imageDisplayData = displayData;
+                    if (imageDisplayData.texture === null) {
+                        imageDisplayData.texture = this._getTextureData(dataName, displayData.path);
+                    }
+                    else if (dataPackage !== null && dataPackage.textureAtlasName.length > 0) {
+                        imageDisplayData.texture = this._getTextureData(dataPackage.textureAtlasName, displayData.path);
+                    }
+                    if (rawDisplayData !== null && rawDisplayData.type === 2 /* Mesh */ && this._isSupportMesh()) {
+                        display = slot.getMeshWASMDisplay();
+                    }
+                    else {
+                        display = slot.getRawWASMDisplay();
+                    }
+                    break;
+                case 2 /* Mesh */:
+                    var meshDisplayData = displayData;
+                    if (meshDisplayData.texture === null) {
+                        meshDisplayData.texture = this._getTextureData(dataName, meshDisplayData.path);
+                    }
+                    else if (dataPackage !== null && dataPackage.textureAtlasName.length > 0) {
+                        meshDisplayData.texture = this._getTextureData(dataPackage.textureAtlasName, meshDisplayData.path);
+                    }
+                    if (this._isSupportMesh()) {
+                        display = slot.getMeshWASMDisplay();
+                    }
+                    else {
+                        display = slot.getRawWASMDisplay();
+                    }
+                    break;
+                case 1 /* Armature */:
+                    var armatureDisplayData = displayData;
+                    var childArmature = this.buildArmature(armatureDisplayData.path, dataName, null, dataPackage !== null ? dataPackage.textureAtlasName : null);
+                    if (childArmature !== null) {
+                        childArmature.inheritAnimation = armatureDisplayData.inheritAnimation;
+                        if (!childArmature.inheritAnimation) {
+                            var actions = armatureDisplayData.actions.length > 0 ? armatureDisplayData.actions : childArmature.armatureData.defaultActions;
+                            if (actions.length > 0) {
+                                for (var _i = 0, actions_3 = actions; _i < actions_3.length; _i++) {
+                                    var action = actions_3[_i];
+                                    childArmature.animation.fadeIn(action.name); // TODO action should be do after advanceTime.
+                                }
+                            }
+                            else {
+                                childArmature.animation.play();
+                            }
+                        }
+                        armatureDisplayData.armature = childArmature.armatureData; // 
+                    }
+                    display = childArmature;
+                    break;
+            }
+            return display;
+        };
+        /**
+         * public
+         */
+        EgretFactory.prototype.changeSkin = function (armature, skin, exclude) {
+            if (exclude === void 0) { exclude = null; }
+            // for (const slot of armature.getSlots()) {
+            var slots = armature.getSlots();
+            for (var i = 0, l = slots.size(); i < l; ++i) {
+                var slot = slots.get(i);
+                if ((exclude !== null && exclude.indexOf(slot.name) >= 0)) {
+                    continue;
+                }
+                var displays = skin.displays.get(slot.name);
+                if (displays === null || displays === undefined) {
+                    continue;
+                }
+                var displayList = slot.getEgretDisplayList(); // Copy.
+                if (displayList === null || displayList === undefined) {
+                    console.log("Slot does not has displayList" + slot.name);
+                    continue;
+                }
+                var datalen = displays.size();
+                displayList.resize(datalen, null); // Modify displayList length.
+                for (var i_4 = 0, l_2 = displays.size(); i_4 < l_2; ++i_4) {
+                    var currData = displays.get(i_4);
+                    var currSlot = this._getSlotDisplay(null, currData, null, slot);
+                    if (currSlot.getDisplayType() == 1 /* Armature */) {
+                        var displayWrapper = dragonBones.createEgretDisplay(currSlot, 1 /* Armature */);
+                        displayList.set(i_4, displayWrapper);
+                    }
+                    else {
+                        displayList.set(i_4, currSlot);
+                    }
+                }
+                slot.switchDisplayData(displays);
+                //TODO
+                // slot.displayList = displayList;
+                slot.setEgretDisplayList(displayList);
+            }
+        };
+        /**
+         * 用指定资源替换指定插槽的显示对象。(用 "dragonBonesName/armatureName/slotName/displayName" 的资源替换 "slot" 的显示对象)
+         * @param dragonBonesName 指定的龙骨数据名称。
+         * @param armatureName 指定的骨架名称。
+         * @param slotName 指定的插槽名称。
+         * @param displayName 指定的显示对象名称。
+         * @param slot 指定的插槽实例。
+         * @param displayIndex 要替换的显示对象的索引，如果未设置，则替换当前正在显示的显示对象。
+         * @version DragonBones 4.5
+         * @language zh_CN
+         */
+        EgretFactory.prototype.replaceSlotDisplay = function (dragonBonesName, armatureName, slotName, displayName, slot, displayIndex) {
+            if (displayIndex === void 0) { displayIndex = -1; }
+            var dataPackage = {};
+            if (!this._fillBuildArmaturePackage(dataPackage, dragonBonesName || "", armatureName, "", "") || dataPackage.skin === null) {
+                return;
+            }
+            var displays = dataPackage.skin.getDisplays(slotName);
+            if (displays === null) {
+                return;
+            }
+            // for (const display of displays) {
+            for (var i = 0, l = displays.size(); i < l; ++i) {
+                var display = displays.get(i);
+                if (display !== null && display.name === displayName) {
+                    this._replaceSlotDisplay(dataPackage, display, slot, displayIndex);
+                    break;
+                }
+            }
+        };
+        /**
+         * @private
+         */
+        EgretFactory.prototype._replaceSlotDisplay = function (dataPackage, displayData, slot, displayIndex) {
+            if (displayIndex < 0) {
+                displayIndex = slot.displayIndex;
+            }
+            if (displayIndex < 0) {
+                displayIndex = 0;
+            }
+            var displayList = slot.getEgretDisplayList(); // Copy.
+            if (displayList.size() <= displayIndex) {
+                displayList.resize(displayIndex + 1, null);
+            }
+            slot.replaceDisplayData(displayData, displayIndex);
+            if (displayData !== null) {
+                displayList[displayIndex] = this._getSlotDisplay(dataPackage, displayData, null, slot);
+            }
+            else {
+                displayList[displayIndex] = null;
+            }
+            slot.setEgretDisplayList(displayList);
+        };
+        Object.defineProperty(EgretFactory.prototype, "soundEventManager", {
             /**
              * 获取全局声音事件管理器。
              * @version DragonBones 4.5
              * @language zh_CN
              */
             get: function () {
-                return this._dragonBones.eventManager;
+                return EgretFactory._eventManager;
             },
             enumerable: true,
             configurable: true
         });
-        PixiFactory._dragonBonesInstance = null;
-        PixiFactory._factory = null;
-        return PixiFactory;
+        EgretFactory._time = 0;
+        EgretFactory._dragonBones = null;
+        EgretFactory._factory = null;
+        return EgretFactory;
     }(dragonBones.BaseFactory));
-    dragonBones.PixiFactory = PixiFactory;
+    dragonBones.EgretFactory = EgretFactory;
 })(dragonBones || (dragonBones = {}));
-//# sourceMappingURL=dragonBones.js.map
