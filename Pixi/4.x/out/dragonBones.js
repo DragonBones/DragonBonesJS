@@ -10557,10 +10557,10 @@ var dragonBones;
          */
         PixiTextureAtlasData.prototype._onClear = function () {
             _super.prototype._onClear.call(this);
-            if (this.renderTexture !== null) {
-                //this.texture.dispose();
+            if (this._renderTexture !== null) {
+                // this._renderTexture.dispose();
             }
-            this.renderTexture = null;
+            this._renderTexture = null;
         };
         /**
          * @private
@@ -10609,7 +10609,7 @@ var dragonBones;
     var PixiTextureData = (function (_super) {
         __extends(PixiTextureData, _super);
         function PixiTextureData() {
-            var _this = _super.call(this) || this;
+            var _this = _super !== null && _super.apply(this, arguments) || this;
             _this.renderTexture = null; // Initial value.
             return _this;
         }

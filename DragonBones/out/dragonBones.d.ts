@@ -109,7 +109,6 @@ declare namespace dragonBones {
         BoneSkew = 17,
         BoneScaleX = 18,
         BoneScaleY = 19,
-        SlotVisible = 23,
         SlotDisplay = 20,
         SlotColor = 21,
         SlotFFD = 22,

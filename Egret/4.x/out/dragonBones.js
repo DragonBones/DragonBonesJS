@@ -10558,7 +10558,7 @@ var dragonBones;
         EgretTextureAtlasData.prototype._onClear = function () {
             _super.prototype._onClear.call(this);
             if (this._renderTexture !== null) {
-                //this.texture.dispose();
+                // this._renderTexture.dispose();
             }
             this._renderTexture = null;
         };
@@ -10652,7 +10652,7 @@ var dragonBones;
         EgretTextureData.prototype._onClear = function () {
             _super.prototype._onClear.call(this);
             if (this.renderTexture !== null) {
-                //this.texture.dispose();
+                // this.renderTexture.dispose();
             }
             this.renderTexture = null;
         };
@@ -11026,7 +11026,7 @@ var dragonBones;
             for (var _i = 0, _a = this._armature.getSlots(); _i < _a.length; _i++) {
                 var slot = _a[_i];
                 // (slot as EgretSlot).transformUpdateEnabled = true;
-                var display = (slot.rawDisplay || slot.meshDisplay);
+                var display = slot._meshData ? slot.meshDisplay : slot.rawDisplay;
                 var node = display.$renderNode;
                 // Transform.
                 if (node.matrix) {
@@ -11038,6 +11038,7 @@ var dragonBones;
             this._batchEnabled = false;
             this.$renderNode.cleanBeforeRender = null;
             this.$renderNode = null;
+            this.armature.invalidUpdate(null, true);
         };
         Object.defineProperty(EgretArmatureDisplay.prototype, "armature", {
             /**
@@ -11473,8 +11474,8 @@ var dragonBones;
                         meshDisplay.$invalidateTransform();
                     }
                     else {
-                        var normalDisplay = this._renderDisplay;
-                        normalDisplay.texture = currentTextureData.renderTexture;
+                        var normalDisplay_1 = this._renderDisplay;
+                        normalDisplay_1.texture = currentTextureData.renderTexture;
                         if (this._armatureDisplay._batchEnabled) {
                             var texture = currentTextureData.renderTexture;
                             var node = this._renderDisplay.$renderNode;
@@ -11484,8 +11485,8 @@ var dragonBones;
                             node.imageWidth = texture._sourceWidth;
                             node.imageHeight = texture._sourceHeight;
                         }
-                        normalDisplay.$setAnchorOffsetX(this._pivotX);
-                        normalDisplay.$setAnchorOffsetY(this._pivotY);
+                        normalDisplay_1.$setAnchorOffsetX(this._pivotX);
+                        normalDisplay_1.$setAnchorOffsetY(this._pivotY);
                     }
                     return;
                 }
@@ -11493,18 +11494,10 @@ var dragonBones;
             if (this._armatureDisplay._batchEnabled) {
                 this._renderDisplay.$renderNode.image = null;
             }
-            if (meshData !== null) {
-                var meshDisplay = this._renderDisplay;
-                meshDisplay.$setBitmapData(null);
-                meshDisplay.x = 0.0;
-                meshDisplay.y = 0.0;
-            }
-            else {
-                var normalDisplay = this._renderDisplay;
-                normalDisplay.$setBitmapData(null);
-                normalDisplay.x = 0.0;
-                normalDisplay.y = 0.0;
-            }
+            var normalDisplay = this._renderDisplay;
+            normalDisplay.$setBitmapData(null);
+            normalDisplay.x = 0.0;
+            normalDisplay.y = 0.0;
         };
         /**
          * @private

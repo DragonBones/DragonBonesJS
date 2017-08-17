@@ -20,7 +20,7 @@ namespace dragonBones {
             super._onClear();
 
             if (this._renderTexture !== null) {
-                //this.texture.dispose();
+                // this._renderTexture.dispose();
             }
 
             this._renderTexture = null;
@@ -121,7 +121,7 @@ namespace dragonBones {
             super._onClear();
 
             if (this.renderTexture !== null) {
-                //this.texture.dispose();
+                // this.renderTexture.dispose();
             }
 
             this.renderTexture = null;

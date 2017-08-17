@@ -223,18 +223,10 @@ namespace dragonBones {
                 }
             }
 
-            if (meshData !== null) {
-                const meshDisplay = this._renderDisplay as egret.Mesh;
-                meshDisplay.texture = null as any;
-                meshDisplay.x = 0.0;
-                meshDisplay.y = 0.0;
-            }
-            else {
-                const normalDisplay = this._renderDisplay as egret.Bitmap;
-                normalDisplay.texture = null as any;
-                normalDisplay.x = 0.0;
-                normalDisplay.y = 0.0;
-            }
+            const normalDisplay = this._renderDisplay as egret.Bitmap;
+            normalDisplay.texture = null as any;
+            normalDisplay.x = 0.0;
+            normalDisplay.y = 0.0;
         }
         /**
          * @private

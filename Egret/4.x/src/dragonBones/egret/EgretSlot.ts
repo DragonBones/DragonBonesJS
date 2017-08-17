@@ -317,18 +317,10 @@ namespace dragonBones {
                 (this._renderDisplay.$renderNode as egret.sys.BitmapNode).image = null as any;
             }
 
-            if (meshData !== null) {
-                const meshDisplay = this._renderDisplay as egret.Mesh;
-                meshDisplay.$setBitmapData(null as any);
-                meshDisplay.x = 0.0;
-                meshDisplay.y = 0.0;
-            }
-            else {
-                const normalDisplay = this._renderDisplay as egret.Bitmap;
-                normalDisplay.$setBitmapData(null as any);
-                normalDisplay.x = 0.0;
-                normalDisplay.y = 0.0;
-            }
+            const normalDisplay = this._renderDisplay as egret.Bitmap;
+            normalDisplay.$setBitmapData(null as any);
+            normalDisplay.x = 0.0;
+            normalDisplay.y = 0.0;
         }
         /**
          * @private

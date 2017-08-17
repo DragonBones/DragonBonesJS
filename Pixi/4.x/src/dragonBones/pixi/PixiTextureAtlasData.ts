@@ -16,11 +16,11 @@ namespace dragonBones {
         protected _onClear(): void {
             super._onClear();
 
-            if (this.renderTexture !== null) {
-                //this.texture.dispose();
+            if (this._renderTexture !== null) {
+                // this._renderTexture.dispose();
             }
 
-            this.renderTexture = null;
+            this._renderTexture = null;
         }
         /**
          * @private
@@ -73,10 +73,6 @@ namespace dragonBones {
         }
 
         public renderTexture: PIXI.Texture | null = null; // Initial value.
-
-        public constructor() {
-            super();
-        }
 
         protected _onClear(): void {
             super._onClear();

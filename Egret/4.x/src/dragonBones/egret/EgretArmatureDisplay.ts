@@ -325,7 +325,7 @@ namespace dragonBones {
         public disableBatch(): void {
             for (const slot of this._armature.getSlots()) {
                 // (slot as EgretSlot).transformUpdateEnabled = true;
-                const display = (slot.rawDisplay || slot.meshDisplay) as (egret.Bitmap | egret.Mesh);
+                const display = slot._meshData ? slot.meshDisplay as egret.Mesh : slot.rawDisplay as egret.Bitmap;
                 const node = display.$renderNode as (egret.sys.BitmapNode | egret.sys.MeshNode);
 
                 // Transform.
@@ -340,6 +340,7 @@ namespace dragonBones {
             this._batchEnabled = false;
             this.$renderNode.cleanBeforeRender = null as any;
             this.$renderNode = null as any;
+            this.armature.invalidUpdate(null, true);
         }
         /**
          * @inheritDoc

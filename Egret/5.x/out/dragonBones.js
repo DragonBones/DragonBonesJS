@@ -10561,7 +10561,7 @@ var dragonBones;
         EgretTextureAtlasData.prototype._onClear = function () {
             _super.prototype._onClear.call(this);
             if (this._renderTexture !== null) {
-                //this.texture.dispose();
+                // this._renderTexture.dispose();
             }
             this._renderTexture = null;
         };
@@ -10655,7 +10655,7 @@ var dragonBones;
         EgretTextureData.prototype._onClear = function () {
             _super.prototype._onClear.call(this);
             if (this.renderTexture !== null) {
-                //this.texture.dispose();
+                // this.renderTexture.dispose();
             }
             this.renderTexture = null;
         };
@@ -11386,26 +11386,18 @@ var dragonBones;
                         meshDisplay.$updateVertices();
                     }
                     else {
-                        var normalDisplay = this._renderDisplay;
-                        normalDisplay.texture = currentTextureData.renderTexture;
-                        normalDisplay.$setAnchorOffsetX(this._pivotX);
-                        normalDisplay.$setAnchorOffsetY(this._pivotY);
+                        var normalDisplay_1 = this._renderDisplay;
+                        normalDisplay_1.texture = currentTextureData.renderTexture;
+                        normalDisplay_1.$setAnchorOffsetX(this._pivotX);
+                        normalDisplay_1.$setAnchorOffsetY(this._pivotY);
                     }
                     return;
                 }
             }
-            if (meshData !== null) {
-                var meshDisplay = this._renderDisplay;
-                meshDisplay.texture = null;
-                meshDisplay.x = 0.0;
-                meshDisplay.y = 0.0;
-            }
-            else {
-                var normalDisplay = this._renderDisplay;
-                normalDisplay.texture = null;
-                normalDisplay.x = 0.0;
-                normalDisplay.y = 0.0;
-            }
+            var normalDisplay = this._renderDisplay;
+            normalDisplay.texture = null;
+            normalDisplay.x = 0.0;
+            normalDisplay.y = 0.0;
         };
         /**
          * @private
