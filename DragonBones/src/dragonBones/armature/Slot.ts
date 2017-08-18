@@ -715,6 +715,11 @@ namespace dragonBones {
                 return;
             }
 
+            if (this._visibleDirty) {
+                this._visibleDirty = false;
+                this._updateVisible();
+            }
+
             if (this._blendModeDirty) {
                 this._blendModeDirty = false;
                 this._updateBlendMode();

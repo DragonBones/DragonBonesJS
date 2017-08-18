@@ -63,27 +63,27 @@ namespace dragonBones {
         /**
          * @private
          */
-        public intArray: Array<number> | Int16Array;
+        public intArray: Int16Array;
         /**
          * @private
          */
-        public floatArray: Array<number> | Float32Array;
+        public floatArray: Float32Array;
         /**
          * @private
          */
-        public frameIntArray: Array<number> | Int16Array;
+        public frameIntArray: Int16Array;
         /**
          * @private
          */
-        public frameFloatArray: Array<number> | Float32Array;
+        public frameFloatArray: Float32Array;
         /**
          * @private
          */
-        public frameArray: Array<number> | Int16Array;
+        public frameArray: Int16Array;
         /**
          * @private
          */
-        public timelineArray: Array<number> | Uint16Array;
+        public timelineArray: Uint16Array;
         /**
          * @private
          */

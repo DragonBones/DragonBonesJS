@@ -264,7 +264,7 @@ namespace dragonBones {
                         if (this._armatureDisplay._batchEnabled) {
                             const texture = currentTextureData.renderTexture;
                             const node = this._renderDisplay.$renderNode as egret.sys.MeshNode;
-                            egret.sys.RenderNode.prototype.cleanBeforeRender.call(this._renderDisplay.$renderNode);
+                            egret.sys.RenderNode.prototype.cleanBeforeRender.call(node);
                             node.image = texture._bitmapData;
 
                             node.drawMesh(
@@ -276,6 +276,7 @@ namespace dragonBones {
 
                             node.imageWidth = texture._sourceWidth;
                             node.imageHeight = texture._sourceHeight;
+                            this._colorDirty = true;
                         }
 
                         meshDisplay.texture = currentTextureData.renderTexture;
@@ -291,7 +292,7 @@ namespace dragonBones {
                         if (this._armatureDisplay._batchEnabled) {
                             const texture = currentTextureData.renderTexture;
                             const node = this._renderDisplay.$renderNode as egret.sys.BitmapNode;
-                            egret.sys.RenderNode.prototype.cleanBeforeRender.call(this._renderDisplay.$renderNode);
+                            egret.sys.RenderNode.prototype.cleanBeforeRender.call(node);
                             node.image = texture._bitmapData;
 
                             node.drawImage(
@@ -303,11 +304,14 @@ namespace dragonBones {
 
                             node.imageWidth = texture._sourceWidth;
                             node.imageHeight = texture._sourceHeight;
+                            this._colorDirty = true;
                         }
 
                         normalDisplay.$setAnchorOffsetX(this._pivotX);
                         normalDisplay.$setAnchorOffsetY(this._pivotY);
                     }
+
+                    this._visibleDirty = true;
 
                     return;
                 }
@@ -321,6 +325,7 @@ namespace dragonBones {
             normalDisplay.$setBitmapData(null as any);
             normalDisplay.x = 0.0;
             normalDisplay.y = 0.0;
+            normalDisplay.visible = false;
         }
         /**
          * @private

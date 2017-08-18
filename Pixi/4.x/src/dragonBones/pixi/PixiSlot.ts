@@ -198,7 +198,7 @@ namespace dragonBones {
                         normalDisplay.texture = renderTexture;
                     }
 
-                    this._updateVisible();
+                    this._visibleDirty = true;
                     return;
                 }
             }

@@ -219,6 +219,8 @@ namespace dragonBones {
                         normalDisplay.$setAnchorOffsetY(this._pivotY);
                     }
 
+                    this._visibleDirty = true;
+
                     return;
                 }
             }
@@ -227,6 +229,7 @@ namespace dragonBones {
             normalDisplay.texture = null as any;
             normalDisplay.x = 0.0;
             normalDisplay.y = 0.0;
+            normalDisplay.visible = false;
         }
         /**
          * @private

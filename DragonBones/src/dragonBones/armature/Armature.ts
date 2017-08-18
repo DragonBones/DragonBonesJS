@@ -91,10 +91,6 @@ namespace dragonBones {
                 slot.returnToPool();
             }
 
-            for (const action of this._actions) {
-                action.returnToPool();
-            }
-
             if (this._animation !== null) {
                 this._animation.returnToPool();
             }
