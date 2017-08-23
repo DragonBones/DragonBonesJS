@@ -167,22 +167,112 @@ namespace dragonBones {
      * @inheritDoc
      */
     export class EgretArmatureDisplay extends egret.DisplayObjectContainer implements IArmatureProxy, IEventDispatcher {
+        private _debugDraw: boolean = false;
         private _disposeProxy: boolean = false;
         private _armature: Armature = null as any; //
         private _debugDrawer: egret.Sprite | null = null;
         /**
          * @inheritDoc
          */
-        public init(armature: Armature): void {
+        public dbInit(armature: Armature): void {
             this._armature = armature;
         }
         /**
          * @inheritDoc
          */
-        public clear(): void {
+        public dbClear(): void {
             this._disposeProxy = false;
             this._armature = null as any;
             this._debugDrawer = null;
+        }
+        /**
+         * @inheritDoc
+         */
+        public dbUpdate(): void {
+            const drawed = DragonBones.debugDraw;
+            if (drawed || this._debugDraw) {
+                this._debugDraw = drawed;
+                if (this._debugDraw) {
+                    if (this._debugDrawer === null) {
+                        this._debugDrawer = new egret.Sprite();
+                    }
+
+                    this.addChild(this._debugDrawer);
+                    this._debugDrawer.graphics.clear();
+
+                    for (const bone of this._armature.getBones()) {
+                        const boneLength = bone.boneData.length;
+                        const startX = bone.globalTransformMatrix.tx;
+                        const startY = bone.globalTransformMatrix.ty;
+                        const endX = startX + bone.globalTransformMatrix.a * boneLength;
+                        const endY = startY + bone.globalTransformMatrix.b * boneLength;
+
+                        this._debugDrawer.graphics.lineStyle(2.0, 0x00FFFF, 0.7);
+                        this._debugDrawer.graphics.moveTo(startX, startY);
+                        this._debugDrawer.graphics.lineTo(endX, endY);
+                        this._debugDrawer.graphics.lineStyle(0.0, 0, 0);
+                        this._debugDrawer.graphics.beginFill(0x00FFFF, 0.7);
+                        this._debugDrawer.graphics.drawCircle(startX, startY, 3.0);
+                        this._debugDrawer.graphics.endFill();
+                    }
+
+                    for (const slot of this._armature.getSlots()) {
+                        const boundingBoxData = slot.boundingBoxData;
+
+                        if (boundingBoxData !== null) {
+                            let child = this._debugDrawer.getChildByName(slot.name) as egret.Shape;
+                            if (child === null) {
+                                child = new egret.Shape();
+                                child.name = slot.name;
+                                this._debugDrawer.addChild(child);
+                            }
+
+                            child.graphics.clear();
+                            child.graphics.beginFill(boundingBoxData.color ? boundingBoxData.color : 0xFF00FF, 0.3);
+
+                            switch (boundingBoxData.type) {
+                                case BoundingBoxType.Rectangle:
+                                    child.graphics.drawRect(-boundingBoxData.width * 0.5, -boundingBoxData.height * 0.5, boundingBoxData.width, boundingBoxData.height);
+                                    break;
+
+                                case BoundingBoxType.Ellipse:
+                                    child.graphics.drawEllipse(-boundingBoxData.width * 0.5, -boundingBoxData.height * 0.5, boundingBoxData.width, boundingBoxData.height);
+                                    break;
+
+                                case BoundingBoxType.Polygon:
+                                    const polygon = boundingBoxData as PolygonBoundingBoxData;
+                                    const vertices = polygon.vertices;
+                                    for (let j = 0; j < polygon.count; j += 2) {
+                                        if (j === 0) {
+                                            child.graphics.moveTo(vertices[polygon.offset + j], vertices[polygon.offset + j + 1]);
+                                        }
+                                        else {
+                                            child.graphics.lineTo(vertices[polygon.offset + j], vertices[polygon.offset + j + 1]);
+                                        }
+                                    }
+                                    break;
+
+                                default:
+                                    break;
+                            }
+
+                            child.graphics.endFill();
+                            slot.updateTransformAndMatrix();
+                            slot.updateGlobalTransform();
+                            child.$setMatrix((slot.globalTransformMatrix as any) as egret.Matrix, true);
+                        }
+                        else {
+                            const child = this._debugDrawer.getChildByName(slot.name);
+                            if (child !== null) {
+                                this._debugDrawer.removeChild(child);
+                            }
+                        }
+                    }
+                }
+                else if (this._debugDrawer !== null && this._debugDrawer.parent === this) {
+                    this.removeChild(this._debugDrawer);
+                }
+            }
         }
         /**
          * @inheritDoc
@@ -193,91 +283,6 @@ namespace dragonBones {
             if (this._armature !== null) {
                 this._armature.dispose();
                 this._armature = null as any;
-            }
-        }
-        /**
-         * @inheritDoc
-         */
-        public debugUpdate(isEnabled: boolean): void {
-            if (isEnabled) {
-                if (this._debugDrawer === null) {
-                    this._debugDrawer = new egret.Sprite();
-                }
-
-                this.addChild(this._debugDrawer);
-                this._debugDrawer.graphics.clear();
-
-                for (const bone of this._armature.getBones()) {
-                    const boneLength = bone.boneData.length;
-                    const startX = bone.globalTransformMatrix.tx;
-                    const startY = bone.globalTransformMatrix.ty;
-                    const endX = startX + bone.globalTransformMatrix.a * boneLength;
-                    const endY = startY + bone.globalTransformMatrix.b * boneLength;
-
-                    this._debugDrawer.graphics.lineStyle(2.0, 0x00FFFF, 0.7);
-                    this._debugDrawer.graphics.moveTo(startX, startY);
-                    this._debugDrawer.graphics.lineTo(endX, endY);
-                    this._debugDrawer.graphics.lineStyle(0.0, 0, 0);
-                    this._debugDrawer.graphics.beginFill(0x00FFFF, 0.7);
-                    this._debugDrawer.graphics.drawCircle(startX, startY, 3.0);
-                    this._debugDrawer.graphics.endFill();
-                }
-
-                for (const slot of this._armature.getSlots()) {
-                    const boundingBoxData = slot.boundingBoxData;
-
-                    if (boundingBoxData !== null) {
-                        let child = this._debugDrawer.getChildByName(slot.name) as egret.Shape;
-                        if (child === null) {
-                            child = new egret.Shape();
-                            child.name = slot.name;
-                            this._debugDrawer.addChild(child);
-                        }
-
-                        child.graphics.clear();
-                        child.graphics.beginFill(boundingBoxData.color ? boundingBoxData.color : 0xFF00FF, 0.3);
-
-                        switch (boundingBoxData.type) {
-                            case BoundingBoxType.Rectangle:
-                                child.graphics.drawRect(-boundingBoxData.width * 0.5, -boundingBoxData.height * 0.5, boundingBoxData.width, boundingBoxData.height);
-                                break;
-
-                            case BoundingBoxType.Ellipse:
-                                child.graphics.drawEllipse(-boundingBoxData.width * 0.5, -boundingBoxData.height * 0.5, boundingBoxData.width, boundingBoxData.height);
-                                break;
-
-                            case BoundingBoxType.Polygon:
-                                const polygon = boundingBoxData as PolygonBoundingBoxData;
-                                const vertices = polygon.vertices;
-                                for (let j = 0; j < polygon.count; j += 2) {
-                                    if (j === 0) {
-                                        child.graphics.moveTo(vertices[polygon.offset + j], vertices[polygon.offset + j + 1]);
-                                    }
-                                    else {
-                                        child.graphics.lineTo(vertices[polygon.offset + j], vertices[polygon.offset + j + 1]);
-                                    }
-                                }
-                                break;
-
-                            default:
-                                break;
-                        }
-
-                        child.graphics.endFill();
-                        slot.updateTransformAndMatrix();
-                        slot.updateGlobalTransform();
-                        child.$setMatrix((slot.globalTransformMatrix as any) as egret.Matrix, true);
-                    }
-                    else {
-                        const child = this._debugDrawer.getChildByName(slot.name);
-                        if (child !== null) {
-                            this._debugDrawer.removeChild(child);
-                        }
-                    }
-                }
-            }
-            else if (this._debugDrawer !== null && this._debugDrawer.parent === this) {
-                this.removeChild(this._debugDrawer);
             }
         }
         /**

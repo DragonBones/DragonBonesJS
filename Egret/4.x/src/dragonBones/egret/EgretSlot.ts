@@ -398,10 +398,15 @@ namespace dragonBones {
                 const transformationMatrix = this._renderDisplay.matrix;
                 transformationMatrix.identity();
                 this._renderDisplay.$setMatrix(transformationMatrix, this.transformUpdateEnabled);
+
+                if (this._armatureDisplay._batchEnabled) {
+                    this._armatureDisplay._childTransformDirty = true;
+                }
             }
             else {
                 const globalTransformMatrix = this.globalTransformMatrix;
                 if (this._armatureDisplay._batchEnabled) {
+                    this._armatureDisplay._childTransformDirty = true;
                     let displayMatrix = (this._renderDisplay.$renderNode as (egret.sys.BitmapNode | egret.sys.MeshNode)).matrix;
                     displayMatrix.a = globalTransformMatrix.a;
                     displayMatrix.b = globalTransformMatrix.b;

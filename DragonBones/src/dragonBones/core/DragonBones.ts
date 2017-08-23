@@ -1,5 +1,3 @@
-
-
 namespace dragonBones {
     /**
      * @private
@@ -51,9 +49,9 @@ namespace dragonBones {
         BoundingBox = 3
     }
     /**
-     * @language zh_CN
      * 包围盒类型。
      * @version DragonBones 5.0
+     * @language zh_CN
      */
     export const enum BoundingBoxType {
         Rectangle = 0,
@@ -132,9 +130,9 @@ namespace dragonBones {
         Override
     }
     /**
-     * @language zh_CN
      * 动画混合的淡出方式。
      * @version DragonBones 4.5
+     * @language zh_CN
      */
     export const enum AnimationFadeOutMode {
         /**
@@ -214,10 +212,11 @@ namespace dragonBones {
                 for (let i = 0; i < this._events.length; ++i) {
                     const eventObject = this._events[i];
                     const armature = eventObject.armature;
-
-                    armature.eventDispatcher._dispatchEvent(eventObject.type, eventObject);
-                    if (eventObject.type === EventObject.SOUND_EVENT) {
-                        this._eventManager._dispatchEvent(eventObject.type, eventObject);
+                    if (armature.armatureData !== null) { // May be armature disposed before advanceTime.
+                        armature.eventDispatcher._dispatchEvent(eventObject.type, eventObject);
+                        if (eventObject.type === EventObject.SOUND_EVENT) {
+                            this._eventManager._dispatchEvent(eventObject.type, eventObject);
+                        }
                     }
 
                     this.bufferObject(eventObject);

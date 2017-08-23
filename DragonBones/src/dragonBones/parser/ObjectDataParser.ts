@@ -92,19 +92,20 @@ namespace dragonBones {
         private readonly _helpColorTransform: ColorTransform = new ColorTransform();
         private readonly _helpPoint: Point = new Point();
         private readonly _helpArray: Array<number> = [];
-        private readonly _actionFrames: Array<ActionFrame> = [];
-        private readonly _weightSlotPose: Map<Array<number>> = {};
-        private readonly _weightBonePoses: Map<Array<number>> = {};
-        private readonly _weightBoneIndices: Map<Array<number>> = {};
-        private readonly _cacheBones: Map<Array<BoneData>> = {};
-        private readonly _meshs: Map<MeshDisplayData> = {};
-        private readonly _slotChildActions: Map<Array<ActionData>> = {};
         private readonly _intArray: Array<number> = [];
         private readonly _floatArray: Array<number> = [];
         private readonly _frameIntArray: Array<number> = [];
         private readonly _frameFloatArray: Array<number> = [];
         private readonly _frameArray: Array<number> = [];
         private readonly _timelineArray: Array<number> = [];
+        private readonly _actionFrames: Array<ActionFrame> = [];
+        private readonly _polygonBoundingBoxes: Array<PolygonBoundingBoxData> = [];
+        private readonly _weightSlotPose: Map<Array<number>> = {};
+        private readonly _weightBonePoses: Map<Array<number>> = {};
+        private readonly _weightBoneIndices: Map<Array<number>> = {};
+        private readonly _cacheBones: Map<Array<BoneData>> = {};
+        private readonly _meshs: Map<MeshDisplayData> = {};
+        private readonly _slotChildActions: Map<Array<ActionData>> = {};
         /**
          * @private
          */
@@ -765,7 +766,7 @@ namespace dragonBones {
 
             polygonBoundingBox.offset = this._floatArray.length;
             polygonBoundingBox.count = rawVertices.length;
-            polygonBoundingBox.vertices = this._floatArray;
+            this._polygonBoundingBoxes.push(polygonBoundingBox);
             this._floatArray.length += polygonBoundingBox.count;
 
             for (let i = 0, l = polygonBoundingBox.count; i < l; i += 2) {
@@ -1323,6 +1324,9 @@ namespace dragonBones {
             const frameIntOffset = this._frameIntArray.length;
             this._frameIntArray.length += 1;
             this._frameIntArray[frameIntOffset] = colorOffset;
+            if (colorOffset < 0) {
+                debugger;
+            }
 
             return frameOffset;
         }
@@ -1663,6 +1667,19 @@ namespace dragonBones {
                 this._data.frameArray = frameArray;
                 this._data.timelineArray = timelineArray;
             }
+
+            for (const polygonBoundingBoxData of this._polygonBoundingBoxes) {
+                polygonBoundingBoxData.vertices = this._data.floatArray;
+            }
+
+            this._defalultColorOffset = -1;
+            this._polygonBoundingBoxes.length = 0;
+            this._intArray.length = 0;
+            this._floatArray.length = 0;
+            this._frameIntArray.length = 0;
+            this._frameFloatArray.length = 0;
+            this._frameArray.length = 0;
+            this._timelineArray.length = 0;
         }
 
         /**
@@ -1689,7 +1706,6 @@ namespace dragonBones {
                 }
 
                 if (ObjectDataParser.ARMATURE in rawData) {
-                    this._defalultColorOffset = -1;
                     this._data = data;
 
                     this._parseArray(rawData);

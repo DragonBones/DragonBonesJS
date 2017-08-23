@@ -23,10 +23,6 @@ namespace dragonBones {
          */
         public inheritAnimation: boolean;
         /**
-         * @private
-         */
-        public debugDraw: boolean;
-        /**
          * 获取骨架数据。
          * @see dragonBones.ArmatureData
          * @version DragonBones 4.5
@@ -41,7 +37,6 @@ namespace dragonBones {
          */
         public userData: any;
 
-        private _debugDraw: boolean;
         private _lockUpdate: boolean;
         private _bonesDirty: boolean;
         private _slotsDirty: boolean;
@@ -96,7 +91,7 @@ namespace dragonBones {
             }
 
             if (this._proxy !== null) {
-                this._proxy.clear();
+                this._proxy.dbClear();
             }
 
             if (this._replaceTextureAtlasData !== null) {
@@ -104,11 +99,9 @@ namespace dragonBones {
             }
 
             this.inheritAnimation = true;
-            this.debugDraw = false;
             this.armatureData = null as any; //
             this.userData = null;
 
-            this._debugDraw = false;
             this._lockUpdate = false;
             this._bonesDirty = false;
             this._slotsDirty = false;
@@ -288,7 +281,7 @@ namespace dragonBones {
             this._display = display;
             this._dragonBones = dragonBones;
 
-            this._proxy.init(this);
+            this._proxy.dbInit(this);
             this._animation.init(this);
             this._animation.animations = this.armatureData.animations;
         }
@@ -354,12 +347,7 @@ namespace dragonBones {
                 this._lockUpdate = false;
             }
 
-            //
-            const drawed = this.debugDraw || DragonBones.debugDraw;
-            if (drawed || this._debugDraw) {
-                this._debugDraw = drawed;
-                this._proxy.debugUpdate(this._debugDraw);
-            }
+            this._proxy.dbUpdate();
         }
         /**
          * 更新骨骼和插槽。 (当骨骼没有动画状态或动画状态播放完成时，骨骼将不在更新)
