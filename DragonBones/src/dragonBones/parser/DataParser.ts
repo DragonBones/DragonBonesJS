@@ -8,12 +8,14 @@ namespace dragonBones {
         protected static readonly DATA_VERSION_4_0: string = "4.0";
         protected static readonly DATA_VERSION_4_5: string = "4.5";
         protected static readonly DATA_VERSION_5_0: string = "5.0";
-        protected static readonly DATA_VERSION: string = DataParser.DATA_VERSION_5_0;
+        protected static readonly DATA_VERSION_5_5: string = "5.5";
+        protected static readonly DATA_VERSION: string = DataParser.DATA_VERSION_5_5;
 
         protected static readonly DATA_VERSIONS: Array<string> = [
             DataParser.DATA_VERSION_4_0,
             DataParser.DATA_VERSION_4_5,
-            DataParser.DATA_VERSION_5_0
+            DataParser.DATA_VERSION_5_0,
+            DataParser.DATA_VERSION_5_5
         ];
 
         protected static readonly TEXTURE_ATLAS: string = "textureAtlas";
@@ -43,7 +45,6 @@ namespace dragonBones {
         protected static readonly TRANSLATE_FRAME: string = "translateFrame";
         protected static readonly ROTATE_FRAME: string = "rotateFrame";
         protected static readonly SCALE_FRAME: string = "scaleFrame";
-        protected static readonly VISIBLE_FRAME: string = "visibleFrame";
         protected static readonly DISPLAY_FRAME: string = "displayFrame";
         protected static readonly COLOR_FRAME: string = "colorFrame";
         protected static readonly DEFAULT_ACTIONS: string = "defaultActions";
@@ -92,6 +93,7 @@ namespace dragonBones {
         protected static readonly TWEEN_EASING: string = "tweenEasing";
         protected static readonly TWEEN_ROTATE: string = "tweenRotate";
         protected static readonly TWEEN_SCALE: string = "tweenScale";
+        protected static readonly CLOCK_WISE: string = "clockwise";
         protected static readonly CURVE: string = "curve";
         protected static readonly SOUND: string = "sound";
         protected static readonly EVENT: string = "event";

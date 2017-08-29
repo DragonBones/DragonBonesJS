@@ -337,6 +337,10 @@ namespace dragonBones {
          * @language zh_CN
          */
         public disableBatch(): void {
+            if (!this._batchEnabled) {
+                return;
+            }
+
             for (const slot of this._armature.getSlots()) {
                 // (slot as EgretSlot).transformUpdateEnabled = true;
                 const display = (slot._meshData ? slot.meshDisplay : slot.rawDisplay) as (egret.Mesh | egret.Bitmap);
@@ -412,43 +416,82 @@ namespace dragonBones {
                 if (this._childTransformDirty) {
                     this._childTransformDirty = false;
                     let isFirst = true;
+                    const isWebgl = egret.Capabilities.renderMode === "webgl";
                     const helpRectangle = new egret.Rectangle();
                     for (const slot of this._armature.getSlots()) {
                         const display = (slot.display || slot.rawDisplay) as (egret.Mesh | egret.Bitmap);
                         const node = display.$renderNode as (egret.sys.BitmapNode | egret.sys.MeshNode);
                         const matrix = node.matrix = node.matrix || new egret.Matrix();
-                        helpRectangle.x = 0;
-                        helpRectangle.y = 0;
-                        if (slot.displayIndex >= 0 && slot.displayIndex < slot._displayDatas.length) {
-                            const displayData = slot._displayDatas[slot.displayIndex];
-                            if (displayData && displayData instanceof ImageDisplayData && displayData.texture) {
-                                helpRectangle.width = displayData.texture.region.width;
-                                helpRectangle.height = displayData.texture.region.height;
+
+                        if (display === slot.meshDisplay && isWebgl) {
+                            const vertices = (node as egret.sys.MeshNode).vertices;
+                            if (vertices && vertices.length) {
+                                helpRectangle.setTo(Number.MAX_VALUE, Number.MAX_VALUE, -Number.MAX_VALUE, -Number.MAX_VALUE);
+                                for (let i = 0, l = vertices.length; i < l; i += 2) {
+                                    const x = vertices[i];
+                                    const y = vertices[i + 1];
+                                    if (helpRectangle.x > x) helpRectangle.x = x;
+                                    if (helpRectangle.width < x) helpRectangle.width = x;
+                                    if (helpRectangle.y > y) helpRectangle.y = y;
+                                    if (helpRectangle.height < y) helpRectangle.height = y;
+                                }
+                                helpRectangle.width -= helpRectangle.x;
+                                helpRectangle.height -= helpRectangle.y;
+                            }
+                            else {
+                                helpRectangle.setTo(0, 0, 0, 0);
+                            }
+                        }
+                        else {
+                            helpRectangle.x = 0;
+                            helpRectangle.y = 0;
+                            if (slot.displayIndex >= 0 && slot.displayIndex < slot._displayDatas.length) {
+                                const displayData = slot._displayDatas[slot.displayIndex];
+                                if (displayData && displayData instanceof ImageDisplayData && displayData.texture) {
+                                    helpRectangle.width = displayData.texture.region.width;
+                                    helpRectangle.height = displayData.texture.region.height;
+                                }
+                                else {
+                                    helpRectangle.width = 0;
+                                    helpRectangle.height = 0;
+                                }
                             }
                             else {
                                 helpRectangle.width = 0;
                                 helpRectangle.height = 0;
                             }
                         }
-                        else {
-                            helpRectangle.width = 0;
-                            helpRectangle.height = 0;
-                        }
 
                         matrix.$transformBounds(helpRectangle);
 
+                        const left = helpRectangle.x;
+                        const top = helpRectangle.y;
+                        const right = helpRectangle.x + helpRectangle.width;
+                        const bottom = helpRectangle.y + helpRectangle.height;
+
                         if (isFirst) {
                             isFirst = false;
-                            bounds.x = helpRectangle.x;
-                            bounds.width = helpRectangle.x + helpRectangle.width;
-                            bounds.y = helpRectangle.y;
-                            bounds.height = helpRectangle.y + helpRectangle.height;
+                            bounds.x = left;
+                            bounds.y = top;
+                            bounds.width = right;
+                            bounds.height = bottom;
                         }
                         else {
-                            bounds.x = Math.min(bounds.x, helpRectangle.x);
-                            bounds.width = Math.max(bounds.width, helpRectangle.x + helpRectangle.width);
-                            bounds.y = Math.min(bounds.y, helpRectangle.y);
-                            bounds.height = Math.max(bounds.height, helpRectangle.y + helpRectangle.height);
+                            if (left < bounds.x) {
+                                bounds.x = left;
+                            }
+
+                            if (top < bounds.y) {
+                                bounds.y = top;
+                            }
+
+                            if (right > bounds.width) {
+                                bounds.width = right;
+                            }
+
+                            if (bottom > bounds.height) {
+                                bounds.height = bottom;
+                            }
                         }
                     }
 

@@ -922,10 +922,10 @@ namespace dragonBones {
             }
         }
         /**
-         * @language zh_CN
          * 插槽此时的自定义包围盒数据。
          * @see dragonBones.Armature
          * @version DragonBones 3.0
+         * @language zh_CN
          */
         public get boundingBoxData(): BoundingBoxData | null {
             return this._boundingBoxData;

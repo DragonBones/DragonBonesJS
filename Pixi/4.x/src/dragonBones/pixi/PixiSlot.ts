@@ -83,45 +83,47 @@ namespace dragonBones {
          * @private
          */
         protected _updateBlendMode(): void {
-            switch (this._blendMode) {
-                case BlendMode.Normal:
-                    (this._renderDisplay as PIXI.Sprite).blendMode = PIXI.BLEND_MODES.NORMAL;
-                    break;
+            if (this._renderDisplay instanceof PIXI.Sprite) {
+                switch (this._blendMode) {
+                    case BlendMode.Normal:
+                        this._renderDisplay.blendMode = PIXI.BLEND_MODES.NORMAL;
+                        break;
 
-                case BlendMode.Add:
-                    (this._renderDisplay as PIXI.Sprite).blendMode = PIXI.BLEND_MODES.ADD;
-                    break;
+                    case BlendMode.Add:
+                        this._renderDisplay.blendMode = PIXI.BLEND_MODES.ADD;
+                        break;
 
-                case BlendMode.Darken:
-                    (this._renderDisplay as PIXI.Sprite).blendMode = PIXI.BLEND_MODES.DARKEN;
-                    break;
+                    case BlendMode.Darken:
+                        this._renderDisplay.blendMode = PIXI.BLEND_MODES.DARKEN;
+                        break;
 
-                case BlendMode.Difference:
-                    (this._renderDisplay as PIXI.Sprite).blendMode = PIXI.BLEND_MODES.DIFFERENCE;
-                    break;
+                    case BlendMode.Difference:
+                        this._renderDisplay.blendMode = PIXI.BLEND_MODES.DIFFERENCE;
+                        break;
 
-                case BlendMode.HardLight:
-                    (this._renderDisplay as PIXI.Sprite).blendMode = PIXI.BLEND_MODES.HARD_LIGHT;
-                    break;
+                    case BlendMode.HardLight:
+                        this._renderDisplay.blendMode = PIXI.BLEND_MODES.HARD_LIGHT;
+                        break;
 
-                case BlendMode.Lighten:
-                    (this._renderDisplay as PIXI.Sprite).blendMode = PIXI.BLEND_MODES.LIGHTEN;
-                    break;
+                    case BlendMode.Lighten:
+                        this._renderDisplay.blendMode = PIXI.BLEND_MODES.LIGHTEN;
+                        break;
 
-                case BlendMode.Multiply:
-                    (this._renderDisplay as PIXI.Sprite).blendMode = PIXI.BLEND_MODES.MULTIPLY;
-                    break;
+                    case BlendMode.Multiply:
+                        this._renderDisplay.blendMode = PIXI.BLEND_MODES.MULTIPLY;
+                        break;
 
-                case BlendMode.Overlay:
-                    (this._renderDisplay as PIXI.Sprite).blendMode = PIXI.BLEND_MODES.OVERLAY;
-                    break;
+                    case BlendMode.Overlay:
+                        this._renderDisplay.blendMode = PIXI.BLEND_MODES.OVERLAY;
+                        break;
 
-                case BlendMode.Screen:
-                    (this._renderDisplay as PIXI.Sprite).blendMode = PIXI.BLEND_MODES.SCREEN;
-                    break;
+                    case BlendMode.Screen:
+                        this._renderDisplay.blendMode = PIXI.BLEND_MODES.SCREEN;
+                        break;
 
-                default:
-                    break;
+                    default:
+                        break;
+                }
             }
         }
         /**
@@ -129,7 +131,10 @@ namespace dragonBones {
          */
         protected _updateColor(): void {
             this._renderDisplay.alpha = this._colorTransform.alphaMultiplier;
-            // TODO
+            if (this._renderDisplay instanceof PIXI.Sprite || this._renderDisplay instanceof PIXI.mesh.Mesh) {
+                const color = (Math.round(this._colorTransform.redMultiplier * 0xFF) << 16) + (Math.round(this._colorTransform.greenMultiplier * 0xFF) << 8) + Math.round(this._colorTransform.blueMultiplier * 0xFF);
+                this._renderDisplay.tint = color;
+            }
         }
         /**
          * @private
@@ -308,7 +313,7 @@ namespace dragonBones {
                 else {
                     this._renderDisplay.position.set(x, y);
                     this._renderDisplay.rotation = transform.rotation;
-                    this._renderDisplay.skew.set(-transform.skew, 0.0);
+                    this._renderDisplay.skew.set(transform.skew, 0.0);
                     this._renderDisplay.scale.set(transform.scaleX, transform.scaleY);
                 }
             }

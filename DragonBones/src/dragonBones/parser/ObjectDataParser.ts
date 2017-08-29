@@ -84,7 +84,7 @@ namespace dragonBones {
         protected _rawTextureAtlases: Array<any> | null = null;
 
         private _defalultColorOffset: number = -1;
-        private _prevTweenRotate: number = 0;
+        private _prevClockwise: number = 0;
         private _prevRotation: number = 0.0;
         private readonly _helpMatrixA: Matrix = new Matrix();
         private readonly _helpMatrixB: Matrix = new Matrix();
@@ -105,6 +105,7 @@ namespace dragonBones {
         private readonly _weightBoneIndices: Map<Array<number>> = {};
         private readonly _cacheBones: Map<Array<BoneData>> = {};
         private readonly _meshs: Map<MeshDisplayData> = {};
+        private readonly _shareMeshs: Map<Array<MeshDisplayData>> = {};
         private readonly _slotChildActions: Map<Array<ActionData>> = {};
         /**
          * @private
@@ -334,6 +335,15 @@ namespace dragonBones {
                 }
             }
 
+            for (const meshName in this._shareMeshs) {
+                const meshs = this._shareMeshs[meshName];
+                for (const meshDisplay of meshs) {
+                    const shareMesh = this._meshs[meshName];
+                    meshDisplay.offset = shareMesh.offset;
+                    meshDisplay.weight = shareMesh.weight;
+                }
+            }
+
             if (ObjectDataParser.ANIMATION in rawData) {
                 const rawAnimations = rawData[ObjectDataParser.ANIMATION] as Array<any>;
                 for (const rawAnimation of rawAnimations) {
@@ -367,6 +377,9 @@ namespace dragonBones {
             this._armature = null as any;
             for (let k in this._meshs) {
                 delete this._meshs[k];
+            }
+            for (let k in this._shareMeshs) {
+                delete this._shareMeshs[k];
             }
             for (let k in this._cacheBones) {
                 delete this._cacheBones[k];
@@ -572,9 +585,11 @@ namespace dragonBones {
 
                     const shareName = ObjectDataParser._getString(rawData, ObjectDataParser.SHARE, "");
                     if (shareName.length > 0) {
-                        const shareMesh = this._meshs[shareName];
-                        meshDisplay.offset = shareMesh.offset;
-                        meshDisplay.weight = shareMesh.weight;
+                        if (!(shareName in this._shareMeshs)) {
+                            this._shareMeshs[shareName] = [];
+                        }
+
+                        this._shareMeshs[shareName].push(meshDisplay);
                     }
                     else {
                         this._parseMesh(rawData, meshDisplay);
@@ -839,7 +854,7 @@ namespace dragonBones {
 
             if (ObjectDataParser.Z_ORDER in rawData) {
                 this._animation.zOrderTimeline = this._parseTimeline(
-                    rawData[ObjectDataParser.Z_ORDER], TimelineType.ZOrder,
+                    rawData[ObjectDataParser.Z_ORDER], ObjectDataParser.FRAME, TimelineType.ZOrder,
                     false, false, 0,
                     this._parseZOrderFrame
                 );
@@ -872,7 +887,11 @@ namespace dragonBones {
                     this._slot = slot;
                     this._mesh = this._meshs[displayName];
 
-                    const timelineFFD = this._parseTimeline(rawTimeline, TimelineType.SlotFFD, false, true, 0, this._parseSlotFFDFrame);
+                    const timelineFFD = this._parseTimeline(
+                        rawTimeline, ObjectDataParser.FRAME, TimelineType.SlotFFD,
+                        false, true, 0,
+                        this._parseSlotFFDFrame
+                    );
                     if (timelineFFD !== null) {
                         this._animation.addSlotTimeline(slot, timelineFFD);
                     }
@@ -958,15 +977,15 @@ namespace dragonBones {
          * @private
          */
         protected _parseTimeline(
-            rawData: any, type: TimelineType,
+            rawData: any, framesKey: string, type: TimelineType,
             addIntOffset: boolean, addFloatOffset: boolean, frameValueCount: number,
             frameParser: (rawData: any, frameStart: number, frameCount: number) => number
         ): TimelineData | null {
-            if (!(ObjectDataParser.FRAME in rawData)) {
+            if (!(framesKey in rawData)) {
                 return null;
             }
 
-            const rawFrames: Array<any> = rawData[ObjectDataParser.FRAME];
+            const rawFrames: Array<any> = rawData[framesKey];
             const keyFrameCount = rawFrames.length;
             if (keyFrameCount === 0) {
                 return null;
@@ -1056,13 +1075,52 @@ namespace dragonBones {
             this._bone = bone;
             this._slot = this._armature.getSlot(this._bone.name) as any;
 
-            const timeline = this._parseTimeline(
-                rawData, TimelineType.BoneAll,
-                false, true, 6,
-                this._parseBoneFrame
-            );
-            if (timeline !== null) {
-                this._animation.addBoneTimeline(bone, timeline);
+            if (ObjectDataParser.TRANSLATE_FRAME in rawData) {
+                const timeline = this._parseTimeline(
+                    rawData, ObjectDataParser.TRANSLATE_FRAME, TimelineType.BoneTranslate,
+                    false, true, 2,
+                    this._parseBoneTranslateFrame
+                );
+
+                if (timeline !== null) {
+                    this._animation.addBoneTimeline(bone, timeline);
+                }
+            }
+
+            if (ObjectDataParser.ROTATE_FRAME in rawData) {
+                const timeline = this._parseTimeline(
+                    rawData, ObjectDataParser.ROTATE_FRAME, TimelineType.BoneRotate,
+                    false, true, 2,
+                    this._parseBoneRotateFrame
+                );
+
+                if (timeline !== null) {
+                    this._animation.addBoneTimeline(bone, timeline);
+                }
+            }
+
+            if (ObjectDataParser.SCALE_FRAME in rawData) {
+                const timeline = this._parseTimeline(
+                    rawData, ObjectDataParser.SCALE_FRAME, TimelineType.BoneScale,
+                    false, true, 2,
+                    this._parseBoneScaleFrame
+                );
+
+                if (timeline !== null) {
+                    this._animation.addBoneTimeline(bone, timeline);
+                }
+            }
+
+            if (ObjectDataParser.FRAME in rawData) {
+                const timeline = this._parseTimeline(
+                    rawData, ObjectDataParser.FRAME, TimelineType.BoneAll,
+                    false, true, 6,
+                    this._parseBoneAllFrame
+                );
+
+                if (timeline !== null) {
+                    this._animation.addBoneTimeline(bone, timeline);
+                }
             }
 
             this._bone = null as any; //
@@ -1079,12 +1137,40 @@ namespace dragonBones {
 
             this._slot = slot;
 
-            const displayIndexTimeline = this._parseTimeline(rawData, TimelineType.SlotDisplay, false, false, 0, this._parseSlotDisplayIndexFrame);
-            if (displayIndexTimeline !== null) {
-                this._animation.addSlotTimeline(slot, displayIndexTimeline);
+            let displayTimeline: TimelineData | null = null;
+            if (ObjectDataParser.DISPLAY_FRAME in rawData) {
+                displayTimeline = this._parseTimeline(
+                    rawData, ObjectDataParser.DISPLAY_FRAME, TimelineType.SlotDisplay,
+                    false, false, 0,
+                    this._parseSlotDisplayIndexFrame
+                );
+            }
+            else {
+                displayTimeline = this._parseTimeline(
+                    rawData, ObjectDataParser.FRAME, TimelineType.SlotDisplay,
+                    false, false, 0,
+                    this._parseSlotDisplayIndexFrame
+                );
+            }
+            if (displayTimeline !== null) {
+                this._animation.addSlotTimeline(slot, displayTimeline);
             }
 
-            const colorTimeline = this._parseTimeline(rawData, TimelineType.SlotColor, true, false, 1, this._parseSlotColorFrame);
+            let colorTimeline: TimelineData | null = null;
+            if (ObjectDataParser.COLOR_FRAME in rawData) {
+                colorTimeline = this._parseTimeline(
+                    rawData, ObjectDataParser.COLOR_FRAME, TimelineType.SlotColor,
+                    true, false, 1,
+                    this._parseSlotColorFrame
+                );
+            }
+            else {
+                colorTimeline = this._parseTimeline(
+                    rawData, ObjectDataParser.FRAME, TimelineType.SlotColor,
+                    true, false, 1,
+                    this._parseSlotColorFrame
+                );
+            }
             if (colorTimeline !== null) {
                 this._animation.addSlotTimeline(slot, colorTimeline);
             }
@@ -1225,7 +1311,7 @@ namespace dragonBones {
         /**
          * @private
          */
-        protected _parseBoneFrame(rawData: any, frameStart: number, frameCount: number): number {
+        protected _parseBoneAllFrame(rawData: any, frameStart: number, frameCount: number): number {
             const frameOffset = this._parseTweenFrame(rawData, frameStart, frameCount);
 
             this._helpTransform.identity();
@@ -1236,19 +1322,19 @@ namespace dragonBones {
             // Modify rotation.
             let rotation = this._helpTransform.rotation;
             if (frameStart !== 0) {
-                if (this._prevTweenRotate === 0) {
+                if (this._prevClockwise === 0) {
                     rotation = this._prevRotation + Transform.normalizeRadian(rotation - this._prevRotation);
                 }
                 else {
-                    if (this._prevTweenRotate > 0 ? rotation >= this._prevRotation : rotation <= this._prevRotation) {
-                        this._prevTweenRotate = this._prevTweenRotate > 0 ? this._prevTweenRotate - 1 : this._prevTweenRotate + 1;
+                    if (this._prevClockwise > 0 ? rotation >= this._prevRotation : rotation <= this._prevRotation) {
+                        this._prevClockwise = this._prevClockwise > 0 ? this._prevClockwise - 1 : this._prevClockwise + 1;
                     }
 
-                    rotation = this._prevRotation + rotation - this._prevRotation + Transform.PI_D * this._prevTweenRotate;
+                    rotation = this._prevRotation + rotation - this._prevRotation + Transform.PI_D * this._prevClockwise;
                 }
             }
 
-            this._prevTweenRotate = ObjectDataParser._getNumber(rawData, ObjectDataParser.TWEEN_ROTATE, 0.0);
+            this._prevClockwise = ObjectDataParser._getNumber(rawData, ObjectDataParser.TWEEN_ROTATE, 0.0);
             this._prevRotation = rotation;
 
             let frameFloatOffset = this._frameFloatArray.length;
@@ -1267,11 +1353,73 @@ namespace dragonBones {
         /**
          * @private
          */
+        protected _parseBoneTranslateFrame(rawData: any, frameStart: number, frameCount: number): number {
+            const frameOffset = this._parseTweenFrame(rawData, frameStart, frameCount);
+
+            let frameFloatOffset = this._frameFloatArray.length;
+            this._frameFloatArray.length += 2;
+            this._frameFloatArray[frameFloatOffset++] = ObjectDataParser._getNumber(rawData, ObjectDataParser.X, 0.0);
+            this._frameFloatArray[frameFloatOffset++] = ObjectDataParser._getNumber(rawData, ObjectDataParser.Y, 0.0);
+
+            return frameOffset;
+        }
+        /**
+         * @private
+         */
+        protected _parseBoneRotateFrame(rawData: any, frameStart: number, frameCount: number): number {
+            const frameOffset = this._parseTweenFrame(rawData, frameStart, frameCount);
+
+            let rotation = ObjectDataParser._getNumber(rawData, ObjectDataParser.ROTATE, 0.0) * Transform.DEG_RAD;
+            if (frameStart !== 0) {
+                if (this._prevClockwise === 0) {
+                    rotation = this._prevRotation + Transform.normalizeRadian(rotation - this._prevRotation);
+                }
+                else {
+                    if (this._prevClockwise > 0 ? rotation >= this._prevRotation : rotation <= this._prevRotation) {
+                        this._prevClockwise = this._prevClockwise > 0 ? this._prevClockwise - 1 : this._prevClockwise + 1;
+                    }
+
+                    rotation = this._prevRotation + rotation - this._prevRotation + Transform.PI_D * this._prevClockwise;
+                }
+            }
+
+            this._prevClockwise = ObjectDataParser._getNumber(rawData, ObjectDataParser.CLOCK_WISE, 0);
+            this._prevRotation = rotation;
+
+            let frameFloatOffset = this._frameFloatArray.length;
+            this._frameFloatArray.length += 2;
+            this._frameFloatArray[frameFloatOffset++] = rotation;
+            this._frameFloatArray[frameFloatOffset++] = ObjectDataParser._getNumber(rawData, ObjectDataParser.SKEW, 0.0) * Transform.DEG_RAD;
+
+            return frameOffset;
+        }
+        /**
+         * @private
+         */
+        protected _parseBoneScaleFrame(rawData: any, frameStart: number, frameCount: number): number {
+            const frameOffset = this._parseTweenFrame(rawData, frameStart, frameCount);
+
+            let frameFloatOffset = this._frameFloatArray.length;
+            this._frameFloatArray.length += 2;
+            this._frameFloatArray[frameFloatOffset++] = ObjectDataParser._getNumber(rawData, ObjectDataParser.X, 1.0);
+            this._frameFloatArray[frameFloatOffset++] = ObjectDataParser._getNumber(rawData, ObjectDataParser.Y, 1.0);
+
+            return frameOffset;
+        }
+        /**
+         * @private
+         */
         protected _parseSlotDisplayIndexFrame(rawData: any, frameStart: number, frameCount: number): number {
             const frameOffset = this._parseFrame(rawData, frameStart, frameCount);
 
             this._frameArray.length += 1;
-            this._frameArray[frameOffset + 1] = ObjectDataParser._getNumber(rawData, ObjectDataParser.DISPLAY_INDEX, 0);
+
+            if (ObjectDataParser.VALUE in rawData) {
+                this._frameArray[frameOffset + 1] = ObjectDataParser._getNumber(rawData, ObjectDataParser.VALUE, 0);
+            }
+            else {
+                this._frameArray[frameOffset + 1] = ObjectDataParser._getNumber(rawData, ObjectDataParser.DISPLAY_INDEX, 0);
+            }
 
             this._parseActionDataInFrame(rawData, frameStart, this._slot.parent, this._slot);
 
@@ -1282,10 +1430,11 @@ namespace dragonBones {
          */
         protected _parseSlotColorFrame(rawData: any, frameStart: number, frameCount: number): number {
             const frameOffset = this._parseTweenFrame(rawData, frameStart, frameCount);
-
             let colorOffset = -1;
-            if (ObjectDataParser.COLOR in rawData) {
-                const rawColor = rawData[ObjectDataParser.COLOR];
+
+            if (ObjectDataParser.VALUE in rawData || ObjectDataParser.COLOR in rawData) {
+                const rawColor = ObjectDataParser.VALUE in rawData ? rawData[ObjectDataParser.VALUE] : rawData[ObjectDataParser.COLOR];
+
                 for (let k in rawColor) {
                     k;
                     this._parseColorTransform(rawColor, this._helpColorTransform);
@@ -1324,9 +1473,6 @@ namespace dragonBones {
             const frameIntOffset = this._frameIntArray.length;
             this._frameIntArray.length += 1;
             this._frameIntArray[frameIntOffset] = colorOffset;
-            if (colorOffset < 0) {
-                debugger;
-            }
 
             return frameOffset;
         }

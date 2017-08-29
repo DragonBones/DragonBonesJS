@@ -433,26 +433,46 @@ namespace dragonBones {
                         for (const timelineData of timelineDatas) {
                             switch (timelineData.type) {
                                 case TimelineType.BoneAll:
-                                    const timeline = BaseObject.borrowObject(BoneAllTimelineState);
-                                    timeline.bone = bone;
-                                    timeline.bonePose = bonePose;
-                                    timeline.init(this._armature, this, timelineData);
-                                    this._boneTimelines.push(timeline);
-                                    break;
+                                    {
+                                        const timeline = BaseObject.borrowObject(BoneAllTimelineState);
+                                        timeline.bone = bone;
+                                        timeline.bonePose = bonePose;
+                                        timeline.init(this._armature, this, timelineData);
+                                        this._boneTimelines.push(timeline);
+                                        break;
+                                    }
 
-                                case TimelineType.BoneT:
-                                case TimelineType.BoneR:
-                                case TimelineType.BoneS:
-                                    // TODO
-                                    break;
+                                case TimelineType.BoneTranslate:
+                                    {
+                                        const timeline = BaseObject.borrowObject(BoneTranslateTimelineState);
+                                        timeline.bone = bone;
+                                        timeline.bonePose = bonePose;
+                                        timeline.init(this._armature, this, timelineData);
+                                        this._boneTimelines.push(timeline);
+                                        break;
+                                    }
 
-                                case TimelineType.BoneX:
-                                case TimelineType.BoneY:
                                 case TimelineType.BoneRotate:
-                                case TimelineType.BoneSkew:
-                                case TimelineType.BoneScaleX:
-                                case TimelineType.BoneScaleY:
-                                    // TODO
+                                    {
+                                        const timeline = BaseObject.borrowObject(BoneRotateTimelineState);
+                                        timeline.bone = bone;
+                                        timeline.bonePose = bonePose;
+                                        timeline.init(this._armature, this, timelineData);
+                                        this._boneTimelines.push(timeline);
+                                        break;
+                                    }
+
+                                case TimelineType.BoneScale:
+                                    {
+                                        const timeline = BaseObject.borrowObject(BoneScaleTimelineState);
+                                        timeline.bone = bone;
+                                        timeline.bonePose = bonePose;
+                                        timeline.init(this._armature, this, timelineData);
+                                        this._boneTimelines.push(timeline);
+                                        break;
+                                    }
+
+                                default:
                                     break;
                             }
                         }
@@ -533,6 +553,9 @@ namespace dragonBones {
                                         ffdFlags.push(timeline.meshOffset);
                                         break;
                                     }
+
+                                default:
+                                    break;
                             }
                         }
                     }

@@ -2,7 +2,7 @@ namespace dragonBones {
     /**
      * @inheritDoc
      */
-    export class PixiArmatureDisplay extends PIXI.Container implements IArmatureProxy {
+    export class PixiArmatureDisplay extends PIXI.Sprite implements IArmatureProxy {
         private _debugDraw: boolean = false;
         private _disposeProxy: boolean = false;
         private _armature: Armature = null as any;

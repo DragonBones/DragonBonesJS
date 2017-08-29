@@ -368,6 +368,184 @@ namespace dragonBones {
      * @internal
      * @private
      */
+    export class BoneTranslateTimelineState extends BoneTimelineState {
+        public static toString(): string {
+            return "[class dragonBones.BoneTranslateTimelineState]";
+        }
+
+        protected _onArriveAtFrame(): void {
+            super._onArriveAtFrame();
+
+            if (this._timelineData !== null) {
+                const frameFloatArray = this._dragonBonesData.frameFloatArray;
+                const current = this.bonePose.current;
+                const delta = this.bonePose.delta;
+                let valueOffset = this._animationData.frameFloatOffset + this._frameValueOffset + this._frameIndex * 2;
+
+                current.x = frameFloatArray[valueOffset++];
+                current.y = frameFloatArray[valueOffset++];
+
+                if (this._tweenState === TweenState.Always) {
+                    if (this._frameIndex === this._frameCount - 1) {
+                        valueOffset = this._animationData.frameFloatOffset + this._frameValueOffset;
+                    }
+
+                    delta.x = frameFloatArray[valueOffset++] - current.x;
+                    delta.y = frameFloatArray[valueOffset++] - current.y;
+                }
+                // else {
+                //     delta.x = 0.0;
+                //     delta.y = 0.0;
+                // }
+            }
+            else { // Pose.
+                const current = this.bonePose.current;
+                current.x = 0.0;
+                current.y = 0.0;
+            }
+        }
+
+        protected _onUpdateFrame(): void {
+            super._onUpdateFrame();
+
+            const current = this.bonePose.current;
+            const delta = this.bonePose.delta;
+            const result = this.bonePose.result;
+
+            this.bone._transformDirty = true;
+            if (this._tweenState !== TweenState.Always) {
+                this._tweenState = TweenState.None;
+            }
+
+            const scale = this._armature.armatureData.scale;
+            result.x = (current.x + delta.x * this._tweenProgress) * scale;
+            result.y = (current.y + delta.y * this._tweenProgress) * scale;
+        }
+    }
+    /**
+     * @internal
+     * @private
+     */
+    export class BoneRotateTimelineState extends BoneTimelineState {
+        public static toString(): string {
+            return "[class dragonBones.BoneRotateTimelineState]";
+        }
+
+        protected _onArriveAtFrame(): void {
+            super._onArriveAtFrame();
+
+            if (this._timelineData !== null) {
+                const frameFloatArray = this._dragonBonesData.frameFloatArray;
+                const current = this.bonePose.current;
+                const delta = this.bonePose.delta;
+                let valueOffset = this._animationData.frameFloatOffset + this._frameValueOffset + this._frameIndex * 2;
+
+                current.rotation = frameFloatArray[valueOffset++];
+                current.skew = frameFloatArray[valueOffset++];
+
+                if (this._tweenState === TweenState.Always) {
+                    if (this._frameIndex === this._frameCount - 1) {
+                        valueOffset = this._animationData.frameFloatOffset + this._frameValueOffset;
+                    }
+
+                    delta.rotation = frameFloatArray[valueOffset++] - current.rotation;
+                    delta.skew = frameFloatArray[valueOffset++] - current.skew;
+                }
+                // else {
+                //     delta.rotation = 0.0;
+                //     delta.skew = 0.0;
+                // }
+            }
+            else { // Pose.
+                const current = this.bonePose.current;
+                current.rotation = 0.0;
+                current.skew = 0.0;
+            }
+        }
+
+        protected _onUpdateFrame(): void {
+            super._onUpdateFrame();
+
+            const current = this.bonePose.current;
+            const delta = this.bonePose.delta;
+            const result = this.bonePose.result;
+
+            this.bone._transformDirty = true;
+            if (this._tweenState !== TweenState.Always) {
+                this._tweenState = TweenState.None;
+            }
+
+            result.rotation = current.rotation + delta.rotation * this._tweenProgress;
+            result.skew = current.skew + delta.skew * this._tweenProgress;
+        }
+
+        public fadeOut(): void {
+            const result = this.bonePose.result;
+            result.rotation = Transform.normalizeRadian(result.rotation);
+            result.skew = Transform.normalizeRadian(result.skew);
+        }
+    }
+    /**
+     * @internal
+     * @private
+     */
+    export class BoneScaleTimelineState extends BoneTimelineState {
+        public static toString(): string {
+            return "[class dragonBones.BoneScaleTimelineState]";
+        }
+
+        protected _onArriveAtFrame(): void {
+            super._onArriveAtFrame();
+
+            if (this._timelineData !== null) {
+                const frameFloatArray = this._dragonBonesData.frameFloatArray;
+                const current = this.bonePose.current;
+                const delta = this.bonePose.delta;
+                let valueOffset = this._animationData.frameFloatOffset + this._frameValueOffset + this._frameIndex * 2;
+
+                current.scaleX = frameFloatArray[valueOffset++];
+                current.scaleY = frameFloatArray[valueOffset++];
+
+                if (this._tweenState === TweenState.Always) {
+                    if (this._frameIndex === this._frameCount - 1) {
+                        valueOffset = this._animationData.frameFloatOffset + this._frameValueOffset;
+                    }
+
+                    delta.scaleX = frameFloatArray[valueOffset++] - current.scaleX;
+                    delta.scaleY = frameFloatArray[valueOffset++] - current.scaleY;
+                }
+                // else {
+                //     delta.scaleX = 0.0;
+                //     delta.scaleY = 0.0;
+                // }
+            }
+            else { // Pose.
+                const current = this.bonePose.current;
+                current.scaleX = 1.0;
+                current.scaleY = 1.0;
+            }
+        }
+
+        protected _onUpdateFrame(): void {
+            super._onUpdateFrame();
+
+            const current = this.bonePose.current;
+            const delta = this.bonePose.delta;
+            const result = this.bonePose.result;
+
+            this.bone._transformDirty = true;
+            if (this._tweenState !== TweenState.Always) {
+                this._tweenState = TweenState.None;
+            }
+
+            result.scaleX = current.scaleX + delta.scaleX * this._tweenProgress;
+            result.scaleY = current.scaleY + delta.scaleY * this._tweenProgress;
+        }
+    }
+    /**
+     * @internal
+     * @private
+     */
     export class SlotDislayIndexTimelineState extends SlotTimelineState {
         public static toString(): string {
             return "[class dragonBones.SlotDislayIndexTimelineState]";
