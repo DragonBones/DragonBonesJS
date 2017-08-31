@@ -473,7 +473,7 @@ namespace dragonBones {
          */
         public static polygonIntersectsSegment(
             xA: number, yA: number, xB: number, yB: number,
-            vertices: Array<number> | Float32Array, offset: number, count: number,
+            vertices: Array<number>,
             intersectionPointA: { x: number, y: number } | null = null,
             intersectionPointB: { x: number, y: number } | null = null,
             normalRadians: { x: number, y: number } | null = null
@@ -486,12 +486,13 @@ namespace dragonBones {
                 yA = yB + 0.000001;
             }
 
+            const count = vertices.length;
             const dXAB = xA - xB;
             const dYAB = yA - yB;
             const llAB = xA * yB - yA * xB;
             let intersectionCount = 0;
-            let xC = vertices[offset + count - 2];
-            let yC = vertices[offset + count - 1];
+            let xC = vertices[count - 2];
+            let yC = vertices[count - 1];
             let dMin = 0.0;
             let dMax = 0.0;
             let xMin = 0.0;
@@ -500,8 +501,8 @@ namespace dragonBones {
             let yMax = 0.0;
 
             for (let i = 0; i < count; i += 2) {
-                const xD = vertices[offset + i];
-                const yD = vertices[offset + i + 1];
+                const xD = vertices[i];
+                const yD = vertices[i + 1];
 
                 if (xC === xD) {
                     xC = xD + 0.0001;
@@ -617,14 +618,6 @@ namespace dragonBones {
         /**
          * @private
          */
-        public count: number;
-        /**
-         * @private
-         */
-        public offset: number; // FloatArray.
-        /**
-         * @private
-         */
         public x: number;
         /**
          * @private
@@ -635,7 +628,7 @@ namespace dragonBones {
          * @version DragonBones 5.1
          * @language zh_CN
          */
-        public vertices: Array<number> | Float32Array; // FloatArray.
+        public readonly vertices: Array<number> = [];
         /**
          * @private
          */
@@ -651,11 +644,9 @@ namespace dragonBones {
             }
 
             this.type = BoundingBoxType.Polygon;
-            this.count = 0;
-            this.offset = 0;
             this.x = 0.0;
             this.y = 0.0;
-            this.vertices = null as any; //
+            this.vertices.length = 0;
             this.weight = null;
         }
         /**
@@ -664,12 +655,12 @@ namespace dragonBones {
         public containsPoint(pX: number, pY: number): boolean {
             let isInSide = false;
             if (pX >= this.x && pX <= this.width && pY >= this.y && pY <= this.height) {
-                for (let i = 0, l = this.count, iP = l - 2; i < l; i += 2) {
-                    const yA = this.vertices[this.offset + iP + 1];
-                    const yB = this.vertices[this.offset + i + 1];
+                for (let i = 0, l = this.vertices.length, iP = l - 2; i < l; i += 2) {
+                    const yA = this.vertices[iP + 1];
+                    const yB = this.vertices[i + 1];
                     if ((yB < pY && yA >= pY) || (yA < pY && yB >= pY)) {
-                        const xA = this.vertices[this.offset + iP];
-                        const xB = this.vertices[this.offset + i];
+                        const xA = this.vertices[iP];
+                        const xB = this.vertices[i];
                         if ((pY - yB) * (xA - xB) / (yA - yB) + xB < pX) {
                             isInSide = !isInSide;
                         }
@@ -694,7 +685,7 @@ namespace dragonBones {
             if (RectangleBoundingBoxData.rectangleIntersectsSegment(xA, yA, xB, yB, this.x, this.y, this.width, this.height, null, null, null) !== 0) {
                 intersectionCount = PolygonBoundingBoxData.polygonIntersectsSegment(
                     xA, yA, xB, yB,
-                    this.vertices, this.offset, this.count,
+                    this.vertices,
                     intersectionPointA, intersectionPointB, normalRadians
                 );
             }

@@ -99,7 +99,6 @@ namespace dragonBones {
         private readonly _frameArray: Array<number> = [];
         private readonly _timelineArray: Array<number> = [];
         private readonly _actionFrames: Array<ActionFrame> = [];
-        private readonly _polygonBoundingBoxes: Array<PolygonBoundingBoxData> = [];
         private readonly _weightSlotPose: Map<Array<number>> = {};
         private readonly _weightBonePoses: Map<Array<number>> = {};
         private readonly _weightBoneIndices: Map<Array<number>> = {};
@@ -775,44 +774,58 @@ namespace dragonBones {
          * @private
          */
         protected _parsePolygonBoundingBox(rawData: any): PolygonBoundingBoxData {
-            const rawVertices = rawData[ObjectDataParser.VERTICES] as Array<number>;
             // const polygonBoundingBox = BaseObject.borrowObject(PolygonBoundingBoxData);
             const polygonBoundingBox = DragonBones.webAssembly ? new Module["PolygonBoundingBoxData"]() as PolygonBoundingBoxData : BaseObject.borrowObject(PolygonBoundingBoxData);
 
-            polygonBoundingBox.offset = this._floatArray.length;
-            polygonBoundingBox.count = rawVertices.length;
-            this._polygonBoundingBoxes.push(polygonBoundingBox);
-            this._floatArray.length += polygonBoundingBox.count;
+            if (ObjectDataParser.VERTICES in rawData) {
+                const rawVertices = rawData[ObjectDataParser.VERTICES] as Array<number>;
 
-            for (let i = 0, l = polygonBoundingBox.count; i < l; i += 2) {
-                const iN = i + 1;
-                const x = rawVertices[i];
-                const y = rawVertices[iN];
-                this._floatArray[polygonBoundingBox.offset + i] = x;
-                this._floatArray[polygonBoundingBox.offset + iN] = y;
-
-                // AABB.
-                if (i === 0) {
-                    polygonBoundingBox.x = x;
-                    polygonBoundingBox.y = y;
-                    polygonBoundingBox.width = x;
-                    polygonBoundingBox.height = y;
+                if (DragonBones.webAssembly) {
+                    (polygonBoundingBox.vertices as any).resize(rawVertices.length, 0.0);
                 }
                 else {
-                    if (x < polygonBoundingBox.x) {
-                        polygonBoundingBox.x = x;
+                    polygonBoundingBox.vertices.length = rawVertices.length;
+                }
+
+                for (let i = 0, l = rawVertices.length; i < l; i += 2) {
+                    const x = rawVertices[i];
+                    const y = rawVertices[i + 1];
+
+                    if (DragonBones.webAssembly) {
+                        (polygonBoundingBox.vertices as any).set(i, x);
+                        (polygonBoundingBox.vertices as any).set(i + 1, y);
                     }
-                    else if (x > polygonBoundingBox.width) {
-                        polygonBoundingBox.width = x;
+                    else {
+                        polygonBoundingBox.vertices[i] = x;
+                        polygonBoundingBox.vertices[i + 1] = y;
                     }
 
-                    if (y < polygonBoundingBox.y) {
+                    // AABB.
+                    if (i === 0) {
+                        polygonBoundingBox.x = x;
                         polygonBoundingBox.y = y;
-                    }
-                    else if (y > polygonBoundingBox.height) {
+                        polygonBoundingBox.width = x;
                         polygonBoundingBox.height = y;
                     }
+                    else {
+                        if (x < polygonBoundingBox.x) {
+                            polygonBoundingBox.x = x;
+                        }
+                        else if (x > polygonBoundingBox.width) {
+                            polygonBoundingBox.width = x;
+                        }
+
+                        if (y < polygonBoundingBox.y) {
+                            polygonBoundingBox.y = y;
+                        }
+                        else if (y > polygonBoundingBox.height) {
+                            polygonBoundingBox.height = y;
+                        }
+                    }
                 }
+            }
+            else {
+                console.warn("Data error.\n Please reexport DragonBones Data to fixed the bug.");
             }
 
             return polygonBoundingBox;
@@ -1814,12 +1827,7 @@ namespace dragonBones {
                 this._data.timelineArray = timelineArray;
             }
 
-            for (const polygonBoundingBoxData of this._polygonBoundingBoxes) {
-                polygonBoundingBoxData.vertices = this._data.floatArray;
-            }
-
             this._defalultColorOffset = -1;
-            this._polygonBoundingBoxes.length = 0;
             this._intArray.length = 0;
             this._floatArray.length = 0;
             this._frameIntArray.length = 0;
@@ -1879,7 +1887,12 @@ namespace dragonBones {
                 return data;
             }
             else {
-                console.assert(false, "Nonsupport data version.");
+                console.assert(
+                    false,
+                    "Nonsupport data version: " + version + "\n" +
+                    "Please convert DragonBones data to support version.\n" +
+                    "Read more: https://github.com/DragonBones/Tools/"
+                );
             }
 
             return null;

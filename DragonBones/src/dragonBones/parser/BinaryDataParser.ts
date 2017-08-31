@@ -228,17 +228,6 @@ namespace dragonBones {
         /**
          * @private
          */
-        protected _parsePolygonBoundingBox(rawData: any): PolygonBoundingBoxData {
-            // const polygonBoundingBox = BaseObject.borrowObject(PolygonBoundingBoxData);
-            const polygonBoundingBox = DragonBones.webAssembly ? new Module["PolygonBoundingBoxData"]() as PolygonBoundingBoxData : BaseObject.borrowObject(PolygonBoundingBoxData);
-            polygonBoundingBox.offset = rawData[ObjectDataParser.OFFSET];
-            polygonBoundingBox.vertices = this._floatArrayBuffer;
-
-            return polygonBoundingBox;
-        }
-        /**
-         * @private
-         */
         protected _parseAnimation(rawData: any): AnimationData {
             // const animation = BaseObject.borrowObject(AnimationData);
             const animation = DragonBones.webAssembly ? new Module["AnimationData"]() as AnimationData : BaseObject.borrowObject(AnimationData);
