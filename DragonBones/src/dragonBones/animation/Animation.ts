@@ -27,6 +27,7 @@ namespace dragonBones {
          * @private
          */
         public _timelineDirty: boolean; // Updata animationStates timelineStates.
+        private _inheritTimeScale: number;
         private readonly _animationNames: Array<string> = [];
         private readonly _animationStates: Array<AnimationState> = [];
         private readonly _animations: Map<AnimationData> = {};
@@ -53,6 +54,7 @@ namespace dragonBones {
 
             this._animationDirty = false;
             this._timelineDirty = false;
+            this._inheritTimeScale = 1.0;
             this._animationNames.length = 0;
             this._animationStates.length = 0;
             //this._animations.clear();
@@ -124,11 +126,14 @@ namespace dragonBones {
             }
 
             if (this._armature.inheritAnimation && this._armature._parent !== null) { // Inherit parent animation timeScale.
-                passedTime *= this._armature._parent._armature.animation.timeScale;
+                this._inheritTimeScale = this._armature._parent._armature.animation._inheritTimeScale * this.timeScale;
+            }
+            else {
+                this._inheritTimeScale = this.timeScale;
             }
 
-            if (this.timeScale !== 1.0) {
-                passedTime *= this.timeScale;
+            if (this._inheritTimeScale !== 1.0) {
+                passedTime *= this._inheritTimeScale;
             }
 
             const animationStateCount = this._animationStates.length;
