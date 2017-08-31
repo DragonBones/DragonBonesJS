@@ -157,5 +157,60 @@ namespace dragonBones {
                 result.y += this.ty;
             }
         }
+        /**
+         * @private
+         */
+        public transformRectangle(rectangle: { x: number, y: number, width: number, height: number }, delta: boolean = false): void {
+            const a = this.a;
+            const b = this.b;
+            const c = this.c;
+            const d = this.d;
+            const tx = delta ? 0.0 : this.tx;
+            const ty = delta ? 0.0 : this.ty;
+
+            const x = rectangle.x;
+            const y = rectangle.y;
+            const xMax = x + rectangle.width;
+            const yMax = y + rectangle.height;
+
+            let x0 = a * x + c * y + tx;
+            let y0 = b * x + d * y + ty;
+            let x1 = a * xMax + c * y + tx;
+            let y1 = b * xMax + d * y + ty;
+            let x2 = a * xMax + c * yMax + tx;
+            let y2 = b * xMax + d * yMax + ty;
+            let x3 = a * x + c * yMax + tx;
+            let y3 = b * x + d * yMax + ty;
+
+            let tmp = 0;
+
+            if (x0 > x1) {
+                tmp = x0;
+                x0 = x1;
+                x1 = tmp;
+            }
+            if (x2 > x3) {
+                tmp = x2;
+                x2 = x3;
+                x3 = tmp;
+            }
+
+            rectangle.x = Math.floor(x0 < x2 ? x0 : x2);
+            rectangle.width = Math.ceil((x1 > x3 ? x1 : x3) - rectangle.x);
+
+            if (y0 > y1) {
+                tmp = y0;
+                y0 = y1;
+                y1 = tmp;
+            }
+            if (y2 > y3) {
+                tmp = y2;
+                y2 = y3;
+                y3 = tmp;
+            }
+
+            rectangle.y = Math.floor(y0 < y2 ? y0 : y2);
+            rectangle.height = Math.ceil((y1 > y3 ? y1 : y3) - rectangle.y);
+        }
     }
 }
