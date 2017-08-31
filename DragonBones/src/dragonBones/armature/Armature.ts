@@ -303,7 +303,7 @@ namespace dragonBones {
                 return;
             }
             else if (this.armatureData.parent === null) {
-                console.assert(false, "The armature data has been disposed.");
+                console.assert(false, "The armature data has been disposed.\nPlease make sure dispose armature before call factory.clear().");
                 return;
             }
 

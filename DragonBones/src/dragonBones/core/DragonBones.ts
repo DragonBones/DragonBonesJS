@@ -180,7 +180,7 @@ namespace dragonBones {
         public static debug: boolean = false;
         public static debugDraw: boolean = false;
         public static webAssembly: boolean = false;
-        public static readonly VERSION: string = "5.1.0";
+        public static readonly VERSION: string = "5.5.0";
 
         private readonly _clock: WorldClock = new WorldClock();
         private readonly _events: Array<EventObject> = [];

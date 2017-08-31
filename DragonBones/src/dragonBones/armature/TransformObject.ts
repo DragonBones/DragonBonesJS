@@ -62,10 +62,12 @@ namespace dragonBones {
          */
         protected _globalDirty: boolean;
         /**
+         * @internal
          * @private
          */
         public _armature: Armature;
         /**
+         * @internal
          * @private
          */
         public _parent: Bone;

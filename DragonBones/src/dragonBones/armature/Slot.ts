@@ -42,10 +42,12 @@ namespace dragonBones {
          */
         protected _blendModeDirty: boolean;
         /**
+         * @internal
          * @private
          */
         public _colorDirty: boolean;
         /**
+         * @internal
          * @private
          */
         public _meshDirty: boolean;
@@ -70,6 +72,7 @@ namespace dragonBones {
          */
         protected _animationDisplayIndex: number;
         /**
+         * @internal
          * @private
          */
         public _zOrder: number;
@@ -78,10 +81,12 @@ namespace dragonBones {
          */
         protected _cachedFrameIndex: number;
         /**
+         * @internal
          * @private
          */
         public _pivotX: number;
         /**
+         * @internal
          * @private
          */
         public _pivotY: number;
@@ -123,6 +128,7 @@ namespace dragonBones {
          */
         protected _textureData: TextureData | null;
         /**
+         * @internal
          * @private
          */
         public _meshData: MeshDisplayData | null;
@@ -598,6 +604,7 @@ namespace dragonBones {
             return this._colorDirty;
         }
         /**
+         * @internal
          * @private
          */
         public _setDisplayList(value: Array<any> | null): boolean {

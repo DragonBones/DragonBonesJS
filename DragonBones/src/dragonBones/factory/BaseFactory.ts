@@ -486,8 +486,8 @@ namespace dragonBones {
                     return;
                 }
 
-                console.warn("Replace data: " + name);
-                this._dragonBonesDataMap[name].returnToPool();
+                console.warn("Can not add same name data: " + name);
+                return;
             }
 
             this._dragonBonesDataMap[name] = data;
@@ -624,7 +624,7 @@ namespace dragonBones {
         public buildArmature(armatureName: string, dragonBonesName: string | null = null, skinName: string | null = null, textureAtlasName: string | null = null): Armature | null {
             const dataPackage: BuildArmaturePackage = new BuildArmaturePackage();
             if (!this._fillBuildArmaturePackage(dataPackage, dragonBonesName || "", armatureName, skinName || "", textureAtlasName || "")) {
-                console.warn("No armature data. " + armatureName + ", " + (dragonBonesName !== null ? dragonBonesName : ""));
+                console.warn("No armature data: " + armatureName + ", " + (dragonBonesName !== null ? dragonBonesName : ""));
                 return null;
             }
 
