@@ -95,9 +95,8 @@ namespace dragonBones {
                                     break;
 
                                 case BoundingBoxType.Polygon:
-                                    const polygon = boundingBoxData as PolygonBoundingBoxData;
-                                    const vertices = polygon.vertices;
-                                    for (let i = 0, l = polygon.count; i < l; i += 2) {
+                                    const vertices = (boundingBoxData as PolygonBoundingBoxData).vertices;
+                                    for (let i = 0, l = vertices.length; i < l; i += 2) {
                                         if (i === 0) {
                                             child.moveTo(vertices[i], vertices[i + 1]);
                                         }

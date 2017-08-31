@@ -240,14 +240,13 @@ namespace dragonBones {
                                     break;
 
                                 case BoundingBoxType.Polygon:
-                                    const polygon = boundingBoxData as PolygonBoundingBoxData;
-                                    const vertices = polygon.vertices;
-                                    for (let j = 0; j < polygon.count; j += 2) {
-                                        if (j === 0) {
-                                            child.graphics.moveTo(vertices[polygon.offset + j], vertices[polygon.offset + j + 1]);
+                                    const vertices = (boundingBoxData as PolygonBoundingBoxData).vertices;
+                                    for (let i = 0; i < vertices.length; i += 2) {
+                                        if (i === 0) {
+                                            child.graphics.moveTo(vertices[i], vertices[i + 1]);
                                         }
                                         else {
-                                            child.graphics.lineTo(vertices[polygon.offset + j], vertices[polygon.offset + j + 1]);
+                                            child.graphics.lineTo(vertices[i], vertices[i + 1]);
                                         }
                                     }
                                     break;

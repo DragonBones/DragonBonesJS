@@ -177,7 +177,7 @@ namespace dragonBones {
          * @internal
          * @private
          */
-        public _childTransformDirty: boolean = false;
+        public _childTransformDirty: boolean = true;
         private _debugDraw: boolean = false;
         private _disposeProxy: boolean = false;
         private _armature: Armature = null as any; //
@@ -255,14 +255,13 @@ namespace dragonBones {
                                     break;
 
                                 case BoundingBoxType.Polygon:
-                                    const polygon = boundingBoxData as PolygonBoundingBoxData;
-                                    const vertices = polygon.vertices;
-                                    for (let j = 0; j < polygon.count; j += 2) {
-                                        if (j === 0) {
-                                            child.graphics.moveTo(vertices[polygon.offset + j], vertices[polygon.offset + j + 1]);
+                                    const vertices = (boundingBoxData as PolygonBoundingBoxData).vertices;
+                                    for (let i = 0; i < vertices.length; i += 2) {
+                                        if (i === 0) {
+                                            child.graphics.moveTo(vertices[i], vertices[i + 1]);
                                         }
                                         else {
-                                            child.graphics.lineTo(vertices[polygon.offset + j], vertices[polygon.offset + j + 1]);
+                                            child.graphics.lineTo(vertices[i], vertices[i + 1]);
                                         }
                                     }
                                     break;
@@ -375,12 +374,10 @@ namespace dragonBones {
         /**
          * @inheritDoc
          */
-        public $getWidth(): number {
+        $getWidth(): number {
             if (this._batchEnabled) {
                 const bounds = (this.$DisplayObject as any)[10] as egret.Rectangle;
                 this.$measureContentBounds(bounds);
-
-                return bounds.width;
             }
 
             return super.$getWidth();
@@ -388,12 +385,10 @@ namespace dragonBones {
         /**
          * @inheritDoc
          */
-        public $getHeight(): number {
+        $getHeight(): number {
             if (this._batchEnabled) {
                 const bounds = (this.$DisplayObject as any)[10] as egret.Rectangle;
                 this.$measureContentBounds(bounds);
-
-                return bounds.height;
             }
 
             return super.$getHeight();
@@ -402,8 +397,9 @@ namespace dragonBones {
          * @inheritDoc
          */
         $hitTest(stageX: number, stageY: number): egret.DisplayObject {
-            if (this._batchEnabled && this._childTransformDirty && this.stage && this.stage.dirtyRegionPolicy === egret.DirtyRegionPolicy.OFF) {
-                this.$invalidateContentBounds();
+            if (this._batchEnabled) {
+                const bounds = (this.$DisplayObject as any)[10] as egret.Rectangle;
+                this.$measureContentBounds(bounds);
             }
 
             return super.$hitTest(stageX, stageY);
@@ -415,16 +411,15 @@ namespace dragonBones {
             if (this._batchEnabled) {
                 if (this._childTransformDirty) {
                     this._childTransformDirty = false;
-                    let isFirst = true;
-                    const isWebgl = egret.Capabilities.renderMode === "webgl";
-                    const helpRectangle = new egret.Rectangle();
-                    for (const slot of this._armature.getSlots()) {
-                        const display = (slot.display || slot.rawDisplay) as (egret.Mesh | egret.Bitmap);
-                        const node = display.$renderNode as (egret.sys.BitmapNode | egret.sys.MeshNode);
-                        const matrix = node.matrix = node.matrix || new egret.Matrix();
 
-                        if (display === slot.meshDisplay && isWebgl) {
-                            const vertices = (node as egret.sys.MeshNode).vertices;
+                    let isFirst = true;
+                    const helpRectangle = new egret.Rectangle();
+
+                    for (const slot of this._armature.getSlots()) {
+                        const matrix = slot.globalTransformMatrix;
+                        const display = slot.display;
+                        if (display === slot.meshDisplay) {
+                            const vertices = ((display as egret.Mesh).$renderNode as egret.sys.MeshNode).vertices;
                             if (vertices && vertices.length) {
                                 helpRectangle.setTo(Number.MAX_VALUE, Number.MAX_VALUE, -Number.MAX_VALUE, -Number.MAX_VALUE);
                                 for (let i = 0, l = vertices.length; i < l; i += 2) {
@@ -439,30 +434,26 @@ namespace dragonBones {
                                 helpRectangle.height -= helpRectangle.y;
                             }
                             else {
-                                helpRectangle.setTo(0, 0, 0, 0);
+                                continue;
+                            }
+                        }
+                        else if (display === slot.rawDisplay) {
+                            const displayData = slot._displayDatas[slot.displayIndex];
+                            if (displayData && displayData instanceof ImageDisplayData && displayData.texture) {
+                                helpRectangle.x = 0;
+                                helpRectangle.y = 0;
+                                helpRectangle.width = displayData.texture.region.width;
+                                helpRectangle.height = displayData.texture.region.height;
+                            }
+                            else {
+                                continue;
                             }
                         }
                         else {
-                            helpRectangle.x = 0;
-                            helpRectangle.y = 0;
-                            if (slot.displayIndex >= 0 && slot.displayIndex < slot._displayDatas.length) {
-                                const displayData = slot._displayDatas[slot.displayIndex];
-                                if (displayData && displayData instanceof ImageDisplayData && displayData.texture) {
-                                    helpRectangle.width = displayData.texture.region.width;
-                                    helpRectangle.height = displayData.texture.region.height;
-                                }
-                                else {
-                                    helpRectangle.width = 0;
-                                    helpRectangle.height = 0;
-                                }
-                            }
-                            else {
-                                helpRectangle.width = 0;
-                                helpRectangle.height = 0;
-                            }
+                            continue;
                         }
 
-                        matrix.$transformBounds(helpRectangle);
+                        matrix.transformRectangle(helpRectangle);
 
                         const left = helpRectangle.x;
                         const top = helpRectangle.y;
