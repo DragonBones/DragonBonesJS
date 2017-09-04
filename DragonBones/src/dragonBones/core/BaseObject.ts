@@ -56,7 +56,7 @@ namespace dragonBones {
             else {
                 BaseObject._defaultMaxCount = maxCount;
                 for (let classType in BaseObject._poolsMap) {
-                    if (classType in BaseObject._maxCountMap) {
+                    if (!(classType in BaseObject._maxCountMap)) {
                         continue;
                     }
 
