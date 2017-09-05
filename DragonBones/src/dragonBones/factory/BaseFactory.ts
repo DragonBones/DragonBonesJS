@@ -232,24 +232,24 @@ namespace dragonBones {
             }
 
             for (const slotData of dataPackage.armature.sortedSlots) {
-                if (!(slotData.name in skinSlots)) {
-                    continue;
-                }
-
-                const displays = skinSlots[slotData.name];
+                const displays = slotData.name in skinSlots ? skinSlots[slotData.name] : null;
                 const slot = this._buildSlot(dataPackage, slotData, displays, armature);
-                const displayList = new Array<any>();
-                for (const displayData of displays) {
-                    if (displayData !== null) {
-                        displayList.push(this._getSlotDisplay(dataPackage, displayData, null, slot));
+                armature.addSlot(slot, slotData.parent.name);
+
+                if (displays !== null) {
+                    const displayList = new Array<any>();
+                    for (const displayData of displays) {
+                        if (displayData !== null) {
+                            displayList.push(this._getSlotDisplay(dataPackage, displayData, null, slot));
+                        }
+                        else {
+                            displayList.push(null);
+                        }
                     }
-                    else {
-                        displayList.push(null);
-                    }
+
+                    slot._setDisplayList(displayList);
                 }
 
-                armature.addSlot(slot, slotData.parent.name);
-                slot._setDisplayList(displayList);
                 slot._setDisplayIndex(slotData.displayIndex, true);
             }
         }
@@ -358,7 +358,7 @@ namespace dragonBones {
                 displayList[displayIndex] = this._getSlotDisplay(
                     dataPackage,
                     displayData,
-                    displayIndex < slot._rawDisplayDatas.length ? slot._rawDisplayDatas[displayIndex] : null,
+                    slot._rawDisplayDatas !== null && displayIndex < slot._rawDisplayDatas.length ? slot._rawDisplayDatas[displayIndex] : null,
                     slot
                 );
             }
@@ -379,7 +379,7 @@ namespace dragonBones {
         /** 
          * @private 
          */
-        protected abstract _buildSlot(dataPackage: BuildArmaturePackage, slotData: SlotData, displays: Array<DisplayData | null>, armature: Armature): Slot;
+        protected abstract _buildSlot(dataPackage: BuildArmaturePackage, slotData: SlotData, displays: Array<DisplayData | null> | null, armature: Armature): Slot;
         /**
          * 解析并添加龙骨数据。
          * @param rawData 需要解析的原始数据。

@@ -79,7 +79,7 @@ namespace dragonBones {
 
             if (this._armatureDisplay._batchEnabled) {
                 const nodes = (this._armatureDisplay.$renderNode as egret.sys.GroupNode).drawData;
-                nodes[nodes.indexOf(value.$renderNode)] = this._renderDisplay.$renderNode;
+                nodes[nodes.indexOf(prevDisplay.$renderNode)] = this._renderDisplay.$renderNode;
             }
             else {
                 this._armatureDisplay.addChild(this._renderDisplay);
@@ -221,7 +221,7 @@ namespace dragonBones {
 
             if (this._displayIndex >= 0 && this._display !== null && currentTextureData !== null) {
 
-                if (this._armature.replacedTexture !== null && this._rawDisplayDatas.indexOf(this._displayData) >= 0) { // Update replaced texture atlas.
+                if (this._armature.replacedTexture !== null && this._rawDisplayDatas !== null && this._rawDisplayDatas.indexOf(this._displayData) >= 0) { // Update replaced texture atlas.
                     let currentTextureAtlasData = currentTextureData.parent as EgretTextureAtlasData;
                     if (this._armature._replaceTextureAtlasData === null) {
                         currentTextureAtlasData = BaseObject.borrowObject(EgretTextureAtlasData);

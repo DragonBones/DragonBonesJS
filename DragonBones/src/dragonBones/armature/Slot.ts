@@ -118,7 +118,7 @@ namespace dragonBones {
          * @internal
          * @private
          */
-        public _rawDisplayDatas: Array<DisplayData | null>;
+        public _rawDisplayDatas: Array<DisplayData | null> | null;
         /**
          * @private
          */
@@ -213,7 +213,7 @@ namespace dragonBones {
             this._displayList.length = 0;
             this._displayDatas.length = 0;
             this._meshBones.length = 0;
-            this._rawDisplayDatas = null as any; //
+            this._rawDisplayDatas = null;
             this._displayData = null;
             this._textureData = null;
             this._meshData = null;
@@ -283,7 +283,7 @@ namespace dragonBones {
             const prevDisplayData = this._displayData;
             const prevTextureData = this._textureData;
             const prevMeshData = this._meshData;
-            const rawDisplayData = this._displayIndex >= 0 && this._displayIndex < this._rawDisplayDatas.length ? this._rawDisplayDatas[this._displayIndex] : null;
+            const rawDisplayData = this._displayIndex >= 0 && this._rawDisplayDatas !== null && this._displayIndex < this._rawDisplayDatas.length ? this._rawDisplayDatas[this._displayIndex] : null;
 
             if (this._displayIndex >= 0 && this._displayIndex < this._displayDatas.length) {
                 this._displayData = this._displayDatas[this._displayIndex];
@@ -487,7 +487,7 @@ namespace dragonBones {
                             actions = (this._displayData as ArmatureDisplayData).actions;
                         }
                         else {
-                            const rawDisplayData = this._displayIndex >= 0 && this._displayIndex < this._rawDisplayDatas.length ? this._rawDisplayDatas[this._displayIndex] : null;
+                            const rawDisplayData = this._displayIndex >= 0 && this._rawDisplayDatas !== null && this._displayIndex < this._rawDisplayDatas.length ? this._rawDisplayDatas[this._displayIndex] : null;
                             if (rawDisplayData !== null && rawDisplayData.type === DisplayType.Armature) {
                                 actions = (rawDisplayData as ArmatureDisplayData).actions;
                             }
@@ -643,7 +643,7 @@ namespace dragonBones {
         /**
          * @private
          */
-        public init(slotData: SlotData, displayDatas: Array<DisplayData | null>, rawDisplay: any, meshDisplay: any): void {
+        public init(slotData: SlotData, displayDatas: Array<DisplayData | null> | null, rawDisplay: any, meshDisplay: any): void {
             if (this.slotData !== null) {
                 return;
             }
@@ -661,9 +661,14 @@ namespace dragonBones {
             this._rawDisplay = rawDisplay;
             this._meshDisplay = meshDisplay;
 
-            this._displayDatas.length = this._rawDisplayDatas.length;
-            for (let i = 0, l = this._displayDatas.length; i < l; ++i) {
-                this._displayDatas[i] = this._rawDisplayDatas[i];
+            if (this._rawDisplayDatas) {
+                this._displayDatas.length = this._rawDisplayDatas.length;
+                for (let i = 0, l = this._displayDatas.length; i < l; ++i) {
+                    this._displayDatas[i] = this._rawDisplayDatas[i];
+                }
+            }
+            else {
+                this._displayDatas.length = 0;
             }
         }
         /**

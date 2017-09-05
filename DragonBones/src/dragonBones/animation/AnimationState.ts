@@ -575,12 +575,14 @@ namespace dragonBones {
                             this._slotTimelines.push(timeline);
                         }
 
-                        for (const displayData of slot._rawDisplayDatas) {
-                            if (displayData !== null && displayData.type === DisplayType.Mesh && ffdFlags.indexOf((displayData as MeshDisplayData).offset) < 0) {
-                                const timeline = BaseObject.borrowObject(SlotFFDTimelineState);
-                                timeline.slot = slot;
-                                timeline.init(this._armature, this, null);
-                                this._slotTimelines.push(timeline);
+                        if (slot._rawDisplayDatas !== null) {
+                            for (const displayData of slot._rawDisplayDatas) {
+                                if (displayData !== null && displayData.type === DisplayType.Mesh && ffdFlags.indexOf((displayData as MeshDisplayData).offset) < 0) {
+                                    const timeline = BaseObject.borrowObject(SlotFFDTimelineState);
+                                    timeline.slot = slot;
+                                    timeline.init(this._armature, this, null);
+                                    this._slotTimelines.push(timeline);
+                                }
                             }
                         }
                     }

@@ -6,12 +6,12 @@ namespace dragonBones {
      */
     export class EgretFactory extends BaseFactory {
         private static _time: number = 0;
-        private static _dragonBones: DragonBones = null as any;
+        private static _dragonBonesInstance: DragonBones = null as any;
         private static _factory: EgretFactory | null = null;
         private static _clockHandler(time: number): boolean {
             time *= 0.001;
             const passedTime = time - EgretFactory._time;
-            EgretFactory._dragonBones.advanceTime(passedTime);
+            EgretFactory._dragonBonesInstance.advanceTime(passedTime);
             EgretFactory._time = time;
 
             return false;
@@ -22,7 +22,7 @@ namespace dragonBones {
          * @language zh_CN
          */
         public static get clock(): WorldClock {
-            return EgretFactory._dragonBones.clock;
+            return EgretFactory._dragonBonesInstance.clock;
         }
         /**
          * 一个可以直接使用的全局工厂实例。
@@ -42,14 +42,14 @@ namespace dragonBones {
         public constructor() {
             super();
 
-            if (EgretFactory._dragonBones === null) {
+            if (EgretFactory._dragonBonesInstance === null) {
                 const eventManager = new EgretArmatureDisplay();
-                EgretFactory._dragonBones = new DragonBones(eventManager);
-                EgretFactory._dragonBones.clock.time = egret.getTimer() * 0.001;
+                EgretFactory._dragonBonesInstance = new DragonBones(eventManager);
+                EgretFactory._dragonBonesInstance.clock.time = egret.getTimer() * 0.001;
                 egret.startTick(EgretFactory._clockHandler, EgretFactory);
             }
 
-            this._dragonBones = EgretFactory._dragonBones;
+            this._dragonBones = EgretFactory._dragonBonesInstance;
         }
         /** 
          * @private 
