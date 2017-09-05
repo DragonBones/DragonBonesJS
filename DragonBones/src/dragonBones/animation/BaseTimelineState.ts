@@ -153,12 +153,13 @@ namespace dragonBones {
                 this._actionTimeline = null as any; //
             }
 
-            this._frameRate = this._armature.armatureData.frameRate;
+            this._animationData = this._animationState.animationData;
+
+            this._frameRate = this._animationData.parent.frameRate;
             this._frameRateR = 1.0 / this._frameRate;
             this._position = this._animationState._position;
             this._duration = this._animationState._duration;
-            this._dragonBonesData = this._armature.armatureData.parent;
-            this._animationData = this._animationState.animationData;
+            this._dragonBonesData = this._animationData.parent.parent; // May by the animation data is not belone to this armature data.
 
             if (this._timelineData !== null) {
                 this._frameIntArray = this._dragonBonesData.frameIntArray;

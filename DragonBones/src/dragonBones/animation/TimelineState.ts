@@ -13,7 +13,7 @@ namespace dragonBones {
             if (this._animationState.actionEnabled) {
                 const frameOffset = this._animationData.frameOffset + this._timelineArray[(this._timelineData as TimelineData).offset + BinaryOffset.TimelineFrameOffset + frameIndex];
                 const actionCount = this._frameArray[frameOffset + 1];
-                const actions = this._armature.armatureData.actions;
+                const actions = this._animationData.parent.actions; // May be the animaton data not belong to this armature data.
                 for (let i = 0; i < actionCount; ++i) {
                     const actionIndex = this._frameArray[frameOffset + 2 + i];
                     const action = actions[actionIndex];
@@ -293,7 +293,7 @@ namespace dragonBones {
             super._onArriveAtFrame();
 
             if (this._timelineData !== null) {
-                const frameFloatArray = this._dragonBonesData.frameFloatArray;
+                const frameFloatArray = this._frameFloatArray;
                 const current = this.bonePose.current;
                 const delta = this.bonePose.delta;
                 let valueOffset = this._animationData.frameFloatOffset + this._frameValueOffset + this._frameIndex * 6; // ...(timeline value offset)|xxxxxx|xxxxxx|(Value offset)xxxxx|(Next offset)xxxxx|xxxxxx|xxxxxx|...
@@ -377,7 +377,7 @@ namespace dragonBones {
             super._onArriveAtFrame();
 
             if (this._timelineData !== null) {
-                const frameFloatArray = this._dragonBonesData.frameFloatArray;
+                const frameFloatArray = this._frameFloatArray;
                 const current = this.bonePose.current;
                 const delta = this.bonePose.delta;
                 let valueOffset = this._animationData.frameFloatOffset + this._frameValueOffset + this._frameIndex * 2;
@@ -435,7 +435,7 @@ namespace dragonBones {
             super._onArriveAtFrame();
 
             if (this._timelineData !== null) {
-                const frameFloatArray = this._dragonBonesData.frameFloatArray;
+                const frameFloatArray = this._frameFloatArray;
                 const current = this.bonePose.current;
                 const delta = this.bonePose.delta;
                 let valueOffset = this._animationData.frameFloatOffset + this._frameValueOffset + this._frameIndex * 2;
@@ -498,7 +498,7 @@ namespace dragonBones {
             super._onArriveAtFrame();
 
             if (this._timelineData !== null) {
-                const frameFloatArray = this._dragonBonesData.frameFloatArray;
+                const frameFloatArray = this._frameFloatArray;
                 const current = this.bonePose.current;
                 const delta = this.bonePose.delta;
                 let valueOffset = this._animationData.frameFloatOffset + this._frameValueOffset + this._frameIndex * 2;
@@ -585,7 +585,7 @@ namespace dragonBones {
 
             if (this._timelineData !== null) {
                 const intArray = this._dragonBonesData.intArray;
-                const frameIntArray = this._dragonBonesData.frameIntArray;
+                const frameIntArray = this._frameIntArray;
                 const valueOffset = this._animationData.frameIntOffset + this._frameValueOffset + this._frameIndex * 1; // ...(timeline value offset)|x|x|(Value offset)|(Next offset)|x|x|...
                 let colorOffset = frameIntArray[valueOffset];
                 this._current[0] = intArray[colorOffset++];
@@ -750,7 +750,7 @@ namespace dragonBones {
 
             if (this._timelineData !== null) {
                 const isTween = this._tweenState === TweenState.Always;
-                const frameFloatArray = this._dragonBonesData.frameFloatArray;
+                const frameFloatArray = this._frameFloatArray;
                 const valueOffset = this._animationData.frameFloatOffset + this._frameValueOffset + this._frameIndex * this._valueCount;
 
                 if (isTween) {
@@ -793,7 +793,7 @@ namespace dragonBones {
             super.init(armature, animationState, timelineData);
 
             if (this._timelineData !== null) {
-                const frameIntArray = this._dragonBonesData.frameIntArray;
+                const frameIntArray = this._frameIntArray;
                 const frameIntOffset = this._animationData.frameIntOffset + this._timelineArray[this._timelineData.offset + BinaryOffset.TimelineFrameValueCount];
                 this.meshOffset = frameIntArray[frameIntOffset + BinaryOffset.FFDTimelineMeshOffset];
                 this._ffdCount = frameIntArray[frameIntOffset + BinaryOffset.FFDTimelineFFDCount];
@@ -830,7 +830,7 @@ namespace dragonBones {
             if (this._tweenState !== TweenState.None || this._dirty) {
                 const result = this.slot._ffdVertices;
                 if (this._timelineData !== null) {
-                    const frameFloatArray = this._dragonBonesData.frameFloatArray;
+                    const frameFloatArray = this._frameFloatArray;
                     if (this._animationState._fadeState !== 0 || this._animationState._subFadeState !== 0) {
                         const fadeProgress = Math.pow(this._animationState._fadeProgress, 2);
 
