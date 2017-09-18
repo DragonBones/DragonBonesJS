@@ -188,8 +188,13 @@ namespace dragonBones {
                         const floatArray = data.floatArray;
                         const vertexCount = intArray[meshData.offset + BinaryOffset.MeshVertexCount];
                         const triangleCount = intArray[meshData.offset + BinaryOffset.MeshTriangleCount];
-                        const verticesOffset = intArray[meshData.offset + BinaryOffset.MeshFloatOffset];
-                        const uvOffset = verticesOffset + vertexCount * 2;
+                        let vertexOffset = intArray[meshData.offset + BinaryOffset.MeshFloatOffset];
+
+                        if (vertexOffset < 0) {
+                            vertexOffset += 65536; // Fixed out of bouds bug. 
+                        }
+
+                        const uvOffset = vertexOffset + vertexCount * 2;
 
                         const meshDisplay = this._renderDisplay as egret.Mesh;
                         const meshNode = meshDisplay.$renderNode as egret.sys.MeshNode;
@@ -199,7 +204,7 @@ namespace dragonBones {
                         meshNode.indices.length = triangleCount * 3;
 
                         for (let i = 0, l = vertexCount * 2; i < l; ++i) {
-                            meshNode.vertices[i] = floatArray[verticesOffset + i];
+                            meshNode.vertices[i] = floatArray[vertexOffset + i];
                             meshNode.uvs[i] = floatArray[uvOffset + i];
                         }
 
@@ -246,7 +251,11 @@ namespace dragonBones {
                 const intArray = data.intArray;
                 const floatArray = data.floatArray;
                 const vertexCount = intArray[meshData.offset + BinaryOffset.MeshVertexCount];
-                const weightFloatOffset = intArray[weightData.offset + BinaryOffset.WeigthFloatOffset];
+                let weightFloatOffset = intArray[weightData.offset + BinaryOffset.WeigthFloatOffset];
+
+                if (weightFloatOffset < 0) {
+                    weightFloatOffset += 65536; // Fixed out of bouds bug. 
+                }
 
                 for (
                     let i = 0, iD = 0, iB = weightData.offset + BinaryOffset.WeigthBoneIndices + weightData.bones.length, iV = weightFloatOffset, iF = 0;
@@ -285,7 +294,11 @@ namespace dragonBones {
                 const intArray = data.intArray;
                 const floatArray = data.floatArray;
                 const vertexCount = intArray[meshData.offset + BinaryOffset.MeshVertexCount];
-                const vertexOffset = intArray[meshData.offset + BinaryOffset.MeshFloatOffset];
+                let vertexOffset = intArray[meshData.offset + BinaryOffset.MeshFloatOffset];
+
+                if (vertexOffset < 0) {
+                    vertexOffset += 65536; // Fixed out of bouds bug. 
+                }
 
                 for (let i = 0, l = vertexCount * 2; i < l; ++i) {
                     meshNode.vertices[i] = floatArray[vertexOffset + i] + this._ffdVertices[i];

@@ -25,6 +25,7 @@
 	],
 	"files": [
 		"./libs/egret-wasm.d.ts",
+		"../../DragonBones/src/dragonBones/modules.ts",
 		
 		"../../DragonBones/src/dragonBones/core/DragonBones.ts",
 		"../../DragonBones/src/dragonBones/core/BaseObject.ts",

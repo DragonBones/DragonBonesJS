@@ -55,28 +55,29 @@ namespace dragonBones {
 
                     if (textureData.renderTexture === null) {
                         textureData.renderTexture = new egret.Texture();
-                        if (textureData.rotated) {
-                            textureData.renderTexture.$initData(
-                                textureData.region.x, textureData.region.y,
-                                subTextureHeight, subTextureWidth,
-                                0, 0,
-                                subTextureHeight, subTextureWidth,
-                                textureAtlasWidth, textureAtlasHeight,
-                                textureData.rotated
-                            );
-                        }
-                        else {
-                            textureData.renderTexture.$initData(
-                                textureData.region.x, textureData.region.y,
-                                subTextureWidth, subTextureHeight,
-                                0, 0,
-                                subTextureWidth, subTextureHeight,
-                                textureAtlasWidth, textureAtlasHeight
-                            );
-                        }
                     }
 
                     textureData.renderTexture._bitmapData = bitmapData;
+
+                    if (textureData.rotated) {
+                        textureData.renderTexture.$initData(
+                            textureData.region.x, textureData.region.y,
+                            subTextureHeight, subTextureWidth,
+                            0, 0,
+                            subTextureHeight, subTextureWidth,
+                            textureAtlasWidth, textureAtlasHeight,
+                            textureData.rotated
+                        );
+                    }
+                    else {
+                        textureData.renderTexture.$initData(
+                            textureData.region.x, textureData.region.y,
+                            subTextureWidth, subTextureHeight,
+                            0, 0,
+                            subTextureWidth, subTextureHeight,
+                            textureAtlasWidth, textureAtlasHeight
+                        );
+                    }
                 }
             }
             else {
@@ -99,9 +100,10 @@ namespace dragonBones {
         /**
          * @deprecated
          * 已废弃，请参考 @see
-         * @see dragonBones.BaseFactory#removeTextureAtlasData()
+         * @see dragonBones.EgretTextureAtlasData#renderTexture
          */
         public get texture() {
+            console.warn("已废弃，请参考 @see");
             return this.renderTexture;
         }
     }
@@ -119,7 +121,8 @@ namespace dragonBones {
             super._onClear();
 
             if (this.renderTexture !== null) {
-                // this.renderTexture.dispose();
+                //this.renderTexture.dispose(false);
+                //this.renderTexture.dispose();
             }
 
             this.renderTexture = null;

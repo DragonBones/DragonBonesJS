@@ -416,12 +416,19 @@ namespace dragonBones {
                     const helpRectangle = new egret.Rectangle();
 
                     for (const slot of this._armature.getSlots()) {
-                        const matrix = slot.globalTransformMatrix;
                         const display = slot.display;
+                        if (!display) {
+                            continue;
+                        }
+
+                        const matrix = (display.$renderNode as (egret.sys.BitmapNode | egret.sys.MeshNode)).matrix;
+
                         if (display === slot.meshDisplay) {
                             const vertices = ((display as egret.Mesh).$renderNode as egret.sys.MeshNode).vertices;
-                            if (vertices && vertices.length) {
-                                helpRectangle.setTo(Number.MAX_VALUE, Number.MAX_VALUE, -Number.MAX_VALUE, -Number.MAX_VALUE);
+
+                            if (vertices && vertices.length > 0) {
+                                helpRectangle.setTo(999999.0, 999999.0, -999999.0, -999999.0);
+
                                 for (let i = 0, l = vertices.length; i < l; i += 2) {
                                     const x = vertices[i];
                                     const y = vertices[i + 1];
@@ -437,7 +444,7 @@ namespace dragonBones {
                                 continue;
                             }
                         }
-                        else if (display === slot.rawDisplay) {
+                        else {
                             const displayData = slot._displayDatas[slot.displayIndex];
                             if (displayData && displayData instanceof ImageDisplayData && displayData.texture) {
                                 helpRectangle.x = 0;
@@ -449,11 +456,8 @@ namespace dragonBones {
                                 continue;
                             }
                         }
-                        else {
-                            continue;
-                        }
 
-                        matrix.transformRectangle(helpRectangle);
+                        matrix.$transformBounds(helpRectangle);
 
                         const left = helpRectangle.x;
                         const top = helpRectangle.y;

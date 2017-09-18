@@ -93,7 +93,7 @@ namespace dragonBones {
         /**
          * @private
          */
-        protected _buildSlot(dataPackage: BuildArmaturePackage, slotData: SlotData, displays: Array<DisplayData>, armature: Armature): Slot {
+        protected _buildSlot(dataPackage: BuildArmaturePackage, slotData: SlotData, displays: Array<DisplayData | null> | null, armature: Armature): Slot {
             dataPackage;
             armature;
             const slot = BaseObject.borrowObject(EgretSlot);
@@ -219,14 +219,6 @@ namespace dragonBones {
         public dispose(): void {
             console.warn("已废弃，请参考 @see");
             this.clear();
-        }
-        /**
-         * @deprecated
-         * 已废弃，请参考 @see
-         * @see dragonBones.EgretFactory#soundEventManager()
-         */
-        public get soundEventManater(): EgretArmatureDisplay {
-            return this.soundEventManager;
         }
     }
 }

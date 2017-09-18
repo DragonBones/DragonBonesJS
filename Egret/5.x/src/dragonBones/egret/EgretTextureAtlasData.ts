@@ -58,27 +58,28 @@ namespace dragonBones {
 
                     if (textureData.renderTexture === null) {
                         textureData.renderTexture = new egret.Texture();
-                        if (textureData.rotated) {
-                            textureData.renderTexture.$initData(
-                                textureData.region.x, textureData.region.y,
-                                subTextureHeight, subTextureWidth,
-                                0, 0,
-                                subTextureHeight, subTextureWidth,
-                                textureAtlasWidth, textureAtlasHeight
-                            );
-                        }
-                        else {
-                            textureData.renderTexture.$initData(
-                                textureData.region.x, textureData.region.y,
-                                subTextureWidth, subTextureHeight,
-                                0, 0,
-                                subTextureWidth, subTextureHeight,
-                                textureAtlasWidth, textureAtlasHeight
-                            );
-                        }
                     }
 
                     textureData.renderTexture._bitmapData = bitmapData;
+
+                    if (textureData.rotated) {
+                        textureData.renderTexture.$initData(
+                            textureData.region.x, textureData.region.y,
+                            subTextureHeight, subTextureWidth,
+                            0, 0,
+                            subTextureHeight, subTextureWidth,
+                            textureAtlasWidth, textureAtlasHeight
+                        );
+                    }
+                    else {
+                        textureData.renderTexture.$initData(
+                            textureData.region.x, textureData.region.y,
+                            subTextureWidth, subTextureHeight,
+                            0, 0,
+                            subTextureWidth, subTextureHeight,
+                            textureAtlasWidth, textureAtlasHeight
+                        );
+                    }
                 }
             }
             else {

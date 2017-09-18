@@ -2,7 +2,7 @@
 	"compilerOptions": {
 		"watch": false,
 		"sourceMap": false,
-		"declaration": true,
+		"declaration": false,
 		"alwaysStrict": true,
 		"noImplicitAny": true,
 		"noImplicitThis": true,
@@ -12,7 +12,7 @@
 		"experimentalDecorators": true,
 		"allowSyntheticDefaultImports": true,
 		"target": "es5",
-		"outFile": "out/dragonBones-wasm.js",
+		"outFile": "out/dragonBones.js",
 		"lib": [
 			"es5",
 			"dom",
@@ -21,10 +21,12 @@
 	},
 	"exclude": [
 		"node_modules",
-		"out"
+		"out",
+		"backup"
 	],
 	"files": [
-		"./libs/egret-wasm.d.ts",
+		"./libs/egret.d.ts",
+		"../../DragonBones/src/dragonBones/modules.ts",
 		
 		"../../DragonBones/src/dragonBones/core/DragonBones.ts",
 		"../../DragonBones/src/dragonBones/core/BaseObject.ts",
@@ -69,6 +71,7 @@
 		"../../DragonBones/src/dragonBones/factory/BaseFactory.ts",
 
 		"./src/dragonBones/egret/EgretArmatureDisplay.ts",
-		"./src/dragonBones/egret/EgretFactory.ts"
+		"./src/dragonBones/egret/EgretFactory.ts",
+		"./src/dragonBones/egret/EgretWebAssembly.ts"
 	]
 }

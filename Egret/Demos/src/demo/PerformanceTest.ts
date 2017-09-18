@@ -124,10 +124,8 @@ class PerformanceTest extends BaseTest {
             dX;
             dY;
             lineY;
-            // armatureDisplay.x = (i % columnCount) * dX + paddingHModify;
-            // armatureDisplay.y = lineY * dY + paddingV;
-            armatureDisplay.x = Math.random() * this.stage.stageWidth;
-            armatureDisplay.y = Math.random() * this.stage.stageHeight;
+            armatureDisplay.x = (i % columnCount) * dX + paddingHModify;
+            armatureDisplay.y = lineY * dY + paddingV;
         }
     }
 
