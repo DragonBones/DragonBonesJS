@@ -12,7 +12,7 @@ namespace dragonBones {
 
         private static _returnObject(object: BaseObject): void {
             const classType = String(object.constructor);
-            const maxCount = classType in BaseObject._maxCountMap ? BaseObject._defaultMaxCount : BaseObject._maxCountMap[classType];
+            const maxCount = classType in BaseObject._maxCountMap ? BaseObject._maxCountMap[classType] : BaseObject._defaultMaxCount;
             const pool = BaseObject._poolsMap[classType] = BaseObject._poolsMap[classType] || [];
             if (pool.length < maxCount) {
                 if (!object._isInPool) {
@@ -55,17 +55,16 @@ namespace dragonBones {
             }
             else {
                 BaseObject._defaultMaxCount = maxCount;
-                for (let classType in BaseObject._poolsMap) {
-                    if (classType in BaseObject._maxCountMap) {
-                        continue;
-                    }
 
+                for (let classType in BaseObject._poolsMap) {
                     const pool = BaseObject._poolsMap[classType];
                     if (pool.length > maxCount) {
                         pool.length = maxCount;
                     }
 
-                    BaseObject._maxCountMap[classType] = maxCount;
+                    if (classType in BaseObject._maxCountMap) {
+                        BaseObject._maxCountMap[classType] = maxCount;
+                    }
                 }
             }
         }
