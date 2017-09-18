@@ -59,6 +59,12 @@ namespace dragonBones {
             this.actions.length = 0;
             this.armature = null;
         }
+        /**
+         * @private
+         */
+        public addAction(value: ActionData): void {
+            this.actions.push(value);
+        }
     }
     /**
      * @private
@@ -122,6 +128,10 @@ namespace dragonBones {
             this.count = 0;
             this.offset = 0;
             this.bones.length = 0;
+        }
+
+        public addBone(value: BoneData): void {
+            this.bones.push(value);
         }
     }
 }

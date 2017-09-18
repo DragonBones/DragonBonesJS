@@ -360,6 +360,17 @@ namespace dragonBones {
             }
         }
         /**
+         * @private
+         */
+        public addAction(value: ActionData, isDefault: boolean): void {
+            if (isDefault) {
+                this.defaultActions.push(value);
+            }
+            else {
+                this.actions.push(value);
+            }
+        }
+        /**
          * 获取骨骼数据。
          * @param name 数据名称。
          * @version DragonBones 3.0
@@ -478,6 +489,12 @@ namespace dragonBones {
             this.constraints.length = 0;
             this.userData = null;
             this.parent = null;
+        }
+        /**
+         * @private
+         */
+        public addConstraint(value: ConstraintData): void {
+            this.constraints.push(value);
         }
     }
     /**

@@ -38,6 +38,24 @@ namespace dragonBones {
             this.strings.length = 0;
         }
         /**
+         * @private
+         */
+        public addInt(value: number): void {
+            this.ints.push(value);
+        }
+        /**
+         * @private
+         */
+        public addFloat(value: number): void {
+            this.floats.push(value);
+        }
+        /**
+         * @private
+         */
+        public addString(value: string): void {
+            this.strings.push(value);
+        }
+        /**
          * 获取自定义整数。
          * @version DragonBones 5.0
          * @language zh_CN

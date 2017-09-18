@@ -63,6 +63,10 @@ namespace dragonBones {
         /**
          * @private
          */
+        public binary: ArrayBuffer;
+        /**
+         * @private
+         */
         public intArray: Int16Array;
         /**
          * @private
@@ -109,6 +113,7 @@ namespace dragonBones {
             this.cachedFrames.length = 0;
             this.armatureNames.length = 0;
             //this.armatures.clear();
+            this.binary = null as any; //
             this.intArray = null as any; //
             this.floatArray = null as any; //
             this.frameIntArray = null as any; //

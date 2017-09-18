@@ -4,12 +4,14 @@ namespace dragonBones {
      */
     export abstract class ConstraintData extends BaseObject {
         public order: number;
+        public name: string;
         public target: BoneData;
         public bone: BoneData;
         public root: BoneData | null;
 
         protected _onClear(): void {
             this.order = 0;
+            this.name = "";
             this.target = null as any; //
             this.bone = null as any; //
             this.root = null;
