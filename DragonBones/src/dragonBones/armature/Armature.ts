@@ -568,11 +568,11 @@ namespace dragonBones {
         /**
          * @deprecated
          */
-        public addBone(value: Bone, parentName: string | null = null): void {
+        public addBone(value: Bone, parentName: string): void {
             console.assert(value !== null);
 
             value._setArmature(this);
-            value._setParent(parentName !== null ? this.getBone(parentName) : null);
+            value._setParent(parentName.length > 0 ? this.getBone(parentName) : null);
         }
         /**
          * @deprecated

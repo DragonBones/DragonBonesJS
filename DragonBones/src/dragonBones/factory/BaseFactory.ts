@@ -168,21 +168,21 @@ namespace dragonBones {
          */
         protected _buildBones(dataPackage: BuildArmaturePackage, armature: Armature): void {
             const bones = dataPackage.armature.sortedBones;
-            for (let i = 0; i < (DragonBones.webAssembly ? (bones as any).size() : bones.length); ++i) {
-                const boneData = DragonBones.webAssembly ? (bones as any).get(i) as BoneData : bones[i];
-                const bone = DragonBones.webAssembly ? new Module["Bone"]() as Bone : BaseObject.borrowObject(Bone);
+            for (let i = 0, l = bones.length; i < l; ++i) {
+                const boneData = bones[i];
+                const bone = BaseObject.borrowObject(Bone);
                 bone.init(boneData);
 
                 if (boneData.parent !== null) {
                     armature.addBone(bone, boneData.parent.name);
                 }
                 else {
-                    armature.addBone(bone);
+                    armature.addBone(bone, "");
                 }
 
                 const constraints = boneData.constraints;
-                for (let j = 0; j < (DragonBones.webAssembly ? (constraints as any).size() : constraints.length); ++j) {
-                    const constraintData = DragonBones.webAssembly ? (constraints as any).get(j) as ConstraintData : constraints[j];
+                for (let j = 0, lJ = constraints.length; j < lJ; ++j) {
+                    const constraintData = constraints[j];
                     const target = armature.getBone(constraintData.target.name);
                     if (target === null) {
                         continue;
@@ -190,7 +190,7 @@ namespace dragonBones {
 
                     // TODO more constraint type.
                     const ikConstraintData = constraintData as IKConstraintData;
-                    const constraint = DragonBones.webAssembly ? new Module["IKConstraint"]() as IKConstraint : BaseObject.borrowObject(IKConstraint);
+                    const constraint = BaseObject.borrowObject(IKConstraint);
                     const root = ikConstraintData.root !== null ? armature.getBone(ikConstraintData.root.name) : null;
                     constraint.target = target;
                     constraint.bone = bone;
@@ -220,13 +220,13 @@ namespace dragonBones {
 
             const skinSlots: Map<Array<DisplayData | null>> = {};
             for (let k in defaultSkin.displays) {
-                const displays = defaultSkin.displays[k];
+                const displays = defaultSkin.getDisplays(k) as any;
                 skinSlots[k] = displays;
             }
 
             if (currentSkin !== defaultSkin) {
                 for (let k in currentSkin.displays) {
-                    const displays = currentSkin.displays[k];
+                    const displays = currentSkin.getDisplays(k) as any;
                     skinSlots[k] = displays;
                 }
             }
@@ -238,7 +238,11 @@ namespace dragonBones {
 
                 if (displays !== null) {
                     const displayList = new Array<any>();
-                    for (const displayData of displays) {
+
+                    // for (const displayData of displays) {
+                    for (let i = 0, l = DragonBones.webAssembly ? (displays as any).size() : displays.length; i < l; ++i) {
+                        const displayData = DragonBones.webAssembly ? (displays as any).get(i) : displays[i];
+
                         if (displayData !== null) {
                             displayList.push(this._getSlotDisplay(dataPackage, displayData, null, slot));
                         }
@@ -316,6 +320,9 @@ namespace dragonBones {
 
                     display = childArmature;
                     break;
+
+                case DisplayType.BoundingBox:
+                    break;
             }
 
             return display;
@@ -332,6 +339,8 @@ namespace dragonBones {
                 displayIndex = 0;
             }
 
+            slot.replaceDisplayData(displayData, displayIndex);
+
             const displayList = slot.displayList; // Copy.
             if (displayList.length <= displayIndex) {
                 displayList.length = displayIndex + 1;
@@ -343,22 +352,27 @@ namespace dragonBones {
                 }
             }
 
-            if (slot._displayDatas.length <= displayIndex) {
-                slot._displayDatas.length = displayIndex + 1;
+            if (displayData !== null) {
+                const rawDisplayDatas = slot.rawDisplayDatas;
+                let rawDisplayData: DisplayData | null = null;
 
-                for (let i = 0, l = slot._displayDatas.length; i < l; ++i) { // Clean undefined.
-                    if (!slot._displayDatas[i]) {
-                        slot._displayDatas[i] = null;
+                if (rawDisplayDatas) {
+                    if (DragonBones.webAssembly) {
+                        if (displayIndex < (rawDisplayDatas as any).size()) {
+                            rawDisplayData = (rawDisplayDatas as any).get(displayIndex);
+                        }
+                    }
+                    else {
+                        if (displayIndex < rawDisplayDatas.length) {
+                            rawDisplayData = rawDisplayDatas[displayIndex];
+                        }
                     }
                 }
-            }
 
-            slot._displayDatas[displayIndex] = displayData;
-            if (displayData !== null) {
                 displayList[displayIndex] = this._getSlotDisplay(
                     dataPackage,
                     displayData,
-                    slot._rawDisplayDatas !== null && displayIndex < slot._rawDisplayDatas.length ? slot._rawDisplayDatas[displayIndex] : null,
+                    rawDisplayData,
                     slot
                 );
             }
@@ -631,8 +645,7 @@ namespace dragonBones {
             const armature = this._buildArmature(dataPackage);
             this._buildBones(dataPackage, armature);
             this._buildSlots(dataPackage, armature);
-            // armature.invalidUpdate(null, true); TODO
-            armature.invalidUpdate("", true);
+            armature.invalidUpdate(null, true);
             armature.advanceTime(0.0); // Update armature pose.
 
             return armature;
@@ -662,9 +675,11 @@ namespace dragonBones {
                 return;
             }
 
-            for (const display of displays) {
-                if (display !== null && display.name === displayName) {
-                    this._replaceSlotDisplay(dataPackage, display, slot, displayIndex);
+            // for (const displayData of displays) {
+            for (let i = 0, l = DragonBones.webAssembly ? (displays as any).size() : displays.length; i < l; ++i) {
+                const displayData = DragonBones.webAssembly ? (displays as any).get(i) : displays[i];
+                if (displayData !== null && displayData.name === displayName) {
+                    this._replaceSlotDisplay(dataPackage, displayData, slot, displayIndex);
                     break;
                 }
             }
@@ -693,7 +708,9 @@ namespace dragonBones {
             }
 
             let displayIndex = 0;
-            for (const displayData of displays) {
+            // for (const displayData of displays) {
+            for (let i = 0, l = DragonBones.webAssembly ? (displays as any).size() : displays.length; i < l; ++i) {
+                const displayData = DragonBones.webAssembly ? (displays as any).get(i) : displays[i];
                 this._replaceSlotDisplay(dataPackage, displayData, slot, displayIndex++);
             }
         }
@@ -709,15 +726,21 @@ namespace dragonBones {
          */
         public changeSkin(armature: Armature, skin: SkinData, exclude: Array<string> | null = null): void {
             for (const slot of armature.getSlots()) {
-                if (!(slot.name in skin.displays) || (exclude !== null && exclude.indexOf(slot.name) >= 0)) {
+                if (exclude !== null && exclude.indexOf(slot.name) >= 0) {
                     continue;
                 }
 
-                const displays = skin.displays[slot.name];
+                const displays = skin.getDisplays(slot.name);
+                if (!displays) {
+                    continue;
+                }
+
+                const displayCount = DragonBones.webAssembly ? (displays as any).size() : displays.length;
                 const displayList = slot.displayList; // Copy.
-                displayList.length = displays.length; // Modify displayList length.
-                for (let i = 0, l = displays.length; i < l; ++i) {
-                    const displayData = displays[i];
+                displayList.length = displayCount; // Modify displayList length.
+
+                for (let i = 0, l = displayCount; i < l; ++i) {
+                    const displayData = DragonBones.webAssembly ? (displays as any).get(i) : displays[i];
                     if (displayData !== null) {
                         displayList[i] = this._getSlotDisplay(null, displayData, null, slot);
                     }
@@ -726,12 +749,7 @@ namespace dragonBones {
                     }
                 }
 
-                slot._rawDisplayDatas = displays;
-                slot._displayDatas.length = displays.length;
-                for (let i = 0, l = slot._displayDatas.length; i < l; ++i) {
-                    slot._displayDatas[i] = displays[i];
-                }
-
+                slot.rawDisplayDatas = displays;
                 slot.displayList = displayList;
             }
         }
@@ -781,8 +799,8 @@ namespace dragonBones {
                             const toDisplayObject = toSlotDisplayList[j];
                             if (toDisplayObject instanceof Armature) {
                                 const displays = dataPackage.skin.getDisplays(toSlot.name);
-                                if (displays !== null && j < displays.length) {
-                                    const fromDisplayData = displays[j];
+                                if (displays !== null && j < (DragonBones.webAssembly ? (displays as any).size() : displays.length)) {
+                                    const fromDisplayData = DragonBones.webAssembly ? (displays as any).get(j) : displays[j];
                                     if (fromDisplayData !== null && fromDisplayData.type === DisplayType.Armature) {
                                         this.copyAnimationsToArmature(toDisplayObject as Armature, fromDisplayData.path, fromSkinName, fromDragonBonesDataName, replaceOriginalAnimation);
                                     }

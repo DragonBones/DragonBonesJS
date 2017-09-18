@@ -575,8 +575,8 @@ namespace dragonBones {
                             this._slotTimelines.push(timeline);
                         }
 
-                        if (slot._rawDisplayDatas !== null) {
-                            for (const displayData of slot._rawDisplayDatas) {
+                        if (slot.rawDisplayDatas !== null) {
+                            for (const displayData of slot.rawDisplayDatas) {
                                 if (displayData !== null && displayData.type === DisplayType.Mesh && ffdFlags.indexOf((displayData as MeshDisplayData).offset) < 0) {
                                     const timeline = BaseObject.borrowObject(SlotFFDTimelineState);
                                     timeline.slot = slot;

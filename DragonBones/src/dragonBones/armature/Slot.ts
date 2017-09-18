@@ -115,10 +115,9 @@ namespace dragonBones {
          */
         protected readonly _meshBones: Array<Bone | null> = [];
         /**
-         * @internal
          * @private
          */
-        public _rawDisplayDatas: Array<DisplayData | null> | null;
+        protected _rawDisplayDatas: Array<DisplayData | null> | null;
         /**
          * @private
          */
@@ -657,19 +656,10 @@ namespace dragonBones {
             this._blendMode = this.slotData.blendMode;
             this._zOrder = this.slotData.zOrder;
             this._colorTransform.copyFrom(this.slotData.color);
-            this._rawDisplayDatas = displayDatas;
             this._rawDisplay = rawDisplay;
             this._meshDisplay = meshDisplay;
 
-            if (this._rawDisplayDatas) {
-                this._displayDatas.length = this._rawDisplayDatas.length;
-                for (let i = 0, l = this._displayDatas.length; i < l; ++i) {
-                    this._displayDatas[i] = this._rawDisplayDatas[i];
-                }
-            }
-            else {
-                this._displayDatas.length = 0;
-            }
+            this.rawDisplayDatas = displayDatas; //
         }
         /**
          * @internal
@@ -785,6 +775,31 @@ namespace dragonBones {
                 this._transformDirty = false;
                 this._updateGlobalTransformMatrix(false);
             }
+        }
+        /**
+         * @private
+         */
+        public replaceDisplayData(value: DisplayData | null, displayIndex: number = -1): void {
+            if (displayIndex < 0) {
+                if (this._displayIndex < 0) {
+                    displayIndex = 0;
+                }
+                else {
+                    displayIndex = this._displayIndex;
+                }
+            }
+
+            if (this._displayDatas.length <= displayIndex) {
+                this._displayDatas.length = displayIndex + 1;
+
+                for (let i = 0, l = this._displayDatas.length; i < l; ++i) { // Clean undefined.
+                    if (!this._displayDatas[i]) {
+                        this._displayDatas[i] = null;
+                    }
+                }
+            }
+
+            this._displayDatas[displayIndex] = value;
         }
         /**
          * 判断指定的点是否在插槽的自定义包围盒内。
@@ -931,6 +946,30 @@ namespace dragonBones {
                 else {
                     this._disposeDisplay(eachDisplay);
                 }
+            }
+        }
+        /**
+         * @private
+         */
+        public get rawDisplayDatas(): Array<DisplayData | null> | null {
+            return this._rawDisplayDatas;
+        }
+        public set rawDisplayDatas(value: Array<DisplayData | null> | null) {
+            if (this._rawDisplayDatas === value) {
+                return;
+            }
+
+            this._displayDirty = true;
+            this._rawDisplayDatas = value;
+
+            if (this._rawDisplayDatas) {
+                this._displayDatas.length = this._rawDisplayDatas.length;
+                for (let i = 0, l = this._displayDatas.length; i < l; ++i) {
+                    this._displayDatas[i] = this._rawDisplayDatas[i];
+                }
+            }
+            else {
+                this._displayDatas.length = 0;
             }
         }
         /**

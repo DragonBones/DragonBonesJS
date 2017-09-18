@@ -793,13 +793,12 @@ namespace dragonBones {
             super.init(armature, animationState, timelineData);
 
             if (this._timelineData !== null) {
-                const frameIntArray = this._frameIntArray;
                 const frameIntOffset = this._animationData.frameIntOffset + this._timelineArray[this._timelineData.offset + BinaryOffset.TimelineFrameValueCount];
-                this.meshOffset = frameIntArray[frameIntOffset + BinaryOffset.FFDTimelineMeshOffset];
-                this._ffdCount = frameIntArray[frameIntOffset + BinaryOffset.FFDTimelineFFDCount];
-                this._valueCount = frameIntArray[frameIntOffset + BinaryOffset.FFDTimelineValueCount];
-                this._valueOffset = frameIntArray[frameIntOffset + BinaryOffset.FFDTimelineValueOffset];
-                this._frameFloatOffset = frameIntArray[frameIntOffset + BinaryOffset.FFDTimelineFloatOffset] + this._animationData.frameFloatOffset;
+                this.meshOffset = this._frameIntArray[frameIntOffset + BinaryOffset.FFDTimelineMeshOffset];
+                this._ffdCount = this._frameIntArray[frameIntOffset + BinaryOffset.FFDTimelineFFDCount];
+                this._valueCount = this._frameIntArray[frameIntOffset + BinaryOffset.FFDTimelineValueCount];
+                this._valueOffset = this._frameIntArray[frameIntOffset + BinaryOffset.FFDTimelineValueOffset];
+                this._frameFloatOffset = this._frameIntArray[frameIntOffset + BinaryOffset.FFDTimelineFloatOffset] + this._animationData.frameFloatOffset;
             }
             else {
                 this._valueCount = 0;
@@ -830,19 +829,19 @@ namespace dragonBones {
             if (this._tweenState !== TweenState.None || this._dirty) {
                 const result = this.slot._ffdVertices;
                 if (this._timelineData !== null) {
-                    const frameFloatArray = this._frameFloatArray;
+
                     if (this._animationState._fadeState !== 0 || this._animationState._subFadeState !== 0) {
                         const fadeProgress = Math.pow(this._animationState._fadeProgress, 2);
 
                         for (let i = 0; i < this._ffdCount; ++i) {
                             if (i < this._valueOffset) {
-                                result[i] += (frameFloatArray[this._frameFloatOffset + i] - result[i]) * fadeProgress;
+                                result[i] += (this._frameFloatArray[this._frameFloatOffset + i] - result[i]) * fadeProgress;
                             }
                             else if (i < this._valueOffset + this._valueCount) {
                                 result[i] += (this._result[i - this._valueOffset] - result[i]) * fadeProgress;
                             }
                             else {
-                                result[i] += (frameFloatArray[this._frameFloatOffset + i - this._valueCount] - result[i]) * fadeProgress;
+                                result[i] += (this._frameFloatArray[this._frameFloatOffset + i - this._valueCount] - result[i]) * fadeProgress;
                             }
                         }
 
@@ -853,13 +852,13 @@ namespace dragonBones {
 
                         for (let i = 0; i < this._ffdCount; ++i) {
                             if (i < this._valueOffset) {
-                                result[i] = frameFloatArray[this._frameFloatOffset + i];
+                                result[i] = this._frameFloatArray[this._frameFloatOffset + i];
                             }
                             else if (i < this._valueOffset + this._valueCount) {
                                 result[i] = this._result[i - this._valueOffset];
                             }
                             else {
-                                result[i] = frameFloatArray[this._frameFloatOffset + i - this._valueCount];
+                                result[i] = this._frameFloatArray[this._frameFloatOffset + i - this._valueCount];
                             }
                         }
 
