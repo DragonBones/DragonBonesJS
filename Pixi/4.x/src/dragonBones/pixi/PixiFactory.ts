@@ -76,7 +76,7 @@ namespace dragonBones {
         /**
          * @private
          */
-        protected _buildSlot(dataPackage: BuildArmaturePackage, slotData: SlotData, displays: Array<DisplayData>, armature: Armature): Slot {
+        protected _buildSlot(dataPackage: BuildArmaturePackage, slotData: SlotData, displays: Array<DisplayData | null> | null, armature: Armature): Slot {
             dataPackage;
             armature;
             const slot = BaseObject.borrowObject(PixiSlot);
