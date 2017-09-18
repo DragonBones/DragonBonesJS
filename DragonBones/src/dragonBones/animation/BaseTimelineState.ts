@@ -287,7 +287,14 @@ namespace dragonBones {
                 }
                 else {
                     const nextFrameOffset = this._animationData.frameOffset + this._timelineArray[(this._timelineData as TimelineData).offset + BinaryOffset.TimelineFrameOffset + this._frameIndex + 1];
-                    this._frameDurationR = 1.0 / (this._frameArray[nextFrameOffset] * this._frameRateR - this._framePosition);
+                    const frameDuration = this._frameArray[nextFrameOffset] * this._frameRateR - this._framePosition;
+
+                    if (frameDuration > 0) {
+                        this._frameDurationR = 1.0 / frameDuration;
+                    }
+                    else {
+                        this._frameDurationR = 0.0;
+                    }
                 }
             }
             else {
