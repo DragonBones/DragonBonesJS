@@ -272,7 +272,8 @@ namespace dragonBones {
          * @see dragonBones.BaseFactory#parsetTextureAtlasData()
          */
         public static parseTextureAtlasData(rawData: any, scale: number = 1): any {
-            console.warn("已废弃，请参考 @see");
+            console.warn("已废弃，请参考 @see，WebAssembly 不支持该废弃 API。");
+            
             const textureAtlasData = {} as any;
 
             const subTextureList = rawData[DataParser.SUB_TEXTURE];
