@@ -132,9 +132,15 @@ namespace dragonBones {
                 if (this.boneData.inheritScale) {
                     if (!this.boneData.inheritRotation) {
                         this._parent.updateGlobalTransform();
-
                         dR = this._parent.global.rotation; //
                         global.rotation -= dR;
+
+                        if (DragonBones.yDown) {
+                            global.rotation -= dR;
+                        }
+                        else {
+                            global.rotation += dR;
+                        }
                     }
 
                     global.toMatrix(globalTransformMatrix);
