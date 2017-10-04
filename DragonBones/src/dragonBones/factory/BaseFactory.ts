@@ -408,16 +408,12 @@ namespace dragonBones {
          */
         public parseDragonBonesData(rawData: any, name: string | null = null, scale: number = 1.0): DragonBonesData | null {
             let dragonBonesData: DragonBonesData | null = null;
-            if (rawData instanceof ArrayBuffer) {
-                dragonBonesData = BaseFactory._binaryParser.parseDragonBonesData(rawData, scale);
-            }
-            else {
-                dragonBonesData = this._dataParser.parseDragonBonesData(rawData, scale);
-            }
+            const dataParser = rawData instanceof ArrayBuffer ? BaseFactory._binaryParser : this._dataParser;
+            dragonBonesData = dataParser.parseDragonBonesData(rawData, scale);
 
             while (true) {
                 const textureAtlasData = this._buildTextureAtlasData(null, null);
-                if (this._dataParser.parseTextureAtlasData(null, textureAtlasData, scale)) {
+                if (dataParser.parseTextureAtlasData(null, textureAtlasData, scale)) {
                     this.addTextureAtlasData(textureAtlasData, name);
                 }
                 else {
