@@ -288,7 +288,7 @@ namespace dragonBones {
                 }
             }
 
-            if (this._batchEnabled && this._childTransformDirty && this.stage && this.stage.dirtyRegionPolicy === egret.DirtyRegionPolicy.ON) {
+            if (this._batchEnabled && this._childTransformDirty) {
                 this.$invalidateContentBounds();
             }
         }
@@ -370,39 +370,6 @@ namespace dragonBones {
          */
         public get animation(): Animation {
             return this._armature.animation;
-        }
-        /**
-         * @inheritDoc
-         */
-        $getWidth(): number {
-            if (this._batchEnabled) {
-                const bounds = (this.$DisplayObject as any)[10] as egret.Rectangle;
-                this.$measureContentBounds(bounds);
-            }
-
-            return super.$getWidth();
-        }
-        /**
-         * @inheritDoc
-         */
-        $getHeight(): number {
-            if (this._batchEnabled) {
-                const bounds = (this.$DisplayObject as any)[10] as egret.Rectangle;
-                this.$measureContentBounds(bounds);
-            }
-
-            return super.$getHeight();
-        }
-        /**
-         * @inheritDoc
-         */
-        $hitTest(stageX: number, stageY: number): egret.DisplayObject {
-            if (this._batchEnabled) {
-                const bounds = (this.$DisplayObject as any)[10] as egret.Rectangle;
-                this.$measureContentBounds(bounds);
-            }
-
-            return super.$hitTest(stageX, stageY);
         }
         /**
          * @inheritDoc
