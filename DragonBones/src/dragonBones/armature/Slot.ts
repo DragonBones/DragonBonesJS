@@ -341,16 +341,16 @@ namespace dragonBones {
                     this._pivotY = imageDisplayData.pivot.y;
 
                     const rect = frame !== null ? frame : this._textureData.region;
-                    let width = rect.width * scale;
-                    let height = rect.height * scale;
+                    let width = rect.width;
+                    let height = rect.height;
 
                     if (this._textureData.rotated && frame === null) {
                         width = rect.height;
                         height = rect.width;
                     }
 
-                    this._pivotX *= width;
-                    this._pivotY *= height;
+                    this._pivotX *= width * scale;
+                    this._pivotY *= height * scale;
 
                     if (frame !== null) {
                         this._pivotX += frame.x * scale;
