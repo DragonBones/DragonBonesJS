@@ -407,12 +407,20 @@ namespace dragonBones {
          */
         protected _updateTransform(isSkinnedMesh: boolean): void {
             if (isSkinnedMesh) { // Identity transform.
-                const transformationMatrix = this._renderDisplay.matrix;
-                transformationMatrix.identity();
-                this._renderDisplay.$setMatrix(transformationMatrix, this.transformUpdateEnabled);
-
                 if (this._armatureDisplay._batchEnabled) {
                     this._armatureDisplay._childTransformDirty = true;
+                    let displayMatrix = (this._renderDisplay.$renderNode as (egret.sys.BitmapNode | egret.sys.MeshNode)).matrix;
+                    displayMatrix.a = 1.0;
+                    displayMatrix.b = 0.0;
+                    displayMatrix.c = 0.0;
+                    displayMatrix.d = 1.0;
+                    displayMatrix.tx = 0.0;
+                    displayMatrix.ty = 0.0;
+                }
+                else {
+                    const transformationMatrix = this._renderDisplay.matrix;
+                    transformationMatrix.identity();
+                    this._renderDisplay.$setMatrix(transformationMatrix, this.transformUpdateEnabled);
                 }
             }
             else {
