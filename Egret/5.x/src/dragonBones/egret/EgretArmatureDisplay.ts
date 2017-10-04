@@ -280,8 +280,24 @@ namespace dragonBones {
             this._disposeProxy = disposeProxy;
 
             if (this._armature !== null) {
+                const displays = new Array<egret.DisplayObject>();
+
+                for (const slot of this._armature.getSlots()) {
+                    for (const display of slot.displayList) {
+                        if (display instanceof egret.DisplayObject && displays.indexOf(display) < 0) {
+                            displays.push(display);
+                        }
+                    }
+                }
+
                 this._armature.dispose();
                 this._armature = null as any;
+
+                for (const display of displays) {
+                    display.dispose();
+                }
+
+                super.dispose();
             }
         }
         /**

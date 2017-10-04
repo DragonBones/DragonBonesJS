@@ -66,9 +66,17 @@ namespace dragonBones {
         /**
          * @private
          */
-        protected _buildTextureAtlasData(textureAtlasData: EgretTextureAtlasData | null, textureAtlas: egret.Texture | null): EgretTextureAtlasData {
+        protected _buildTextureAtlasData(textureAtlasData: EgretTextureAtlasData | null, textureAtlas: egret.Texture | HTMLImageElement | null): EgretTextureAtlasData {
             if (textureAtlasData !== null) {
-                textureAtlasData.renderTexture = textureAtlas;
+                if (textureAtlas instanceof egret.Texture) {
+                    textureAtlasData.renderTexture = textureAtlas;
+                }
+                else {
+                    const egretTexture = new egret.Texture();
+                    egretTexture.bitmapData = new egret.BitmapData(textureAtlas);
+                    textureAtlasData.disposeEnabled = true;
+                    textureAtlasData.renderTexture = egretTexture;
+                }
             }
             else {
                 textureAtlasData = BaseObject.borrowObject(EgretTextureAtlasData);

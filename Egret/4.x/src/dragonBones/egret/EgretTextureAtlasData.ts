@@ -9,6 +9,8 @@ namespace dragonBones {
             return "[class dragonBones.EgretTextureAtlasData]";
         }
 
+        public disposeEnabled: boolean;
+
         private _renderTexture: egret.Texture | null = null; // Initial value.
         /**
          * @private
@@ -16,10 +18,11 @@ namespace dragonBones {
         protected _onClear(): void {
             super._onClear();
 
-            if (this._renderTexture !== null) {
-                // this._renderTexture.dispose();
+            if (this.disposeEnabled && this._renderTexture !== null) {
+                this._renderTexture.dispose();
             }
 
+            this.disposeEnabled = false;
             this._renderTexture = null;
         }
         /**

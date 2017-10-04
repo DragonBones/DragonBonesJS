@@ -5,12 +5,11 @@ namespace dragonBones {
      * @language zh_CN
      */
     export class EgretTextureAtlasData extends TextureAtlasData {
-        /**
-         * @private
-         */
         public static toString(): string {
             return "[class dragonBones.EgretTextureAtlasData]";
         }
+
+        public disposeEnabled: boolean;
 
         private _renderTexture: egret.Texture | null = null; // Initial value.
         /**
@@ -19,10 +18,11 @@ namespace dragonBones {
         protected _onClear(): void {
             super._onClear();
 
-            if (this._renderTexture !== null) {
-                // this._renderTexture.dispose();
+            if (this.disposeEnabled && this._renderTexture !== null) {
+                this._renderTexture.dispose();
             }
 
+            this.disposeEnabled = false;
             this._renderTexture = null;
         }
         /**
@@ -58,6 +58,7 @@ namespace dragonBones {
 
                     if (textureData.renderTexture === null) {
                         textureData.renderTexture = new egret.Texture();
+                        textureData.renderTexture.disposeBitmapData = false;
                     }
 
                     textureData.renderTexture._bitmapData = bitmapData;
