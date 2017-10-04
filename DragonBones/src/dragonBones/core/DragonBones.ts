@@ -189,6 +189,8 @@ namespace dragonBones {
 
         public constructor(eventManager: IEventDispatcher) {
             this._eventManager = eventManager;
+
+            console.info(`DragonBones: ${DragonBones.VERSION}\nWebsite: http://www.dragonbones.com/\nSource: http://www.github.com/dragonbones/`);
         }
 
         public advanceTime(passedTime: number): void {
