@@ -819,7 +819,7 @@ namespace dragonBones {
         }
 
         public update(passedTime: number): void {
-            if (this.slot._meshData === null || (this._timelineData !== null && this.slot._meshData.offset !== this.meshOffset)) {
+            if (this.slot._meshData === null || (this._timelineData === null || this.slot._meshData.offset !== this.meshOffset)) {
                 return;
             }
 
