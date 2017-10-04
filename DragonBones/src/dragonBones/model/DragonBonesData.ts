@@ -41,6 +41,10 @@ namespace dragonBones {
         /**
          * @private
          */
+        public stage: ArmatureData | null;
+        /**
+         * @private
+         */
         public readonly frameIndices: Array<number> = [];
         /**
          * @private
@@ -109,6 +113,7 @@ namespace dragonBones {
             this.frameRate = 0;
             this.version = "";
             this.name = "";
+            this.stage = null;
             this.frameIndices.length = 0;
             this.cachedFrames.length = 0;
             this.armatureNames.length = 0;

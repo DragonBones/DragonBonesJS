@@ -223,7 +223,7 @@ namespace dragonBones {
             const animation = BaseObject.borrowObject(AnimationData);
             animation.frameCount = Math.max(ObjectDataParser._getNumber(rawData, ObjectDataParser.DURATION, 1), 1);
             animation.playTimes = ObjectDataParser._getNumber(rawData, ObjectDataParser.PLAY_TIMES, 1);
-            animation.duration = animation.frameCount / this._armature.frameRate;
+            animation.duration = animation.frameCount / this._armature.frameRate; // float
             animation.fadeInTime = ObjectDataParser._getNumber(rawData, ObjectDataParser.FADE_IN_TIME, 0.0);
             animation.scale = ObjectDataParser._getNumber(rawData, ObjectDataParser.SCALE, 1.0);
             animation.name = ObjectDataParser._getString(rawData, ObjectDataParser.NAME, ObjectDataParser.DEFAULT_NAME);

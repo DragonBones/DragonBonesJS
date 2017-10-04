@@ -68,6 +68,7 @@ namespace dragonBones {
         protected static readonly NAME: string = "name";
         protected static readonly PARENT: string = "parent";
         protected static readonly TARGET: string = "target";
+        protected static readonly STAGE: string = "stage";
         protected static readonly SHARE: string = "share";
         protected static readonly PATH: string = "path";
         protected static readonly LENGTH: string = "length";
