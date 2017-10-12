@@ -98,16 +98,16 @@ namespace dragonBones {
          */
         protected _onClear(): void {
             for (let k in this.boneTimelines) {
-                for (let kA in this.boneTimelines[k]) {
-                    this.boneTimelines[k][kA].returnToPool();
+                for (const timeline of this.boneTimelines[k]) {
+                    timeline.returnToPool();
                 }
 
                 delete this.boneTimelines[k];
             }
 
             for (let k in this.slotTimelines) {
-                for (let kA in this.slotTimelines[k]) {
-                    this.slotTimelines[k][kA].returnToPool();
+                for (const timeline of this.slotTimelines[k]) {
+                    timeline.returnToPool();
                 }
 
                 delete this.slotTimelines[k];
