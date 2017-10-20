@@ -143,7 +143,12 @@ namespace dragonBones {
         public getTextureDisplay(textureName: string, textureAtlasName: string | null = null): egret.Bitmap | null {
             const textureData = this._getTextureData(textureAtlasName !== null ? textureAtlasName : "", textureName) as EgretTextureData;
             if (textureData !== null && textureData.renderTexture !== null) {
-                return new egret.Bitmap(textureData.renderTexture);
+                const texture = textureData.renderTexture;
+                const bitmap = new egret.Bitmap(texture);
+                bitmap.width = texture.textureWidth * textureData.parent.scale;
+                bitmap.height = texture.textureHeight * textureData.parent.scale;
+
+                return bitmap;
             }
 
             return null;

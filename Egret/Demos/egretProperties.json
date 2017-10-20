@@ -7,7 +7,7 @@
 		"native": 1,
 		"path": "bin-release"
 	},
-	"egret_version": "5.0.2",
+	"egret_version": "5.0.9",
 	"modules": [
 		{
 			"name": "egret"
@@ -18,10 +18,6 @@
 		},
 		{
 			"name": "res"
-		},
-		{
-			"name": "promise",
-			"path": "./libs/promise/"
 		}
 	]
 }

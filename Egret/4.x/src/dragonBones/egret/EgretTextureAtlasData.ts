@@ -52,9 +52,10 @@ namespace dragonBones {
                 const textureAtlasHeight = this.height > 0.0 ? this.height : bitmapData.height;
 
                 for (let k in this.textures) {
+                    const scale = egret.$TextureScaleFactor;
                     const textureData = this.textures[k] as EgretTextureData;
-                    const subTextureWidth = Math.min(textureData.region.width, textureAtlasWidth - textureData.region.x); // TODO need remove
-                    const subTextureHeight = Math.min(textureData.region.height, textureAtlasHeight - textureData.region.y); // TODO need remove
+                    const subTextureWidth = textureData.region.width;
+                    const subTextureHeight = textureData.region.height;
 
                     if (textureData.renderTexture === null) {
                         textureData.renderTexture = new egret.Texture();
@@ -64,20 +65,20 @@ namespace dragonBones {
 
                     if (textureData.rotated) {
                         textureData.renderTexture.$initData(
-                            textureData.region.x, textureData.region.y,
-                            subTextureHeight, subTextureWidth,
+                            textureData.region.x * scale, textureData.region.y * scale,
+                            subTextureHeight * scale, subTextureWidth * scale,
                             0, 0,
-                            subTextureHeight, subTextureWidth,
+                            subTextureHeight * scale, subTextureWidth * scale,
                             textureAtlasWidth, textureAtlasHeight,
                             textureData.rotated
                         );
                     }
                     else {
                         textureData.renderTexture.$initData(
-                            textureData.region.x, textureData.region.y,
-                            subTextureWidth, subTextureHeight,
+                            textureData.region.x * scale, textureData.region.y * scale,
+                            subTextureWidth * scale, subTextureHeight * scale,
                             0, 0,
-                            subTextureWidth, subTextureHeight,
+                            subTextureWidth * scale, subTextureHeight * scale,
                             textureAtlasWidth, textureAtlasHeight
                         );
                     }

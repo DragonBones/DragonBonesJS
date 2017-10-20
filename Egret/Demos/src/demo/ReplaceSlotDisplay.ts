@@ -1,5 +1,4 @@
 class ReplaceSlotDisplay extends BaseTest {
-
     private _displayIndex: number = 0;
     private readonly _replaceDisplays: string[] = [
         // Replace normal display.
@@ -7,7 +6,6 @@ class ReplaceSlotDisplay extends BaseTest {
         // Replace mesh display.
         "meshA", "meshB", "meshC",
     ];
-
     private readonly _factory: dragonBones.EgretFactory = dragonBones.EgretFactory.factory;
     private _armatureDisplay: dragonBones.EgretArmatureDisplay;
 
@@ -29,26 +27,25 @@ class ReplaceSlotDisplay extends BaseTest {
         this._factory.parseTextureAtlasData(RES.getRes("resource/assets/replace_slot_display/main_tex.json"), RES.getRes("resource/assets/replace_slot_display/main_tex.png"));
         this._factory.parseDragonBonesData(RES.getRes("resource/assets/replace_slot_display/replace_ske.json"));
         this._factory.parseTextureAtlasData(RES.getRes("resource/assets/replace_slot_display/replace_tex.json"), RES.getRes("resource/assets/replace_slot_display/replace_tex.png"));
-
+        //
         this._armatureDisplay = this._factory.buildArmatureDisplay("MyArmature");
         this._armatureDisplay.animation.timeScale = 0.1;
         this._armatureDisplay.animation.play();
-
-        this._armatureDisplay.x = this.stage.stageWidth * 0.5;
-        this._armatureDisplay.y = this.stage.stageHeight * 0.5;
+        this._armatureDisplay.x = this.stageWidth * 0.5;
+        this._armatureDisplay.y = this.stageHeight * 0.5;
         this.addChild(this._armatureDisplay);
-
+        //
         this.stage.addEventListener(egret.TouchEvent.TOUCH_BEGIN,
             (event: egret.TouchEvent): void => {
                 this._replaceDisplay();
             },
             this
         );
+        this.createText("Click to replace slot display.");
     }
 
     private _replaceDisplay(): void {
         this._displayIndex = (this._displayIndex + 1) % this._replaceDisplays.length;
-
         const replaceDisplayName = this._replaceDisplays[this._displayIndex];
 
         if (replaceDisplayName.indexOf("mesh") >= 0) { // Replace mesh display.

@@ -1,5 +1,5 @@
 abstract class BaseTest extends egret.DisplayObjectContainer {
-    private _loadCount: number;
+    protected _loadCount: number = 0;
     protected readonly _background: egret.Shape = new egret.Shape();
     protected readonly _resources: string[] = [];
     protected readonly _resourceMap: any = {};
@@ -8,7 +8,7 @@ abstract class BaseTest extends egret.DisplayObjectContainer {
         super();
 
         this.addEventListener(egret.Event.ADDED_TO_STAGE, () => {
-            this._background.graphics.beginFill(0x666666, 1.0);
+            this._background.graphics.beginFill(0x666666);
             this._background.graphics.drawRect(0.0, 0.0, this.stage.stageWidth, this.stage.stageHeight);
             this.addChild(this._background);
 
@@ -37,5 +37,26 @@ abstract class BaseTest extends egret.DisplayObjectContainer {
                 this, resource.indexOf(".dbbin") > 0 ? RES.ResourceItem.TYPE_BIN : null
             );
         }
+    }
+
+    public createText(string: string): egret.TextField {
+        const text = new egret.TextField();
+        text.size = 20;
+        text.textAlign = egret.HorizontalAlign.CENTER;
+        text.text = string;
+        text.width = this.stageWidth;
+        text.x = 0;
+        text.y = this.stageHeight - 60;
+        this.addChild(text);
+
+        return text;
+    }
+
+    public get stageWidth(): number {
+        return this.stage.stageWidth;
+    }
+
+    public get stageHeight(): number {
+        return this.stage.stageHeight;
     }
 }

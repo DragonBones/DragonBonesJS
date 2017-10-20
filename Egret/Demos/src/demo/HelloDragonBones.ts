@@ -36,8 +36,8 @@ class HelloDragonBones extends BaseTest {
         const armatureDisplay = factory.buildArmatureDisplay("DragonBoy");
         armatureDisplay.animation.play("walk");
 
-        armatureDisplay.x = this.stage.stageWidth * 0.5;
-        armatureDisplay.y = this.stage.stageHeight * 0.5 + 100;
+        armatureDisplay.x = this.stageWidth * 0.5;
+        armatureDisplay.y = this.stageHeight * 0.5 + 100;
         this.addChild(armatureDisplay);
     }
 }

@@ -1,5 +1,4 @@
-class AnimationCopyTest extends BaseTest {
-
+class AnimationCopy extends BaseTest {
     private _armatureDisplayA: dragonBones.EgretArmatureDisplay;
     private _armatureDisplayB: dragonBones.EgretArmatureDisplay;
     private _armatureDisplayC: dragonBones.EgretArmatureDisplay;
@@ -34,15 +33,15 @@ class AnimationCopyTest extends BaseTest {
         this.addChild(this._armatureDisplayC);
         this.addChild(this._armatureDisplayD);
 
-        this._armatureDisplayA.x = this.stage.stageWidth * 0.5 - 350;
-        this._armatureDisplayA.y = this.stage.stageHeight * 0.5 + 200.0;
-        this._armatureDisplayB.x = this.stage.stageWidth * 0.5;
-        this._armatureDisplayB.y = this.stage.stageHeight * 0.5 + 200.0;
-        this._armatureDisplayC.x = this.stage.stageWidth * 0.5 + 350;
-        this._armatureDisplayC.y = this.stage.stageHeight * 0.5 + 200.0;
-        this._armatureDisplayD.x = this.stage.stageWidth * 0.5;
-        this._armatureDisplayD.y = this.stage.stageHeight * 0.5 - 50.0;
-
+        this._armatureDisplayA.x = this.stageWidth * 0.5 - 350;
+        this._armatureDisplayA.y = this.stageHeight * 0.5 + 200.0;
+        this._armatureDisplayB.x = this.stageWidth * 0.5;
+        this._armatureDisplayB.y = this.stageHeight * 0.5 + 200.0;
+        this._armatureDisplayC.x = this.stageWidth * 0.5 + 350;
+        this._armatureDisplayC.y = this.stageHeight * 0.5 + 200.0;
+        this._armatureDisplayD.x = this.stageWidth * 0.5;
+        this._armatureDisplayD.y = this.stageHeight * 0.5 - 50.0;
+        //
         this.stage.addEventListener(
             egret.TouchEvent.TOUCH_END,
             () => {
@@ -64,14 +63,7 @@ class AnimationCopyTest extends BaseTest {
             },
             this
         );
-
-        const text = new egret.TextField();
-        text.size = 20;
-        text.textAlign = egret.HorizontalAlign.CENTER;
-        text.text = "Click to change animation.";
-        text.width = this.stage.stageWidth;
-        text.x = 0;
-        text.y = this.stage.stageHeight - 60;
-        this.addChild(text);
+        //
+        this.createText("Click to change animation.");
     }
 }

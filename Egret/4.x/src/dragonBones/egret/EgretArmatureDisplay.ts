@@ -177,7 +177,7 @@ namespace dragonBones {
          * @internal
          * @private
          */
-        public _childTransformDirty: boolean = true;
+        public _childDirty: boolean = true;
         private _debugDraw: boolean = false;
         private _disposeProxy: boolean = false;
         private _armature: Armature = null as any; //
@@ -288,7 +288,7 @@ namespace dragonBones {
                 }
             }
 
-            if (this._batchEnabled && this._childTransformDirty) {
+            if (this._batchEnabled && this._childDirty) {
                 this.$invalidateContentBounds();
             }
         }
@@ -376,8 +376,8 @@ namespace dragonBones {
          */
         $measureContentBounds(bounds: egret.Rectangle): void {
             if (this._batchEnabled) {
-                if (this._childTransformDirty) {
-                    this._childTransformDirty = false;
+                if (this._childDirty) {
+                    this._childDirty = false;
 
                     let isFirst = true;
                     const helpRectangle = new egret.Rectangle();
@@ -414,10 +414,11 @@ namespace dragonBones {
                         else {
                             const displayData = slot._displayDatas[slot.displayIndex];
                             if (displayData && displayData instanceof ImageDisplayData && displayData.texture) {
+                                const scale = displayData.texture.parent.scale;
                                 helpRectangle.x = 0;
                                 helpRectangle.y = 0;
-                                helpRectangle.width = displayData.texture.region.width;
-                                helpRectangle.height = displayData.texture.region.height;
+                                helpRectangle.width = displayData.texture.region.width * scale;
+                                helpRectangle.height = displayData.texture.region.height * scale;
                             }
                             else {
                                 continue;

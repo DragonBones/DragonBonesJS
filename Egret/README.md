@@ -2,4 +2,4 @@
 
 ## [Demos](./Demos/)
 
-## [Egret](http://www.egret.com/)
+## [Egret website](http://www.egret.com/)

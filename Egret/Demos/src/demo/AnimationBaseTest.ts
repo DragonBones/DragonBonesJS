@@ -15,13 +15,12 @@ class AnimationBaseTest extends BaseTest {
         const factory = dragonBones.EgretFactory.factory;
         factory.parseDragonBonesData(RES.getRes("resource/assets/animation_base_test_ske.json"));
         factory.parseTextureAtlasData(RES.getRes("resource/assets/animation_base_test_tex.json"), RES.getRes("resource/assets/animation_base_test_tex.png"));
-
+        //
         this._armatureDisplay = factory.buildArmatureDisplay("progressBar");
-        this._armatureDisplay.x = this.stage.stageWidth * 0.5;
-        this._armatureDisplay.y = this.stage.stageHeight * 0.5;
-        this._armatureDisplay.scaleX = this._armatureDisplay.scaleY = this.stage.stageWidth >= 300 ? 1 : this.stage.stageWidth / 330;
+        this._armatureDisplay.x = this.stageWidth * 0.5;
+        this._armatureDisplay.y = this.stageHeight * 0.5;
+        this._armatureDisplay.scaleX = this._armatureDisplay.scaleY = this.stageWidth >= 300 ? 1 : this.stageWidth / 330;
         this.addChild(this._armatureDisplay);
-
         // Test animation event
         this._armatureDisplay.addEventListener(dragonBones.EventObject.START, this._animationEventHandler, this);
         this._armatureDisplay.addEventListener(dragonBones.EventObject.LOOP_COMPLETE, this._animationEventHandler, this);
@@ -30,9 +29,8 @@ class AnimationBaseTest extends BaseTest {
         this._armatureDisplay.addEventListener(dragonBones.EventObject.FADE_IN_COMPLETE, this._animationEventHandler, this);
         this._armatureDisplay.addEventListener(dragonBones.EventObject.FADE_OUT, this._animationEventHandler, this);
         this._armatureDisplay.addEventListener(dragonBones.EventObject.FADE_OUT_COMPLETE, this._animationEventHandler, this);
-
-        // Test frame event
         this._armatureDisplay.addEventListener(dragonBones.EventObject.FRAME_EVENT, this._animationEventHandler, this);
+        this._armatureDisplay.animation.play("idle");
 
         // Test animation config.
         // const animaitonConfig = this._armatureDisplay.animation.animationConfig;
@@ -50,35 +48,18 @@ class AnimationBaseTest extends BaseTest {
         // animaitonConfig.duration = 0.0; // Goto and stop.
         // animaitonConfig.duration = 3.0; // Interval play.
         // this._armatureDisplay.animation.playConfig(animaitonConfig);
-
-        this._armatureDisplay.animation.play("idle", 1);
-
         //            
         this.stage.addEventListener(egret.TouchEvent.TOUCH_BEGIN, this._touchHandler, this);
         this.stage.addEventListener(egret.TouchEvent.TOUCH_END, this._touchHandler, this);
         this.stage.addEventListener(egret.TouchEvent.TOUCH_MOVE, this._touchHandler, this);
-
-        const text = new egret.TextField();
-        text.size = 20;
-        text.textAlign = egret.HorizontalAlign.CENTER;
-        text.text = "Click to control animation play progress.";
-        text.width = this.stage.stageWidth;
-        text.x = 0;
-        text.y = this.stage.stageHeight - 60;
-        this.addChild(text);
+        //
+        this.createText("Click to control animation play progress.");
     }
 
     private _touchHandler(event: egret.TouchEvent): void {
         const progress = Math.min(Math.max((event.stageX - this._armatureDisplay.x + 300 * this._armatureDisplay.scaleX) / 600 * this._armatureDisplay.scaleX, 0), 1);
         switch (event.type) {
             case egret.TouchEvent.TOUCH_BEGIN:
-                // this._armatureDisplay.animation.gotoAndPlayByTime("idle", 0.5, 1);
-                // this._armatureDisplay.animation.gotoAndStopByTime("idle", 1);
-
-                // this._armatureDisplay.animation.gotoAndPlayByFrame("idle", 25, 2);
-                // this._armatureDisplay.animation.gotoAndStopByFrame("idle", 50);
-
-                // this._armatureDisplay.animation.gotoAndPlayByProgress("idle", progress, 3);
                 this._armatureDisplay.animation.gotoAndStopByProgress("idle", progress);
                 break;
 
@@ -98,6 +79,6 @@ class AnimationBaseTest extends BaseTest {
     }
 
     private _animationEventHandler(event: dragonBones.EgretEvent): void {
-        console.log(event.eventObject.animationState.name, event.type, event.eventObject.name ? event.eventObject.name : "");
+        console.log(event.eventObject.animationState.name, event.type, event.eventObject.name || "");
     }
 }

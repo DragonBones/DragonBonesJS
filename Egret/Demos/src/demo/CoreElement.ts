@@ -4,8 +4,6 @@ namespace coreElement {
     type EventType = dragonBones.EgretEvent;
 
     export class Game extends BaseTest {
-        public static STAGE_WIDTH: number;
-        public static STAGE_HEIGHT: number;
         public static GROUND: number;
         public static G: number = 0.6;
         public static instance: Game;
@@ -32,22 +30,9 @@ namespace coreElement {
         }
 
         protected _onStart(): void {
-            Game.STAGE_WIDTH = this.stage.stageWidth;
-            Game.STAGE_HEIGHT = this.stage.stageHeight;
-            Game.GROUND = Game.STAGE_HEIGHT - 150;
+            Game.GROUND = this.stageHeight - 150;
             Game.instance = this;
-
-            const factory = dragonBones.EgretFactory.factory;
-            factory.parseDragonBonesData(RES.getRes("resource/assets/core_element/mecha_1502b_ske.json"));
-            factory.parseTextureAtlasData(RES.getRes("resource/assets/core_element/mecha_1502b_tex.json"), RES.getRes("resource/assets/core_element/mecha_1502b_tex.png"));
-            factory.parseDragonBonesData(RES.getRes("resource/assets/core_element/skin_1502b_ske.json"));
-            factory.parseTextureAtlasData(RES.getRes("resource/assets/core_element/skin_1502b_tex.json"), RES.getRes("resource/assets/core_element/skin_1502b_tex.png"));
-            factory.parseDragonBonesData(RES.getRes("resource/assets/core_element/weapon_1000_ske.json"));
-            factory.parseTextureAtlasData(RES.getRes("resource/assets/core_element/weapon_1000_tex.json"), RES.getRes("resource/assets/core_element/weapon_1000_tex.png"));
-
-            this._player = new Mecha();
-
-            // Listener.
+            //
             this.stage.addEventListener(egret.Event.ENTER_FRAME, this._enterFrameHandler, this);
             this.stage.addEventListener(egret.TouchEvent.TOUCH_BEGIN, this._touchHandler, this);
             this.stage.addEventListener(egret.TouchEvent.TOUCH_END, this._touchHandler, this);
@@ -56,23 +41,25 @@ namespace coreElement {
             const onTouchMove = egret.sys.TouchHandler.prototype.onTouchMove;
             egret.sys.TouchHandler.prototype.onTouchMove = function (this: any, x: number, y: number, touchPointID: number): void {
                 onTouchMove.call(this, x, y, touchPointID);
-
                 Game.instance._player.aim(x, y);
             }
-
-            // Info.
-            const text = new egret.TextField();
-            text.size = 20;
-            text.textAlign = egret.HorizontalAlign.CENTER;
-            text.text = "Press W/A/S/D to move. Press Q/E to switch weapons. Press SPACE to switch skin.\nMouse Move to aim. Click to fire.";
-            text.width = Game.STAGE_WIDTH;
-            text.x = 0;
-            text.y = Game.STAGE_HEIGHT - 60;
-            this.addChild(text);
+            //
+            this.createText("Press W/A/S/D to move. Press Q/E to switch weapons. Press SPACE to switch skin.\nMouse Move to aim. Click to fire.");
+            //
+            const factory = dragonBones.EgretFactory.factory;
+            factory.parseDragonBonesData(RES.getRes("resource/assets/core_element/mecha_1502b_ske.json"));
+            factory.parseTextureAtlasData(RES.getRes("resource/assets/core_element/mecha_1502b_tex.json"), RES.getRes("resource/assets/core_element/mecha_1502b_tex.png"));
+            factory.parseDragonBonesData(RES.getRes("resource/assets/core_element/skin_1502b_ske.json"));
+            factory.parseTextureAtlasData(RES.getRes("resource/assets/core_element/skin_1502b_tex.json"), RES.getRes("resource/assets/core_element/skin_1502b_tex.png"));
+            factory.parseDragonBonesData(RES.getRes("resource/assets/core_element/weapon_1000_ske.json"));
+            factory.parseTextureAtlasData(RES.getRes("resource/assets/core_element/weapon_1000_tex.json"), RES.getRes("resource/assets/core_element/weapon_1000_tex.png"));
+            //
+            this._player = new Mecha();
         }
 
         private _touchHandler(event: egret.TouchEvent): void {
             this._player.aim(event.stageX, event.stageY);
+
             if (event.type === egret.TouchEvent.TOUCH_BEGIN) {
                 this._player.attack(true);
             }
@@ -129,7 +116,9 @@ namespace coreElement {
         }
 
         private _enterFrameHandler(event: egret.Event): void {
-            this._player.update();
+            if (this._player) {
+                this._player.update();
+            }
 
             let i = this._bullets.length;
             while (i--) {
@@ -198,7 +187,7 @@ namespace coreElement {
 
         public constructor() {
             this._armatureDisplay = dragonBones.EgretFactory.factory.buildArmatureDisplay("mecha_1502b");
-            this._armatureDisplay.x = Game.STAGE_WIDTH * 0.5;
+            this._armatureDisplay.x = Game.instance.stageWidth * 0.5;
             this._armatureDisplay.y = Game.GROUND;
             this._armature = this._armatureDisplay.armature;
             this._armature.eventDispatcher.addEvent(dragonBones.EventObject.FADE_IN_COMPLETE, this._animationEventHandler, this);
@@ -406,8 +395,8 @@ namespace coreElement {
                 if (this._armatureDisplay.x < 0) {
                     this._armatureDisplay.x = 0;
                 }
-                else if (this._armatureDisplay.x > Game.STAGE_WIDTH) {
-                    this._armatureDisplay.x = Game.STAGE_WIDTH;
+                else if (this._armatureDisplay.x > Game.instance.stageWidth) {
+                    this._armatureDisplay.x = Game.instance.stageWidth;
                 }
             }
 
@@ -525,6 +514,7 @@ namespace coreElement {
                 this._effecDisplay.y = this._armatureDisplay.y;
                 this._effecDisplay.scaleX = 1.0 + Math.random() * 1.0;
                 this._effecDisplay.scaleY = 1.0 + Math.random() * 0.5;
+                
                 if (Math.random() < 0.5) {
                     this._effecDisplay.scaleY *= -1.0;
                 }
@@ -542,8 +532,8 @@ namespace coreElement {
             this._armatureDisplay.y += this._speedY;
 
             if (
-                this._armatureDisplay.x < -100.0 || this._armatureDisplay.x >= Game.STAGE_WIDTH + 100.0 ||
-                this._armatureDisplay.y < -100.0 || this._armatureDisplay.y >= Game.STAGE_HEIGHT + 100.0
+                this._armatureDisplay.x < -100.0 || this._armatureDisplay.x >= Game.instance.stageWidth + 100.0 ||
+                this._armatureDisplay.y < -100.0 || this._armatureDisplay.y >= Game.instance.stageHeight + 100.0
             ) {
                 Game.instance.removeChild(this._armatureDisplay);
                 this._armatureDisplay.dispose();
