@@ -16,29 +16,28 @@
  *    addChild(armatureDisplay);
  */
 class HelloDragonBones extends BaseTest {
+    public constructor() {
+        super();
+
+        this._resources.push(
+            // "resource/assets/dragon_boy_ske.json",
+            "resource/assets/dragon_boy_ske.dbbin",
+            "resource/assets/dragon_boy_tex.json",
+            "resource/assets/dragon_boy_tex.png"
+        );
+    }
+
     protected _onStart(): void {
-        PIXI.loader
-            // .add("dragonBonesData", "./resource/assets/dragon_boy_ske.json")
-            .add("dragonBonesData", "./resource/assets/dragon_boy_ske.dbbin", { loadType: PIXI.loaders.Resource.LOAD_TYPE.XHR, xhrType: PIXI.loaders.Resource.XHR_RESPONSE_TYPE.BUFFER } as any)
-            .add("textureData", "./resource/assets/dragon_boy_tex.json")
-            .add("texture", "./resource/assets/dragon_boy_tex.png");
+        const factory = dragonBones.PixiFactory.factory;
+        // factory.parseDragonBonesData(this._pixiResource["resource/assets/dragon_boy_ske.json"].data);
+        factory.parseDragonBonesData(this._pixiResources["resource/assets/dragon_boy_ske.dbbin"].data);
+        factory.parseTextureAtlasData(this._pixiResources["resource/assets/dragon_boy_tex.json"].data, this._pixiResources["resource/assets/dragon_boy_tex.png"].texture);
 
-        PIXI.loader.once("complete", (loader: PIXI.loaders.Loader, resources: dragonBones.Map<PIXI.loaders.Resource>) => {
-            const factory = dragonBones.PixiFactory.factory;
-            factory.parseDragonBonesData(resources["dragonBonesData"].data);
-            factory.parseTextureAtlasData(resources["textureData"].data, resources["texture"].texture);
+        const armatureDisplay = factory.buildArmatureDisplay("DragonBoy");
+        armatureDisplay.animation.play("walk");
 
-            const armatureDisplay = factory.buildArmatureDisplay("DragonBoy");
-            armatureDisplay.animation.play("walk");
-            this.stage.addChild(armatureDisplay);
-
-            armatureDisplay.x = this._renderer.width * 0.5;
-            armatureDisplay.y = this._renderer.height * 0.5 + 100;
-
-            //
-            this._startRenderTick();
-        });
-
-        PIXI.loader.load();
+        armatureDisplay.x = this.stageWidth * 0.5;
+        armatureDisplay.y = this.stageHeight * 0.5 + 100;
+        this.addChild(armatureDisplay);
     }
 }

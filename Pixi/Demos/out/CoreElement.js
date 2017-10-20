@@ -14,61 +14,39 @@ var coreElement;
     var Game = (function (_super) {
         __extends(Game, _super);
         function Game() {
-            var _this = _super !== null && _super.apply(this, arguments) || this;
+            var _this = _super.call(this) || this;
             _this._left = false;
             _this._right = false;
             _this._bullets = [];
+            _this._resources.push("resource/assets/core_element/mecha_1502b_ske.json", "resource/assets/core_element/mecha_1502b_tex.json", "resource/assets/core_element/mecha_1502b_tex.png", "resource/assets/core_element/skin_1502b_ske.json", "resource/assets/core_element/skin_1502b_tex.json", "resource/assets/core_element/skin_1502b_tex.png", "resource/assets/core_element/weapon_1000_ske.json", "resource/assets/core_element/weapon_1000_tex.json", "resource/assets/core_element/weapon_1000_tex.png");
             return _this;
         }
         Game.prototype._onStart = function () {
-            var _this = this;
-            PIXI.loader
-                .add("dataA", "./resource/assets/core_element/mecha_1502b_ske.json")
-                .add("textureDataA", "./resource/assets/core_element/mecha_1502b_tex.json")
-                .add("textureA", "./resource/assets/core_element/mecha_1502b_tex.png")
-                .add("dataB", "./resource/assets/core_element/skin_1502b_ske.json")
-                .add("textureDataB", "./resource/assets/core_element/skin_1502b_tex.json")
-                .add("textureB", "./resource/assets/core_element/skin_1502b_tex.png")
-                .add("dataC", "./resource/assets/core_element/weapon_1000_ske.json")
-                .add("textureDataC", "./resource/assets/core_element/weapon_1000_tex.json")
-                .add("textureC", "./resource/assets/core_element/weapon_1000_tex.png");
-            PIXI.loader.once("complete", function (loader, resources) {
-                Game.STAGE_WIDTH = _this._stage.width;
-                Game.STAGE_HEIGHT = _this._stage.height;
-                Game.GROUND = Game.STAGE_HEIGHT - 150;
-                Game.instance = _this;
-                PIXI.ticker.shared.add(_this._enterFrameHandler, _this);
-                var factory = dragonBones.PixiFactory.factory;
-                factory.parseDragonBonesData(resources["dataA"].data);
-                factory.parseTextureAtlasData(resources["textureDataA"].data, resources["textureA"].texture);
-                factory.parseDragonBonesData(resources["dataB"].data);
-                factory.parseTextureAtlasData(resources["textureDataB"].data, resources["textureB"].texture);
-                factory.parseDragonBonesData(resources["dataC"].data);
-                factory.parseTextureAtlasData(resources["textureDataC"].data, resources["textureC"].texture);
-                _this._player = new Mecha();
-                // Listener.
-                _this._stage.interactive = true;
-                _this._stage.addListener('touchstart', _this._touchHandler, _this);
-                _this._stage.addListener('touchend', _this._touchHandler, _this);
-                _this._stage.addListener('touchmove', _this._touchHandler, _this);
-                _this._stage.addListener('mousedown', _this._touchHandler, _this);
-                _this._stage.addListener('mouseup', _this._touchHandler, _this);
-                _this._stage.addListener('mousemove', _this._touchHandler, _this);
-                _this._stage.addChild(_this._backgroud);
-                document.addEventListener("keydown", _this._keyHandler);
-                document.addEventListener("keyup", _this._keyHandler);
-                // Info.
-                var text = new PIXI.Text("", { align: "center" });
-                text.text = "Press W/A/S/D to move. Press Q/E to switch weapons. Press SPACE to switch skin.\nMouse Move to aim. Click to fire.";
-                text.scale.x = 0.7;
-                text.scale.y = 0.7;
-                text.x = (Game.STAGE_WIDTH - text.width) * 0.5;
-                text.y = Game.STAGE_HEIGHT - 60;
-                _this._stage.addChild(text);
-                //
-                _this._startRenderTick();
-            });
-            PIXI.loader.load();
+            Game.GROUND = this.stageHeight - 150;
+            Game.instance = this;
+            //
+            this.interactive = true;
+            this.addListener('touchstart', this._touchHandler, this);
+            this.addListener('touchend', this._touchHandler, this);
+            this.addListener('touchmove', this._touchHandler, this);
+            this.addListener('mousedown', this._touchHandler, this);
+            this.addListener('mouseup', this._touchHandler, this);
+            this.addListener('mousemove', this._touchHandler, this);
+            PIXI.ticker.shared.add(this._enterFrameHandler, this);
+            document.addEventListener("keydown", this._keyHandler);
+            document.addEventListener("keyup", this._keyHandler);
+            //
+            this.createText("Press W/A/S/D to move. Press Q/E to switch weapons. Press SPACE to switch skin.\nMouse Move to aim. Click to fire.");
+            //
+            var factory = dragonBones.PixiFactory.factory;
+            factory.parseDragonBonesData(this._pixiResources["resource/assets/core_element/mecha_1502b_ske.json"].data);
+            factory.parseTextureAtlasData(this._pixiResources["resource/assets/core_element/mecha_1502b_tex.json"].data, this._pixiResources["resource/assets/core_element/mecha_1502b_tex.png"].texture);
+            factory.parseDragonBonesData(this._pixiResources["resource/assets/core_element/skin_1502b_ske.json"].data);
+            factory.parseTextureAtlasData(this._pixiResources["resource/assets/core_element/skin_1502b_tex.json"].data, this._pixiResources["resource/assets/core_element/skin_1502b_tex.png"].texture);
+            factory.parseDragonBonesData(this._pixiResources["resource/assets/core_element/weapon_1000_ske.json"].data);
+            factory.parseTextureAtlasData(this._pixiResources["resource/assets/core_element/weapon_1000_tex.json"].data, this._pixiResources["resource/assets/core_element/weapon_1000_tex.png"].texture);
+            //
+            this._player = new Mecha();
         };
         Game.prototype._touchHandler = function (event) {
             this._player.aim(event.data.global.x, event.data.global.y);
@@ -174,7 +152,7 @@ var coreElement;
             this._target = new PIXI.Point();
             this._helpPoint = new PIXI.Point();
             this._armatureDisplay = dragonBones.PixiFactory.factory.buildArmatureDisplay("mecha_1502b");
-            this._armatureDisplay.x = Game.STAGE_WIDTH * 0.5;
+            this._armatureDisplay.x = Game.instance.stageWidth * 0.5;
             this._armatureDisplay.y = Game.GROUND;
             this._armature = this._armatureDisplay.armature;
             this._armature.eventDispatcher.addEvent(dragonBones.EventObject.FADE_IN_COMPLETE, this._animationEventHandler, this);
@@ -185,7 +163,7 @@ var coreElement;
             this._weaponR = this._armature.getSlot("weapon_r").childArmature;
             this._weaponL.eventDispatcher.addEvent(dragonBones.EventObject.FRAME_EVENT, this._frameEventHandler, this);
             this._weaponR.eventDispatcher.addEvent(dragonBones.EventObject.FRAME_EVENT, this._frameEventHandler, this);
-            Game.instance.stage.addChild(this._armatureDisplay);
+            Game.instance.addChild(this._armatureDisplay);
             this._updateAnimation();
         }
         Mecha.prototype.move = function (dir) {
@@ -335,8 +313,8 @@ var coreElement;
                 if (this._armatureDisplay.x < 0) {
                     this._armatureDisplay.x = 0;
                 }
-                else if (this._armatureDisplay.x > Game.STAGE_WIDTH) {
-                    this._armatureDisplay.x = Game.STAGE_WIDTH;
+                else if (this._armatureDisplay.x > Game.instance.stageWidth) {
+                    this._armatureDisplay.x = Game.instance.stageWidth;
                 }
             }
             if (this._speedY !== 0.0) {
@@ -428,25 +406,26 @@ var coreElement;
                 this._effecDisplay.rotation = radian;
                 this._effecDisplay.x = this._armatureDisplay.x;
                 this._effecDisplay.y = this._armatureDisplay.y;
-                this._effecDisplay.scale.set(1 + Math.random() * 1, 1 + Math.random() * 0.5);
+                this._effecDisplay.scale.x = 1.0 + Math.random() * 1.0;
+                this._effecDisplay.scale.y = 1.0 + Math.random() * 0.5;
                 if (Math.random() < 0.5) {
-                    this._effecDisplay.scale.y *= -1;
+                    this._effecDisplay.scale.y *= -1.0;
                 }
-                Game.instance.stage.addChild(this._effecDisplay);
+                Game.instance.addChild(this._effecDisplay);
                 this._effecDisplay.animation.play("idle");
             }
-            Game.instance.stage.addChild(this._armatureDisplay);
+            Game.instance.addChild(this._armatureDisplay);
             this._armatureDisplay.animation.play("idle");
         }
         Bullet.prototype.update = function () {
             this._armatureDisplay.x += this._speedX;
             this._armatureDisplay.y += this._speedY;
-            if (this._armatureDisplay.x < -100.0 || this._armatureDisplay.x >= Game.STAGE_WIDTH + 100.0 ||
-                this._armatureDisplay.y < -100.0 || this._armatureDisplay.y >= Game.STAGE_HEIGHT + 100.0) {
-                Game.instance.stage.removeChild(this._armatureDisplay);
+            if (this._armatureDisplay.x < -100.0 || this._armatureDisplay.x >= Game.instance.stageWidth + 100.0 ||
+                this._armatureDisplay.y < -100.0 || this._armatureDisplay.y >= Game.instance.stageHeight + 100.0) {
+                Game.instance.removeChild(this._armatureDisplay);
                 this._armatureDisplay.dispose();
                 if (this._effecDisplay !== null) {
-                    Game.instance.stage.removeChild(this._effecDisplay);
+                    Game.instance.removeChild(this._effecDisplay);
                     this._effecDisplay.dispose();
                 }
                 return true;

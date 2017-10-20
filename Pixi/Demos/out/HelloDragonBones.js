@@ -29,27 +29,22 @@ var __extends = (this && this.__extends) || (function () {
 var HelloDragonBones = (function (_super) {
     __extends(HelloDragonBones, _super);
     function HelloDragonBones() {
-        return _super !== null && _super.apply(this, arguments) || this;
+        var _this = _super.call(this) || this;
+        _this._resources.push(
+        // "resource/assets/dragon_boy_ske.json",
+        "resource/assets/dragon_boy_ske.dbbin", "resource/assets/dragon_boy_tex.json", "resource/assets/dragon_boy_tex.png");
+        return _this;
     }
     HelloDragonBones.prototype._onStart = function () {
-        var _this = this;
-        PIXI.loader
-            .add("dragonBonesData", "./resource/assets/dragon_boy_ske.dbbin", { loadType: PIXI.loaders.Resource.LOAD_TYPE.XHR, xhrType: PIXI.loaders.Resource.XHR_RESPONSE_TYPE.BUFFER })
-            .add("textureData", "./resource/assets/dragon_boy_tex.json")
-            .add("texture", "./resource/assets/dragon_boy_tex.png");
-        PIXI.loader.once("complete", function (loader, resources) {
-            var factory = dragonBones.PixiFactory.factory;
-            factory.parseDragonBonesData(resources["dragonBonesData"].data);
-            factory.parseTextureAtlasData(resources["textureData"].data, resources["texture"].texture);
-            var armatureDisplay = factory.buildArmatureDisplay("DragonBoy");
-            armatureDisplay.animation.play("walk");
-            _this.stage.addChild(armatureDisplay);
-            armatureDisplay.x = _this._renderer.width * 0.5;
-            armatureDisplay.y = _this._renderer.height * 0.5 + 100;
-            //
-            _this._startRenderTick();
-        });
-        PIXI.loader.load();
+        var factory = dragonBones.PixiFactory.factory;
+        // factory.parseDragonBonesData(this._pixiResource["resource/assets/dragon_boy_ske.json"].data);
+        factory.parseDragonBonesData(this._pixiResources["resource/assets/dragon_boy_ske.dbbin"].data);
+        factory.parseTextureAtlasData(this._pixiResources["resource/assets/dragon_boy_tex.json"].data, this._pixiResources["resource/assets/dragon_boy_tex.png"].texture);
+        var armatureDisplay = factory.buildArmatureDisplay("DragonBoy");
+        armatureDisplay.animation.play("walk");
+        armatureDisplay.x = this.stageWidth * 0.5;
+        armatureDisplay.y = this.stageHeight * 0.5 + 100;
+        this.addChild(armatureDisplay);
     };
     return HelloDragonBones;
 }(BaseTest));

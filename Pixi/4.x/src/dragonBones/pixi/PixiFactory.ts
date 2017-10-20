@@ -8,9 +8,7 @@ namespace dragonBones {
         private static _dragonBonesInstance: DragonBones = null as any;
         private static _factory: PixiFactory = null as any;
         private static _clockHandler(passedTime: number): void {
-            // PixiFactory._dragonBonesInstance.advanceTime(PIXI.ticker.shared.elapsedMS * passedTime * 0.001);
-            passedTime;
-            PixiFactory._dragonBonesInstance.advanceTime(-1);
+            PixiFactory._dragonBonesInstance.advanceTime(PIXI.ticker.shared.elapsedMS * passedTime * 0.001);
         }
         /**
          * 一个可以直接使用的全局 WorldClock 实例。(由引擎驱动)

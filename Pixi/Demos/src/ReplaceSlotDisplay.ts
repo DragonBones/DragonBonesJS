@@ -1,5 +1,4 @@
 class ReplaceSlotDisplay extends BaseTest {
-
     private _displayIndex: number = 0;
     private readonly _replaceDisplays: string[] = [
         // Replace normal display.
@@ -7,50 +6,46 @@ class ReplaceSlotDisplay extends BaseTest {
         // Replace mesh display.
         "meshA", "meshB", "meshC",
     ];
-
     private readonly _factory: dragonBones.PixiFactory = dragonBones.PixiFactory.factory;
     private _armatureDisplay: dragonBones.PixiArmatureDisplay;
 
+    public constructor() {
+        super();
+
+        this._resources.push(
+            "resource/assets/replace_slot_display/main_ske.json",
+            "resource/assets/replace_slot_display/main_tex.json",
+            "resource/assets/replace_slot_display/main_tex.png",
+            "resource/assets/replace_slot_display/replace_ske.json",
+            "resource/assets/replace_slot_display/replace_tex.json",
+            "resource/assets/replace_slot_display/replace_tex.png"
+        );
+    }
+
     protected _onStart(): void {
-        PIXI.loader
-            .add("dragonBonesDataA", "./resource/assets/replace_slot_display/main_ske.json")
-            .add("textureDataA", "./resource/assets/replace_slot_display/main_tex.json")
-            .add("textureA", "./resource/assets/replace_slot_display/main_tex.png")
-            .add("dragonBonesDataB", "./resource/assets/replace_slot_display/replace_ske.json")
-            .add("textureDataB", "./resource/assets/replace_slot_display/replace_tex.json")
-            .add("textureB", "./resource/assets/replace_slot_display/replace_tex.png");
-
-        PIXI.loader.once("complete", (loader: PIXI.loaders.Loader, resources: dragonBones.Map<PIXI.loaders.Resource>) => {
-            this._factory.parseDragonBonesData(resources["dragonBonesDataA"].data);
-            this._factory.parseTextureAtlasData(resources["textureDataA"].data, resources["textureA"].texture);
-            this._factory.parseDragonBonesData(resources["dragonBonesDataB"].data);
-            this._factory.parseTextureAtlasData(resources["textureDataB"].data, resources["textureB"].texture);
-
-            this._armatureDisplay = this._factory.buildArmatureDisplay("MyArmature");
-            this._armatureDisplay.animation.timeScale = 0.1;
-            this._armatureDisplay.animation.play();
-
-            this._armatureDisplay.x = this.stage.width * 0.5;
-            this._armatureDisplay.y = this.stage.height * 0.5;
-            this.stage.addChild(this._armatureDisplay);
-
-            const touchHandler = (event: PIXI.interaction.InteractionEvent): void => {
-                this._replaceDisplay();
-            };
-            this.stage.interactive = true;
-            this.stage.addListener("touchstart", touchHandler, this);
-            this.stage.addListener("mousedown", touchHandler, this);
-
-            //
-            this._startRenderTick();
-        });
-
-        PIXI.loader.load();
+        this._factory.parseDragonBonesData(this._pixiResources["resource/assets/replace_slot_display/main_ske.json"].data);
+        this._factory.parseTextureAtlasData(this._pixiResources["resource/assets/replace_slot_display/main_tex.json"].data, this._pixiResources["resource/assets/replace_slot_display/main_tex.png"].texture);
+        this._factory.parseDragonBonesData(this._pixiResources["resource/assets/replace_slot_display/replace_ske.json"].data);
+        this._factory.parseTextureAtlasData(this._pixiResources["resource/assets/replace_slot_display/replace_tex.json"].data, this._pixiResources["resource/assets/replace_slot_display/replace_tex.png"].texture);
+        //
+        this._armatureDisplay = this._factory.buildArmatureDisplay("MyArmature");
+        this._armatureDisplay.animation.timeScale = 0.1;
+        this._armatureDisplay.animation.play();
+        this._armatureDisplay.x = this.stageWidth * 0.5;
+        this._armatureDisplay.y = this.stageHeight * 0.5;
+        this.addChild(this._armatureDisplay);
+        //
+        const touchHandler = (event: PIXI.interaction.InteractionEvent): void => {
+            this._replaceDisplay();
+        };
+        this.interactive = true;
+        this.addListener("touchstart", touchHandler, this);
+        this.addListener("mousedown", touchHandler, this);
+        this.createText("Click to replace slot display.");
     }
 
     private _replaceDisplay(): void {
         this._displayIndex = (this._displayIndex + 1) % this._replaceDisplays.length;
-
         const replaceDisplayName = this._replaceDisplays[this._displayIndex];
 
         if (replaceDisplayName.indexOf("mesh") >= 0) { // Replace mesh display.

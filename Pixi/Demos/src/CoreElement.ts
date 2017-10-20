@@ -4,8 +4,6 @@ namespace coreElement {
     type EventType = dragonBones.EventObject;
 
     export class Game extends BaseTest {
-        public static STAGE_WIDTH: number;
-        public static STAGE_HEIGHT: number;
         public static GROUND: number;
         public static G: number = 0.6;
         public static instance: Game;
@@ -15,61 +13,48 @@ namespace coreElement {
         private _player: Mecha;
         private readonly _bullets: Array<Bullet> = [];
 
+        public constructor() {
+            super();
+
+            this._resources.push(
+                "resource/assets/core_element/mecha_1502b_ske.json",
+                "resource/assets/core_element/mecha_1502b_tex.json",
+                "resource/assets/core_element/mecha_1502b_tex.png",
+                "resource/assets/core_element/skin_1502b_ske.json",
+                "resource/assets/core_element/skin_1502b_tex.json",
+                "resource/assets/core_element/skin_1502b_tex.png",
+                "resource/assets/core_element/weapon_1000_ske.json",
+                "resource/assets/core_element/weapon_1000_tex.json",
+                "resource/assets/core_element/weapon_1000_tex.png"
+            );
+        }
+
         protected _onStart(): void {
-            PIXI.loader
-                .add("dataA", "./resource/assets/core_element/mecha_1502b_ske.json")
-                .add("textureDataA", "./resource/assets/core_element/mecha_1502b_tex.json")
-                .add("textureA", "./resource/assets/core_element/mecha_1502b_tex.png")
-                .add("dataB", "./resource/assets/core_element/skin_1502b_ske.json")
-                .add("textureDataB", "./resource/assets/core_element/skin_1502b_tex.json")
-                .add("textureB", "./resource/assets/core_element/skin_1502b_tex.png")
-                .add("dataC", "./resource/assets/core_element/weapon_1000_ske.json")
-                .add("textureDataC", "./resource/assets/core_element/weapon_1000_tex.json")
-                .add("textureC", "./resource/assets/core_element/weapon_1000_tex.png");
-
-            PIXI.loader.once("complete", (loader: PIXI.loaders.Loader, resources: dragonBones.Map<PIXI.loaders.Resource>) => {
-                Game.STAGE_WIDTH = this._stage.width;
-                Game.STAGE_HEIGHT = this._stage.height;
-                Game.GROUND = Game.STAGE_HEIGHT - 150;
-                Game.instance = this;
-                PIXI.ticker.shared.add(this._enterFrameHandler, this);
-
-                const factory = dragonBones.PixiFactory.factory;
-                factory.parseDragonBonesData(resources["dataA"].data);
-                factory.parseTextureAtlasData(resources["textureDataA"].data, resources["textureA"].texture);
-                factory.parseDragonBonesData(resources["dataB"].data);
-                factory.parseTextureAtlasData(resources["textureDataB"].data, resources["textureB"].texture);
-                factory.parseDragonBonesData(resources["dataC"].data);
-                factory.parseTextureAtlasData(resources["textureDataC"].data, resources["textureC"].texture);
-
-                this._player = new Mecha();
-
-                // Listener.
-                this._stage.interactive = true;
-                this._stage.addListener('touchstart', this._touchHandler, this);
-                this._stage.addListener('touchend', this._touchHandler, this);
-                this._stage.addListener('touchmove', this._touchHandler, this);
-                this._stage.addListener('mousedown', this._touchHandler, this);
-                this._stage.addListener('mouseup', this._touchHandler, this);
-                this._stage.addListener('mousemove', this._touchHandler, this);
-                this._stage.addChild(this._backgroud);
-                document.addEventListener("keydown", this._keyHandler);
-                document.addEventListener("keyup", this._keyHandler);
-
-                // Info.
-                const text = new PIXI.Text("", { align: "center" });
-                text.text = "Press W/A/S/D to move. Press Q/E to switch weapons. Press SPACE to switch skin.\nMouse Move to aim. Click to fire.";
-                text.scale.x = 0.7;
-                text.scale.y = 0.7;
-                text.x = (Game.STAGE_WIDTH - text.width) * 0.5;
-                text.y = Game.STAGE_HEIGHT - 60;
-                this._stage.addChild(text);
-
-                //
-                this._startRenderTick();
-            });
-
-            PIXI.loader.load();
+            Game.GROUND = this.stageHeight - 150;
+            Game.instance = this;
+            //
+            this.interactive = true;
+            this.addListener('touchstart', this._touchHandler, this);
+            this.addListener('touchend', this._touchHandler, this);
+            this.addListener('touchmove', this._touchHandler, this);
+            this.addListener('mousedown', this._touchHandler, this);
+            this.addListener('mouseup', this._touchHandler, this);
+            this.addListener('mousemove', this._touchHandler, this);
+            PIXI.ticker.shared.add(this._enterFrameHandler, this);
+            document.addEventListener("keydown", this._keyHandler);
+            document.addEventListener("keyup", this._keyHandler);
+            //
+            this.createText("Press W/A/S/D to move. Press Q/E to switch weapons. Press SPACE to switch skin.\nMouse Move to aim. Click to fire.");
+            //
+            const factory = dragonBones.PixiFactory.factory;
+            factory.parseDragonBonesData(this._pixiResources["resource/assets/core_element/mecha_1502b_ske.json"].data);
+            factory.parseTextureAtlasData(this._pixiResources["resource/assets/core_element/mecha_1502b_tex.json"].data, this._pixiResources["resource/assets/core_element/mecha_1502b_tex.png"].texture);
+            factory.parseDragonBonesData(this._pixiResources["resource/assets/core_element/skin_1502b_ske.json"].data);
+            factory.parseTextureAtlasData(this._pixiResources["resource/assets/core_element/skin_1502b_tex.json"].data, this._pixiResources["resource/assets/core_element/skin_1502b_tex.png"].texture);
+            factory.parseDragonBonesData(this._pixiResources["resource/assets/core_element/weapon_1000_ske.json"].data);
+            factory.parseTextureAtlasData(this._pixiResources["resource/assets/core_element/weapon_1000_tex.json"].data, this._pixiResources["resource/assets/core_element/weapon_1000_tex.png"].texture);
+            //
+            this._player = new Mecha();
         }
 
         private _touchHandler(event: PIXI.interaction.InteractionEvent): void {
@@ -202,7 +187,7 @@ namespace coreElement {
 
         public constructor() {
             this._armatureDisplay = dragonBones.PixiFactory.factory.buildArmatureDisplay("mecha_1502b");
-            this._armatureDisplay.x = Game.STAGE_WIDTH * 0.5;
+            this._armatureDisplay.x = Game.instance.stageWidth * 0.5;
             this._armatureDisplay.y = Game.GROUND;
             this._armature = this._armatureDisplay.armature;
             this._armature.eventDispatcher.addEvent(dragonBones.EventObject.FADE_IN_COMPLETE, this._animationEventHandler, this);
@@ -215,7 +200,7 @@ namespace coreElement {
             this._weaponL.eventDispatcher.addEvent(dragonBones.EventObject.FRAME_EVENT, this._frameEventHandler, this);
             this._weaponR.eventDispatcher.addEvent(dragonBones.EventObject.FRAME_EVENT, this._frameEventHandler, this);
 
-            Game.instance.stage.addChild(this._armatureDisplay);
+            Game.instance.addChild(this._armatureDisplay);
             this._updateAnimation();
         }
 
@@ -344,7 +329,7 @@ namespace coreElement {
             if (event.name === "fire") {
                 this._helpPoint.x = event.bone.global.x;
                 this._helpPoint.y = event.bone.global.y;
-                this._helpPoint.copy((<ArmatureDisplayType>event.armature.display).toGlobal(this._helpPoint));
+                this._helpPoint.copy((event.armature.display as ArmatureDisplayType).toGlobal(this._helpPoint));
 
                 this._fire(this._helpPoint);
             }
@@ -413,8 +398,8 @@ namespace coreElement {
                 if (this._armatureDisplay.x < 0) {
                     this._armatureDisplay.x = 0;
                 }
-                else if (this._armatureDisplay.x > Game.STAGE_WIDTH) {
-                    this._armatureDisplay.x = Game.STAGE_WIDTH;
+                else if (this._armatureDisplay.x > Game.instance.stageWidth) {
+                    this._armatureDisplay.x = Game.instance.stageWidth;
                 }
             }
 
@@ -444,6 +429,7 @@ namespace coreElement {
             this._faceDir = this._target.x > this._armatureDisplay.x ? 1 : -1;
             if (this._armatureDisplay.armature.flipX !== this._faceDir < 0) {
                 this._armatureDisplay.armature.flipX = !this._armatureDisplay.armature.flipX;
+
                 if (this._moveDir !== 0) {
                     this._updateAnimation();
                 }
@@ -529,19 +515,18 @@ namespace coreElement {
                 this._effecDisplay.rotation = radian;
                 this._effecDisplay.x = this._armatureDisplay.x;
                 this._effecDisplay.y = this._armatureDisplay.y;
-                this._effecDisplay.scale.set(
-                    1 + Math.random() * 1,
-                    1 + Math.random() * 0.5
-                );
+                this._effecDisplay.scale.x = 1.0 + Math.random() * 1.0;
+                this._effecDisplay.scale.y = 1.0 + Math.random() * 0.5;
+
                 if (Math.random() < 0.5) {
-                    this._effecDisplay.scale.y *= -1;
+                    this._effecDisplay.scale.y *= -1.0;
                 }
 
-                Game.instance.stage.addChild(this._effecDisplay);
+                Game.instance.addChild(this._effecDisplay);
                 this._effecDisplay.animation.play("idle");
             }
 
-            Game.instance.stage.addChild(this._armatureDisplay);
+            Game.instance.addChild(this._armatureDisplay);
             this._armatureDisplay.animation.play("idle");
         }
 
@@ -550,14 +535,14 @@ namespace coreElement {
             this._armatureDisplay.y += this._speedY;
 
             if (
-                this._armatureDisplay.x < -100.0 || this._armatureDisplay.x >= Game.STAGE_WIDTH + 100.0 ||
-                this._armatureDisplay.y < -100.0 || this._armatureDisplay.y >= Game.STAGE_HEIGHT + 100.0
+                this._armatureDisplay.x < -100.0 || this._armatureDisplay.x >= Game.instance.stageWidth + 100.0 ||
+                this._armatureDisplay.y < -100.0 || this._armatureDisplay.y >= Game.instance.stageHeight + 100.0
             ) {
-                Game.instance.stage.removeChild(this._armatureDisplay);
+                Game.instance.removeChild(this._armatureDisplay);
                 this._armatureDisplay.dispose();
 
                 if (this._effecDisplay !== null) {
-                    Game.instance.stage.removeChild(this._effecDisplay);
+                    Game.instance.removeChild(this._effecDisplay);
                     this._effecDisplay.dispose();
                 }
 

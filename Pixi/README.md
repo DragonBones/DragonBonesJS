@@ -2,4 +2,4 @@
 
 ## [Demos](./Demos/)
 
-## [Pixi](http://www.pixijs.com/)
+## [Pixi website](http://www.pixijs.com/)

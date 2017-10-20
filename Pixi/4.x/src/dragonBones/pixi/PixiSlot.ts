@@ -9,6 +9,7 @@ namespace dragonBones {
             return "[class dragonBones.PixiSlot]";
         }
 
+        private _textureScale: number;
         private _renderDisplay: PIXI.DisplayObject;
         /**
          * @private
@@ -16,8 +17,9 @@ namespace dragonBones {
         protected _onClear(): void {
             super._onClear();
 
-            this._updateTransform = PIXI.VERSION[0] === "3" ? this._updateTransformV3 : this._updateTransformV4;
+            this._textureScale = 1.0;
             this._renderDisplay = null as any;
+            this._updateTransform = PIXI.VERSION[0] === "3" ? this._updateTransformV3 : this._updateTransformV4;
         }
         /**
          * @private
@@ -53,6 +55,7 @@ namespace dragonBones {
             container.addChild(this._renderDisplay);
             container.swapChildren(this._renderDisplay, prevDisplay);
             container.removeChild(prevDisplay);
+            this._textureScale = 1.0;
         }
         /**
          * @private
@@ -163,7 +166,7 @@ namespace dragonBones {
                 if (renderTexture !== null) {
                     const currentTextureAtlas = currentTextureData.renderTexture as PIXI.Texture;
                     if (meshData !== null) { // Mesh.
-                        const data = meshData.parent.parent;
+                        const data = meshData.parent.parent.parent;
                         const intArray = data.intArray;
                         const floatArray = data.floatArray;
                         const vertexCount = intArray[meshData.offset + BinaryOffset.MeshVertexCount];
@@ -195,15 +198,23 @@ namespace dragonBones {
                         for (let i = 0, l = meshDisplay.uvs.length; i < l; i += 2) {
                             const u = meshDisplay.uvs[i];
                             const v = meshDisplay.uvs[i + 1];
-                            meshDisplay.uvs[i] = (currentTextureData.region.x + u * currentTextureData.region.width) / textureAtlasWidth;
-                            meshDisplay.uvs[i + 1] = (currentTextureData.region.y + v * currentTextureData.region.height) / textureAtlasHeight;
+                            if (currentTextureData.rotated) {
+                                meshDisplay.uvs[i] = (currentTextureData.region.x + (1.0 - v) * currentTextureData.region.width) / textureAtlasWidth;
+                                meshDisplay.uvs[i + 1] = (currentTextureData.region.y + u * currentTextureData.region.height) / textureAtlasHeight;
+                            }
+                            else {
+                                meshDisplay.uvs[i] = (currentTextureData.region.x + u * currentTextureData.region.width) / textureAtlasWidth;
+                                meshDisplay.uvs[i + 1] = (currentTextureData.region.y + v * currentTextureData.region.height) / textureAtlasHeight;
+                            }
                         }
 
+                        this._textureScale = 1.0;
                         meshDisplay.texture = renderTexture as any;
                         //meshDisplay.dirty = true; // Pixi 3.x
                         meshDisplay.dirty++; // Pixi 4.x Can not support change mesh vertice count.
                     }
                     else { // Normal texture.
+                        this._textureScale = currentTextureData.parent.scale * this._armature.armatureData.scale;
                         const normalDisplay = this._renderDisplay as PIXI.Sprite;
                         normalDisplay.texture = renderTexture;
                     }
@@ -233,12 +244,13 @@ namespace dragonBones {
          */
         protected _updateMesh(): void {
             const hasFFD = this._ffdVertices.length > 0;
+            const scale = this._armature.armatureData.scale;
             const meshData = this._meshData as MeshDisplayData;
             const weight = meshData.weight;
             const meshDisplay = this._renderDisplay as PIXI.mesh.Mesh;
 
             if (weight !== null) {
-                const data = meshData.parent.parent;
+                const data = meshData.parent.parent.parent;
                 const intArray = data.intArray;
                 const floatArray = data.floatArray;
                 const vertexCount = intArray[meshData.offset + BinaryOffset.MeshVertexCount];
@@ -261,8 +273,8 @@ namespace dragonBones {
                         if (bone !== null) {
                             const matrix = bone.globalTransformMatrix;
                             const weight = floatArray[iV++];
-                            let xL = floatArray[iV++];
-                            let yL = floatArray[iV++];
+                            let xL = floatArray[iV++] * scale;
+                            let yL = floatArray[iV++] * scale;
 
                             if (hasFFD) {
                                 xL += this._ffdVertices[iF++];
@@ -279,7 +291,7 @@ namespace dragonBones {
                 }
             }
             else if (hasFFD) {
-                const data = meshData.parent.parent;
+                const data = meshData.parent.parent.parent;
                 const intArray = data.intArray;
                 const floatArray = data.floatArray;
                 const vertexCount = intArray[meshData.offset + BinaryOffset.MeshVertexCount];
@@ -290,7 +302,7 @@ namespace dragonBones {
                 }
 
                 for (let i = 0, l = vertexCount * 2; i < l; ++i) {
-                    meshDisplay.vertices[i] = floatArray[vertexOffset + i] + this._ffdVertices[i];
+                    meshDisplay.vertices[i] = floatArray[vertexOffset + i] * scale + this._ffdVertices[i];
                 }
             }
         }
@@ -318,7 +330,7 @@ namespace dragonBones {
                 if (this._renderDisplay === this._rawDisplay || this._renderDisplay === this._meshDisplay) {
                     this._renderDisplay.setTransform(
                         x, y,
-                        transform.scaleX, transform.scaleY,
+                        transform.scaleX * this._textureScale, transform.scaleY * this._textureScale,
                         transform.rotation,
                         transform.skew, 0.0,
                     );
@@ -342,19 +354,18 @@ namespace dragonBones {
                 this.updateGlobalTransform(); // Update transform.
 
                 const transform = this.global;
+                const x = transform.x - (this.globalTransformMatrix.a * this._pivotX + this.globalTransformMatrix.c * this._pivotY);
+                const y = transform.y - (this.globalTransformMatrix.b * this._pivotX + this.globalTransformMatrix.d * this._pivotY);
 
                 if (this._renderDisplay === this._rawDisplay || this._renderDisplay === this._meshDisplay) {
                     this._renderDisplay.setTransform(
-                        transform.x, transform.y,
-                        transform.scaleX, transform.scaleY,
+                        x, y,
+                        transform.scaleX * this._textureScale, transform.scaleY * this._textureScale,
                         transform.rotation,
-                        -transform.skew, 0.0,
-                        this._pivotX, this._pivotY
+                        -transform.skew, 0.0
                     );
                 }
                 else {
-                    const x = transform.x - (this.globalTransformMatrix.a * this._pivotX + this.globalTransformMatrix.c * this._pivotY);
-                    const y = transform.y - (this.globalTransformMatrix.b * this._pivotX + this.globalTransformMatrix.d * this._pivotY);
                     this._renderDisplay.position.set(x, y);
                     this._renderDisplay.rotation = transform.rotation;
                     this._renderDisplay.skew.set(-transform.skew, 0.0);

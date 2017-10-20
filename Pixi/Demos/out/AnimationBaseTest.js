@@ -12,69 +12,57 @@ var __extends = (this && this.__extends) || (function () {
 var AnimationBaseTest = (function (_super) {
     __extends(AnimationBaseTest, _super);
     function AnimationBaseTest() {
-        var _this = _super !== null && _super.apply(this, arguments) || this;
+        var _this = _super.call(this) || this;
         _this._isTouched = false;
+        _this._resources.push("resource/assets/animation_base_test_ske.json", "resource/assets/animation_base_test_tex.json", "resource/assets/animation_base_test_tex.png");
         return _this;
     }
     AnimationBaseTest.prototype._onStart = function () {
-        var _this = this;
-        PIXI.loader
-            .add("dragonBonesData", "./resource/assets/animation_base_test_ske.json")
-            .add("textureData", "./resource/assets/animation_base_test_tex.json")
-            .add("texture", "./resource/assets/animation_base_test_tex.png");
-        PIXI.loader.once("complete", function (loader, resources) {
-            var factory = dragonBones.PixiFactory.factory;
-            factory.parseDragonBonesData(resources["dragonBonesData"].data);
-            factory.parseTextureAtlasData(resources["textureData"].data, resources["texture"].texture);
-            _this._armatureDisplay = factory.buildArmatureDisplay("progressBar");
-            _this._armatureDisplay.x = _this.stage.width * 0.5;
-            _this._armatureDisplay.y = _this.stage.height * 0.5;
-            _this.stage.addChild(_this._armatureDisplay);
-            // Test animation event
-            _this._armatureDisplay.addListener(dragonBones.EventObject.START, _this._animationEventHandler, _this);
-            _this._armatureDisplay.addListener(dragonBones.EventObject.LOOP_COMPLETE, _this._animationEventHandler, _this);
-            _this._armatureDisplay.addListener(dragonBones.EventObject.COMPLETE, _this._animationEventHandler, _this);
-            _this._armatureDisplay.addListener(dragonBones.EventObject.FADE_IN, _this._animationEventHandler, _this);
-            _this._armatureDisplay.addListener(dragonBones.EventObject.FADE_IN_COMPLETE, _this._animationEventHandler, _this);
-            _this._armatureDisplay.addListener(dragonBones.EventObject.FADE_OUT, _this._animationEventHandler, _this);
-            _this._armatureDisplay.addListener(dragonBones.EventObject.FADE_OUT_COMPLETE, _this._animationEventHandler, _this);
-            // Test frame event
-            _this._armatureDisplay.addListener(dragonBones.EventObject.FRAME_EVENT, _this._animationEventHandler, _this);
-            // Test animation config.
-            // const animaitonConfig = this._armatureDisplay.animation.animationConfig;
-            // animaitonConfig.name = "test"; // Animation state name.
-            // animaitonConfig.animation = "idle"; // Animation name.
-            // animaitonConfig.playTimes = 1; // Play one time.
-            // animaitonConfig.playTimes = 3; // Play several times.
-            // animaitonConfig.playTimes = 0; // Loop play.
-            // animaitonConfig.timeScale = 1.0; // Play speed.
-            // animaitonConfig.timeScale = -1.0; // Reverse play.
-            // animaitonConfig.position = 1.0; // Goto and play.
-            // animaitonConfig.duration = 3.0; // Interval play.
-            // this._armatureDisplay.animation.playConfig(animaitonConfig);
-            _this._armatureDisplay.animation.play("idle", 1);
-            //
-            _this.stage.interactive = true;
-            _this.stage.addListener("touchstart", _this._touchHandler, _this);
-            _this.stage.addListener("touchend", _this._touchHandler, _this);
-            _this.stage.addListener("touchmove", _this._touchHandler, _this);
-            _this.stage.addListener("mousedown", _this._touchHandler, _this);
-            _this.stage.addListener("mouseup", _this._touchHandler, _this);
-            _this.stage.addListener("mousemove", _this._touchHandler, _this);
-            var text = new PIXI.Text("", { align: "center" });
-            text.text = "Click to control animation play progress.";
-            text.scale.x = 0.7;
-            text.scale.y = 0.7;
-            text.x = (_this.renderer.width - text.width) * 0.5;
-            text.y = _this.renderer.height - 60;
-            _this._stage.addChild(text);
-            //
-            _this._startRenderTick();
-        });
-        PIXI.loader.load();
+        var factory = dragonBones.PixiFactory.factory;
+        factory.parseDragonBonesData(this._pixiResources["resource/assets/animation_base_test_ske.json"].data);
+        factory.parseTextureAtlasData(this._pixiResources["resource/assets/animation_base_test_tex.json"].data, this._pixiResources["resource/assets/animation_base_test_tex.png"].texture);
+        //
+        this._armatureDisplay = factory.buildArmatureDisplay("progressBar");
+        this._armatureDisplay.x = this.stageWidth * 0.5;
+        this._armatureDisplay.y = this.stageHeight * 0.5;
+        this._armatureDisplay.scale.x = this._armatureDisplay.scale.x = this.stageWidth >= 300 ? 1 : this.stageWidth / 330;
+        this.addChild(this._armatureDisplay);
+        // Test animation event
+        this._armatureDisplay.addListener(dragonBones.EventObject.START, this._animationEventHandler, this);
+        this._armatureDisplay.addListener(dragonBones.EventObject.LOOP_COMPLETE, this._animationEventHandler, this);
+        this._armatureDisplay.addListener(dragonBones.EventObject.COMPLETE, this._animationEventHandler, this);
+        this._armatureDisplay.addListener(dragonBones.EventObject.FADE_IN, this._animationEventHandler, this);
+        this._armatureDisplay.addListener(dragonBones.EventObject.FADE_IN_COMPLETE, this._animationEventHandler, this);
+        this._armatureDisplay.addListener(dragonBones.EventObject.FADE_OUT, this._animationEventHandler, this);
+        this._armatureDisplay.addListener(dragonBones.EventObject.FADE_OUT_COMPLETE, this._animationEventHandler, this);
+        this._armatureDisplay.addListener(dragonBones.EventObject.FRAME_EVENT, this._animationEventHandler, this);
+        this._armatureDisplay.animation.play("idle", 1);
+        // Test animation config.
+        // const animaitonConfig = this._armatureDisplay.animation.animationConfig;
+        // animaitonConfig.name = "test"; // Animation state name.
+        // animaitonConfig.animation = "idle"; // Animation name.
+        // animaitonConfig.playTimes = 1; // Play one time.
+        // animaitonConfig.playTimes = 3; // Play several times.
+        // animaitonConfig.playTimes = 0; // Loop play.
+        // animaitonConfig.timeScale = 1.0; // Play speed.
+        // animaitonConfig.timeScale = -1.0; // Reverse play.
+        // animaitonConfig.position = 1.0; // Goto and play.
+        // animaitonConfig.duration = 0.0; // Goto and stop.
+        // animaitonConfig.duration = 3.0; // Interval play.
+        // this._armatureDisplay.animation.playConfig(animaitonConfig);
+        //
+        this.interactive = true;
+        this.addListener("touchstart", this._touchHandler, this);
+        this.addListener("touchend", this._touchHandler, this);
+        this.addListener("touchmove", this._touchHandler, this);
+        this.addListener("mousedown", this._touchHandler, this);
+        this.addListener("mouseup", this._touchHandler, this);
+        this.addListener("mousemove", this._touchHandler, this);
+        //
+        this.createText("Click to control animation play progress.");
     };
     AnimationBaseTest.prototype._touchHandler = function (event) {
-        var progress = Math.min(Math.max((event.data.global.x - this._armatureDisplay.x + 300) / 600, 0.0), 1.0);
+        var progress = Math.min(Math.max((event.data.global.x - this._armatureDisplay.x + 300 * this._armatureDisplay.scale.x) / 600 * this._armatureDisplay.scale.x, 0), 1);
         switch (event.type) {
             case "touchstart":
             case "mousedown":
@@ -101,7 +89,7 @@ var AnimationBaseTest = (function (_super) {
         }
     };
     AnimationBaseTest.prototype._animationEventHandler = function (event) {
-        console.log(event.animationState.name, event.type, event.name ? event.name : "");
+        console.log(event.animationState.name, event.type, event.name || "");
     };
     return AnimationBaseTest;
 }(BaseTest));

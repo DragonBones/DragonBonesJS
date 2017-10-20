@@ -25,4 +25,4 @@ $npm run start
 ```
 
 ## Pixijs
-[pixi.js](https://github.com/pixijs/pixi.js/releases/)
+[Get pixi.js](https://github.com/pixijs/pixi.js/releases/)

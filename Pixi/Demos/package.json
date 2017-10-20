@@ -6,7 +6,8 @@
     "start": "tsc & copyfiles -u 3 -s ../4.x/out/* libs/dragonBones/ & anywhere",
     "upgradeA": "cd .. & cd 4.x & npm run build & cd .. & cd Demos",
     "upgradeB": "copyfiles -u 3 ../4.x/out/* libs/dragonBones/",
-    "upgrade": "npm run upgradeA & npm run upgradeB"
+    "upgrade": "npm run upgradeA & npm run upgradeB",
+    "build": "tsc"
   },
   "devDependencies": {
     "anywhere": "^1.4.0",
