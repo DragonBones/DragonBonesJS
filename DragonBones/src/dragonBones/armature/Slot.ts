@@ -334,7 +334,7 @@ namespace dragonBones {
                 }
                 else if (this._textureData !== null) {
                     const imageDisplayData = this._displayData as ImageDisplayData;
-                    const scale = this._armature.armatureData.scale;
+                    const scale = this._textureData.parent.scale * this._armature.armatureData.scale;
                     const frame = this._textureData.frame;
 
                     this._pivotX = imageDisplayData.pivot.x;
@@ -374,7 +374,7 @@ namespace dragonBones {
                             }
                         }
                         else {
-                            const vertexCount = this._meshData.parent.parent.intArray[this._meshData.offset + BinaryOffset.MeshVertexCount];
+                            const vertexCount = this._meshData.parent.parent.parent.intArray[this._meshData.offset + BinaryOffset.MeshVertexCount];
                             this._ffdVertices.length = vertexCount * 2;
                             this._meshBones.length = 0;
                         }

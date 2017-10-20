@@ -261,7 +261,7 @@ namespace dragonBones {
          * @private
          */
         protected _getSlotDisplay(dataPackage: BuildArmaturePackage | null, displayData: DisplayData, rawDisplayData: DisplayData | null, slot: Slot): any {
-            const dataName = dataPackage !== null ? dataPackage.dataName : displayData.parent.parent.name;
+            const dataName = dataPackage !== null ? dataPackage.dataName : displayData.parent.parent.parent.name;
             let display: any = null;
             switch (displayData.type) {
                 case DisplayType.Image:
@@ -407,9 +407,8 @@ namespace dragonBones {
          * @language zh_CN
          */
         public parseDragonBonesData(rawData: any, name: string | null = null, scale: number = 1.0): DragonBonesData | null {
-            let dragonBonesData: DragonBonesData | null = null;
             const dataParser = rawData instanceof ArrayBuffer ? BaseFactory._binaryParser : this._dataParser;
-            dragonBonesData = dataParser.parseDragonBonesData(rawData, scale);
+            const dragonBonesData = dataParser.parseDragonBonesData(rawData, scale);
 
             while (true) {
                 const textureAtlasData = this._buildTextureAtlasData(null, null);
@@ -442,7 +441,7 @@ namespace dragonBones {
          * @version DragonBones 4.5
          * @language zh_CN
          */
-        public parseTextureAtlasData(rawData: any, textureAtlas: any, name: string | null = null, scale: number = 0.0): TextureAtlasData {
+        public parseTextureAtlasData(rawData: any, textureAtlas: any, name: string | null = null, scale: number = 1.0): TextureAtlasData {
             const textureAtlasData = this._buildTextureAtlasData(null, null);
             this._dataParser.parseTextureAtlasData(rawData, textureAtlasData, scale);
             this._buildTextureAtlasData(textureAtlasData, textureAtlas || null);

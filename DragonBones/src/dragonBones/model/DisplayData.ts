@@ -7,7 +7,7 @@ namespace dragonBones {
         public name: string;
         public path: string;
         public readonly transform: Transform = new Transform();
-        public parent: ArmatureData;
+        public parent: SkinData;
 
         protected _onClear(): void {
             this.name = "";

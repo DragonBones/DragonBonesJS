@@ -338,6 +338,7 @@ namespace dragonBones {
                 this.skins[value.name].returnToPool();
             }
 
+            value.parent = this;
             this.skins[value.name] = value;
             if (this.defaultSkin === null) {
                 this.defaultSkin = value;
@@ -592,6 +593,10 @@ namespace dragonBones {
         /**
          * @private
          */
+        public parent: ArmatureData;
+        /**
+         * @private
+         */
         protected _onClear(): void {
             for (let k in this.displays) {
                 const slotDisplays = this.displays[k];
@@ -606,6 +611,7 @@ namespace dragonBones {
 
             this.name = "";
             // this.displays.clear();
+            this.parent = null as any; //
         }
         /**
          * @private
@@ -613,6 +619,10 @@ namespace dragonBones {
         public addDisplay(slotName: string, value: DisplayData | null): void {
             if (!(slotName in this.displays)) {
                 this.displays[slotName] = [];
+            }
+
+            if (value !== null) {
+                value.parent = this;
             }
 
             const slotDisplays = this.displays[slotName]; // TODO clear prev
