@@ -162,13 +162,13 @@ namespace dragonBones {
          * @inheritDoc
          */
         public addEvent(type: EventStringType, listener: (event: EventObject) => void, target: any): void {
-            this.addListener(type, listener, target);
+            this.addListener(type as any, listener as any, target);
         }
         /**
          * @inheritDoc
          */
         public removeEvent(type: EventStringType, listener: (event: EventObject) => void, target: any): void {
-            this.removeListener(type, listener, target);
+            this.removeListener(type as any, listener as any, target);
         }
         /**
          * @inheritDoc
