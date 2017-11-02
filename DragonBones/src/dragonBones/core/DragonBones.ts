@@ -112,6 +112,8 @@ namespace dragonBones {
         SlotColor = 21,
         SlotFFD = 22,
 
+        IKConstraint = 30,
+
         AnimationTime = 40,
         AnimationWeight = 41
     }

@@ -115,8 +115,11 @@ namespace dragonBones {
          * @language zh_CN
          */
         public animationData: AnimationData;
-
-        private _timelineDirty: boolean;
+        /**
+         * @internal
+         * @private
+         */
+        public _timelineDirty: boolean;
         /**
          * @internal
          * @private
@@ -156,6 +159,7 @@ namespace dragonBones {
         private readonly _boneMask: Array<string> = [];
         private readonly _boneTimelines: Array<BoneTimelineState> = [];
         private readonly _slotTimelines: Array<SlotTimelineState> = [];
+        private readonly _constraintTimelines: Array<ConstraintTimelineState> = [];
         private readonly _bonePoses: Map<BonePose> = {};
         private _armature: Armature;
         /**
@@ -173,6 +177,10 @@ namespace dragonBones {
             }
 
             for (const timeline of this._slotTimelines) {
+                timeline.returnToPool();
+            }
+
+            for (const timeline of this._constraintTimelines) {
                 timeline.returnToPool();
             }
 
@@ -216,6 +224,7 @@ namespace dragonBones {
             this._boneMask.length = 0;
             this._boneTimelines.length = 0;
             this._slotTimelines.length = 0;
+            this._constraintTimelines.length = 0;
             // this._bonePoses.clear();
             this._armature = null as any; //
             this._actionTimeline = null as any; //
@@ -235,6 +244,247 @@ namespace dragonBones {
             }
 
             return true;
+        }
+
+        private _updateTimelines(): void {
+            { // Update bone timelines.
+                const boneTimelines: Map<Array<BoneTimelineState>> = {};
+                for (const timeline of this._boneTimelines) { // Create bone timelines map.
+                    const timelineName = timeline.bone.name;
+                    if (!(timelineName in boneTimelines)) {
+                        boneTimelines[timelineName] = [];
+                    }
+
+                    boneTimelines[timelineName].push(timeline);
+                }
+
+                for (const bone of this._armature.getBones()) {
+                    const timelineName = bone.name;
+                    if (!this.containsBoneMask(timelineName)) {
+                        continue;
+                    }
+
+                    const timelineDatas = this.animationData.getBoneTimelines(timelineName);
+                    if (timelineName in boneTimelines) { // Remove bone timeline from map.
+                        delete boneTimelines[timelineName];
+                    }
+                    else { // Create new bone timeline.
+                        const bonePose = timelineName in this._bonePoses ? this._bonePoses[timelineName] : (this._bonePoses[timelineName] = BaseObject.borrowObject(BonePose));
+                        if (timelineDatas !== null) {
+                            for (const timelineData of timelineDatas) {
+                                switch (timelineData.type) {
+                                    case TimelineType.BoneAll: {
+                                        const timeline = BaseObject.borrowObject(BoneAllTimelineState);
+                                        timeline.bone = bone;
+                                        timeline.bonePose = bonePose;
+                                        timeline.init(this._armature, this, timelineData);
+                                        this._boneTimelines.push(timeline);
+                                        break;
+                                    }
+
+                                    case TimelineType.BoneTranslate: {
+                                        const timeline = BaseObject.borrowObject(BoneTranslateTimelineState);
+                                        timeline.bone = bone;
+                                        timeline.bonePose = bonePose;
+                                        timeline.init(this._armature, this, timelineData);
+                                        this._boneTimelines.push(timeline);
+                                        break;
+                                    }
+
+                                    case TimelineType.BoneRotate: {
+                                        const timeline = BaseObject.borrowObject(BoneRotateTimelineState);
+                                        timeline.bone = bone;
+                                        timeline.bonePose = bonePose;
+                                        timeline.init(this._armature, this, timelineData);
+                                        this._boneTimelines.push(timeline);
+                                        break;
+                                    }
+
+                                    case TimelineType.BoneScale: {
+                                        const timeline = BaseObject.borrowObject(BoneScaleTimelineState);
+                                        timeline.bone = bone;
+                                        timeline.bonePose = bonePose;
+                                        timeline.init(this._armature, this, timelineData);
+                                        this._boneTimelines.push(timeline);
+                                        break;
+                                    }
+
+                                    default:
+                                        break;
+                                }
+                            }
+                        }
+                        else if (this.resetToPose) { // Pose timeline.
+                            const timeline = BaseObject.borrowObject(BoneAllTimelineState);
+                            timeline.bone = bone;
+                            timeline.bonePose = bonePose;
+                            timeline.init(this._armature, this, null);
+                            this._boneTimelines.push(timeline);
+                        }
+                    }
+                }
+
+                for (let k in boneTimelines) { // Remove bone timelines.
+                    for (const timeline of boneTimelines[k]) {
+                        this._boneTimelines.splice(this._boneTimelines.indexOf(timeline), 1);
+                        timeline.returnToPool();
+                    }
+                }
+            }
+
+            { // Update slot timelines.
+                const slotTimelines: Map<Array<SlotTimelineState>> = {};
+                const ffdFlags: Array<number> = [];
+                for (const timeline of this._slotTimelines) { // Create slot timelines map.
+                    const timelineName = timeline.slot.name;
+                    if (!(timelineName in slotTimelines)) {
+                        slotTimelines[timelineName] = [];
+                    }
+
+                    slotTimelines[timelineName].push(timeline);
+                }
+
+                for (const slot of this._armature.getSlots()) {
+                    const boneName = slot.parent.name;
+                    if (!this.containsBoneMask(boneName)) {
+                        continue;
+                    }
+
+                    const timelineName = slot.name;
+                    const timelineDatas = this.animationData.getSlotTimeline(timelineName);
+                    if (timelineName in slotTimelines) { // Remove slot timeline from map.
+                        delete slotTimelines[timelineName];
+                    }
+                    else { // Create new slot timeline.
+                        let displayIndexFlag = false;
+                        let colorFlag = false;
+                        ffdFlags.length = 0;
+
+                        if (timelineDatas !== null) {
+                            for (const timelineData of timelineDatas) {
+                                switch (timelineData.type) {
+                                    case TimelineType.SlotDisplay: {
+                                        const timeline = BaseObject.borrowObject(SlotDislayIndexTimelineState);
+                                        timeline.slot = slot;
+                                        timeline.init(this._armature, this, timelineData);
+                                        this._slotTimelines.push(timeline);
+                                        displayIndexFlag = true;
+                                        break;
+                                    }
+
+                                    case TimelineType.SlotColor: {
+                                        const timeline = BaseObject.borrowObject(SlotColorTimelineState);
+                                        timeline.slot = slot;
+                                        timeline.init(this._armature, this, timelineData);
+                                        this._slotTimelines.push(timeline);
+                                        colorFlag = true;
+                                        break;
+                                    }
+
+                                    case TimelineType.SlotFFD: {
+                                        const timeline = BaseObject.borrowObject(SlotFFDTimelineState);
+                                        timeline.slot = slot;
+                                        timeline.init(this._armature, this, timelineData);
+                                        this._slotTimelines.push(timeline);
+                                        ffdFlags.push(timeline.meshOffset);
+                                        break;
+                                    }
+
+                                    default:
+                                        break;
+                                }
+                            }
+                        }
+
+                        if (this.resetToPose) { // Pose timeline.
+                            if (!displayIndexFlag) {
+                                const timeline = BaseObject.borrowObject(SlotDislayIndexTimelineState);
+                                timeline.slot = slot;
+                                timeline.init(this._armature, this, null);
+                                this._slotTimelines.push(timeline);
+                            }
+
+                            if (!colorFlag) {
+                                const timeline = BaseObject.borrowObject(SlotColorTimelineState);
+                                timeline.slot = slot;
+                                timeline.init(this._armature, this, null);
+                                this._slotTimelines.push(timeline);
+                            }
+
+                            if (slot.rawDisplayDatas !== null) {
+                                for (const displayData of slot.rawDisplayDatas) {
+                                    const meshOffset = (displayData as MeshDisplayData).offset;
+                                    if (displayData !== null && displayData.type === DisplayType.Mesh && ffdFlags.indexOf(meshOffset) < 0) {
+                                        const timeline = BaseObject.borrowObject(SlotFFDTimelineState);
+                                        timeline.meshOffset = meshOffset; //
+                                        timeline.slot = slot;
+                                        timeline.init(this._armature, this, null);
+                                        this._slotTimelines.push(timeline);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                for (let k in slotTimelines) { // Remove slot timelines.
+                    for (const timeline of slotTimelines[k]) {
+                        this._slotTimelines.splice(this._slotTimelines.indexOf(timeline), 1);
+                        timeline.returnToPool();
+                    }
+                }
+            }
+
+            { // Update constraint timelines.
+                const constraintTimelines: Map<Array<ConstraintTimelineState>> = {};
+                for (const timeline of this._constraintTimelines) { // Create constraint timelines map.
+                    const timelineName = timeline.constraint.name;
+                    if (!(timelineName in constraintTimelines)) {
+                        constraintTimelines[timelineName] = [];
+                    }
+
+                    constraintTimelines[timelineName].push(timeline);
+                }
+
+                for (const constraint of this._armature._constraints) {
+                    const timelineName = constraint.name;
+                    const timelineDatas = this.animationData.getConstraintTimeline(timelineName);
+                    if (timelineName in constraintTimelines) { // Remove constraint timeline from map.
+                        delete constraintTimelines[timelineName];
+                    }
+                    else { // Create new constraint timeline.
+                        if (timelineDatas !== null) {
+                            for (const timelineData of timelineDatas) {
+                                switch (timelineData.type) {
+                                    case TimelineType.IKConstraint: {
+                                        const timeline = BaseObject.borrowObject(IKConstraintTimelineState);
+                                        timeline.constraint = constraint;
+                                        timeline.init(this._armature, this, timelineData);
+                                        this._constraintTimelines.push(timeline);
+                                        break;
+                                    }
+
+                                    default:
+                                        break;
+                                }
+                            }
+                        }
+                        else if (this.resetToPose) { // Pose timeline.
+                            const timeline = BaseObject.borrowObject(IKConstraintTimelineState);
+                            timeline.constraint = constraint;
+                            timeline.init(this._armature, this, null);
+                            this._constraintTimelines.push(timeline);
+                        }
+                    }
+                }
+
+                for (let k in constraintTimelines) { // Remove constraint timelines.
+                    for (const timeline of constraintTimelines[k]) {
+                        this._constraintTimelines.splice(this._constraintTimelines.indexOf(timeline), 1);
+                        timeline.returnToPool();
+                    }
+                }
+            }
         }
 
         private _advanceFadeTime(passedTime: number): void {
@@ -406,202 +656,6 @@ namespace dragonBones {
          * @private
          * @internal
          */
-        public updateTimelines(): void {
-            const boneTimelines: Map<Array<BoneTimelineState>> = {};
-            for (const timeline of this._boneTimelines) { // Create bone timelines map.
-                const timelineName = timeline.bone.name;
-                if (!(timelineName in boneTimelines)) {
-                    boneTimelines[timelineName] = [];
-                }
-
-                boneTimelines[timelineName].push(timeline);
-            }
-
-            for (const bone of this._armature.getBones()) {
-                const timelineName = bone.name;
-                if (!this.containsBoneMask(timelineName)) {
-                    continue;
-                }
-
-                const timelineDatas = this.animationData.getBoneTimelines(timelineName);
-                if (timelineName in boneTimelines) { // Remove bone timeline from map.
-                    delete boneTimelines[timelineName];
-                }
-                else { // Create new bone timeline.
-                    const bonePose = timelineName in this._bonePoses ? this._bonePoses[timelineName] : (this._bonePoses[timelineName] = BaseObject.borrowObject(BonePose));
-                    if (timelineDatas !== null) {
-                        for (const timelineData of timelineDatas) {
-                            switch (timelineData.type) {
-                                case TimelineType.BoneAll:
-                                    {
-                                        const timeline = BaseObject.borrowObject(BoneAllTimelineState);
-                                        timeline.bone = bone;
-                                        timeline.bonePose = bonePose;
-                                        timeline.init(this._armature, this, timelineData);
-                                        this._boneTimelines.push(timeline);
-                                        break;
-                                    }
-
-                                case TimelineType.BoneTranslate:
-                                    {
-                                        const timeline = BaseObject.borrowObject(BoneTranslateTimelineState);
-                                        timeline.bone = bone;
-                                        timeline.bonePose = bonePose;
-                                        timeline.init(this._armature, this, timelineData);
-                                        this._boneTimelines.push(timeline);
-                                        break;
-                                    }
-
-                                case TimelineType.BoneRotate:
-                                    {
-                                        const timeline = BaseObject.borrowObject(BoneRotateTimelineState);
-                                        timeline.bone = bone;
-                                        timeline.bonePose = bonePose;
-                                        timeline.init(this._armature, this, timelineData);
-                                        this._boneTimelines.push(timeline);
-                                        break;
-                                    }
-
-                                case TimelineType.BoneScale:
-                                    {
-                                        const timeline = BaseObject.borrowObject(BoneScaleTimelineState);
-                                        timeline.bone = bone;
-                                        timeline.bonePose = bonePose;
-                                        timeline.init(this._armature, this, timelineData);
-                                        this._boneTimelines.push(timeline);
-                                        break;
-                                    }
-
-                                default:
-                                    break;
-                            }
-                        }
-                    }
-                    else if (this.resetToPose) { // Pose timeline.
-                        const timeline = BaseObject.borrowObject(BoneAllTimelineState);
-                        timeline.bone = bone;
-                        timeline.bonePose = bonePose;
-                        timeline.init(this._armature, this, null);
-                        this._boneTimelines.push(timeline);
-                    }
-                }
-            }
-
-            for (let k in boneTimelines) { // Remove bone timelines.
-                for (const timeline of boneTimelines[k]) {
-                    this._boneTimelines.splice(this._boneTimelines.indexOf(timeline), 1);
-                    timeline.returnToPool();
-                }
-            }
-
-            const slotTimelines: Map<Array<SlotTimelineState>> = {};
-            const ffdFlags: Array<number> = [];
-            for (const timeline of this._slotTimelines) { // Create slot timelines map.
-                const timelineName = timeline.slot.name;
-                if (!(timelineName in slotTimelines)) {
-                    slotTimelines[timelineName] = [];
-                }
-
-                slotTimelines[timelineName].push(timeline);
-            }
-
-            for (const slot of this._armature.getSlots()) {
-                const boneName = slot.parent.name;
-                if (!this.containsBoneMask(boneName)) {
-                    continue;
-                }
-
-                const timelineName = slot.name;
-                const timelineDatas = this.animationData.getSlotTimeline(timelineName);
-                if (timelineName in slotTimelines) { // Remove slot timeline from map.
-                    delete slotTimelines[timelineName];
-                }
-                else { // Create new slot timeline.
-                    let displayIndexFlag = false;
-                    let colorFlag = false;
-                    ffdFlags.length = 0;
-
-                    if (timelineDatas !== null) {
-                        for (const timelineData of timelineDatas) {
-                            switch (timelineData.type) {
-                                case TimelineType.SlotDisplay:
-                                    {
-                                        const timeline = BaseObject.borrowObject(SlotDislayIndexTimelineState);
-                                        timeline.slot = slot;
-                                        timeline.init(this._armature, this, timelineData);
-                                        this._slotTimelines.push(timeline);
-                                        displayIndexFlag = true;
-                                        break;
-                                    }
-
-                                case TimelineType.SlotColor:
-                                    {
-                                        const timeline = BaseObject.borrowObject(SlotColorTimelineState);
-                                        timeline.slot = slot;
-                                        timeline.init(this._armature, this, timelineData);
-                                        this._slotTimelines.push(timeline);
-                                        colorFlag = true;
-                                        break;
-                                    }
-
-                                case TimelineType.SlotFFD:
-                                    {
-                                        const timeline = BaseObject.borrowObject(SlotFFDTimelineState);
-                                        timeline.slot = slot;
-                                        timeline.init(this._armature, this, timelineData);
-                                        this._slotTimelines.push(timeline);
-                                        ffdFlags.push(timeline.meshOffset);
-                                        break;
-                                    }
-
-                                default:
-                                    break;
-                            }
-                        }
-                    }
-
-                    if (this.resetToPose) { // Pose timeline.
-                        if (!displayIndexFlag) {
-                            const timeline = BaseObject.borrowObject(SlotDislayIndexTimelineState);
-                            timeline.slot = slot;
-                            timeline.init(this._armature, this, null);
-                            this._slotTimelines.push(timeline);
-                        }
-
-                        if (!colorFlag) {
-                            const timeline = BaseObject.borrowObject(SlotColorTimelineState);
-                            timeline.slot = slot;
-                            timeline.init(this._armature, this, null);
-                            this._slotTimelines.push(timeline);
-                        }
-
-                        if (slot.rawDisplayDatas !== null) {
-                            for (const displayData of slot.rawDisplayDatas) {
-                                const meshOffset = (displayData as MeshDisplayData).offset;
-                                if (displayData !== null && displayData.type === DisplayType.Mesh && ffdFlags.indexOf(meshOffset) < 0) {
-                                    const timeline = BaseObject.borrowObject(SlotFFDTimelineState);
-                                    timeline.meshOffset = meshOffset; //
-                                    timeline.slot = slot;
-                                    timeline.init(this._armature, this, null);
-                                    this._slotTimelines.push(timeline);
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
-            for (let k in slotTimelines) { // Remove slot timelines.
-                for (const timeline of slotTimelines[k]) {
-                    this._slotTimelines.splice(this._slotTimelines.indexOf(timeline), 1);
-                    timeline.returnToPool();
-                }
-            }
-        }
-        /**
-         * @private
-         * @internal
-         */
         public advanceTime(passedTime: number, cacheFrameRate: number): void {
             // Update fade time.
             if (this._fadeState !== 0 || this._subFadeState !== 0) {
@@ -619,7 +673,7 @@ namespace dragonBones {
 
             if (this._timelineDirty) {
                 this._timelineDirty = false;
-                this.updateTimelines();
+                this._updateTimelines();
             }
 
             if (this.weight === 0.0) {

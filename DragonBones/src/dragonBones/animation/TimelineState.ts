@@ -308,7 +308,7 @@ namespace dragonBones {
 
                 if (this._tweenState === TweenState.Always) {
                     if (this._frameIndex === this._frameCount - 1) {
-                        valueOffset = this._animationData.frameFloatOffset + this._frameValueOffset;
+                        valueOffset = this._animationData.frameFloatOffset + this._frameValueOffset; // + 0 * 6
                     }
 
                     delta.x = frameFloatArray[valueOffset++] * scale - current.x;
@@ -318,23 +318,30 @@ namespace dragonBones {
                     delta.scaleX = frameFloatArray[valueOffset++] - current.scaleX;
                     delta.scaleY = frameFloatArray[valueOffset++] - current.scaleY;
                 }
-                // else {
-                //     delta.x = 0.0;
-                //     delta.y = 0.0;
-                //     delta.rotation = 0.0;
-                //     delta.skew = 0.0;
-                //     delta.scaleX = 0.0;
-                //     delta.scaleY = 0.0;
-                // }
+                else {
+                    delta.x = 0.0;
+                    delta.y = 0.0;
+                    delta.rotation = 0.0;
+                    delta.skew = 0.0;
+                    delta.scaleX = 0.0;
+                    delta.scaleY = 0.0;
+                }
             }
             else { // Pose.
                 const current = this.bonePose.current;
+                const delta = this.bonePose.delta;
                 current.x = 0.0;
                 current.y = 0.0;
                 current.rotation = 0.0;
                 current.skew = 0.0;
                 current.scaleX = 1.0;
                 current.scaleY = 1.0;
+                delta.x = 0.0;
+                delta.y = 0.0;
+                delta.rotation = 0.0;
+                delta.skew = 0.0;
+                delta.scaleX = 0.0;
+                delta.scaleY = 0.0;
             }
         }
 
@@ -388,21 +395,24 @@ namespace dragonBones {
 
                 if (this._tweenState === TweenState.Always) {
                     if (this._frameIndex === this._frameCount - 1) {
-                        valueOffset = this._animationData.frameFloatOffset + this._frameValueOffset;
+                        valueOffset = this._animationData.frameFloatOffset + this._frameValueOffset; // + 0 * 2
                     }
 
                     delta.x = frameFloatArray[valueOffset++] * scale - current.x;
                     delta.y = frameFloatArray[valueOffset++] * scale - current.y;
                 }
-                // else {
-                //     delta.x = 0.0;
-                //     delta.y = 0.0;
-                // }
+                else {
+                    delta.x = 0.0;
+                    delta.y = 0.0;
+                }
             }
             else { // Pose.
                 const current = this.bonePose.current;
+                const delta = this.bonePose.delta;
                 current.x = 0.0;
                 current.y = 0.0;
+                delta.x = 0.0;
+                delta.y = 0.0;
             }
         }
 
@@ -445,21 +455,24 @@ namespace dragonBones {
 
                 if (this._tweenState === TweenState.Always) {
                     if (this._frameIndex === this._frameCount - 1) {
-                        valueOffset = this._animationData.frameFloatOffset + this._frameValueOffset;
+                        valueOffset = this._animationData.frameFloatOffset + this._frameValueOffset; // + 0 * 2
                     }
 
                     delta.rotation = frameFloatArray[valueOffset++] - current.rotation;
                     delta.skew = frameFloatArray[valueOffset++] - current.skew;
                 }
-                // else {
-                //     delta.rotation = 0.0;
-                //     delta.skew = 0.0;
-                // }
+                else {
+                    delta.rotation = 0.0;
+                    delta.skew = 0.0;
+                }
             }
             else { // Pose.
                 const current = this.bonePose.current;
+                const delta = this.bonePose.delta;
                 current.rotation = 0.0;
                 current.skew = 0.0;
+                delta.rotation = 0.0;
+                delta.skew = 0.0;
             }
         }
 
@@ -508,21 +521,24 @@ namespace dragonBones {
 
                 if (this._tweenState === TweenState.Always) {
                     if (this._frameIndex === this._frameCount - 1) {
-                        valueOffset = this._animationData.frameFloatOffset + this._frameValueOffset;
+                        valueOffset = this._animationData.frameFloatOffset + this._frameValueOffset; // + 0 * 2
                     }
 
                     delta.scaleX = frameFloatArray[valueOffset++] - current.scaleX;
                     delta.scaleY = frameFloatArray[valueOffset++] - current.scaleY;
                 }
-                // else {
-                //     delta.scaleX = 0.0;
-                //     delta.scaleY = 0.0;
-                // }
+                else {
+                    delta.scaleX = 0.0;
+                    delta.scaleY = 0.0;
+                }
             }
             else { // Pose.
                 const current = this.bonePose.current;
+                const delta = this.bonePose.delta;
                 current.scaleX = 1.0;
                 current.scaleY = 1.0;
+                delta.scaleX = 0.0;
+                delta.scaleY = 0.0;
             }
         }
 
@@ -749,12 +765,11 @@ namespace dragonBones {
             super._onArriveAtFrame();
 
             if (this._timelineData !== null) {
-                const isTween = this._tweenState === TweenState.Always;
                 const valueOffset = this._animationData.frameFloatOffset + this._frameValueOffset + this._frameIndex * this._valueCount;
                 const scale = this._armature.armatureData.scale;
                 const frameFloatArray = this._frameFloatArray;
 
-                if (isTween) {
+                if (this._tweenState === TweenState.Always) {
                     let nextValueOffset = valueOffset + this._valueCount;
                     if (this._frameIndex === this._frameCount - 1) {
                         nextValueOffset = this._animationData.frameFloatOffset + this._frameValueOffset;
@@ -884,6 +899,115 @@ namespace dragonBones {
                         }
 
                         this.slot._meshDirty = true;
+                    }
+                }
+            }
+        }
+    }
+    /**
+     * @internal
+     * @private
+     */
+    export class IKConstraintTimelineState extends ConstraintTimelineState {
+        public static toString(): string {
+            return "[class dragonBones.IKConstraintTimelineState]";
+        }
+
+        private _dirty: boolean;
+        private _current: number;
+        private _delta: number;
+        private _result: number;
+
+        protected _onClear(): void {
+            super._onClear();
+
+            this._dirty = false;
+            this._current = 0.0;
+            this._delta = 0.0;
+            this._result = 0.0;
+        }
+
+        protected _onArriveAtFrame(): void {
+            super._onArriveAtFrame();
+
+            const ikConstraint = this.constraint as IKConstraint;
+
+            if (this._timelineData !== null) {
+                let valueOffset = this._animationData.frameIntOffset + this._frameValueOffset + this._frameIndex * 2;
+                const frameIntArray = this._frameIntArray;
+
+                this._current = frameIntArray[valueOffset++];
+                const bendPositive = frameIntArray[valueOffset++] !== 0;
+
+                if (this._tweenState === TweenState.Always) {
+                    if (this._frameIndex === this._frameCount - 1) {
+                        valueOffset = this._animationData.frameIntOffset + this._frameValueOffset; // + 0 * 2
+                    }
+
+                    this._delta = frameIntArray[valueOffset++] - this._current;
+                }
+                else {
+                    this._delta = 0.0;
+                }
+
+                ikConstraint._bendPositive = bendPositive;
+            }
+            else {
+                const ikConstraintData = ikConstraint._constraintData as IKConstraintData;
+                this._current = ikConstraintData.weight;
+                this._delta = 0.0;
+                ikConstraint._bendPositive = ikConstraintData.bendPositive;
+            }
+
+            ikConstraint.invalidUpdate();
+        }
+
+        protected _onUpdateFrame(): void {
+            super._onUpdateFrame();
+
+            this._dirty = true;
+            if (this._tweenState !== TweenState.Always) {
+                this._tweenState = TweenState.None;
+            }
+
+            this._result = this._current + this._delta * this._tweenProgress;
+        }
+
+        public fadeOut(): void {
+            this._tweenState = TweenState.None;
+            this._dirty = false;
+        }
+
+        public update(passedTime: number): void {
+            super.update(passedTime);
+
+            const ikConstraint = this.constraint as IKConstraint;
+
+            // Fade animation.
+            if (this._tweenState !== TweenState.None || this._dirty) {
+                const result = ikConstraint._weight;
+                if (this._timelineData !== null) {
+                    if (this._animationState._fadeState !== 0 || this._animationState._subFadeState !== 0) {
+                        const fadeProgress = Math.pow(this._animationState._fadeProgress, 2);
+                        ikConstraint._weight += this._result - result * fadeProgress;
+                        ikConstraint.invalidUpdate();
+                    }
+                    else if (this._dirty) {
+                        this._dirty = false;
+                        ikConstraint._weight = this._result;
+                        ikConstraint.invalidUpdate();
+                    }
+                }
+                else {
+                    if (this._animationState._fadeState !== 0 || this._animationState._subFadeState !== 0) {
+                        const fadeProgress = Math.pow(this._animationState._fadeProgress, 2);
+                        ikConstraint._weight += 0.0 - result * fadeProgress;
+                        ikConstraint.invalidUpdate();
+                    }
+                    else if (this._dirty) {
+                        this._dirty = false;
+                        ikConstraint._weight = 0.0;
+                        ikConstraint.invalidUpdate();
                     }
                 }
             }

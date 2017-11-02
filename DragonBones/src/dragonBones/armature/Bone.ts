@@ -22,11 +22,6 @@ namespace dragonBones {
          */
         public readonly animationPose: Transform = new Transform();
         /**
-         * @internal
-         * @private
-         */
-        public readonly constraints: Array<Constraint> = [];
-        /**
          * @readonly
          */
         public boneData: BoneData;
@@ -46,6 +41,11 @@ namespace dragonBones {
          */
         public _blendDirty: boolean;
         private _localDirty: boolean;
+        /**
+         * @internal
+         * @private
+         */
+        public _hasConstraint: boolean;
         private _visible: boolean;
         private _cachedFrameIndex: number;
         /**
@@ -76,19 +76,15 @@ namespace dragonBones {
         protected _onClear(): void {
             super._onClear();
 
-            for (const constraint of this.constraints) {
-                constraint.returnToPool();
-            }
-
             this.offsetMode = OffsetMode.Additive;
             this.animationPose.identity();
-            this.constraints.length = 0;
             this.boneData = null as any; //
 
             this._transformDirty = false;
             this._childrenTransformDirty = false;
             this._blendDirty = false;
             this._localDirty = true;
+            this._hasConstraint = false;
             this._visible = true;
             this._cachedFrameIndex = -1;
             this._blendLayer = 0;
@@ -133,7 +129,7 @@ namespace dragonBones {
                     if (!this.boneData.inheritRotation) {
                         this._parent.updateGlobalTransform();
                         dR = this._parent.global.rotation; //
-                        
+
                         if (DragonBones.yDown) {
                             global.rotation -= dR;
                         }
@@ -313,9 +309,11 @@ namespace dragonBones {
                     this._cachedFrameIndex = cachedFrameIndex;
                 }
                 else {
-                    if (this.constraints.length > 0) { // Update constraints.
-                        for (const constraint of this.constraints) {
-                            constraint.update();
+                    if (this._hasConstraint) { // Update constraints.
+                        for (const constraint of this._armature._constraints) {
+                            if (constraint._bone === this) {
+                                constraint.update();
+                            }
                         }
                     }
 
@@ -337,9 +335,11 @@ namespace dragonBones {
                 }
             }
             else {
-                if (this.constraints.length > 0) { // Update constraints.
-                    for (const constraint of this.constraints) {
-                        constraint.update();
+                if (this._hasConstraint) { // Update constraints.
+                    for (const constraint of this._armature._constraints) {
+                        if (constraint._bone === this) {
+                            constraint.update();
+                        }
                     }
                 }
 
@@ -386,15 +386,6 @@ namespace dragonBones {
                 }
 
                 this._transformDirty = true;
-            }
-        }
-        /**
-         * @internal
-         * @private
-         */
-        public addConstraint(constraint: Constraint): void {
-            if (this.constraints.indexOf(constraint) < 0) {
-                this.constraints.push(constraint);
             }
         }
         /**

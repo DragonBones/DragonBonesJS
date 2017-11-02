@@ -302,7 +302,10 @@ namespace dragonBones {
             if (ObjectDataParser.IK in rawData) {
                 const rawIKS = rawData[ObjectDataParser.IK] as Array<any>;
                 for (const rawIK of rawIKS) {
-                    this._parseIKConstraint(rawIK);
+                    const constraint = this._parseIKConstraint(rawIK);
+                    if (constraint) {
+                        armature.addConstraint(constraint);
+                    }
                 }
             }
 
@@ -418,20 +421,20 @@ namespace dragonBones {
         /**
          * @private
          */
-        protected _parseIKConstraint(rawData: any): void {
+        protected _parseIKConstraint(rawData: any): ConstraintData | null {
             const bone = this._armature.getBone(ObjectDataParser._getString(rawData, ObjectDataParser.BONE, ""));
             if (bone === null) {
-                return;
+                return null;
             }
 
             const target = this._armature.getBone(ObjectDataParser._getString(rawData, ObjectDataParser.TARGET, ""));
             if (target === null) {
-                return;
+                return null;
             }
 
             const constraint = BaseObject.borrowObject(IKConstraintData);
-            constraint.bendPositive = ObjectDataParser._getBoolean(rawData, ObjectDataParser.BEND_POSITIVE, true);
             constraint.scaleEnabled = ObjectDataParser._getBoolean(rawData, ObjectDataParser.SCALE, false);
+            constraint.bendPositive = ObjectDataParser._getBoolean(rawData, ObjectDataParser.BEND_POSITIVE, true);
             constraint.weight = ObjectDataParser._getNumber(rawData, ObjectDataParser.WEIGHT, 1.0);
             constraint.name = ObjectDataParser._getString(rawData, ObjectDataParser.NAME, "");
             constraint.bone = bone;
@@ -442,7 +445,7 @@ namespace dragonBones {
                 constraint.root = bone.parent;
             }
 
-            bone.addConstraint(constraint);
+            return constraint;
         }
         /**
          * @private
@@ -909,6 +912,27 @@ namespace dragonBones {
                     this._skin = null as any; //
                     this._slot = null as any; //
                     this._mesh = null as any; //
+                }
+            }
+
+            if (ObjectDataParser.IK in rawData) {
+                const rawTimelines = rawData[ObjectDataParser.IK] as Array<any>;
+                for (const rawTimeline of rawTimelines) {
+                    const constraintName = ObjectDataParser._getString(rawTimeline, ObjectDataParser.NAME, "");
+                    const constraint = this._armature.getConstraint(constraintName);
+                    if (constraint === null){
+                        continue;
+                    }
+
+                    const timeline = this._parseTimeline(
+                        rawTimeline, null, ObjectDataParser.FRAME, TimelineType.IKConstraint,
+                        true, false, 2,
+                        this._parseIKConstraintFrame
+                    );
+
+                    if (timeline !== null) {
+                        this._animation.addConstraintTimeline(constraint, timeline);
+                    }
                 }
             }
 
@@ -1547,6 +1571,19 @@ namespace dragonBones {
                 this._frameIntArray[frameIntOffset + BinaryOffset.FFDTimelineFloatOffset] = frameFloatOffset;
                 this._timelineArray[this._timeline.offset + BinaryOffset.TimelineFrameValueCount] = frameIntOffset - this._animation.frameIntOffset;
             }
+
+            return frameOffset;
+        }
+        /**
+         * @private
+         */
+        protected _parseIKConstraintFrame(rawData: any, frameStart: number, frameCount: number): number{
+            const frameOffset = this._parseTweenFrame(rawData, frameStart, frameCount);
+
+            let frameIntOffset = this._frameIntArray.length;
+            this._frameIntArray.length += 2;
+            this._frameIntArray[frameIntOffset++] = ObjectDataParser._getBoolean(rawData, ObjectDataParser.BEND_POSITIVE, true)?1:0;
+            this._frameIntArray[frameIntOffset++] = Math.round(ObjectDataParser._getNumber(rawData, ObjectDataParser.WEIGHT, 1.0) * 100.0);
 
             return frameOffset;
         }

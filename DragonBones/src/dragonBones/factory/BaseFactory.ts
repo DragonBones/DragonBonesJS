@@ -167,9 +167,7 @@ namespace dragonBones {
          * @private
          */
         protected _buildBones(dataPackage: BuildArmaturePackage, armature: Armature): void {
-            const bones = dataPackage.armature.sortedBones;
-            for (let i = 0, l = bones.length; i < l; ++i) {
-                const boneData = bones[i];
+            for (const boneData of dataPackage.armature.sortedBones) {
                 const bone = BaseObject.borrowObject(Bone);
                 bone.init(boneData);
 
@@ -179,33 +177,15 @@ namespace dragonBones {
                 else {
                     armature.addBone(bone, "");
                 }
+            }
 
-                const constraints = boneData.constraints;
-                for (let j = 0, lJ = constraints.length; j < lJ; ++j) {
-                    const constraintData = constraints[j];
-                    const target = armature.getBone(constraintData.target.name);
-                    if (target === null) {
-                        continue;
-                    }
-
-                    // TODO more constraint type.
-                    const ikConstraintData = constraintData as IKConstraintData;
-                    const constraint = BaseObject.borrowObject(IKConstraint);
-                    const root = ikConstraintData.root !== null ? armature.getBone(ikConstraintData.root.name) : null;
-                    constraint.target = target;
-                    constraint.bone = bone;
-                    constraint.root = root;
-                    constraint.bendPositive = ikConstraintData.bendPositive;
-                    constraint.scaleEnabled = ikConstraintData.scaleEnabled;
-                    constraint.weight = ikConstraintData.weight;
-
-                    if (root !== null) {
-                        root.addConstraint(constraint);
-                    }
-                    else {
-                        bone.addConstraint(constraint);
-                    }
-                }
+            const constraints = dataPackage.armature.constraints;
+            for (let k in constraints) {
+                const constraintData = constraints[k];
+                // TODO more constraint type.
+                const constraint = BaseObject.borrowObject(IKConstraint);
+                constraint.init(constraintData, armature);
+                armature.addConstraint(constraint);
             }
         }
         /**

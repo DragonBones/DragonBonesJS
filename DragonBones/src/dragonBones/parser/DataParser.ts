@@ -34,8 +34,9 @@ namespace dragonBones {
         protected static readonly USER_DATA: string = "userData";
         protected static readonly ARMATURE: string = "armature";
         protected static readonly BONE: string = "bone";
-        protected static readonly IK: string = "ik";
         protected static readonly SLOT: string = "slot";
+        protected static readonly CONSTRAINT:string = "constraint";
+        protected static readonly IK: string = "ik";
         protected static readonly SKIN: string = "skin";
         protected static readonly DISPLAY: string = "display";
         protected static readonly ANIMATION: string = "animation";

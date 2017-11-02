@@ -345,4 +345,17 @@ namespace dragonBones {
             this.slot = null as any; //
         }
     }
+    /**
+     * @internal
+     * @private
+     */
+    export abstract class ConstraintTimelineState extends TweenTimelineState {
+        public constraint: Constraint;
+
+        protected _onClear(): void {
+            super._onClear();
+
+            this.constraint = null as any; //
+        }
+    }
 }

@@ -291,6 +291,28 @@ namespace dragonBones {
                 }
             }
 
+            if (ObjectDataParser.CONSTRAINT in rawData) {
+                const rawTimeliness = rawData[ObjectDataParser.CONSTRAINT];
+                for (let k in rawTimeliness) {
+                    const rawTimelines = rawTimeliness[k] as Array<number>;
+                    if (DragonBones.webAssembly) {
+                        k = this._getUTF16Key(k);
+                    }
+
+                    const constraint = this._armature.getConstraint(k);
+                    if (constraint === null) {
+                        continue;
+                    }
+
+                    for (let i = 0, l = rawTimelines.length; i < l; i += 2) {
+                        const timelineType = rawTimelines[i];
+                        const timelineOffset = rawTimelines[i + 1];
+                        const timeline = this._parseBinaryTimeline(timelineType, timelineOffset);
+                        this._animation.addConstraintTimeline(constraint, timeline);
+                    }
+                }
+            }
+
             this._animation = null as any;
 
             return animation;

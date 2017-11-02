@@ -50,6 +50,11 @@ namespace dragonBones {
         public _cacheFrameIndex: number;
         private readonly _bones: Array<Bone> = [];
         private readonly _slots: Array<Slot> = [];
+        /**
+         * @internal
+         * @private
+         */
+        public readonly _constraints: Array<Constraint> = [];
         private readonly _actions: Array<ActionData> = [];
         private _animation: Animation = null as any; // Initial value.
         private _proxy: IArmatureProxy = null as any; // Initial value.
@@ -86,6 +91,10 @@ namespace dragonBones {
                 slot.returnToPool();
             }
 
+            for (const constraint of this._constraints) {
+                constraint.returnToPool();
+            }
+
             if (this._animation !== null) {
                 this._animation.returnToPool();
             }
@@ -111,6 +120,7 @@ namespace dragonBones {
             this._cacheFrameIndex = -1;
             this._bones.length = 0;
             this._slots.length = 0;
+            this._constraints.length = 0;
             this._actions.length = 0;
             this._animation = null as any; //
             this._proxy = null as any; //
@@ -143,10 +153,10 @@ namespace dragonBones {
                     continue;
                 }
 
-                if (bone.constraints.length > 0) { // Wait constraint.
+                if (bone._hasConstraint) { // Wait constraint.
                     let flag = false;
-                    for (const constraint of bone.constraints) {
-                        if (this._bones.indexOf(constraint.target) < 0) {
+                    for (const constraint of this._constraints) {
+                        if (constraint._bone === bone && this._bones.indexOf(constraint._target) < 0) {
                             flag = true;
                             break;
                         }
@@ -602,6 +612,14 @@ namespace dragonBones {
 
             value._setParent(null);
             value._setArmature(null);
+        }
+        /**
+         * @private
+         */
+        public addConstraint(value: Constraint): void {
+            if (this._constraints.indexOf(value) < 0) {
+                this._constraints.push(value);
+            }
         }
         /**
          * 获取所有骨骼。

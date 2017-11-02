@@ -106,6 +106,10 @@ namespace dragonBones {
          */
         public readonly slots: Map<SlotData> = {};
         /**
+         * @private
+         */
+        public readonly constraints: Map<ConstraintData> = {};
+        /**
          * 所有皮肤数据。
          * @see dragonBones.SkinData
          * @version DragonBones 3.0
@@ -170,6 +174,11 @@ namespace dragonBones {
                 delete this.slots[k];
             }
 
+            for (let k in this.constraints) {
+                this.constraints[k].returnToPool();
+                delete this.constraints[k];
+            }
+
             for (let k in this.skins) {
                 this.skins[k].returnToPool();
                 delete this.skins[k];
@@ -199,10 +208,11 @@ namespace dragonBones {
             this.sortedSlots.length = 0;
             this.defaultActions.length = 0;
             this.actions.length = 0;
-            //this.bones.clear();
-            //this.slots.clear();
-            //this.skins.clear();
-            //this.animations.clear();
+            // this.bones.clear();
+            // this.slots.clear();
+            // this.constraints.clear();
+            // this.skins.clear();
+            // this.animations.clear();
             this.defaultSkin = null;
             this.defaultAnimation = null;
             this.canvas = null;
@@ -232,17 +242,17 @@ namespace dragonBones {
                     continue;
                 }
 
-                if (bone.constraints.length > 0) { // Wait constraint.
-                    let flag = false;
-                    for (const constraint of bone.constraints) {
-                        if (this.sortedBones.indexOf(constraint.target) < 0) {
-                            flag = true;
-                        }
+                let flag = false;
+                for (let k in this.constraints) { // Wait constraint.
+                    const constraint = this.constraints[k];
+                    if (constraint.bone === bone && this.sortedBones.indexOf(constraint.target) < 0) {
+                        flag = true;
+                        break;
                     }
+                }
 
-                    if (flag) {
-                        continue;
-                    }
+                if (flag) {
+                    continue;
                 }
 
                 if (bone.parent !== null && this.sortedBones.indexOf(bone.parent) < 0) { // Wait parent.
@@ -332,6 +342,17 @@ namespace dragonBones {
         /**
          * @private
          */
+        public addConstraint(value: ConstraintData): void {
+            if (value.name in this.constraints) {
+                console.warn("Replace constraint: " + value.name);
+                this.constraints[value.name].returnToPool();
+            }
+
+            this.constraints[value.name] = value;
+        }
+        /**
+         * @private
+         */
         public addSkin(value: SkinData): void {
             if (value.name in this.skins) {
                 console.warn("Replace skin: " + value.name);
@@ -390,6 +411,12 @@ namespace dragonBones {
          */
         public getSlot(name: string): SlotData | null {
             return name in this.slots ? this.slots[name] : null;
+        }
+        /**
+         * @private
+         */
+        public getConstraint(name: string): ConstraintData | null {
+            return name in this.constraints ? this.constraints[name] : null;
         }
         /**
          * 获取皮肤数据。
@@ -457,10 +484,6 @@ namespace dragonBones {
         /**
          * @private
          */
-        public readonly constraints: Array<ConstraintData> = [];
-        /**
-         * @private
-         */
         public userData: UserData | null = null; // Initial value.
         /**
          * 所属的父骨骼数据。
@@ -472,9 +495,6 @@ namespace dragonBones {
          * @private
          */
         protected _onClear(): void {
-            for (const constraint of this.constraints) {
-                constraint.returnToPool();
-            }
 
             if (this.userData !== null) {
                 this.userData.returnToPool();
@@ -487,15 +507,8 @@ namespace dragonBones {
             this.length = 0.0;
             this.name = "";
             this.transform.identity();
-            this.constraints.length = 0;
             this.userData = null;
             this.parent = null;
-        }
-        /**
-         * @private
-         */
-        public addConstraint(value: ConstraintData): void {
-            this.constraints.push(value);
         }
     }
     /**

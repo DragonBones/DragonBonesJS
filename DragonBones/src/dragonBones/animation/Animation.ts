@@ -159,7 +159,7 @@ namespace dragonBones {
                     }
 
                     if (this._timelineDirty) {
-                        animationState.updateTimelines();
+                        animationState._timelineDirty = true;
                     }
 
                     animationState.advanceTime(passedTime, cacheFrameRate);
@@ -182,7 +182,7 @@ namespace dragonBones {
                         }
 
                         if (this._timelineDirty) {
-                            animationState.updateTimelines();
+                            animationState._timelineDirty = true;
                         }
 
                         animationState.advanceTime(passedTime, 0.0);

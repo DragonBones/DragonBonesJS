@@ -25,15 +25,15 @@ namespace dragonBones {
             return "[class dragonBones.IKConstraintData]";
         }
 
-        public bendPositive: boolean;
         public scaleEnabled: boolean;
+        public bendPositive: boolean;
         public weight: number;
 
         protected _onClear(): void {
             super._onClear();
 
-            this.bendPositive = false;
             this.scaleEnabled = false;
+            this.bendPositive = false;
             this.weight = 1.0;
         }
     }

@@ -76,6 +76,10 @@ namespace dragonBones {
         /**
          * @private
          */
+        public readonly constraintTimelines: Map<Array<TimelineData>> = {};
+        /**
+         * @private
+         */
         public readonly boneCachedFrameIndices: Map<Array<number>> = {};
         /**
          * @private
@@ -113,6 +117,14 @@ namespace dragonBones {
                 delete this.slotTimelines[k];
             }
 
+            for (let k in this.constraintTimelines) {
+                for (const timeline of this.constraintTimelines[k]) {
+                    timeline.returnToPool();
+                }
+
+                delete this.constraintTimelines[k];
+            }
+
             for (let k in this.boneCachedFrameIndices) {
                 delete this.boneCachedFrameIndices[k];
             }
@@ -142,6 +154,7 @@ namespace dragonBones {
             this.cachedFrames.length = 0;
             //this.boneTimelines.clear();
             //this.slotTimelines.clear();
+            //this.constraintTimelines.clear();
             //this.boneCachedFrameIndices.clear();
             //this.slotCachedFrameIndices.clear();
             this.actionTimeline = null;
@@ -203,6 +216,15 @@ namespace dragonBones {
         /**
          * @private
          */
+        public addConstraintTimeline(constraint: ConstraintData, timeline: TimelineData): void {
+            const timelines = constraint.name in this.constraintTimelines ? this.constraintTimelines[constraint.name] : (this.constraintTimelines[constraint.name] = []);
+            if (timelines.indexOf(timeline) < 0) {
+                timelines.push(timeline);
+            }
+        }
+        /**
+         * @private
+         */
         public getBoneTimelines(name: string): Array<TimelineData> | null {
             return name in this.boneTimelines ? this.boneTimelines[name] : null;
         }
@@ -211,6 +233,12 @@ namespace dragonBones {
          */
         public getSlotTimeline(name: string): Array<TimelineData> | null {
             return name in this.slotTimelines ? this.slotTimelines[name] : null;
+        }
+        /**
+         * @private
+         */
+        public getConstraintTimeline(name: string): Array<TimelineData> | null {
+            return name in this.constraintTimelines ? this.constraintTimelines[name] : null;
         }
         /**
          * @private

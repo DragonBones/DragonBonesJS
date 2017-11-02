@@ -8,17 +8,38 @@ namespace dragonBones {
         protected static readonly _helpTransform: Transform = new Transform();
         protected static readonly _helpPoint: Point = new Point();
 
-        public target: Bone;
-        public bone: Bone;
-        public root: Bone | null;
+        /**
+         * For timeline state.
+         * @internal
+         */
+        public _constraintData: ConstraintData;
+        protected _armature: Armature;
+        /**
+         * For sort bones.
+         * @internal
+         */
+        public _target: Bone;
+        /**
+         * For sort bones.
+         * @internal
+         */
+        public _bone: Bone;
+        protected _root: Bone | null;
 
         protected _onClear(): void {
-            this.target = null as any; //
-            this.bone = null as any; //
-            this.root = null; //
+            this._armature = null as any; //
+            this._target = null as any; //
+            this._bone = null as any; //
+            this._root = null;
         }
 
+        public abstract init(data: ConstraintData, armature: Armature): void;
         public abstract update(): void;
+        public abstract invalidUpdate(): void;
+
+        public get name(): string {
+            return this._constraintData.name;
+        }
     }
     /**
      * @private
@@ -29,22 +50,31 @@ namespace dragonBones {
             return "[class dragonBones.IKConstraint]";
         }
 
-        public bendPositive: boolean;
-        public scaleEnabled: boolean; // TODO
-        public weight: number;
+        private _scaleEnabled: boolean; // TODO
+        /**
+         * For timeline state.
+         * @internal
+         */
+        public _bendPositive: boolean;
+        /**
+         * For timeline state.
+         * @internal
+         */
+        public _weight: number;
 
         protected _onClear(): void {
             super._onClear();
 
-            this.bendPositive = false;
-            this.scaleEnabled = false;
-            this.weight = 1.0;
+            this._scaleEnabled = false;
+            this._bendPositive = false;
+            this._weight = 1.0;
+            this._constraintData = null as any;
         }
 
         private _computeA(): void {
-            const ikGlobal = this.target.global;
-            const global = this.bone.global;
-            const globalTransformMatrix = this.bone.globalTransformMatrix;
+            const ikGlobal = this._target.global;
+            const global = this._bone.global;
+            const globalTransformMatrix = this._bone.globalTransformMatrix;
             // const boneLength = this.bone.boneData.length;
             // const x = globalTransformMatrix.a * boneLength; 
 
@@ -53,17 +83,17 @@ namespace dragonBones {
                 ikRadian += Math.PI;
             }
 
-            global.rotation += (ikRadian - global.rotation) * this.weight;
+            global.rotation += (ikRadian - global.rotation) * this._weight;
             global.toMatrix(globalTransformMatrix);
         }
 
         private _computeB(): void {
-            const boneLength = this.bone.boneData.length;
-            const parent = this.root as Bone;
-            const ikGlobal = this.target.global;
+            const boneLength = this._bone.boneData.length;
+            const parent = this._root as Bone;
+            const ikGlobal = this._target.global;
             const parentGlobal = parent.global;
-            const global = this.bone.global;
-            const globalTransformMatrix = this.bone.globalTransformMatrix;
+            const global = this._bone.global;
+            const globalTransformMatrix = this._bone.globalTransformMatrix;
 
             const x = globalTransformMatrix.a * boneLength;
             const y = globalTransformMatrix.b * boneLength;
@@ -105,7 +135,7 @@ namespace dragonBones {
                     isPPR = parentParentMatrix.a * parentParentMatrix.d - parentParentMatrix.b * parentParentMatrix.c < 0.0;
                 }
 
-                if (isPPR !== this.bendPositive) {
+                if (isPPR !== this._bendPositive) {
                     global.x = hX - rX;
                     global.y = hY - rY;
                 }
@@ -117,7 +147,7 @@ namespace dragonBones {
                 ikRadianA = Math.atan2(global.y - parentGlobal.y, global.x - parentGlobal.x);
             }
 
-            let dR = (ikRadianA - rawRadianA) * this.weight;
+            let dR = (ikRadianA - rawRadianA) * this._weight;
             parentGlobal.rotation += dR;
             parentGlobal.toMatrix(parent.globalTransformMatrix);
 
@@ -130,20 +160,57 @@ namespace dragonBones {
                 ikRadianB += Math.PI;
             }
 
-            dR = (ikRadianB - global.rotation) * this.weight;
+            dR = (ikRadianB - global.rotation) * this._weight;
             global.rotation += dR;
             global.toMatrix(globalTransformMatrix);
         }
 
+        public init(constraintData: ConstraintData, armature: Armature): void {
+            if (this._constraintData !== null) {
+                return;
+            }
+
+            this._constraintData = constraintData;
+            this._armature = armature;
+            this._target = armature.getBone(this._constraintData.target.name) as any;
+            this._bone = armature.getBone(this._constraintData.bone.name) as any;
+            this._root = this._constraintData.root !== null ? armature.getBone(this._constraintData.root.name) : null;
+
+            {
+                const ikConstraintData = this._constraintData as IKConstraintData;
+                //
+                this._scaleEnabled = ikConstraintData.scaleEnabled;
+                this._bendPositive = ikConstraintData.bendPositive;
+                this._weight = ikConstraintData.weight;
+            }
+
+            if (this._root !== null) {
+                this._root._hasConstraint = true;
+            }
+            else {
+                this._bone._hasConstraint = true;
+            }
+        }
+
         public update(): void {
-            if (this.root === null) {
-                this.bone.updateByConstraint();
+            if (this._root === null) {
+                this._bone.updateByConstraint();
                 this._computeA();
             }
             else {
-                this.root.updateByConstraint();
-                this.bone.updateByConstraint();
+                this._root.updateByConstraint();
+                this._bone.updateByConstraint();
                 this._computeB();
+            }
+        }
+
+        public invalidUpdate(): void {
+            if (this._root === null) {
+                this._bone.invalidUpdate();
+            }
+            else {
+                this._root.invalidUpdate();
+                this._bone.invalidUpdate();
             }
         }
     }
