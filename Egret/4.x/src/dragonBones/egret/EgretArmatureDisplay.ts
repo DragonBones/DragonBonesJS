@@ -375,7 +375,7 @@ namespace dragonBones {
          * @inheritDoc
          */
         $measureContentBounds(bounds: egret.Rectangle): void {
-            if (this._batchEnabled) {
+            if (this._batchEnabled && this._armature !== null) {
                 if (this._childDirty) {
                     this._childDirty = false;
 

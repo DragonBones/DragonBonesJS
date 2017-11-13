@@ -11487,7 +11487,7 @@ var dragonBones;
          * @inheritDoc
          */
         EgretArmatureDisplay.prototype.$measureContentBounds = function (bounds) {
-            if (this._batchEnabled) {
+            if (this._batchEnabled && this._armature !== null) {
                 if (this._childDirty) {
                     this._childDirty = false;
                     var isFirst = true;
