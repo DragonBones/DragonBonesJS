@@ -121,7 +121,7 @@ namespace dragonBones {
             BaseObject: {
                 borrowObject: {
                     static: true,
-                    replace: function <T extends BaseObject>(this: any, objectConstructor: { new (): T; }): T {
+                    replace: function <T extends BaseObject>(this: any, objectConstructor: { new(): T; }): T {
                         const object = new objectConstructor();
 
                         return object;

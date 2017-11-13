@@ -1,5 +1,6 @@
 namespace dragonBones {
     /**
+     * @internal
      * @private
      */
     export abstract class DataParser {
@@ -35,7 +36,7 @@ namespace dragonBones {
         protected static readonly ARMATURE: string = "armature";
         protected static readonly BONE: string = "bone";
         protected static readonly SLOT: string = "slot";
-        protected static readonly CONSTRAINT:string = "constraint";
+        protected static readonly CONSTRAINT: string = "constraint";
         protected static readonly IK: string = "ik";
         protected static readonly SKIN: string = "skin";
         protected static readonly DISPLAY: string = "display";
@@ -246,19 +247,20 @@ namespace dragonBones {
                     return BlendMode.Normal;
             }
         }
-        /**
-         * @private
-         */
+
         public abstract parseDragonBonesData(rawData: any, scale: number): DragonBonesData | null;
-        /**
-         * @private
-         */
+
         public abstract parseTextureAtlasData(rawData: any, textureAtlasData: TextureAtlasData, scale: number): boolean;
 
         /**
+         * Deprecated, please refer to {@link dragonBones.BaseFactory#parsetTextureAtlasData()}.
          * @deprecated
-         * 已废弃，请参考 @see
-         * @see dragonBones.BaseFactory#parseDragonBonesData()
+         * @language en_US
+         */
+        /**
+         * 已废弃，请参考 {@link dragonBones.BaseFactory#parsetTextureAtlasData()}。
+         * @deprecated
+         * @language zh_CN
          */
         public static parseDragonBonesData(rawData: any): DragonBonesData | null {
             if (rawData instanceof ArrayBuffer) {
@@ -269,13 +271,18 @@ namespace dragonBones {
             }
         }
         /**
+         * Deprecated, please refer to {@link dragonBones.BaseFactory#parsetTextureAtlasData()}.
          * @deprecated
-         * 已废弃，请参考 @see
-         * @see dragonBones.BaseFactory#parsetTextureAtlasData()
+         * @language en_US
+         */
+        /**
+         * 已废弃，请参考 {@link dragonBones.BaseFactory#parsetTextureAtlasData()}。
+         * @deprecated
+         * @language zh_CN
          */
         public static parseTextureAtlasData(rawData: any, scale: number = 1): any {
-            console.warn("已废弃，请参考 @see，WebAssembly 不支持该废弃 API。");
-            
+            console.warn("已废弃");
+
             const textureAtlasData = {} as any;
 
             const subTextureList = rawData[DataParser.SUB_TEXTURE];

@@ -86,7 +86,7 @@ namespace dragonBones {
          * @private
          */
         public _updateVisible(): void {
-            this._renderDisplay.visible = this._parent.visible;
+            this._renderDisplay.visible = this._parent.visible && this._visible;
         }
         /**
          * @private
@@ -183,7 +183,7 @@ namespace dragonBones {
 
                 if (currentTextureData.renderTexture !== null) {
                     if (meshData !== null) { // Mesh.
-                        const data = meshData.parent.parent;
+                        const data = meshData.parent.parent.parent;
                         const intArray = data.intArray;
                         const floatArray = data.floatArray;
                         const vertexCount = intArray[meshData.offset + BinaryOffset.MeshVertexCount];
@@ -218,8 +218,12 @@ namespace dragonBones {
                         meshDisplay.$updateVertices();
                     }
                     else { // Normal texture.
+                        const scale = currentTextureData.parent.scale;
                         const normalDisplay = this._renderDisplay as egret.Bitmap;
-                        normalDisplay.texture = currentTextureData.renderTexture;
+                        const texture = currentTextureData.renderTexture;
+                        normalDisplay.texture = texture;
+                        normalDisplay.width = texture.textureWidth * scale;
+                        normalDisplay.height = texture.textureHeight * scale;
                         normalDisplay.$setAnchorOffsetX(this._pivotX);
                         normalDisplay.$setAnchorOffsetY(this._pivotY);
                     }
@@ -241,13 +245,14 @@ namespace dragonBones {
          */
         protected _updateMesh(): void {
             const hasFFD = this._ffdVertices.length > 0;
+            const scale = this._armature.armatureData.scale;
             const meshData = this._meshData as MeshDisplayData;
             const weightData = meshData.weight;
             const meshDisplay = this._renderDisplay as egret.Mesh;
             const meshNode = meshDisplay.$renderNode as egret.sys.MeshNode;
 
             if (weightData !== null) {
-                const data = meshData.parent.parent;
+                const data = meshData.parent.parent.parent;
                 const intArray = data.intArray;
                 const floatArray = data.floatArray;
                 const vertexCount = intArray[meshData.offset + BinaryOffset.MeshVertexCount];
@@ -270,8 +275,8 @@ namespace dragonBones {
                         if (bone !== null) {
                             const matrix = bone.globalTransformMatrix;
                             const weight = floatArray[iV++];
-                            let xL = floatArray[iV++];
-                            let yL = floatArray[iV++];
+                            let xL = floatArray[iV++] * scale;
+                            let yL = floatArray[iV++] * scale;
 
                             if (hasFFD) {
                                 xL += this._ffdVertices[iF++];
@@ -290,7 +295,7 @@ namespace dragonBones {
                 meshDisplay.$updateVertices();
             }
             else if (hasFFD) {
-                const data = meshData.parent.parent;
+                const data = meshData.parent.parent.parent;
                 const intArray = data.intArray;
                 const floatArray = data.floatArray;
                 const vertexCount = intArray[meshData.offset + BinaryOffset.MeshVertexCount];
@@ -301,7 +306,7 @@ namespace dragonBones {
                 }
 
                 for (let i = 0, l = vertexCount * 2; i < l; ++i) {
-                    meshNode.vertices[i] = floatArray[vertexOffset + i] + this._ffdVertices[i];
+                    meshNode.vertices[i] = floatArray[vertexOffset + i] * scale + this._ffdVertices[i];
                 }
 
                 meshDisplay.$updateVertices();

@@ -1,5 +1,6 @@
 namespace dragonBones {
     /**
+     * @internal
      * @private
      */
     export class BinaryDataParser extends ObjectDataParser {
@@ -186,9 +187,7 @@ namespace dragonBones {
 
             return timeline;
         }
-        /**
-         * @private
-         */
+
         protected _parseMesh(rawData: any, mesh: MeshDisplayData): void {
             mesh.offset = rawData[ObjectDataParser.OFFSET];
 
@@ -216,9 +215,7 @@ namespace dragonBones {
                 mesh.weight = weight;
             }
         }
-        /**
-         * @private
-         */
+
         protected _parseAnimation(rawData: any): AnimationData {
             const animation = BaseObject.borrowObject(AnimationData);
             animation.frameCount = Math.max(ObjectDataParser._getNumber(rawData, ObjectDataParser.DURATION, 1), 1);
@@ -317,9 +314,7 @@ namespace dragonBones {
 
             return animation;
         }
-        /**
-         * @private
-         */
+
         protected _parseArray(rawData: any): void {
             const offsets = rawData[ObjectDataParser.OFFSET] as Array<number>;
             const l1 = offsets[1];
@@ -364,9 +359,7 @@ namespace dragonBones {
                 this._data.timelineArray = this._timelineArrayBuffer = timelineArray;
             }
         }
-        /**
-         * @inheritDoc
-         */
+
         public parseDragonBonesData(rawData: any, scale: number = 1): DragonBonesData | null {
             console.assert(rawData !== null && rawData !== undefined && rawData instanceof ArrayBuffer, "Data error.");
 
@@ -392,14 +385,16 @@ namespace dragonBones {
             return super.parseDragonBonesData(header, scale);
         }
 
-        /**
-         * @private
-         */
         private static _binaryDataParserInstance: BinaryDataParser = null as any;
         /**
+         * Deprecated, please refer to {@link dragonBones.BaseFactory#parseDragonBonesData()}.
          * @deprecated
-         * 已废弃，请参考 @see
-         * @see dragonBones.BaseFactory#parseDragonBonesData()
+         * @language en_US
+         */
+        /**
+         * 已废弃，请参考 {@link dragonBones.BaseFactory#parseDragonBonesData()}。
+         * @deprecated
+         * @language zh_CN
          */
         public static getInstance(): BinaryDataParser {
             if (BinaryDataParser._binaryDataParserInstance === null) {

@@ -1,5 +1,6 @@
 namespace dragonBones {
     /**
+     * @internal
      * @private
      */
     export class ObjectDataParser extends DataParser {
@@ -31,9 +32,7 @@ namespace dragonBones {
 
             return defaultValue;
         }
-        /**
-         * @private
-         */
+
         protected static _getNumber(rawData: any, key: string, defaultValue: number): number {
             if (key in rawData) {
                 const value = rawData[key];
@@ -46,9 +45,7 @@ namespace dragonBones {
 
             return defaultValue;
         }
-        /**
-         * @private
-         */
+
         protected static _getString(rawData: any, key: string, defaultValue: string): string {
             if (key in rawData) {
                 const value = rawData[key];
@@ -104,9 +101,7 @@ namespace dragonBones {
         private readonly _cacheBones: Map<Array<BoneData>> = {};
         private readonly _cacheMeshs: Map<Map<Map<Array<MeshDisplayData>>>> = {};
         private readonly _slotChildActions: Map<Array<ActionData>> = {};
-        /**
-         * @private
-         */
+
         private _getCurvePoint(x1: number, y1: number, x2: number, y2: number, x3: number, y3: number, x4: number, y4: number, t: number, result: Point): void {
             const l_t = 1.0 - t;
             const powA = l_t * l_t;
@@ -119,9 +114,7 @@ namespace dragonBones {
             result.x = kA * x1 + kB * x2 + kC * x3 + kD * x4;
             result.y = kA * y1 + kB * y2 + kC * y3 + kD * y4;
         }
-        /**
-         * @private
-         */
+
         private _samplingEasingCurve(curve: Array<number>, samples: Array<number>): void {
             const curveCount = curve.length;
             let stepIndex = -2;
@@ -400,9 +393,7 @@ namespace dragonBones {
 
             return armature;
         }
-        /**
-         * @private
-         */
+
         protected _parseBone(rawData: any): BoneData {
             const bone = BaseObject.borrowObject(BoneData);
             bone.inheritTranslation = ObjectDataParser._getBoolean(rawData, ObjectDataParser.INHERIT_TRANSLATION, true);
@@ -418,9 +409,7 @@ namespace dragonBones {
 
             return bone;
         }
-        /**
-         * @private
-         */
+
         protected _parseIKConstraint(rawData: any): ConstraintData | null {
             const bone = this._armature.getBone(ObjectDataParser._getString(rawData, ObjectDataParser.BONE, ""));
             if (bone === null) {
@@ -447,9 +436,7 @@ namespace dragonBones {
 
             return constraint;
         }
-        /**
-         * @private
-         */
+
         protected _parseSlot(rawData: any, zOrder: number): SlotData {
             const slot = BaseObject.borrowObject(SlotData);
             slot.displayIndex = ObjectDataParser._getNumber(rawData, ObjectDataParser.DISPLAY_INDEX, 0);
@@ -478,9 +465,7 @@ namespace dragonBones {
 
             return slot;
         }
-        /**
-         * @private
-         */
+
         protected _parseSkin(rawData: any): SkinData {
             const skin = BaseObject.borrowObject(SkinData);
             skin.name = ObjectDataParser._getString(rawData, ObjectDataParser.NAME, ObjectDataParser.DEFAULT_NAME);
@@ -514,9 +499,7 @@ namespace dragonBones {
 
             return skin;
         }
-        /**
-         * @private
-         */
+
         protected _parseDisplay(rawData: any): DisplayData | null {
             const name = ObjectDataParser._getString(rawData, ObjectDataParser.NAME, "");
             const path = ObjectDataParser._getString(rawData, ObjectDataParser.PATH, "");
@@ -619,9 +602,7 @@ namespace dragonBones {
 
             return display;
         }
-        /**
-         * @private
-         */
+
         protected _parsePivot(rawData: any, display: ImageDisplayData): void {
             if (ObjectDataParser.PIVOT in rawData) {
                 const rawPivot = rawData[ObjectDataParser.PIVOT];
@@ -633,9 +614,7 @@ namespace dragonBones {
                 display.pivot.y = 0.5;
             }
         }
-        /**
-         * @private
-         */
+
         protected _parseMesh(rawData: any, mesh: MeshDisplayData): void {
             const rawVertices = rawData[ObjectDataParser.VERTICES] as Array<number>;
             const rawUVs = rawData[ObjectDataParser.UVS] as Array<number>;
@@ -724,9 +703,7 @@ namespace dragonBones {
                 this._weightBonePoses[meshName] = rawBonePoses;
             }
         }
-        /**
-         * @private
-         */
+
         protected _parseBoundingBox(rawData: any): BoundingBoxData | null {
             let boundingBox: BoundingBoxData | null = null;
             let type = BoundingBoxType.Rectangle;
@@ -761,9 +738,7 @@ namespace dragonBones {
 
             return boundingBox;
         }
-        /**
-         * @private
-         */
+
         protected _parsePolygonBoundingBox(rawData: any): PolygonBoundingBoxData {
             const polygonBoundingBox = BaseObject.borrowObject(PolygonBoundingBoxData);
 
@@ -821,9 +796,7 @@ namespace dragonBones {
 
             return polygonBoundingBox;
         }
-        /**
-         * @private
-         */
+
         protected _parseAnimation(rawData: any): AnimationData {
             const animation = BaseObject.borrowObject(AnimationData);
             animation.frameCount = Math.max(ObjectDataParser._getNumber(rawData, ObjectDataParser.DURATION, 1), 1);
@@ -920,7 +893,7 @@ namespace dragonBones {
                 for (const rawTimeline of rawTimelines) {
                     const constraintName = ObjectDataParser._getString(rawTimeline, ObjectDataParser.NAME, "");
                     const constraint = this._armature.getConstraint(constraintName);
-                    if (constraint === null){
+                    if (constraint === null) {
                         continue;
                     }
 
@@ -949,9 +922,7 @@ namespace dragonBones {
 
             return animation;
         }
-        /**
-         * @private
-         */
+
         protected _parseTimeline(
             rawData: any, rawFrames: Array<any> | null, framesKey: string, type: TimelineType,
             addIntOffset: boolean, addFloatOffset: boolean, frameValueCount: number,
@@ -1060,9 +1031,7 @@ namespace dragonBones {
 
             return timeline;
         }
-        /**
-         * @private
-         */
+
         protected _parseBoneTimeline(rawData: any): void {
             const bone = this._armature.getBone(ObjectDataParser._getString(rawData, ObjectDataParser.NAME, ""));
             if (bone === null) {
@@ -1123,9 +1092,7 @@ namespace dragonBones {
             this._bone = null as any; //
             this._slot = null as any; //
         }
-        /**
-         * @private
-         */
+
         protected _parseSlotTimeline(rawData: any): void {
             const slot = this._armature.getSlot(ObjectDataParser._getString(rawData, ObjectDataParser.NAME, ""));
             if (slot === null) {
@@ -1140,14 +1107,14 @@ namespace dragonBones {
                 displayTimeline = this._parseTimeline(
                     rawData, null, ObjectDataParser.DISPLAY_FRAME, TimelineType.SlotDisplay,
                     false, false, 0,
-                    this._parseSlotDisplayIndexFrame
+                    this._parseSlotDisplayFrame
                 );
             }
             else {
                 displayTimeline = this._parseTimeline(
                     rawData, null, ObjectDataParser.FRAME, TimelineType.SlotDisplay,
                     false, false, 0,
-                    this._parseSlotDisplayIndexFrame
+                    this._parseSlotDisplayFrame
                 );
             }
             if (displayTimeline !== null) {
@@ -1175,11 +1142,11 @@ namespace dragonBones {
 
             this._slot = null as any; //
         }
-        /**
-         * @private
-         */
+
         protected _parseFrame(rawData: any, frameStart: number, frameCount: number): number {
+            // tslint:disable-next-line:no-unused-expression
             rawData;
+            // tslint:disable-next-line:no-unused-expression
             frameCount;
 
             const frameOffset = this._frameArray.length;
@@ -1188,9 +1155,7 @@ namespace dragonBones {
 
             return frameOffset;
         }
-        /**
-         * @private
-         */
+
         protected _parseTweenFrame(rawData: any, frameStart: number, frameCount: number): number {
             const frameOffset = this._parseFrame(rawData, frameStart, frameCount);
 
@@ -1247,7 +1212,8 @@ namespace dragonBones {
             return frameOffset;
         }
 
-        private _parseActionFrame(frame: ActionFrame, frameStart: number, frameCount: number): number {
+        protected _parseActionFrame(frame: ActionFrame, frameStart: number, frameCount: number): number {
+            // tslint:disable-next-line:no-unused-expression
             frameCount;
 
             const frameOffset = this._frameArray.length;
@@ -1320,9 +1286,7 @@ namespace dragonBones {
 
             return frameOffset;
         }
-        /**
-         * @private
-         */
+
         protected _parseBoneAllFrame(rawData: any, frameStart: number, frameCount: number): number {
             this._helpTransform.identity();
             if (ObjectDataParser.TRANSFORM in rawData) {
@@ -1361,9 +1325,7 @@ namespace dragonBones {
 
             return frameOffset;
         }
-        /**
-         * @private
-         */
+
         protected _parseBoneTranslateFrame(rawData: any, frameStart: number, frameCount: number): number {
             const frameOffset = this._parseTweenFrame(rawData, frameStart, frameCount);
 
@@ -1374,9 +1336,7 @@ namespace dragonBones {
 
             return frameOffset;
         }
-        /**
-         * @private
-         */
+
         protected _parseBoneRotateFrame(rawData: any, frameStart: number, frameCount: number): number {
             // Modify rotation.
             let rotation = ObjectDataParser._getNumber(rawData, ObjectDataParser.ROTATE, 0.0) * Transform.DEG_RAD;
@@ -1405,9 +1365,7 @@ namespace dragonBones {
 
             return frameOffset;
         }
-        /**
-         * @private
-         */
+
         protected _parseBoneScaleFrame(rawData: any, frameStart: number, frameCount: number): number {
             const frameOffset = this._parseTweenFrame(rawData, frameStart, frameCount);
 
@@ -1418,10 +1376,8 @@ namespace dragonBones {
 
             return frameOffset;
         }
-        /**
-         * @private
-         */
-        protected _parseSlotDisplayIndexFrame(rawData: any, frameStart: number, frameCount: number): number {
+
+        protected _parseSlotDisplayFrame(rawData: any, frameStart: number, frameCount: number): number {
             const frameOffset = this._parseFrame(rawData, frameStart, frameCount);
 
             this._frameArray.length += 1;
@@ -1437,9 +1393,7 @@ namespace dragonBones {
 
             return frameOffset;
         }
-        /**
-         * @private
-         */
+
         protected _parseSlotColorFrame(rawData: any, frameStart: number, frameCount: number): number {
             const frameOffset = this._parseTweenFrame(rawData, frameStart, frameCount);
             let colorOffset = -1;
@@ -1447,6 +1401,7 @@ namespace dragonBones {
             if (ObjectDataParser.VALUE in rawData || ObjectDataParser.COLOR in rawData) {
                 const rawColor = ObjectDataParser.VALUE in rawData ? rawData[ObjectDataParser.VALUE] : rawData[ObjectDataParser.COLOR];
                 for (let k in rawColor) { // Detects the presence of color.
+                    // tslint:disable-next-line:no-unused-expression
                     k;
                     this._parseColorTransform(rawColor, this._helpColorTransform);
                     colorOffset = this._intArray.length;
@@ -1487,9 +1442,7 @@ namespace dragonBones {
 
             return frameOffset;
         }
-        /**
-         * @private
-         */
+
         protected _parseSlotFFDFrame(rawData: any, frameStart: number, frameCount: number): number {
             const frameFloatOffset = this._frameFloatArray.length;
             const frameOffset = this._parseTweenFrame(rawData, frameStart, frameCount);
@@ -1574,22 +1527,18 @@ namespace dragonBones {
 
             return frameOffset;
         }
-        /**
-         * @private
-         */
-        protected _parseIKConstraintFrame(rawData: any, frameStart: number, frameCount: number): number{
+
+        protected _parseIKConstraintFrame(rawData: any, frameStart: number, frameCount: number): number {
             const frameOffset = this._parseTweenFrame(rawData, frameStart, frameCount);
 
             let frameIntOffset = this._frameIntArray.length;
             this._frameIntArray.length += 2;
-            this._frameIntArray[frameIntOffset++] = ObjectDataParser._getBoolean(rawData, ObjectDataParser.BEND_POSITIVE, true)?1:0;
+            this._frameIntArray[frameIntOffset++] = ObjectDataParser._getBoolean(rawData, ObjectDataParser.BEND_POSITIVE, true) ? 1 : 0;
             this._frameIntArray[frameIntOffset++] = Math.round(ObjectDataParser._getNumber(rawData, ObjectDataParser.WEIGHT, 1.0) * 100.0);
 
             return frameOffset;
         }
-        /**
-         * @private
-         */
+
         protected _parseActionData(rawData: any, type: ActionType, bone: BoneData | null, slot: SlotData | null): Array<ActionData> {
             const actions = new Array<ActionData>();
 
@@ -1678,9 +1627,7 @@ namespace dragonBones {
 
             return actions;
         }
-        /**
-         * @private
-         */
+
         protected _parseTransform(rawData: any, transform: Transform, scale: number): void {
             transform.x = ObjectDataParser._getNumber(rawData, ObjectDataParser.X, 0.0) * scale;
             transform.y = ObjectDataParser._getNumber(rawData, ObjectDataParser.Y, 0.0) * scale;
@@ -1697,9 +1644,7 @@ namespace dragonBones {
             transform.scaleX = ObjectDataParser._getNumber(rawData, ObjectDataParser.SCALE_X, 1.0);
             transform.scaleY = ObjectDataParser._getNumber(rawData, ObjectDataParser.SCALE_Y, 1.0);
         }
-        /**
-         * @private
-         */
+
         protected _parseColorTransform(rawData: any, color: ColorTransform): void {
             color.alphaMultiplier = ObjectDataParser._getNumber(rawData, ObjectDataParser.ALPHA_MULTIPLIER, 100) * 0.01;
             color.redMultiplier = ObjectDataParser._getNumber(rawData, ObjectDataParser.RED_MULTIPLIER, 100) * 0.01;
@@ -1710,10 +1655,9 @@ namespace dragonBones {
             color.greenOffset = ObjectDataParser._getNumber(rawData, ObjectDataParser.GREEN_OFFSET, 0);
             color.blueOffset = ObjectDataParser._getNumber(rawData, ObjectDataParser.BLUE_OFFSET, 0);
         }
-        /**
-         * @private
-         */
+
         protected _parseArray(rawData: any): void {
+            // tslint:disable-next-line:no-unused-expression
             rawData;
             this._intArray.length = 0;
             this._floatArray.length = 0;
@@ -1722,9 +1666,7 @@ namespace dragonBones {
             this._frameArray.length = 0;
             this._timelineArray.length = 0;
         }
-        /**
-         * @private
-         */
+
         protected _modifyArray(): void {
             // Align.
             if ((this._intArray.length % Int16Array.BYTES_PER_ELEMENT) !== 0) {
@@ -1832,9 +1774,6 @@ namespace dragonBones {
             this._defaultColorOffset = -1;
         }
 
-        /**
-         * @inheritDoc
-         */
         public parseDragonBonesData(rawData: any, scale: number = 1): DragonBonesData | null {
             console.assert(rawData !== null && rawData !== undefined, "Data error.");
 
@@ -1895,9 +1834,7 @@ namespace dragonBones {
 
             return null;
         }
-        /**
-         * @inheritDoc
-         */
+
         public parseTextureAtlasData(rawData: any, textureAtlasData: TextureAtlasData, scale: number = 1.0): boolean {
             console.assert(rawData !== undefined);
 
@@ -1952,14 +1889,16 @@ namespace dragonBones {
             return true;
         }
 
-        /**
-         * @private
-         */
         private static _objectDataParserInstance: ObjectDataParser = null as any;
         /**
+         * Deprecated, please refer to {@link dragonBones.BaseFactory#parseDragonBonesData()}.
          * @deprecated
-         * 已废弃，请参考 @see
-         * @see dragonBones.BaseFactory#parseDragonBonesData()
+         * @language en_US
+         */
+        /**
+         * 已废弃，请参考 {@link dragonBones.BaseFactory#parseDragonBonesData()}。
+         * @deprecated
+         * @language zh_CN
          */
         public static getInstance(): ObjectDataParser {
             if (ObjectDataParser._objectDataParserInstance === null) {
@@ -1969,8 +1908,11 @@ namespace dragonBones {
             return ObjectDataParser._objectDataParserInstance;
         }
     }
-
-    class ActionFrame {
+    /**
+     * @internal
+     * @private
+     */
+    export class ActionFrame {
         public frameStart: number = 0;
         public readonly actions: Array<number> = [];
     }

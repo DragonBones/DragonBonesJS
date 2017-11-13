@@ -1,5 +1,10 @@
 namespace dragonBones {
     /**
+     * The egret texture atlas data.
+     * @version DragonBones 3.0
+     * @language zh_CN
+     */
+    /**
      * Egret 贴图集数据。
      * @version DragonBones 3.0
      * @language zh_CN
@@ -8,12 +13,15 @@ namespace dragonBones {
         public static toString(): string {
             return "[class dragonBones.EgretTextureAtlasData]";
         }
-
+        /**
+         * @internal
+         * @private
+         */
         public disposeEnabled: boolean;
 
         private _renderTexture: egret.Texture | null = null; // Initial value.
         /**
-         * @private
+         * @inheritDoc
          */
         protected _onClear(): void {
             super._onClear();
@@ -26,11 +34,16 @@ namespace dragonBones {
             this._renderTexture = null;
         }
         /**
-         * @private
+         * @inheritDoc
          */
         public createTexture(): TextureData {
             return BaseObject.borrowObject(EgretTextureData);
         }
+        /**
+         * The egret texture.
+         * @version DragonBones 3.0
+         * @language en_US
+         */
         /**
          * Egret 贴图。
          * @version DragonBones 3.0
@@ -61,7 +74,12 @@ namespace dragonBones {
                         textureData.renderTexture = new egret.Texture();
                     }
 
-                    textureData.renderTexture._bitmapData = bitmapData;
+                    if (EgretFactory._isV5) {
+                        (textureData.renderTexture as any)["$bitmapData"] = bitmapData;
+                    }
+                    else {
+                        textureData.renderTexture._bitmapData = bitmapData;
+                    }
 
                     if (textureData.rotated) {
                         textureData.renderTexture.$initData(
@@ -93,25 +111,36 @@ namespace dragonBones {
         }
 
         /**
+         * Deprecated, please refer to {@link dragonBones.BaseFactory#removeTextureAtlasData()}.
          * @deprecated
-         * 已废弃，请参考 @see
-         * @see dragonBones.BaseFactory#removeTextureAtlasData()
+         * @language en_US
+         */
+        /**
+         * 已废弃，请参考 {@link dragonBones.BaseFactory#removeTextureAtlasData()}。
+         * @deprecated
+         * @language zh_CN
          */
         public dispose(): void {
-            console.warn("已废弃，请参考 @see");
+            console.warn("已废弃。");
             this.returnToPool();
         }
         /**
+         * Deprecated, please refer to {@link #renderTexture}.
          * @deprecated
-         * 已废弃，请参考 @see
-         * @see dragonBones.EgretTextureAtlasData#renderTexture
+         * @language en_US
+         */
+        /**
+         * 已废弃，请参考 {@link #renderTexture}。
+         * @deprecated
+         * @language zh_CN
          */
         public get texture() {
-            console.warn("已废弃，请参考 @see");
+            console.warn("已废弃。");
             return this.renderTexture;
         }
     }
     /**
+     * @internal
      * @private
      */
     export class EgretTextureData extends TextureData {

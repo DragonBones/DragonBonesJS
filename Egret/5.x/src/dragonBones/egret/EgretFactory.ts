@@ -17,14 +17,6 @@ namespace dragonBones {
             return false;
         }
         /**
-         * 一个可以直接使用的全局 WorldClock 实例。(由引擎驱动)
-         * @version DragonBones 5.0
-         * @language zh_CN
-         */
-        public static get clock(): WorldClock {
-            return EgretFactory._dragonBonesInstance.clock;
-        }
-        /**
          * 一个可以直接使用的全局工厂实例。
          * @version DragonBones 4.7
          * @language zh_CN
@@ -142,7 +134,12 @@ namespace dragonBones {
         public getTextureDisplay(textureName: string, textureAtlasName: string | null = null): egret.Bitmap | null {
             const textureData = this._getTextureData(textureAtlasName !== null ? textureAtlasName : "", textureName) as EgretTextureData;
             if (textureData !== null && textureData.renderTexture !== null) {
-                return new egret.Bitmap(textureData.renderTexture);
+                const texture = textureData.renderTexture;
+                const bitmap = new egret.Bitmap(texture);
+                bitmap.width = texture.textureWidth * textureData.parent.scale;
+                bitmap.height = texture.textureHeight * textureData.parent.scale;
+
+                return bitmap;
             }
 
             return null;
@@ -156,6 +153,14 @@ namespace dragonBones {
             return this._dragonBones.eventManager as EgretArmatureDisplay;
         }
 
+        /**
+         * 已废弃，请参考 @see
+         * @see dragonBones.BaseFactory#clock
+         * @deprecated
+         */
+        public static get clock(): WorldClock {
+            return EgretFactory.factory.clock;
+        }
         /**
          * @deprecated
          * 已废弃，请参考 @see

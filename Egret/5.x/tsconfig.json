@@ -24,7 +24,7 @@
 		"out"
 	],
 	"files": [
-		"./libs/egret-wasm.d.ts",
+		"./libs/egret.d.ts",
 		"../../DragonBones/src/dragonBones/modules.ts",
 		
 		"../../DragonBones/src/dragonBones/core/DragonBones.ts",
@@ -40,6 +40,8 @@
 		"../../DragonBones/src/dragonBones/model/DragonBonesData.ts",
 		"../../DragonBones/src/dragonBones/model/ArmatureData.ts",
 		"../../DragonBones/src/dragonBones/model/ConstraintData.ts",
+		"../../DragonBones/src/dragonBones/model/CanvasData.ts",
+		"../../DragonBones/src/dragonBones/model/SkinData.ts",
 		"../../DragonBones/src/dragonBones/model/DisplayData.ts",
 		"../../DragonBones/src/dragonBones/model/BoundingBoxData.ts",
 		"../../DragonBones/src/dragonBones/model/AnimationData.ts",

@@ -1,42 +1,65 @@
 namespace dragonBones {
     /**
+     * The animation data.
+     * @version DragonBones 3.0
+     * @language en_US
+     */
+    /**
      * 动画数据。
      * @version DragonBones 3.0
      * @language zh_CN
      */
     export class AnimationData extends BaseObject {
-        /**
-         * @private
-         */
         public static toString(): string {
             return "[class dragonBones.AnimationData]";
         }
         /**
+         * FrameIntArray.
+         * @internal
          * @private
          */
-        public frameIntOffset: number; // FrameIntArray.
+        public frameIntOffset: number;
         /**
+         * FrameFloatArray.
+         * @internal
          * @private
          */
-        public frameFloatOffset: number; // FrameFloatArray.
+        public frameFloatOffset: number;
         /**
+         * FrameArray.
+         * @internal
          * @private
          */
-        public frameOffset: number; // FrameArray.
+        public frameOffset: number;
         /**
-         * 持续的帧数。 ([1~N])
+         * The frame count of the animation.
+         * @version DragonBones 3.0
+         * @language en_US
+         */
+        /**
+         * 动画的帧数。
          * @version DragonBones 3.0
          * @language zh_CN
          */
         public frameCount: number;
         /**
-         * 播放次数。 [0: 无限循环播放, [1~N]: 循环播放 N 次]
+         * The play times of the animation. [0: Loop play, [1~N]: Play N times]
+         * @version DragonBones 3.0
+         * @language en_US
+         */
+        /**
+         * 动画的播放次数。 [0: 无限循环播放, [1~N]: 循环播放 N 次]
          * @version DragonBones 3.0
          * @language zh_CN
          */
         public playTimes: number;
         /**
-         * 持续时间。 (以秒为单位)
+         * The duration of the animation. (In seconds)
+         * @version DragonBones 3.0
+         * @language en_US
+         */
+        /**
+         * 动画的持续时间。 （以秒为单位）
          * @version DragonBones 3.0
          * @language zh_CN
          */
@@ -46,7 +69,12 @@ namespace dragonBones {
          */
         public scale: number;
         /**
-         * 淡入时间。 (以秒为单位)
+         * The fade in time of the animation. (In seconds)
+         * @version DragonBones 3.0
+         * @language en_US
+         */
+        /**
+         * 动画的淡入时间。 （以秒为单位）
          * @version DragonBones 3.0
          * @language zh_CN
          */
@@ -56,7 +84,12 @@ namespace dragonBones {
          */
         public cacheFrameRate: number;
         /**
-         * 数据名称。
+         * The animation name.
+         * @version DragonBones 3.0
+         * @language en_US
+         */
+        /**
+         * 动画名称。
          * @version DragonBones 3.0
          * @language zh_CN
          */
@@ -98,7 +131,7 @@ namespace dragonBones {
          */
         public parent: ArmatureData;
         /**
-         * @private
+         * @inheritDoc
          */
         protected _onClear(): void {
             for (let k in this.boneTimelines) {
@@ -162,6 +195,7 @@ namespace dragonBones {
             this.parent = null as any; //
         }
         /**
+         * @internal
          * @private
          */
         public cacheFrames(frameRate: number): void {
@@ -254,6 +288,7 @@ namespace dragonBones {
         }
     }
     /**
+     * @internal
      * @private
      */
     export class TimelineData extends BaseObject {

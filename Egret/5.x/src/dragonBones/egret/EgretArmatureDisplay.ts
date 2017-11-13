@@ -303,7 +303,7 @@ namespace dragonBones {
         /**
          * @inheritDoc
          */
-        public _dispatchEvent(type: EventStringType, eventObject: EventObject): void {
+        public dispatchDBEvent(type: EventStringType, eventObject: EventObject): void {
             const event = egret.Event.create(EgretEvent, type);
             event.data = eventObject;
             super.dispatchEvent(event);
@@ -312,19 +312,19 @@ namespace dragonBones {
         /**
          * @inheritDoc
          */
-        public hasEvent(type: EventStringType): boolean {
+        public hasDBEventListener(type: EventStringType): boolean {
             return this.hasEventListener(type);
         }
         /**
          * @inheritDoc
          */
-        public addEvent(type: EventStringType, listener: (event: EgretEvent) => void, target: any): void {
+        public addDBEventListener(type: EventStringType, listener: (event: EgretEvent) => void, target: any): void {
             this.addEventListener(type, listener, target);
         }
         /**
          * @inheritDoc
          */
-        public removeEvent(type: EventStringType, listener: (event: EgretEvent) => void, target: any): void {
+        public removeDBEventListener(type: EventStringType, listener: (event: EgretEvent) => void, target: any): void {
             this.removeEventListener(type, listener, target);
         }
         /**
@@ -341,16 +341,34 @@ namespace dragonBones {
         }
 
         /**
+         * @see #hasDBEventListener()
          * @deprecated
-         * 已废弃，请参考 @see
+         */
+        public hasEvent(type: EventStringType): boolean {
+            return this.hasDBEventListener(type);
+        }
+        /**
+         * @see #addDBEventListener()
+         * @deprecated
+         */
+        public addEvent(type: EventStringType, listener: (event: EgretEvent) => void, target: any): void {
+            this.addDBEventListener(type, listener, target);
+        }
+        /**
+         * @see #removeDBEventListener()
+         * @deprecated
+         */
+        public removeEvent(type: EventStringType, listener: (event: EgretEvent) => void, target: any): void {
+            this.removeDBEventListener(type, listener, target);
+        }
+        /**
          * @see dragonBones.Armature#clock
-         * @see dragonBones.EgretFactory#clock
-         * @see dragonBones.Animation#timescale
-         * @see dragonBones.Animation#stop()
+         * @see dragonBones.BaseFactory#clock
+         * @deprecated
          */
         public advanceTimeBySelf(on: boolean): void {
             if (on) {
-                this._armature.clock = EgretFactory.clock;
+                this._armature.clock = EgretFactory.factory.clock;
             }
             else {
                 this._armature.clock = null;

@@ -1,12 +1,30 @@
 namespace dragonBones {
     /**
+     * @internal
      * @private
      */
     export class ColorTransform {
+        public alphaMultiplier: number;
+        public redMultiplier: number;
+        public greenMultiplier: number;
+        public blueMultiplier: number;
+        public alphaOffset: number;
+        public redOffset: number;
+        public greenOffset: number;
+        public blueOffset: number;
+
         public constructor(
-            public alphaMultiplier: number = 1.0, public redMultiplier: number = 1.0, public greenMultiplier: number = 1.0, public blueMultiplier: number = 1.0,
-            public alphaOffset: number = 0, public redOffset: number = 0, public greenOffset: number = 0, public blueOffset: number = 0
+            alphaMultiplier: number = 1.0, redMultiplier: number = 1.0, greenMultiplier: number = 1.0, blueMultiplier: number = 1.0,
+            alphaOffset: number = 0, redOffset: number = 0, greenOffset: number = 0, blueOffset: number = 0
         ) {
+            this.alphaMultiplier = alphaMultiplier;
+            this.redMultiplier = redMultiplier;
+            this.greenMultiplier = greenMultiplier;
+            this.blueMultiplier = blueMultiplier;
+            this.alphaOffset = alphaOffset;
+            this.redOffset = redOffset;
+            this.greenOffset = greenOffset;
+            this.blueOffset = blueOffset;
         }
 
         public copyFrom(value: ColorTransform): void {

@@ -149,25 +149,25 @@ namespace dragonBones {
         /**
          * @private
          */
-        public _dispatchEvent(type: EventStringType, eventObject: EventObject): void {
+        public dispatchDBEvent(type: EventStringType, eventObject: EventObject): void {
             this.emit(type, eventObject);
         }
         /**
          * @inheritDoc
          */
-        public hasEvent(type: EventStringType): boolean {
+        public hasDBEventListener(type: EventStringType): boolean {
             return this.listeners(type, true) as boolean; // .d.ts bug
         }
         /**
          * @inheritDoc
          */
-        public addEvent(type: EventStringType, listener: (event: EventObject) => void, target: any): void {
+        public addDBEventListener(type: EventStringType, listener: (event: EventObject) => void, target: any): void {
             this.addListener(type as any, listener as any, target);
         }
         /**
          * @inheritDoc
          */
-        public removeEvent(type: EventStringType, listener: (event: EventObject) => void, target: any): void {
+        public removeDBEventListener(type: EventStringType, listener: (event: EventObject) => void, target: any): void {
             this.removeListener(type as any, listener as any, target);
         }
         /**
@@ -184,16 +184,34 @@ namespace dragonBones {
         }
 
         /**
+         * @see #hasDBEventListener()
          * @deprecated
-         * 已废弃，请参考 @see
+         */
+        public hasEvent(type: EventStringType): boolean {
+            return this.hasDBEventListener(type);
+        }
+        /**
+         * @see #addDBEventListener()
+         * @deprecated
+         */
+        public addEvent(type: EventStringType, listener: (event: EventObject) => void, target: any): void {
+            this.addDBEventListener(type, listener, target);
+        }
+        /**
+         * @see #removeDBEventListener()
+         * @deprecated
+         */
+        public removeEvent(type: EventStringType, listener: (event: EventObject) => void, target: any): void {
+            this.removeDBEventListener(type, listener, target);
+        }
+        /**
          * @see dragonBones.Armature#clock
-         * @see dragonBones.PixiFactory#clock
-         * @see dragonBones.Animation#timescale
-         * @see dragonBones.Animation#stop()
+         * @see dragonBones.BaseFactory#clock
+         * @deprecated
          */
         public advanceTimeBySelf(on: boolean): void {
             if (on) {
-                this._armature.clock = PixiFactory.clock;
+                this._armature.clock = PixiFactory.factory.clock;
             }
             else {
                 this._armature.clock = null;

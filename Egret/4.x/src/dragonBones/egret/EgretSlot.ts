@@ -1,5 +1,10 @@
 namespace dragonBones {
     /**
+     * The egret slot.
+     * @version DragonBones 3.0
+     * @language en_US
+     */
+    /**
      * Egret 插槽。
      * @version DragonBones 3.0
      * @language zh_CN
@@ -9,8 +14,15 @@ namespace dragonBones {
             return "[class dragonBones.EgretSlot]";
         }
         /**
+         * Whether to update the transform properties of the display object.
+         * For better performance, the transform properties of display object (x, y, rotation, ScaleX, ScaleX) are not updated and need to be set to true if these properties need to be accessed correctly.
+         * @default false
+         * @version DragonBones 3.0
+         * @language zh_CN
+         */
+        /**
          * 是否更新显示对象的变换属性。
-         * 为了更好的性能, 并不会更新 display 的变换属性 (x, y, rotation, scaleX, scaleX), 如果需要正确访问这些属性, 则需要设置为 true 。
+         * 为了更好的性能, 默认并不会更新显示对象的变换属性 (x, y, rotation, scaleX, scaleX), 如果需要正确访问这些属性, 则需要设置为 true 。
          * @default false
          * @version DragonBones 3.0
          * @language zh_CN
@@ -21,7 +33,20 @@ namespace dragonBones {
         private _renderDisplay: egret.DisplayObject = null as any;
         private _colorFilter: egret.ColorMatrixFilter | null = null;
         /**
-         * @private
+         * @inheritDoc
+         */
+        public init(slotData: SlotData, displayDatas: Array<DisplayData | null> | null, rawDisplay: any, meshDisplay: any): void {
+            super.init(slotData, displayDatas, rawDisplay, meshDisplay);
+
+            if (EgretFactory._isV5) {
+                this._updateTransform = this._updateTransformV5;
+            }
+            else {
+                this._updateTransform = this._updateTransformV4;
+            }
+        }
+        /**
+         * @inheritDoc
          */
         protected _onClear(): void {
             super._onClear();
@@ -31,26 +56,30 @@ namespace dragonBones {
             this._colorFilter = null;
         }
         /**
-         * @private
+         * @inheritDoc
          */
         protected _initDisplay(value: any): void {
+            // tslint:disable-next-line:no-unused-expression
             value;
         }
         /**
-         * @private
+         * @inheritDoc
          */
         protected _disposeDisplay(value: any): void {
+            // tslint:disable-next-line:no-unused-expression
             value;
         }
         /**
-         * @private
+         * @inheritDoc
          */
         protected _onUpdateDisplay(): void {
             this._armatureDisplay = this._armature.display;
             this._renderDisplay = (this._display !== null ? this._display : this._rawDisplay) as egret.DisplayObject;
 
-            if (this._armatureDisplay._batchEnabled && this._renderDisplay !== this._rawDisplay && this._renderDisplay !== this._meshDisplay) {
-                this._armatureDisplay.disableBatch();
+            if (EgretFactory._isV5) {
+                if (this._renderDisplay === this._rawDisplay && !(this._renderDisplay.$renderNode instanceof egret.sys.BitmapNode)) {
+                    this._renderDisplay.$renderNode = new egret.sys.BitmapNode();
+                }
             }
 
             if (this._armatureDisplay._batchEnabled) {
@@ -58,10 +87,14 @@ namespace dragonBones {
                 if (!node.matrix) {
                     node.matrix = new egret.Matrix();
                 }
+
+                if (this._renderDisplay !== this._rawDisplay && this._renderDisplay !== this._meshDisplay) {
+                    this._armatureDisplay.disableBatch();
+                }
             }
         }
         /**
-         * @private
+         * @inheritDoc
          */
         protected _addDisplay(): void {
             if (this._armatureDisplay._batchEnabled) {
@@ -72,7 +105,7 @@ namespace dragonBones {
             }
         }
         /**
-         * @private
+         * @inheritDoc
          */
         protected _replaceDisplay(value: any): void {
             const prevDisplay = value as egret.DisplayObject;
@@ -88,7 +121,7 @@ namespace dragonBones {
             }
         }
         /**
-         * @private
+         * @inheritDoc
          */
         protected _removeDisplay(): void {
             if (this._armatureDisplay._batchEnabled) {
@@ -100,7 +133,7 @@ namespace dragonBones {
             }
         }
         /**
-         * @private
+         * @inheritDoc
          */
         protected _updateZOrder(): void {
             if (this._armatureDisplay._batchEnabled) {
@@ -117,20 +150,21 @@ namespace dragonBones {
             }
         }
         /**
-         * @internal
-         * @private
+         * @inheritDoc
          */
         public _updateVisible(): void {
+            const visible = this._parent.visible && this._visible;
+
             if (this._armatureDisplay._batchEnabled) {
                 const node = this._renderDisplay.$renderNode as (egret.sys.BitmapNode);
-                node.alpha = this._parent.visible ? 1.0 : 0.0;
+                node.alpha = visible ? 1.0 : 0.0;
             }
             else {
-                this._renderDisplay.visible = this._parent.visible;
+                this._renderDisplay.visible = visible;
             }
         }
         /**
-         * @private
+         * @inheritDoc
          */
         protected _updateBlendMode(): void {
             switch (this._blendMode) {
@@ -156,7 +190,7 @@ namespace dragonBones {
             }
         }
         /**
-         * @private
+         * @inheritDoc
          */
         protected _updateColor(): void {
             if (
@@ -213,7 +247,7 @@ namespace dragonBones {
             }
         }
         /**
-         * @private
+         * @inheritDoc
          */
         protected _updateFrame(): void {
             const meshData = this._display === this._meshDisplay ? this._meshData : null;
@@ -271,7 +305,13 @@ namespace dragonBones {
                             const texture = currentTextureData.renderTexture;
                             const node = this._renderDisplay.$renderNode as egret.sys.MeshNode;
                             egret.sys.RenderNode.prototype.cleanBeforeRender.call(node);
-                            node.image = texture._bitmapData;
+
+                            if (EgretFactory._isV5) {
+                                node.image = (texture as any)["$bitmapData"];
+                            }
+                            else {
+                                node.image = texture._bitmapData;
+                            }
 
                             node.drawMesh(
                                 texture._bitmapX, texture._bitmapY,
@@ -289,10 +329,13 @@ namespace dragonBones {
                         meshDisplay.$setAnchorOffsetX(this._pivotX);
                         meshDisplay.$setAnchorOffsetY(this._pivotY);
                         meshDisplay.$updateVertices();
-                        meshDisplay.$invalidateTransform();
+
+                        if (!EgretFactory._isV5) {
+                            meshDisplay.$invalidateTransform();
+                        }
                     }
                     else { // Normal texture.
-                        const scale = currentTextureData.parent.scale * this._armature.armatureData.scale;
+                        const scale = currentTextureData.parent.scale * this._armature._armatureData.scale;
                         const textureWidth = (currentTextureData.rotated ? currentTextureData.region.height : currentTextureData.region.width) * scale;
                         const textureHeight = (currentTextureData.rotated ? currentTextureData.region.width : currentTextureData.region.height) * scale;
                         const normalDisplay = this._renderDisplay as egret.Bitmap;
@@ -302,17 +345,32 @@ namespace dragonBones {
                         if (this._armatureDisplay._batchEnabled) {
                             const node = this._renderDisplay.$renderNode as egret.sys.BitmapNode;
                             egret.sys.RenderNode.prototype.cleanBeforeRender.call(node);
-                            node.image = texture._bitmapData;
 
-                            node.drawImage(
-                                texture._bitmapX, texture._bitmapY,
-                                texture._bitmapWidth, texture._bitmapHeight,
-                                texture._offsetX, texture._offsetY,
-                                textureWidth, textureHeight
-                            );
+                            if (EgretFactory._isV5) {
+                                node.image = (texture as any)["$bitmapData"];
+                                node.drawImage(
+                                    (texture as any).$bitmapX, (texture as any).$bitmapY,
+                                    (texture as any).$bitmapWidth, (texture as any).$bitmapHeight,
+                                    (texture as any).$offsetX, (texture as any).$offsetY,
+                                    textureWidth, textureHeight
+                                );
 
-                            node.imageWidth = texture._sourceWidth;
-                            node.imageHeight = texture._sourceHeight;
+                                node.imageWidth = (texture as any).$sourceWidth;
+                                node.imageHeight = (texture as any).$sourceHeight;
+                            }
+                            else {
+                                node.image = texture._bitmapData;
+                                node.drawImage(
+                                    texture._bitmapX, texture._bitmapY,
+                                    texture._bitmapWidth, texture._bitmapHeight,
+                                    texture._offsetX, texture._offsetY,
+                                    textureWidth, textureHeight
+                                );
+
+                                node.imageWidth = texture._sourceWidth;
+                                node.imageHeight = texture._sourceHeight;
+                            }
+
                             this._colorDirty = true;
                         }
                         else {
@@ -341,11 +399,11 @@ namespace dragonBones {
             normalDisplay.visible = false;
         }
         /**
-         * @private
+         * @inheritDoc
          */
         protected _updateMesh(): void {
             const hasFFD = this._ffdVertices.length > 0;
-            const scale = this._armature.armatureData.scale;
+            const scale = this._armature._armatureData.scale;
             const meshData = this._meshData as MeshDisplayData;
             const weight = meshData.weight;
             const meshDisplay = this._renderDisplay as egret.Mesh;
@@ -393,7 +451,10 @@ namespace dragonBones {
                 }
 
                 meshDisplay.$updateVertices();
-                meshDisplay.$invalidateTransform();
+
+                if (!EgretFactory._isV5) {
+                    meshDisplay.$invalidateTransform();
+                }
             }
             else if (hasFFD) {
                 const data = meshData.parent.parent.parent;
@@ -410,7 +471,10 @@ namespace dragonBones {
                 }
 
                 meshDisplay.$updateVertices();
-                meshDisplay.$invalidateTransform();
+
+                if (!EgretFactory._isV5) {
+                    meshDisplay.$invalidateTransform();
+                }
             }
 
             if (this._armatureDisplay._batchEnabled) {
@@ -418,9 +482,15 @@ namespace dragonBones {
             }
         }
         /**
-         * @private
+         * @inheritDoc
          */
         protected _updateTransform(isSkinnedMesh: boolean): void {
+            // tslint:disable-next-line:no-unused-expression
+            isSkinnedMesh;
+            throw new Error();
+        }
+
+        private _updateTransformV4(isSkinnedMesh: boolean): void {
             if (isSkinnedMesh) { // Identity transform.
                 if (this._armatureDisplay._batchEnabled) {
                     this._armatureDisplay._childDirty = true;
@@ -466,6 +536,30 @@ namespace dragonBones {
 
                     this._renderDisplay.$removeFlags(8);
                     this._renderDisplay.$invalidatePosition();
+                }
+            }
+        }
+
+        private _updateTransformV5(isSkinnedMesh: boolean): void {
+            if (isSkinnedMesh) { // Identity transform.
+                const transformationMatrix = this._renderDisplay.matrix;
+                transformationMatrix.identity();
+                this._renderDisplay.$setMatrix(transformationMatrix, this.transformUpdateEnabled);
+            }
+            else {
+                const globalTransformMatrix = this.globalTransformMatrix;
+                if (this._armatureDisplay._batchEnabled) {
+                    this._armatureDisplay._childDirty = true;
+                    let displayMatrix = (this._renderDisplay.$renderNode as (egret.sys.BitmapNode | egret.sys.MeshNode)).matrix;
+                    displayMatrix.a = globalTransformMatrix.a;
+                    displayMatrix.b = globalTransformMatrix.b;
+                    displayMatrix.c = globalTransformMatrix.c;
+                    displayMatrix.d = globalTransformMatrix.d;
+                    displayMatrix.tx = this.globalTransformMatrix.tx - (this.globalTransformMatrix.a * this._pivotX + this.globalTransformMatrix.c * this._pivotY);
+                    displayMatrix.ty = this.globalTransformMatrix.ty - (this.globalTransformMatrix.b * this._pivotX + this.globalTransformMatrix.d * this._pivotY);
+                }
+                else {
+                    this._renderDisplay.$setMatrix((globalTransformMatrix as any) as egret.Matrix, this.transformUpdateEnabled);
                 }
             }
         }

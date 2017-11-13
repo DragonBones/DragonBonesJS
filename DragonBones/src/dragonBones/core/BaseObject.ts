@@ -1,12 +1,19 @@
 namespace dragonBones {
     /**
-     * 基础对象。
+     * The BaseObject is the base class for all objects in the DragonBones framework.
+     * All BaseObject instances are cached to the object pool to reduce the performance consumption of frequent requests for memory or memory recovery.
+     * @version DragonBones 4.5
+     * @language en_US
+     */
+    /**
+     * 基础对象，通常 DragonBones 的对象都继承自该类。
+     * 所有基础对象的实例都会缓存到对象池，以减少频繁申请内存或内存回收的性能消耗。
      * @version DragonBones 4.5
      * @language zh_CN
      */
     export abstract class BaseObject {
         private static _hashCode: number = 0;
-        private static _defaultMaxCount: number = 1000;
+        private static _defaultMaxCount: number = 3000;
         private static readonly _maxCountMap: Map<number> = {};
         private static readonly _poolsMap: Map<Array<BaseObject>> = {};
 
@@ -20,22 +27,27 @@ namespace dragonBones {
                     pool.push(object);
                 }
                 else {
-                    console.assert(false, "The object is already in the pool.");
+                    console.warn("The object is already in the pool.");
                 }
             }
             else {
             }
         }
-        /**
-         * @private
-         */
+
         public static toString(): string {
             throw new Error();
         }
         /**
-         * 设置每种对象池的最大缓存数量。
-         * @param objectConstructor 对象类。
-         * @param maxCount 最大缓存数量。 (设置为 0 则不缓存)
+         * Set the maximum cache count of the specify object pool.
+         * @param objectConstructor The specify class (Set all object pools max cache count if not set)
+         * @param maxCount Max count
+         * @version DragonBones 4.5
+         * @language en_US
+         */
+        /**
+         * 设置特定对象池的最大缓存数量。
+         * @param objectConstructor 特定的类 (不设置则设置所有对象池的最大缓存数量)
+         * @param maxCount 最大缓存数量
          * @version DragonBones 4.5
          * @language zh_CN
          */
@@ -69,8 +81,14 @@ namespace dragonBones {
             }
         }
         /**
-         * 清除对象池缓存的对象。
-         * @param objectConstructor 对象类。 (不设置则清除所有缓存)
+         * Clear the cached instances of a specify object pool.
+         * @param objectConstructor Specify class (Clear all cached instances if not set)
+         * @version DragonBones 4.5
+         * @language en_US
+         */
+        /**
+         * 清除特定对象池的缓存实例。
+         * @param objectConstructor 特定的类 (不设置则清除所有缓存的实例)
          * @version DragonBones 4.5
          * @language zh_CN
          */
@@ -90,12 +108,18 @@ namespace dragonBones {
             }
         }
         /**
-         * 从对象池中创建指定对象。
-         * @param objectConstructor 对象类。
+         * Get an instance of the specify class from object pool.
+         * @param objectConstructor The specify class
+         * @version DragonBones 4.5
+         * @language en_US
+         */
+        /**
+         * 从对象池中获取特定类的实例。
+         * @param objectConstructor 特定的类
          * @version DragonBones 4.5
          * @language zh_CN
          */
-        public static borrowObject<T extends BaseObject>(objectConstructor: { new (): T; }): T {
+        public static borrowObject<T extends BaseObject>(objectConstructor: { new(): T; }): T {
             const classType = String(objectConstructor);
             const pool = classType in BaseObject._poolsMap ? BaseObject._poolsMap[classType] : null;
             if (pool !== null && pool.length > 0) {
@@ -109,7 +133,12 @@ namespace dragonBones {
             return object;
         }
         /**
-         * 对象的唯一标识。
+         * A unique identification number assigned to the object.
+         * @version DragonBones 4.5
+         * @language en_US
+         */
+        /**
+         * 分配给此实例的唯一标识号。
          * @version DragonBones 4.5
          * @language zh_CN
          */
@@ -120,7 +149,12 @@ namespace dragonBones {
          */
         protected abstract _onClear(): void;
         /**
-         * 清除数据并返还对象池。
+         * Clear the object and return it back to object pool。
+         * @version DragonBones 4.5
+         * @language en_US
+         */
+        /**
+         * 清除该实例的所有数据并将其返还对象池。
          * @version DragonBones 4.5
          * @language zh_CN
          */

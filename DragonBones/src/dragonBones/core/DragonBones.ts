@@ -49,7 +49,12 @@ namespace dragonBones {
         BoundingBox = 3
     }
     /**
-     * 包围盒类型。
+     * Bounding box type.
+     * @version DragonBones 5.0
+     * @language en_US
+     */
+    /**
+     * 边界框类型。
      * @version DragonBones 5.0
      * @language zh_CN
      */
@@ -118,7 +123,14 @@ namespace dragonBones {
         AnimationWeight = 41
     }
     /**
-     * @private
+     * Offset mode.
+     * @version DragonBones 5.5
+     * @language en_US
+     */
+    /**
+     * 偏移模式。
+     * @version DragonBones 5.5
+     * @language zh_CN
      */
     export const enum OffsetMode {
         None,
@@ -126,44 +138,67 @@ namespace dragonBones {
         Override
     }
     /**
-     * 动画混合的淡出方式。
+     * Animation fade out mode.
+     * @version DragonBones 4.5
+     * @language en_US
+     */
+    /**
+     * 动画淡出模式。
      * @version DragonBones 4.5
      * @language zh_CN
      */
     export const enum AnimationFadeOutMode {
         /**
-         * 不淡出动画。
-         * @version DragonBones 4.5
+         * Do not fade out of any animation states.
+         * @language en_US
+         */
+        /**
+         * 不淡出任何的动画状态。
          * @language zh_CN
          */
         None = 0,
         /**
-         * 淡出同层的动画。
-         * @version DragonBones 4.5
+         * Fade out the animation states of the same layer.
+         * @language en_US
+         */
+        /**
+         * 淡出同层的动画状态。
          * @language zh_CN
          */
         SameLayer = 1,
         /**
-         * 淡出同组的动画。
-         * @version DragonBones 4.5
+         * Fade out the animation states of the same group.
+         * @language en_US
+         */
+        /**
+         * 淡出同组的动画状态。
          * @language zh_CN
          */
         SameGroup = 2,
         /**
-         * 淡出同层并且同组的动画。
-         * @version DragonBones 4.5
+         * Fade out the animation states of the same layer and group.
+         * @language en_US
+         */
+        /**
+         * 淡出同层并且同组的动画状态。
          * @language zh_CN
          */
         SameLayerAndGroup = 3,
         /**
-         * 淡出所有动画。
-         * @version DragonBones 4.5
+         * Fade out of all animation states.
+         * @language en_US
+         */
+        /**
+         * 淡出所有的动画状态。
          * @language zh_CN
          */
         All = 4,
         /**
-         * 不替换同名动画。
-         * @version DragonBones 5.1
+         * Does not replace the animation state with the same name.
+         * @language en_US
+         */
+        /**
+         * 不替换同名的动画状态。
          * @language zh_CN
          */
         Single = 5
@@ -182,7 +217,7 @@ namespace dragonBones {
         public static debug: boolean = false;
         public static debugDraw: boolean = false;
         public static webAssembly: boolean = false;
-        public static readonly VERSION: string = "5.5.1";
+        public static readonly VERSION: string = "5.6.0";
 
         private readonly _clock: WorldClock = new WorldClock();
         private readonly _events: Array<EventObject> = [];
@@ -211,9 +246,9 @@ namespace dragonBones {
                     const eventObject = this._events[i];
                     const armature = eventObject.armature;
                     if (armature.armatureData !== null) { // May be armature disposed before advanceTime.
-                        armature.eventDispatcher._dispatchEvent(eventObject.type, eventObject);
+                        armature.eventDispatcher.dispatchDBEvent(eventObject.type, eventObject);
                         if (eventObject.type === EventObject.SOUND_EVENT) {
-                            this._eventManager._dispatchEvent(eventObject.type, eventObject);
+                            this._eventManager.dispatchDBEvent(eventObject.type, eventObject);
                         }
                     }
 

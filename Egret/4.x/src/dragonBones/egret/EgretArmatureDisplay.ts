@@ -1,10 +1,21 @@
 namespace dragonBones {
     /**
+     * The egret event.
+     * @version DragonBones 4.5
+     * @language en_US
+     */
+    /**
      * Egret 事件。
      * @version DragonBones 4.5
      * @language zh_CN
      */
     export class EgretEvent extends egret.Event {
+        /**
+         * The event object.
+         * @see dragonBones.EventObject
+         * @version DragonBones 4.5
+         * @language en_US
+         */
         /**
          * 事件对象。
          * @see dragonBones.EventObject
@@ -14,152 +25,253 @@ namespace dragonBones {
         public get eventObject(): EventObject {
             return this.data;
         }
+
         /**
+         * Deprecated, please refer to {@link #eventObject} {@link #dragonBones.EventObject#animationState}.
          * @deprecated
-         * 已废弃，请参考 @see
-         * @see #eventObject
-         * @see dragonBones.EventObject#animationState
+         * @language en_US
+         */
+        /**
+         * 已废弃，请参考 {@link #eventObject} {@link #dragonBones.EventObject#animationState}。
+         * @deprecated
+         * @language zh_CN
          */
         public get animationName(): string {
             const animationState = this.eventObject.animationState;
             return animationState !== null ? animationState.name : "";
         }
         /**
+         * Deprecated, please refer to {@link #eventObject} {@link #dragonBones.EventObject#armature}.
          * @deprecated
-         * 已废弃，请参考 @see
-         * @see #eventObject
-         * @see dragonBones.EventObject#armature
+         * @language en_US
+         */
+        /**
+         * 已废弃，请参考 {@link #eventObject} {@link #dragonBones.EventObject#armature}。
+         * @deprecated
+         * @language zh_CN
          */
         public get armature(): Armature {
             return this.eventObject.armature;
         }
         /**
+         * Deprecated, please refer to {@link #eventObject} {@link #dragonBones.EventObject#bone}.
          * @deprecated
-         * 已废弃，请参考 @see
-         * @see #eventObject
-         * @see dragonBones.EventObject#bone
+         * @language en_US
+         */
+        /**
+         * 已废弃，请参考 {@link #eventObject} {@link #dragonBones.EventObject#bone}。
+         * @deprecated
+         * @language zh_CN
          */
         public get bone(): Bone | null {
             return this.eventObject.bone;
         }
         /**
+         * Deprecated, please refer to {@link #eventObject} {@link #dragonBones.EventObject#slot}.
          * @deprecated
-         * 已废弃，请参考 @see
-         * @see #eventObject
-         * @see dragonBones.EventObject#slot
+         * @language en_US
+         */
+        /**
+         * 已废弃，请参考 {@link #eventObject} {@link #dragonBones.EventObject#slot}。
+         * @deprecated
+         * @language zh_CN
          */
         public get slot(): Slot | null {
             return this.eventObject.slot;
         }
         /**
+         * Deprecated, please refer to {@link #eventObject} {@link #dragonBones.EventObject#animationState}.
          * @deprecated
-         * 已废弃，请参考 @see
-         * @see #eventObject
-         * @see dragonBones.EventObject#animationState
+         * @language en_US
+         */
+        /**
+         * 已废弃，请参考 {@link #eventObject} {@link #dragonBones.EventObject#animationState}。
+         * @deprecated
+         * @language zh_CN
          */
         public get animationState(): AnimationState | null {
             return this.eventObject.animationState;
         }
         /**
+         * Deprecated, please refer to {@link #eventObject} {@link #dragonBones.EventObject#name}.
          * @deprecated
-         * 已废弃，请参考 @see
-         * @see dragonBones.EventObject#name
+         * @language en_US
+         */
+        /**
+         * 已废弃，请参考 {@link #eventObject} {@link #dragonBones.EventObject#name}。
+         * @deprecated
+         * @language zh_CN
          */
         public get frameLabel(): string {
             return this.eventObject.name;
         }
         /**
+         * Deprecated, please refer to {@link #eventObject} {@link #dragonBones.EventObject#name}.
          * @deprecated
-         * 已废弃，请参考 @see
-         * @see dragonBones.EventObject#name
+         * @language en_US
+         */
+        /**
+         * 已废弃，请参考 {@link #eventObject} {@link #dragonBones.EventObject#name}。
+         * @deprecated
+         * @language zh_CN
          */
         public get sound(): string {
             return this.eventObject.name;
         }
         /**
+         * Deprecated, please refer to {@link #eventObject} {@link #dragonBones.EventObject#animationState}.
          * @deprecated
-         * 已废弃，请参考 @see
-         * @see #animationName
+         * @language en_US
+         */
+        /**
+         * 已废弃，请参考 {@link #eventObject} {@link #dragonBones.EventObject#animationState}。
+         * @deprecated
+         * @language zh_CN
          */
         public get movementID(): string {
             return this.animationName;
         }
         /**
+         * Deprecated, please refer to {@link #dragonBones.EventObject.START}.
          * @deprecated
-         * 已废弃，请参考 @see
-         * @see dragonBones.EventObject.START
+         * @language en_US
+         */
+        /**
+         * 已废弃，请参考 {@link #dragonBones.EventObject.START}。
+         * @deprecated
+         * @language zh_CN
          */
         public static START: string = EventObject.START;
         /**
+         * Deprecated, please refer to {@link #dragonBones.EventObject.LOOP_COMPLETE}.
          * @deprecated
-         * 已废弃，请参考 @see
-         * @see dragonBones.EventObject.LOOP_COMPLETE
+         * @language en_US
+         */
+        /**
+         * 已废弃，请参考 {@link #dragonBones.EventObject.LOOP_COMPLETE}。
+         * @deprecated
+         * @language zh_CN
          */
         public static LOOP_COMPLETE: string = EventObject.LOOP_COMPLETE;
         /**
+         * Deprecated, please refer to {@link #dragonBones.EventObject.COMPLETE}.
          * @deprecated
-         * 已废弃，请参考 @see
-         * @see dragonBones.EventObject.COMPLETE
+         * @language en_US
+         */
+        /**
+         * 已废弃，请参考 {@link #dragonBones.EventObject.COMPLETE}。
+         * @deprecated
+         * @language zh_CN
          */
         public static COMPLETE: string = EventObject.COMPLETE;
         /**
+         * Deprecated, please refer to {@link #dragonBones.EventObject.FADE_IN}.
          * @deprecated
-         * 已废弃，请参考 @see
-         * @see dragonBones.EventObject.FADE_IN
+         * @language en_US
+         */
+        /**
+         * 已废弃，请参考 {@link #dragonBones.EventObject.FADE_IN}。
+         * @deprecated
+         * @language zh_CN
          */
         public static FADE_IN: string = EventObject.FADE_IN;
         /**
+         * Deprecated, please refer to {@link #dragonBones.EventObject.FADE_IN_COMPLETE}.
          * @deprecated
-         * 已废弃，请参考 @see
-         * @see dragonBones.EventObject.FADE_IN_COMPLETE
+         * @language en_US
+         */
+        /**
+         * 已废弃，请参考 {@link #dragonBones.EventObject.FADE_IN_COMPLETE}。
+         * @deprecated
+         * @language zh_CN
          */
         public static FADE_IN_COMPLETE: string = EventObject.FADE_IN_COMPLETE;
         /**
+         * Deprecated, please refer to {@link #dragonBones.EventObject.FADE_OUT}.
          * @deprecated
-         * 已废弃，请参考 @see
-         * @see dragonBones.EventObject.FADE_OUT
+         * @language en_US
+         */
+        /**
+         * 已废弃，请参考 {@link #dragonBones.EventObject.FADE_OUT}。
+         * @deprecated
+         * @language zh_CN
          */
         public static FADE_OUT: string = EventObject.FADE_OUT;
         /**
+         * Deprecated, please refer to {@link #dragonBones.EventObject.FADE_OUT_COMPLETE}.
          * @deprecated
-         * 已废弃，请参考 @see
-         * @see dragonBones.EventObject.FADE_OUT_COMPLETE
+         * @language en_US
+         */
+        /**
+         * 已废弃，请参考 {@link #dragonBones.EventObject.FADE_OUT_COMPLETE}。
+         * @deprecated
+         * @language zh_CN
          */
         public static FADE_OUT_COMPLETE: string = EventObject.FADE_OUT_COMPLETE;
         /**
+         * Deprecated, please refer to {@link #dragonBones.EventObject.FRAME_EVENT}.
          * @deprecated
-         * 已废弃，请参考 @see
-         * @see dragonBones.EventObject.FRAME_EVENT
+         * @language en_US
+         */
+        /**
+         * 已废弃，请参考 {@link #dragonBones.EventObject.FRAME_EVENT}。
+         * @deprecated
+         * @language zh_CN
          */
         public static FRAME_EVENT: string = EventObject.FRAME_EVENT;
         /**
+         * Deprecated, please refer to {@link #dragonBones.EventObject.SOUND_EVENT}.
          * @deprecated
-         * 已废弃，请参考 @see
-         * @see dragonBones.EventObject.SOUND_EVENT
+         * @language en_US
+         */
+        /**
+         * 已废弃，请参考 {@link #dragonBones.EventObject.SOUND_EVENT}。
+         * @deprecated
+         * @language zh_CN
          */
         public static SOUND_EVENT: string = EventObject.SOUND_EVENT;
         /**
+         * Deprecated, please refer to {@link #dragonBones.EventObject.FRAME_EVENT}.
          * @deprecated
-         * 已废弃，请参考 @see
-         * @see dragonBones.EventObject.FRAME_EVENT
+         * @language en_US
+         */
+        /**
+         * 已废弃，请参考 {@link #dragonBones.EventObject.FRAME_EVENT}。
+         * @deprecated
+         * @language zh_CN
          */
         public static ANIMATION_FRAME_EVENT: string = EventObject.FRAME_EVENT;
         /**
+         * Deprecated, please refer to {@link #dragonBones.EventObject.FRAME_EVENT}.
          * @deprecated
-         * 已废弃，请参考 @see
-         * @see dragonBones.EventObject.FRAME_EVENT
+         * @language en_US
+         */
+        /**
+         * 已废弃，请参考 {@link #dragonBones.EventObject.FRAME_EVENT}。
+         * @deprecated
+         * @language zh_CN
          */
         public static BONE_FRAME_EVENT: string = EventObject.FRAME_EVENT;
         /**
+         * Deprecated, please refer to {@link #dragonBones.EventObject.FRAME_EVENT}.
          * @deprecated
-         * 已废弃，请参考 @see
-         * @see dragonBones.EventObject.FRAME_EVENT
+         * @language en_US
+         */
+        /**
+         * 已废弃，请参考 {@link #dragonBones.EventObject.FRAME_EVENT}。
+         * @deprecated
+         * @language zh_CN
          */
         public static MOVEMENT_FRAME_EVENT: string = EventObject.FRAME_EVENT;
         /**
+         * Deprecated, please refer to {@link #dragonBones.EventObject.SOUND_EVENT}.
          * @deprecated
-         * 已废弃，请参考 @see
-         * @see dragonBones.EventObject.SOUND_EVENT
+         * @language en_US
+         */
+        /**
+         * 已废弃，请参考 {@link #dragonBones.EventObject.SOUND_EVENT}。
+         * @deprecated
+         * @language zh_CN
          */
         public static SOUND: string = EventObject.SOUND_EVENT;
     }
@@ -172,7 +284,7 @@ namespace dragonBones {
          * @internal
          * @private
          */
-        public _batchEnabled: boolean = true;
+        public _batchEnabled: boolean = !__global["nativeRender"]; //
         /**
          * @internal
          * @private
@@ -188,9 +300,10 @@ namespace dragonBones {
         public dbInit(armature: Armature): void {
             this._armature = armature;
 
-            //
-            this.$renderNode = new egret.sys.GroupNode();
-            this.$renderNode.cleanBeforeRender = EgretArmatureDisplay._cleanBeforeRender;
+            if (this._batchEnabled) {
+                this.$renderNode = new egret.sys.GroupNode();
+                this.$renderNode.cleanBeforeRender = EgretArmatureDisplay._cleanBeforeRender;
+            }
         }
         /**
          * @inheritDoc
@@ -288,7 +401,7 @@ namespace dragonBones {
                 }
             }
 
-            if (this._batchEnabled && this._childDirty) {
+            if (!EgretFactory._isV5 && this._batchEnabled && this._childDirty) {
                 this.$invalidateContentBounds();
             }
         }
@@ -306,7 +419,7 @@ namespace dragonBones {
         /**
          * @inheritDoc
          */
-        public _dispatchEvent(type: EventStringType, eventObject: EventObject): void {
+        public dispatchDBEvent(type: EventStringType, eventObject: EventObject): void {
             const event = egret.Event.create(EgretEvent, type);
             event.data = eventObject;
             super.dispatchEvent(event);
@@ -315,28 +428,38 @@ namespace dragonBones {
         /**
          * @inheritDoc
          */
-        public hasEvent(type: EventStringType): boolean {
+        public hasDBEventListener(type: EventStringType): boolean {
             return this.hasEventListener(type);
         }
         /**
          * @inheritDoc
          */
-        public addEvent(type: EventStringType, listener: (event: EgretEvent) => void, target: any): void {
+        public addDBEventListener(type: EventStringType, listener: (event: EgretEvent) => void, target: any): void {
             this.addEventListener(type, listener, target);
         }
         /**
          * @inheritDoc
          */
-        public removeEvent(type: EventStringType, listener: (event: EgretEvent) => void, target: any): void {
+        public removeDBEventListener(type: EventStringType, listener: (event: EgretEvent) => void, target: any): void {
             this.removeEventListener(type, listener, target);
         }
         /**
-         * 关闭批次渲染。（批次渲染出于性能考虑，不会更新渲染对象的边界属性，这样将无法正确获得渲染对象的宽高属性以及其内部显示对象的变换属性，如果需要使用这些属性，可以关闭批次渲染）
+         * Disable the batch.
+         * Batch rendering for performance reasons, the boundary properties of the render object are not updated.
+         * This will not correctly obtain the wide-height properties of the rendered object and the transformation properties of its internal display objects,
+         * which can turn off batch rendering if you need to use these properties.
+         * @version DragonBones 5.1
+         * @language en_US
+         */
+        /**
+         * 关闭批次渲染。
+         * 批次渲染出于性能考虑，不会更新渲染对象的边界属性。
+         * 这样将无法正确获得渲染对象的宽高属性以及其内部显示对象的变换属性，如果需要使用这些属性，可以关闭批次渲染。
          * @version DragonBones 5.1
          * @language zh_CN
          */
         public disableBatch(): void {
-            if (!this._batchEnabled) {
+            if (!this._batchEnabled || !this._armature) {
                 return;
             }
 
@@ -375,7 +498,7 @@ namespace dragonBones {
          * @inheritDoc
          */
         $measureContentBounds(bounds: egret.Rectangle): void {
-            if (this._batchEnabled) {
+            if (this._batchEnabled && this._armature) {
                 if (this._childDirty) {
                     this._childDirty = false;
 
@@ -469,16 +592,36 @@ namespace dragonBones {
         }
 
         /**
+         * @inheritDoc
+         */
+        public hasEvent(type: EventStringType): boolean {
+            return this.hasDBEventListener(type);
+        }
+        /**
+         * @inheritDoc
+         */
+        public addEvent(type: EventStringType, listener: (event: EgretEvent) => void, target: any): void {
+            this.addDBEventListener(type, listener, target);
+        }
+        /**
+         * @inheritDoc
+         */
+        public removeEvent(type: EventStringType, listener: (event: EgretEvent) => void, target: any): void {
+            this.removeDBEventListener(type, listener, target);
+        }
+        /**
+         * Deprecated, please refer to {@link dragonBones.Armature#clock} {@link dragonBones.BaseFactory#clock}.
          * @deprecated
-         * 已废弃，请参考 @see
-         * @see dragonBones.Armature#clock
-         * @see dragonBones.EgretFactory#clock
-         * @see dragonBones.Animation#timescale
-         * @see dragonBones.Animation#stop()
+         * @language en_US
+         */
+        /**
+         * 已废弃，请参考 {@link dragonBones.Armature#clock} {@link dragonBones.BaseFactory#clock}。
+         * @deprecated
+         * @language zh_CN
          */
         public advanceTimeBySelf(on: boolean): void {
             if (on) {
-                this._armature.clock = EgretFactory.clock;
+                this._armature.clock = EgretFactory.factory.clock;
             }
             else {
                 this._armature.clock = null;
@@ -487,81 +630,82 @@ namespace dragonBones {
     }
 
     /**
+     * 已废弃，请参考 {@link dragonBones.Armature}。
      * @deprecated
-     * 已废弃，请参考 @see
-     * @see dragonBones.Armature
+     * @language zh_CN
      */
     export type FastArmature = Armature;
     /**
+     * 已废弃，请参考 {@link dragonBones.Bone}。
      * @deprecated
-     * 已废弃，请参考 @see
-     * @see dragonBones.Bone
+     * @language zh_CN
      */
     export type FastBone = Bone;
     /**
+     * 已废弃，请参考 {@link dragonBones.Slot}。
      * @deprecated
-     * 已废弃，请参考 @see
-     * @see dragonBones.Slot
+     * @language zh_CN
      */
     export type FastSlot = Slot;
     /**
+     * 已废弃，请参考 {@link dragonBones.Animation}。
      * @deprecated
-     * 已废弃，请参考 @see
-     * @see dragonBones.Animation
+     * @language zh_CN
      */
     export type FastAnimation = Animation;
     /**
+     * 已废弃，请参考 {@link dragonBones.AnimationState}。
      * @deprecated
-     * 已废弃，请参考 @see
-     * @see dragonBones.AnimationState
+     * @language zh_CN
      */
     export type FastAnimationState = AnimationState;
     /**
+     * 已废弃，请参考 {@link dragonBones.EgretEvent}。
      * @deprecated
-     * 已废弃，请参考 @see
-     * @see dragonBones.EgretEvent
+     * @language zh_CN
      */
     export class Event extends EgretEvent { }
     /**
+     * 已废弃，请参考 {@link dragonBones.EgretEvent}。
      * @deprecated
-     * 已废弃，请参考 @see
-     * @see dragonBones.EgretEvent
+     * @language zh_CN
      */
     export class ArmatureEvent extends EgretEvent { }
     /**
+     * 已废弃，请参考 {@link dragonBones.EgretEvent}。
      * @deprecated
-     * 已废弃，请参考 @see
-     * @see dragonBones.EgretEvent
+     * @language zh_CN
      */
     export class AnimationEvent extends EgretEvent { }
     /**
+     * 已废弃，请参考 {@link dragonBones.EgretEvent}。
      * @deprecated
-     * 已废弃，请参考 @see
-     * @see dragonBones.EgretEvent
+     * @language zh_CN
      */
     export class FrameEvent extends EgretEvent { }
     /**
+     * 已废弃，请参考 {@link dragonBones.EgretEvent}。
      * @deprecated
-     * 已废弃，请参考 @see
-     * @see dragonBones.EgretEvent
+     * @language zh_CN
      */
     export class SoundEvent extends EgretEvent { }
     /**
+     * 已废弃，请参考 {@link dragonBones.BaseFacory#parseTextureAtlasData()}。
      * @deprecated
-     * 已废弃，请参考 @see
-     * @see dragonBones.BaseFacory#parseTextureAtlasData()
+     * @language zh_CN
      */
     export class EgretTextureAtlas extends EgretTextureAtlasData {
-        /**
-         * @private
-         */
         public static toString(): string {
             return "[class dragonBones.EgretTextureAtlas]";
         }
-
+        /**
+         * 已废弃，请参考 {@link dragonBones.BaseFacory#parseTextureAtlasData()}。
+         * @deprecated
+         * @language zh_CN
+         */
         public constructor(texture: egret.Texture, rawData: any, scale: number = 1) {
             super();
-            console.warn("已废弃，请参考 @see");
+            console.warn("已废弃");
 
             this._onClear();
 
@@ -570,37 +714,41 @@ namespace dragonBones {
         }
     }
     /**
+     * 已废弃，请参考 {@link dragonBones.BaseFacory#parseTextureAtlasData()}。
      * @deprecated
-     * 已废弃，请参考 @see
-     * @see dragonBones.EgretTextureAtlasData
+     * @language zh_CN
      */
     export class EgretSheetAtlas extends EgretTextureAtlas {
     }
     /**
+     * 已废弃，请参考 {@link dragonBones.EgretFactory#soundEventManager}。
      * @deprecated
-     * 已废弃，请参考 @see
-     * @see dragonBones.EgretFactory#soundEventManager
+     * @language zh_CN
      */
     export class SoundEventManager {
         /**
+         * 已废弃，请参考 {@link dragonBones.EgretFactory#soundEventManager}。
          * @deprecated
-         * 已废弃，请参考 @see
-         * @see dragonBones.EgretFactory#soundEventManager
+         * @language zh_CN
          */
         public static getInstance(): EgretArmatureDisplay {
-            console.warn("已废弃，请参考 @see");
+            console.warn("已废弃");
             return EgretFactory.factory.soundEventManager;
         }
     }
     /**
+     * 已废弃，请参考 {@link dragonBones.Armature#cacheFrameRate}。
      * @deprecated
-     * 已废弃，请参考 @see
-     * @see dragonBones.Armature#cacheFrameRate
-     * @see dragonBones.Armature#enableAnimationCache()
+     * @language zh_CN
      */
     export class AnimationCacheManager {
+        /**
+         * 已废弃，请参考 {@link dragonBones.Armature#cacheFrameRate}。
+         * @deprecated
+         * @language zh_CN
+         */
         public constructor() {
-            console.warn("已废弃，请参考 @see");
+            console.warn("已废弃");
         }
     }
 }

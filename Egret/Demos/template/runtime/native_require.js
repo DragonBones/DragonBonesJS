@@ -6,15 +6,15 @@ var game_file_list = [
 	"libs/modules/egret/egret.native.js",
 	"libs/modules/dragonBones/dragonBones.js",
 	"libs/modules/res/res.js",
-	"libs/promise/bin/promise.js",
-	"bin-debug/demo/BaseTest.js",
+	"bin-debug/BaseTest.js",
 	"bin-debug/Main.js",
 	"bin-debug/demo/AnimationBaseTest.js",
-	"bin-debug/demo/AnimationCopyTest.js",
+	"bin-debug/demo/AnimationCopy.js",
 	"bin-debug/demo/CoreElement.js",
 	"bin-debug/demo/HelloDragonBones.js",
 	"bin-debug/demo/PerformanceTest.js",
 	"bin-debug/demo/ReplaceSlotDisplay.js",
+	"bin-debug/demo/SetBoneOffset.js",
 	//----auto game_file_list end----
 ];
 

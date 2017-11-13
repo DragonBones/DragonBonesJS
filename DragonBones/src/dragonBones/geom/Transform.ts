@@ -1,5 +1,10 @@
 namespace dragonBones {
     /**
+     * 2D Transform.
+     * @version DragonBones 3.0
+     * @language en_US
+     */
+    /**
      * 2D 变换。
      * @version DragonBones 3.0
      * @language zh_CN
@@ -34,49 +39,84 @@ namespace dragonBones {
 
             return value;
         }
-
-        public constructor(
-            /**
-             * 水平位移。
-             * @version DragonBones 3.0
-             * @language zh_CN
-             */
-            public x: number = 0.0,
-            /**
-             * 垂直位移。
-             * @version DragonBones 3.0
-             * @language zh_CN
-             */
-            public y: number = 0.0,
-            /**
-             * 倾斜。 (以弧度为单位)
-             * @version DragonBones 3.0
-             * @language zh_CN
-             */
-            public skew: number = 0.0,
-            /**
-             * 旋转。 (以弧度为单位)
-             * @version DragonBones 3.0
-             * @language zh_CN
-             */
-            public rotation: number = 0.0,
-            /**
-             * 水平缩放。
-             * @version DragonBones 3.0
-             * @language zh_CN
-             */
-            public scaleX: number = 1.0,
-            /**
-             * 垂直缩放。
-             * @version DragonBones 3.0
-             * @language zh_CN
-             */
-            public scaleY: number = 1.0
-        ) {
-        }
+        /**
+         * Horizontal translate.
+         * @version DragonBones 3.0
+         * @language en_US
+         */
+        /**
+         * 水平位移。
+         * @version DragonBones 3.0
+         * @language zh_CN
+         */
+        public x: number;
+        /**
+         * Vertical translate.
+         * @version DragonBones 3.0
+         * @language en_US
+         */
+        /**
+         * 垂直位移。
+         * @version DragonBones 3.0
+         * @language zh_CN
+         */
+        public y: number;
+        /**
+         * Skew. (In radians)
+         * @version DragonBones 3.0
+         * @language en_US
+         */
+        /**
+         * 倾斜。 （以弧度为单位）
+         * @version DragonBones 3.0
+         * @language zh_CN
+         */
+        public skew: number;
+        /**
+         * rotation. (In radians)
+         * @version DragonBones 3.0
+         * @language en_US
+         */
+        /**
+         * 旋转。 （以弧度为单位）
+         * @version DragonBones 3.0
+         * @language zh_CN
+         */
+        public rotation: number;
+        /**
+         * Horizontal Scaling.
+         * @version DragonBones 3.0
+         * @language en_US
+         */
+        /**
+         * 水平缩放。
+         * @version DragonBones 3.0
+         * @language zh_CN
+         */
+        public scaleX: number;
+        /**
+         * Vertical scaling.
+         * @version DragonBones 3.0
+         * @language en_US
+         */
+        /**
+         * 垂直缩放。
+         * @version DragonBones 3.0
+         * @language zh_CN
+         */
+        public scaleY: number;
         /**
          * @private
          */
+        public constructor(x: number = 0.0, y: number = 0.0, skew: number = 0.0, rotation: number = 0.0, scaleX: number = 1.0, scaleY: number = 1.0) {
+            this.x = x;
+            this.y = y;
+            this.skew = skew;
+            this.rotation = rotation;
+            this.scaleX = scaleX;
+            this.scaleY = scaleY;
+        }
+
         public toString(): string {
             return "[object dragonBones.Transform] x:" + this.x + " y:" + this.y + " skewX:" + this.skew * 180.0 / Math.PI + " skewY:" + this.rotation * 180.0 / Math.PI + " scaleX:" + this.scaleX + " scaleY:" + this.scaleY;
         }
@@ -130,10 +170,7 @@ namespace dragonBones {
             return this;
         }
         /**
-         * 矩阵转换为变换。
-         * @param matrix 矩阵。
-         * @version DragonBones 3.0
-         * @language zh_CN
+         * @private
          */
         public fromMatrix(matrix: Matrix): Transform {
             const backupScaleX = this.scaleX, backupScaleY = this.scaleY;
@@ -162,10 +199,7 @@ namespace dragonBones {
             return this;
         }
         /**
-         * 转换为矩阵。
-         * @param matrix 矩阵。
-         * @version DragonBones 3.0
-         * @language zh_CN
+         * @private
          */
         public toMatrix(matrix: Matrix): Transform {
             if (this.skew !== 0.0 || this.rotation !== 0.0) {

@@ -1,6 +1,13 @@
 namespace dragonBones {
     /**
-     * 基础变换对象。
+     * The base class of the transform object.
+     * @see dragonBones.Transform
+     * @version DragonBones 4.5
+     * @language en_US
+     */
+    /**
+     * 变换对象的基类。
+     * @see dragonBones.Transform
      * @version DragonBones 4.5
      * @language zh_CN
      */
@@ -18,11 +25,10 @@ namespace dragonBones {
          */
         protected static readonly _helpPoint: Point = new Point();
         /**
-         * 对象的名称。
+         * A matrix relative to the armature coordinate system.
          * @version DragonBones 3.0
-         * @language zh_CN
+         * @language en_US
          */
-        public name: string;
         /**
          * 相对于骨架坐标系的矩阵。
          * @version DragonBones 3.0
@@ -30,31 +36,33 @@ namespace dragonBones {
          */
         public readonly globalTransformMatrix: Matrix = new Matrix();
         /**
+         * A transform relative to the armature coordinate system.
+         * @version DragonBones 3.0
+         * @language en_US
+         */
+        /**
          * 相对于骨架坐标系的变换。
-         * @see dragonBones.Transform
          * @version DragonBones 3.0
          * @language zh_CN
          */
         public readonly global: Transform = new Transform();
         /**
+         * The offset transform relative to the armature or the parent bone coordinate system.
+         * @version DragonBones 3.0
+         * @language en_US
+         */
+        /**
          * 相对于骨架或父骨骼坐标系的偏移变换。
-         * @see dragonBones.Transform
          * @version DragonBones 3.0
          * @language zh_CN
          */
         public readonly offset: Transform = new Transform();
         /**
-         * 相对于骨架或父骨骼坐标系的绑定变换。
-         * @see dragonBones.Transform
-         * @version DragonBones 3.0
-         * @readOnly
-         * @language zh_CN
+         * @private
          */
         public origin: Transform;
         /**
-         * 可以用于存储临时数据。
-         * @version DragonBones 3.0
-         * @language zh_CN
+         * @private
          */
         public userData: any;
         /**
@@ -75,7 +83,6 @@ namespace dragonBones {
          * @private
          */
         protected _onClear(): void {
-            this.name = "";
             this.globalTransformMatrix.identity();
             this.global.identity();
             this.offset.identity();
@@ -110,8 +117,12 @@ namespace dragonBones {
             }
         }
         /**
+         * The armature to which it belongs.
+         * @version DragonBones 3.0
+         * @language en_US
+         */
+        /**
          * 所属的骨架。
-         * @see dragonBones.Armature
          * @version DragonBones 3.0
          * @language zh_CN
          */
@@ -119,8 +130,12 @@ namespace dragonBones {
             return this._armature;
         }
         /**
+         * The parent bone to which it belongs.
+         * @version DragonBones 3.0
+         * @language en_US
+         */
+        /**
          * 所属的父骨骼。
-         * @see dragonBones.Bone
          * @version DragonBones 3.0
          * @language zh_CN
          */

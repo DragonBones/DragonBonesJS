@@ -1,5 +1,12 @@
 namespace dragonBones {
     /**
+     * The DragonBones data.
+     * A DragonBones data contains multiple armature data.
+     * @see dragonBones.ArmatureData
+     * @version DragonBones 3.0
+     * @language en_US
+     */
+    /**
      * 龙骨数据。
      * 一个龙骨数据包含多个骨架数据。
      * @see dragonBones.ArmatureData
@@ -7,19 +14,18 @@ namespace dragonBones {
      * @language zh_CN
      */
     export class DragonBonesData extends BaseObject {
-        /**
-         * @private
-         */
         public static toString(): string {
             return "[class dragonBones.DragonBonesData]";
         }
         /**
-         * 是否开启共享搜索。
-         * @default false
-         * @version DragonBones 4.5
-         * @language zh_CN
+         * @private
          */
         public autoSearch: boolean;
+        /**
+         * The animation frame rate.
+         * @version DragonBones 3.0
+         * @language en_US
+         */
         /**
          * 动画帧频。
          * @version DragonBones 3.0
@@ -27,13 +33,25 @@ namespace dragonBones {
          */
         public frameRate: number;
         /**
+         * The data version.
+         * @version DragonBones 3.0
+         * @language en_US
+         */
+        /**
          * 数据版本。
          * @version DragonBones 3.0
          * @language zh_CN
          */
         public version: string;
         /**
-         * 数据名称。(该名称与龙骨项目名保持一致)
+         * The DragonBones data name.
+         * The name is consistent with the DragonBones project name.
+         * @version DragonBones 3.0
+         * @language en_US
+         */
+        /**
+         * 龙骨数据名称。
+         * 该名称与龙骨项目名保持一致。
          * @version DragonBones 3.0
          * @language zh_CN
          */
@@ -43,52 +61,62 @@ namespace dragonBones {
          */
         public stage: ArmatureData | null;
         /**
+         * @internal
          * @private
          */
         public readonly frameIndices: Array<number> = [];
         /**
+         * @internal
          * @private
          */
         public readonly cachedFrames: Array<number> = [];
         /**
-         * 所有骨架数据名称。
-         * @see #armatures
+         * All armature data names.
+         * @version DragonBones 3.0
+         * @language en_US
+         */
+        /**
+         * 所有的骨架数据名称。
          * @version DragonBones 3.0
          * @language zh_CN
          */
         public readonly armatureNames: Array<string> = [];
         /**
-         * 所有骨架数据。
-         * @see dragonBones.ArmatureData
-         * @version DragonBones 3.0
-         * @language zh_CN
+         * @private
          */
         public readonly armatures: Map<ArmatureData> = {};
         /**
+         * @internal
          * @private
          */
         public binary: ArrayBuffer;
         /**
+         * @internal
          * @private
          */
         public intArray: Int16Array;
         /**
+         * @internal
          * @private
          */
         public floatArray: Float32Array;
         /**
+         * @internal
          * @private
          */
         public frameIntArray: Int16Array;
         /**
+         * @internal
          * @private
          */
         public frameFloatArray: Float32Array;
         /**
+         * @internal
          * @private
          */
         public frameArray: Int16Array;
         /**
+         * @internal
          * @private
          */
         public timelineArray: Uint16Array;
@@ -97,7 +125,7 @@ namespace dragonBones {
          */
         public userData: UserData | null = null; // Initial value.
         /**
-         * @private
+         * @inheritDoc
          */
         protected _onClear(): void {
             for (let k in this.armatures) {
@@ -128,12 +156,13 @@ namespace dragonBones {
             this.userData = null;
         }
         /**
+         * @internal
          * @private
          */
         public addArmature(value: ArmatureData): void {
             if (value.name in this.armatures) {
-                console.warn("Replace armature: " + value.name);
-                this.armatures[value.name].returnToPool();
+                console.warn("Same armature: " + value.name);
+                return;
             }
 
             value.parent = this;
@@ -141,9 +170,14 @@ namespace dragonBones {
             this.armatureNames.push(value.name);
         }
         /**
-         * 获取骨架数据。
-         * @param name 骨架数据名称。
-         * @see dragonBones.ArmatureData
+         * Get a specific armature data.
+         * @param name The armature data name
+         * @version DragonBones 3.0
+         * @language en_US
+         */
+        /**
+         * 获取特定的骨架数据。
+         * @param name 骨架数据名称
          * @version DragonBones 3.0
          * @language zh_CN
          */
@@ -152,12 +186,17 @@ namespace dragonBones {
         }
 
         /**
+         * Deprecated, please refer to {@link #dragonBones.BaseFactory#removeDragonBonesData()}.
          * @deprecated
-         * 已废弃，请参考 @see
-         * @see dragonBones.BaseFactory#removeDragonBonesData()
+         * @language en_US
+         */
+        /**
+         * 已废弃，请参考 {@link #dragonBones.BaseFactory#removeDragonBonesData()}。
+         * @deprecated
+         * @language zh_CN
          */
         public dispose(): void {
-            console.warn("已废弃，请参考 @see");
+            console.warn("已废弃");
             this.returnToPool();
         }
     }

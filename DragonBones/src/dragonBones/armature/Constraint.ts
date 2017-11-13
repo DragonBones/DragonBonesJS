@@ -1,13 +1,12 @@
 namespace dragonBones {
     /**
-     * @private
      * @internal
+     * @private
      */
     export abstract class Constraint extends BaseObject {
         protected static readonly _helpMatrix: Matrix = new Matrix();
         protected static readonly _helpTransform: Transform = new Transform();
         protected static readonly _helpPoint: Point = new Point();
-
         /**
          * For timeline state.
          * @internal
@@ -42,8 +41,8 @@ namespace dragonBones {
         }
     }
     /**
-     * @private
      * @internal
+     * @private
      */
     export class IKConstraint extends Constraint {
         public static toString(): string {
@@ -88,6 +87,83 @@ namespace dragonBones {
         }
 
         private _computeB(): void {
+            // const boneLength = this._bone._boneData.length;
+            // const parent = this._root as Bone;
+            // const ikGlobal = this._target.global;
+            // const parentGlobal = parent.global;
+            // const global = this._bone.global;
+            // const globalTransformMatrix = this._bone.globalTransformMatrix;
+
+            // const x = globalTransformMatrix.a * boneLength;
+            // const y = globalTransformMatrix.b * boneLength;
+
+            // const lLL = x * x + y * y;
+            // const lL = Math.sqrt(lLL);
+
+            // let dX = global.x - parentGlobal.x;
+            // let dY = global.y - parentGlobal.y;
+            // const lPP = dX * dX + dY * dY;
+            // const lP = Math.sqrt(lPP);
+            // const rawRadian = global.rotation;
+            // const rawParentRadian = parentGlobal.rotation;
+            // const rawRadianA = Math.atan2(dY, dX);
+
+            // dX = ikGlobal.x - parentGlobal.x;
+            // dY = ikGlobal.y - parentGlobal.y;
+            // const lTT = dX * dX + dY * dY;
+            // const lT = Math.sqrt(lTT);
+
+            // let radianA = 0.0;
+            // if (lL + lP <= lT || lT + lL <= lP || lT + lP <= lL) {
+            //     radianA = Math.atan2(ikGlobal.y - parentGlobal.y, ikGlobal.x - parentGlobal.x);
+            //     if (lL + lP <= lT) {
+            //     }
+            //     else if (lP < lL) {
+            //         radianA += Math.PI;
+            //     }
+            // }
+            // else {
+            //     const h = (lPP - lLL + lTT) / (2.0 * lTT);
+            //     const r = Math.sqrt(lPP - h * h * lTT) / lT;
+            //     const hX = parentGlobal.x + (dX * h);
+            //     const hY = parentGlobal.y + (dY * h);
+            //     const rX = -dY * r;
+            //     const rY = dX * r;
+
+            //     let isPPR = false;
+            //     if (parent._parent !== null) {
+            //         const parentParentMatrix = parent._parent.globalTransformMatrix;
+            //         isPPR = parentParentMatrix.a * parentParentMatrix.d - parentParentMatrix.b * parentParentMatrix.c < 0.0;
+            //     }
+
+            //     if (isPPR !== this._bendPositive) {
+            //         global.x = hX - rX;
+            //         global.y = hY - rY;
+            //     }
+            //     else {
+            //         global.x = hX + rX;
+            //         global.y = hY + rY;
+            //     }
+
+            //     radianA = Math.atan2(global.y - parentGlobal.y, global.x - parentGlobal.x);
+            // }
+
+            // const dR = Transform.normalizeRadian(radianA - rawRadianA);
+            // parentGlobal.rotation = rawParentRadian + dR * this._weight;
+            // parentGlobal.toMatrix(parent.globalTransformMatrix);
+            // //
+            // const currentRadianA = rawRadianA + dR * this._weight;
+            // global.x = parentGlobal.x + Math.cos(currentRadianA) * lP;
+            // global.y = parentGlobal.y + Math.sin(currentRadianA) * lP;
+            // //
+            // let radianB = Math.atan2(ikGlobal.y - global.y, ikGlobal.x - global.x);
+            // if (global.scaleX < 0.0) {
+            //     radianB += Math.PI;
+            // }
+
+            // global.rotation = parentGlobal.rotation + Transform.normalizeRadian(radianB - parentGlobal.rotation - rawRadian + rawParentRadian) * this._weight;
+            // global.toMatrix(globalTransformMatrix);
+
             const boneLength = this._bone.boneData.length;
             const parent = this._root as Bone;
             const ikGlobal = this._target.global;
@@ -184,12 +260,7 @@ namespace dragonBones {
                 this._weight = ikConstraintData.weight;
             }
 
-            if (this._root !== null) {
-                this._root._hasConstraint = true;
-            }
-            else {
-                this._bone._hasConstraint = true;
-            }
+            this._bone._hasConstraint = true;
         }
 
         public update(): void {

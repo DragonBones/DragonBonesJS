@@ -1,6 +1,13 @@
 namespace dragonBones {
     /**
-     * 骨架代理接口。
+     * The armature proxy interface, the docking engine needs to implement it concretely.
+     * @see dragonBones.Armature
+     * @version DragonBones 5.0
+     * @language en_US
+     */
+    /**
+     * 骨架代理接口，对接的引擎需要对其进行具体实现。
+     * @see dragonBones.Armature
      * @version DragonBones 5.0
      * @language zh_CN
      */
@@ -18,22 +25,35 @@ namespace dragonBones {
          */
         dbUpdate(): void;
         /**
-         * 释放代理和骨架。 (骨架会回收到对象池)
+         * Dispose the instance and the Armature instance. (The Armature instance will return to the object pool)
+         * @version DragonBones 4.5
+         * @language en_US
+         */
+        /**
+         * 释放该实例和骨架。 （骨架会回收到对象池）
          * @version DragonBones 4.5
          * @language zh_CN
          */
         dispose(disposeProxy: boolean): void;
         /**
-         * 获取骨架。
-         * @see dragonBones.Armature
+         * The armature.
+         * @version DragonBones 4.5
+         * @language en_US
+         */
+        /**
+         * 骨架。
          * @version DragonBones 4.5
          * @language zh_CN
          */
         readonly armature: Armature;
         /**
-         * 获取动画控制器。
-         * @see dragonBones.Animation
-         * @version DragonBones 4.5
+         * The animation player.
+         * @version DragonBones 3.0
+         * @language en_US
+         */
+        /**
+         * 动画播放器。
+         * @version DragonBones 3.0
          * @language zh_CN
          */
         readonly animation: Animation;

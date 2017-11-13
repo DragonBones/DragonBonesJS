@@ -1,5 +1,6 @@
 namespace dragonBones {
     /**
+     * @internal
      * @private
      */
     export abstract class ConstraintData extends BaseObject {
@@ -18,6 +19,7 @@ namespace dragonBones {
         }
     }
     /**
+     * @internal
      * @private
      */
     export class IKConstraintData extends ConstraintData {

@@ -1,15 +1,17 @@
 namespace dragonBones {
     /**
+     * The texture atlas data.
+     * @version DragonBones 3.0
+     * @language en_US
+     */
+    /**
      * 贴图集数据。
      * @version DragonBones 3.0
      * @language zh_CN
      */
     export abstract class TextureAtlasData extends BaseObject {
         /**
-         * 是否开启共享搜索。
-         * @default false
-         * @version DragonBones 4.5
-         * @language zh_CN
+         * @private
          */
         public autoSearch: boolean;
         /**
@@ -21,17 +23,25 @@ namespace dragonBones {
          */
         public height: number;
         /**
-         * 贴图集缩放系数。
-         * @version DragonBones 3.0
-         * @language zh_CN
+         * @private
          */
         public scale: number;
+        /**
+         * The texture atlas name.
+         * @version DragonBones 3.0
+         * @language en_US
+         */
         /**
          * 贴图集名称。
          * @version DragonBones 3.0
          * @language zh_CN
          */
         public name: string;
+        /**
+         * The image path of the texture atlas.
+         * @version DragonBones 3.0
+         * @language en_US
+         */
         /**
          * 贴图集图片路径。
          * @version DragonBones 3.0
@@ -43,7 +53,7 @@ namespace dragonBones {
          */
         public readonly textures: Map<TextureData> = {};
         /**
-         * @private
+         * @inheritDoc
          */
         protected _onClear(): void {
             for (let k in this.textures) {
@@ -84,16 +94,18 @@ namespace dragonBones {
             }
         }
         /**
+         * @internal
          * @private
          */
         public abstract createTexture(): TextureData;
         /**
+         * @internal
          * @private
          */
         public addTexture(value: TextureData): void {
             if (value.name in this.textures) {
-                console.warn("Replace texture: " + value.name);
-                this.textures[value.name].returnToPool();
+                console.warn("Same texture: " + value.name);
+                return;
             }
 
             value.parent = this;
@@ -107,6 +119,7 @@ namespace dragonBones {
         }
     }
     /**
+     * @internal
      * @private
      */
     export abstract class TextureData extends BaseObject {

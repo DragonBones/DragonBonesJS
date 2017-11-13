@@ -159,21 +159,21 @@ namespace dragonBones {
         return false;
     }
     /**
-     * @language zh_CN
      * 是否包含指定名称的动画组。
      * @param groupName 动画组的名称。
      * @version DragonBones 4.7
+     * @language zh_CN
      */
     export function hasMovieGroup(groupName: string): boolean {
         return groupName in _groupConfigMap;
     }
     /**
-     * @language zh_CN
      * 添加动画组。
      * @param groupData 动画二进制数据。
      * @param textureAtlas 贴图集或贴图集列表。
      * @param groupName 为动画组指定一个名称，如果未设置，则使用数据中的名称。
      * @version DragonBones 4.7
+     * @language zh_CN
      */
     export function addMovieGroup(groupData: ArrayBuffer, textureAtlas: egret.Texture | egret.Texture[], groupName: string | null = null): void {
         if (groupData) {
@@ -231,10 +231,10 @@ namespace dragonBones {
         }
     }
     /**
-     * @language zh_CN
      * 移除动画组。
      * @param groupName 动画组的名称。
      * @version DragonBones 4.7
+     * @language zh_CN
      */
     export function removeMovieGroup(groupName: string): void {
         const groupConfig = _groupConfigMap[groupName];
@@ -243,10 +243,10 @@ namespace dragonBones {
         }
     }
     /**
-     * @language zh_CN
      * 移除所有的动画组。
      * @param groupName 动画组的名称。
      * @version DragonBones 4.7
+     * @language zh_CN
      */
     export function removeAllMovieGroup(): void {
         for (let i in _groupConfigMap) {
@@ -254,18 +254,17 @@ namespace dragonBones {
         }
     }
     /**
-     * @language zh_CN
      * 创建一个动画。
      * @param movieName 动画的名称。
      * @param groupName 动画组的名称，如果未设置，将检索所有的动画组，当多个动画组中包含同名的动画时，可能无法创建出准确的动画。
      * @version DragonBones 4.7
+     * @language zh_CN
      */
     export function buildMovie(movieName: string, groupName: string | null = null): Movie | null {
         const createMovieHelper = <CreateMovieHelper>{ movieName: movieName, groupName: groupName };
         if (_fillCreateMovieHelper(createMovieHelper)) {
             const movie = new Movie(createMovieHelper);
-            dragonBones.EgretFactory.factory;
-            movie.clock = dragonBones.EgretFactory.clock;
+            movie.clock = dragonBones.EgretFactory.factory.clock;
             return movie;
         }
         else {
@@ -275,10 +274,10 @@ namespace dragonBones {
         return null;
     }
     /**
-     * @language zh_CN
      * 获取指定动画组内包含的所有动画名称。
      * @param groupName 动画组的名称。
      * @version DragonBones 4.7
+     * @language zh_CN
      */
     export function getMovieNames(groupName: string): string[] | null {
         const groupConfig = _groupConfigMap[groupName];
@@ -298,63 +297,63 @@ namespace dragonBones {
         return null;
     }
     /**
-     * @language zh_CN
      * 动画事件。
      * @version DragonBones 4.7
+     * @language zh_CN
      */
     export class MovieEvent extends egret.Event {
         /**
-         * @language zh_CN
          * 动画剪辑开始播放。
          * @version DragonBones 4.7
+         * @language zh_CN
          */
         public static START: string = "start";
         /**
-         * @language zh_CN
          * 动画剪辑循环播放一次完成。
          * @version DragonBones 4.7
+         * @language zh_CN
          */
         public static LOOP_COMPLETE: string = "loopComplete";
         /**
-         * @language zh_CN
          * 动画剪辑播放完成。
          * @version DragonBones 4.7
+         * @language zh_CN
          */
         public static COMPLETE: string = "complete";
         /**
-         * @language zh_CN
          * 动画剪辑帧事件。
          * @version DragonBones 4.7
+         * @language zh_CN
          */
         public static FRAME_EVENT: string = "frameEvent";
         /**
-         * @language zh_CN
          * 动画剪辑声音事件。
          * @version DragonBones 4.7
+         * @language zh_CN
          */
         public static SOUND_EVENT: string = "soundEvent";
         /**
-         * @language zh_CN
          * 事件名称。 (帧标签的名称或声音的名称)
          * @version DragonBones 4.7
+         * @language zh_CN
          */
         public name: string = "";
         /**
-         * @language zh_CN
          * 发出事件的插槽名称。
          * @version DragonBones 4.7
+         * @language zh_CN
          */
         public slotName: string = "";
         /**
-         * @language zh_CN
          * 发出事件的动画剪辑名称。
          * @version DragonBones 4.7
+         * @language zh_CN
          */
         public clipName: string = "";
         /**
-         * @language zh_CN
          * 发出事件的动画。
          * @version DragonBones 4.7
+         * @language zh_CN
          */
         public movie: Movie;
         /**
@@ -435,26 +434,26 @@ namespace dragonBones {
         }
     }
     /**
-     * @language zh_CN
      * 通过读取缓存的二进制动画数据来更新动画，具有良好的运行性能，同时对内存的占用也非常低。
      * @see dragonBones.buildMovie
      * @version DragonBones 4.7
+     * @language zh_CN
      */
     export class Movie extends egret.DisplayObjectContainer implements IAnimatable {
         private static _cleanBeforeRender(): void { }
         /**
-         * @language zh_CN
          * 动画的播放速度。 [(-N~0): 倒转播放, 0: 停止播放, (0~1): 慢速播放, 1: 正常播放, (1~N): 快速播放]
          * @default 1
          * @version DragonBones 4.7
+         * @language zh_CN
          */
         public timeScale: number = 1;
         /**
-         * @language zh_CN
          * 动画剪辑的播放速度。 [(-N~0): 倒转播放, 0: 停止播放, (0~1): 慢速播放, 1: 正常播放, (1~N): 快速播放]
          * （当再次播放其他动画剪辑时，此值将被重置为 1）
          * @default 1
          * @version DragonBones 4.7
+         * @language zh_CN
          */
         public clipTimeScale: number = 1;
 
@@ -726,7 +725,14 @@ namespace dragonBones {
                         const height = this._groupConfig.rectangleArray[regionIndex + 3];
 
                         slot.displayConfig.texture = new egret.Texture();
-                        slot.displayConfig.texture._bitmapData = textureAtlasTexture._bitmapData;
+
+                        if (EgretFactory._isV5) {
+                            (slot.displayConfig.texture as any)["$bitmapData"] = (textureAtlasTexture as any)["$bitmapData"];
+                        }
+                        else {
+                            slot.displayConfig.texture._bitmapData = textureAtlasTexture._bitmapData;
+                        }
+
                         slot.displayConfig.texture.$initData(
                             x, y,
                             Math.min(width, textureAtlasTexture.textureWidth - x), Math.min(height, textureAtlasTexture.textureHeight - y),
@@ -735,22 +741,38 @@ namespace dragonBones {
                             textureAtlasTexture.textureWidth, textureAtlasTexture.textureHeight
                         );
                     }
+
                     if (this._batchEnabled) {
                         // RenderNode display.
                         const texture = slot.displayConfig.texture;
                         const bitmapNode = slot.rawDisplay.$renderNode as egret.sys.BitmapNode;
                         egret.sys.RenderNode.prototype.cleanBeforeRender.call(slot.rawDisplay.$renderNode);
-                        bitmapNode.image = texture._bitmapData;
 
-                        bitmapNode.drawImage(
-                            texture._bitmapX, texture._bitmapY,
-                            texture._bitmapWidth, texture._bitmapHeight,
-                            texture._offsetX, texture._offsetY,
-                            texture.textureWidth, texture.textureHeight
-                        );
+                        if (EgretFactory._isV5) {
+                            bitmapNode.image = (texture as any)["$bitmapData"];
+                            bitmapNode.drawImage(
+                                (texture as any).$bitmapX, (texture as any).$bitmapY,
+                                (texture as any).$bitmapWidth, (texture as any).$bitmapHeight,
+                                (texture as any).$offsetX, (texture as any).$offsetY,
+                                texture.textureWidth, texture.textureHeight
+                            );
 
-                        bitmapNode.imageWidth = texture._sourceWidth;
-                        bitmapNode.imageHeight = texture._sourceHeight;
+                            bitmapNode.imageWidth = (texture as any)._sourceWidth;
+                            bitmapNode.imageHeight = (texture as any)._sourceHeight;
+                        }
+                        else {
+                            bitmapNode.image = texture._bitmapData;
+
+                            bitmapNode.drawImage(
+                                texture._bitmapX, texture._bitmapY,
+                                texture._bitmapWidth, texture._bitmapHeight,
+                                texture._offsetX, texture._offsetY,
+                                texture.textureWidth, texture.textureHeight
+                            );
+
+                            bitmapNode.imageWidth = texture._sourceWidth;
+                            bitmapNode.imageHeight = texture._sourceHeight;
+                        }
                     }
                     else {
                         // Classic display.
@@ -1386,12 +1408,9 @@ namespace dragonBones {
         }
 
         /**
+         * 已废弃，请参考 {@link dragonBones.Movie#clock} {@link dragonBones.Movie#clock} {@link dragonBones.EgretFactory#clock}。
          * @deprecated
-         * 已废弃，请参考 @see
-         * @see dragonBones.Movie#clock
-         * @see dragonBones.EgretFactory#clock
-         * @see dragonBones.Movie#timescale
-         * @see dragonBones.Movie#stop()
+         * @language zh_CN
          */
         public advanceTimeBySelf(on: boolean): void {
             if (on) {
@@ -1449,6 +1468,7 @@ namespace dragonBones {
          * @private
          */
         public invalidUpdate(...args: any[]): void {
+            // tslint:disable-next-line:no-unused-expression
             args;
         }
         /**

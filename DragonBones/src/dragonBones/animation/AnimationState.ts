@@ -1,69 +1,67 @@
 namespace dragonBones {
     /**
-     * @internal
-     * @private
+     * The animation state is generated when the animation data is played.
+     * @see dragonBones.Animation
+     * @see dragonBones.AnimationData
+     * @version DragonBones 3.0
+     * @language en_US
      */
-    export class BonePose extends BaseObject {
-        public static toString(): string {
-            return "[class dragonBones.BonePose]";
-        }
-
-        public readonly current: Transform = new Transform();
-        public readonly delta: Transform = new Transform();
-        public readonly result: Transform = new Transform();
-
-        protected _onClear(): void {
-            this.current.identity();
-            this.delta.identity();
-            this.result.identity();
-        }
-    }
     /**
-     * 动画状态，播放动画时产生，可以对每个播放的动画进行更细致的控制和调节。
+     * 动画状态由播放动画数据时产生。
      * @see dragonBones.Animation
      * @see dragonBones.AnimationData
      * @version DragonBones 3.0
      * @language zh_CN
      */
     export class AnimationState extends BaseObject {
-        /**
-         * @private
-         */
         public static toString(): string {
             return "[class dragonBones.AnimationState]";
         }
         /**
-         * 是否将骨架的骨骼和插槽重置为绑定姿势（如果骨骼和插槽在这个动画状态中没有动画）。
+         * @private
+         */
+        public actionEnabled: boolean;
+        /**
+         * @private
+         */
+        public additiveBlending: boolean;
+        /**
+         * Whether the animation state has control over the display object properties of the slots.
+         * Sometimes blend a animation state does not want it to control the display object properties of the slots, 
+         * especially if other animation state are controlling the display object properties of the slots.
+         * @default true
+         * @version DragonBones 5.0
+         * @language en_US
+         */
+        /**
+         * 动画状态是否对插槽的显示对象属性有控制权。
+         * 有时混合一个动画状态并不希望其控制插槽的显示对象属性，
+         * 尤其是其他动画状态正在控制这些插槽的显示对象属性时。
+         * @default true
+         * @version DragonBones 5.0
+         * @language zh_CN
+         */
+        public displayControl: boolean;
+        /**
+         * Whether to reset the objects without animation to the armature pose when the animation state is start to play.
+         * This property should usually be set to false when blend multiple animation states.
+         * @default true
+         * @version DragonBones 5.1
+         * @language en_US
+         */
+        /**
+         * 开始播放动画状态时是否将没有动画的对象重置为骨架初始值。
+         * 通常在混合多个动画状态时应该将该属性设置为 false。
+         * @default true
          * @version DragonBones 5.1
          * @language zh_CN
          */
         public resetToPose: boolean;
         /**
-         * 是否以增加的方式混合。
+         * The play times. [0: Loop play, [1~N]: Play N times]
          * @version DragonBones 3.0
-         * @language zh_CN
+         * @language en_US
          */
-        public additiveBlending: boolean;
-        /**
-         * 是否对插槽的显示对象有控制权。
-         * @see dragonBones.Slot#displayController
-         * @version DragonBones 3.0
-         * @language zh_CN
-         */
-        public displayControl: boolean;
-        /**
-         * 是否能触发行为。
-         * @version DragonBones 5.0
-         * @language zh_CN
-         */
-        public actionEnabled: boolean;
-        /**
-         * 混合图层。
-         * @version DragonBones 3.0
-         * @readonly
-         * @language zh_CN
-         */
-        public layer: number;
         /**
          * 播放次数。 [0: 无限循环播放, [1~N]: 循环播放 N 次]
          * @version DragonBones 3.0
@@ -71,21 +69,64 @@ namespace dragonBones {
          */
         public playTimes: number;
         /**
-         * 播放速度。 [(-N~0): 倒转播放, 0: 停止播放, (0~1): 慢速播放, 1: 正常播放, (1~N): 快速播放]
+         * The blend layer.
+         * High layer animation state will get the blend weight first.
+         * When the blend weight is assigned more than 1, the remaining animation states will no longer get the weight assigned.
+         * @readonly
+         * @version DragonBones 5.0
+         * @language en_US
+         */
+        /**
+         * 混合图层。
+         * 图层高的动画状态会优先获取混合权重。
+         * 当混合权重分配超过 1 时，剩余的动画状态将不再获得权重分配。
+         * @readonly
+         * @version DragonBones 5.0
+         * @language zh_CN
+         */
+        public layer: number;
+        /**
+         * The play speed.
+         * The value is an overlay relationship with {@link dragonBones.Animation#timeScale}.
+         * [(-N~0): Reverse play, 0: Stop play, (0~1): Slow play, 1: Normal play, (1~N): Fast play]
+         * @default 1.0
+         * @version DragonBones 3.0
+         * @language en_US
+         */
+        /**
+         * 播放速度。
+         * 该值与 {@link dragonBones.Animation#timeScale} 是叠加关系。
+         * [(-N~0): 倒转播放, 0: 停止播放, (0~1): 慢速播放, 1: 正常播放, (1~N): 快速播放]
+         * @default 1.0
          * @version DragonBones 3.0
          * @language zh_CN
          */
         public timeScale: number;
         /**
+         * The blend weight.
+         * @default 1.0
+         * @version DragonBones 5.0
+         * @language en_US
+         */
+        /**
          * 混合权重。
-         * @version DragonBones 3.0
+         * @default 1.0
+         * @version DragonBones 5.0
          * @language zh_CN
          */
         public weight: number;
         /**
-         * 自动淡出时间。 [-1: 不自动淡出, [0~N]: 淡出时间] (以秒为单位)
-         * 当设置一个大于等于 0 的值，动画状态将会在播放完成后自动淡出。
-         * @version DragonBones 3.0
+         * The auto fade out time when the animation state play completed.
+         * [-1: Do not fade out automatically, [0~N]: The fade out time] (In seconds)
+         * @default -1.0
+         * @version DragonBones 5.0
+         * @language en_US
+         */
+        /**
+         * 动画状态播放完成后的自动淡出时间。
+         * [-1: 不自动淡出, [0~N]: 淡出时间] （以秒为单位）
+         * @default -1.0
+         * @version DragonBones 5.0
          * @language zh_CN
          */
         public autoFadeOutTime: number;
@@ -94,48 +135,54 @@ namespace dragonBones {
          */
         public fadeTotalTime: number;
         /**
-         * 动画名称。
-         * @version DragonBones 3.0
+         * The name of the animation state. (Can be different from the name of the animation data)
          * @readonly
+         * @version DragonBones 5.0
+         * @language en_US
+         */
+        /**
+         * 动画状态名称。 （可以不同于动画数据）
+         * @readonly
+         * @version DragonBones 5.0
          * @language zh_CN
          */
         public name: string;
         /**
-         * 混合组。
-         * @version DragonBones 3.0
+         * The blend group name of the animation state.
+         * This property is typically used to specify the substitution of multiple animation states blend.
          * @readonly
+         * @version DragonBones 5.0
+         * @language en_US
+         */
+        /**
+         * 混合组名称。
+         * 该属性通常用来指定多个动画状态混合时的相互替换关系。
+         * @readonly
+         * @version DragonBones 5.0
          * @language zh_CN
          */
         public group: string;
-        /**
-         * 动画数据。
-         * @see dragonBones.AnimationData
-         * @version DragonBones 3.0
-         * @readonly
-         * @language zh_CN
-         */
-        public animationData: AnimationData;
         /**
          * @internal
          * @private
          */
         public _timelineDirty: boolean;
         /**
+         * xx: Play Enabled, Fade Play Enabled
          * @internal
          * @private
-         * xx: Play Enabled, Fade Play Enabled
          */
         public _playheadState: number;
         /**
+         * -1: Fade in, 0: Fade complete, 1: Fade out;
          * @internal
          * @private
-         * -1: Fade in, 0: Fade complete, 1: Fade out;
          */
         public _fadeState: number;
         /**
+         * -1: Fade start, 0: Fading, 1: Fade complete;
          * @internal
          * @private
-         * -1: Fade start, 0: Fading, 1: Fade complete;
          */
         public _subFadeState: number;
         /**
@@ -160,7 +207,13 @@ namespace dragonBones {
         private readonly _boneTimelines: Array<BoneTimelineState> = [];
         private readonly _slotTimelines: Array<SlotTimelineState> = [];
         private readonly _constraintTimelines: Array<ConstraintTimelineState> = [];
+        private readonly _poseTimelines: Array<TimelineState> = [];
         private readonly _bonePoses: Map<BonePose> = {};
+        /**
+         * @internal
+         * @private
+         */
+        public _animationData: AnimationData;
         private _armature: Armature;
         /**
          * @internal
@@ -197,19 +250,18 @@ namespace dragonBones {
                 this._zOrderTimeline.returnToPool();
             }
 
-            this.resetToPose = false;
+            this.actionEnabled = false;
             this.additiveBlending = false;
             this.displayControl = false;
-            this.actionEnabled = false;
-            this.layer = 0;
+            this.resetToPose = false;
             this.playTimes = 1;
+            this.layer = 0;
             this.timeScale = 1.0;
             this.weight = 1.0;
             this.autoFadeOutTime = 0.0;
             this.fadeTotalTime = 0.0;
             this.name = "";
             this.group = "";
-            this.animationData = null as any; //
 
             this._timelineDirty = true;
             this._playheadState = 0;
@@ -225,25 +277,12 @@ namespace dragonBones {
             this._boneTimelines.length = 0;
             this._slotTimelines.length = 0;
             this._constraintTimelines.length = 0;
+            this._poseTimelines.length = 0;
             // this._bonePoses.clear();
+            this._animationData = null as any; //
             this._armature = null as any; //
             this._actionTimeline = null as any; //
             this._zOrderTimeline = null;
-        }
-
-        private _isDisabled(slot: Slot): boolean {
-            if (this.displayControl) {
-                const displayController = slot.displayController;
-                if (
-                    displayController === null ||
-                    displayController === this.name ||
-                    displayController === this.group
-                ) {
-                    return false;
-                }
-            }
-
-            return true;
         }
 
         private _updateTimelines(): void {
@@ -264,12 +303,13 @@ namespace dragonBones {
                         continue;
                     }
 
-                    const timelineDatas = this.animationData.getBoneTimelines(timelineName);
+                    const timelineDatas = this._animationData.getBoneTimelines(timelineName);
                     if (timelineName in boneTimelines) { // Remove bone timeline from map.
                         delete boneTimelines[timelineName];
                     }
                     else { // Create new bone timeline.
                         const bonePose = timelineName in this._bonePoses ? this._bonePoses[timelineName] : (this._bonePoses[timelineName] = BaseObject.borrowObject(BonePose));
+
                         if (timelineDatas !== null) {
                             for (const timelineData of timelineDatas) {
                                 switch (timelineData.type) {
@@ -320,6 +360,7 @@ namespace dragonBones {
                             timeline.bonePose = bonePose;
                             timeline.init(this._armature, this, null);
                             this._boneTimelines.push(timeline);
+                            this._poseTimelines.push(timeline);
                         }
                     }
                 }
@@ -335,6 +376,7 @@ namespace dragonBones {
             { // Update slot timelines.
                 const slotTimelines: Map<Array<SlotTimelineState>> = {};
                 const ffdFlags: Array<number> = [];
+
                 for (const timeline of this._slotTimelines) { // Create slot timelines map.
                     const timelineName = timeline.slot.name;
                     if (!(timelineName in slotTimelines)) {
@@ -351,7 +393,8 @@ namespace dragonBones {
                     }
 
                     const timelineName = slot.name;
-                    const timelineDatas = this.animationData.getSlotTimeline(timelineName);
+                    const timelineDatas = this._animationData.getSlotTimeline(timelineName);
+
                     if (timelineName in slotTimelines) { // Remove slot timeline from map.
                         delete slotTimelines[timelineName];
                     }
@@ -364,7 +407,7 @@ namespace dragonBones {
                             for (const timelineData of timelineDatas) {
                                 switch (timelineData.type) {
                                     case TimelineType.SlotDisplay: {
-                                        const timeline = BaseObject.borrowObject(SlotDislayIndexTimelineState);
+                                        const timeline = BaseObject.borrowObject(SlotDislayTimelineState);
                                         timeline.slot = slot;
                                         timeline.init(this._armature, this, timelineData);
                                         this._slotTimelines.push(timeline);
@@ -398,10 +441,11 @@ namespace dragonBones {
 
                         if (this.resetToPose) { // Pose timeline.
                             if (!displayIndexFlag) {
-                                const timeline = BaseObject.borrowObject(SlotDislayIndexTimelineState);
+                                const timeline = BaseObject.borrowObject(SlotDislayTimelineState);
                                 timeline.slot = slot;
                                 timeline.init(this._armature, this, null);
                                 this._slotTimelines.push(timeline);
+                                this._poseTimelines.push(timeline);
                             }
 
                             if (!colorFlag) {
@@ -409,6 +453,7 @@ namespace dragonBones {
                                 timeline.slot = slot;
                                 timeline.init(this._armature, this, null);
                                 this._slotTimelines.push(timeline);
+                                this._poseTimelines.push(timeline);
                             }
 
                             if (slot.rawDisplayDatas !== null) {
@@ -420,6 +465,7 @@ namespace dragonBones {
                                         timeline.slot = slot;
                                         timeline.init(this._armature, this, null);
                                         this._slotTimelines.push(timeline);
+                                        this._poseTimelines.push(timeline);
                                     }
                                 }
                             }
@@ -448,7 +494,8 @@ namespace dragonBones {
 
                 for (const constraint of this._armature._constraints) {
                     const timelineName = constraint.name;
-                    const timelineDatas = this.animationData.getConstraintTimeline(timelineName);
+                    const timelineDatas = this._animationData.getConstraintTimeline(timelineName);
+
                     if (timelineName in constraintTimelines) { // Remove constraint timeline from map.
                         delete constraintTimelines[timelineName];
                     }
@@ -474,6 +521,7 @@ namespace dragonBones {
                             timeline.constraint = constraint;
                             timeline.init(this._armature, this, null);
                             this._constraintTimelines.push(timeline);
+                            this._poseTimelines.push(timeline);
                         }
                     }
                 }
@@ -494,7 +542,7 @@ namespace dragonBones {
                 this._subFadeState = 0;
 
                 const eventType = isFadeOut ? EventObject.FADE_OUT : EventObject.FADE_IN;
-                if (this._armature.eventDispatcher.hasEvent(eventType)) {
+                if (this._armature.eventDispatcher.hasDBEventListener(eventType)) {
                     const eventObject = BaseObject.borrowObject(EventObject);
                     eventObject.type = eventType;
                     eventObject.armature = this._armature;
@@ -527,7 +575,7 @@ namespace dragonBones {
                 }
 
                 const eventType = isFadeOut ? EventObject.FADE_OUT_COMPLETE : EventObject.FADE_IN_COMPLETE;
-                if (this._armature.eventDispatcher.hasEvent(eventType)) {
+                if (this._armature.eventDispatcher.hasDBEventListener(eventType)) {
                     const eventObject = BaseObject.borrowObject(EventObject);
                     eventObject.type = eventType;
                     eventObject.armature = this._armature;
@@ -538,17 +586,17 @@ namespace dragonBones {
         }
 
         private _blendBoneTimline(timeline: BoneTimelineState): void {
+            let boneWeight = this._weightResult > 0.0 ? this._weightResult : -this._weightResult;
             const bone = timeline.bone;
             const bonePose = timeline.bonePose.result;
             const animationPose = bone.animationPose;
-            let boneWeight = this._weightResult > 0.0 ? this._weightResult : -this._weightResult;
 
             if (!bone._blendDirty) {
                 bone._blendDirty = true;
                 bone._blendLayer = this.layer;
                 bone._blendLayerWeight = boneWeight;
                 bone._blendLeftWeight = 1.0;
-
+                //
                 animationPose.x = bonePose.x * boneWeight;
                 animationPose.y = bonePose.y * boneWeight;
                 animationPose.rotation = bonePose.rotation * boneWeight;
@@ -559,7 +607,7 @@ namespace dragonBones {
             else {
                 boneWeight *= bone._blendLeftWeight;
                 bone._blendLayerWeight += boneWeight;
-
+                //
                 animationPose.x += bonePose.x * boneWeight;
                 animationPose.y += bonePose.y * boneWeight;
                 animationPose.rotation += bonePose.rotation * boneWeight;
@@ -582,8 +630,8 @@ namespace dragonBones {
             }
 
             this._armature = armature;
-
-            this.animationData = animationData;
+            this._animationData = animationData;
+            //
             this.resetToPose = animationConfig.resetToPose;
             this.additiveBlending = animationConfig.additiveBlending;
             this.displayControl = animationConfig.displayControl;
@@ -606,7 +654,8 @@ namespace dragonBones {
 
             if (animationConfig.duration < 0.0) {
                 this._position = 0.0;
-                this._duration = this.animationData.duration;
+                this._duration = this._animationData.duration;
+
                 if (animationConfig.position !== 0.0) {
                     if (this.timeScale >= 0.0) {
                         this._time = animationConfig.position;
@@ -641,20 +690,20 @@ namespace dragonBones {
             }
 
             this._actionTimeline = BaseObject.borrowObject(ActionTimelineState);
-            this._actionTimeline.init(this._armature, this, this.animationData.actionTimeline);
+            this._actionTimeline.init(this._armature, this, this._animationData.actionTimeline);
             this._actionTimeline.currentTime = this._time;
             if (this._actionTimeline.currentTime < 0.0) {
                 this._actionTimeline.currentTime = this._duration - this._actionTimeline.currentTime;
             }
 
-            if (this.animationData.zOrderTimeline !== null) {
+            if (this._animationData.zOrderTimeline !== null) {
                 this._zOrderTimeline = BaseObject.borrowObject(ZOrderTimelineState);
-                this._zOrderTimeline.init(this._armature, this, this.animationData.zOrderTimeline);
+                this._zOrderTimeline.init(this._armature, this, this._animationData.zOrderTimeline);
             }
         }
         /**
-         * @private
          * @internal
+         * @private
          */
         public advanceTime(passedTime: number, cacheFrameRate: number): void {
             // Update fade time.
@@ -686,14 +735,16 @@ namespace dragonBones {
             let time = this._time;
             this._weightResult = this.weight * this._fadeProgress;
 
-            this._actionTimeline.update(time); // Update main timeline.
+            if (this._actionTimeline.playState <= 0) {
+                this._actionTimeline.update(time); // Update main timeline.
+            }
 
             if (isCacheEnabled) { // Cache time internval.
                 const internval = cacheFrameRate * 2.0;
                 this._actionTimeline.currentTime = Math.floor(this._actionTimeline.currentTime * internval) / internval;
             }
 
-            if (this._zOrderTimeline !== null) { // Update zOrder timeline.
+            if (this._zOrderTimeline !== null && this._zOrderTimeline.playState <= 0) { // Update zOrder timeline.
                 this._zOrderTimeline.update(time);
             }
 
@@ -705,11 +756,11 @@ namespace dragonBones {
                 }
                 else {
                     this._armature._cacheFrameIndex = cacheFrameIndex;
-                    if (this.animationData.cachedFrames[cacheFrameIndex]) { // Cached.
+                    if (this._animationData.cachedFrames[cacheFrameIndex]) { // Cached.
                         isUpdateBoneTimeline = false;
                     }
                     else { // Cache.
-                        this.animationData.cachedFrames[cacheFrameIndex] = true;
+                        this._animationData.cachedFrames[cacheFrameIndex] = true;
                     }
                 }
             }
@@ -718,6 +769,7 @@ namespace dragonBones {
                 if (isUpdateBoneTimeline) { // Update bone timelines.
                     let bone: Bone | null = null;
                     let prevTimeline: BoneTimelineState = null as any; //
+
                     for (let i = 0, l = this._boneTimelines.length; i < l; ++i) {
                         const timeline = this._boneTimelines[i];
                         if (bone !== timeline.bone) { // Blend bone pose.
@@ -748,7 +800,10 @@ namespace dragonBones {
                         }
 
                         if (bone !== null) {
-                            timeline.update(time);
+                            if (timeline.playState <= 0) {
+                                timeline.update(time);
+                            }
+
                             if (i === l - 1) {
                                 this._blendBoneTimline(timeline);
                             }
@@ -759,19 +814,55 @@ namespace dragonBones {
                     }
                 }
 
-                for (let i = 0, l = this._slotTimelines.length; i < l; ++i) {
-                    const timeline = this._slotTimelines[i];
-                    if (this._isDisabled(timeline.slot)) {
-                        continue;
-                    }
+                if (this.displayControl) {
+                    for (let i = 0, l = this._slotTimelines.length; i < l; ++i) {
+                        const timeline = this._slotTimelines[i];
+                        const displayController = timeline.slot.displayController;
 
-                    timeline.update(time);
+                        if (
+                            displayController === null ||
+                            displayController === this.name ||
+                            displayController === this.group
+                        ) {
+                            if (timeline.playState <= 0) {
+                                timeline.update(time);
+                            }
+                        }
+                    }
+                }
+
+                for (let i = 0, l = this._constraintTimelines.length; i < l; ++i) {
+                    const timeline = this._constraintTimelines[i];
+                    if (timeline.playState <= 0) {
+                        timeline.update(time);
+                    }
                 }
             }
 
             if (this._fadeState === 0) {
                 if (this._subFadeState > 0) {
                     this._subFadeState = 0;
+
+                    if (this._poseTimelines.length > 0) {
+                        for (const timeline of this._poseTimelines) {
+                            if (timeline instanceof BoneTimelineState) {
+                                const index = this._boneTimelines.indexOf(timeline);
+                                this._boneTimelines.splice(index, 1);
+                            }
+                            else if (timeline instanceof SlotTimelineState) {
+                                const index = this._slotTimelines.indexOf(timeline);
+                                this._slotTimelines.splice(index, 1);
+                            }
+                            else if (timeline instanceof ConstraintTimelineState) {
+                                const index = this._constraintTimelines.indexOf(timeline);
+                                this._constraintTimelines.splice(index, 1);
+                            }
+
+                            timeline.returnToPool();
+                        }
+
+                        this._poseTimelines.length = 0;
+                    }
                 }
 
                 if (this._actionTimeline.playState > 0) {
@@ -782,6 +873,11 @@ namespace dragonBones {
             }
         }
         /**
+         * Continue play.
+         * @version DragonBones 3.0
+         * @language en_US
+         */
+        /**
          * 继续播放。
          * @version DragonBones 3.0
          * @language zh_CN
@@ -789,6 +885,11 @@ namespace dragonBones {
         public play(): void {
             this._playheadState = 3; // 11
         }
+        /**
+         * Stop play.
+         * @version DragonBones 3.0
+         * @language en_US
+         */
         /**
          * 暂停播放。
          * @version DragonBones 3.0
@@ -798,9 +899,16 @@ namespace dragonBones {
             this._playheadState &= 1; // 0x
         }
         /**
-         * 淡出动画。
-         * @param fadeOutTime 淡出时间。 (以秒为单位)
-         * @param pausePlayhead 淡出时是否暂停动画。
+         * Fade out the animation state.
+         * @param fadeOutTime The fade out time (In seconds)
+         * @param pausePlayhead Whether to pause the animation playing when fade out.
+         * @version DragonBones 3.0
+         * @language en_US
+         */
+        /**
+         * 淡出动画状态。
+         * @param fadeOutTime 淡出时间 （以秒为单位）
+         * @param pausePlayhead 淡出时是否暂停播放
          * @version DragonBones 3.0
          * @language zh_CN
          */
@@ -840,8 +948,14 @@ namespace dragonBones {
             this._fadeTime = this.fadeTotalTime * (1.0 - this._fadeProgress);
         }
         /**
-         * 是否包含骨骼遮罩。
-         * @param name 指定的骨骼名称。
+         * Check if a specific bone mask is included.
+         * @param name The bone name
+         * @version DragonBones 3.0
+         * @language en_US
+         */
+        /**
+         * 检查是否包含特定骨骼遮罩。
+         * @param name 骨骼名称
          * @version DragonBones 3.0
          * @language zh_CN
          */
@@ -849,9 +963,16 @@ namespace dragonBones {
             return this._boneMask.length === 0 || this._boneMask.indexOf(name) >= 0;
         }
         /**
-         * 添加骨骼遮罩。
-         * @param name 指定的骨骼名称。
-         * @param recursive 是否为该骨骼的子骨骼添加遮罩。
+         * Add a specific bone mask.
+         * @param name The bone name
+         * @param recursive Whether or not to add a mask to the bone's sub-bone
+         * @version DragonBones 3.0
+         * @language en_US
+         */
+        /**
+         * 添加特定的骨骼遮罩。
+         * @param name 骨骼名称
+         * @param recursive 是否为该骨骼的子骨骼添加遮罩
          * @version DragonBones 3.0
          * @language zh_CN
          */
@@ -876,9 +997,16 @@ namespace dragonBones {
             this._timelineDirty = true;
         }
         /**
-         * 删除骨骼遮罩。
-         * @param name 指定的骨骼名称。
-         * @param recursive 是否删除该骨骼的子骨骼遮罩。
+         * Remove the mask of a specific bone.
+         * @param name The bone name
+         * @param recursive Whether to remove the bone's sub-bone mask
+         * @version DragonBones 3.0
+         * @language en_US
+         */
+        /**
+         * 删除特定骨骼的遮罩。
+         * @param name 骨骼名称
+         * @param recursive 是否删除该骨骼的子骨骼遮罩
          * @version DragonBones 3.0
          * @language zh_CN
          */
@@ -917,6 +1045,11 @@ namespace dragonBones {
             this._timelineDirty = true;
         }
         /**
+         * Remove all bone masks.
+         * @version DragonBones 3.0
+         * @language en_US
+         */
+        /**
          * 删除所有骨骼遮罩。
          * @version DragonBones 3.0
          * @language zh_CN
@@ -926,6 +1059,11 @@ namespace dragonBones {
             this._timelineDirty = true;
         }
         /**
+         * Whether the animation state is fading in.
+         * @version DragonBones 5.1
+         * @language en_US
+         */
+        /**
          * 是否正在淡入。
          * @version DragonBones 5.1
          * @language zh_CN
@@ -933,6 +1071,11 @@ namespace dragonBones {
         public get isFadeIn(): boolean {
             return this._fadeState < 0;
         }
+        /**
+         * Whether the animation state is fading out.
+         * @version DragonBones 5.1
+         * @language en_US
+         */
         /**
          * 是否正在淡出。
          * @version DragonBones 5.1
@@ -942,13 +1085,23 @@ namespace dragonBones {
             return this._fadeState > 0;
         }
         /**
-         * 是否淡入完毕。
+         * Whether the animation state is fade completed.
+         * @version DragonBones 5.1
+         * @language en_US
+         */
+        /**
+         * 是否淡入或淡出完毕。
          * @version DragonBones 5.1
          * @language zh_CN
          */
         public get isFadeComplete(): boolean {
             return this._fadeState === 0;
         }
+        /**
+         * Whether the animation state is playing.
+         * @version DragonBones 3.0
+         * @language en_US
+         */
         /**
          * 是否正在播放。
          * @version DragonBones 3.0
@@ -958,6 +1111,11 @@ namespace dragonBones {
             return (this._playheadState & 2) !== 0 && this._actionTimeline.playState <= 0;
         }
         /**
+         * Whether the animation state is play completed.
+         * @version DragonBones 3.0
+         * @language en_US
+         */
+        /**
          * 是否播放完毕。
          * @version DragonBones 3.0
          * @language zh_CN
@@ -966,7 +1124,12 @@ namespace dragonBones {
             return this._actionTimeline.playState > 0;
         }
         /**
-         * 当前播放次数。
+         * The times has been played.
+         * @version DragonBones 3.0
+         * @language en_US
+         */
+        /**
+         * 已经循环播放的次数。
          * @version DragonBones 3.0
          * @language zh_CN
          */
@@ -974,7 +1137,12 @@ namespace dragonBones {
             return this._actionTimeline.currentPlayTimes;
         }
         /**
-         * 总时间。 (以秒为单位)
+         * The total time. (In seconds)
+         * @version DragonBones 3.0
+         * @language en_US
+         */
+        /**
+         * 总播放时间。 （以秒为单位）
          * @version DragonBones 3.0
          * @language zh_CN
          */
@@ -982,7 +1150,12 @@ namespace dragonBones {
             return this._duration;
         }
         /**
-         * 当前播放的时间。 (以秒为单位)
+         * The time is currently playing. (In seconds)
+         * @version DragonBones 3.0
+         * @language en_US
+         */
+        /**
+         * 当前播放的时间。 （以秒为单位）
          * @version DragonBones 3.0
          * @language zh_CN
          */
@@ -1021,14 +1194,41 @@ namespace dragonBones {
                 timeline.playState = -1;
             }
         }
-
         /**
-         * @deprecated
-         * 已废弃，请参考 @see
-         * @see #animationData
+         * The animation data.
+         * @see dragonBones.AnimationData
+         * @version DragonBones 3.0
+         * @readonly
+         * @language en_US
          */
-        public get clip(): AnimationData {
-            return this.animationData;
+        /**
+         * 动画数据。
+         * @see dragonBones.AnimationData
+         * @version DragonBones 3.0
+         * @readonly
+         * @language zh_CN
+         */
+        public get animationData(): AnimationData {
+            return this._animationData;
+        }
+    }
+    /**
+     * @internal
+     * @private
+     */
+    export class BonePose extends BaseObject {
+        public static toString(): string {
+            return "[class dragonBones.BonePose]";
+        }
+
+        public readonly current: Transform = new Transform();
+        public readonly delta: Transform = new Transform();
+        public readonly result: Transform = new Transform();
+
+        protected _onClear(): void {
+            this.current.identity();
+            this.delta.identity();
+            this.result.identity();
         }
     }
 }

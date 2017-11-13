@@ -1,5 +1,10 @@
 namespace dragonBones {
     /**
+     * The pixi slot.
+     * @version DragonBones 3.0
+     * @language en_US
+     */
+    /**
      * Pixi 插槽。
      * @version DragonBones 3.0
      * @language zh_CN
@@ -12,7 +17,7 @@ namespace dragonBones {
         private _textureScale: number;
         private _renderDisplay: PIXI.DisplayObject;
         /**
-         * @private
+         * @inheritDoc
          */
         protected _onClear(): void {
             super._onClear();
@@ -22,32 +27,33 @@ namespace dragonBones {
             this._updateTransform = PIXI.VERSION[0] === "3" ? this._updateTransformV3 : this._updateTransformV4;
         }
         /**
-         * @private
+         * @inheritDoc
          */
         protected _initDisplay(value: any): void {
+            // tslint:disable-next-line:no-unused-expression
             value;
         }
         /**
-         * @private
+         * @inheritDoc
          */
         protected _disposeDisplay(value: any): void {
             (value as PIXI.DisplayObject).destroy();
         }
         /**
-         * @private
+         * @inheritDoc
          */
         protected _onUpdateDisplay(): void {
             this._renderDisplay = (this._display ? this._display : this._rawDisplay) as PIXI.DisplayObject;
         }
         /**
-         * @private
+         * @inheritDoc
          */
         protected _addDisplay(): void {
             const container = this._armature.display as PixiArmatureDisplay;
             container.addChild(this._renderDisplay);
         }
         /**
-         * @private
+         * @inheritDoc
          */
         protected _replaceDisplay(value: any): void {
             const container = this._armature.display as PixiArmatureDisplay;
@@ -58,13 +64,13 @@ namespace dragonBones {
             this._textureScale = 1.0;
         }
         /**
-         * @private
+         * @inheritDoc
          */
         protected _removeDisplay(): void {
             this._renderDisplay.parent.removeChild(this._renderDisplay);
         }
         /**
-         * @private
+         * @inheritDoc
          */
         protected _updateZOrder(): void {
             const container = this._armature.display as PixiArmatureDisplay;
@@ -76,14 +82,13 @@ namespace dragonBones {
             container.addChildAt(this._renderDisplay, this._zOrder);
         }
         /**
-         * @internal
-         * @private
+         * @inheritDoc
          */
         public _updateVisible(): void {
-            this._renderDisplay.visible = this._parent.visible;
+            this._renderDisplay.visible = this._parent.visible && this._visible;
         }
         /**
-         * @private
+         * @inheritDoc
          */
         protected _updateBlendMode(): void {
             if (this._renderDisplay instanceof PIXI.Sprite) {
@@ -130,7 +135,7 @@ namespace dragonBones {
             }
         }
         /**
-         * @private
+         * @inheritDoc
          */
         protected _updateColor(): void {
             this._renderDisplay.alpha = this._colorTransform.alphaMultiplier;
@@ -140,7 +145,7 @@ namespace dragonBones {
             }
         }
         /**
-         * @private
+         * @inheritDoc
          */
         protected _updateFrame(): void {
             const meshData = this._display === this._meshDisplay ? this._meshData : null;
@@ -214,7 +219,7 @@ namespace dragonBones {
                         meshDisplay.dirty++; // Pixi 4.x Can not support change mesh vertice count.
                     }
                     else { // Normal texture.
-                        this._textureScale = currentTextureData.parent.scale * this._armature.armatureData.scale;
+                        this._textureScale = currentTextureData.parent.scale * this._armature._armatureData.scale;
                         const normalDisplay = this._renderDisplay as PIXI.Sprite;
                         normalDisplay.texture = renderTexture;
                     }
@@ -240,11 +245,11 @@ namespace dragonBones {
             }
         }
         /**
-         * @private
+         * @inheritDoc
          */
         protected _updateMesh(): void {
             const hasFFD = this._ffdVertices.length > 0;
-            const scale = this._armature.armatureData.scale;
+            const scale = this._armature._armatureData.scale;
             const meshData = this._meshData as MeshDisplayData;
             const weight = meshData.weight;
             const meshDisplay = this._renderDisplay as PIXI.mesh.Mesh;
@@ -307,14 +312,15 @@ namespace dragonBones {
             }
         }
         /**
-         * @private
+         * @inheritDoc
          */
         protected _updateTransform(isSkinnedMesh: boolean): void {
+            // tslint:disable-next-line:no-unused-expression
             isSkinnedMesh;
             throw new Error();
         }
         /**
-         * @private
+         * @inheritDoc
          */
         protected _updateTransformV3(isSkinnedMesh: boolean): void {
             if (isSkinnedMesh) { // Identity transform.
@@ -344,7 +350,7 @@ namespace dragonBones {
             }
         }
         /**
-         * @private
+         * @inheritDoc
          */
         protected _updateTransformV4(isSkinnedMesh: boolean): void {
             if (isSkinnedMesh) { // Identity transform.

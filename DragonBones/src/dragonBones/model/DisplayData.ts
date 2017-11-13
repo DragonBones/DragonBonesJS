@@ -1,5 +1,6 @@
 namespace dragonBones {
     /**
+     * @internal
      * @private
      */
     export abstract class DisplayData extends BaseObject {
@@ -17,6 +18,7 @@ namespace dragonBones {
         }
     }
     /**
+     * @internal
      * @private
      */
     export class ImageDisplayData extends DisplayData {
@@ -36,6 +38,7 @@ namespace dragonBones {
         }
     }
     /**
+     * @internal
      * @private
      */
     export class ArmatureDisplayData extends DisplayData {
@@ -67,6 +70,7 @@ namespace dragonBones {
         }
     }
     /**
+     * @internal
      * @private
      */
     export class MeshDisplayData extends ImageDisplayData {
@@ -92,6 +96,7 @@ namespace dragonBones {
         }
     }
     /**
+     * @internal
      * @private
      */
     export class BoundingBoxDisplayData extends DisplayData {
@@ -113,6 +118,7 @@ namespace dragonBones {
         }
     }
     /**
+     * @internal
      * @private
      */
     export class WeightData extends BaseObject {

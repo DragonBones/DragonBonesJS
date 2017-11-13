@@ -1,8 +1,13 @@
 namespace dragonBones {
     /**
-     * @language zh_CN
+     * The pixi texture atlas data.
+     * @version DragonBones 3.0
+     * @language en_US
+     */
+    /**
      * Pixi 贴图集数据。
      * @version DragonBones 3.0
+     * @language zh_CN
      */
     export class PixiTextureAtlasData extends TextureAtlasData {
         public static toString(): string {
@@ -11,7 +16,7 @@ namespace dragonBones {
 
         private _renderTexture: PIXI.BaseTexture | null = null; // Initial value.
         /**
-         * @private
+         * @inheritDoc
          */
         protected _onClear(): void {
             super._onClear();
@@ -23,11 +28,16 @@ namespace dragonBones {
             this._renderTexture = null;
         }
         /**
-         * @private
+         * @inheritDoc
          */
         public createTexture(): TextureData {
             return BaseObject.borrowObject(PixiTextureData);
         }
+        /**
+         * The pixi texture.
+         * @version DragonBones 3.0
+         * @language en_US
+         */
         /**
          * Pixi 贴图。
          * @version DragonBones 3.0
@@ -65,6 +75,7 @@ namespace dragonBones {
         }
     }
     /**
+     * @internal
      * @private
      */
     export class PixiTextureData extends TextureData {

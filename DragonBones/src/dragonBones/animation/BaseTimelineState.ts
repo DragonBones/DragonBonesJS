@@ -153,7 +153,7 @@ namespace dragonBones {
                 this._actionTimeline = null as any; //
             }
 
-            this._animationData = this._animationState.animationData;
+            this._animationData = this._animationState._animationData;
 
             this._frameRate = this._animationData.parent.frameRate;
             this._frameRateR = 1.0 / this._frameRate;
@@ -178,7 +178,7 @@ namespace dragonBones {
         public fadeOut(): void { }
 
         public update(passedTime: number): void {
-            if (this.playState <= 0 && this._setCurrentTime(passedTime)) {
+            if (this._setCurrentTime(passedTime)) {
                 if (this._frameCount > 1) {
                     const timelineFrameIndex = Math.floor(this.currentTime * this._frameRate); // uint
                     const frameIndex = this._frameIndices[(this._timelineData as TimelineData).frameIndicesOffset + timelineFrameIndex];
