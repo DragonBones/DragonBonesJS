@@ -385,7 +385,7 @@ namespace dragonBones {
         /**
          * Play a specific animation.
          * @param animationName The animation data name (If not set, The default animation will be played, or resume the animation playing from pause status, or replay the last playing animation)
-         * @param playTimes - playing repeat times [-1: Use default value of the animation data, 0: No end loop playing, [1~N]: Repeat N times]
+         * @param playTimes - Playing repeat times [-1: Use default value of the animation data, 0: No end loop playing, [1~N]: Repeat N times]
          * @returns The playing animation state name
          * @version DragonBones 3.0
          * @language en_US
@@ -474,20 +474,20 @@ namespace dragonBones {
             return this.playConfig(this._animationConfig);
         }
         /**
-         * Play a specific animation from the specified time.
-         * @param animationName The animation data name
-         * @param time The time (In seconds)
-         * @param playTimes The play times [-1: Use the animation data default value, 0: Loop play, [1~N]: Play N times]
-         * @returns The played animation state
+         * Play a specific animation from the specific time.
+         * @param animationName - The animation data name
+         * @param time - The start time point of playing (In seconds)
+         * @param playTimes - Playing repeat times [-1: Use the default value of animation data, 0: No end loop playing, [1~N]: Repeat N times]
+         * @returns The played animation state name
          * @version DragonBones 4.5
          * @language en_US
          */
         /**
-         * 从特定时间开始播放特定的动画。
+         * 从指定时间开始播放指定的动画。
          * @param animationName 动画数据名称
-         * @param time 开始时间 (以秒为单位)
-         * @param playTimes 播放次数 [-1: 使用动画数据默认值, 0: 无限循环播放, [1~N]: 循环播放 N 次]
-         * @returns 播放的动画状态
+         * @param time - 播放开始的时间 (以秒为单位)
+         * @param playTimes - 循环播放次数 [-1: 使用动画数据默认值, 0: 无限循环播放, [1~N]: 循环播放 N 次]
+         * @returns 播放的动画状态名称
          * @version DragonBones 4.5
          * @language zh_CN
          */
@@ -502,20 +502,20 @@ namespace dragonBones {
             return this.playConfig(this._animationConfig);
         }
         /**
-         * Play a specific animation from the specified frame.
-         * @param animationName The animation data name
-         * @param frame The frame
-         * @param playTimes The play times [-1: Use the animation data default value, 0: Loop play, [1~N]: Play N times]
-         * @returns The played animation state
+         * Play a specific animation from the specific frame.
+         * @param animationName - The animation data name
+         * @param frame - The start frame of playing
+         * @param playTimes - Playing repeat times [-1: Use the default value of animation data, 0: No end loop playing, [1~N]: Repeat N times]
+         * @returns The played animation state name
          * @version DragonBones 4.5
          * @language en_US
          */
         /**
-         * 从特定帧开始播放特定的动画。
-         * @param animationName 动画数据名称
-         * @param frame 帧
-         * @param playTimes 播放次数 [-1: 使用动画数据默认值, 0: 无限循环播放, [1~N]: 循环播放 N 次]
-         * @returns 播放的动画状态
+         * 从指定帧开始播放指定的动画。
+         * @param animationName - 动画数据名称
+         * @param frame - 播放开始的帧数
+         * @param playTimes - 播放次数 [-1: 使用动画数据默认值, 0: 无限循环播放, [1~N]: 循环播放 N 次]
+         * @returns 播放的动画状态名称
          * @version DragonBones 4.5
          * @language zh_CN
          */
@@ -534,20 +534,20 @@ namespace dragonBones {
             return this.playConfig(this._animationConfig);
         }
         /**
-         * Play a specific animation from the specified progress.
-         * @param animationName The animation data name
-         * @param progress The progress
-         * @param playTimes The play times [-1: Use the animation data default value, 0: Loop play, [1~N]: Play N times]
-         * @returns The played animation state
+         * Play a specific animation from the specific progress.
+         * @param animationName - The animation data name
+         * @param progress - The start progress value of playing
+         * @param playTimes - Playing repeat times [-1: Use the default value of animation data, 0: No end loop playing, [1~N]: Repeat N times]
+         * @returns The played animation state name
          * @version DragonBones 4.5
          * @language en_US
          */
         /**
-         * 从特定进度开始播放特定的动画。
-         * @param animationName 动画数据名称
-         * @param progress 进度
-         * @param playTimes 播放次数 [-1: 使用动画数据默认值, 0: 无限循环播放, [1~N]: 循环播放 N 次]
-         * @returns 播放的动画状态
+         * 从指定进度开始播放指定的动画。
+         * @param animationName - 动画数据名称
+         * @param progress - 开始播放的进度
+         * @param playTimes - 播放次数 [-1: 使用动画数据默认值, 0: 无限循环播放, [1~N]: 循环播放 N 次]
+         * @returns 播放的动画状态名称
          * @version DragonBones 4.5
          * @language zh_CN
          */
@@ -566,18 +566,18 @@ namespace dragonBones {
             return this.playConfig(this._animationConfig);
         }
         /**
-         * Stop a specific animation to the specific time.
+         * Stop a specific animation at the specific time.
          * @param animationName The animation data name
-         * @param time The time (In seconds)
-         * @returns The played animation state
+         * @param time - The stop time (In seconds)
+         * @returns The played animation state name
          * @version DragonBones 4.5
          * @language en_US
          */
         /**
-         * 将特定动画停止到特定的时间。
-         * @param animationName 动画数据名称
-         * @param time 时间 (以秒为单位)
-         * @returns 播放的动画状态
+         * 在指定时间停止指定动画播放
+         * @param animationName - 动画数据名称
+         * @param time - 停止的时间 (以秒为单位)
+         * @returns 播放的动画状态名称
          * @version DragonBones 4.5
          * @language zh_CN
          */
@@ -590,18 +590,18 @@ namespace dragonBones {
             return animationState;
         }
         /**
-         * Stop a specific animation to the specific frame.
-         * @param animationName The animation data name
-         * @param frame The frame
-         * @returns The played animation state
+         * Stop a specific animation at the specific frame.
+         * @param animationName - The animation data name
+         * @param frame - The stop frame
+         * @returns The played animation state name
          * @version DragonBones 4.5
          * @language en_US
          */
         /**
-         * 将特定动画停止到特定的帧。
-         * @param animationName 动画数据名称
-         * @param frame 帧
-         * @returns 播放的动画状态
+         * 在指定帧停止指定动画的播放
+         * @param animationName - 动画数据名称
+         * @param frame - 停止的帧数
+         * @returns 播放的动画状态名称
          * @version DragonBones 4.5
          * @language zh_CN
          */
@@ -614,18 +614,18 @@ namespace dragonBones {
             return animationState;
         }
         /**
-         * Stop a specific animation to the specific progress.
-         * @param animationName The animation data name
-         * @param progress The progress
-         * @returns The played animation state
+         * Stop a specific animation at the specific progress.
+         * @param animationName - The animation data name
+         * @param progress - The stop progress value
+         * @returns The played animation state name
          * @version DragonBones 4.5
          * @language en_US
          */
         /**
-         * 将特定动画停止到特定的进度。
+         * 在指定的进度停止指定的动画播放。
          * @param animationName 动画数据名称
-         * @param progress 进度
-         * @returns 播放的动画状态
+         * @param progress - 停止进度
+         * @returns 播放的动画状态名称
          * @version DragonBones 4.5
          * @language zh_CN
          */
@@ -639,13 +639,13 @@ namespace dragonBones {
         }
         /**
          * Get a specific animation state.
-         * @param animationName The animation state name
+         * @param animationName - The animation state name
          * @version DragonBones 3.0
          * @language en_US
          */
         /**
-         * 获取特定的动画状态。
-         * @param animationName 动画状态名称
+         * 获取指定的动画状态
+         * @param animationName - 动画状态名称
          * @version DragonBones 3.0
          * @language zh_CN
          */
@@ -661,15 +661,15 @@ namespace dragonBones {
             return null;
         }
         /**
-         * Check if a specific animation data is included.
-         * @param animationName The animation data name
+         * Check whether a specific animation data is included.
+         * @param animationName - The animation data name
          * @see dragonBones.AnimationData
          * @version DragonBones 3.0
          * @language en_US
          */
         /**
-         * 检查是否包含特定的动画数据。
-         * @param animationName 动画数据名称
+         * 检查是否包含指定的动画数据
+         * @param animationName - 动画数据名称
          * @see dragonBones.AnimationData
          * @version DragonBones 3.0
          * @language zh_CN
@@ -683,7 +683,7 @@ namespace dragonBones {
          * @language en_US
          */
         /**
-         * 获取所有的动画状态。
+         * 获取所有的动画状态
          * @version DragonBones 5.1
          * @language zh_CN
          */
@@ -691,13 +691,13 @@ namespace dragonBones {
             return this._animationStates;
         }
         /**
-         * Check whether have an animation state is playing.
+         * Check whether there is an animation state is playing
          * @see dragonBones.AnimationState
          * @version DragonBones 3.0
          * @language en_US
          */
         /**
-         * 检查是否有动画状态正在播放。
+         * 检查是否有动画状态正在播放
          * @see dragonBones.AnimationState
          * @version DragonBones 3.0
          * @language zh_CN
@@ -712,7 +712,7 @@ namespace dragonBones {
             return false;
         }
         /**
-         * Check whether all the animation states has been play completed.
+         * Check whether all the animation states playing were finished.
          * @see dragonBones.AnimationState
          * @version DragonBones 3.0
          * @language en_US
@@ -733,13 +733,13 @@ namespace dragonBones {
             return this._animationStates.length > 0;
         }
         /**
-         * The name of the prev playing animation state.
+         * The name of the last playing animation state.
          * @see #lastAnimationState
          * @version DragonBones 3.0
          * @language en_US
          */
         /**
-         * 上一个正在播放的动画状态名称。
+         * 上一个播放的动画状态名称
          * @see #lastAnimationState
          * @version DragonBones 3.0
          * @language zh_CN
@@ -748,12 +748,12 @@ namespace dragonBones {
             return this._lastAnimationState !== null ? this._lastAnimationState.name : "";
         }
         /**
-         * All animation data names.
+         * The name of all animation data
          * @version DragonBones 4.5
          * @language en_US
          */
         /**
-         * 所有动画数据的名称。
+         * 所有动画数据的名称
          * @version DragonBones 4.5
          * @language zh_CN
          */
@@ -806,13 +806,13 @@ namespace dragonBones {
             return this._animationConfig;
         }
         /**
-         * Prev played animation state.
+         * The last playing animation state
          * @see dragonBones.AnimationState
          * @version DragonBones 3.0
          * @language en_US
          */
         /**
-         * 上一个播放的动画状态。
+         * 上一个播放的动画状态
          * @see dragonBones.AnimationState
          * @version DragonBones 3.0
          * @language zh_CN
