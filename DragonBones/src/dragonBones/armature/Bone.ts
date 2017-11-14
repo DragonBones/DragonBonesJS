@@ -407,13 +407,10 @@ namespace dragonBones {
          * @private
          */
         public updateByConstraint(): void {
-            if (this._localDirty) {
+            if (this._localDirty && (this._transformDirty || (this._parent !== null && this._parent._childrenTransformDirty))) {
                 this._localDirty = false;
-                if (this._transformDirty || (this._parent !== null && this._parent._childrenTransformDirty)) {
-                    this._updateGlobalTransformMatrix(true);
-                }
-
                 this._transformDirty = true;
+                this._updateGlobalTransformMatrix(true);
             }
         }
         /**

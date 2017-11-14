@@ -660,15 +660,6 @@ namespace dragonBones {
         /**
          * @deprecated
          */
-        public removeBone(value: Bone): void {
-            console.assert(value !== null && value.armature === this);
-
-            value._setParent(null);
-            value._setArmature(null);
-        }
-        /**
-         * @deprecated
-         */
         public addSlot(value: Slot, parentName: string): void {
             const bone = this.getBone(parentName);
 
@@ -678,6 +669,23 @@ namespace dragonBones {
             value._setParent(bone);
         }
         /**
+         * @private
+         */
+        public addConstraint(value: Constraint): void {
+            if (this._constraints.indexOf(value) < 0) {
+                this._constraints.push(value);
+            }
+        }
+        /**
+         * @deprecated
+         */
+        public removeBone(value: Bone): void {
+            console.assert(value !== null && value.armature === this);
+
+            value._setParent(null);
+            value._setArmature(null);
+        }
+        /**
          * @deprecated
          */
         public removeSlot(value: Slot): void {
@@ -685,14 +693,6 @@ namespace dragonBones {
 
             value._setParent(null);
             value._setArmature(null);
-        }
-        /**
-         * @private
-         */
-        public addConstraint(value: Constraint): void {
-            if (this._constraints.indexOf(value) < 0) {
-                this._constraints.push(value);
-            }
         }
         /**
          * Get all bones.

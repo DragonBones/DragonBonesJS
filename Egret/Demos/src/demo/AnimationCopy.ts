@@ -24,9 +24,10 @@ class AnimationCopy extends BaseTest {
         this._armatureDisplayC = factory.buildArmatureDisplay("mecha_2903c");
         this._armatureDisplayD = factory.buildArmatureDisplay("mecha_2903d");
 
-        factory.copyAnimationsToArmature(this._armatureDisplayA.armature, "mecha_2903d");
-        factory.copyAnimationsToArmature(this._armatureDisplayB.armature, "mecha_2903d");
-        factory.copyAnimationsToArmature(this._armatureDisplayC.armature, "mecha_2903d");
+        const sourceArmature = factory.getArmatureData("mecha_2903d");
+        factory.replaceAnimation(this._armatureDisplayA.armature, sourceArmature);
+        factory.replaceAnimation(this._armatureDisplayB.armature, sourceArmature);
+        factory.replaceAnimation(this._armatureDisplayC.armature, sourceArmature);
 
         this.addChild(this._armatureDisplayA);
         this.addChild(this._armatureDisplayB);

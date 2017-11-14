@@ -672,16 +672,17 @@ namespace dragonBones {
                 return;
             }
 
+            this._slotData = slotData;
+            //
             this._visibleDirty = true;
             this._blendModeDirty = true;
             this._colorDirty = true;
-            this._slotData = slotData;
             this._blendMode = this._slotData.blendMode;
             this._zOrder = this._slotData.zOrder;
             this._colorTransform.copyFrom(this._slotData.color);
             this._rawDisplay = rawDisplay;
             this._meshDisplay = meshDisplay;
-
+            //
             this.rawDisplayDatas = displayDatas; //
         }
         /**

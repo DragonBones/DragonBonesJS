@@ -265,13 +265,13 @@ namespace dragonBones {
         /**
          * @private
          */
-        public getSlotTimeline(name: string): Array<TimelineData> | null {
+        public getSlotTimelines(name: string): Array<TimelineData> | null {
             return name in this.slotTimelines ? this.slotTimelines[name] : null;
         }
         /**
          * @private
          */
-        public getConstraintTimeline(name: string): Array<TimelineData> | null {
+        public getConstraintTimelines(name: string): Array<TimelineData> | null {
             return name in this.constraintTimelines ? this.constraintTimelines[name] : null;
         }
         /**

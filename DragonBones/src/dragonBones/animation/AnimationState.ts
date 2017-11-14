@@ -393,7 +393,7 @@ namespace dragonBones {
                     }
 
                     const timelineName = slot.name;
-                    const timelineDatas = this._animationData.getSlotTimeline(timelineName);
+                    const timelineDatas = this._animationData.getSlotTimelines(timelineName);
 
                     if (timelineName in slotTimelines) { // Remove slot timeline from map.
                         delete slotTimelines[timelineName];
@@ -494,7 +494,7 @@ namespace dragonBones {
 
                 for (const constraint of this._armature._constraints) {
                     const timelineName = constraint.name;
-                    const timelineDatas = this._animationData.getConstraintTimeline(timelineName);
+                    const timelineDatas = this._animationData.getConstraintTimelines(timelineName);
 
                     if (timelineName in constraintTimelines) { // Remove constraint timeline from map.
                         delete constraintTimelines[timelineName];

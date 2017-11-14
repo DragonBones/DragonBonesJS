@@ -189,16 +189,16 @@ namespace coreElement {
             this._armatureDisplay = dragonBones.EgretFactory.factory.buildArmatureDisplay("mecha_1502b");
             this._armatureDisplay.x = Game.instance.stageWidth * 0.5;
             this._armatureDisplay.y = Game.GROUND;
+            this._armatureDisplay.addEventListener(dragonBones.EventObject.FADE_IN_COMPLETE, this._animationEventHandler, this);
+            this._armatureDisplay.addEventListener(dragonBones.EventObject.FADE_OUT_COMPLETE, this._animationEventHandler, this);
+            this._armatureDisplay.addEventListener(dragonBones.EventObject.COMPLETE, this._animationEventHandler, this);
             this._armature = this._armatureDisplay.armature;
-            this._armature.eventDispatcher.addEvent(dragonBones.EventObject.FADE_IN_COMPLETE, this._animationEventHandler, this);
-            this._armature.eventDispatcher.addEvent(dragonBones.EventObject.FADE_OUT_COMPLETE, this._animationEventHandler, this);
-            this._armature.eventDispatcher.addEvent(dragonBones.EventObject.COMPLETE, this._animationEventHandler, this);
 
             // Get weapon childArmature.
             this._weaponL = this._armature.getSlot("weapon_l").childArmature;
             this._weaponR = this._armature.getSlot("weapon_r").childArmature;
-            this._weaponL.eventDispatcher.addEvent(dragonBones.EventObject.FRAME_EVENT, this._frameEventHandler, this);
-            this._weaponR.eventDispatcher.addEvent(dragonBones.EventObject.FRAME_EVENT, this._frameEventHandler, this);
+            this._weaponL.eventDispatcher.addDBEventListener(dragonBones.EventObject.FRAME_EVENT, this._frameEventHandler, this);
+            this._weaponR.eventDispatcher.addDBEventListener(dragonBones.EventObject.FRAME_EVENT, this._frameEventHandler, this);
 
             Game.instance.addChild(this._armatureDisplay);
             this._updateAnimation();
@@ -245,25 +245,25 @@ namespace coreElement {
         }
 
         public switchWeaponL(): void {
-            this._weaponL.eventDispatcher.removeEvent(dragonBones.EventObject.FRAME_EVENT, this._frameEventHandler, this);
+            this._weaponL.eventDispatcher.removeDBEventListener(dragonBones.EventObject.FRAME_EVENT, this._frameEventHandler, this);
 
             this._weaponLIndex++;
             this._weaponLIndex %= Mecha.WEAPON_L_LIST.length;
             const weaponName = Mecha.WEAPON_L_LIST[this._weaponLIndex];
             this._weaponL = dragonBones.EgretFactory.factory.buildArmature(weaponName);
             this._armature.getSlot("weapon_l").childArmature = this._weaponL;
-            this._weaponL.eventDispatcher.addEvent(dragonBones.EventObject.FRAME_EVENT, this._frameEventHandler, this);
+            this._weaponL.eventDispatcher.addDBEventListener(dragonBones.EventObject.FRAME_EVENT, this._frameEventHandler, this);
         }
 
         public switchWeaponR(): void {
-            this._weaponR.eventDispatcher.removeEvent(dragonBones.EventObject.FRAME_EVENT, this._frameEventHandler, this);
+            this._weaponR.eventDispatcher.removeDBEventListener(dragonBones.EventObject.FRAME_EVENT, this._frameEventHandler, this);
 
             this._weaponRIndex++;
             this._weaponRIndex %= Mecha.WEAPON_R_LIST.length;
             const weaponName = Mecha.WEAPON_R_LIST[this._weaponRIndex];
             this._weaponR = dragonBones.EgretFactory.factory.buildArmature(weaponName);
             this._armature.getSlot("weapon_r").childArmature = this._weaponR;
-            this._weaponR.eventDispatcher.addEvent(dragonBones.EventObject.FRAME_EVENT, this._frameEventHandler, this);
+            this._weaponR.eventDispatcher.addDBEventListener(dragonBones.EventObject.FRAME_EVENT, this._frameEventHandler, this);
         }
 
         public switchSkin(): void {
@@ -271,7 +271,7 @@ namespace coreElement {
             this._skinIndex %= Mecha.SKINS.length;
             const skinName = Mecha.SKINS[this._skinIndex];
             const skinData = dragonBones.EgretFactory.factory.getArmatureData(skinName).defaultSkin;
-            dragonBones.EgretFactory.factory.changeSkin(this._armature, skinData, ["weapon_l", "weapon_r"]);
+            dragonBones.EgretFactory.factory.replaceSkin(this._armature, skinData, ["weapon_l", "weapon_r"]);
         }
 
         public aim(x: number, y: number): void {
@@ -514,7 +514,7 @@ namespace coreElement {
                 this._effecDisplay.y = this._armatureDisplay.y;
                 this._effecDisplay.scaleX = 1.0 + Math.random() * 1.0;
                 this._effecDisplay.scaleY = 1.0 + Math.random() * 0.5;
-                
+
                 if (Math.random() < 0.5) {
                     this._effecDisplay.scaleY *= -1.0;
                 }

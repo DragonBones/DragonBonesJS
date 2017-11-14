@@ -4,8 +4,8 @@ namespace dragonBones {
      * @private
      */
     export class BinaryDataParser extends ObjectDataParser {
-        private _binary: ArrayBuffer;
         private _binaryOffset: number;
+        private _binary: ArrayBuffer;
         private _intArrayBuffer: Int16Array;
         private _floatArrayBuffer: Float32Array;
         private _frameIntArrayBuffer: Int16Array;
@@ -378,9 +378,9 @@ namespace dragonBones {
             const headerBytes = new Uint8Array(rawData, 8 + 4, headerLength);
             const headerString = this._decodeUTF8(headerBytes);
             const header = JSON.parse(headerString);
-
-            this._binary = rawData;
+            //
             this._binaryOffset = 8 + 4 + headerLength;
+            this._binary = rawData;
 
             return super.parseDragonBonesData(header, scale);
         }

@@ -2,7 +2,7 @@ namespace dragonBones {
     /**
      * The egret texture atlas data.
      * @version DragonBones 3.0
-     * @language zh_CN
+     * @language en_US
      */
     /**
      * Egret 贴图集数据。
@@ -40,7 +40,7 @@ namespace dragonBones {
             return BaseObject.borrowObject(EgretTextureData);
         }
         /**
-         * The egret texture.
+         * The Egret texture.
          * @version DragonBones 3.0
          * @language en_US
          */

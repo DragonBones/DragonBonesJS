@@ -940,19 +940,28 @@ namespace dragonBones {
          * @version DragonBones 5.6
          * @language zh_CN
          */
-        public replaceAnimation(armature: Armature, armatureData: ArmatureData, replaceAnimation: boolean = true): boolean {
+        public replaceAnimation(armature: Armature, armatureData: ArmatureData, isReplaceAll: boolean = true): boolean {
             const skinData = armatureData.defaultSkin;
             if (skinData === null) {
                 return false;
             }
 
-            if (replaceAnimation) {
+            if (isReplaceAll) {
                 armature.animation.animations = armatureData.animations;
             }
             else {
-                for (){ 
-                    
+                const rawAnimations = armature.animation.animations;
+                const animations: Map<AnimationData> = {};
+
+                for (let k in rawAnimations) {
+                    animations[k] = rawAnimations[k];
                 }
+
+                for (let k in armatureData.animations) {
+                    animations[k] = armatureData.animations[k];
+                }
+
+                armature.animation.animations = animations;
             }
 
             for (const slot of armature.getSlots()) {
@@ -965,7 +974,7 @@ namespace dragonBones {
                             if (displayData !== null && displayData.type === DisplayType.Armature) {
                                 const armatureData = this.getArmatureData(displayData.path, displayData.parent.parent.parent.name);
                                 if (armatureData) {
-                                    this.replaceAnimation(display, armatureData);
+                                    this.replaceAnimation(display, armatureData, isReplaceAll);
                                 }
                             }
                         }
@@ -1033,8 +1042,6 @@ namespace dragonBones {
         ): boolean {
             // tslint:disable-next-line:no-unused-expression
             fromSkinName;
-            // tslint:disable-next-line:no-unused-expression
-            replaceOriginalAnimation;
 
             const armatureData = this.getArmatureData(fromArmatreName, fromDragonBonesDataName);
             if (!armatureData) {

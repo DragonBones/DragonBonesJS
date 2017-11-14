@@ -245,7 +245,7 @@ namespace dragonBones {
                 for (let i = 0; i < this._events.length; ++i) {
                     const eventObject = this._events[i];
                     const armature = eventObject.armature;
-                    if (armature.armatureData !== null) { // May be armature disposed before advanceTime.
+                    if (armature._armatureData !== null) { // May be armature disposed before advanceTime.
                         armature.eventDispatcher.dispatchDBEvent(eventObject.type, eventObject);
                         if (eventObject.type === EventObject.SOUND_EVENT) {
                             this._eventManager.dispatchDBEvent(eventObject.type, eventObject);

@@ -158,6 +158,7 @@ namespace dragonBones {
             if (this._armatureDisplay._batchEnabled) {
                 const node = this._renderDisplay.$renderNode as (egret.sys.BitmapNode);
                 node.alpha = visible ? 1.0 : 0.0;
+                this._displayDirty = true;
             }
             else {
                 this._renderDisplay.visible = visible;
