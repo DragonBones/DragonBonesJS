@@ -138,7 +138,7 @@ namespace dragonBones {
          * [-1: Use the default value of the animation data, 0: Stop play, (0~N]: The duration] (In seconds)
          * @default -1.0
          * @version DragonBones 5.0
-         * @language zh_CN
+         * @language en_US
          */
         /**
          * 播放的持续时间。

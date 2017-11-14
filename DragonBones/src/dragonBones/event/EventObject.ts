@@ -117,7 +117,7 @@ namespace dragonBones {
         /**
          * If is a frame event, the value is used to describe the time that the event was in the animation timeline. (In seconds)
          * @version DragonBones 4.5
-         * @language zh_CN
+         * @language en_US
          */
         /**
          * 如果是帧事件，此值用来描述该事件在动画时间轴中所处的时间。（以秒为单位）
