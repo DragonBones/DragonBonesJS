@@ -465,7 +465,7 @@ namespace dragonBones {
          * @see #removeDragonBonesData()
          * @see dragonBones.DragonBonesData
          * @version DragonBones 3.0
-         * @language zh_CN
+         * @language en_US
          */
         /**
          * 将 DragonBonesData 实例缓存到工厂中。
