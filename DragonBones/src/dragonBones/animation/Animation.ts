@@ -250,7 +250,7 @@ namespace dragonBones {
         /**
          * Play animation with a specific animation config.
          * @param animationConfig - The animation config
-         * @returns The playing animation state name
+         * @returns The playing animation state
          * @see dragonBones.AnimationConfig
          * @version DragonBones 5.0
          * @beta
@@ -259,7 +259,7 @@ namespace dragonBones {
         /**
          * 通过指定的动画配置来播放动画。
          * @param animationConfig - 动画配置
-         * @returns 播放的动画状态名
+         * @returns 播放的动画状态
          * @see dragonBones.AnimationConfig
          * @version DragonBones 5.0
          * @beta 
@@ -386,7 +386,7 @@ namespace dragonBones {
          * Play a specific animation.
          * @param animationName The animation data name (If not set, The default animation will be played, or resume the animation playing from pause status, or replay the last playing animation)
          * @param playTimes - Playing repeat times [-1: Use default value of the animation data, 0: No end loop playing, [1~N]: Repeat N times]
-         * @returns The playing animation state name
+         * @returns The playing animation state
          * @version DragonBones 3.0
          * @example
          * <pre>
@@ -398,7 +398,7 @@ namespace dragonBones {
          * 播放指定动画。
          * @param animationName 动画数据名称 （如果未设置，则播放默认动画，或将暂停状态切换为播放状态，或重新播放之前播放的动画）
          * @param playTimes - 循环播放次数 [-1: 使用动画数据默认值, 0: 无限循环播放, [1~N]: 循环播放 N 次]
-         * @returns 播放的动画状态名称
+         * @returns 播放的动画状态
          * @version DragonBones 3.0
          * @example
          * <pre>
@@ -441,7 +441,7 @@ namespace dragonBones {
          * @param layer - The blending layer, the animation states in high level layer will get the blending weights with high priority, when the total blending weights are more than 1.0, there will be no more weights can be allocated to the other animation states
          * @param group - The blending group name, it is typically used to specify the substitution of multiple animation states blending.
          * @param fadeOutMode - The fade out mode, which is typically used to specify alternate mode of multiple animation states blending.
-         * @returns The playing animation state name
+         * @returns The playing animation state
          * @version DragonBones 4.5
          * @example
          * <pre>
@@ -458,7 +458,7 @@ namespace dragonBones {
          * @param layer - 混合图层，图层高的动画状态会优先获取混合权重，当混合权重分配总和超过 1.0 时，剩余的动画状态将不能再获得权重分配
          * @param group - 混合组名称，该属性通常用来指定多个动画状态混合时的相互替换关系。
          * @param fadeOutMode - 淡出模式，该属性通常用来指定多个动画状态混合时的相互替换模式。
-         * @returns 播放的动画状态名称
+         * @returns 播放的动画状态
          * @version DragonBones 4.5
          * @example
          * <pre>
@@ -486,7 +486,7 @@ namespace dragonBones {
          * @param animationName - The animation data name
          * @param time - The start time point of playing (In seconds)
          * @param playTimes - Playing repeat times [-1: Use the default value of animation data, 0: No end loop playing, [1~N]: Repeat N times]
-         * @returns The played animation state name
+         * @returns The played animation state
          * @version DragonBones 4.5
          * @language en_US
          */
@@ -495,7 +495,7 @@ namespace dragonBones {
          * @param animationName 动画数据名称
          * @param time - 播放开始的时间 (以秒为单位)
          * @param playTimes - 循环播放次数 [-1: 使用动画数据默认值, 0: 无限循环播放, [1~N]: 循环播放 N 次]
-         * @returns 播放的动画状态名称
+         * @returns 播放的动画状态
          * @version DragonBones 4.5
          * @language zh_CN
          */
@@ -514,7 +514,7 @@ namespace dragonBones {
          * @param animationName - The animation data name
          * @param frame - The start frame of playing
          * @param playTimes - Playing repeat times [-1: Use the default value of animation data, 0: No end loop playing, [1~N]: Repeat N times]
-         * @returns The played animation state name
+         * @returns The played animation state
          * @version DragonBones 4.5
          * @language en_US
          */
@@ -523,7 +523,7 @@ namespace dragonBones {
          * @param animationName - 动画数据名称
          * @param frame - 播放开始的帧数
          * @param playTimes - 播放次数 [-1: 使用动画数据默认值, 0: 无限循环播放, [1~N]: 循环播放 N 次]
-         * @returns 播放的动画状态名称
+         * @returns 播放的动画状态
          * @version DragonBones 4.5
          * @language zh_CN
          */
@@ -546,7 +546,7 @@ namespace dragonBones {
          * @param animationName - The animation data name
          * @param progress - The start progress value of playing
          * @param playTimes - Playing repeat times [-1: Use the default value of animation data, 0: No end loop playing, [1~N]: Repeat N times]
-         * @returns The played animation state name
+         * @returns The played animation state
          * @version DragonBones 4.5
          * @language en_US
          */
@@ -555,7 +555,7 @@ namespace dragonBones {
          * @param animationName - 动画数据名称
          * @param progress - 开始播放的进度
          * @param playTimes - 播放次数 [-1: 使用动画数据默认值, 0: 无限循环播放, [1~N]: 循环播放 N 次]
-         * @returns 播放的动画状态名称
+         * @returns 播放的动画状态
          * @version DragonBones 4.5
          * @language zh_CN
          */
@@ -577,7 +577,7 @@ namespace dragonBones {
          * Stop a specific animation at the specific time.
          * @param animationName The animation data name
          * @param time - The stop time (In seconds)
-         * @returns The played animation state name
+         * @returns The played animation state
          * @version DragonBones 4.5
          * @language en_US
          */
@@ -585,7 +585,7 @@ namespace dragonBones {
          * 在指定时间停止指定动画播放
          * @param animationName - 动画数据名称
          * @param time - 停止的时间 (以秒为单位)
-         * @returns 播放的动画状态名称
+         * @returns 播放的动画状态
          * @version DragonBones 4.5
          * @language zh_CN
          */
@@ -601,7 +601,7 @@ namespace dragonBones {
          * Stop a specific animation at the specific frame.
          * @param animationName - The animation data name
          * @param frame - The stop frame
-         * @returns The played animation state name
+         * @returns The played animation state
          * @version DragonBones 4.5
          * @language en_US
          */
@@ -609,7 +609,7 @@ namespace dragonBones {
          * 在指定帧停止指定动画的播放
          * @param animationName - 动画数据名称
          * @param frame - 停止的帧数
-         * @returns 播放的动画状态名称
+         * @returns 播放的动画状态
          * @version DragonBones 4.5
          * @language zh_CN
          */
@@ -625,7 +625,7 @@ namespace dragonBones {
          * Stop a specific animation at the specific progress.
          * @param animationName - The animation data name
          * @param progress - The stop progress value
-         * @returns The played animation state name
+         * @returns The played animation state
          * @version DragonBones 4.5
          * @language en_US
          */
@@ -633,7 +633,7 @@ namespace dragonBones {
          * 在指定的进度停止指定的动画播放。
          * @param animationName 动画数据名称
          * @param progress - 停止进度
-         * @returns 播放的动画状态名称
+         * @returns 播放的动画状态
          * @version DragonBones 4.5
          * @language zh_CN
          */
