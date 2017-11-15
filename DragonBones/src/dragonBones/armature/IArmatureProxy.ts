@@ -13,25 +13,38 @@ namespace dragonBones {
      */
     export interface IArmatureProxy extends IEventDispatcher {
         /**
+         * @internal
          * @private
          */
         dbInit(armature: Armature): void;
         /**
+         * @internal
          * @private
          */
         dbClear(): void;
         /**
+         * @internal
          * @private
          */
         dbUpdate(): void;
         /**
          * Dispose the instance and the Armature instance. (The Armature instance will return to the object pool)
          * @version DragonBones 4.5
+         * @example
+         * <pre>
+         *     removeChild(armatureDisplay);
+         *     armatureDisplay.dispose();
+         * </pre>
          * @language en_US
          */
         /**
          * 释放该实例和骨架。 （骨架会回收到对象池）
          * @version DragonBones 4.5
+         * @example
+         * <pre>
+         *     removeChild(armatureDisplay);
+         *     armatureDisplay.dispose();
+         * </pre>
          * @language zh_CN
          */
         dispose(disposeProxy: boolean): void;

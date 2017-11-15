@@ -388,6 +388,10 @@ namespace dragonBones {
          * @param playTimes The play times [-1: Use default value of the animation data, 0: Loop play, [1~N]: Play N times]
          * @returns The played animation state
          * @version DragonBones 3.0
+         * @example
+         * <pre>
+         *     armature.animation.play("walk");
+         * </pre>
          * @language en_US
          */
         /**
@@ -396,6 +400,10 @@ namespace dragonBones {
          * @param playTimes 播放次数 [-1: 使用动画数据默认值, 0: 无限循环播放, [1~N]: 循环播放 N 次]
          * @returns 播放的动画状态
          * @version DragonBones 3.0
+         * @example
+         * <pre>
+         *     armature.animation.play("walk");
+         * </pre>
          * @language zh_CN
          */
         public play(animationName: string | null = null, playTimes: number = -1): AnimationState | null {
@@ -641,12 +649,24 @@ namespace dragonBones {
          * Get a specific animation state.
          * @param animationName The animation state name
          * @version DragonBones 3.0
+         * @example
+         * <pre>
+         *     armature.animation.play("walk");
+         *     let walkState = armature.animation.getState("walk");
+         *     walkState.timeScale = 0.5;
+         * </pre>
          * @language en_US
          */
         /**
          * 获取特定的动画状态。
          * @param animationName 动画状态名称
          * @version DragonBones 3.0
+         * @example
+         * <pre>
+         *     armature.animation.play("walk");
+         *     let walkState = armature.animation.getState("walk");
+         *     walkState.timeScale = 0.5;
+         * </pre>
          * @language zh_CN
          */
         public getState(animationName: string): AnimationState | null {
@@ -840,6 +860,7 @@ namespace dragonBones {
             pauseFadeOut;
             // tslint:disable-next-line:no-unused-expression
             pauseFadeIn;
+
             this._animationConfig.clear();
             this._animationConfig.resetToPose = true;
             this._animationConfig.fadeOutMode = fadeOutMode;

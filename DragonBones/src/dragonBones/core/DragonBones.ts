@@ -1,5 +1,6 @@
 namespace dragonBones {
     /**
+     * @internal
      * @private
      */
     export const enum BinaryOffset {
@@ -32,6 +33,7 @@ namespace dragonBones {
         FFDTimelineFloatOffset = 4
     }
     /**
+     * @internal
      * @private
      */
     export const enum ArmatureType {
@@ -64,6 +66,7 @@ namespace dragonBones {
         Polygon = 2
     }
     /**
+     * @internal
      * @private
      */
     export const enum ActionType {
@@ -72,6 +75,7 @@ namespace dragonBones {
         Sound = 11
     }
     /**
+     * @internal
      * @private
      */
     export const enum BlendMode {
@@ -91,6 +95,7 @@ namespace dragonBones {
         Subtract = 13
     }
     /**
+     * @internal
      * @private
      */
     export const enum TweenType {
@@ -102,6 +107,7 @@ namespace dragonBones {
         QuadInOut = 5
     }
     /**
+     * @internal
      * @private
      */
     export const enum TimelineType {
@@ -213,11 +219,12 @@ namespace dragonBones {
      * @private
      */
     export class DragonBones {
+        public static readonly VERSION: string = "5.6.0";
+
         public static yDown: boolean = true;
         public static debug: boolean = false;
         public static debugDraw: boolean = false;
         public static webAssembly: boolean = false;
-        public static readonly VERSION: string = "5.6.0";
 
         private readonly _clock: WorldClock = new WorldClock();
         private readonly _events: Array<EventObject> = [];

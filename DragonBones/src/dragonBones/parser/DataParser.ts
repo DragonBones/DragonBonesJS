@@ -92,7 +92,6 @@ namespace dragonBones {
         protected static readonly OFFSET: string = "offset";
         protected static readonly POSITION: string = "position";
         protected static readonly DURATION: string = "duration";
-        protected static readonly TWEEN_TYPE: string = "tweenType";
         protected static readonly TWEEN_EASING: string = "tweenEasing";
         protected static readonly TWEEN_ROTATE: string = "tweenRotate";
         protected static readonly TWEEN_SCALE: string = "tweenScale";

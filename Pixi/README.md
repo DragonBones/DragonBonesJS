@@ -1,5 +1,6 @@
-# DragonBones Pixi library
+# DragonBones PixiJS library
 
 ## [Demos](./Demos/)
+* [Hello DragonBones](./Demos/src/HelloDragonBones.ts)
 
-## [Pixi website](http://www.pixijs.com/)
+## [PixiJS website](http://www.pixijs.com/)

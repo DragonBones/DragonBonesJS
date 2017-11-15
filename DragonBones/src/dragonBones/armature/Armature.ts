@@ -275,11 +275,21 @@ namespace dragonBones {
         /**
          * Dispose the armature. (Return to the object pool)
          * @version DragonBones 3.0
+         * @example
+         * <pre>
+         *     removeChild(armature.display);
+         *     armature.dispose();
+         * </pre>
          * @language en_US
          */
         /**
          * 释放骨架。 （回收到对象池）
          * @version DragonBones 3.0
+         * @example
+         * <pre>
+         *     removeChild(armature.display);
+         *     armature.dispose();
+         * </pre>
          * @language zh_CN
          */
         public dispose(): void {
@@ -774,6 +784,10 @@ namespace dragonBones {
          * @see dragonBones.DragonBonesData#frameRate
          * @see dragonBones.ArmatureData#frameRate
          * @version DragonBones 4.5
+         * @example
+         * <pre>
+         *     armature.cacheFrameRate = 24;
+         * </pre>
          * @language en_US
          */
         /**
@@ -784,6 +798,10 @@ namespace dragonBones {
          * @see dragonBones.DragonBonesData#frameRate
          * @see dragonBones.ArmatureData#frameRate
          * @version DragonBones 4.5
+         * @example
+         * <pre>
+         *     armature.cacheFrameRate = 24;
+         * </pre>
          * @language zh_CN
          */
         public get cacheFrameRate(): number {

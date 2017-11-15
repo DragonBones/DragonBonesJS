@@ -314,15 +314,32 @@ namespace dragonBones {
                                 node.image = texture._bitmapData;
                             }
 
-                            node.drawMesh(
-                                texture._bitmapX, texture._bitmapY,
-                                texture._bitmapWidth, texture._bitmapHeight,
-                                texture._offsetX, texture._offsetY,
-                                texture.textureWidth, texture.textureHeight
-                            );
+                            if (EgretFactory._isV5) {
+                                node.image = (texture as any)["$bitmapData"];
+                                node.drawMesh(
+                                    (texture as any).$bitmapX, (texture as any).$bitmapY,
+                                    (texture as any).$bitmapWidth, (texture as any).$bitmapHeight,
+                                    (texture as any).$offsetX, (texture as any).$offsetY,
+                                    texture.textureWidth, texture.textureHeight
+                                );
 
-                            node.imageWidth = texture._sourceWidth;
-                            node.imageHeight = texture._sourceHeight;
+                                node.imageWidth = (texture as any).$sourceWidth;
+                                node.imageHeight = (texture as any).$sourceHeight;
+                            }
+                            else {
+                                node.image = texture._bitmapData;
+                                node.drawMesh(
+                                    texture._bitmapX, texture._bitmapY,
+                                    texture._bitmapWidth, texture._bitmapHeight,
+                                    texture._offsetX, texture._offsetY,
+                                    texture.textureWidth, texture.textureHeight
+                                );
+
+                                node.imageWidth = texture._sourceWidth;
+                                node.imageHeight = texture._sourceHeight;
+                            }
+
+                            this._blendModeDirty = true;
                             this._colorDirty = true;
                         }
 
@@ -372,6 +389,7 @@ namespace dragonBones {
                                 node.imageHeight = texture._sourceHeight;
                             }
 
+                            this._blendModeDirty = true;
                             this._colorDirty = true;
                         }
                         else {

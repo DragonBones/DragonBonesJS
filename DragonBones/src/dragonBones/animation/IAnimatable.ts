@@ -32,11 +32,21 @@ namespace dragonBones {
         /**
          * The Wordclock instance to which the current belongs.
          * @version DragonBones 5.0
+         * @example
+         * <pre>
+         *     armature.clock = factory.clock; // Add armature to clock.
+         *     armature.clock = null; // Remove armature from clock.
+         * </pre>
          * @language en_US
          */
         /**
          * 当前所属的 WordClock 实例。
          * @version DragonBones 5.0
+         * @example
+         * <pre>
+         *     armature.clock = factory.clock; // 将骨架添加到时钟。
+         *     armature.clock = null; // 将骨架从时钟移除。
+         * </pre>
          * @language zh_CN
          */
         clock: WorldClock | null;

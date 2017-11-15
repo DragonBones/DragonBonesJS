@@ -2,8 +2,9 @@
 * $ `npm install`
 * $ `npm run start`
 
-## Project structure
+## Make sure project structure like this:
 ```
+Your project
     |-- libs
         |-- dragonBones
             |-- dragonBones.js

@@ -293,6 +293,7 @@ namespace dragonBones {
         private _debugDraw: boolean = false;
         private _disposeProxy: boolean = false;
         private _armature: Armature = null as any; //
+        private _bounds: egret.Rectangle | null = null;
         private _debugDrawer: egret.Sprite | null = null;
         /**
          * @inheritDoc
@@ -309,8 +310,8 @@ namespace dragonBones {
          * @inheritDoc
          */
         public dbClear(): void {
-            this._disposeProxy = false;
             this._armature = null as any;
+            this._bounds = null;
             this._debugDrawer = null;
         }
         /**
@@ -583,12 +584,27 @@ namespace dragonBones {
 
                     bounds.width -= bounds.x;
                     bounds.height -= bounds.y;
+
+                    if (EgretFactory._isV5) {
+                        if (this._bounds === null) {
+                            this._bounds = new egret.Rectangle();
+                        }
+
+                        this._bounds.copyFrom(bounds);
+                    }
+                }
+                else if (EgretFactory._isV5) {
+                    if (this._bounds === null) {
+                        this._bounds = new egret.Rectangle();
+                    }
+
+                    bounds.copyFrom(this._bounds);
                 }
 
-                return;
+                return bounds as any; // V5
             }
 
-            super.$measureContentBounds(bounds);
+            return super.$measureContentBounds(bounds) as any; // V5
         }
 
         /**

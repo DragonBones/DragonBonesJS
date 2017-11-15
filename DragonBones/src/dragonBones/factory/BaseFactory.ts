@@ -677,6 +677,7 @@ namespace dragonBones {
          * @example
          * <pre>
          *     let armature = factory.buildArmature("armatureName", "dragonBonesName");
+         *     armature.clock = factory.clock;
          * </pre>
          * @language en_US
          */
@@ -693,6 +694,7 @@ namespace dragonBones {
          * @example
          * <pre>
          *     let armature = factory.buildArmature("armatureName", "dragonBonesName");
+         *     armature.clock = factory.clock;
          * </pre>
          * @language zh_CN
          */
@@ -972,9 +974,9 @@ namespace dragonBones {
                         if (displayDatas !== null && index < (DragonBones.webAssembly ? (displayDatas as any).size() : displayDatas.length)) {
                             const displayData = DragonBones.webAssembly ? (displayDatas as any).get(index) : displayDatas[index];
                             if (displayData !== null && displayData.type === DisplayType.Armature) {
-                                const armatureData = this.getArmatureData(displayData.path, displayData.parent.parent.parent.name);
-                                if (armatureData) {
-                                    this.replaceAnimation(display, armatureData, isReplaceAll);
+                                const childArmatureData = this.getArmatureData(displayData.path, displayData.parent.parent.parent.name);
+                                if (childArmatureData) {
+                                    this.replaceAnimation(display, childArmatureData, isReplaceAll);
                                 }
                             }
                         }

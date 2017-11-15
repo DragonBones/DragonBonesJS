@@ -2,8 +2,9 @@
 * $ `npm install`
 * $ `npm run build`
 
-## Project structure
+## Make sure project structure like this:
 ```
+Your project
     |-- libs
         |-- pixi.js.d.ts
     |-- node_modules
