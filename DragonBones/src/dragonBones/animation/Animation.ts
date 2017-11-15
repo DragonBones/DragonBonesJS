@@ -384,7 +384,7 @@ namespace dragonBones {
         }
         /**
          * Play a specific animation.
-         * @param animationName The animation data name (If not set, The default animation will be played, or resume the animation playing from pause status, or replay the last playing animation)
+         * @param animationName The name of animation data (If not set, The default animation will be played, or resume the animation playing from pause status, or replay the last playing animation)
          * @param playTimes - Playing repeat times [-1: Use default value of the animation data, 0: No end loop playing, [1~N]: Repeat N times]
          * @returns The playing animation state
          * @version DragonBones 3.0
@@ -435,7 +435,7 @@ namespace dragonBones {
         }
         /**
          * Fade in a specific animation.
-         * @param animationName - The animation data name
+         * @param animationName - The name of animation data
          * @param playTimes - playing repeat times [-1: Use the default value of animation data, 0: No end loop playing, [1~N]: Repeat N times]
          * @param fadeInTime - The fade in time [-1: Use the default value of animation data, [0~N]: The fade in time (In seconds)]
          * @param layer - The blending layer, the animation states in high level layer will get the blending weights with high priority, when the total blending weights are more than 1.0, there will be no more weights can be allocated to the other animation states
@@ -483,7 +483,7 @@ namespace dragonBones {
         }
         /**
          * Play a specific animation from the specific time.
-         * @param animationName - The animation data name
+         * @param animationName - The name of animation data
          * @param time - The start time point of playing (In seconds)
          * @param playTimes - Playing repeat times [-1: Use the default value of animation data, 0: No end loop playing, [1~N]: Repeat N times]
          * @returns The played animation state
@@ -511,7 +511,7 @@ namespace dragonBones {
         }
         /**
          * Play a specific animation from the specific frame.
-         * @param animationName - The animation data name
+         * @param animationName - The name of animation data
          * @param frame - The start frame of playing
          * @param playTimes - Playing repeat times [-1: Use the default value of animation data, 0: No end loop playing, [1~N]: Repeat N times]
          * @returns The played animation state
@@ -543,7 +543,7 @@ namespace dragonBones {
         }
         /**
          * Play a specific animation from the specific progress.
-         * @param animationName - The animation data name
+         * @param animationName - The name of animation data
          * @param progress - The start progress value of playing
          * @param playTimes - Playing repeat times [-1: Use the default value of animation data, 0: No end loop playing, [1~N]: Repeat N times]
          * @returns The played animation state
@@ -575,7 +575,7 @@ namespace dragonBones {
         }
         /**
          * Stop a specific animation at the specific time.
-         * @param animationName The animation data name
+         * @param animationName - The name of animation data
          * @param time - The stop time (In seconds)
          * @returns The played animation state
          * @version DragonBones 4.5
@@ -599,7 +599,7 @@ namespace dragonBones {
         }
         /**
          * Stop a specific animation at the specific frame.
-         * @param animationName - The animation data name
+         * @param animationName - The name of animation data
          * @param frame - The stop frame
          * @returns The played animation state
          * @version DragonBones 4.5
@@ -623,7 +623,7 @@ namespace dragonBones {
         }
         /**
          * Stop a specific animation at the specific progress.
-         * @param animationName - The animation data name
+         * @param animationName - The name of animation data
          * @param progress - The stop progress value
          * @returns The played animation state
          * @version DragonBones 4.5
@@ -647,7 +647,7 @@ namespace dragonBones {
         }
         /**
          * Get a specific animation state.
-         * @param animationName - The animation state name
+         * @param animationName - The name of animation state
          * @version DragonBones 3.0
          * @example
          * <pre>
@@ -682,7 +682,7 @@ namespace dragonBones {
         }
         /**
          * Check whether a specific animation data is included.
-         * @param animationName - The animation data name
+         * @param animationName - The name of animation data
          * @see dragonBones.AnimationData
          * @version DragonBones 3.0
          * @language en_US
@@ -732,7 +732,7 @@ namespace dragonBones {
             return false;
         }
         /**
-         * Check whether all the animation states playing were finished.
+         * Check whether all the animation states' playing were finished.
          * @see dragonBones.AnimationState
          * @version DragonBones 3.0
          * @language en_US
