@@ -1,12 +1,34 @@
+/**
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2012-2016 DragonBones team and other contributors
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of
+ * this software and associated documentation files (the "Software"), to deal in
+ * the Software without restriction, including without limitation the rights to
+ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+ * the Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+ * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+ * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+ * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
 namespace dragonBones {
     /**
-     * The base class of the transform object.
+     * - The base class of the transform object.
      * @see dragonBones.Transform
      * @version DragonBones 4.5
      * @language en_US
      */
     /**
-     * 变换对象的基类。
+     * - 变换对象的基类。
      * @see dragonBones.Transform
      * @version DragonBones 4.5
      * @language zh_CN
@@ -25,34 +47,34 @@ namespace dragonBones {
          */
         protected static readonly _helpPoint: Point = new Point();
         /**
-         * A matrix relative to the armature coordinate system.
+         * - A matrix relative to the armature coordinate system.
          * @version DragonBones 3.0
          * @language en_US
          */
         /**
-         * 相对于骨架坐标系的矩阵。
+         * - 相对于骨架坐标系的矩阵。
          * @version DragonBones 3.0
          * @language zh_CN
          */
         public readonly globalTransformMatrix: Matrix = new Matrix();
         /**
-         * A transform relative to the armature coordinate system.
+         * - A transform relative to the armature coordinate system.
          * @version DragonBones 3.0
          * @language en_US
          */
         /**
-         * 相对于骨架坐标系的变换。
+         * - 相对于骨架坐标系的变换。
          * @version DragonBones 3.0
          * @language zh_CN
          */
         public readonly global: Transform = new Transform();
         /**
-         * The offset transform relative to the armature or the parent bone coordinate system.
+         * - The offset transform relative to the armature or the parent bone coordinate system.
          * @version DragonBones 3.0
          * @language en_US
          */
         /**
-         * 相对于骨架或父骨骼坐标系的偏移变换。
+         * - 相对于骨架或父骨骼坐标系的偏移变换。
          * @version DragonBones 3.0
          * @language zh_CN
          */
@@ -117,12 +139,12 @@ namespace dragonBones {
             }
         }
         /**
-         * The armature to which it belongs.
+         * - The armature to which it belongs.
          * @version DragonBones 3.0
          * @language en_US
          */
         /**
-         * 所属的骨架。
+         * - 所属的骨架。
          * @version DragonBones 3.0
          * @language zh_CN
          */
@@ -130,12 +152,12 @@ namespace dragonBones {
             return this._armature;
         }
         /**
-         * The parent bone to which it belongs.
+         * - The parent bone to which it belongs.
          * @version DragonBones 3.0
          * @language en_US
          */
         /**
-         * 所属的父骨骼。
+         * - 所属的父骨骼。
          * @version DragonBones 3.0
          * @language zh_CN
          */

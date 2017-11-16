@@ -1,10 +1,32 @@
+/**
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2012-2016 DragonBones team and other contributors
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of
+ * this software and associated documentation files (the "Software"), to deal in
+ * the Software without restriction, including without limitation the rights to
+ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+ * the Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+ * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+ * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+ * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
 namespace dragonBones {
     /**
-     * The slot attached to the armature, controls the display status and properties of the display object.
+     * - The slot attached to the armature, controls the display status and properties of the display object.
      * A bone can contain multiple slots.
-     * A slot can contain multiple display objects, displaying only one of the display objects at a time, 
+     * A slot can contain multiple display objects, displaying only one of the display objects at a time,
      * but you can toggle the display object into frame animation while the animation is playing.
-     * The display object can be a normal texture, or it can be a display of a child armature, a grid display object, 
+     * The display object can be a normal texture, or it can be a display of a child armature, a grid display object,
      * and a custom other display object.
      * @see dragonBones.Armature
      * @see dragonBones.Bone
@@ -13,7 +35,7 @@ namespace dragonBones {
      * @language en_US
      */
     /**
-     * 插槽附着在骨骼上，控制显示对象的显示状态和属性。
+     * - 插槽附着在骨骼上，控制显示对象的显示状态和属性。
      * 一个骨骼上可以包含多个插槽。
      * 一个插槽中可以包含多个显示对象，同一时间只能显示其中的一个显示对象，但可以在动画播放的过程中切换显示对象实现帧动画。
      * 显示对象可以是普通的图片纹理，也可以是子骨架的显示容器，网格显示对象，还可以是自定义的其他显示对象。
@@ -25,7 +47,7 @@ namespace dragonBones {
      */
     export abstract class Slot extends TransformObject {
         /**
-         * Displays the animated state or mixed group name controlled by the object, set to null to be controlled by all animation states.
+         * - Displays the animated state or mixed group name controlled by the object, set to null to be controlled by all animation states.
          * @default null
          * @see dragonBones.AnimationState#displayControl
          * @see dragonBones.AnimationState#name
@@ -34,7 +56,7 @@ namespace dragonBones {
          * @language en_US
          */
         /**
-         * 显示对象受到控制的动画状态或混合组名称，设置为 null 则表示受所有的动画状态控制。
+         * - 显示对象受到控制的动画状态或混合组名称，设置为 null 则表示受所有的动画状态控制。
          * @default null
          * @see dragonBones.AnimationState#displayControl
          * @see dragonBones.AnimationState#name
@@ -826,20 +848,20 @@ namespace dragonBones {
             this._displayDatas[displayIndex] = value;
         }
         /**
-         * Check whether a specific point is inside a custom bounding box in the slot.
+         * - Check whether a specific point is inside a custom bounding box in the slot.
          * The coordinate system of the point is the inner coordinate system of the armature.
          * Custom bounding boxes need to be customized in Dragonbones Pro.
-         * @param x The horizontal coordinate of the point
-         * @param y The vertical coordinate of the point.
+         * @param x - The horizontal coordinate of the point
+         * @param y - The vertical coordinate of the point.
          * @version DragonBones 5.0
          * @language en_US
          */
         /**
-         * 检查特定点是否在插槽的自定义边界框内。
+         * - 检查特定点是否在插槽的自定义边界框内。
          * 点的坐标系为骨架内坐标系。
          * 自定义边界框需要在 DragonBones Pro 中自定义。
-         * @param x 点的水平坐标
-         * @param y 点的垂直坐标
+         * @param x - 点的水平坐标
+         * @param y - 点的垂直坐标
          * @version DragonBones 5.0
          * @language zh_CN
          */
@@ -857,31 +879,31 @@ namespace dragonBones {
             return this._boundingBoxData.containsPoint(Slot._helpPoint.x, Slot._helpPoint.y);
         }
         /**
-         * Check whether a specific segment intersects a custom bounding box for the slot.
+         * - Check whether a specific segment intersects a custom bounding box for the slot.
          * The coordinate system of the segment and intersection is the inner coordinate system of the armature.
          * Custom bounding boxes need to be customized in Dragonbones Pro.
-         * @param xA The horizontal coordinate of the beginning of the segment.
-         * @param yA The vertical coordinate of the beginning of the segment.
-         * @param xB The horizontal coordinate of the end point of the segment.
-         * @param yB The vertical coordinate of the end point of the segment.
-         * @param intersectionPointA The first intersection at which a line segment intersects the bounding box from the beginning to the end.
-         * @param intersectionPointB The first intersection at which a line segment intersects the bounding box from the end to the beginning.
-         * @param normalRadians The normal radians of the tangent of the intersection boundary box. [x: Normal radian of the first intersection tangent, y: Normal radian of the second intersection tangent]
+         * @param xA - The horizontal coordinate of the beginning of the segment.
+         * @param yA - The vertical coordinate of the beginning of the segment.
+         * @param xB - The horizontal coordinate of the end point of the segment.
+         * @param yB - The vertical coordinate of the end point of the segment.
+         * @param intersectionPointA - The first intersection at which a line segment intersects the bounding box from the beginning to the end.
+         * @param intersectionPointB - The first intersection at which a line segment intersects the bounding box from the end to the beginning.
+         * @param normalRadians - The normal radians of the tangent of the intersection boundary box. [x: Normal radian of the first intersection tangent, y: Normal radian of the second intersection tangent]
          * @returns Intersection situation. [1: Disjoint and segments within the bounding box, 0: Disjoint, 1: Intersecting and having a nodal point and ending in the bounding box, 2: Intersecting and having a nodal point and starting at the bounding box, 3: Intersecting and having two intersections, N: Intersecting and having N intersections]
          * @version DragonBones 5.0
          * @language en_US
          */
         /**
-         * 检查特定线段是否与插槽的自定义边界框相交。
+         * - 检查特定线段是否与插槽的自定义边界框相交。
          * 线段和交点的坐标系均为骨架内坐标系。
          * 自定义边界框需要在 DragonBones Pro 中自定义。
-         * @param xA 线段起点的水平坐标
-         * @param yA 线段起点的垂直坐标
-         * @param xB 线段终点的水平坐标
-         * @param yB 线段终点的垂直坐标
-         * @param intersectionPointA 线段从起点到终点与边界框相交的第一个交点
-         * @param intersectionPointB 线段从终点到起点与边界框相交的第一个交点
-         * @param normalRadians 交点边界框切线的法线弧度。 [x: 第一个交点切线的法线弧度, y: 第二个交点切线的法线弧度]
+         * @param xA - 线段起点的水平坐标
+         * @param yA - 线段起点的垂直坐标
+         * @param xB - 线段终点的水平坐标
+         * @param yB - 线段终点的垂直坐标
+         * @param intersectionPointA - 线段从起点到终点与边界框相交的第一个交点
+         * @param intersectionPointB - 线段从终点到起点与边界框相交的第一个交点
+         * @param normalRadians - 交点边界框切线的法线弧度。 [x: 第一个交点切线的法线弧度, y: 第二个交点切线的法线弧度]
          * @returns 相交的情况。 [-1: 不相交且线段在包围盒内, 0: 不相交, 1: 相交且有一个交点且终点在包围盒内, 2: 相交且有一个交点且起点在包围盒内, 3: 相交且有两个交点, N: 相交且有 N 个交点]
          * @version DragonBones 5.0
          * @language zh_CN
@@ -942,12 +964,12 @@ namespace dragonBones {
             return intersectionCount;
         }
         /**
-         * Forces the slot to update the state of the display object in the next frame.
+         * - Forces the slot to update the state of the display object in the next frame.
          * @version DragonBones 4.5
          * @language en_US
          */
         /**
-         * 强制插槽在下一帧更新显示对象的状态。
+         * - 强制插槽在下一帧更新显示对象的状态。
          * @version DragonBones 4.5
          * @language zh_CN
          */
@@ -956,13 +978,13 @@ namespace dragonBones {
             this._transformDirty = true;
         }
         /**
-         * The visible of slot's display object.
+         * - The visible of slot's display object.
          * @default true
          * @version DragonBones 5.6
          * @language en_US
          */
         /**
-         * 插槽的显示对象的可见。
+         * - 插槽的显示对象的可见。
          * @default true
          * @version DragonBones 5.6
          * @language zh_CN
@@ -979,25 +1001,25 @@ namespace dragonBones {
             this._updateVisible();
         }
         /**
-         * The index of the display object displayed in the display list.
-         * @version DragonBones 4.5
+         * - The index of the display object displayed in the display list.
          * @example
          * <pre>
          *     let slot = armature.getSlot("weapon");
          *     slot.displayIndex = 3;
          *     slot.displayController = "none";
          * </pre>
+         * @version DragonBones 4.5
          * @language en_US
          */
         /**
-         * 此时显示的显示对象在显示列表中的索引。
-         * @version DragonBones 4.5
+         * - 此时显示的显示对象在显示列表中的索引。
          * @example
          * <pre>
          *     let slot = armature.getSlot("weapon");
          *     slot.displayIndex = 3;
          *     slot.displayController = "none";
          * </pre>
+         * @version DragonBones 4.5
          * @language zh_CN
          */
         public get displayIndex(): number {
@@ -1009,13 +1031,13 @@ namespace dragonBones {
             }
         }
         /**
-         * The slot name.
+         * - The slot name.
          * @see dragonBones.SlotData#name
          * @version DragonBones 3.0
          * @language en_US
          */
         /**
-         * 插槽名称。
+         * - 插槽名称。
          * @see dragonBones.SlotData#name
          * @version DragonBones 3.0
          * @language zh_CN
@@ -1024,12 +1046,12 @@ namespace dragonBones {
             return this._slotData.name;
         }
         /**
-         * Contains a display list of display objects or child armatures.
+         * - Contains a display list of display objects or child armatures.
          * @version DragonBones 3.0
          * @language en_US
          */
         /**
-         * 包含显示对象或子骨架的显示列表。
+         * - 包含显示对象或子骨架的显示列表。
          * @version DragonBones 3.0
          * @language zh_CN
          */
@@ -1065,13 +1087,13 @@ namespace dragonBones {
             }
         }
         /**
-         * The slot data.
+         * - The slot data.
          * @see dragonBones.SlotData
          * @version DragonBones 4.5
          * @language en_US
          */
         /**
-         * 插槽数据。
+         * - 插槽数据。
          * @see dragonBones.SlotData
          * @version DragonBones 4.5
          * @language zh_CN
@@ -1104,12 +1126,12 @@ namespace dragonBones {
             }
         }
         /**
-         * The custom bounding box data for the slot at current time.
+         * - The custom bounding box data for the slot at current time.
          * @version DragonBones 5.0
          * @language en_US
          */
         /**
-         * 插槽此时的自定义包围盒数据。
+         * - 插槽此时的自定义包围盒数据。
          * @version DragonBones 5.0
          * @language zh_CN
          */
@@ -1129,23 +1151,23 @@ namespace dragonBones {
             return this._meshDisplay;
         }
         /**
-         * The display object that the slot displays at this time.
-         * @version DragonBones 3.0
+         * - The display object that the slot displays at this time.
          * @example
          * <pre>
          *     let slot = armature.getSlot("text");
          *     slot.display = new yourEngine.TextField();
          * </pre>
+         * @version DragonBones 3.0
          * @language en_US
          */
         /**
-         * 插槽此时显示的显示对象。
-         * @version DragonBones 3.0
+         * - 插槽此时显示的显示对象。
          * @example
          * <pre>
          *     let slot = armature.getSlot("text");
          *     slot.display = new yourEngine.TextField();
          * </pre>
+         * @version DragonBones 3.0
          * @language zh_CN
          */
         public get display(): any {
@@ -1175,23 +1197,23 @@ namespace dragonBones {
             }
         }
         /**
-         * The child armature that the slot displayed at current time.
-         * @version DragonBones 3.0
+         * - The child armature that the slot displayed at current time.
          * @example
          * <pre>
          *     let slot = armature.getSlot("weapon");
          *     slot.childArmature = factory.buildArmature("weapon_blabla", "weapon_blabla_project");
          * </pre>
+         * @version DragonBones 3.0
          * @language en_US
          */
         /**
-         * 插槽此时显示的子骨架。
-         * @version DragonBones 3.0
+         * - 插槽此时显示的子骨架。
          * @example
          * <pre>
          *     let slot = armature.getSlot("weapon");
          *     slot.childArmature = factory.buildArmature("weapon_blabla", "weapon_blabla_project");
          * </pre>
+         * @version DragonBones 3.0
          * @language zh_CN
          */
         public get childArmature(): Armature | null {
@@ -1206,12 +1228,12 @@ namespace dragonBones {
         }
 
         /**
-         * Deprecated, please refer to {@link #display}.
+         * - Deprecated, please refer to {@link #display}.
          * @deprecated
          * @language en_US
          */
         /**
-         * 已废弃，请参考 {@link #display}。
+         * - 已废弃，请参考 {@link #display}。
          * @deprecated
          * @language zh_CN
          */
@@ -1219,12 +1241,12 @@ namespace dragonBones {
             return this.display;
         }
         /**
-         * Deprecated, please refer to {@link #display}.
+         * - Deprecated, please refer to {@link #display}.
          * @deprecated
          * @language en_US
          */
         /**
-         * 已废弃，请参考 {@link #display}。
+         * - 已废弃，请参考 {@link #display}。
          * @deprecated
          * @language zh_CN
          */

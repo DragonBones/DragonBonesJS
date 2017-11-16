@@ -1,11 +1,33 @@
+/**
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2012-2016 DragonBones team and other contributors
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of
+ * this software and associated documentation files (the "Software"), to deal in
+ * the Software without restriction, including without limitation the rights to
+ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+ * the Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+ * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+ * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+ * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
 namespace dragonBones {
     /**
-     * The armature data.
+     * - The armature data.
      * @version DragonBones 3.0
      * @language en_US
      */
     /**
-     * 骨架数据。
+     * - 骨架数据。
      * @version DragonBones 3.0
      * @language zh_CN
      */
@@ -18,12 +40,12 @@ namespace dragonBones {
          */
         public type: ArmatureType;
         /**
-         * The animation frame rate.
+         * - The animation frame rate.
          * @version DragonBones 3.0
          * @language en_US
          */
         /**
-         * 动画帧率。
+         * - 动画帧率。
          * @version DragonBones 3.0
          * @language zh_CN
          */
@@ -37,12 +59,12 @@ namespace dragonBones {
          */
         public scale: number;
         /**
-         * The armature name.
+         * - The armature name.
          * @version DragonBones 3.0
          * @language en_US
          */
         /**
-         * 骨架名称。
+         * - 骨架名称。
          * @version DragonBones 3.0
          * @language zh_CN
          */
@@ -52,12 +74,12 @@ namespace dragonBones {
          */
         public readonly aabb: Rectangle = new Rectangle();
         /**
-         * The names of all the animation data.
+         * - The names of all the animation data.
          * @version DragonBones 3.0
          * @language en_US
          */
         /**
-         * 所有的动画数据名称。
+         * - 所有的动画数据名称。
          * @version DragonBones 3.0
          * @language zh_CN
          */
@@ -99,23 +121,23 @@ namespace dragonBones {
          */
         public readonly animations: Map<AnimationData> = {};
         /**
-         * The default skin data.
+         * - The default skin data.
          * @version DragonBones 4.5
          * @language en_US
          */
         /**
-         * 默认插槽数据。
+         * - 默认插槽数据。
          * @version DragonBones 4.5
          * @language zh_CN
          */
         public defaultSkin: SkinData | null;
         /**
-         * The default animation data.
+         * - The default animation data.
          * @version DragonBones 4.5
          * @language en_US
          */
         /**
-         * 默认动画数据。
+         * - 默认动画数据。
          * @version DragonBones 4.5
          * @language zh_CN
          */
@@ -383,14 +405,14 @@ namespace dragonBones {
             }
         }
         /**
-         * Get a specific done data.
-         * @param name The bone name
+         * - Get a specific done data.
+         * @param name - The bone name
          * @version DragonBones 3.0
          * @language en_US
          */
         /**
-         * 获取特定的骨骼数据。
-         * @param name 骨骼名称。
+         * - 获取特定的骨骼数据。
+         * @param name - 骨骼名称。
          * @version DragonBones 3.0
          * @language zh_CN
          */
@@ -398,14 +420,14 @@ namespace dragonBones {
             return name in this.bones ? this.bones[name] : null;
         }
         /**
-         * Get a specific slot data.
-         * @param name The slot name
+         * - Get a specific slot data.
+         * @param name - The slot name
          * @version DragonBones 3.0
          * @language en_US
          */
         /**
-         * 获取特定的插槽数据。
-         * @param name 插槽名称。
+         * - 获取特定的插槽数据。
+         * @param name - 插槽名称。
          * @version DragonBones 3.0
          * @language zh_CN
          */
@@ -419,14 +441,14 @@ namespace dragonBones {
             return name in this.constraints ? this.constraints[name] : null;
         }
         /**
-         * Get a specific skin data.
-         * @param name The skin name
+         * - Get a specific skin data.
+         * @param name - The skin name
          * @version DragonBones 3.0
          * @language en_US
          */
         /**
-         * 获取特定皮肤数据。
-         * @param name 皮肤名称。
+         * - 获取特定皮肤数据。
+         * @param name - 皮肤名称。
          * @version DragonBones 3.0
          * @language zh_CN
          */
@@ -434,14 +456,14 @@ namespace dragonBones {
             return name in this.skins ? this.skins[name] : null;
         }
         /**
-         * Get a specific animation data.
-         * @param name The animation name
+         * - Get a specific animation data.
+         * @param name - The animation name
          * @version DragonBones 3.0
          * @language en_US
          */
         /**
-         * 获取特定的动画数据。
-         * @param name 动画名称。
+         * - 获取特定的动画数据。
+         * @param name - 动画名称。
          * @version DragonBones 3.0
          * @language zh_CN
          */
@@ -450,12 +472,12 @@ namespace dragonBones {
         }
     }
     /**
-     * The bone data.
+     * - The bone data.
      * @version DragonBones 3.0
      * @language en_US
      */
     /**
-     * 骨骼数据。
+     * - 骨骼数据。
      * @version DragonBones 3.0
      * @language zh_CN
      */
@@ -480,23 +502,23 @@ namespace dragonBones {
          */
         public inheritReflection: boolean;
         /**
-         * The bone length.
+         * - The bone length.
          * @version DragonBones 3.0
          * @language en_US
          */
         /**
-         * 骨骼长度。
+         * - 骨骼长度。
          * @version DragonBones 3.0
          * @language zh_CN
          */
         public length: number;
         /**
-         * The bone name.
+         * - The bone name.
          * @version DragonBones 3.0
          * @language en_US
          */
         /**
-         * 骨骼名称。
+         * - 骨骼名称。
          * @version DragonBones 3.0
          * @language zh_CN
          */
@@ -510,12 +532,12 @@ namespace dragonBones {
          */
         public userData: UserData | null = null; // Initial value.
         /**
-         * The parent bone data.
+         * - The parent bone data.
          * @version DragonBones 3.0
          * @language en_US
          */
         /**
-         * 父骨骼数据。
+         * - 父骨骼数据。
          * @version DragonBones 3.0
          * @language zh_CN
          */
@@ -541,12 +563,12 @@ namespace dragonBones {
         }
     }
     /**
-     * The slot data.
+     * - The slot data.
      * @version DragonBones 3.0
      * @language en_US
      */
     /**
-     * 插槽数据。
+     * - 插槽数据。
      * @version DragonBones 3.0
      * @language zh_CN
      */
@@ -580,12 +602,12 @@ namespace dragonBones {
          */
         public zOrder: number;
         /**
-         * The slot name.
+         * - The slot name.
          * @version DragonBones 3.0
          * @language en_US
          */
         /**
-         * 插槽名称。
+         * - 插槽名称。
          * @version DragonBones 3.0
          * @language zh_CN
          */
@@ -599,12 +621,12 @@ namespace dragonBones {
          */
         public userData: UserData | null = null; // Initial value.
         /**
-         * The parent bone data.
+         * - The parent bone data.
          * @version DragonBones 3.0
          * @language en_US
          */
         /**
-         * 父骨骼数据。
+         * - 父骨骼数据。
          * @version DragonBones 3.0
          * @language zh_CN
          */
