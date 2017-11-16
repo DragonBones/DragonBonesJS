@@ -1,6 +1,6 @@
 {
   "name": "dragonbones-pixi-demos",
-  "version": "5.1.0",
+  "version": "5.6.0",
   "main": "",
   "scripts": {
     "start": "tsc & copyfiles -u 3 -s ../4.x/out/* libs/dragonBones/ & anywhere",

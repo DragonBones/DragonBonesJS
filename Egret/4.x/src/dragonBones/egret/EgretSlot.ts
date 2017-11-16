@@ -255,7 +255,6 @@ namespace dragonBones {
             let currentTextureData = this._textureData as (EgretTextureData | null);
 
             if (this._displayIndex >= 0 && this._display !== null && currentTextureData !== null) {
-
                 if (this._armature.replacedTexture !== null && this._rawDisplayDatas !== null && this._rawDisplayDatas.indexOf(this._displayData) >= 0) { // Update replaced texture atlas.
                     let currentTextureAtlasData = currentTextureData.parent as EgretTextureAtlasData;
                     if (this._armature._replaceTextureAtlasData === null) {

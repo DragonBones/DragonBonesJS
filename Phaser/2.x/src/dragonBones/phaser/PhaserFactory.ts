@@ -1,27 +1,31 @@
 namespace dragonBones {
     /**
-     * The PixiJS factory.
+     * The Phaser factory.
      * @version DragonBones 3.0
      * @language en_US
      */
     /**
-     * PixiJS 工厂。
+     * Phaser 工厂。
      * @version DragonBones 3.0
      * @language zh_CN
      */
-    export class PixiFactory extends BaseFactory {
+    export class PhaserFactory extends BaseFactory {
+        /**
+         * @internal
+         * @private
+         */
+        public static _game: Phaser.Game = null as any;
         private static _dragonBonesInstance: DragonBones = null as any;
-        private static _factory: PixiFactory = null as any;
-        private static _clockHandler(passedTime: number): void {
-            PixiFactory._dragonBonesInstance.advanceTime(PIXI.ticker.shared.elapsedMS * passedTime * 0.001);
-        }
+        private static _factory: PhaserFactory = null as any;
 
-        private static _createDragonBones(): DragonBones {
-            const eventManager = new PixiArmatureDisplay();
-            const dragonBonesInstance = new DragonBones(eventManager);
-            PIXI.ticker.shared.add(PixiFactory._clockHandler, PixiFactory);
+        public static init(game: Phaser.Game): void {
+            if (PhaserFactory._game !== null) {
+                return;
+            }
 
-            return dragonBonesInstance;
+            PhaserFactory._game = game;
+            const eventManager = new PhaserArmatureDisplay();
+            PhaserFactory._dragonBonesInstance = new DragonBones(eventManager);
         }
         /**
          * A global factory instance that can be used directly.
@@ -33,12 +37,12 @@ namespace dragonBones {
          * @version DragonBones 4.7
          * @language zh_CN
          */
-        public static get factory(): PixiFactory {
-            if (PixiFactory._factory === null) {
-                PixiFactory._factory = new PixiFactory();
+        public static get factory(): PhaserFactory {
+            if (PhaserFactory._factory === null) {
+                PhaserFactory._factory = new PhaserFactory();
             }
 
-            return PixiFactory._factory;
+            return PhaserFactory._factory;
         }
         /**
          * @inheritDoc
@@ -46,21 +50,17 @@ namespace dragonBones {
         public constructor(dataParser: DataParser | null = null) {
             super(dataParser);
 
-            if (PixiFactory._dragonBonesInstance === null) {
-                PixiFactory._dragonBonesInstance = PixiFactory._createDragonBones();
-            }
-
-            this._dragonBones = PixiFactory._dragonBonesInstance;
+            this._dragonBones = PhaserFactory._dragonBonesInstance;
         }
         /**
          * @inheritDoc
          */
-        protected _buildTextureAtlasData(textureAtlasData: PixiTextureAtlasData | null, textureAtlas: PIXI.BaseTexture | null): PixiTextureAtlasData {
+        protected _buildTextureAtlasData(textureAtlasData: PhaserTextureAtlasData | null, textureAtlas: PIXI.BaseTexture | null): PhaserTextureAtlasData {
             if (textureAtlasData) {
                 textureAtlasData.renderTexture = textureAtlas;
             }
             else {
-                textureAtlasData = BaseObject.borrowObject(PixiTextureAtlasData);
+                textureAtlasData = BaseObject.borrowObject(PhaserTextureAtlasData);
             }
 
             return textureAtlasData;
@@ -70,7 +70,7 @@ namespace dragonBones {
          */
         protected _buildArmature(dataPackage: BuildArmaturePackage): Armature {
             const armature = BaseObject.borrowObject(Armature);
-            const armatureDisplay = new PixiArmatureDisplay();
+            const armatureDisplay = new PhaserArmatureDisplay();
 
             armature.init(
                 dataPackage.armature,
@@ -87,11 +87,11 @@ namespace dragonBones {
             dataPackage;
             // tslint:disable-next-line:no-unused-expression
             armature;
-            const slot = BaseObject.borrowObject(PixiSlot);
+            const slot = BaseObject.borrowObject(PhaserSlot);
 
             slot.init(
                 slotData, displays,
-                new PIXI.Sprite(), new PIXI.mesh.Mesh(null as any, null as any, null as any, null as any, PIXI.mesh.Mesh.DRAW_MODES.TRIANGLES)
+                new Phaser.Image(PhaserFactory._game, 0.0, 0.0, Phaser.Cache.DEFAULT), null as any
             );
 
             return slot;
@@ -124,12 +124,12 @@ namespace dragonBones {
          * </pre>
          * @language zh_CN
          */
-        public buildArmatureDisplay(armatureName: string, dragonBonesName: string = "", skinName: string = "", textureAtlasName: string = ""): PixiArmatureDisplay | null {
+        public buildArmatureDisplay(armatureName: string, dragonBonesName: string = "", skinName: string = "", textureAtlasName: string = ""): PhaserArmatureDisplay | null {
             const armature = this.buildArmature(armatureName, dragonBonesName || "", skinName || "", textureAtlasName || "");
             if (armature !== null) {
                 this._dragonBones.clock.add(armature);
 
-                return armature.display as PixiArmatureDisplay;
+                return armature.display as PhaserArmatureDisplay;
             }
 
             return null;
@@ -148,10 +148,10 @@ namespace dragonBones {
          * @version DragonBones 3.0
          * @language zh_CN
          */
-        public getTextureDisplay(textureName: string, textureAtlasName: string | null = null): PIXI.Sprite | null {
-            const textureData = this._getTextureData(textureAtlasName !== null ? textureAtlasName : "", textureName) as PixiTextureData;
+        public getTextureDisplay(textureName: string, textureAtlasName: string | null = null): Phaser.Sprite | null {
+            const textureData = this._getTextureData(textureAtlasName !== null ? textureAtlasName : "", textureName) as PhaserTextureData;
             if (textureData !== null && textureData.renderTexture !== null) {
-                return new PIXI.Sprite(textureData.renderTexture);
+                return new Phaser.Sprite(PhaserFactory._game, 0.0, 0.0);
             }
 
             return null;
@@ -168,22 +168,8 @@ namespace dragonBones {
          * @version DragonBones 4.5
          * @language zh_CN
          */
-        public get soundEventManager(): PixiArmatureDisplay {
-            return this._dragonBones.eventManager as PixiArmatureDisplay;
-        }
-
-        /**
-         * Deprecated, please refer to {@link #clock}.
-         * @deprecated
-         * @language en_US
-         */
-        /**
-         * 已废弃，请参考 {@link #clock}。
-         * @deprecated
-         * @language zh_CN
-         */
-        public static get clock(): WorldClock {
-            return PixiFactory.factory.clock;
+        public get soundEventManager(): PhaserArmatureDisplay {
+            return this._dragonBones.eventManager as PhaserArmatureDisplay;
         }
     }
 }

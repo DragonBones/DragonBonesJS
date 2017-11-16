@@ -28,12 +28,6 @@ namespace dragonBones {
             super.destroy();
         }
         /**
-         * @inheritDoc
-         */
-        public destroy(): void {
-            this.dispose();
-        }
-        /**
          * @private
          */
         public dbUpdate(): void {
@@ -147,6 +141,12 @@ namespace dragonBones {
             }
         }
         /**
+         * @inheritDoc
+         */
+        public destroy(): void {
+            this.dispose();
+        }
+        /**
          * @private
          */
         public dispatchDBEvent(type: EventStringType, eventObject: EventObject): void {
@@ -184,22 +184,19 @@ namespace dragonBones {
         }
 
         /**
-         * @see #hasDBEventListener()
-         * @deprecated
+         * @inheritDoc
          */
         public hasEvent(type: EventStringType): boolean {
             return this.hasDBEventListener(type);
         }
         /**
-         * @see #addDBEventListener()
-         * @deprecated
+         * @inheritDoc
          */
         public addEvent(type: EventStringType, listener: (event: EventObject) => void, target: any): void {
             this.addDBEventListener(type, listener, target);
         }
         /**
-         * @see #removeDBEventListener()
-         * @deprecated
+         * @inheritDoc
          */
         public removeEvent(type: EventStringType, listener: (event: EventObject) => void, target: any): void {
             this.removeDBEventListener(type, listener, target);

@@ -1,11 +1,11 @@
 namespace dragonBones {
     /**
-     * The pixi slot.
+     * The PixiJS slot.
      * @version DragonBones 3.0
      * @language en_US
      */
     /**
-     * Pixi 插槽。
+     * PixiJS 插槽。
      * @version DragonBones 3.0
      * @language zh_CN
      */
@@ -169,7 +169,6 @@ namespace dragonBones {
 
                 const renderTexture = currentTextureData.renderTexture;
                 if (renderTexture !== null) {
-                    const currentTextureAtlas = currentTextureData.renderTexture as PIXI.Texture;
                     if (meshData !== null) { // Mesh.
                         const data = meshData.parent.parent.parent;
                         const intArray = data.intArray;
@@ -185,8 +184,8 @@ namespace dragonBones {
                         const uvOffset = vertexOffset + vertexCount * 2;
 
                         const meshDisplay = this._renderDisplay as PIXI.mesh.Mesh;
-                        const textureAtlasWidth = currentTextureAtlasData.width > 0.0 ? currentTextureAtlasData.width : currentTextureAtlas.width;
-                        const textureAtlasHeight = currentTextureAtlasData.height > 0.0 ? currentTextureAtlasData.height : currentTextureAtlas.height;
+                        const textureAtlasWidth = currentTextureAtlasData.width > 0.0 ? currentTextureAtlasData.width : renderTexture.width;
+                        const textureAtlasHeight = currentTextureAtlasData.height > 0.0 ? currentTextureAtlasData.height : renderTexture.height;
 
                         meshDisplay.vertices = new Float32Array(vertexCount * 2) as any;
                         meshDisplay.uvs = new Float32Array(vertexCount * 2) as any;
@@ -324,16 +323,16 @@ namespace dragonBones {
          */
         protected _updateTransformV3(isSkinnedMesh: boolean): void {
             if (isSkinnedMesh) { // Identity transform.
-                this._renderDisplay.setTransform(0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+                this._renderDisplay.setTransform(0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 0.0);
             }
             else {
                 this.updateGlobalTransform(); // Update transform.
 
                 const transform = this.global;
-                const x = transform.x - (this.globalTransformMatrix.a * this._pivotX + this.globalTransformMatrix.c * this._pivotY);
-                const y = transform.y - (this.globalTransformMatrix.b * this._pivotX + this.globalTransformMatrix.d * this._pivotY);
-
+                
                 if (this._renderDisplay === this._rawDisplay || this._renderDisplay === this._meshDisplay) {
+                    const x = transform.x - (this.globalTransformMatrix.a * this._pivotX + this.globalTransformMatrix.c * this._pivotY);
+                    const y = transform.y - (this.globalTransformMatrix.b * this._pivotX + this.globalTransformMatrix.d * this._pivotY);
                     this._renderDisplay.setTransform(
                         x, y,
                         transform.scaleX * this._textureScale, transform.scaleY * this._textureScale,
@@ -342,7 +341,7 @@ namespace dragonBones {
                     );
                 }
                 else {
-                    this._renderDisplay.position.set(x, y);
+                    this._renderDisplay.position.set(transform.x, transform.y);
                     this._renderDisplay.rotation = transform.rotation;
                     this._renderDisplay.skew.set(transform.skew, 0.0);
                     this._renderDisplay.scale.set(transform.scaleX, transform.scaleY);
@@ -354,16 +353,16 @@ namespace dragonBones {
          */
         protected _updateTransformV4(isSkinnedMesh: boolean): void {
             if (isSkinnedMesh) { // Identity transform.
-                this._renderDisplay.setTransform(0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+                this._renderDisplay.setTransform(0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 0.0);
             }
             else {
                 this.updateGlobalTransform(); // Update transform.
 
                 const transform = this.global;
-                const x = transform.x - (this.globalTransformMatrix.a * this._pivotX + this.globalTransformMatrix.c * this._pivotY);
-                const y = transform.y - (this.globalTransformMatrix.b * this._pivotX + this.globalTransformMatrix.d * this._pivotY);
 
                 if (this._renderDisplay === this._rawDisplay || this._renderDisplay === this._meshDisplay) {
+                    const x = transform.x - (this.globalTransformMatrix.a * this._pivotX + this.globalTransformMatrix.c * this._pivotY);
+                    const y = transform.y - (this.globalTransformMatrix.b * this._pivotX + this.globalTransformMatrix.d * this._pivotY);
                     this._renderDisplay.setTransform(
                         x, y,
                         transform.scaleX * this._textureScale, transform.scaleY * this._textureScale,
@@ -372,7 +371,7 @@ namespace dragonBones {
                     );
                 }
                 else {
-                    this._renderDisplay.position.set(x, y);
+                    this._renderDisplay.position.set(transform.x, transform.y);
                     this._renderDisplay.rotation = transform.rotation;
                     this._renderDisplay.skew.set(-transform.skew, 0.0);
                     this._renderDisplay.scale.set(transform.scaleX, transform.scaleY);

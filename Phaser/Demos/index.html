@@ -1,0 +1,38 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <title>DragonBones</title>
+
+    <script src="//cdn.jsdelivr.net/npm/phaser-ce@2.9.2/build/phaser.js"></script>
+    <script src="./libs/dragonBones/dragonBones.js"></script>
+
+    <script src="./out/BaseTest.js"></script>
+    <script src="./out/HelloDragonBones.js"></script>
+</head>
+
+<body>
+    <script>
+        var game = new Phaser.Game(1136, 640, Phaser.WEBGL, null, {
+            create: function () {
+                dragonBones.PhaserFactory.init(this.game); // Static factory init.
+
+                this.world.add(new HelloDragonBones(this.game));
+            },
+            render: function () {
+                dragonBones.PhaserFactory.factory.dragonBones.advanceTime(-1.0); // update.
+            }
+        });
+
+        // new SetBoneOffset();
+        // new ReplaceSlotDisplay();
+        // new AnimationCopy();
+        // new coreElement.Game();
+
+        // new PerformanceTest();
+        // new AnimationBaseTest();
+    </script>
+</body>
+
+</html>

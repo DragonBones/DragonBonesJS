@@ -1,17 +1,17 @@
 namespace dragonBones {
     /**
-     * The PixiJS texture atlas data.
+     * The Phaser texture atlas data.
      * @version DragonBones 3.0
      * @language en_US
      */
     /**
-     * PixiJS 贴图集数据。
+     * Phaser 贴图集数据。
      * @version DragonBones 3.0
      * @language zh_CN
      */
-    export class PixiTextureAtlasData extends TextureAtlasData {
+    export class PhaserTextureAtlasData extends TextureAtlasData {
         public static toString(): string {
-            return "[class dragonBones.PixiTextureAtlasData]";
+            return "[class dragonBones.PhaserTextureAtlasData]";
         }
 
         private _renderTexture: PIXI.BaseTexture | null = null; // Initial value.
@@ -31,15 +31,15 @@ namespace dragonBones {
          * @inheritDoc
          */
         public createTexture(): TextureData {
-            return BaseObject.borrowObject(PixiTextureData);
+            return BaseObject.borrowObject(PhaserTextureData);
         }
         /**
-         * The PixiJS texture.
+         * The Phaser texture.
          * @version DragonBones 3.0
          * @language en_US
          */
         /**
-         * PixiJS 贴图。
+         * Phaser 贴图。
          * @version DragonBones 3.0
          * @language zh_CN
          */
@@ -55,20 +55,19 @@ namespace dragonBones {
 
             if (this._renderTexture !== null) {
                 for (let k in this.textures) {
-                    const textureData = this.textures[k] as PixiTextureData;
+                    const textureData = this.textures[k] as PhaserTextureData;
 
                     textureData.renderTexture = new PIXI.Texture(
                         this._renderTexture,
                         <any>textureData.region as PIXI.Rectangle, // No need to set frame.
                         <any>textureData.region as PIXI.Rectangle,
                         new PIXI.Rectangle(0, 0, textureData.region.width, textureData.region.height),
-                        textureData.rotated as any // .d.ts bug
-                    );
+                    ); // Phaser can not support texture rotate.
                 }
             }
             else {
                 for (let k in this.textures) {
-                    const textureData = this.textures[k] as PixiTextureData;
+                    const textureData = this.textures[k] as PhaserTextureData;
                     textureData.renderTexture = null;
                 }
             }
@@ -78,9 +77,9 @@ namespace dragonBones {
      * @internal
      * @private
      */
-    export class PixiTextureData extends TextureData {
+    export class PhaserTextureData extends TextureData {
         public static toString(): string {
-            return "[class dragonBones.PixiTextureData]";
+            return "[class dragonBones.PhaserTextureData]";
         }
 
         public renderTexture: PIXI.Texture | null = null; // Initial value.

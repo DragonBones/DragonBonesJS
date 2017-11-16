@@ -1013,6 +1013,12 @@ namespace dragonBones {
         public get clock(): WorldClock {
             return this._dragonBones.clock;
         }
+        /** 
+         * @private 
+         */
+        public get dragonBones(): DragonBones {
+            return this._dragonBones;
+        }
 
         /**
          * Deprecated, please refer to {@link #replaceSkin}.

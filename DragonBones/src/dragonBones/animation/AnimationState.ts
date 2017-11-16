@@ -1200,14 +1200,12 @@ namespace dragonBones {
          * The animation data.
          * @see dragonBones.AnimationData
          * @version DragonBones 3.0
-         * @readonly
          * @language en_US
          */
         /**
          * 动画数据。
          * @see dragonBones.AnimationData
          * @version DragonBones 3.0
-         * @readonly
          * @language zh_CN
          */
         public get animationData(): AnimationData {
