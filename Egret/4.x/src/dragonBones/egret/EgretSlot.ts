@@ -1,11 +1,11 @@
 namespace dragonBones {
     /**
-     * The egret slot.
+     * - The egret slot.
      * @version DragonBones 3.0
      * @language en_US
      */
     /**
-     * Egret 插槽。
+     * - Egret 插槽。
      * @version DragonBones 3.0
      * @language zh_CN
      */
@@ -14,14 +14,14 @@ namespace dragonBones {
             return "[class dragonBones.EgretSlot]";
         }
         /**
-         * Whether to update the transform properties of the display object.
+         * - Whether to update the transform properties of the display object.
          * For better performance, the transform properties of display object (x, y, rotation, ScaleX, ScaleX) are not updated and need to be set to true if these properties need to be accessed correctly.
          * @default false
          * @version DragonBones 3.0
          * @language zh_CN
          */
         /**
-         * 是否更新显示对象的变换属性。
+         * - 是否更新显示对象的变换属性。
          * 为了更好的性能, 默认并不会更新显示对象的变换属性 (x, y, rotation, scaleX, scaleX), 如果需要正确访问这些属性, 则需要设置为 true 。
          * @default false
          * @version DragonBones 3.0

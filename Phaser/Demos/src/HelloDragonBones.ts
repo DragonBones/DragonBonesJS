@@ -30,7 +30,7 @@ class HelloDragonBones extends BaseTest {
     protected _onStart(): void {
         const factory = dragonBones.PhaserFactory.factory;
         // factory.parseDragonBonesData(this.game.cache.getItem("resource/assets/dragon_boy_ske.json", Phaser.Cache.JSON).data);
-        factory.parseDragonBonesData(this.game.load.getAsset("binary", "resource/assets/dragon_boy_ske.dbbin").file.data);
+        factory.parseDragonBonesData(this.game.cache.getItem("resource/assets/dragon_boy_ske.dbbin", Phaser.Cache.BINARY));
         factory.parseTextureAtlasData(
             this.game.cache.getItem("resource/assets/dragon_boy_tex.json", Phaser.Cache.JSON).data,
             (this.game.cache.getImage("resource/assets/dragon_boy_tex.png", true) as any).base

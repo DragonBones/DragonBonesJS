@@ -1,11 +1,11 @@
 class PerformanceTest extends BaseTest {
     private _addingArmature: boolean = false;
     private _removingArmature: boolean = false;
-    private readonly _armatures: Array<dragonBones.EgretArmatureDisplay> = [];
-    private _text: egret.TextField;
+    private readonly _armatures: Array<dragonBones.PhaserArmatureDisplay> = [];
+    private _text: Phaser.Text;
 
-    public constructor() {
-        super();
+    public constructor(game: Phaser.Game) {
+        super(game);
 
         this._resources.push(
             "resource/assets/dragon_boy_ske.dbbin",
@@ -14,22 +14,7 @@ class PerformanceTest extends BaseTest {
         );
     }
 
-    protected _onStart(): void {
-        this.stage.addEventListener(egret.Event.ENTER_FRAME, this._enterFrameHandler, this);
-        this.stage.addEventListener(egret.TouchEvent.TOUCH_BEGIN, this._touchHandler, this);
-        this.stage.addEventListener(egret.TouchEvent.TOUCH_END, this._touchHandler, this);
-        //
-        this._text = this.createText("");
-
-        for (let i = 0; i < 300; ++i) {
-            this._addArmature();
-        }
-
-        this._resetPosition();
-        this._updateText();
-    }
-
-    private _enterFrameHandler(event: egret.Event): void {
+    public update(): void {
         if (this._addingArmature) {
             for (let i = 0; i < 10; ++i) {
                 this._addArmature();
@@ -49,32 +34,46 @@ class PerformanceTest extends BaseTest {
         }
     }
 
-    private _touchHandler(event: egret.TouchEvent): void {
-        switch (event.type) {
-            case egret.TouchEvent.TOUCH_BEGIN:
-                const touchRight = event.stageX > this.stageWidth * 0.5;
-                this._addingArmature = touchRight;
-                this._removingArmature = !touchRight;
-                break;
+    protected _onStart(): void {
+        this.inputEnabled = true;
+        this.events.onInputDown.add(this._inputDown, this);
+        this.events.onInputUp.add(this._inputUp, this);
+        //
+        this._text = this.createText("");
 
-            case egret.TouchEvent.TOUCH_END:
-                this._addingArmature = false;
-                this._removingArmature = false;
-                break;
+        for (let i = 0; i < 300; ++i) {
+            this._addArmature();
         }
+
+        this._resetPosition();
+        this._updateText();
+    }
+
+    private _inputDown(target: any, pointer: Phaser.Pointer): void {
+        const touchRight = pointer.x > this.stageWidth * 0.5;
+        this._addingArmature = touchRight;
+        this._removingArmature = !touchRight;
+    }
+
+    private _inputUp(): void {
+        this._addingArmature = false;
+        this._removingArmature = false;
     }
 
     private _addArmature(): void {
-        const factory = dragonBones.EgretFactory.factory;
+        const factory = dragonBones.PhaserFactory.factory;
         if (this._armatures.length === 0) {
-            factory.parseDragonBonesData(RES.getRes("resource/assets/dragon_boy_ske.dbbin"));
-            factory.parseTextureAtlasData(RES.getRes("resource/assets/dragon_boy_tex.json"), RES.getRes("resource/assets/dragon_boy_tex.png"));
+            factory.parseDragonBonesData(this.game.cache.getItem("resource/assets/dragon_boy_ske.dbbin", Phaser.Cache.BINARY));
+            factory.parseTextureAtlasData(
+                this.game.cache.getItem("resource/assets/dragon_boy_tex.json", Phaser.Cache.JSON).data,
+                (this.game.cache.getImage("resource/assets/dragon_boy_tex.png", true) as any).base
+            );
         }
 
         const armatureDisplay = factory.buildArmatureDisplay("DragonBoy");
         armatureDisplay.armature.cacheFrameRate = 24;
         armatureDisplay.animation.play("walk", 0);
-        armatureDisplay.scaleX = armatureDisplay.scaleY = 0.7;
+        armatureDisplay.scale.x = armatureDisplay.scale.y = 0.7;
         this.addChild(armatureDisplay);
 
         this._armatures.push(armatureDisplay);
@@ -90,7 +89,7 @@ class PerformanceTest extends BaseTest {
         armatureDisplay.dispose();
 
         if (this._armatures.length === 0) {
-            dragonBones.EgretFactory.factory.clear(true);
+            dragonBones.PhaserFactory.factory.clear(true);
             dragonBones.BaseObject.clearPool();
         }
     }
@@ -120,8 +119,7 @@ class PerformanceTest extends BaseTest {
 
     private _updateText(): void {
         this._text.text = "Count: " + this._armatures.length + " \nTouch screen left to decrease count / right to increase count.";
-        this._text.width = this.stageWidth;
-        this._text.x = 0;
+        this._text.x = (this.stageWidth - this._text.width) * 0.5;
         this._text.y = this.stageHeight - 60;
         this.addChild(this._text);
     }

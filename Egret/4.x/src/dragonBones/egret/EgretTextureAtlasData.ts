@@ -1,11 +1,11 @@
 namespace dragonBones {
     /**
-     * The egret texture atlas data.
+     * - The egret texture atlas data.
      * @version DragonBones 3.0
      * @language en_US
      */
     /**
-     * Egret 贴图集数据。
+     * - Egret 贴图集数据。
      * @version DragonBones 3.0
      * @language zh_CN
      */
@@ -40,12 +40,12 @@ namespace dragonBones {
             return BaseObject.borrowObject(EgretTextureData);
         }
         /**
-         * The Egret texture.
+         * - The Egret texture.
          * @version DragonBones 3.0
          * @language en_US
          */
         /**
-         * Egret 贴图。
+         * - Egret 贴图。
          * @version DragonBones 3.0
          * @language zh_CN
          */
@@ -111,12 +111,12 @@ namespace dragonBones {
         }
 
         /**
-         * Deprecated, please refer to {@link dragonBones.BaseFactory#removeTextureAtlasData()}.
+         * - Deprecated, please refer to {@link dragonBones.BaseFactory#removeTextureAtlasData()}.
          * @deprecated
          * @language en_US
          */
         /**
-         * 已废弃，请参考 {@link dragonBones.BaseFactory#removeTextureAtlasData()}。
+         * - 已废弃，请参考 {@link dragonBones.BaseFactory#removeTextureAtlasData()}。
          * @deprecated
          * @language zh_CN
          */
@@ -125,12 +125,12 @@ namespace dragonBones {
             this.returnToPool();
         }
         /**
-         * Deprecated, please refer to {@link #renderTexture}.
+         * - Deprecated, please refer to {@link #renderTexture}.
          * @deprecated
          * @language en_US
          */
         /**
-         * 已废弃，请参考 {@link #renderTexture}。
+         * - 已废弃，请参考 {@link #renderTexture}。
          * @deprecated
          * @language zh_CN
          */

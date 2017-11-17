@@ -1,24 +1,17 @@
-## How to run
+## How to build
 * $ `npm install`
-* $ `npm run start`
+* $ `npm run build`
 
 ## Make sure project structure like this:
 ```
 Your project
     |-- libs
-        |-- dragonBones
-            |-- dragonBones.js
-            |-- ...
-        |-- phaser
-            |-- phaser.d.ts
-            |-- pixi.d.ts
-            |-- p2.d.ts
-            |-- ...
+        |-- phaser.d.ts
+        |-- pixi.d.ts
+        |-- p2.d.ts
     |-- node_modules
         |-- ...
     |-- out
-        |-- ...
-    |-- resource
         |-- ...
     |-- src
         |-- ...

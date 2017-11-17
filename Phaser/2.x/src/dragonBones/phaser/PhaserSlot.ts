@@ -1,11 +1,11 @@
 namespace dragonBones {
     /**
-     * The Phaser slot.
+     * - The Phaser slot.
      * @version DragonBones 3.0
      * @language en_US
      */
     /**
-     * Phaser 插槽。
+     * - Phaser 插槽。
      * @version DragonBones 3.0
      * @language zh_CN
      */
@@ -36,7 +36,7 @@ namespace dragonBones {
          * @inheritDoc
          */
         protected _disposeDisplay(value: any): void {
-            (value as Phaser.Sprite).destroy(); // PIXI.DisplayObject.destroy();
+            (value as Phaser.Sprite).destroy(true); // PIXI.DisplayObject.destroy();
         }
         /**
          * @inheritDoc
@@ -89,59 +89,59 @@ namespace dragonBones {
         /**
          * @inheritDoc
          */
-        protected _updateBlendMode(): void { // TODO
-            // if (this._renderDisplay instanceof PIXI.Sprite) {
-            //     switch (this._blendMode) {
-            //         case BlendMode.Normal:
-            //             this._renderDisplay.blendMode = PIXI.BLEND_MODES.NORMAL;
-            //             break;
+        protected _updateBlendMode(): void {
+            if (this._renderDisplay instanceof PIXI.Sprite) {
+                switch (this._blendMode) {
+                    case BlendMode.Normal:
+                        this._renderDisplay.blendMode = PIXI.blendModes.NORMAL;
+                        break;
 
-            //         case BlendMode.Add:
-            //             this._renderDisplay.blendMode = PIXI.BLEND_MODES.ADD;
-            //             break;
+                    case BlendMode.Add:
+                        this._renderDisplay.blendMode = PIXI.blendModes.ADD;
+                        break;
 
-            //         case BlendMode.Darken:
-            //             this._renderDisplay.blendMode = PIXI.BLEND_MODES.DARKEN;
-            //             break;
+                    case BlendMode.Darken:
+                        this._renderDisplay.blendMode = PIXI.blendModes.DARKEN;
+                        break;
 
-            //         case BlendMode.Difference:
-            //             this._renderDisplay.blendMode = PIXI.BLEND_MODES.DIFFERENCE;
-            //             break;
+                    case BlendMode.Difference:
+                        this._renderDisplay.blendMode = PIXI.blendModes.DIFFERENCE;
+                        break;
 
-            //         case BlendMode.HardLight:
-            //             this._renderDisplay.blendMode = PIXI.BLEND_MODES.HARD_LIGHT;
-            //             break;
+                    case BlendMode.HardLight:
+                        this._renderDisplay.blendMode = PIXI.blendModes.HARD_LIGHT;
+                        break;
 
-            //         case BlendMode.Lighten:
-            //             this._renderDisplay.blendMode = PIXI.BLEND_MODES.LIGHTEN;
-            //             break;
+                    case BlendMode.Lighten:
+                        this._renderDisplay.blendMode = PIXI.blendModes.LIGHTEN;
+                        break;
 
-            //         case BlendMode.Multiply:
-            //             this._renderDisplay.blendMode = PIXI.BLEND_MODES.MULTIPLY;
-            //             break;
+                    case BlendMode.Multiply:
+                        this._renderDisplay.blendMode = PIXI.blendModes.MULTIPLY;
+                        break;
 
-            //         case BlendMode.Overlay:
-            //             this._renderDisplay.blendMode = PIXI.BLEND_MODES.OVERLAY;
-            //             break;
+                    case BlendMode.Overlay:
+                        this._renderDisplay.blendMode = PIXI.blendModes.OVERLAY;
+                        break;
 
-            //         case BlendMode.Screen:
-            //             this._renderDisplay.blendMode = PIXI.BLEND_MODES.SCREEN;
-            //             break;
+                    case BlendMode.Screen:
+                        this._renderDisplay.blendMode = PIXI.blendModes.SCREEN;
+                        break;
 
-            //         default:
-            //             break;
-            //     }
-            // }
+                    default:
+                        break;
+                }
+            }
         }
         /**
          * @inheritDoc
          */
         protected _updateColor(): void {
             this._renderDisplay.alpha = this._colorTransform.alphaMultiplier;
-             if (this._renderDisplay instanceof PIXI.Sprite) { // || this._renderDisplay instanceof PIXI.mesh.Mesh
-                 const color = (Math.round(this._colorTransform.redMultiplier * 0xFF) << 16) + (Math.round(this._colorTransform.greenMultiplier * 0xFF) << 8) + Math.round(this._colorTransform.blueMultiplier * 0xFF);
-                 this._renderDisplay.tint = color;
-             }
+            if (this._renderDisplay instanceof PIXI.Sprite) { // || this._renderDisplay instanceof PIXI.mesh.Mesh
+                const color = (Math.round(this._colorTransform.redMultiplier * 0xFF) << 16) + (Math.round(this._colorTransform.greenMultiplier * 0xFF) << 8) + Math.round(this._colorTransform.blueMultiplier * 0xFF);
+                this._renderDisplay.tint = color;
+            }
         }
         /**
          * @inheritDoc
@@ -341,7 +341,7 @@ namespace dragonBones {
                 }
 
                 this._renderDisplay.rotation = transform.rotation;
-                // this._renderDisplay.skew = transform.skew; // Phase can not support skew.
+                (this._renderDisplay as any).skew = transform.skew; // Phase can not support skew.
                 this._renderDisplay.scale.x = transform.scaleX * this._textureScale;
                 this._renderDisplay.scale.y = transform.scaleY * this._textureScale;
             }

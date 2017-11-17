@@ -14,19 +14,18 @@ namespace dragonBones {
          * @internal
          * @private
          */
-        public static _game: Phaser.Game = null as any;
         private static _dragonBonesInstance: DragonBones = null as any;
         private static _factory: PhaserFactory = null as any;
 
-        public static init(game: Phaser.Game): void {
-            if (PhaserFactory._game !== null) {
-                return;
-            }
+        // public static init(game: Phaser.Game): void {
+        //     if (PhaserFactory._game !== null) {
+        //         return;
+        //     }
 
-            PhaserFactory._game = game;
-            const eventManager = new PhaserArmatureDisplay();
-            PhaserFactory._dragonBonesInstance = new DragonBones(eventManager);
-        }
+        //     PhaserFactory._game = game;
+        //     const eventManager = new PhaserArmatureDisplay();
+        //     PhaserFactory._dragonBonesInstance = new DragonBones(eventManager);
+        // }
         /**
          * - A global factory instance that can be used directly.
          * @version DragonBones 4.7
@@ -63,7 +62,7 @@ namespace dragonBones {
         /**
          * @inheritDoc
          */
-        protected _buildTextureAtlasData(textureAtlasData: PhaserTextureAtlasData | null, textureAtlas: PIXI.BaseTexture | null): PhaserTextureAtlasData {
+        protected _buildTextureAtlasData(textureAtlasData: PhaserTextureAtlasData | null, textureAtlas: Phaser.Texture | null): PhaserTextureAtlasData {
             if (textureAtlasData) {
                 textureAtlasData.renderTexture = textureAtlas;
             }
@@ -97,10 +96,10 @@ namespace dragonBones {
             armature;
             const slot = BaseObject.borrowObject(PhaserSlot);
 
-            slot.init(
-                slotData, displays,
-                new Phaser.Image(PhaserFactory._game, 0.0, 0.0, Phaser.Cache.DEFAULT), null as any
-            );
+            // slot.init(
+            //     slotData, displays,
+            //     new Phaser.Image(PhaserFactory._game, 0.0, 0.0, Phaser.Cache.DEFAULT), null as any
+            // );
 
             return slot;
         }
@@ -157,10 +156,10 @@ namespace dragonBones {
          * @language zh_CN
          */
         public getTextureDisplay(textureName: string, textureAtlasName: string | null = null): Phaser.Sprite | null {
-            const textureData = this._getTextureData(textureAtlasName !== null ? textureAtlasName : "", textureName) as PhaserTextureData;
-            if (textureData !== null && textureData.renderTexture !== null) {
-                return new Phaser.Sprite(PhaserFactory._game, 0.0, 0.0);
-            }
+            // const textureData = this._getTextureData(textureAtlasName !== null ? textureAtlasName : "", textureName) as PhaserTextureData;
+            // if (textureData !== null && textureData.renderTexture !== null) {
+            //     return new Phaser.Sprite(PhaserFactory._game, 0.0, 0.0);
+            // }
 
             return null;
         }

@@ -66,13 +66,6 @@ class AnimationBaseTest extends BaseTest {
             case "touchstart":
             case "mousedown":
                 this._isTouched = true;
-                // this._armatureDisplay.animation.gotoAndPlayByTime("idle", 0.5, 1);
-                // this._armatureDisplay.animation.gotoAndStopByTime("idle", 1);
-
-                // this._armatureDisplay.animation.gotoAndPlayByFrame("idle", 25, 2);
-                // this._armatureDisplay.animation.gotoAndStopByFrame("idle", 50);
-
-                // this._armatureDisplay.animation.gotoAndPlayByProgress("idle", progress, 3);
                 this._armatureDisplay.animation.gotoAndStopByProgress("idle", progress);
                 break;
 

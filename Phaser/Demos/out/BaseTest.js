@@ -14,6 +14,10 @@ var BaseTest = /** @class */ (function (_super) {
     function BaseTest(game) {
         var _this = _super.call(this, game, 0.0, 0.0) || this;
         _this._resources = [];
+        _this._background = new Phaser.Graphics(_this.game);
+        _this._background.beginFill(0x666666);
+        _this._background.drawRect(0.0, 0.0, _this.stageWidth, _this.stageHeight);
+        _this.addChild(_this._background);
         setTimeout(function () {
             _this._loadResources();
         }, 10);
@@ -43,17 +47,17 @@ var BaseTest = /** @class */ (function (_super) {
         });
         this.game.load.start();
     };
+    BaseTest.prototype.createText = function (string) {
+        var style = { font: "20px", fill: "#FFFFFF", align: "center" };
+        var text = this.game.add.text(0.0, 0.0, string, style);
+        text.scale.x = 0.7;
+        text.scale.y = 0.7;
+        text.x = (this.stageWidth - text.width) * 0.5;
+        text.y = this.stageHeight - 60;
+        this.addChild(text);
+        return text;
+    };
     Object.defineProperty(BaseTest.prototype, "stageWidth", {
-        // public createText(string: string): PIXI.Text {
-        //     const text = new PIXI.Text(string, { align: "center" });
-        //     text.text = string;
-        //     text.scale.x = 0.7;
-        //     text.scale.y = 0.7;
-        //     text.x = (this.stageWidth - text.width) * 0.5;
-        //     text.y = this.stageHeight - 60;
-        //     this.addChild(text);
-        //     return text;
-        // }
         get: function () {
             return this.game.width;
         },

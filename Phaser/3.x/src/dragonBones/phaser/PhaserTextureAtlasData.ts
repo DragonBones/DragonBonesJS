@@ -14,7 +14,7 @@ namespace dragonBones {
             return "[class dragonBones.PhaserTextureAtlasData]";
         }
 
-        private _renderTexture: PIXI.BaseTexture | null = null; // Initial value.
+        private _renderTexture: Phaser.Texture | null = null; // Initial value.
         /**
          * @inheritDoc
          */
@@ -43,10 +43,10 @@ namespace dragonBones {
          * @version DragonBones 3.0
          * @language zh_CN
          */
-        public get renderTexture(): PIXI.BaseTexture | null {
+        public get renderTexture(): Phaser.Texture | null {
             return this._renderTexture;
         }
-        public set renderTexture(value: PIXI.BaseTexture | null) {
+        public set renderTexture(value: Phaser.Texture | null) {
             if (this._renderTexture === value) {
                 return;
             }
@@ -54,21 +54,20 @@ namespace dragonBones {
             this._renderTexture = value;
 
             if (this._renderTexture !== null) {
+                let index = 0;
                 for (let k in this.textures) {
                     const textureData = this.textures[k] as PhaserTextureData;
-
-                    textureData.renderTexture = new PIXI.Texture(
-                        this._renderTexture,
-                        <any>textureData.region as PIXI.Rectangle, // No need to set frame.
-                        <any>textureData.region as PIXI.Rectangle,
-                        new PIXI.Rectangle(0, 0, textureData.region.width, textureData.region.height),
-                    ); // Phaser-ce can not support texture rotate.
+                    textureData.textureFrame = this._renderTexture.add(
+                        k, index++,
+                        textureData.region.x, textureData.region.y, textureData.region.width, textureData.region.height
+                    );
+                    textureData.textureFrame.rotated = textureData.rotated;
                 }
             }
             else {
                 for (let k in this.textures) {
                     const textureData = this.textures[k] as PhaserTextureData;
-                    textureData.renderTexture = null;
+                    textureData.textureFrame = null;
                 }
             }
         }
@@ -82,16 +81,16 @@ namespace dragonBones {
             return "[class dragonBones.PhaserTextureData]";
         }
 
-        public renderTexture: PIXI.Texture | null = null; // Initial value.
+        public textureFrame: Phaser.Frame | null = null; // Initial value.
 
         protected _onClear(): void {
             super._onClear();
 
-            if (this.renderTexture !== null) {
-                this.renderTexture.destroy(false);
+            if (this.textureFrame !== null) {
+                this.textureFrame.destroy();
             }
 
-            this.renderTexture = null;
+            this.textureFrame = null;
         }
     }
 }

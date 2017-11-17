@@ -56,7 +56,7 @@ class PerformanceTest extends BaseTest {
         switch (event.type) {
             case "touchstart":
             case "mousedown":
-                const touchRight = event.data.global.x > this._renderer.width * 0.5;
+                const touchRight = event.data.global.x > this.stageWidth * 0.5;
                 this._addingArmature = touchRight;
                 this._removingArmature = !touchRight;
                 break;
@@ -70,9 +70,10 @@ class PerformanceTest extends BaseTest {
     }
 
     private _addArmature(): void {
+        const factory = dragonBones.PixiFactory.factory;
         if (this._armatures.length === 0) {
-            dragonBones.PixiFactory.factory.parseDragonBonesData(this._pixiResources["resource/assets/dragon_boy_ske.dbbin"].data);
-            dragonBones.PixiFactory.factory.parseTextureAtlasData(this._pixiResources["resource/assets/dragon_boy_tex.json"].data, this._pixiResources["resource/assets/dragon_boy_tex.png"].texture);
+            factory.parseDragonBonesData(this._pixiResources["resource/assets/dragon_boy_ske.dbbin"].data);
+            factory.parseTextureAtlasData(this._pixiResources["resource/assets/dragon_boy_tex.json"].data, this._pixiResources["resource/assets/dragon_boy_tex.png"].texture);
         }
 
         const armatureDisplay = dragonBones.PixiFactory.factory.buildArmatureDisplay("DragonBoy");
