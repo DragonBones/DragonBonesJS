@@ -182,7 +182,7 @@ namespace dragonBones {
          */
         /**
          * - 将当前矩阵与另一个矩阵相乘。
-         * @param value - 需要相乘的矩阵
+         * @param value - 需要相乘的矩阵。
          * @version DragonBones 3.0
          * @language zh_CN
          */
@@ -271,19 +271,19 @@ namespace dragonBones {
         }
         /**
          * - Apply a matrix transformation to a specific point.
-         * @param x - X coordinate
-         * @param y - Y coordinate
-         * @param result - The point after the transformation is applied
-         * @param delta - Whether to ignore tx, ty's conversion to point
+         * @param x - X coordinate.
+         * @param y - Y coordinate.
+         * @param result - The point after the transformation is applied.
+         * @param delta - Whether to ignore tx, ty's conversion to point.
          * @version DragonBones 3.0
          * @language en_US
          */
         /**
          * - 将矩阵转换应用于特定点。
-         * @param x - 横坐标
-         * @param y - 纵坐标
-         * @param result - 应用转换之后的点
-         * @param delta - 是否忽略 tx，ty 对点的转换
+         * @param x - 横坐标。
+         * @param y - 纵坐标。
+         * @param result - 应用转换之后的点。
+         * @param delta - 是否忽略 tx，ty 对点的转换。
          * @version DragonBones 3.0
          * @language zh_CN
          */

@@ -193,13 +193,13 @@ namespace dragonBones {
         }
         /**
          * - Get a specific armature data.
-         * @param name - The armature data name
+         * @param name - The armature data name.
          * @version DragonBones 3.0
          * @language en_US
          */
         /**
          * - 获取特定的骨架数据。
-         * @param name - 骨架数据名称
+         * @param name - 骨架数据名称。
          * @version DragonBones 3.0
          * @language zh_CN
          */

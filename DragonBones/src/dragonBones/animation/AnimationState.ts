@@ -924,15 +924,15 @@ namespace dragonBones {
         }
         /**
          * - Fade out the animation state.
-         * @param fadeOutTime - The fade out time. (In seconds)
+         * @param fadeOutTime - The fade out time. (In seconds).
          * @param pausePlayhead - Whether to pause the animation playing when fade out.
          * @version DragonBones 3.0
          * @language en_US
          */
         /**
          * - 淡出动画状态。
-         * @param fadeOutTime - 淡出时间。 （以秒为单位）
-         * @param pausePlayhead - 淡出时是否暂停播放
+         * @param fadeOutTime - 淡出时间。 （以秒为单位）。
+         * @param pausePlayhead - 淡出时是否暂停播放。
          * @version DragonBones 3.0
          * @language zh_CN
          */
@@ -973,13 +973,13 @@ namespace dragonBones {
         }
         /**
          * - Check if a specific bone mask is included.
-         * @param name - The bone name
+         * @param name - The bone name.
          * @version DragonBones 3.0
          * @language en_US
          */
         /**
          * - 检查是否包含特定骨骼遮罩。
-         * @param name - 骨骼名称
+         * @param name - 骨骼名称。
          * @version DragonBones 3.0
          * @language zh_CN
          */
@@ -988,15 +988,15 @@ namespace dragonBones {
         }
         /**
          * - Add a specific bone mask.
-         * @param name - The bone name
-         * @param recursive - Whether or not to add a mask to the bone's sub-bone
+         * @param name - The bone name.
+         * @param recursive - Whether or not to add a mask to the bone's sub-bone.
          * @version DragonBones 3.0
          * @language en_US
          */
         /**
          * - 添加特定的骨骼遮罩。
-         * @param name - 骨骼名称
-         * @param recursive - 是否为该骨骼的子骨骼添加遮罩
+         * @param name - 骨骼名称。
+         * @param recursive - 是否为该骨骼的子骨骼添加遮罩。
          * @version DragonBones 3.0
          * @language zh_CN
          */
@@ -1022,15 +1022,15 @@ namespace dragonBones {
         }
         /**
          * - Remove the mask of a specific bone.
-         * @param name - The bone name
-         * @param recursive - Whether to remove the bone's sub-bone mask
+         * @param name - The bone name.
+         * @param recursive - Whether to remove the bone's sub-bone mask.
          * @version DragonBones 3.0
          * @language en_US
          */
         /**
          * - 删除特定骨骼的遮罩。
-         * @param name - 骨骼名称
-         * @param recursive - 是否删除该骨骼的子骨骼遮罩
+         * @param name - 骨骼名称。
+         * @param recursive - 是否删除该骨骼的子骨骼遮罩。
          * @version DragonBones 3.0
          * @language zh_CN
          */

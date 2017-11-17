@@ -22,32 +22,28 @@
  */
 namespace dragonBones {
     /**
-     * - The Phaser factory.
+     * - The Hilo factory.
      * @version DragonBones 3.0
      * @language en_US
      */
     /**
-     * - Phaser 工厂。
+     * - Hilo 工厂。
      * @version DragonBones 3.0
      * @language zh_CN
      */
-    export class PhaserFactory extends BaseFactory {
-        /**
-         * @internal
-         * @private
-         */
-        public static _game: Phaser.Game = null as any;
+    export class HiloFactory extends BaseFactory {
         private static _dragonBonesInstance: DragonBones = null as any;
-        private static _factory: PhaserFactory = null as any;
+        private static _factory: HiloFactory = null as any;
+        // private static _clockHandler(passedTime: number): void {
+        //     PixiFactory._dragonBonesInstance.advanceTime(PIXI.ticker.shared.elapsedMS * passedTime * 0.001);
+        // }
 
-        public static init(game: Phaser.Game): void {
-            if (PhaserFactory._game !== null) {
-                return;
-            }
+        private static _createDragonBones(): DragonBones {
+            const eventManager = new HiloArmatureDisplay(null as any);
+            const dragonBonesInstance = new DragonBones(eventManager);
+            // PIXI.ticker.shared.add(PixiFactory._clockHandler, PixiFactory);
 
-            PhaserFactory._game = game;
-            const eventManager = new PhaserArmatureDisplay();
-            PhaserFactory._dragonBonesInstance = new DragonBones(eventManager);
+            return dragonBonesInstance;
         }
         /**
          * - A global factory instance that can be used directly.
@@ -59,12 +55,12 @@ namespace dragonBones {
          * @version DragonBones 4.7
          * @language zh_CN
          */
-        public static get factory(): PhaserFactory {
-            if (PhaserFactory._factory === null) {
-                PhaserFactory._factory = new PhaserFactory();
+        public static get factory(): HiloFactory {
+            if (HiloFactory._factory === null) {
+                HiloFactory._factory = new HiloFactory();
             }
 
-            return PhaserFactory._factory;
+            return HiloFactory._factory;
         }
         /**
          * @inheritDoc
@@ -72,25 +68,21 @@ namespace dragonBones {
         public constructor(dataParser: DataParser | null = null) {
             super(dataParser);
 
-            this._dragonBones = PhaserFactory._dragonBonesInstance;
-        }
-        /**
-         * @private
-         */
-        protected _isSupportMesh(): boolean {
-            console.warn("Phaser-ce can not support mesh.");
+            if (HiloFactory._dragonBonesInstance === null) {
+                HiloFactory._dragonBonesInstance = HiloFactory._createDragonBones();
+            }
 
-            return false;
+            this._dragonBones = HiloFactory._dragonBonesInstance;
         }
         /**
          * @inheritDoc
          */
-        protected _buildTextureAtlasData(textureAtlasData: PhaserTextureAtlasData | null, textureAtlas: PIXI.BaseTexture | null): PhaserTextureAtlasData {
+        protected _buildTextureAtlasData(textureAtlasData: HiloTextureAtlasData | null, textureAtlas: HTMLImageElement | null): HiloTextureAtlasData {
             if (textureAtlasData) {
                 textureAtlasData.renderTexture = textureAtlas;
             }
             else {
-                textureAtlasData = BaseObject.borrowObject(PhaserTextureAtlasData);
+                textureAtlasData = BaseObject.borrowObject(HiloTextureAtlasData);
             }
 
             return textureAtlasData;
@@ -100,7 +92,7 @@ namespace dragonBones {
          */
         protected _buildArmature(dataPackage: BuildArmaturePackage): Armature {
             const armature = BaseObject.borrowObject(Armature);
-            const armatureDisplay = new PhaserArmatureDisplay();
+            const armatureDisplay = new HiloArmatureDisplay(null as any);
 
             armature.init(
                 dataPackage.armature,
@@ -117,11 +109,13 @@ namespace dragonBones {
             dataPackage;
             // tslint:disable-next-line:no-unused-expression
             armature;
-            const slot = BaseObject.borrowObject(PhaserSlot);
+
+            const slot = BaseObject.borrowObject(HiloSlot);
+            const rawDisplay = new Hilo.Bitmap(null as any);
 
             slot.init(
                 slotData, displays,
-                new Phaser.Image(PhaserFactory._game, 0.0, 0.0, Phaser.Cache.DEFAULT), null as any
+                rawDisplay, rawDisplay
             );
 
             return slot;
@@ -154,34 +148,40 @@ namespace dragonBones {
          * </pre>
          * @language zh_CN
          */
-        public buildArmatureDisplay(armatureName: string, dragonBonesName: string = "", skinName: string = "", textureAtlasName: string = ""): PhaserArmatureDisplay | null {
+        public buildArmatureDisplay(armatureName: string, dragonBonesName: string = "", skinName: string = "", textureAtlasName: string = ""): HiloArmatureDisplay | null {
             const armature = this.buildArmature(armatureName, dragonBonesName || "", skinName || "", textureAtlasName || "");
             if (armature !== null) {
                 this._dragonBones.clock.add(armature);
 
-                return armature.display as PhaserArmatureDisplay;
+                return armature.display as HiloArmatureDisplay;
             }
 
             return null;
         }
         /**
          * - Create the display object with the specified texture.
-         * @param textureName The texture data name
-         * @param textureAtlasName The texture atlas data name (Of not set, all texture atlas data will be searched)
+         * @param textureName - The texture data name
+         * @param textureAtlasName - The texture atlas data name (Of not set, all texture atlas data will be searched)
          * @version DragonBones 3.0
          * @language en_US
          */
         /**
          * - 创建带有指定贴图的显示对象。
-         * @param textureName 贴图数据名称。
-         * @param textureAtlasName 贴图集数据名称 （如果未设置，将检索所有的贴图集数据）
+         * @param textureName - 贴图数据名称。
+         * @param textureAtlasName - 贴图集数据名称 （如果未设置，将检索所有的贴图集数据）
          * @version DragonBones 3.0
          * @language zh_CN
          */
-        public getTextureDisplay(textureName: string, textureAtlasName: string | null = null): Phaser.Sprite | null {
-            const textureData = this._getTextureData(textureAtlasName !== null ? textureAtlasName : "", textureName) as PhaserTextureData;
-            if (textureData !== null && textureData.renderTexture !== null) {
-                return new Phaser.Sprite(PhaserFactory._game, 0.0, 0.0);
+        public getTextureDisplay(textureName: string, textureAtlasName: string | null = null): Hilo.Bitmap | null {
+            const textureData = this._getTextureData(textureAtlasName !== null ? textureAtlasName : "", textureName) as HiloTextureData;
+            if (textureData !== null) {
+                const texture = (textureData.parent as HiloTextureAtlasData).renderTexture;
+                if (texture) {
+                    const bitmap = new Hilo.Bitmap(null as any);
+                    bitmap.setImage(texture, textureData.region as any);
+
+                    return bitmap;
+                }
             }
 
             return null;
@@ -198,8 +198,22 @@ namespace dragonBones {
          * @version DragonBones 4.5
          * @language zh_CN
          */
-        public get soundEventManager(): PhaserArmatureDisplay {
-            return this._dragonBones.eventManager as PhaserArmatureDisplay;
+        public get soundEventManager(): HiloArmatureDisplay {
+            return this._dragonBones.eventManager as HiloArmatureDisplay;
+        }
+
+        /**
+         * - Deprecated, please refer to {@link #clock}.
+         * @deprecated
+         * @language en_US
+         */
+        /**
+         * - 已废弃，请参考 {@link #clock}。
+         * @deprecated
+         * @language zh_CN
+         */
+        public static get clock(): WorldClock {
+            return HiloFactory.factory.clock;
         }
     }
 }

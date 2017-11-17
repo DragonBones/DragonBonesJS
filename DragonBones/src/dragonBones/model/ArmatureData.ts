@@ -406,7 +406,7 @@ namespace dragonBones {
         }
         /**
          * - Get a specific done data.
-         * @param name - The bone name
+         * @param name - The bone name.
          * @version DragonBones 3.0
          * @language en_US
          */
@@ -421,7 +421,7 @@ namespace dragonBones {
         }
         /**
          * - Get a specific slot data.
-         * @param name - The slot name
+         * @param name - The slot name.
          * @version DragonBones 3.0
          * @language en_US
          */
@@ -442,7 +442,7 @@ namespace dragonBones {
         }
         /**
          * - Get a specific skin data.
-         * @param name - The skin name
+         * @param name - The skin name.
          * @version DragonBones 3.0
          * @language en_US
          */
@@ -457,7 +457,7 @@ namespace dragonBones {
         }
         /**
          * - Get a specific animation data.
-         * @param name - The animation name
+         * @param name - The animation name.
          * @version DragonBones 3.0
          * @language en_US
          */

@@ -405,8 +405,8 @@ namespace dragonBones {
         }
         /**
          * - Forces a specific bone or its owning slot to update the transform or display property in the next frame.
-         * @param boneName - The bone name. (If not set, all bones will be update)
-         * @param updateSlot - Whether to update the bone's slots
+         * @param boneName - The bone name. (If not set, all bones will be update).
+         * @param updateSlot - Whether to update the bone's slots.
          * @see dragonBones.Bone#invalidUpdate()
          * @see dragonBones.Slot#invalidUpdate()
          * @version DragonBones 3.0
@@ -414,8 +414,8 @@ namespace dragonBones {
          */
         /**
          * - 强制特定骨骼或其拥有的插槽在下一帧更新变换或显示属性。
-         * @param boneName - 骨骼名称。 （如果未设置，将更新所有骨骼）
-         * @param updateSlot - 是否更新骨骼的插槽
+         * @param boneName - 骨骼名称。 （如果未设置，将更新所有骨骼）。
+         * @param updateSlot - 是否更新骨骼的插槽。
          * @see dragonBones.Bone#invalidUpdate()
          * @see dragonBones.Slot#invalidUpdate()
          * @version DragonBones 3.0
@@ -452,7 +452,7 @@ namespace dragonBones {
          * - Check whether a specific point is inside a custom bounding box in a slot.
          * The coordinate system of the point is the inner coordinate system of the armature.
          * Custom bounding boxes need to be customized in Dragonbones Pro.
-         * @param x - The horizontal coordinate of the point
+         * @param x - The horizontal coordinate of the point.
          * @param y - The vertical coordinate of the point.
          * @version DragonBones 5.0
          * @language en_US
@@ -461,8 +461,8 @@ namespace dragonBones {
          * - 检查特定点是否在某个插槽的自定义边界框内。
          * 点的坐标系为骨架内坐标系。
          * 自定义边界框需要在 DragonBones Pro 中自定义。
-         * @param x - 点的水平坐标
-         * @param y - 点的垂直坐标
+         * @param x - 点的水平坐标。
+         * @param y - 点的垂直坐标。
          * @version DragonBones 5.0
          * @language zh_CN
          */
@@ -485,7 +485,7 @@ namespace dragonBones {
          * @param yB - The vertical coordinate of the end point of the segment.
          * @param intersectionPointA - The first intersection at which a line segment intersects the bounding box from the beginning to the end.
          * @param intersectionPointB - The first intersection at which a line segment intersects the bounding box from the end to the beginning.
-         * @param normalRadians - The normal radians of the tangent of the intersection boundary box. [x: Normal radian of the first intersection tangent, y: Normal radian of the second intersection tangent]
+         * @param normalRadians - The normal radians of the tangent of the intersection boundary box. [x: Normal radian of the first intersection tangent, y: Normal radian of the second intersection tangent].
          * @returns The slot of the first custom bounding box where the segment intersects from the start point to the end point.
          * @version DragonBones 5.0
          * @language en_US
@@ -494,13 +494,13 @@ namespace dragonBones {
          * - 检查特定线段是否与骨架的某个插槽的自定义边界框相交。
          * 线段和交点的坐标系均为骨架内坐标系。
          * 自定义边界框需要在 DragonBones Pro 中自定义。
-         * @param xA - 线段起点的水平坐标
-         * @param yA - 线段起点的垂直坐标
-         * @param xB - 线段终点的水平坐标
-         * @param yB - 线段终点的垂直坐标
-         * @param intersectionPointA - 线段从起点到终点与边界框相交的第一个交点
-         * @param intersectionPointB - 线段从终点到起点与边界框相交的第一个交点
-         * @param normalRadians - 交点边界框切线的法线弧度。 [x: 第一个交点切线的法线弧度, y: 第二个交点切线的法线弧度]
+         * @param xA - 线段起点的水平坐标。
+         * @param yA - 线段起点的垂直坐标。
+         * @param xB - 线段终点的水平坐标。
+         * @param yB - 线段终点的垂直坐标。
+         * @param intersectionPointA - 线段从起点到终点与边界框相交的第一个交点。
+         * @param intersectionPointB - 线段从终点到起点与边界框相交的第一个交点。
+         * @param normalRadians - 交点边界框切线的法线弧度。 [x: 第一个交点切线的法线弧度, y: 第二个交点切线的法线弧度]。
          * @returns 线段从起点到终点相交的第一个自定义边界框的插槽。
          * @version DragonBones 5.0
          * @language zh_CN
@@ -592,7 +592,7 @@ namespace dragonBones {
         }
         /**
          * - Get a specific bone.
-         * @param name - The bone name
+         * @param name - The bone name.
          * @see dragonBones.Bone
          * @version DragonBones 3.0
          * @language en_US
@@ -615,14 +615,14 @@ namespace dragonBones {
         }
         /**
          * - Get a specific bone by the display.
-         * @param display - The display object
+         * @param display - The display object.
          * @see dragonBones.Bone
          * @version DragonBones 3.0
          * @language en_US
          */
         /**
          * - 通过显示对象获取特定的骨骼。
-         * @param display - 显示对象
+         * @param display - 显示对象。
          * @see dragonBones.Bone
          * @version DragonBones 3.0
          * @language zh_CN
@@ -634,7 +634,7 @@ namespace dragonBones {
         }
         /**
          * - Get a specific slot.
-         * @param name - The slot name
+         * @param name - The slot name.
          * @see dragonBones.Slot
          * @version DragonBones 3.0
          * @language en_US
@@ -657,14 +657,14 @@ namespace dragonBones {
         }
         /**
          * - Get a specific slot by the display.
-         * @param display - The display object
+         * @param display - The display object.
          * @see dragonBones.Slot
          * @version DragonBones 3.0
          * @language en_US
          */
         /**
          * - 通过显示对象获取特定的插槽。
-         * @param display - 显示对象
+         * @param display - 显示对象。
          * @see dragonBones.Slot
          * @version DragonBones 3.0
          * @language zh_CN

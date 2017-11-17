@@ -223,18 +223,5 @@ namespace dragonBones {
         public removeEvent(type: EventStringType, listener: (event: EventObject) => void, target: any): void {
             this.removeDBEventListener(type, listener, target);
         }
-        /**
-         * @see dragonBones.Armature#clock
-         * @see dragonBones.BaseFactory#clock
-         * @deprecated
-         */
-        public advanceTimeBySelf(on: boolean): void {
-            if (on) {
-                this._armature.clock = PixiFactory.factory.clock;
-            }
-            else {
-                this._armature.clock = null;
-            }
-        }
     }
 }

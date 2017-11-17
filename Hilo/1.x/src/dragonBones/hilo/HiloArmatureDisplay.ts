@@ -24,7 +24,7 @@ namespace dragonBones {
     /**
      * @inheritDoc
      */
-    export class PhaserArmatureDisplay implements IArmatureProxy {
+    export class HiloArmatureDisplay extends Hilo.Container implements IArmatureProxy {
         private _debugDraw: boolean = false;
         private _disposeProxy: boolean = false;
         private _armature: Armature = null as any;
@@ -38,9 +38,7 @@ namespace dragonBones {
          * @inheritDoc
          */
         public dbClear(): void {
-            this._disposeProxy = false;
             this._armature = null as any;
-            // super.destroy(false);
         }
         /**
          * @private
@@ -48,7 +46,6 @@ namespace dragonBones {
         public dbUpdate(): void {
             const drawed = DragonBones.debugDraw;
             if (drawed || this._debugDraw) {
-                this._debugDraw = drawed;
             }
         }
         /**
@@ -61,32 +58,35 @@ namespace dragonBones {
                 this._armature = null as any;
             }
         }
-        // /**
-        //  * @inheritDoc
-        //  */
-        // public destroy(): void {
-        //     this.dispose();
-        // }
         /**
          * @private
          */
         public dispatchDBEvent(type: EventStringType, eventObject: EventObject): void {
+            this.fire(type, eventObject);
         }
         /**
          * @inheritDoc
          */
         public hasDBEventListener(type: EventStringType): boolean {
-            return false;
+            const listeners = (this as any)._listeners; // 
+
+            return listeners && type in listeners;
         }
         /**
          * @inheritDoc
          */
         public addDBEventListener(type: EventStringType, listener: (event: EventObject) => void, target: any): void {
+            // tslint:disable-next-line:no-unused-expression
+            target;
+            this.on(type, listener, false);
         }
         /**
          * @inheritDoc
          */
         public removeDBEventListener(type: EventStringType, listener: (event: EventObject) => void, target: any): void {
+            // tslint:disable-next-line:no-unused-expression
+            target;
+            this.off(type, listener);
         }
         /**
          * @inheritDoc

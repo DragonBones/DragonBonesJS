@@ -22,22 +22,22 @@
  */
 namespace dragonBones {
     /**
-     * - The Phaser slot.
+     * - The Hilo slot.
      * @version DragonBones 3.0
      * @language en_US
      */
     /**
-     * - Phaser 插槽。
+     * - Hilo 插槽。
      * @version DragonBones 3.0
      * @language zh_CN
      */
-    export class PhaserSlot extends Slot {
+    export class HiloSlot extends Slot {
         public static toString(): string {
-            return "[class dragonBones.PhaserSlot]";
+            return "[class dragonBones.HiloSlot]";
         }
 
         private _textureScale: number;
-        private _renderDisplay: PIXI.DisplayObject;
+        private _renderDisplay: Hilo.View;
         /**
          * @inheritDoc
          */
@@ -58,27 +58,28 @@ namespace dragonBones {
          * @inheritDoc
          */
         protected _disposeDisplay(value: any): void {
-            (value as Phaser.Sprite).destroy(true); // PIXI.DisplayObject.destroy();
+            // tslint:disable-next-line:no-unused-expression
+            value;
         }
         /**
          * @inheritDoc
          */
         protected _onUpdateDisplay(): void {
-            this._renderDisplay = (this._display ? this._display : this._rawDisplay) as PIXI.DisplayObject;
+            this._renderDisplay = (this._display ? this._display : this._rawDisplay) as Hilo.View;
         }
         /**
          * @inheritDoc
          */
         protected _addDisplay(): void {
-            const container = this._armature.display as PhaserArmatureDisplay;
+            const container = this._armature.display as HiloArmatureDisplay;
             container.addChild(this._renderDisplay);
         }
         /**
          * @inheritDoc
          */
         protected _replaceDisplay(value: any): void {
-            const container = this._armature.display as PhaserArmatureDisplay;
-            const prevDisplay = value as PIXI.DisplayObject;
+            const container = this._armature.display as HiloArmatureDisplay;
+            const prevDisplay = value as Hilo.View;
             container.addChild(this._renderDisplay);
             container.swapChildren(this._renderDisplay, prevDisplay);
             container.removeChild(prevDisplay);
@@ -94,7 +95,7 @@ namespace dragonBones {
          * @inheritDoc
          */
         protected _updateZOrder(): void {
-            const container = this._armature.display as PhaserArmatureDisplay;
+            const container = this._armature.display as HiloArmatureDisplay;
             const index = container.getChildIndex(this._renderDisplay);
             if (index === this._zOrder) {
                 return;
@@ -112,137 +113,96 @@ namespace dragonBones {
          * @inheritDoc
          */
         protected _updateBlendMode(): void {
-            if (this._renderDisplay instanceof PIXI.Sprite) {
-                switch (this._blendMode) {
-                    case BlendMode.Normal:
-                        this._renderDisplay.blendMode = PIXI.blendModes.NORMAL;
-                        break;
-
-                    case BlendMode.Add:
-                        this._renderDisplay.blendMode = PIXI.blendModes.ADD;
-                        break;
-
-                    case BlendMode.Darken:
-                        this._renderDisplay.blendMode = PIXI.blendModes.DARKEN;
-                        break;
-
-                    case BlendMode.Difference:
-                        this._renderDisplay.blendMode = PIXI.blendModes.DIFFERENCE;
-                        break;
-
-                    case BlendMode.HardLight:
-                        this._renderDisplay.blendMode = PIXI.blendModes.HARD_LIGHT;
-                        break;
-
-                    case BlendMode.Lighten:
-                        this._renderDisplay.blendMode = PIXI.blendModes.LIGHTEN;
-                        break;
-
-                    case BlendMode.Multiply:
-                        this._renderDisplay.blendMode = PIXI.blendModes.MULTIPLY;
-                        break;
-
-                    case BlendMode.Overlay:
-                        this._renderDisplay.blendMode = PIXI.blendModes.OVERLAY;
-                        break;
-
-                    case BlendMode.Screen:
-                        this._renderDisplay.blendMode = PIXI.blendModes.SCREEN;
-                        break;
-
-                    default:
-                        break;
-                }
-            }
+            // TODO
         }
         /**
          * @inheritDoc
          */
         protected _updateColor(): void {
-            this._renderDisplay.alpha = this._colorTransform.alphaMultiplier;
-            if (this._renderDisplay instanceof PIXI.Sprite) { // || this._renderDisplay instanceof PIXI.mesh.Mesh
-                const color = (Math.round(this._colorTransform.redMultiplier * 0xFF) << 16) + (Math.round(this._colorTransform.greenMultiplier * 0xFF) << 8) + Math.round(this._colorTransform.blueMultiplier * 0xFF);
-                this._renderDisplay.tint = color;
-            }
+            // TODO
+            // this._renderDisplay.alpha = this._colorTransform.alphaMultiplier;
+            // if (this._renderDisplay instanceof PIXI.Sprite || this._renderDisplay instanceof PIXI.mesh.Mesh) {
+            //     const color = (Math.round(this._colorTransform.redMultiplier * 0xFF) << 16) + (Math.round(this._colorTransform.greenMultiplier * 0xFF) << 8) + Math.round(this._colorTransform.blueMultiplier * 0xFF);
+            //     this._renderDisplay.tint = color;
+            // }
         }
         /**
          * @inheritDoc
          */
         protected _updateFrame(): void {
             const meshData = this._display === this._meshDisplay ? this._meshData : null;
-            let currentTextureData = this._textureData as (PhaserTextureData | null);
+            let currentTextureData = this._textureData as (PixiTextureData | null);
 
             if (this._displayIndex >= 0 && this._display !== null && currentTextureData !== null) {
-                let currentTextureAtlasData = currentTextureData.parent as PhaserTextureAtlasData;
+                let currentTextureAtlasData = currentTextureData.parent as PixiTextureAtlasData;
                 if (this._armature.replacedTexture !== null && this._rawDisplayDatas !== null && this._rawDisplayDatas.indexOf(this._displayData) >= 0) { // Update replaced texture atlas.
                     if (this._armature._replaceTextureAtlasData === null) {
-                        currentTextureAtlasData = BaseObject.borrowObject(PhaserTextureAtlasData);
+                        currentTextureAtlasData = BaseObject.borrowObject(PixiTextureAtlasData);
                         currentTextureAtlasData.copyFrom(currentTextureData.parent);
                         currentTextureAtlasData.renderTexture = this._armature.replacedTexture;
                         this._armature._replaceTextureAtlasData = currentTextureAtlasData;
                     }
                     else {
-                        currentTextureAtlasData = this._armature._replaceTextureAtlasData as PhaserTextureAtlasData;
+                        currentTextureAtlasData = this._armature._replaceTextureAtlasData as PixiTextureAtlasData;
                     }
 
-                    currentTextureData = currentTextureAtlasData.getTexture(currentTextureData.name) as PhaserTextureData;
+                    currentTextureData = currentTextureAtlasData.getTexture(currentTextureData.name) as PixiTextureData;
                 }
 
                 const renderTexture = currentTextureData.renderTexture;
                 if (renderTexture !== null) {
                     if (meshData !== null) { // Mesh.
-                        // TODO
-                        // const data = meshData.parent.parent.parent;
-                        // const intArray = data.intArray;
-                        // const floatArray = data.floatArray;
-                        // const vertexCount = intArray[meshData.offset + BinaryOffset.MeshVertexCount];
-                        // const triangleCount = intArray[meshData.offset + BinaryOffset.MeshTriangleCount];
-                        // let vertexOffset = intArray[meshData.offset + BinaryOffset.MeshFloatOffset];
+                        const data = meshData.parent.parent.parent;
+                        const intArray = data.intArray;
+                        const floatArray = data.floatArray;
+                        const vertexCount = intArray[meshData.offset + BinaryOffset.MeshVertexCount];
+                        const triangleCount = intArray[meshData.offset + BinaryOffset.MeshTriangleCount];
+                        let vertexOffset = intArray[meshData.offset + BinaryOffset.MeshFloatOffset];
 
-                        // if (vertexOffset < 0) {
-                        //     vertexOffset += 65536; // Fixed out of bouds bug. 
-                        // }
+                        if (vertexOffset < 0) {
+                            vertexOffset += 65536; // Fixed out of bouds bug. 
+                        }
 
-                        // const uvOffset = vertexOffset + vertexCount * 2;
+                        const uvOffset = vertexOffset + vertexCount * 2;
 
-                        // const meshDisplay = this._renderDisplay as PIXI.mesh.Mesh;
-                        // const textureAtlasWidth = currentTextureAtlasData.width > 0.0 ? currentTextureAtlasData.width : renderTexture.width;
-                        // const textureAtlasHeight = currentTextureAtlasData.height > 0.0 ? currentTextureAtlasData.height : renderTexture.height;
+                        const meshDisplay = this._renderDisplay as PIXI.mesh.Mesh;
+                        const textureAtlasWidth = currentTextureAtlasData.width > 0.0 ? currentTextureAtlasData.width : renderTexture.width;
+                        const textureAtlasHeight = currentTextureAtlasData.height > 0.0 ? currentTextureAtlasData.height : renderTexture.height;
 
-                        // meshDisplay.vertices = new Float32Array(vertexCount * 2) as any;
-                        // meshDisplay.uvs = new Float32Array(vertexCount * 2) as any;
-                        // meshDisplay.indices = new Uint16Array(triangleCount * 3) as any;
-                        // for (let i = 0, l = vertexCount * 2; i < l; ++i) {
-                        //     meshDisplay.vertices[i] = floatArray[vertexOffset + i];
-                        //     meshDisplay.uvs[i] = floatArray[uvOffset + i];
-                        // }
+                        meshDisplay.vertices = new Float32Array(vertexCount * 2) as any;
+                        meshDisplay.uvs = new Float32Array(vertexCount * 2) as any;
+                        meshDisplay.indices = new Uint16Array(triangleCount * 3) as any;
+                        for (let i = 0, l = vertexCount * 2; i < l; ++i) {
+                            meshDisplay.vertices[i] = floatArray[vertexOffset + i];
+                            meshDisplay.uvs[i] = floatArray[uvOffset + i];
+                        }
 
-                        // for (let i = 0; i < triangleCount * 3; ++i) {
-                        //     meshDisplay.indices[i] = intArray[meshData.offset + BinaryOffset.MeshVertexIndices + i];
-                        // }
+                        for (let i = 0; i < triangleCount * 3; ++i) {
+                            meshDisplay.indices[i] = intArray[meshData.offset + BinaryOffset.MeshVertexIndices + i];
+                        }
 
-                        // for (let i = 0, l = meshDisplay.uvs.length; i < l; i += 2) {
-                        //     const u = meshDisplay.uvs[i];
-                        //     const v = meshDisplay.uvs[i + 1];
-                        //     if (currentTextureData.rotated) {
-                        //         meshDisplay.uvs[i] = (currentTextureData.region.x + (1.0 - v) * currentTextureData.region.width) / textureAtlasWidth;
-                        //         meshDisplay.uvs[i + 1] = (currentTextureData.region.y + u * currentTextureData.region.height) / textureAtlasHeight;
-                        //     }
-                        //     else {
-                        //         meshDisplay.uvs[i] = (currentTextureData.region.x + u * currentTextureData.region.width) / textureAtlasWidth;
-                        //         meshDisplay.uvs[i + 1] = (currentTextureData.region.y + v * currentTextureData.region.height) / textureAtlasHeight;
-                        //     }
-                        // }
+                        for (let i = 0, l = meshDisplay.uvs.length; i < l; i += 2) {
+                            const u = meshDisplay.uvs[i];
+                            const v = meshDisplay.uvs[i + 1];
+                            if (currentTextureData.rotated) {
+                                meshDisplay.uvs[i] = (currentTextureData.region.x + (1.0 - v) * currentTextureData.region.width) / textureAtlasWidth;
+                                meshDisplay.uvs[i + 1] = (currentTextureData.region.y + u * currentTextureData.region.height) / textureAtlasHeight;
+                            }
+                            else {
+                                meshDisplay.uvs[i] = (currentTextureData.region.x + u * currentTextureData.region.width) / textureAtlasWidth;
+                                meshDisplay.uvs[i + 1] = (currentTextureData.region.y + v * currentTextureData.region.height) / textureAtlasHeight;
+                            }
+                        }
 
-                        // this._textureScale = 1.0;
-                        // meshDisplay.texture = renderTexture as any;
-                        // //meshDisplay.dirty = true; // Pixi 3.x
-                        // meshDisplay.dirty++; // Pixi 4.x Can not support change mesh vertice count.
+                        this._textureScale = 1.0;
+                        meshDisplay.texture = renderTexture as any;
+                        //meshDisplay.dirty = true; // Pixi 3.x
+                        meshDisplay.dirty++; // Pixi 4.x Can not support change mesh vertice count.
                     }
                     else { // Normal texture.
                         this._textureScale = currentTextureData.parent.scale * this._armature._armatureData.scale;
-                        const normalDisplay = this._renderDisplay as Phaser.Image;
-                        normalDisplay.setTexture(renderTexture);
+                        const normalDisplay = this._renderDisplay as PIXI.Sprite;
+                        normalDisplay.texture = renderTexture;
                     }
 
                     this._visibleDirty = true;
@@ -251,16 +211,15 @@ namespace dragonBones {
             }
 
             if (meshData !== null) {
-                // TODO
-                // const meshDisplay = this._renderDisplay as PIXI.mesh.Mesh;
-                // meshDisplay.texture = null as any;
-                // meshDisplay.x = 0.0;
-                // meshDisplay.y = 0.0;
-                // meshDisplay.visible = false;
+                const meshDisplay = this._renderDisplay as PIXI.mesh.Mesh;
+                meshDisplay.texture = null as any;
+                meshDisplay.x = 0.0;
+                meshDisplay.y = 0.0;
+                meshDisplay.visible = false;
             }
             else {
-                const normalDisplay = this._renderDisplay;
-                // normalDisplay.texture = null as any;
+                const normalDisplay = this._renderDisplay as PIXI.Sprite;
+                normalDisplay.texture = null as any;
                 normalDisplay.x = 0.0;
                 normalDisplay.y = 0.0;
                 normalDisplay.visible = false;
@@ -343,8 +302,8 @@ namespace dragonBones {
                 this._renderDisplay.y = 0.0;
                 this._renderDisplay.rotation = 0.0;
                 (this._renderDisplay as any).skew = 0.0;
-                this._renderDisplay.scale.x = 1.0;
-                this._renderDisplay.scale.y = 1.0;
+                this._renderDisplay.scaleX = 1.0;
+                this._renderDisplay.scaleX = 1.0;
             }
             else {
                 this.updateGlobalTransform(); // Update transform.
@@ -354,19 +313,21 @@ namespace dragonBones {
                 if (this._renderDisplay === this._rawDisplay || this._renderDisplay === this._meshDisplay) {
                     const x = transform.x - (this.globalTransformMatrix.a * this._pivotX + this.globalTransformMatrix.c * this._pivotY);
                     const y = transform.y - (this.globalTransformMatrix.b * this._pivotX + this.globalTransformMatrix.d * this._pivotY);
-
                     this._renderDisplay.x = x;
                     this._renderDisplay.y = y;
+                    this._renderDisplay.rotation = transform.rotation;
+                    (this._renderDisplay as any).skew = transform.skew;
+                    this._renderDisplay.scaleX = transform.scaleX * this._textureScale;
+                    this._renderDisplay.scaleX = transform.scaleY * this._textureScale;
                 }
                 else {
                     this._renderDisplay.x = transform.x;
                     this._renderDisplay.y = transform.y;
+                    this._renderDisplay.rotation = transform.rotation;
+                    (this._renderDisplay as any).skew = transform.skew;
+                    this._renderDisplay.scaleX = transform.scaleX * this._textureScale;
+                    this._renderDisplay.scaleX = transform.scaleY * this._textureScale;
                 }
-
-                this._renderDisplay.rotation = transform.rotation;
-                (this._renderDisplay as any).skew = transform.skew; // Phase can not support skew.
-                this._renderDisplay.scale.x = transform.scaleX * this._textureScale;
-                this._renderDisplay.scale.y = transform.scaleY * this._textureScale;
             }
         }
     }

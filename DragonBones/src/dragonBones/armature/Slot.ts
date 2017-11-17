@@ -851,7 +851,7 @@ namespace dragonBones {
          * - Check whether a specific point is inside a custom bounding box in the slot.
          * The coordinate system of the point is the inner coordinate system of the armature.
          * Custom bounding boxes need to be customized in Dragonbones Pro.
-         * @param x - The horizontal coordinate of the point
+         * @param x - The horizontal coordinate of the point.
          * @param y - The vertical coordinate of the point.
          * @version DragonBones 5.0
          * @language en_US
@@ -860,8 +860,8 @@ namespace dragonBones {
          * - 检查特定点是否在插槽的自定义边界框内。
          * 点的坐标系为骨架内坐标系。
          * 自定义边界框需要在 DragonBones Pro 中自定义。
-         * @param x - 点的水平坐标
-         * @param y - 点的垂直坐标
+         * @param x - 点的水平坐标。
+         * @param y - 点的垂直坐标。
          * @version DragonBones 5.0
          * @language zh_CN
          */
@@ -888,7 +888,7 @@ namespace dragonBones {
          * @param yB - The vertical coordinate of the end point of the segment.
          * @param intersectionPointA - The first intersection at which a line segment intersects the bounding box from the beginning to the end.
          * @param intersectionPointB - The first intersection at which a line segment intersects the bounding box from the end to the beginning.
-         * @param normalRadians - The normal radians of the tangent of the intersection boundary box. [x: Normal radian of the first intersection tangent, y: Normal radian of the second intersection tangent]
+         * @param normalRadians - The normal radians of the tangent of the intersection boundary box. [x: Normal radian of the first intersection tangent, y: Normal radian of the second intersection tangent].
          * @returns Intersection situation. [1: Disjoint and segments within the bounding box, 0: Disjoint, 1: Intersecting and having a nodal point and ending in the bounding box, 2: Intersecting and having a nodal point and starting at the bounding box, 3: Intersecting and having two intersections, N: Intersecting and having N intersections]
          * @version DragonBones 5.0
          * @language en_US
@@ -897,13 +897,13 @@ namespace dragonBones {
          * - 检查特定线段是否与插槽的自定义边界框相交。
          * 线段和交点的坐标系均为骨架内坐标系。
          * 自定义边界框需要在 DragonBones Pro 中自定义。
-         * @param xA - 线段起点的水平坐标
-         * @param yA - 线段起点的垂直坐标
-         * @param xB - 线段终点的水平坐标
-         * @param yB - 线段终点的垂直坐标
-         * @param intersectionPointA - 线段从起点到终点与边界框相交的第一个交点
-         * @param intersectionPointB - 线段从终点到起点与边界框相交的第一个交点
-         * @param normalRadians - 交点边界框切线的法线弧度。 [x: 第一个交点切线的法线弧度, y: 第二个交点切线的法线弧度]
+         * @param xA - 线段起点的水平坐标。
+         * @param yA - 线段起点的垂直坐标。
+         * @param xB - 线段终点的水平坐标。
+         * @param yB - 线段终点的垂直坐标。
+         * @param intersectionPointA - 线段从起点到终点与边界框相交的第一个交点。
+         * @param intersectionPointB - 线段从终点到起点与边界框相交的第一个交点。
+         * @param normalRadians - 交点边界框切线的法线弧度。 [x: 第一个交点切线的法线弧度, y: 第二个交点切线的法线弧度]。
          * @returns 相交的情况。 [-1: 不相交且线段在包围盒内, 0: 不相交, 1: 相交且有一个交点且终点在包围盒内, 2: 相交且有一个交点且起点在包围盒内, 3: 相交且有两个交点, N: 相交且有 N 个交点]
          * @version DragonBones 5.0
          * @language zh_CN

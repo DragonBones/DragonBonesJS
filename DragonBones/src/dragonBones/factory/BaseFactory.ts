@@ -359,9 +359,9 @@ namespace dragonBones {
         protected abstract _buildSlot(dataPackage: BuildArmaturePackage, slotData: SlotData, displays: Array<DisplayData | null> | null, armature: Armature): Slot;
         /**
          * - Parse the raw data to a DragonBonesData instance and cache it to the factory.
-         * @param rawData - The raw data
-         * @param name - Specify a cache name for the instance so that the instance can be obtained through this name. (If not set, use the instance name instead)
-         * @param scale - Specify a scaling value for all armatures. (Default does not scale)
+         * @param rawData - The raw data.
+         * @param name - Specify a cache name for the instance so that the instance can be obtained through this name. (If not set, use the instance name instead).
+         * @param scale - Specify a scaling value for all armatures. (Default does not scale).
          * @returns DragonBonesData instance
          * @see #getDragonBonesData()
          * @see #addDragonBonesData()
@@ -372,9 +372,9 @@ namespace dragonBones {
          */
         /**
          * - 将原始数据解析为 DragonBonesData 实例，并缓存到工厂中。
-         * @param rawData - 原始数据
-         * @param name - 为该实例指定一个缓存名称，以便可以通过此名称获取该实例。 （如果未设置，则使用该实例中的名称）
-         * @param scale - 为所有的骨架指定一个缩放值。 （默认不缩放）
+         * @param rawData - 原始数据。
+         * @param name - 为该实例指定一个缓存名称，以便可以通过此名称获取该实例。 （如果未设置，则使用该实例中的名称）。
+         * @param scale - 为所有的骨架指定一个缩放值。 （默认不缩放）。
          * @returns DragonBonesData 实例
          * @see #getDragonBonesData()
          * @see #addDragonBonesData()
@@ -406,10 +406,10 @@ namespace dragonBones {
         }
         /**
          * - Parse the raw texture atlas data and the texture atlas object to a TextureAtlasData instance and cache it to the factory.
-         * @param rawData - The raw texture atlas data
-         * @param textureAtlas - The texture atlas object
-         * @param name - Specify a cache name for the instance so that the instance can be obtained through this name. (If not set, use the instance name instead)
-         * @param scale - Specify a scaling value for the map set. (Not scaled by default)
+         * @param rawData - The raw texture atlas data.
+         * @param textureAtlas - The texture atlas object.
+         * @param name - Specify a cache name for the instance so that the instance can be obtained through this name. (If not set, use the instance name instead).
+         * @param scale - Specify a scaling value for the map set. (Not scaled by default).
          * @returns TextureAtlasData instance
          * @see #getTextureAtlasData()
          * @see #addTextureAtlasData()
@@ -420,10 +420,10 @@ namespace dragonBones {
          */
         /**
          * - 将原始贴图集数据和贴图集对象解析为 TextureAtlasData 实例，并缓存到工厂中。
-         * @param rawData - 原始贴图集数据
-         * @param textureAtlas - 贴图集对象
-         * @param name - 为该实例指定一个缓存名称，以便可以通过此名称获取该实例。 （如果未设置，则使用该实例中的名称）
-         * @param scale - 为贴图集指定一个缩放值。 （默认不缩放）
+         * @param rawData - 原始贴图集数据。
+         * @param textureAtlas - 贴图集对象。
+         * @param name - 为该实例指定一个缓存名称，以便可以通过此名称获取该实例。 （如果未设置，则使用该实例中的名称）。
+         * @param scale - 为贴图集指定一个缩放值。 （默认不缩放）。
          * @returns TextureAtlasData 实例
          * @see #getTextureAtlasData()
          * @see #addTextureAtlasData()
@@ -455,7 +455,7 @@ namespace dragonBones {
         }
         /**
          * - Get a specific DragonBonesData instance.
-         * @param name - The DragonBonesData instance cache name
+         * @param name - The DragonBonesData instance cache name.
          * @returns DragonBonesData instance
          * @see #parseDragonBonesData()
          * @see #addDragonBonesData()
@@ -466,7 +466,7 @@ namespace dragonBones {
          */
         /**
          * - 获取特定的 DragonBonesData 实例。
-         * @param name - DragonBonesData 实例的缓存名称
+         * @param name - DragonBonesData 实例的缓存名称。
          * @returns DragonBonesData 实例
          * @see #parseDragonBonesData()
          * @see #addDragonBonesData()
@@ -480,8 +480,8 @@ namespace dragonBones {
         }
         /**
          * - Cache a DragonBonesData instance to the factory.
-         * @param data - The DragonBonesData instance
-         * @param name - Specify a cache name for the instance so that the instance can be obtained through this name. (if not set, use the instance name instead)
+         * @param data - The DragonBonesData instance.
+         * @param name - Specify a cache name for the instance so that the instance can be obtained through this name. (if not set, use the instance name instead).
          * @see #parseDragonBonesData()
          * @see #getDragonBonesData()
          * @see #removeDragonBonesData()
@@ -491,8 +491,8 @@ namespace dragonBones {
          */
         /**
          * - 将 DragonBonesData 实例缓存到工厂中。
-         * @param data - DragonBonesData 实例
-         * @param name - 为该实例指定一个缓存名称，以便可以通过此名称获取该实例。 （如果未设置，则使用该实例中的名称）
+         * @param data - DragonBonesData 实例。
+         * @param name - 为该实例指定一个缓存名称，以便可以通过此名称获取该实例。 （如果未设置，则使用该实例中的名称）。
          * @see #parseDragonBonesData()
          * @see #getDragonBonesData()
          * @see #removeDragonBonesData()
@@ -515,8 +515,8 @@ namespace dragonBones {
         }
         /**
          * - Remove a DragonBonesData instance.
-         * @param name - The DragonBonesData instance cache name
-         * @param disposeData - Whether to dispose data
+         * @param name - The DragonBonesData instance cache name.
+         * @param disposeData - Whether to dispose data.
          * @see #parseDragonBonesData()
          * @see #getDragonBonesData()
          * @see #addDragonBonesData()
@@ -526,8 +526,8 @@ namespace dragonBones {
          */
         /**
          * - 移除 DragonBonesData 实例。
-         * @param name - DragonBonesData 实例缓存名称
-         * @param disposeData - 是否释放数据
+         * @param name - DragonBonesData 实例缓存名称。
+         * @param disposeData - 是否释放数据。
          * @see #parseDragonBonesData()
          * @see #getDragonBonesData()
          * @see #addDragonBonesData()
@@ -546,7 +546,7 @@ namespace dragonBones {
         }
         /**
          * - Get a list of specific TextureAtlasData instances.
-         * @param name - The TextureAtlasData cahce name
+         * @param name - The TextureAtlasData cahce name.
          * @see #parseTextureAtlasData()
          * @see #addTextureAtlasData()
          * @see #removeTextureAtlasData()
@@ -556,7 +556,7 @@ namespace dragonBones {
          */
         /**
          * - 获取特定的 TextureAtlasData 实例列表。
-         * @param name - TextureAtlasData 实例缓存名称
+         * @param name - TextureAtlasData 实例缓存名称。
          * @see #parseTextureAtlasData()
          * @see #addTextureAtlasData()
          * @see #removeTextureAtlasData()
@@ -569,8 +569,8 @@ namespace dragonBones {
         }
         /**
          * - Cache a TextureAtlasData instance to the factory.
-         * @param data - The TextureAtlasData instance
-         * @param name - Specify a cache name for the instance so that the instance can be obtained through this name. (if not set, use the instance name instead)
+         * @param data - The TextureAtlasData instance.
+         * @param name - Specify a cache name for the instance so that the instance can be obtained through this name. (if not set, use the instance name instead).
          * @see #parseTextureAtlasData()
          * @see #getTextureAtlasData()
          * @see #removeTextureAtlasData()
@@ -580,8 +580,8 @@ namespace dragonBones {
          */
         /**
          * - 将 TextureAtlasData 实例缓存到工厂中。
-         * @param data - TextureAtlasData 实例
-         * @param name - 为该实例指定一个缓存名称，以便可以通过此名称获取该实例。 （如果未设置，则使用该实例中的名称）
+         * @param data - TextureAtlasData 实例。
+         * @param name - 为该实例指定一个缓存名称，以便可以通过此名称获取该实例。 （如果未设置，则使用该实例中的名称）。
          * @see #parseTextureAtlasData()
          * @see #getTextureAtlasData()
          * @see #removeTextureAtlasData()
@@ -598,8 +598,8 @@ namespace dragonBones {
         }
         /**
          * - Remove a TextureAtlasData instance.
-         * @param name - The TextureAtlasData instance cache name
-         * @param disposeData - Whether to dispose data
+         * @param name - The TextureAtlasData instance cache name.
+         * @param disposeData - Whether to dispose data.
          * @see #parseTextureAtlasData()
          * @see #getTextureAtlasData()
          * @see #addTextureAtlasData()
@@ -609,8 +609,8 @@ namespace dragonBones {
          */
         /**
          * - 移除 TextureAtlasData 实例。
-         * @param name - TextureAtlasData 实例的缓存名称
-         * @param disposeData - 是否释放数据
+         * @param name - TextureAtlasData 实例的缓存名称。
+         * @param disposeData - 是否释放数据。
          * @see #parseTextureAtlasData()
          * @see #getTextureAtlasData()
          * @see #addTextureAtlasData()
@@ -632,16 +632,16 @@ namespace dragonBones {
         }
         /**
          * - Get a specific armature data.
-         * @param name - The armature data name
-         * @param dragonBonesName - The cached name for DragonbonesData instance
+         * @param name - The armature data name.
+         * @param dragonBonesName - The cached name for DragonbonesData instance.
          * @see dragonBones.ArmatureData
          * @version DragonBones 5.1
          * @language en_US
          */
         /**
          * - 获取特定的骨架数据。
-         * @param name - 骨架数据名称
-         * @param dragonBonesName - DragonBonesData 实例的缓存名称
+         * @param name - 骨架数据名称。
+         * @param dragonBonesName - DragonBonesData 实例的缓存名称。
          * @see dragonBones.ArmatureData
          * @version DragonBones 5.1
          * @language zh_CN
@@ -656,13 +656,13 @@ namespace dragonBones {
         }
         /**
          * - Clear all cached DragonBonesData instances and TextureAtlasData instances.
-         * @param disposeData - Whether to dispose data
+         * @param disposeData - Whether to dispose data.
          * @version DragonBones 4.5
          * @language en_US
          */
         /**
          * - 清除缓存的所有 DragonBonesData 实例和 TextureAtlasData 实例。
-         * @param disposeData - 是否释放数据
+         * @param disposeData - 是否释放数据。
          * @version DragonBones 4.5
          * @language zh_CN
          */
@@ -688,9 +688,9 @@ namespace dragonBones {
         }
         /**
          * - Create a armature from cached DragonBonesData instances and TextureAtlasData instances.
-         * @param armatureName - The armature data name
-         * @param dragonBonesName - The cached name of the DragonBonesData instance. (If not set, all DragonBonesData instances are retrieved, and when multiple DragonBonesData instances contain a the same name armature data, it may not be possible to accurately create a specific armature)
-         * @param skinName - The skin name, you can set a different ArmatureData name to share it's skin data. (If not set, use the default skin data)
+         * @param armatureName - The armature data name.
+         * @param dragonBonesName - The cached name of the DragonBonesData instance. (If not set, all DragonBonesData instances are retrieved, and when multiple DragonBonesData instances contain a the same name armature data, it may not be possible to accurately create a specific armature).
+         * @param skinName - The skin name, you can set a different ArmatureData name to share it's skin data. (If not set, use the default skin data).
          * @returns The armature
          * @example
          * <pre>
@@ -705,9 +705,9 @@ namespace dragonBones {
          */
         /**
          * - 通过缓存的 DragonBonesData 实例和 TextureAtlasData 实例创建一个骨架。
-         * @param armatureName - 骨架数据名称
-         * @param dragonBonesName - DragonBonesData 实例的缓存名称。 （如果未设置，将检索所有的 DragonBonesData 实例，当多个 DragonBonesData 实例中包含同名的骨架数据时，可能无法准确的创建出特定的骨架）
-         * @param skinName - 皮肤名称，可以设置一个其他骨架数据名称来共享其皮肤数据（如果未设置，则使用默认的皮肤数据）
+         * @param armatureName - 骨架数据名称。
+         * @param dragonBonesName - DragonBonesData 实例的缓存名称。 （如果未设置，将检索所有的 DragonBonesData 实例，当多个 DragonBonesData 实例中包含同名的骨架数据时，可能无法准确的创建出特定的骨架）。
+         * @param skinName - 皮肤名称，可以设置一个其他骨架数据名称来共享其皮肤数据（如果未设置，则使用默认的皮肤数据）。
          * @returns 骨架
          * @example
          * <pre>
@@ -792,12 +792,12 @@ namespace dragonBones {
         }
         /**
          * - Replaces the current display data for a particular slot with a specific display data. (Specify display data with "dragonBonesName/armatureName/slotName/displayName")
-         * @param dragonBonesName - The DragonBonesData instance cache name
-         * @param armatureName - The armature data name
-         * @param slotName - The slot data name
-         * @param displayName - The display data name
-         * @param slot - The slot
-         * @param displayIndex - The index of the display data that is replaced. (If it is not set, replaces the current display data)
+         * @param dragonBonesName - The DragonBonesData instance cache name.
+         * @param armatureName - The armature data name.
+         * @param slotName - The slot data name.
+         * @param displayName - The display data name.
+         * @param slot - The slot.
+         * @param displayIndex - The index of the display data that is replaced. (If it is not set, replaces the current display data).
          * @example
          * <pre>
          *     let slot = armature.getSlot("weapon");
@@ -808,12 +808,12 @@ namespace dragonBones {
          */
         /**
          * - 用特定的显示对象数据替换特定插槽当前的显示对象数据。(用 "dragonBonesName/armatureName/slotName/displayName" 指定显示对象数据)
-         * @param dragonBonesName - DragonBonesData 实例的缓存名称
-         * @param armatureName - 骨架数据名称
-         * @param slotName - 插槽数据名称
-         * @param displayName - 显示对象数据名称
-         * @param slot - 插槽
-         * @param displayIndex - 被替换的显示对象数据的索引。 （如果未设置，则替换当前的显示对象数据）
+         * @param dragonBonesName - DragonBonesData 实例的缓存名称。
+         * @param armatureName - 骨架数据名称。
+         * @param slotName - 插槽数据名称。
+         * @param displayName - 显示对象数据名称。
+         * @param slot - 插槽。
+         * @param displayIndex - 被替换的显示对象数据的索引。 （如果未设置，则替换当前的显示对象数据）。
          * @example
          * <pre>
          *     let slot = armature.getSlot("weapon");
@@ -868,9 +868,9 @@ namespace dragonBones {
         }
         /**
          * - Share specific skin data with specific armature.
-         * @param armature - The armature
-         * @param skin - The skin data
-         * @param exclude - A list of slot names that do not need to be replace
+         * @param armature - The armature.
+         * @param skin - The skin data.
+         * @param exclude - A list of slot names that do not need to be replace.
          * @example
          * <pre>
          *     let armatureA = factory.buildArmature("armatureA", "dragonBonesA");
@@ -886,9 +886,9 @@ namespace dragonBones {
          */
         /**
          * - 将特定的皮肤数据共享给特定的骨架使用。
-         * @param armature - 骨架
-         * @param skin - 皮肤数据
-         * @param exclude - 不需要被替换的插槽名称列表
+         * @param armature - 骨架。
+         * @param skin - 皮肤数据。
+         * @param exclude - 不需要被替换的插槽名称列表。
          * @example
          * <pre>
          *     let armatureA = factory.buildArmature("armatureA", "dragonBonesA");
