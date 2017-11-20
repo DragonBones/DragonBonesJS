@@ -636,6 +636,11 @@ namespace dragonBones {
                 const frameIntArray = this._frameIntArray;
                 const valueOffset = this._animationData.frameIntOffset + this._frameValueOffset + this._frameIndex * 1; // ...(timeline value offset)|x|x|(Value offset)|(Next offset)|x|x|...
                 let colorOffset = frameIntArray[valueOffset];
+
+                if (colorOffset < 0) {
+                    colorOffset += 32767; // Fixed out of bouds bug. 
+                }
+
                 this._current[0] = intArray[colorOffset++];
                 this._current[1] = intArray[colorOffset++];
                 this._current[2] = intArray[colorOffset++];
@@ -651,6 +656,10 @@ namespace dragonBones {
                     }
                     else {
                         colorOffset = frameIntArray[valueOffset + 1 * 1];
+                    }
+
+                    if (colorOffset < 0) {
+                        colorOffset += 32767; // Fixed out of bouds bug. 
                     }
 
                     this._delta[0] = intArray[colorOffset++] - this._current[0];

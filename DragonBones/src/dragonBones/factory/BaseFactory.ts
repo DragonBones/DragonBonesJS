@@ -870,13 +870,14 @@ namespace dragonBones {
          * - Share specific skin data with specific armature.
          * @param armature - The armature.
          * @param skin - The skin data.
+         * @param isOverride - Whether it completely override the original skin.
          * @param exclude - A list of slot names that do not need to be replace.
          * @example
          * <pre>
          *     let armatureA = factory.buildArmature("armatureA", "dragonBonesA");
          *     let armatureDataB = factory.getArmatureData("armatureB", "dragonBonesB");
          *     if (armatureDataB && armatureDataB.defaultSkin) {
-         *     factory.replaceSkin(armatureA, armatureDataB.defaultSkin, ["arm_l", "weapon_l"]);
+         *         factory.replaceSkin(armatureA, armatureDataB.defaultSkin, false, ["arm_l", "weapon_l"]);
          *     }
          * </pre>
          * @see dragonBones.Armature
@@ -888,13 +889,14 @@ namespace dragonBones {
          * - 将特定的皮肤数据共享给特定的骨架使用。
          * @param armature - 骨架。
          * @param skin - 皮肤数据。
+         * @param isOverride - 是否完全覆盖原来的皮肤。
          * @param exclude - 不需要被替换的插槽名称列表。
          * @example
          * <pre>
          *     let armatureA = factory.buildArmature("armatureA", "dragonBonesA");
          *     let armatureDataB = factory.getArmatureData("armatureB", "dragonBonesB");
          *     if (armatureDataB && armatureDataB.defaultSkin) {
-         *     factory.replaceSkin(armatureA, armatureDataB.defaultSkin, ["arm_l", "weapon_l"]);
+         *         factory.replaceSkin(armatureA, armatureDataB.defaultSkin, false, ["arm_l", "weapon_l"]);
          *     }
          * </pre>
          * @see dragonBones.Armature
@@ -902,7 +904,7 @@ namespace dragonBones {
          * @version DragonBones 5.1
          * @language zh_CN
          */
-        public replaceSkin(armature: Armature, skin: SkinData, exclude: Array<string> | null = null): boolean {
+        public replaceSkin(armature: Armature, skin: SkinData, isOverride: boolean = false, exclude: Array<string> | null = null): boolean {
             let success = false;
 
             for (const slot of armature.getSlots()) {
@@ -912,6 +914,10 @@ namespace dragonBones {
 
                 const displays = skin.getDisplays(slot.name);
                 if (!displays) {
+                    if (!isOverride) {
+                        slot.rawDisplayDatas = null;
+                        slot.displayList = []; //
+                    }
                     continue;
                 }
 
@@ -1053,7 +1059,7 @@ namespace dragonBones {
          * @language zh_CN
          */
         public changeSkin(armature: Armature, skin: SkinData, exclude: Array<string> | null = null): boolean {
-            return this.replaceSkin(armature, skin, exclude);
+            return this.replaceSkin(armature, skin, false, exclude);
         }
         /**
          * - Deprecated, please refer to {@link #replaceAnimation}.

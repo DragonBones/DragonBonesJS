@@ -34,14 +34,13 @@ namespace dragonBones {
     export class HiloFactory extends BaseFactory {
         private static _dragonBonesInstance: DragonBones = null as any;
         private static _factory: HiloFactory = null as any;
-        // private static _clockHandler(passedTime: number): void {
-        //     PixiFactory._dragonBonesInstance.advanceTime(PIXI.ticker.shared.elapsedMS * passedTime * 0.001);
-        // }
 
         private static _createDragonBones(): DragonBones {
             const eventManager = new HiloArmatureDisplay(null as any);
             const dragonBonesInstance = new DragonBones(eventManager);
-            // PIXI.ticker.shared.add(PixiFactory._clockHandler, PixiFactory);
+            (dragonBonesInstance as any).tick = (passedTime: number) => {
+                HiloFactory._dragonBonesInstance.advanceTime(passedTime * 0.001);
+            }
 
             return dragonBonesInstance;
         }
@@ -73,6 +72,14 @@ namespace dragonBones {
             }
 
             this._dragonBones = HiloFactory._dragonBonesInstance;
+        }
+        /**
+         * @private
+         */
+        protected _isSupportMesh(): boolean {
+            console.warn("Hilo can not support mesh.");
+
+            return false;
         }
         /**
          * @inheritDoc

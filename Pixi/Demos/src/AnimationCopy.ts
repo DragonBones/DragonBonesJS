@@ -44,26 +44,30 @@ class AnimationCopy extends BaseTest {
         //
         //
         const touchHandler = (event: PIXI.interaction.InteractionEvent): void => {
-            let animationName = this._armatureDisplayD.animation.lastAnimationName;
-            if (animationName) {
-                const animationNames = this._armatureDisplayD.animation.animationNames;
-                const animationIndex = (animationNames.indexOf(animationName) + 1) % animationNames.length;
-                this._armatureDisplayD.animation.play(animationNames[animationIndex]);
-            }
-            else {
-                this._armatureDisplayD.animation.play();
-            }
-
-            animationName = this._armatureDisplayD.animation.lastAnimationName;
-
-            this._armatureDisplayA.animation.play(animationName);
-            this._armatureDisplayB.animation.play(animationName);
-            this._armatureDisplayC.animation.play(animationName);
+            this._replaceAnimation();
         };
         this.interactive = true;
         this.addListener("touchstart", touchHandler, this);
         this.addListener("mousedown", touchHandler, this);
         //
         this.createText("Click to change animation.");
+    }
+
+    private _replaceAnimation(): void {
+        let animationName = this._armatureDisplayD.animation.lastAnimationName;
+        if (animationName) {
+            const animationNames = this._armatureDisplayD.animation.animationNames;
+            const animationIndex = (animationNames.indexOf(animationName) + 1) % animationNames.length;
+            this._armatureDisplayD.animation.play(animationNames[animationIndex]);
+        }
+        else {
+            this._armatureDisplayD.animation.play();
+        }
+
+        animationName = this._armatureDisplayD.animation.lastAnimationName;
+
+        this._armatureDisplayA.animation.play(animationName);
+        this._armatureDisplayB.animation.play(animationName);
+        this._armatureDisplayC.animation.play(animationName);
     }
 }

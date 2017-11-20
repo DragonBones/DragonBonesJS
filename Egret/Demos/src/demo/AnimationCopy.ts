@@ -43,28 +43,28 @@ class AnimationCopy extends BaseTest {
         this._armatureDisplayD.x = this.stageWidth * 0.5;
         this._armatureDisplayD.y = this.stageHeight * 0.5 - 50.0;
         //
-        this.stage.addEventListener(
-            egret.TouchEvent.TOUCH_END,
-            () => {
-                let animationName = this._armatureDisplayD.animation.lastAnimationName;
-                if (animationName) {
-                    const animationNames = this._armatureDisplayD.animation.animationNames;
-                    const animationIndex = (animationNames.indexOf(animationName) + 1) % animationNames.length;
-                    this._armatureDisplayD.animation.play(animationNames[animationIndex]);
-                }
-                else {
-                    this._armatureDisplayD.animation.play();
-                }
-
-                animationName = this._armatureDisplayD.animation.lastAnimationName;
-
-                this._armatureDisplayA.animation.play(animationName);
-                this._armatureDisplayB.animation.play(animationName);
-                this._armatureDisplayC.animation.play(animationName);
-            },
-            this
-        );
+        this.stage.addEventListener(egret.TouchEvent.TOUCH_END, () => {
+            this._replaceAnimation();
+        }, this);
         //
         this.createText("Click to change animation.");
+    }
+
+    private _replaceAnimation(): void {
+        let animationName = this._armatureDisplayD.animation.lastAnimationName;
+        if (animationName) {
+            const animationNames = this._armatureDisplayD.animation.animationNames;
+            const animationIndex = (animationNames.indexOf(animationName) + 1) % animationNames.length;
+            this._armatureDisplayD.animation.play(animationNames[animationIndex]);
+        }
+        else {
+            this._armatureDisplayD.animation.play();
+        }
+
+        animationName = this._armatureDisplayD.animation.lastAnimationName;
+
+        this._armatureDisplayA.animation.play(animationName);
+        this._armatureDisplayB.animation.play(animationName);
+        this._armatureDisplayC.animation.play(animationName);
     }
 }

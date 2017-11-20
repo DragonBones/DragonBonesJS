@@ -6,11 +6,11 @@ class ReplaceSlotDisplay extends BaseTest {
         // Replace mesh display.
         "meshA", "meshB", "meshC",
     ];
-    private readonly _factory: dragonBones.PhaserFactory = dragonBones.PhaserFactory.factory;
-    private _armatureDisplay: dragonBones.PhaserArmatureDisplay;
+    private readonly _factory: dragonBones.HiloFactory = dragonBones.HiloFactory.factory;
+    private _armatureDisplay: dragonBones.HiloArmatureDisplay;
 
-    public constructor(game: Phaser.Game) {
-        super(game);
+    public constructor() {
+        super();
 
         this._resources.push(
             "resource/assets/replace_slot_display/main_ske.json",
@@ -23,17 +23,11 @@ class ReplaceSlotDisplay extends BaseTest {
     }
 
     protected _onStart(): void {
-        const factory = dragonBones.PhaserFactory.factory;
-        factory.parseDragonBonesData(this.game.cache.getItem("resource/assets/replace_slot_display/main_ske.json", Phaser.Cache.JSON).data);
-        factory.parseTextureAtlasData(
-            this.game.cache.getItem("resource/assets/replace_slot_display/main_tex.json", Phaser.Cache.JSON).data,
-            (this.game.cache.getImage("resource/assets/replace_slot_display/main_tex.png", true) as any).base
-        );
-        factory.parseDragonBonesData(this.game.cache.getItem("resource/assets/replace_slot_display/replace_ske.json", Phaser.Cache.JSON).data);
-        factory.parseTextureAtlasData(
-            this.game.cache.getItem("resource/assets/replace_slot_display/replace_tex.json", Phaser.Cache.JSON).data,
-            (this.game.cache.getImage("resource/assets/replace_slot_display/replace_tex.png", true) as any).base
-        );
+        const factory = dragonBones.HiloFactory.factory;
+        factory.parseDragonBonesData(this._hiloResources["resource/assets/replace_slot_display/main_ske.json"]);
+        factory.parseTextureAtlasData(this._hiloResources["resource/assets/replace_slot_display/main_tex.json"], this._hiloResources["resource/assets/replace_slot_display/main_tex.png"]);
+        factory.parseDragonBonesData(this._hiloResources["resource/assets/replace_slot_display/replace_ske.json"]);
+        factory.parseTextureAtlasData(this._hiloResources["resource/assets/replace_slot_display/replace_tex.json"], this._hiloResources["resource/assets/replace_slot_display/replace_tex.png"]);
         //
         this._armatureDisplay = this._factory.buildArmatureDisplay("MyArmature");
         this._armatureDisplay.animation.timeScale = 0.1;
@@ -42,10 +36,9 @@ class ReplaceSlotDisplay extends BaseTest {
         this._armatureDisplay.y = this.stageHeight * 0.5;
         this.addChild(this._armatureDisplay);
         //
-        this.inputEnabled = true;
-        this.events.onInputDown.add(() => {
+        this.on((Hilo.event as any).POINTER_START, () => {
             this._replaceDisplay();
-        });
+        }, false);
         //
         this.createText("Click to replace slot display.");
     }

@@ -42,10 +42,8 @@ abstract class BaseTest extends Phaser.Sprite {
     }
 
     public createText(string: string): Phaser.Text {
-        const style = { font: "20px", fill: "#FFFFFF", align: "center" };
+        const style = { font: "14px", fill: "#FFFFFF", align: "center" };
         const text = this.game.add.text(0.0, 0.0, string, style);
-        text.scale.x = 0.7;
-        text.scale.y = 0.7;
         text.x = (this.stageWidth - text.width) * 0.5;
         text.y = this.stageHeight - 60;
         this.addChild(text);

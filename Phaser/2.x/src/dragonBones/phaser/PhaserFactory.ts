@@ -117,11 +117,13 @@ namespace dragonBones {
             dataPackage;
             // tslint:disable-next-line:no-unused-expression
             armature;
+
             const slot = BaseObject.borrowObject(PhaserSlot);
+            const rawDisplay = new Phaser.Image(PhaserFactory._game, 0.0, 0.0, Phaser.Cache.DEFAULT);
 
             slot.init(
                 slotData, displays,
-                new Phaser.Image(PhaserFactory._game, 0.0, 0.0, Phaser.Cache.DEFAULT), null as any
+                rawDisplay, rawDisplay
             );
 
             return slot;

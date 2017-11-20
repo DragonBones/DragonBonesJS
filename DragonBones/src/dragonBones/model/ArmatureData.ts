@@ -374,6 +374,10 @@ namespace dragonBones {
             if (this.defaultSkin === null) {
                 this.defaultSkin = value;
             }
+
+            if (value.name === "default") {
+                this.defaultSkin = value;
+            }
         }
         /**
          * @internal

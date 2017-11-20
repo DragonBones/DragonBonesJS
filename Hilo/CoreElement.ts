@@ -1,7 +1,7 @@
 namespace coreElement {
-    type PointType = PIXI.Point;
-    type ArmatureDisplayType = dragonBones.PhaserArmatureDisplay;
-    type EventType = dragonBones.EventObject;
+    type PointType = dragonBones.Point;
+    type ArmatureDisplayType = dragonBones.HiloArmatureDisplay;
+    type EventType = any; // Hilo.EventObject
 
     export class Game extends BaseTest {
         public static GROUND: number;
@@ -13,8 +13,8 @@ namespace coreElement {
         private _player: Mecha;
         private readonly _bullets: Array<Bullet> = [];
 
-        public constructor(game: Phaser.Game) {
-            super(game);
+        public constructor() {
+            super();
 
             this._resources.push(
                 "resource/assets/core_element/mecha_1502b_ske.json",
@@ -33,37 +33,33 @@ namespace coreElement {
             Game.GROUND = this.stageHeight - 150;
             Game.instance = this;
             //
-            this.inputEnabled = true;
-            this.events.onInputDown.add(this._inputDown, this);
-            this.events.onInputUp.add(this._inputUp, this);
+            this.on((Hilo.event as any).POINTER_START, () => {
+                this._player.attack(true);
+            }, false);
+            this.on((Hilo.event as any).POINTER_END, () => {
+                this._player.attack(false);
+            }, false);
+            this.on((Hilo.event as any).POINTER_MOVE, () => {
+                // this._player.aim(this.game.input.x, this.game.input.y);
+            }, false);
             document.addEventListener("keydown", this._keyHandler);
             document.addEventListener("keyup", this._keyHandler);
             //
             this.createText("Press W/A/S/D to move. Press Q/E to switch weapons. Press SPACE to switch skin.\nMouse Move to aim. Click to fire.");
             //
-            const factory = dragonBones.PhaserFactory.factory;
-            factory.parseDragonBonesData(this.game.cache.getItem("resource/assets/core_element/mecha_1502b_ske.json", Phaser.Cache.JSON).data);
-            factory.parseTextureAtlasData(
-                this.game.cache.getItem("resource/assets/core_element/mecha_1502b_tex.json", Phaser.Cache.JSON).data,
-                (this.game.cache.getImage("resource/assets/core_element/mecha_1502b_tex.png", true) as any).base
-            );
-            factory.parseDragonBonesData(this.game.cache.getItem("resource/assets/core_element/skin_1502b_ske.json", Phaser.Cache.JSON).data);
-            factory.parseTextureAtlasData(
-                this.game.cache.getItem("resource/assets/core_element/skin_1502b_tex.json", Phaser.Cache.JSON).data,
-                (this.game.cache.getImage("resource/assets/core_element/skin_1502b_tex.png", true) as any).base
-            );
-            factory.parseDragonBonesData(this.game.cache.getItem("resource/assets/core_element/weapon_1000_ske.json", Phaser.Cache.JSON).data);
-            factory.parseTextureAtlasData(
-                this.game.cache.getItem("resource/assets/core_element/weapon_1000_tex.json", Phaser.Cache.JSON).data,
-                (this.game.cache.getImage("resource/assets/core_element/weapon_1000_tex.png", true) as any).base
-            );
+            const factory = dragonBones.HiloFactory.factory;
+            factory.parseDragonBonesData(this._hiloResources["resource/assets/core_element/mecha_1502b_ske.json"]);
+            factory.parseTextureAtlasData(this._hiloResources["resource/assets/core_element/mecha_1502b_tex.json"], this._hiloResources["resource/assets/core_element/mecha_1502b_tex.png"]);
+            factory.parseDragonBonesData(this._hiloResources["resource/assets/core_element/skin_1502b_ske.json"]);
+            factory.parseTextureAtlasData(this._hiloResources["resource/assets/core_element/skin_1502b_tex.json"], this._hiloResources["resource/assets/core_element/skin_1502b_tex.png"]);
+            factory.parseDragonBonesData(this._hiloResources["resource/assets/core_element/weapon_1000_ske.json"]);
+            factory.parseTextureAtlasData(this._hiloResources["resource/assets/core_element/weapon_1000_tex.json"], this._hiloResources["resource/assets/core_element/weapon_1000_tex.png"]);
             //
             this._player = new Mecha();
         }
 
-        public update(): void {
+        public tick(): void {
             if (this._player) {
-                this._player.aim(this.game.input.x, this.game.input.y);
                 this._player.update();
             }
 
@@ -74,14 +70,6 @@ namespace coreElement {
                     this._bullets.splice(i, 1);
                 }
             }
-        }
-
-        private _inputDown(): void {
-            this._player.attack(true);
-        }
-
-        private _inputUp(): void {
-            this._player.attack(false);
         }
 
         private _keyHandler(event: KeyboardEvent): void {
@@ -184,23 +172,23 @@ namespace coreElement {
         private _aimState: dragonBones.AnimationState | null = null;
         private _walkState: dragonBones.AnimationState | null = null;
         private _attackState: dragonBones.AnimationState | null = null;
-        private readonly _target: PointType = new PIXI.Point();
-        private readonly _helpPoint: PointType = new PIXI.Point();
+        private readonly _target: PointType = new dragonBones.Point();
+        private readonly _helpPoint: PointType = new dragonBones.Point();
 
         public constructor() {
-            this._armatureDisplay = dragonBones.PhaserFactory.factory.buildArmatureDisplay("mecha_1502b");
+            this._armatureDisplay = dragonBones.HiloFactory.factory.buildArmatureDisplay("mecha_1502b");
             this._armatureDisplay.x = Game.instance.stageWidth * 0.5;
             this._armatureDisplay.y = Game.GROUND;
             this._armature = this._armatureDisplay.armature;
-            this._armature.eventDispatcher.addEvent(dragonBones.EventObject.FADE_IN_COMPLETE, this._animationEventHandler, this);
-            this._armature.eventDispatcher.addEvent(dragonBones.EventObject.FADE_OUT_COMPLETE, this._animationEventHandler, this);
-            this._armature.eventDispatcher.addEvent(dragonBones.EventObject.COMPLETE, this._animationEventHandler, this);
+            this._armature.eventDispatcher.addEvent(dragonBones.EventObject.FADE_IN_COMPLETE, this._animationEventProxy, this);
+            this._armature.eventDispatcher.addEvent(dragonBones.EventObject.FADE_OUT_COMPLETE, this._animationEventProxy, this);
+            this._armature.eventDispatcher.addEvent(dragonBones.EventObject.COMPLETE, this._animationEventProxy, this);
 
             // Get weapon childArmature.
             this._weaponL = this._armature.getSlot("weapon_l").childArmature;
             this._weaponR = this._armature.getSlot("weapon_r").childArmature;
-            this._weaponL.eventDispatcher.addEvent(dragonBones.EventObject.FRAME_EVENT, this._frameEventHandler, this);
-            this._weaponR.eventDispatcher.addEvent(dragonBones.EventObject.FRAME_EVENT, this._frameEventHandler, this);
+            this._weaponL.eventDispatcher.addEvent(dragonBones.EventObject.FRAME_EVENT, this._frameEventProxy, this);
+            this._weaponR.eventDispatcher.addEvent(dragonBones.EventObject.FRAME_EVENT, this._frameEventProxy, this);
 
             Game.instance.addChild(this._armatureDisplay);
             this._updateAnimation();
@@ -247,33 +235,33 @@ namespace coreElement {
         }
 
         public switchWeaponL(): void {
-            this._weaponL.eventDispatcher.removeEvent(dragonBones.EventObject.FRAME_EVENT, this._frameEventHandler, this);
+            this._weaponL.eventDispatcher.removeEvent(dragonBones.EventObject.FRAME_EVENT, this._frameEventProxy, this);
 
             this._weaponLIndex++;
             this._weaponLIndex %= Mecha.WEAPON_L_LIST.length;
             const weaponName = Mecha.WEAPON_L_LIST[this._weaponLIndex];
-            this._weaponL = dragonBones.PhaserFactory.factory.buildArmature(weaponName);
+            this._weaponL = dragonBones.HiloFactory.factory.buildArmature(weaponName);
             this._armature.getSlot("weapon_l").childArmature = this._weaponL;
-            this._weaponL.eventDispatcher.addEvent(dragonBones.EventObject.FRAME_EVENT, this._frameEventHandler, this);
+            this._weaponL.eventDispatcher.addEvent(dragonBones.EventObject.FRAME_EVENT, this._frameEventProxy, this);
         }
 
         public switchWeaponR(): void {
-            this._weaponR.eventDispatcher.removeEvent(dragonBones.EventObject.FRAME_EVENT, this._frameEventHandler, this);
+            this._weaponR.eventDispatcher.removeEvent(dragonBones.EventObject.FRAME_EVENT, this._frameEventProxy, this);
 
             this._weaponRIndex++;
             this._weaponRIndex %= Mecha.WEAPON_R_LIST.length;
             const weaponName = Mecha.WEAPON_R_LIST[this._weaponRIndex];
-            this._weaponR = dragonBones.PhaserFactory.factory.buildArmature(weaponName);
+            this._weaponR = dragonBones.HiloFactory.factory.buildArmature(weaponName);
             this._armature.getSlot("weapon_r").childArmature = this._weaponR;
-            this._weaponR.eventDispatcher.addEvent(dragonBones.EventObject.FRAME_EVENT, this._frameEventHandler, this);
+            this._weaponR.eventDispatcher.addEvent(dragonBones.EventObject.FRAME_EVENT, this._frameEventProxy, this);
         }
 
         public switchSkin(): void {
             this._skinIndex++;
             this._skinIndex %= Mecha.SKINS.length;
             const skinName = Mecha.SKINS[this._skinIndex];
-            const skinData = dragonBones.PhaserFactory.factory.getArmatureData(skinName).defaultSkin;
-            dragonBones.PhaserFactory.factory.replaceSkin(this._armature, skinData, false, ["weapon_l", "weapon_r"]);
+            const skinData = dragonBones.HiloFactory.factory.getArmatureData(skinName).defaultSkin;
+            dragonBones.HiloFactory.factory.replaceSkin(this._armature, skinData, ["weapon_l", "weapon_r"]);
         }
 
         public aim(x: number, y: number): void {
@@ -287,10 +275,15 @@ namespace coreElement {
             this._updateAttack();
         }
 
+        private readonly _animationEventProxy = (v: EventType) => {
+            this._animationEventHandler(v);
+        };
         private _animationEventHandler(event: EventType): void {
-            switch (event.type) {
+            const eventObject = event.detail as dragonBones.EventObject;
+
+            switch (eventObject.type) {
                 case dragonBones.EventObject.FADE_IN_COMPLETE:
-                    if (event.animationState.name === "jump_1") {
+                    if (eventObject.animationState.name === "jump_1") {
                         this._isJumpingB = true;
                         this._speedY = -Mecha.JUMP_SPEED;
 
@@ -311,14 +304,14 @@ namespace coreElement {
                     break;
 
                 case dragonBones.EventObject.FADE_OUT_COMPLETE:
-                    if (event.animationState.name === "attack_01") {
+                    if (eventObject.animationState.name === "attack_01") {
                         this._isAttackingB = false;
                         this._attackState = null;
                     }
                     break;
 
                 case dragonBones.EventObject.COMPLETE:
-                    if (event.animationState.name === "jump_4") {
+                    if (eventObject.animationState.name === "jump_4") {
                         this._isJumpingA = false;
                         this._isJumpingB = false;
                         this._updateAnimation();
@@ -327,13 +320,16 @@ namespace coreElement {
             }
         }
 
+        private readonly _frameEventProxy = (v: EventType) => {
+            this._frameEventHandler(v);
+        };
         private _frameEventHandler(event: EventType): void {
-            if (event.name === "fire") {
-                this._helpPoint.x = event.bone.global.x;
-                this._helpPoint.y = event.bone.global.y;
-                const globalPoint = (event.armature.display as ArmatureDisplayType).toGlobal(this._helpPoint);
-                this._helpPoint.x = globalPoint.x;
-                this._helpPoint.y = globalPoint.y;
+            const eventObject = event.detail as dragonBones.EventObject;
+
+            if (eventObject.name === "fire") {
+                this._helpPoint.x = eventObject.bone.global.x;
+                this._helpPoint.y = eventObject.bone.global.y;
+                // TODO
 
                 this._fire(this._helpPoint);
             }
@@ -439,7 +435,7 @@ namespace coreElement {
                 }
             }
 
-            const aimOffsetY = this._armature.getBone("chest").global.y * this._armatureDisplay.scale.y;
+            const aimOffsetY = this._armature.getBone("chest").global.y * this._armatureDisplay.scaleY;
             if (this._faceDir > 0) {
                 this._aimRadian = Math.atan2(this._target.y - this._armatureDisplay.y - aimOffsetY, this._target.x - this._armatureDisplay.x);
             }
@@ -509,21 +505,21 @@ namespace coreElement {
             this._speedX = Math.cos(radian) * speed;
             this._speedY = Math.sin(radian) * speed;
 
-            this._armatureDisplay = dragonBones.PhaserFactory.factory.buildArmatureDisplay(armatureName);
+            this._armatureDisplay = dragonBones.HiloFactory.factory.buildArmatureDisplay(armatureName);
             this._armatureDisplay.x = position.x + Math.random() * 2 - 1;
             this._armatureDisplay.y = position.y + Math.random() * 2 - 1;
             this._armatureDisplay.rotation = radian;
 
             if (effectArmatureName !== null) {
-                this._effecDisplay = dragonBones.PhaserFactory.factory.buildArmatureDisplay(effectArmatureName);
+                this._effecDisplay = dragonBones.HiloFactory.factory.buildArmatureDisplay(effectArmatureName);
                 this._effecDisplay.rotation = radian;
                 this._effecDisplay.x = this._armatureDisplay.x;
                 this._effecDisplay.y = this._armatureDisplay.y;
-                this._effecDisplay.scale.x = 1.0 + Math.random() * 1.0;
-                this._effecDisplay.scale.y = 1.0 + Math.random() * 0.5;
+                this._effecDisplay.scaleX = 1.0 + Math.random() * 1.0;
+                this._effecDisplay.scaleY = 1.0 + Math.random() * 0.5;
 
                 if (Math.random() < 0.5) {
-                    this._effecDisplay.scale.y *= -1.0;
+                    this._effecDisplay.scaleY *= -1.0;
                 }
 
                 Game.instance.addChild(this._effecDisplay);

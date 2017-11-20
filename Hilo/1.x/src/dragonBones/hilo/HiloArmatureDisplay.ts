@@ -73,6 +73,7 @@ namespace dragonBones {
             return listeners && type in listeners;
         }
         /**
+         * Hilo can not support listener target.
          * @inheritDoc
          */
         public addDBEventListener(type: EventStringType, listener: (event: EventObject) => void, target: any): void {
@@ -81,6 +82,7 @@ namespace dragonBones {
             this.on(type, listener, false);
         }
         /**
+         * Hilo can not support listener target.
          * @inheritDoc
          */
         public removeDBEventListener(type: EventStringType, listener: (event: EventObject) => void, target: any): void {

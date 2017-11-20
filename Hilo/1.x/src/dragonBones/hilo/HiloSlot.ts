@@ -119,90 +119,88 @@ namespace dragonBones {
          * @inheritDoc
          */
         protected _updateColor(): void {
-            // TODO
-            // this._renderDisplay.alpha = this._colorTransform.alphaMultiplier;
-            // if (this._renderDisplay instanceof PIXI.Sprite || this._renderDisplay instanceof PIXI.mesh.Mesh) {
-            //     const color = (Math.round(this._colorTransform.redMultiplier * 0xFF) << 16) + (Math.round(this._colorTransform.greenMultiplier * 0xFF) << 8) + Math.round(this._colorTransform.blueMultiplier * 0xFF);
-            //     this._renderDisplay.tint = color;
-            // }
+            const color = (Math.round(this._colorTransform.redMultiplier * 0xFF) << 16) + (Math.round(this._colorTransform.greenMultiplier * 0xFF) << 8) + Math.round(this._colorTransform.blueMultiplier * 0xFF);
+
+            this._renderDisplay.alpha = this._colorTransform.alphaMultiplier;
+            this._renderDisplay.tint = color;
         }
         /**
          * @inheritDoc
          */
         protected _updateFrame(): void {
             const meshData = this._display === this._meshDisplay ? this._meshData : null;
-            let currentTextureData = this._textureData as (PixiTextureData | null);
+            let currentTextureData = this._textureData as (HiloTextureData | null);
 
             if (this._displayIndex >= 0 && this._display !== null && currentTextureData !== null) {
-                let currentTextureAtlasData = currentTextureData.parent as PixiTextureAtlasData;
+                let currentTextureAtlasData = currentTextureData.parent as HiloTextureAtlasData;
                 if (this._armature.replacedTexture !== null && this._rawDisplayDatas !== null && this._rawDisplayDatas.indexOf(this._displayData) >= 0) { // Update replaced texture atlas.
                     if (this._armature._replaceTextureAtlasData === null) {
-                        currentTextureAtlasData = BaseObject.borrowObject(PixiTextureAtlasData);
+                        currentTextureAtlasData = BaseObject.borrowObject(HiloTextureAtlasData);
                         currentTextureAtlasData.copyFrom(currentTextureData.parent);
                         currentTextureAtlasData.renderTexture = this._armature.replacedTexture;
                         this._armature._replaceTextureAtlasData = currentTextureAtlasData;
                     }
                     else {
-                        currentTextureAtlasData = this._armature._replaceTextureAtlasData as PixiTextureAtlasData;
+                        currentTextureAtlasData = this._armature._replaceTextureAtlasData as HiloTextureAtlasData;
                     }
 
-                    currentTextureData = currentTextureAtlasData.getTexture(currentTextureData.name) as PixiTextureData;
+                    currentTextureData = currentTextureAtlasData.getTexture(currentTextureData.name) as HiloTextureData;
                 }
 
-                const renderTexture = currentTextureData.renderTexture;
+                const renderTexture = currentTextureAtlasData.renderTexture;
                 if (renderTexture !== null) {
                     if (meshData !== null) { // Mesh.
-                        const data = meshData.parent.parent.parent;
-                        const intArray = data.intArray;
-                        const floatArray = data.floatArray;
-                        const vertexCount = intArray[meshData.offset + BinaryOffset.MeshVertexCount];
-                        const triangleCount = intArray[meshData.offset + BinaryOffset.MeshTriangleCount];
-                        let vertexOffset = intArray[meshData.offset + BinaryOffset.MeshFloatOffset];
+                        // const data = meshData.parent.parent.parent;
+                        // const intArray = data.intArray;
+                        // const floatArray = data.floatArray;
+                        // const vertexCount = intArray[meshData.offset + BinaryOffset.MeshVertexCount];
+                        // const triangleCount = intArray[meshData.offset + BinaryOffset.MeshTriangleCount];
+                        // let vertexOffset = intArray[meshData.offset + BinaryOffset.MeshFloatOffset];
 
-                        if (vertexOffset < 0) {
-                            vertexOffset += 65536; // Fixed out of bouds bug. 
-                        }
+                        // if (vertexOffset < 0) {
+                        //     vertexOffset += 65536; // Fixed out of bouds bug. 
+                        // }
 
-                        const uvOffset = vertexOffset + vertexCount * 2;
+                        // const uvOffset = vertexOffset + vertexCount * 2;
 
-                        const meshDisplay = this._renderDisplay as PIXI.mesh.Mesh;
-                        const textureAtlasWidth = currentTextureAtlasData.width > 0.0 ? currentTextureAtlasData.width : renderTexture.width;
-                        const textureAtlasHeight = currentTextureAtlasData.height > 0.0 ? currentTextureAtlasData.height : renderTexture.height;
+                        // const meshDisplay = this._renderDisplay as PIXI.mesh.Mesh;
+                        // const textureAtlasWidth = currentTextureAtlasData.width > 0.0 ? currentTextureAtlasData.width : renderTexture.width;
+                        // const textureAtlasHeight = currentTextureAtlasData.height > 0.0 ? currentTextureAtlasData.height : renderTexture.height;
 
-                        meshDisplay.vertices = new Float32Array(vertexCount * 2) as any;
-                        meshDisplay.uvs = new Float32Array(vertexCount * 2) as any;
-                        meshDisplay.indices = new Uint16Array(triangleCount * 3) as any;
-                        for (let i = 0, l = vertexCount * 2; i < l; ++i) {
-                            meshDisplay.vertices[i] = floatArray[vertexOffset + i];
-                            meshDisplay.uvs[i] = floatArray[uvOffset + i];
-                        }
+                        // meshDisplay.vertices = new Float32Array(vertexCount * 2) as any;
+                        // meshDisplay.uvs = new Float32Array(vertexCount * 2) as any;
+                        // meshDisplay.indices = new Uint16Array(triangleCount * 3) as any;
+                        // for (let i = 0, l = vertexCount * 2; i < l; ++i) {
+                        //     meshDisplay.vertices[i] = floatArray[vertexOffset + i];
+                        //     meshDisplay.uvs[i] = floatArray[uvOffset + i];
+                        // }
 
-                        for (let i = 0; i < triangleCount * 3; ++i) {
-                            meshDisplay.indices[i] = intArray[meshData.offset + BinaryOffset.MeshVertexIndices + i];
-                        }
+                        // for (let i = 0; i < triangleCount * 3; ++i) {
+                        //     meshDisplay.indices[i] = intArray[meshData.offset + BinaryOffset.MeshVertexIndices + i];
+                        // }
 
-                        for (let i = 0, l = meshDisplay.uvs.length; i < l; i += 2) {
-                            const u = meshDisplay.uvs[i];
-                            const v = meshDisplay.uvs[i + 1];
-                            if (currentTextureData.rotated) {
-                                meshDisplay.uvs[i] = (currentTextureData.region.x + (1.0 - v) * currentTextureData.region.width) / textureAtlasWidth;
-                                meshDisplay.uvs[i + 1] = (currentTextureData.region.y + u * currentTextureData.region.height) / textureAtlasHeight;
-                            }
-                            else {
-                                meshDisplay.uvs[i] = (currentTextureData.region.x + u * currentTextureData.region.width) / textureAtlasWidth;
-                                meshDisplay.uvs[i + 1] = (currentTextureData.region.y + v * currentTextureData.region.height) / textureAtlasHeight;
-                            }
-                        }
+                        // for (let i = 0, l = meshDisplay.uvs.length; i < l; i += 2) {
+                        //     const u = meshDisplay.uvs[i];
+                        //     const v = meshDisplay.uvs[i + 1];
+                        //     if (currentTextureData.rotated) {
+                        //         meshDisplay.uvs[i] = (currentTextureData.region.x + (1.0 - v) * currentTextureData.region.width) / textureAtlasWidth;
+                        //         meshDisplay.uvs[i + 1] = (currentTextureData.region.y + u * currentTextureData.region.height) / textureAtlasHeight;
+                        //     }
+                        //     else {
+                        //         meshDisplay.uvs[i] = (currentTextureData.region.x + u * currentTextureData.region.width) / textureAtlasWidth;
+                        //         meshDisplay.uvs[i + 1] = (currentTextureData.region.y + v * currentTextureData.region.height) / textureAtlasHeight;
+                        //     }
+                        // }
 
-                        this._textureScale = 1.0;
-                        meshDisplay.texture = renderTexture as any;
-                        //meshDisplay.dirty = true; // Pixi 3.x
-                        meshDisplay.dirty++; // Pixi 4.x Can not support change mesh vertice count.
+                        // this._textureScale = 1.0;
+                        // meshDisplay.texture = renderTexture as any;
+                        // //meshDisplay.dirty = true; // Pixi 3.x
+                        // meshDisplay.dirty++; // Pixi 4.x Can not support change mesh vertice count.
                     }
                     else { // Normal texture.
                         this._textureScale = currentTextureData.parent.scale * this._armature._armatureData.scale;
-                        const normalDisplay = this._renderDisplay as PIXI.Sprite;
-                        normalDisplay.texture = renderTexture;
+                        const normalDisplay = this._renderDisplay as Hilo.Bitmap;
+                        normalDisplay.setImage(renderTexture, [currentTextureData.region.x, currentTextureData.region.y, currentTextureData.region.width, currentTextureData.region.height]);
                     }
 
                     this._visibleDirty = true;
@@ -211,15 +209,15 @@ namespace dragonBones {
             }
 
             if (meshData !== null) {
-                const meshDisplay = this._renderDisplay as PIXI.mesh.Mesh;
-                meshDisplay.texture = null as any;
-                meshDisplay.x = 0.0;
-                meshDisplay.y = 0.0;
-                meshDisplay.visible = false;
+                // const meshDisplay = this._renderDisplay as PIXI.mesh.Mesh;
+                // meshDisplay.texture = null as any;
+                // meshDisplay.x = 0.0;
+                // meshDisplay.y = 0.0;
+                // meshDisplay.visible = false;
             }
             else {
-                const normalDisplay = this._renderDisplay as PIXI.Sprite;
-                normalDisplay.texture = null as any;
+                const normalDisplay = this._renderDisplay as Hilo.Bitmap;
+                // normalDisplay.setImage(null);
                 normalDisplay.x = 0.0;
                 normalDisplay.y = 0.0;
                 normalDisplay.visible = false;
@@ -303,7 +301,7 @@ namespace dragonBones {
                 this._renderDisplay.rotation = 0.0;
                 (this._renderDisplay as any).skew = 0.0;
                 this._renderDisplay.scaleX = 1.0;
-                this._renderDisplay.scaleX = 1.0;
+                this._renderDisplay.scaleY = 1.0;
             }
             else {
                 this.updateGlobalTransform(); // Update transform.
@@ -315,18 +313,18 @@ namespace dragonBones {
                     const y = transform.y - (this.globalTransformMatrix.b * this._pivotX + this.globalTransformMatrix.d * this._pivotY);
                     this._renderDisplay.x = x;
                     this._renderDisplay.y = y;
-                    this._renderDisplay.rotation = transform.rotation;
-                    (this._renderDisplay as any).skew = transform.skew;
+                    this._renderDisplay.rotation = transform.rotation * Transform.RAD_DEG;
+                    (this._renderDisplay as any).skew = transform.skew; // Hilo can not support skew.
                     this._renderDisplay.scaleX = transform.scaleX * this._textureScale;
-                    this._renderDisplay.scaleX = transform.scaleY * this._textureScale;
+                    this._renderDisplay.scaleY = transform.scaleY * this._textureScale;
                 }
                 else {
                     this._renderDisplay.x = transform.x;
                     this._renderDisplay.y = transform.y;
-                    this._renderDisplay.rotation = transform.rotation;
-                    (this._renderDisplay as any).skew = transform.skew;
+                    this._renderDisplay.rotation = transform.rotation * Transform.RAD_DEG;
+                    (this._renderDisplay as any).skew = transform.skew; // Hilo can not support skew.
                     this._renderDisplay.scaleX = transform.scaleX * this._textureScale;
-                    this._renderDisplay.scaleX = transform.scaleY * this._textureScale;
+                    this._renderDisplay.scaleY = transform.scaleY * this._textureScale;
                 }
             }
         }

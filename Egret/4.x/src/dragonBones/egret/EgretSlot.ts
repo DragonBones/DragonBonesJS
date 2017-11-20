@@ -105,13 +105,14 @@ namespace dragonBones {
             }
 
             if (this._armatureDisplay._batchEnabled) {
-                const node = this._renderDisplay.$renderNode as (egret.sys.BitmapNode | egret.sys.MeshNode);
-                if (!node.matrix) {
-                    node.matrix = new egret.Matrix();
-                }
-
                 if (this._renderDisplay !== this._rawDisplay && this._renderDisplay !== this._meshDisplay) {
                     this._armatureDisplay.disableBatch();
+                }
+                else {
+                    const node = this._renderDisplay.$renderNode as (egret.sys.BitmapNode | egret.sys.MeshNode);
+                    if (!node.matrix) {
+                        node.matrix = new egret.Matrix();
+                    }
                 }
             }
         }
@@ -180,7 +181,6 @@ namespace dragonBones {
             if (this._armatureDisplay._batchEnabled) {
                 const node = this._renderDisplay.$renderNode as (egret.sys.BitmapNode);
                 node.alpha = visible ? 1.0 : 0.0;
-                this._displayDirty = true;
             }
             else {
                 this._renderDisplay.visible = visible;

@@ -1,11 +1,11 @@
 class ReplaceAnimation extends BaseTest {
-    private _armatureDisplayA: dragonBones.PhaserArmatureDisplay;
-    private _armatureDisplayB: dragonBones.PhaserArmatureDisplay;
-    private _armatureDisplayC: dragonBones.PhaserArmatureDisplay;
-    private _armatureDisplayD: dragonBones.PhaserArmatureDisplay;
+    private _armatureDisplayA: dragonBones.HiloArmatureDisplay;
+    private _armatureDisplayB: dragonBones.HiloArmatureDisplay;
+    private _armatureDisplayC: dragonBones.HiloArmatureDisplay;
+    private _armatureDisplayD: dragonBones.HiloArmatureDisplay;
 
-    public constructor(game: Phaser.Game) {
-        super(game);
+    public constructor() {
+        super();
 
         this._resources.push(
             "resource/assets/core_element/mecha_2903_ske.json",
@@ -15,12 +15,9 @@ class ReplaceAnimation extends BaseTest {
     }
 
     protected _onStart(): void {
-        const factory = dragonBones.PhaserFactory.factory;
-        factory.parseDragonBonesData(this.game.cache.getItem("resource/assets/core_element/mecha_2903_ske.json", Phaser.Cache.JSON).data);
-        factory.parseTextureAtlasData(
-            this.game.cache.getItem("resource/assets/core_element/mecha_2903_tex.json", Phaser.Cache.JSON).data,
-            (this.game.cache.getImage("resource/assets/core_element/mecha_2903_tex.png", true) as any).base
-        );
+        const factory = dragonBones.HiloFactory.factory;
+        factory.parseDragonBonesData(this._hiloResources["resource/assets/core_element/mecha_2903_ske.json"]);
+        factory.parseTextureAtlasData(this._hiloResources["resource/assets/core_element/mecha_2903_tex.json"], this._hiloResources["resource/assets/core_element/mecha_2903_tex.png"]);
         //
         this._armatureDisplayA = factory.buildArmatureDisplay("mecha_2903");
         this._armatureDisplayB = factory.buildArmatureDisplay("mecha_2903b");
@@ -46,10 +43,9 @@ class ReplaceAnimation extends BaseTest {
         this._armatureDisplayD.x = this.stageWidth * 0.5;
         this._armatureDisplayD.y = this.stageHeight * 0.5 - 50.0;
         //
-        this.inputEnabled = true;
-        this.events.onInputDown.add(() => {
+        this.on((Hilo.event as any).POINTER_START, () => {
             this._replaceAnimation();
-        });
+        }, false);
         //
         this.createText("Click to change animation.");
     }

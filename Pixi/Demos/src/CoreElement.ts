@@ -271,7 +271,7 @@ namespace coreElement {
             this._skinIndex %= Mecha.SKINS.length;
             const skinName = Mecha.SKINS[this._skinIndex];
             const skinData = dragonBones.PixiFactory.factory.getArmatureData(skinName).defaultSkin;
-            dragonBones.PixiFactory.factory.changeSkin(this._armature, skinData, ["weapon_l", "weapon_r"]);
+            dragonBones.PixiFactory.factory.replaceSkin(this._armature, skinData, false, ["weapon_l", "weapon_r"]);
         }
 
         public aim(x: number, y: number): void {
