@@ -405,7 +405,7 @@ namespace dragonBones {
         }
         /**
          * - Forces a specific bone or its owning slot to update the transform or display property in the next frame.
-         * @param boneName - The bone name. (If not set, all bones will be update).
+         * @param boneName - The bone name. (If not set, all bones will be update)
          * @param updateSlot - Whether to update the bone's slots.
          * @see dragonBones.Bone#invalidUpdate()
          * @see dragonBones.Slot#invalidUpdate()
@@ -414,7 +414,7 @@ namespace dragonBones {
          */
         /**
          * - 强制特定骨骼或其拥有的插槽在下一帧更新变换或显示属性。
-         * @param boneName - 骨骼名称。 （如果未设置，将更新所有骨骼）。
+         * @param boneName - 骨骼名称。 （如果未设置，将更新所有骨骼）
          * @param updateSlot - 是否更新骨骼的插槽。
          * @see dragonBones.Bone#invalidUpdate()
          * @see dragonBones.Slot#invalidUpdate()
@@ -485,7 +485,7 @@ namespace dragonBones {
          * @param yB - The vertical coordinate of the end point of the segment.
          * @param intersectionPointA - The first intersection at which a line segment intersects the bounding box from the beginning to the end.
          * @param intersectionPointB - The first intersection at which a line segment intersects the bounding box from the end to the beginning.
-         * @param normalRadians - The normal radians of the tangent of the intersection boundary box. [x: Normal radian of the first intersection tangent, y: Normal radian of the second intersection tangent].
+         * @param normalRadians - The normal radians of the tangent of the intersection boundary box. [x: Normal radian of the first intersection tangent, y: Normal radian of the second intersection tangent]
          * @returns The slot of the first custom bounding box where the segment intersects from the start point to the end point.
          * @version DragonBones 5.0
          * @language en_US
@@ -500,7 +500,7 @@ namespace dragonBones {
          * @param yB - 线段终点的垂直坐标。
          * @param intersectionPointA - 线段从起点到终点与边界框相交的第一个交点。
          * @param intersectionPointB - 线段从终点到起点与边界框相交的第一个交点。
-         * @param normalRadians - 交点边界框切线的法线弧度。 [x: 第一个交点切线的法线弧度, y: 第二个交点切线的法线弧度]。
+         * @param normalRadians - 交点边界框切线的法线弧度。 [x: 第一个交点切线的法线弧度, y: 第二个交点切线的法线弧度]
          * @returns 线段从起点到终点相交的第一个自定义边界框的插槽。
          * @version DragonBones 5.0
          * @language zh_CN

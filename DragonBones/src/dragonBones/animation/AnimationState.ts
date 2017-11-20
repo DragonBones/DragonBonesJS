@@ -924,14 +924,14 @@ namespace dragonBones {
         }
         /**
          * - Fade out the animation state.
-         * @param fadeOutTime - The fade out time. (In seconds).
+         * @param fadeOutTime - The fade out time. (In seconds)
          * @param pausePlayhead - Whether to pause the animation playing when fade out.
          * @version DragonBones 3.0
          * @language en_US
          */
         /**
          * - 淡出动画状态。
-         * @param fadeOutTime - 淡出时间。 （以秒为单位）。
+         * @param fadeOutTime - 淡出时间。 （以秒为单位）
          * @param pausePlayhead - 淡出时是否暂停播放。
          * @version DragonBones 3.0
          * @language zh_CN
