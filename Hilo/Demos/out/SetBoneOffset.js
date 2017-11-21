@@ -17,18 +17,19 @@ var SetBoneOffset = /** @class */ (function (_super) {
         return _this;
     }
     SetBoneOffset.prototype._onStart = function () {
-        var factory = dragonBones.PixiFactory.factory;
-        factory.parseDragonBonesData(this._pixiResources["resource/assets/effect_ske.json"].data);
-        factory.parseTextureAtlasData(this._pixiResources["resource/assets/effect_tex.json"].data, this._pixiResources["resource/assets/effect_tex.png"].texture);
+        var _this = this;
+        var factory = dragonBones.HiloFactory.factory;
+        factory.parseDragonBonesData(this._hiloResources["resource/assets/effect_ske.json"]);
+        factory.parseTextureAtlasData(this._hiloResources["resource/assets/effect_tex.json"], this._hiloResources["resource/assets/effect_tex.png"]);
         for (var i = 0; i < 100; ++i) {
             var armatureDisplay = factory.buildArmatureDisplay("effect");
-            armatureDisplay.on(dragonBones.EventObject.COMPLETE, this._animationHandler, this);
+            armatureDisplay.addDBEventListener(dragonBones.EventObject.COMPLETE, function (event) {
+                var eventObject = event.detail;
+                _this._moveTo(eventObject.armature.display);
+            }, this);
             this._moveTo(armatureDisplay);
             this.addChild(armatureDisplay);
         }
-    };
-    SetBoneOffset.prototype._animationHandler = function (event) {
-        this._moveTo(event.armature.display);
     };
     SetBoneOffset.prototype._moveTo = function (armatureDisplay) {
         var fromX = Math.random() * this.stageWidth;

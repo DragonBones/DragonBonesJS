@@ -16,7 +16,7 @@ class SetBoneOffset extends BaseTest {
 
         for (let i = 0; i < 100; ++i) {
             const armatureDisplay = factory.buildArmatureDisplay("effect");
-            armatureDisplay.addListener(dragonBones.EventObject.COMPLETE, this._animationHandler, this);
+            armatureDisplay.on(dragonBones.EventObject.COMPLETE, this._animationHandler, this);
             this._moveTo(armatureDisplay);
             this.addChild(armatureDisplay);
         }

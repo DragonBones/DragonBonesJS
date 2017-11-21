@@ -20,16 +20,17 @@ var ReplaceSlotDisplay = /** @class */ (function (_super) {
             // Replace mesh display.
             "meshA", "meshB", "meshC",
         ];
-        _this._factory = dragonBones.PixiFactory.factory;
+        _this._factory = dragonBones.HiloFactory.factory;
         _this._resources.push("resource/assets/replace_slot_display/main_ske.json", "resource/assets/replace_slot_display/main_tex.json", "resource/assets/replace_slot_display/main_tex.png", "resource/assets/replace_slot_display/replace_ske.json", "resource/assets/replace_slot_display/replace_tex.json", "resource/assets/replace_slot_display/replace_tex.png");
         return _this;
     }
     ReplaceSlotDisplay.prototype._onStart = function () {
         var _this = this;
-        this._factory.parseDragonBonesData(this._pixiResources["resource/assets/replace_slot_display/main_ske.json"].data);
-        this._factory.parseTextureAtlasData(this._pixiResources["resource/assets/replace_slot_display/main_tex.json"].data, this._pixiResources["resource/assets/replace_slot_display/main_tex.png"].texture);
-        this._factory.parseDragonBonesData(this._pixiResources["resource/assets/replace_slot_display/replace_ske.json"].data);
-        this._factory.parseTextureAtlasData(this._pixiResources["resource/assets/replace_slot_display/replace_tex.json"].data, this._pixiResources["resource/assets/replace_slot_display/replace_tex.png"].texture);
+        var factory = dragonBones.HiloFactory.factory;
+        factory.parseDragonBonesData(this._hiloResources["resource/assets/replace_slot_display/main_ske.json"]);
+        factory.parseTextureAtlasData(this._hiloResources["resource/assets/replace_slot_display/main_tex.json"], this._hiloResources["resource/assets/replace_slot_display/main_tex.png"]);
+        factory.parseDragonBonesData(this._hiloResources["resource/assets/replace_slot_display/replace_ske.json"]);
+        factory.parseTextureAtlasData(this._hiloResources["resource/assets/replace_slot_display/replace_tex.json"], this._hiloResources["resource/assets/replace_slot_display/replace_tex.png"]);
         //
         this._armatureDisplay = this._factory.buildArmatureDisplay("MyArmature");
         this._armatureDisplay.animation.timeScale = 0.1;
@@ -38,12 +39,10 @@ var ReplaceSlotDisplay = /** @class */ (function (_super) {
         this._armatureDisplay.y = this.stageHeight * 0.5;
         this.addChild(this._armatureDisplay);
         //
-        var touchHandler = function (event) {
+        this.on(Hilo.event.POINTER_START, function () {
             _this._replaceDisplay();
-        };
-        this.interactive = true;
-        this.addListener("touchstart", touchHandler, this);
-        this.addListener("mousedown", touchHandler, this);
+        }, false);
+        //
         this.createText("Click to replace slot display.");
     };
     ReplaceSlotDisplay.prototype._replaceDisplay = function () {

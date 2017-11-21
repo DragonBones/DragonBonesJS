@@ -914,7 +914,7 @@ namespace dragonBones {
 
                 const displays = skin.getDisplays(slot.name);
                 if (!displays) {
-                    if (!isOverride) {
+                    if (isOverride) {
                         slot.rawDisplayDatas = null;
                         slot.displayList = []; //
                     }

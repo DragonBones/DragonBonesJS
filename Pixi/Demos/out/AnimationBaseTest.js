@@ -9,7 +9,7 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-var AnimationBaseTest = (function (_super) {
+var AnimationBaseTest = /** @class */ (function (_super) {
     __extends(AnimationBaseTest, _super);
     function AnimationBaseTest() {
         var _this = _super.call(this) || this;
@@ -28,14 +28,14 @@ var AnimationBaseTest = (function (_super) {
         this._armatureDisplay.scale.x = this._armatureDisplay.scale.x = this.stageWidth >= 300 ? 1 : this.stageWidth / 330;
         this.addChild(this._armatureDisplay);
         // Test animation event
-        this._armatureDisplay.addListener(dragonBones.EventObject.START, this._animationEventHandler, this);
-        this._armatureDisplay.addListener(dragonBones.EventObject.LOOP_COMPLETE, this._animationEventHandler, this);
-        this._armatureDisplay.addListener(dragonBones.EventObject.COMPLETE, this._animationEventHandler, this);
-        this._armatureDisplay.addListener(dragonBones.EventObject.FADE_IN, this._animationEventHandler, this);
-        this._armatureDisplay.addListener(dragonBones.EventObject.FADE_IN_COMPLETE, this._animationEventHandler, this);
-        this._armatureDisplay.addListener(dragonBones.EventObject.FADE_OUT, this._animationEventHandler, this);
-        this._armatureDisplay.addListener(dragonBones.EventObject.FADE_OUT_COMPLETE, this._animationEventHandler, this);
-        this._armatureDisplay.addListener(dragonBones.EventObject.FRAME_EVENT, this._animationEventHandler, this);
+        this._armatureDisplay.on(dragonBones.EventObject.START, this._animationEventHandler, this);
+        this._armatureDisplay.on(dragonBones.EventObject.LOOP_COMPLETE, this._animationEventHandler, this);
+        this._armatureDisplay.on(dragonBones.EventObject.COMPLETE, this._animationEventHandler, this);
+        this._armatureDisplay.on(dragonBones.EventObject.FADE_IN, this._animationEventHandler, this);
+        this._armatureDisplay.on(dragonBones.EventObject.FADE_IN_COMPLETE, this._animationEventHandler, this);
+        this._armatureDisplay.on(dragonBones.EventObject.FADE_OUT, this._animationEventHandler, this);
+        this._armatureDisplay.on(dragonBones.EventObject.FADE_OUT_COMPLETE, this._animationEventHandler, this);
+        this._armatureDisplay.on(dragonBones.EventObject.FRAME_EVENT, this._animationEventHandler, this);
         this._armatureDisplay.animation.play("idle", 1);
         // Test animation config.
         // const animaitonConfig = this._armatureDisplay.animation.animationConfig;
@@ -67,11 +67,6 @@ var AnimationBaseTest = (function (_super) {
             case "touchstart":
             case "mousedown":
                 this._isTouched = true;
-                // this._armatureDisplay.animation.gotoAndPlayByTime("idle", 0.5, 1);
-                // this._armatureDisplay.animation.gotoAndStopByTime("idle", 1);
-                // this._armatureDisplay.animation.gotoAndPlayByFrame("idle", 25, 2);
-                // this._armatureDisplay.animation.gotoAndStopByFrame("idle", 50);
-                // this._armatureDisplay.animation.gotoAndPlayByProgress("idle", progress, 3);
                 this._armatureDisplay.animation.gotoAndStopByProgress("idle", progress);
                 break;
             case "touchend":

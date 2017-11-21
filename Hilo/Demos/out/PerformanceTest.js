@@ -19,22 +19,7 @@ var PerformanceTest = /** @class */ (function (_super) {
         _this._resources.push("resource/assets/dragon_boy_ske.dbbin", "resource/assets/dragon_boy_tex.json", "resource/assets/dragon_boy_tex.png");
         return _this;
     }
-    PerformanceTest.prototype._onStart = function () {
-        this.interactive = true;
-        this.addListener("touchstart", this._touchHandler, this);
-        this.addListener("touchend", this._touchHandler, this);
-        this.addListener("mousedown", this._touchHandler, this);
-        this.addListener("mouseup", this._touchHandler, this);
-        PIXI.ticker.shared.add(this._enterFrameHandler, this);
-        //
-        this._text = this.createText("");
-        for (var i = 0; i < 300; ++i) {
-            this._addArmature();
-        }
-        this._resetPosition();
-        this._updateText();
-    };
-    PerformanceTest.prototype._enterFrameHandler = function (deltaTime) {
+    PerformanceTest.prototype.tick = function () {
         if (this._addingArmature) {
             for (var i = 0; i < 10; ++i) {
                 this._addArmature();
@@ -50,31 +35,35 @@ var PerformanceTest = /** @class */ (function (_super) {
             this._updateText();
         }
     };
-    PerformanceTest.prototype._touchHandler = function (event) {
-        switch (event.type) {
-            case "touchstart":
-            case "mousedown":
-                var touchRight = event.data.global.x > this.stageWidth * 0.5;
-                this._addingArmature = touchRight;
-                this._removingArmature = !touchRight;
-                break;
-            case "touchend":
-            case "mouseup":
-                this._addingArmature = false;
-                this._removingArmature = false;
-                break;
+    PerformanceTest.prototype._onStart = function () {
+        var _this = this;
+        this.on(Hilo.event.POINTER_START, function (v) {
+            var touchRight = v.clientX > _this.stageWidth * 0.5;
+            _this._addingArmature = touchRight;
+            _this._removingArmature = !touchRight;
+        }, false);
+        this.on(Hilo.event.POINTER_END, function () {
+            _this._addingArmature = false;
+            _this._removingArmature = false;
+        }, false);
+        //
+        this._text = this.createText("");
+        for (var i = 0; i < 300; ++i) {
+            this._addArmature();
         }
+        this._resetPosition();
+        this._updateText();
     };
     PerformanceTest.prototype._addArmature = function () {
-        var factory = dragonBones.PixiFactory.factory;
+        var factory = dragonBones.HiloFactory.factory;
         if (this._armatures.length === 0) {
-            factory.parseDragonBonesData(this._pixiResources["resource/assets/dragon_boy_ske.dbbin"].data);
-            factory.parseTextureAtlasData(this._pixiResources["resource/assets/dragon_boy_tex.json"].data, this._pixiResources["resource/assets/dragon_boy_tex.png"].texture);
+            factory.parseDragonBonesData(this._hiloResources["resource/assets/dragon_boy_ske.dbbin"]);
+            factory.parseTextureAtlasData(this._hiloResources["resource/assets/dragon_boy_tex.json"], this._hiloResources["resource/assets/dragon_boy_tex.png"]);
         }
-        var armatureDisplay = dragonBones.PixiFactory.factory.buildArmatureDisplay("DragonBoy");
+        var armatureDisplay = factory.buildArmatureDisplay("DragonBoy");
         armatureDisplay.armature.cacheFrameRate = 24;
         armatureDisplay.animation.play("walk", 0);
-        armatureDisplay.scale.x = armatureDisplay.scale.y = 0.7;
+        armatureDisplay.scaleX = armatureDisplay.scaleY = 0.7;
         this.addChild(armatureDisplay);
         this._armatures.push(armatureDisplay);
     };
@@ -86,7 +75,7 @@ var PerformanceTest = /** @class */ (function (_super) {
         this.removeChild(armatureDisplay);
         armatureDisplay.dispose();
         if (this._armatures.length === 0) {
-            dragonBones.PixiFactory.factory.clear(true);
+            dragonBones.HiloFactory.factory.clear(true);
             dragonBones.BaseObject.clearPool();
         }
     };

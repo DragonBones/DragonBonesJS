@@ -48,10 +48,8 @@ var BaseTest = /** @class */ (function (_super) {
         this.game.load.start();
     };
     BaseTest.prototype.createText = function (string) {
-        var style = { font: "20px", fill: "#FFFFFF", align: "center" };
+        var style = { font: "14px", fill: "#FFFFFF", align: "center" };
         var text = this.game.add.text(0.0, 0.0, string, style);
-        text.scale.x = 0.7;
-        text.scale.y = 0.7;
         text.x = (this.stageWidth - text.width) * 0.5;
         text.y = this.stageHeight - 60;
         this.addChild(text);

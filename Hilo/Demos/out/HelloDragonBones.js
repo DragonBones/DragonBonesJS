@@ -36,10 +36,10 @@ var HelloDragonBones = /** @class */ (function (_super) {
         return _this;
     }
     HelloDragonBones.prototype._onStart = function () {
-        var factory = dragonBones.PixiFactory.factory;
-        // factory.parseDragonBonesData(this._pixiResource["resource/assets/dragon_boy_ske.json"].data);
-        factory.parseDragonBonesData(this._pixiResources["resource/assets/dragon_boy_ske.dbbin"].data);
-        factory.parseTextureAtlasData(this._pixiResources["resource/assets/dragon_boy_tex.json"].data, this._pixiResources["resource/assets/dragon_boy_tex.png"].texture);
+        var factory = dragonBones.HiloFactory.factory;
+        // factory.parseDragonBonesData(this._hiloResources["resource/assets/dragon_boy_ske.json"]);
+        factory.parseDragonBonesData(this._hiloResources["resource/assets/dragon_boy_ske.dbbin"]);
+        factory.parseTextureAtlasData(this._hiloResources["resource/assets/dragon_boy_tex.json"], this._hiloResources["resource/assets/dragon_boy_tex.png"]);
         var armatureDisplay = factory.buildArmatureDisplay("DragonBoy");
         armatureDisplay.animation.play("walk");
         armatureDisplay.x = this.stageWidth * 0.5;

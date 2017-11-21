@@ -210,7 +210,7 @@ var coreElement;
             this._skinIndex %= Mecha.SKINS.length;
             var skinName = Mecha.SKINS[this._skinIndex];
             var skinData = dragonBones.PhaserFactory.factory.getArmatureData(skinName).defaultSkin;
-            dragonBones.PhaserFactory.factory.changeSkin(this._armature, skinData, ["weapon_l", "weapon_r"]);
+            dragonBones.PhaserFactory.factory.replaceSkin(this._armature, skinData, false, ["weapon_l", "weapon_r"]);
         };
         Mecha.prototype.aim = function (x, y) {
             this._target.x = x;

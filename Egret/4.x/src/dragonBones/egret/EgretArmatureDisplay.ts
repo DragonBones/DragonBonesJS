@@ -303,6 +303,10 @@ namespace dragonBones {
     export class EgretArmatureDisplay extends egret.DisplayObjectContainer implements IArmatureProxy {
         private static _cleanBeforeRender(): void { }
         /**
+         * @private
+         */
+        public debugDraw: boolean = false;
+        /**
          * @internal
          * @private
          */
@@ -340,7 +344,7 @@ namespace dragonBones {
          * @inheritDoc
          */
         public dbUpdate(): void {
-            const drawed = DragonBones.debugDraw;
+            const drawed = DragonBones.debugDraw || this.debugDraw;
             if (drawed || this._debugDraw) {
                 this._debugDraw = drawed;
                 if (this._debugDraw) {
@@ -530,7 +534,7 @@ namespace dragonBones {
 
                     for (const slot of this._armature.getSlots()) {
                         const display = slot.display;
-                        if (!display) {
+                        if (!display || !display.$renderNode) {
                             continue;
                         }
 

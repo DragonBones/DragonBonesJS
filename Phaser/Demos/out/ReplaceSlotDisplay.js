@@ -43,6 +43,7 @@ var ReplaceSlotDisplay = /** @class */ (function (_super) {
         this.events.onInputDown.add(function () {
             _this._replaceDisplay();
         });
+        //
         this.createText("Click to replace slot display.");
     };
     ReplaceSlotDisplay.prototype._replaceDisplay = function () {

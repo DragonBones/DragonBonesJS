@@ -22,14 +22,14 @@ class AnimationBaseTest extends BaseTest {
         this._armatureDisplay.scale.x = this._armatureDisplay.scale.x = this.stageWidth >= 300 ? 1 : this.stageWidth / 330;
         this.addChild(this._armatureDisplay);
         // Test animation event
-        this._armatureDisplay.addListener(dragonBones.EventObject.START, this._animationEventHandler, this);
-        this._armatureDisplay.addListener(dragonBones.EventObject.LOOP_COMPLETE, this._animationEventHandler, this);
-        this._armatureDisplay.addListener(dragonBones.EventObject.COMPLETE, this._animationEventHandler, this);
-        this._armatureDisplay.addListener(dragonBones.EventObject.FADE_IN, this._animationEventHandler, this);
-        this._armatureDisplay.addListener(dragonBones.EventObject.FADE_IN_COMPLETE, this._animationEventHandler, this);
-        this._armatureDisplay.addListener(dragonBones.EventObject.FADE_OUT, this._animationEventHandler, this);
-        this._armatureDisplay.addListener(dragonBones.EventObject.FADE_OUT_COMPLETE, this._animationEventHandler, this);
-        this._armatureDisplay.addListener(dragonBones.EventObject.FRAME_EVENT, this._animationEventHandler, this);
+        this._armatureDisplay.on(dragonBones.EventObject.START, this._animationEventHandler, this);
+        this._armatureDisplay.on(dragonBones.EventObject.LOOP_COMPLETE, this._animationEventHandler, this);
+        this._armatureDisplay.on(dragonBones.EventObject.COMPLETE, this._animationEventHandler, this);
+        this._armatureDisplay.on(dragonBones.EventObject.FADE_IN, this._animationEventHandler, this);
+        this._armatureDisplay.on(dragonBones.EventObject.FADE_IN_COMPLETE, this._animationEventHandler, this);
+        this._armatureDisplay.on(dragonBones.EventObject.FADE_OUT, this._animationEventHandler, this);
+        this._armatureDisplay.on(dragonBones.EventObject.FADE_OUT_COMPLETE, this._animationEventHandler, this);
+        this._armatureDisplay.on(dragonBones.EventObject.FRAME_EVENT, this._animationEventHandler, this);
         this._armatureDisplay.animation.play("idle", 1);
         // Test animation config.
         // const animaitonConfig = this._armatureDisplay.animation.animationConfig;

@@ -7,6 +7,7 @@
 * [Egret](http://www.egret.com/) - [How to use DragonBones in Egret](./Egret/)
 * [PixiJS](http://www.pixijs.com/) - [How to use DragonBones in PixiJS](./Pixi/)
 * [Phaser](https://phaser.io/) - [How to use DragonBones in Phaser](./Phaser/)
+* [Hilo](http://hiloteam.github.io/) - [How to use DragonBones in Hilo](./Hilo/)
 
 ## To learn more about
 * [DragonBones offical website](http://www.dragonbones.com/)

@@ -45,22 +45,25 @@ var ReplaceAnimation = /** @class */ (function (_super) {
         //
         this.inputEnabled = true;
         this.events.onInputDown.add(function () {
-            var animationName = _this._armatureDisplayD.animation.lastAnimationName;
-            if (animationName) {
-                var animationNames = _this._armatureDisplayD.animation.animationNames;
-                var animationIndex = (animationNames.indexOf(animationName) + 1) % animationNames.length;
-                _this._armatureDisplayD.animation.play(animationNames[animationIndex]);
-            }
-            else {
-                _this._armatureDisplayD.animation.play();
-            }
-            animationName = _this._armatureDisplayD.animation.lastAnimationName;
-            _this._armatureDisplayA.animation.play(animationName);
-            _this._armatureDisplayB.animation.play(animationName);
-            _this._armatureDisplayC.animation.play(animationName);
+            _this._replaceAnimation();
         });
         //
         this.createText("Click to change animation.");
+    };
+    ReplaceAnimation.prototype._replaceAnimation = function () {
+        var animationName = this._armatureDisplayD.animation.lastAnimationName;
+        if (animationName) {
+            var animationNames = this._armatureDisplayD.animation.animationNames;
+            var animationIndex = (animationNames.indexOf(animationName) + 1) % animationNames.length;
+            this._armatureDisplayD.animation.play(animationNames[animationIndex]);
+        }
+        else {
+            this._armatureDisplayD.animation.play();
+        }
+        animationName = this._armatureDisplayD.animation.lastAnimationName;
+        this._armatureDisplayA.animation.play(animationName);
+        this._armatureDisplayB.animation.play(animationName);
+        this._armatureDisplayC.animation.play(animationName);
     };
     return ReplaceAnimation;
 }(BaseTest));

@@ -9,25 +9,27 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-var AnimationCopy = /** @class */ (function (_super) {
-    __extends(AnimationCopy, _super);
-    function AnimationCopy() {
+var ReplaceAnimation = /** @class */ (function (_super) {
+    __extends(ReplaceAnimation, _super);
+    function ReplaceAnimation() {
         var _this = _super.call(this) || this;
         _this._resources.push("resource/assets/core_element/mecha_2903_ske.json", "resource/assets/core_element/mecha_2903_tex.json", "resource/assets/core_element/mecha_2903_tex.png");
         return _this;
     }
-    AnimationCopy.prototype._onStart = function () {
+    ReplaceAnimation.prototype._onStart = function () {
         var _this = this;
-        var factory = dragonBones.PixiFactory.factory;
-        factory.parseDragonBonesData(this._pixiResources["resource/assets/core_element/mecha_2903_ske.json"].data);
-        factory.parseTextureAtlasData(this._pixiResources["resource/assets/core_element/mecha_2903_tex.json"].data, this._pixiResources["resource/assets/core_element/mecha_2903_tex.png"].texture);
+        var factory = dragonBones.HiloFactory.factory;
+        factory.parseDragonBonesData(this._hiloResources["resource/assets/core_element/mecha_2903_ske.json"]);
+        factory.parseTextureAtlasData(this._hiloResources["resource/assets/core_element/mecha_2903_tex.json"], this._hiloResources["resource/assets/core_element/mecha_2903_tex.png"]);
+        //
         this._armatureDisplayA = factory.buildArmatureDisplay("mecha_2903");
         this._armatureDisplayB = factory.buildArmatureDisplay("mecha_2903b");
         this._armatureDisplayC = factory.buildArmatureDisplay("mecha_2903c");
         this._armatureDisplayD = factory.buildArmatureDisplay("mecha_2903d");
-        factory.copyAnimationsToArmature(this._armatureDisplayA.armature, "mecha_2903d");
-        factory.copyAnimationsToArmature(this._armatureDisplayB.armature, "mecha_2903d");
-        factory.copyAnimationsToArmature(this._armatureDisplayC.armature, "mecha_2903d");
+        var sourceArmatureData = factory.getArmatureData("mecha_2903d");
+        factory.replaceAnimation(this._armatureDisplayA.armature, sourceArmatureData);
+        factory.replaceAnimation(this._armatureDisplayB.armature, sourceArmatureData);
+        factory.replaceAnimation(this._armatureDisplayC.armature, sourceArmatureData);
         this.addChild(this._armatureDisplayA);
         this.addChild(this._armatureDisplayB);
         this.addChild(this._armatureDisplayC);
@@ -41,17 +43,13 @@ var AnimationCopy = /** @class */ (function (_super) {
         this._armatureDisplayD.x = this.stageWidth * 0.5;
         this._armatureDisplayD.y = this.stageHeight * 0.5 - 50.0;
         //
-        //
-        var touchHandler = function (event) {
+        this.on(Hilo.event.POINTER_START, function () {
             _this._replaceAnimation();
-        };
-        this.interactive = true;
-        this.addListener("touchstart", touchHandler, this);
-        this.addListener("mousedown", touchHandler, this);
+        }, false);
         //
         this.createText("Click to change animation.");
     };
-    AnimationCopy.prototype._replaceAnimation = function () {
+    ReplaceAnimation.prototype._replaceAnimation = function () {
         var animationName = this._armatureDisplayD.animation.lastAnimationName;
         if (animationName) {
             var animationNames = this._armatureDisplayD.animation.animationNames;
@@ -66,5 +64,5 @@ var AnimationCopy = /** @class */ (function (_super) {
         this._armatureDisplayB.animation.play(animationName);
         this._armatureDisplayC.animation.play(animationName);
     };
-    return AnimationCopy;
+    return ReplaceAnimation;
 }(BaseTest));

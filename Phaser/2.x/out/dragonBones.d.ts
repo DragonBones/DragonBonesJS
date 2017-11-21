@@ -7239,22 +7239,17 @@ declare namespace dragonBones {
  */
 declare namespace dragonBones {
     /**
-     * - The egret texture atlas data.
+     * - The Phaser texture atlas data.
      * @version DragonBones 3.0
      * @language en_US
      */
     /**
-     * - Egret 贴图集数据。
+     * - Phaser 贴图集数据。
      * @version DragonBones 3.0
      * @language zh_CN
      */
-    class EgretTextureAtlasData extends TextureAtlasData {
+    class PhaserTextureAtlasData extends TextureAtlasData {
         static toString(): string;
-        /**
-         * @internal
-         * @private
-         */
-        disposeEnabled: boolean;
         private _renderTexture;
         /**
          * @inheritDoc
@@ -7265,46 +7260,24 @@ declare namespace dragonBones {
          */
         createTexture(): TextureData;
         /**
-         * - The Egret texture.
+         * - The Phaser texture.
          * @version DragonBones 3.0
          * @language en_US
          */
         /**
-         * - Egret 贴图。
+         * - Phaser 贴图。
          * @version DragonBones 3.0
          * @language zh_CN
          */
-        renderTexture: egret.Texture | null;
-        /**
-         * - Deprecated, please refer to {@link dragonBones.BaseFactory#removeTextureAtlasData()}.
-         * @deprecated
-         * @language en_US
-         */
-        /**
-         * - 已废弃，请参考 {@link dragonBones.BaseFactory#removeTextureAtlasData()}。
-         * @deprecated
-         * @language zh_CN
-         */
-        dispose(): void;
-        /**
-         * - Deprecated, please refer to {@link #renderTexture}.
-         * @deprecated
-         * @language en_US
-         */
-        /**
-         * - 已废弃，请参考 {@link #renderTexture}。
-         * @deprecated
-         * @language zh_CN
-         */
-        readonly texture: egret.Texture | null;
+        renderTexture: PIXI.BaseTexture | null;
     }
     /**
      * @internal
      * @private
      */
-    class EgretTextureData extends TextureData {
+    class PhaserTextureData extends TextureData {
         static toString(): string;
-        renderTexture: egret.Texture | null;
+        renderTexture: PIXI.Texture | null;
         protected _onClear(): void;
     }
 }
@@ -7332,285 +7305,17 @@ declare namespace dragonBones {
  */
 declare namespace dragonBones {
     /**
-     * - The egret event.
-     * @version DragonBones 4.5
-     * @language en_US
-     */
-    /**
-     * - Egret 事件。
-     * @version DragonBones 4.5
-     * @language zh_CN
-     */
-    class EgretEvent extends egret.Event {
-        /**
-         * - The event object.
-         * @see dragonBones.EventObject
-         * @version DragonBones 4.5
-         * @language en_US
-         */
-        /**
-         * - 事件对象。
-         * @see dragonBones.EventObject
-         * @version DragonBones 4.5
-         * @language zh_CN
-         */
-        readonly eventObject: EventObject;
-        /**
-         * - Deprecated, please refer to {@link #eventObject} {@link #dragonBones.EventObject#animationState}.
-         * @deprecated
-         * @language en_US
-         */
-        /**
-         * - 已废弃，请参考 {@link #eventObject} {@link #dragonBones.EventObject#animationState}。
-         * @deprecated
-         * @language zh_CN
-         */
-        readonly animationName: string;
-        /**
-         * - Deprecated, please refer to {@link #eventObject} {@link #dragonBones.EventObject#armature}.
-         * @deprecated
-         * @language en_US
-         */
-        /**
-         * - 已废弃，请参考 {@link #eventObject} {@link #dragonBones.EventObject#armature}。
-         * @deprecated
-         * @language zh_CN
-         */
-        readonly armature: Armature;
-        /**
-         * - Deprecated, please refer to {@link #eventObject} {@link #dragonBones.EventObject#bone}.
-         * @deprecated
-         * @language en_US
-         */
-        /**
-         * - 已废弃，请参考 {@link #eventObject} {@link #dragonBones.EventObject#bone}。
-         * @deprecated
-         * @language zh_CN
-         */
-        readonly bone: Bone | null;
-        /**
-         * - Deprecated, please refer to {@link #eventObject} {@link #dragonBones.EventObject#slot}.
-         * @deprecated
-         * @language en_US
-         */
-        /**
-         * - 已废弃，请参考 {@link #eventObject} {@link #dragonBones.EventObject#slot}。
-         * @deprecated
-         * @language zh_CN
-         */
-        readonly slot: Slot | null;
-        /**
-         * - Deprecated, please refer to {@link #eventObject} {@link #dragonBones.EventObject#animationState}.
-         * @deprecated
-         * @language en_US
-         */
-        /**
-         * - 已废弃，请参考 {@link #eventObject} {@link #dragonBones.EventObject#animationState}。
-         * @deprecated
-         * @language zh_CN
-         */
-        readonly animationState: AnimationState | null;
-        /**
-         * Deprecated, please refer to {@link #eventObject} {@link #dragonBones.EventObject#name}.
-         * @deprecated
-         * @language en_US
-         */
-        /**
-         * - 已废弃，请参考 {@link #eventObject} {@link #dragonBones.EventObject#name}。
-         * @deprecated
-         * @language zh_CN
-         */
-        readonly frameLabel: string;
-        /**
-         * - Deprecated, please refer to {@link #eventObject} {@link #dragonBones.EventObject#name}.
-         * @deprecated
-         * @language en_US
-         */
-        /**
-         * - 已废弃，请参考 {@link #eventObject} {@link #dragonBones.EventObject#name}。
-         * @deprecated
-         * @language zh_CN
-         */
-        readonly sound: string;
-        /**
-         * - Deprecated, please refer to {@link #eventObject} {@link #dragonBones.EventObject#animationState}.
-         * @deprecated
-         * @language en_US
-         */
-        /**
-         * - 已废弃，请参考 {@link #eventObject} {@link #dragonBones.EventObject#animationState}。
-         * @deprecated
-         * @language zh_CN
-         */
-        readonly movementID: string;
-        /**
-         * - Deprecated, please refer to {@link #dragonBones.EventObject.START}.
-         * @deprecated
-         * @language en_US
-         */
-        /**
-         * - 已废弃，请参考 {@link #dragonBones.EventObject.START}。
-         * @deprecated
-         * @language zh_CN
-         */
-        static START: string;
-        /**
-         * - Deprecated, please refer to {@link #dragonBones.EventObject.LOOP_COMPLETE}.
-         * @deprecated
-         * @language en_US
-         */
-        /**
-         * - 已废弃，请参考 {@link #dragonBones.EventObject.LOOP_COMPLETE}。
-         * @deprecated
-         * @language zh_CN
-         */
-        static LOOP_COMPLETE: string;
-        /**
-         * - Deprecated, please refer to {@link #dragonBones.EventObject.COMPLETE}.
-         * @deprecated
-         * @language en_US
-         */
-        /**
-         * - 已废弃，请参考 {@link #dragonBones.EventObject.COMPLETE}。
-         * @deprecated
-         * @language zh_CN
-         */
-        static COMPLETE: string;
-        /**
-         * - Deprecated, please refer to {@link #dragonBones.EventObject.FADE_IN}.
-         * @deprecated
-         * @language en_US
-         */
-        /**
-         * - 已废弃，请参考 {@link #dragonBones.EventObject.FADE_IN}。
-         * @deprecated
-         * @language zh_CN
-         */
-        static FADE_IN: string;
-        /**
-         * - Deprecated, please refer to {@link #dragonBones.EventObject.FADE_IN_COMPLETE}.
-         * @deprecated
-         * @language en_US
-         */
-        /**
-         * - 已废弃，请参考 {@link #dragonBones.EventObject.FADE_IN_COMPLETE}。
-         * @deprecated
-         * @language zh_CN
-         */
-        static FADE_IN_COMPLETE: string;
-        /**
-         * - Deprecated, please refer to {@link #dragonBones.EventObject.FADE_OUT}.
-         * @deprecated
-         * @language en_US
-         */
-        /**
-         * - 已废弃，请参考 {@link #dragonBones.EventObject.FADE_OUT}。
-         * @deprecated
-         * @language zh_CN
-         */
-        static FADE_OUT: string;
-        /**
-         * - Deprecated, please refer to {@link #dragonBones.EventObject.FADE_OUT_COMPLETE}.
-         * @deprecated
-         * @language en_US
-         */
-        /**
-         * - 已废弃，请参考 {@link #dragonBones.EventObject.FADE_OUT_COMPLETE}。
-         * @deprecated
-         * @language zh_CN
-         */
-        static FADE_OUT_COMPLETE: string;
-        /**
-         * - Deprecated, please refer to {@link #dragonBones.EventObject.FRAME_EVENT}.
-         * @deprecated
-         * @language en_US
-         */
-        /**
-         * - 已废弃，请参考 {@link #dragonBones.EventObject.FRAME_EVENT}。
-         * @deprecated
-         * @language zh_CN
-         */
-        static FRAME_EVENT: string;
-        /**
-         * - Deprecated, please refer to {@link #dragonBones.EventObject.SOUND_EVENT}.
-         * @deprecated
-         * @language en_US
-         */
-        /**
-         * - 已废弃，请参考 {@link #dragonBones.EventObject.SOUND_EVENT}。
-         * @deprecated
-         * @language zh_CN
-         */
-        static SOUND_EVENT: string;
-        /**
-         * - Deprecated, please refer to {@link #dragonBones.EventObject.FRAME_EVENT}.
-         * @deprecated
-         * @language en_US
-         */
-        /**
-         * - 已废弃，请参考 {@link #dragonBones.EventObject.FRAME_EVENT}。
-         * @deprecated
-         * @language zh_CN
-         */
-        static ANIMATION_FRAME_EVENT: string;
-        /**
-         * - Deprecated, please refer to {@link #dragonBones.EventObject.FRAME_EVENT}.
-         * @deprecated
-         * @language en_US
-         */
-        /**
-         * - 已废弃，请参考 {@link #dragonBones.EventObject.FRAME_EVENT}。
-         * @deprecated
-         * @language zh_CN
-         */
-        static BONE_FRAME_EVENT: string;
-        /**
-         * - Deprecated, please refer to {@link #dragonBones.EventObject.FRAME_EVENT}.
-         * @deprecated
-         * @language en_US
-         */
-        /**
-         * - 已废弃，请参考 {@link #dragonBones.EventObject.FRAME_EVENT}。
-         * @deprecated
-         * @language zh_CN
-         */
-        static MOVEMENT_FRAME_EVENT: string;
-        /**
-         * - Deprecated, please refer to {@link #dragonBones.EventObject.SOUND_EVENT}.
-         * @deprecated
-         * @language en_US
-         */
-        /**
-         * - 已废弃，请参考 {@link #dragonBones.EventObject.SOUND_EVENT}。
-         * @deprecated
-         * @language zh_CN
-         */
-        static SOUND: string;
-    }
-    /**
      * @inheritDoc
      */
-    class EgretArmatureDisplay extends egret.DisplayObjectContainer implements IArmatureProxy {
-        private static _cleanBeforeRender();
-        /**
-         * @private
-         */
-        debugDraw: boolean;
-        /**
-         * @internal
-         * @private
-         */
-        _batchEnabled: boolean;
-        /**
-         * @internal
-         * @private
-         */
-        _childDirty: boolean;
+    class PhaserArmatureDisplay extends Phaser.Sprite implements IArmatureProxy {
         private _debugDraw;
         private _disposeProxy;
         private _armature;
-        private _bounds;
-        private _debugDrawer;
+        private readonly _signals;
+        /**
+         * @inheritDoc
+         */
+        constructor();
         /**
          * @inheritDoc
          */
@@ -7620,7 +7325,7 @@ declare namespace dragonBones {
          */
         dbClear(): void;
         /**
-         * @inheritDoc
+         * @private
          */
         dbUpdate(): void;
         /**
@@ -7630,6 +7335,10 @@ declare namespace dragonBones {
         /**
          * @inheritDoc
          */
+        destroy(): void;
+        /**
+         * @private
+         */
         dispatchDBEvent(type: EventStringType, eventObject: EventObject): void;
         /**
          * @inheritDoc
@@ -7638,27 +7347,11 @@ declare namespace dragonBones {
         /**
          * @inheritDoc
          */
-        addDBEventListener(type: EventStringType, listener: (event: EgretEvent) => void, target: any): void;
+        addDBEventListener(type: EventStringType, listener: (event: EventObject) => void, target: any): void;
         /**
          * @inheritDoc
          */
-        removeDBEventListener(type: EventStringType, listener: (event: EgretEvent) => void, target: any): void;
-        /**
-         * - Disable the batch.
-         * Batch rendering for performance reasons, the boundary properties of the render object are not updated.
-         * This will not correctly obtain the wide-height properties of the rendered object and the transformation properties of its internal display objects,
-         * which can turn off batch rendering if you need to use these properties.
-         * @version DragonBones 5.1
-         * @language en_US
-         */
-        /**
-         * - 关闭批次渲染。
-         * 批次渲染出于性能考虑，不会更新渲染对象的边界属性。
-         * 这样将无法正确获得渲染对象的宽高属性以及其内部显示对象的变换属性，如果需要使用这些属性，可以关闭批次渲染。
-         * @version DragonBones 5.1
-         * @language zh_CN
-         */
-        disableBatch(): void;
+        removeDBEventListener(type: EventStringType, listener: (event: EventObject) => void, target: any): void;
         /**
          * @inheritDoc
          */
@@ -7670,142 +7363,15 @@ declare namespace dragonBones {
         /**
          * @inheritDoc
          */
-        $measureContentBounds(bounds: egret.Rectangle): void;
-        /**
-         * @inheritDoc
-         */
         hasEvent(type: EventStringType): boolean;
         /**
          * @inheritDoc
          */
-        addEvent(type: EventStringType, listener: (event: EgretEvent) => void, target: any): void;
+        addEvent(type: EventStringType, listener: (event: EventObject) => void, target: any): void;
         /**
          * @inheritDoc
          */
-        removeEvent(type: EventStringType, listener: (event: EgretEvent) => void, target: any): void;
-        /**
-         * - Deprecated, please refer to {@link dragonBones.Armature#clock} {@link dragonBones.BaseFactory#clock}.
-         * @deprecated
-         * @language en_US
-         */
-        /**
-         * - 已废弃，请参考 {@link dragonBones.Armature#clock} {@link dragonBones.BaseFactory#clock}。
-         * @deprecated
-         * @language zh_CN
-         */
-        advanceTimeBySelf(on: boolean): void;
-    }
-    /**
-     * 已废弃，请参考 {@link dragonBones.Armature}。
-     * @deprecated
-     * @language zh_CN
-     */
-    type FastArmature = Armature;
-    /**
-     * 已废弃，请参考 {@link dragonBones.Bone}。
-     * @deprecated
-     * @language zh_CN
-     */
-    type FastBone = Bone;
-    /**
-     * 已废弃，请参考 {@link dragonBones.Slot}。
-     * @deprecated
-     * @language zh_CN
-     */
-    type FastSlot = Slot;
-    /**
-     * 已废弃，请参考 {@link dragonBones.Animation}。
-     * @deprecated
-     * @language zh_CN
-     */
-    type FastAnimation = Animation;
-    /**
-     * 已废弃，请参考 {@link dragonBones.AnimationState}。
-     * @deprecated
-     * @language zh_CN
-     */
-    type FastAnimationState = AnimationState;
-    /**
-     * 已废弃，请参考 {@link dragonBones.EgretEvent}。
-     * @deprecated
-     * @language zh_CN
-     */
-    class Event extends EgretEvent {
-    }
-    /**
-     * 已废弃，请参考 {@link dragonBones.EgretEvent}。
-     * @deprecated
-     * @language zh_CN
-     */
-    class ArmatureEvent extends EgretEvent {
-    }
-    /**
-     * 已废弃，请参考 {@link dragonBones.EgretEvent}。
-     * @deprecated
-     * @language zh_CN
-     */
-    class AnimationEvent extends EgretEvent {
-    }
-    /**
-     * 已废弃，请参考 {@link dragonBones.EgretEvent}。
-     * @deprecated
-     * @language zh_CN
-     */
-    class FrameEvent extends EgretEvent {
-    }
-    /**
-     * 已废弃，请参考 {@link dragonBones.EgretEvent}。
-     * @deprecated
-     * @language zh_CN
-     */
-    class SoundEvent extends EgretEvent {
-    }
-    /**
-     * 已废弃，请参考 {@link dragonBones.BaseFacory#parseTextureAtlasData()}。
-     * @deprecated
-     * @language zh_CN
-     */
-    class EgretTextureAtlas extends EgretTextureAtlasData {
-        static toString(): string;
-        /**
-         * 已废弃，请参考 {@link dragonBones.BaseFacory#parseTextureAtlasData()}。
-         * @deprecated
-         * @language zh_CN
-         */
-        constructor(texture: egret.Texture, rawData: any, scale?: number);
-    }
-    /**
-     * 已废弃，请参考 {@link dragonBones.BaseFacory#parseTextureAtlasData()}。
-     * @deprecated
-     * @language zh_CN
-     */
-    class EgretSheetAtlas extends EgretTextureAtlas {
-    }
-    /**
-     * 已废弃，请参考 {@link dragonBones.EgretFactory#soundEventManager}。
-     * @deprecated
-     * @language zh_CN
-     */
-    class SoundEventManager {
-        /**
-         * 已废弃，请参考 {@link dragonBones.EgretFactory#soundEventManager}。
-         * @deprecated
-         * @language zh_CN
-         */
-        static getInstance(): EgretArmatureDisplay;
-    }
-    /**
-     * 已废弃，请参考 {@link dragonBones.Armature#cacheFrameRate}。
-     * @deprecated
-     * @language zh_CN
-     */
-    class AnimationCacheManager {
-        /**
-         * 已废弃，请参考 {@link dragonBones.Armature#cacheFrameRate}。
-         * @deprecated
-         * @language zh_CN
-         */
-        constructor();
+        removeEvent(type: EventStringType, listener: (event: EventObject) => void, target: any): void;
     }
 }
 /**
@@ -7832,39 +7398,19 @@ declare namespace dragonBones {
  */
 declare namespace dragonBones {
     /**
-     * - The egret slot.
+     * - The Phaser slot.
      * @version DragonBones 3.0
      * @language en_US
      */
     /**
-     * - Egret 插槽。
+     * - Phaser 插槽。
      * @version DragonBones 3.0
      * @language zh_CN
      */
-    class EgretSlot extends Slot {
+    class PhaserSlot extends Slot {
         static toString(): string;
-        /**
-         * - Whether to update the transform properties of the display object.
-         * For better performance, the transform properties of display object (x, y, rotation, ScaleX, ScaleX) are not updated and need to be set to true if these properties need to be accessed correctly.
-         * @default false
-         * @version DragonBones 3.0
-         * @language zh_CN
-         */
-        /**
-         * - 是否更新显示对象的变换属性。
-         * 为了更好的性能, 默认并不会更新显示对象的变换属性 (x, y, rotation, scaleX, scaleX), 如果需要正确访问这些属性, 则需要设置为 true 。
-         * @default false
-         * @version DragonBones 3.0
-         * @language zh_CN
-         */
-        transformUpdateEnabled: boolean;
-        private _armatureDisplay;
+        private _textureScale;
         private _renderDisplay;
-        private _colorFilter;
-        /**
-         * @inheritDoc
-         */
-        init(slotData: SlotData, displayDatas: Array<DisplayData | null> | null, rawDisplay: any, meshDisplay: any): void;
         /**
          * @inheritDoc
          */
@@ -7921,8 +7467,6 @@ declare namespace dragonBones {
          * @inheritDoc
          */
         protected _updateTransform(isSkinnedMesh: boolean): void;
-        private _updateTransformV4(isSkinnedMesh);
-        private _updateTransformV5(isSkinnedMesh);
     }
 }
 /**
@@ -7949,24 +7493,24 @@ declare namespace dragonBones {
  */
 declare namespace dragonBones {
     /**
-     * - The Egret factory.
+     * - The Phaser factory.
      * @version DragonBones 3.0
      * @language en_US
      */
     /**
-     * - Egret 工厂。
+     * - Phaser 工厂。
      * @version DragonBones 3.0
      * @language zh_CN
      */
-    class EgretFactory extends BaseFactory {
+    class PhaserFactory extends BaseFactory {
         /**
          * @internal
          * @private
          */
-        static _isV5: boolean;
+        static _game: Phaser.Game;
         private static _dragonBonesInstance;
         private static _factory;
-        private static _clockHandler(time);
+        static init(game: Phaser.Game): void;
         /**
          * - A global factory instance that can be used directly.
          * @version DragonBones 4.7
@@ -7977,19 +7521,19 @@ declare namespace dragonBones {
          * @version DragonBones 4.7
          * @language zh_CN
          */
-        static readonly factory: EgretFactory;
+        static readonly factory: PhaserFactory;
         /**
          * @inheritDoc
          */
         constructor(dataParser?: DataParser | null);
         /**
-         * @inheritDoc
+         * @private
          */
         protected _isSupportMesh(): boolean;
         /**
          * @inheritDoc
          */
-        protected _buildTextureAtlasData(textureAtlasData: EgretTextureAtlasData | null, textureAtlas: egret.Texture | HTMLImageElement | null): EgretTextureAtlasData;
+        protected _buildTextureAtlasData(textureAtlasData: PhaserTextureAtlasData | null, textureAtlas: PIXI.BaseTexture | null): PhaserTextureAtlasData;
         /**
          * @inheritDoc
          */
@@ -8026,22 +7570,22 @@ declare namespace dragonBones {
          * </pre>
          * @language zh_CN
          */
-        buildArmatureDisplay(armatureName: string, dragonBonesName?: string, skinName?: string, textureAtlasName?: string): EgretArmatureDisplay | null;
+        buildArmatureDisplay(armatureName: string, dragonBonesName?: string, skinName?: string, textureAtlasName?: string): PhaserArmatureDisplay | null;
         /**
          * - Create the display object with the specified texture.
-         * @param textureName - The texture data name
-         * @param textureAtlasName - The texture atlas data name (Of not set, all texture atlas data will be searched)
+         * @param textureName The texture data name
+         * @param textureAtlasName The texture atlas data name (Of not set, all texture atlas data will be searched)
          * @version DragonBones 3.0
          * @language en_US
          */
         /**
          * - 创建带有指定贴图的显示对象。
-         * @param textureName - 贴图数据名称。
-         * @param textureAtlasName - 贴图集数据名称 （如果未设置，将检索所有的贴图集数据）
+         * @param textureName 贴图数据名称。
+         * @param textureAtlasName 贴图集数据名称 （如果未设置，将检索所有的贴图集数据）
          * @version DragonBones 3.0
          * @language zh_CN
          */
-        getTextureDisplay(textureName: string, textureAtlasName?: string | null): egret.Bitmap | null;
+        getTextureDisplay(textureName: string, textureAtlasName?: string | null): Phaser.Sprite | null;
         /**
          * - A global sound event manager.
          * Sound events can be listened to uniformly from the manager.
@@ -8054,484 +7598,6 @@ declare namespace dragonBones {
          * @version DragonBones 4.5
          * @language zh_CN
          */
-        readonly soundEventManager: EgretArmatureDisplay;
-        /**
-         * - Deprecated, please refer to {@link #clock}.
-         * @deprecated
-         * @language en_US
-         */
-        /**
-         * - 已废弃，请参考 {@link #clock}。
-         * @deprecated
-         * @language zh_CN
-         */
-        static readonly clock: WorldClock;
-        /**
-         * - Deprecated, please refer to {@link #addDragonBonesData()}.
-         * @deprecated
-         * @language en_US
-         */
-        /**
-         * - 已废弃，请参考 {@link #addDragonBonesData()}。
-         * @deprecated
-         * @language zh_CN
-         */
-        addSkeletonData(dragonBonesData: DragonBonesData, dragonBonesName?: string | null): void;
-        /**
-         * - Deprecated, please refer to {@link #getDragonBonesData()}.
-         * @deprecated
-         * @language en_US
-         */
-        /**
-         * - 已废弃，请参考 {@link #getDragonBonesData()}。
-         * @deprecated
-         * @language zh_CN
-         */
-        getSkeletonData(dragonBonesName: string): DragonBonesData | null;
-        /**
-         * - Deprecated, please refer to {@link #removeDragonBonesData()}.
-         * @deprecated
-         * @language en_US
-         */
-        /**
-         * - 已废弃，请参考 {@link #removeDragonBonesData()}。
-         * @deprecated
-         * @language zh_CN
-         */
-        removeSkeletonData(dragonBonesName: string): void;
-        /**
-         * - Deprecated, please refer to {@link #addTextureAtlasData()}.
-         * @deprecated
-         * @language en_US
-         */
-        /**
-         * - 已废弃，请参考 {@link #addTextureAtlasData()}。
-         * @deprecated
-         * @language zh_CN
-         */
-        addTextureAtlas(textureAtlasData: TextureAtlasData, dragonBonesName?: string | null): void;
-        /**
-         * - Deprecated, please refer to {@link #getTextureAtlas()}.
-         * @deprecated
-         * @language en_US
-         */
-        /**
-         * - 已废弃，请参考 {@link #getTextureAtlas()}。
-         * @deprecated
-         * @language zh_CN
-         */
-        getTextureAtlas(dragonBonesName: string): TextureAtlasData[] | null;
-        /**
-         * - Deprecated, please refer to {@link #removeTextureAtlasData()}.
-         * @deprecated
-         * @language en_US
-         */
-        /**
-         * - 已废弃，请参考 {@link #removeTextureAtlasData()}。
-         * @deprecated
-         * @language zh_CN
-         */
-        removeTextureAtlas(dragonBonesName: string): void;
-        /**
-         * - Deprecated, please refer to {@link #buildArmature()}.
-         * @deprecated
-         * @language en_US
-         */
-        /**
-         * - 已废弃，请参考 {@link #buildArmature()}。
-         * @deprecated
-         * @language zh_CN
-         */
-        buildFastArmature(armatureName: string, dragonBonesName?: string, skinName?: string): FastArmature | null;
-        /**
-         * - Deprecated, please refer to {@link #clear()}.
-         * @deprecated
-         * @language en_US
-         */
-        /**
-         * - 已废弃，请参考 {@link #clear()}。
-         * @deprecated
-         * @language zh_CN
-         */
-        dispose(): void;
-    }
-}
-/**
- * The MIT License (MIT)
- *
- * Copyright (c) 2012-2016 DragonBones team and other contributors
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy of
- * this software and associated documentation files (the "Software"), to deal in
- * the Software without restriction, including without limitation the rights to
- * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
- * the Software, and to permit persons to whom the Software is furnished to do so,
- * subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
- * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
- * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
- * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
- * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- */
-declare namespace dragonBones {
-    /**
-     * 是否包含指定名称的动画组。
-     * @param groupName 动画组的名称。
-     * @version DragonBones 4.7
-     * @language zh_CN
-     */
-    function hasMovieGroup(groupName: string): boolean;
-    /**
-     * 添加动画组。
-     * @param groupData 动画二进制数据。
-     * @param textureAtlas 贴图集或贴图集列表。
-     * @param groupName 为动画组指定一个名称，如果未设置，则使用数据中的名称。
-     * @version DragonBones 4.7
-     * @language zh_CN
-     */
-    function addMovieGroup(groupData: ArrayBuffer, textureAtlas: egret.Texture | egret.Texture[], groupName?: string | null): void;
-    /**
-     * 移除动画组。
-     * @param groupName 动画组的名称。
-     * @version DragonBones 4.7
-     * @language zh_CN
-     */
-    function removeMovieGroup(groupName: string): void;
-    /**
-     * 移除所有的动画组。
-     * @param groupName 动画组的名称。
-     * @version DragonBones 4.7
-     * @language zh_CN
-     */
-    function removeAllMovieGroup(): void;
-    /**
-     * 创建一个动画。
-     * @param movieName 动画的名称。
-     * @param groupName 动画组的名称，如果未设置，将检索所有的动画组，当多个动画组中包含同名的动画时，可能无法创建出准确的动画。
-     * @version DragonBones 4.7
-     * @language zh_CN
-     */
-    function buildMovie(movieName: string, groupName?: string | null): Movie | null;
-    /**
-     * 获取指定动画组内包含的所有动画名称。
-     * @param groupName 动画组的名称。
-     * @version DragonBones 4.7
-     * @language zh_CN
-     */
-    function getMovieNames(groupName: string): string[] | null;
-    /**
-     * 动画事件。
-     * @version DragonBones 4.7
-     * @language zh_CN
-     */
-    class MovieEvent extends egret.Event {
-        /**
-         * 动画剪辑开始播放。
-         * @version DragonBones 4.7
-         * @language zh_CN
-         */
-        static START: string;
-        /**
-         * 动画剪辑循环播放一次完成。
-         * @version DragonBones 4.7
-         * @language zh_CN
-         */
-        static LOOP_COMPLETE: string;
-        /**
-         * 动画剪辑播放完成。
-         * @version DragonBones 4.7
-         * @language zh_CN
-         */
-        static COMPLETE: string;
-        /**
-         * 动画剪辑帧事件。
-         * @version DragonBones 4.7
-         * @language zh_CN
-         */
-        static FRAME_EVENT: string;
-        /**
-         * 动画剪辑声音事件。
-         * @version DragonBones 4.7
-         * @language zh_CN
-         */
-        static SOUND_EVENT: string;
-        /**
-         * 事件名称。 (帧标签的名称或声音的名称)
-         * @version DragonBones 4.7
-         * @language zh_CN
-         */
-        name: string;
-        /**
-         * 发出事件的插槽名称。
-         * @version DragonBones 4.7
-         * @language zh_CN
-         */
-        slotName: string;
-        /**
-         * 发出事件的动画剪辑名称。
-         * @version DragonBones 4.7
-         * @language zh_CN
-         */
-        clipName: string;
-        /**
-         * 发出事件的动画。
-         * @version DragonBones 4.7
-         * @language zh_CN
-         */
-        movie: Movie;
-        /**
-         * @private
-         */
-        constructor(type: string);
-        /**
-         * @private
-         */
-        readonly armature: any;
-        /**
-         * @private
-         */
-        readonly bone: any;
-        /**
-         * @private
-         */
-        readonly animationState: any;
-        /**
-         * @private
-         */
-        readonly frameLabel: any;
-        /**
-         * @private
-         */
-        readonly movementID: any;
-    }
-    /**
-     * 通过读取缓存的二进制动画数据来更新动画，具有良好的运行性能，同时对内存的占用也非常低。
-     * @see dragonBones.buildMovie
-     * @version DragonBones 4.7
-     * @language zh_CN
-     */
-    class Movie extends egret.DisplayObjectContainer implements IAnimatable {
-        private static _cleanBeforeRender();
-        /**
-         * 动画的播放速度。 [(-N~0): 倒转播放, 0: 停止播放, (0~1): 慢速播放, 1: 正常播放, (1~N): 快速播放]
-         * @default 1
-         * @version DragonBones 4.7
-         * @language zh_CN
-         */
-        timeScale: number;
-        /**
-         * 动画剪辑的播放速度。 [(-N~0): 倒转播放, 0: 停止播放, (0~1): 慢速播放, 1: 正常播放, (1~N): 快速播放]
-         * （当再次播放其他动画剪辑时，此值将被重置为 1）
-         * @default 1
-         * @version DragonBones 4.7
-         * @language zh_CN
-         */
-        clipTimeScale: number;
-        private _batchEnabled;
-        private _isLockDispose;
-        private _isDelayDispose;
-        private _isStarted;
-        private _isPlaying;
-        private _isReversing;
-        private _isCompleted;
-        private _playTimes;
-        private _time;
-        private _currentTime;
-        private _currentPlayTimes;
-        private _cacheFrameIndex;
-        private _frameSize;
-        private _cacheRectangle;
-        private _clock;
-        private _groupConfig;
-        private _config;
-        private _clipConfig;
-        private _currentFrameConfig;
-        private _clipArray;
-        private _clipNames;
-        private _slots;
-        private _childMovies;
-        /**
-         * @internal
-         * @private
-         */
-        constructor(createMovieHelper: any);
-        private _configToEvent(config, event);
-        private _onCrossFrame(frameConfig);
-        private _updateSlotBlendMode(slot);
-        private _updateSlotColor(slot, aM, rM, gM, bM, aO, rO, gO, bO);
-        private _updateSlotDisplay(slot);
-        private _getSlot(name);
-        /**
-         * @inheritDoc
-         */
-        $render(): void;
-        /**
-         * @inheritDoc
-         */
-        $measureContentBounds(bounds: egret.Rectangle): void;
-        /**
-         * @inheritDoc
-         */
-        $doAddChild(child: egret.DisplayObject, index: number, notifyListeners?: boolean): egret.DisplayObject;
-        /**
-         * @inheritDoc
-         */
-        $doRemoveChild(index: number, notifyListeners?: boolean): egret.DisplayObject;
-        /**
-         * 释放动画。
-         * @version DragonBones 3.0
-         * @language zh_CN
-         */
-        dispose(): void;
-        /**
-         * @inheritDoc
-         */
-        advanceTime(passedTime: number): void;
-        /**
-         * 播放动画剪辑。
-         * @param clipName 动画剪辑的名称，如果未设置，则播放默认动画剪辑，或将暂停状态切换为播放状态，或重新播放上一个正在播放的动画剪辑。
-         * @param playTimes 动画剪辑需要播放的次数。 [-1: 使用动画剪辑默认值, 0: 无限循环播放, [1~N]: 循环播放 N 次]
-         * @version DragonBones 4.7
-         * @language zh_CN
-         */
-        play(clipName?: string | null, playTimes?: number): void;
-        /**
-         * 暂停播放动画。
-         * @version DragonBones 4.7
-         * @language zh_CN
-         */
-        stop(): void;
-        /**
-         * 从指定时间播放动画。
-         * @param clipName 动画剪辑的名称。
-         * @param time 指定时间。（以秒为单位）
-         * @param playTimes 动画剪辑需要播放的次数。 [-1: 使用动画剪辑默认值, 0: 无限循环播放, [1~N]: 循环播放 N 次]
-         * @version DragonBones 5.0
-         * @language zh_CN
-         */
-        gotoAndPlay(clipName: string | null | undefined, time: number, playTimes?: number): void;
-        /**
-         * 将动画停止到指定时间。
-         * @param clipName 动画剪辑的名称。
-         * @param time 指定时间。（以秒为单位）
-         * @version DragonBones 5.0
-         * @language zh_CN
-         */
-        gotoAndStop(clipName: string | null | undefined, time: number): void;
-        /**
-         * 是否包含指定动画剪辑。
-         * @param clipName 动画剪辑的名称。
-         * @version DragonBones 4.7
-         * @language zh_CN
-         */
-        hasClip(clipName: string): boolean;
-        /**
-         * 动画剪辑是否处正在播放。
-         * @version DragonBones 4.7
-         * @language zh_CN
-         */
-        readonly isPlaying: boolean;
-        /**
-         * 动画剪辑是否均播放完毕。
-         * @version DragonBones 4.7
-         * @language zh_CN
-         */
-        readonly isComplete: boolean;
-        /**
-         * 当前动画剪辑的播放时间。 (以秒为单位)
-         * @version DragonBones 4.7
-         * @language zh_CN
-         */
-        readonly currentTime: number;
-        /**
-         * 当前动画剪辑的总时间。 (以秒为单位)
-         * @version DragonBones 4.7
-         * @language zh_CN
-         */
-        readonly totalTime: number;
-        /**
-         * 当前动画剪辑的播放次数。
-         * @version DragonBones 4.7
-         * @language zh_CN
-         */
-        readonly currentPlayTimes: number;
-        /**
-         * 当前动画剪辑需要播放的次数。 [0: 无限循环播放, [1~N]: 循环播放 N 次]
-         * @version DragonBones 4.7
-         * @language zh_CN
-         */
-        readonly playTimes: number;
-        readonly groupName: string;
-        /**
-         * 正在播放的动画剪辑名称。
-         * @version DragonBones 4.7
-         * @language zh_CN
-         */
-        readonly clipName: string;
-        /**
-         * 所有动画剪辑的名称。
-         * @version DragonBones 4.7
-         * @language zh_CN
-         */
-        readonly clipNames: string[];
-        /**
-         * @inheritDoc
-         */
-        clock: WorldClock | null;
-        /**
-         * 已废弃，请参考 {@link dragonBones.Movie#clock} {@link dragonBones.Movie#clock} {@link dragonBones.EgretFactory#clock}。
-         * @deprecated
-         * @language zh_CN
-         */
-        advanceTimeBySelf(on: boolean): void;
-        /**
-         * @private
-         */
-        readonly display: any;
-        /**
-         * @private
-         */
-        readonly animation: any;
-        /**
-         * @private
-         */
-        readonly armature: any;
-        /**
-         * @private
-         */
-        getAnimation(): any;
-        /**
-         * @private
-         */
-        getArmature(): any;
-        /**
-         * @private
-         */
-        getDisplay(): any;
-        /**
-         * @private
-         */
-        hasAnimation(name: string): boolean;
-        /**
-         * @private
-         */
-        invalidUpdate(...args: any[]): void;
-        /**
-         * @private
-         */
-        readonly lastAnimationName: string;
-        /**
-         * @private
-         */
-        readonly animationNames: string[];
-        /**
-         * @private
-         */
-        readonly animationList: string[];
+        readonly soundEventManager: PhaserArmatureDisplay;
     }
 }

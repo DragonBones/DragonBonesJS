@@ -11,7 +11,7 @@ var __extends = (this && this.__extends) || (function () {
 })();
 var coreElement;
 (function (coreElement) {
-    var Game = (function (_super) {
+    var Game = /** @class */ (function (_super) {
         __extends(Game, _super);
         function Game() {
             var _this = _super.call(this) || this;
@@ -130,7 +130,7 @@ var coreElement;
         return Game;
     }(BaseTest));
     coreElement.Game = Game;
-    var Mecha = (function () {
+    var Mecha = /** @class */ (function () {
         function Mecha() {
             this._isJumpingA = false;
             this._isJumpingB = false;
@@ -217,7 +217,7 @@ var coreElement;
             this._skinIndex %= Mecha.SKINS.length;
             var skinName = Mecha.SKINS[this._skinIndex];
             var skinData = dragonBones.PixiFactory.factory.getArmatureData(skinName).defaultSkin;
-            dragonBones.PixiFactory.factory.changeSkin(this._armature, skinData, ["weapon_l", "weapon_r"]);
+            dragonBones.PixiFactory.factory.replaceSkin(this._armature, skinData, false, ["weapon_l", "weapon_r"]);
         };
         Mecha.prototype.aim = function (x, y) {
             this._target.x = x;
@@ -390,7 +390,7 @@ var coreElement;
         Mecha.SKINS = ["mecha_1502b", "skin_a", "skin_b", "skin_c"];
         return Mecha;
     }());
-    var Bullet = (function () {
+    var Bullet = /** @class */ (function () {
         function Bullet(armatureName, effectArmatureName, radian, speed, position) {
             this._speedX = 0.0;
             this._speedY = 0.0;

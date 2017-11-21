@@ -28,10 +28,10 @@
                 // this.world.add(new SetBoneOffset(this.game));
                 // this.world.add(new ReplaceSlotDisplay(this.game));
                 // this.world.add(new ReplaceAnimation(this.game));
-                // this.world.add(new coreElement.Game(this.game));
+                this.world.add(new coreElement.Game(this.game));
 
                 // this.world.add(new PerformanceTest(this.game));
-                this.world.add(new AnimationBaseTest(this.game));
+                // this.world.add(new AnimationBaseTest(this.game));
             },
             render: function () {
                 dragonBones.PhaserFactory.factory.dragonBones.advanceTime(-1.0); // update.
