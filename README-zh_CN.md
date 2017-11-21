@@ -6,6 +6,8 @@
 ## 支持的引擎
 * [Egret](http://www.egret.com/) - [如何在 Egret 中使用 DragonBones](./Egret/)
 * [PixiJS](http://www.pixijs.com/) - [如何在 PixiJS 中使用 DragonBones](./Pixi/)
+* [Phaser](https://phaser.io/) - [如何在 Phaser 中使用 DragonBones](./Phaser/)
+* [Hilo](http://hiloteam.github.io/) - [如何在 Hilo 中使用 DragonBones](./Hilo/)
 
 ## 了解更多
 * [DragonBones 官网](http://www.dragonbones.com/)
