@@ -791,7 +791,8 @@ namespace dragonBones {
             slot.displayList = displayList;
         }
         /**
-         * - Replaces the current display data for a particular slot with a specific display data. (Specify display data with "dragonBonesName/armatureName/slotName/displayName")
+         * - Replaces the current display data for a particular slot with a specific display data.
+         * Specify display data with "dragonBonesName/armatureName/slotName/displayName".
          * @param dragonBonesName - The DragonBonesData instance cache name.
          * @param armatureName - The armature data name.
          * @param slotName - The slot data name.
@@ -807,7 +808,8 @@ namespace dragonBones {
          * @language en_US
          */
         /**
-         * - 用特定的显示对象数据替换特定插槽当前的显示对象数据。(用 "dragonBonesName/armatureName/slotName/displayName" 指定显示对象数据)
+         * - 用特定的显示对象数据替换特定插槽当前的显示对象数据。
+         * 用 "dragonBonesName/armatureName/slotName/displayName" 指定显示对象数据。
          * @param dragonBonesName - DragonBonesData 实例的缓存名称。
          * @param armatureName - 骨架数据名称。
          * @param slotName - 插槽数据名称。
@@ -906,19 +908,26 @@ namespace dragonBones {
          */
         public replaceSkin(armature: Armature, skin: SkinData, isOverride: boolean = false, exclude: Array<string> | null = null): boolean {
             let success = false;
-
+            const defaultSkin = skin.parent.defaultSkin;
+            
             for (const slot of armature.getSlots()) {
                 if (exclude !== null && exclude.indexOf(slot.name) >= 0) {
                     continue;
                 }
 
-                const displays = skin.getDisplays(slot.name);
+                let displays = skin.getDisplays(slot.name);
                 if (!displays) {
-                    if (isOverride) {
-                        slot.rawDisplayDatas = null;
-                        slot.displayList = []; //
+                    if (defaultSkin !== null && skin !== defaultSkin) {
+                        displays = defaultSkin.getDisplays(slot.name);
                     }
-                    continue;
+
+                    if (!displays) {
+                        if (isOverride) {
+                            slot.rawDisplayDatas = null;
+                            slot.displayList = []; //
+                        }
+                        continue;
+                    }
                 }
 
                 const displayCount = DragonBones.webAssembly ? (displays as any).size() : displays.length;
@@ -945,6 +954,9 @@ namespace dragonBones {
         /**
          * - Replaces the existing animation data for a specific armature with the animation data for the specific armature data.
          * This enables you to make a armature template so that other armature without animations can share it's animations.
+         * @param armature - The armtaure.
+         * @param armatureData - The armature data.
+         * @param isOverride - Whether to completely overwrite the original animation.
          * @example
          * <pre>
          *     let armatureA = factory.buildArmature("armatureA", "dragonBonesA");
@@ -953,12 +965,17 @@ namespace dragonBones {
          *     factory.replaceAnimation(armatureA, armatureDataB);
          *     }
          * </pre>
+         * @see dragonBones.Armature
+         * @see dragonBones.ArmatureData
          * @version DragonBones 5.6
          * @language en_US
          */
         /**
          * - 用特定骨架数据的动画数据替换特定骨架现有的动画数据。
          * 这样就能实现制作一个骨架动画模板，让其他没有制作动画的骨架共享该动画。
+         * @param armature - 骨架。
+         * @param armatureData - 骨架数据。
+         * @param isOverride - 是否完全覆盖原来的动画。
          * @example
          * <pre>
          *     let armatureA = factory.buildArmature("armatureA", "dragonBonesA");
@@ -967,16 +984,18 @@ namespace dragonBones {
          *     factory.replaceAnimation(armatureA, armatureDataB);
          *     }
          * </pre>
+         * @see dragonBones.Armature
+         * @see dragonBones.ArmatureData
          * @version DragonBones 5.6
          * @language zh_CN
          */
-        public replaceAnimation(armature: Armature, armatureData: ArmatureData, isReplaceAll: boolean = true): boolean {
+        public replaceAnimation(armature: Armature, armatureData: ArmatureData, isOverride: boolean = true): boolean {
             const skinData = armatureData.defaultSkin;
             if (skinData === null) {
                 return false;
             }
 
-            if (isReplaceAll) {
+            if (isOverride) {
                 armature.animation.animations = armatureData.animations;
             }
             else {
@@ -1004,7 +1023,7 @@ namespace dragonBones {
                             if (displayData !== null && displayData.type === DisplayType.Armature) {
                                 const childArmatureData = this.getArmatureData(displayData.path, displayData.parent.parent.parent.name);
                                 if (childArmatureData) {
-                                    this.replaceAnimation(display, childArmatureData, isReplaceAll);
+                                    this.replaceAnimation(display, childArmatureData, isOverride);
                                 }
                             }
                         }

@@ -465,6 +465,7 @@ namespace dragonBones {
          * @language zh_CN
          */
         public invalidUpdate(): void {
+            this._localDirty = true;
             this._transformDirty = true;
         }
         /**
