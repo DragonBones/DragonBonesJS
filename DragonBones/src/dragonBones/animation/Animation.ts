@@ -373,7 +373,7 @@ namespace dragonBones {
                     }
                     else {
                         added = true;
-                        this._animationStates.splice(i + 1, 0, animationState);
+                        this._animationStates.splice(i, 0, animationState);
                         break;
                     }
                 }
