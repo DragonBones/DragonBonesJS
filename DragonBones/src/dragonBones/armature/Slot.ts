@@ -98,6 +98,10 @@ namespace dragonBones {
         /**
          * @private
          */
+        protected _skinedMeshTransformDirty: boolean;
+        /**
+         * @private
+         */
         protected _visible: boolean;
         /**
          * @private
@@ -244,6 +248,7 @@ namespace dragonBones {
             this._colorDirty = false;
             this._meshDirty = false;
             this._transformDirty = false;
+            this._skinedMeshTransformDirty = false;
             this._visible = true;
             this._blendMode = BlendMode.Normal;
             this._displayIndex = -1;
@@ -465,6 +470,7 @@ namespace dragonBones {
 
                 this._displayDirty = true;
                 this._transformDirty = true;
+                this._skinedMeshTransformDirty = true;
             }
         }
         /**
@@ -786,8 +792,9 @@ namespace dragonBones {
                 }
 
                 if (isSkinned) {
-                    if (this._transformDirty) {
+                    if (this._transformDirty && this._skinedMeshTransformDirty) {
                         this._transformDirty = false;
+                        this._skinedMeshTransformDirty = false;
                         this._updateTransform(true);
                     }
 
