@@ -116,7 +116,7 @@ class BoundingBoxTest extends BaseTest {
                 this._pointB.rotation = this._helpPointC.y * dragonBones.Transform.RAD_DEG;
                 //
                 this._pointA.scaleX = this._pointA.scaleY = 0.6;
-                this._pointB.scaleX = this._pointB.scaleY = 0.6;
+                this._pointB.scaleX = this._pointB.scaleY = 0.4;
             }
             else {
                 this._pointA.visible = false;

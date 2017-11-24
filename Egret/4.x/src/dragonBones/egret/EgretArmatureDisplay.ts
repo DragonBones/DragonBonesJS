@@ -492,7 +492,11 @@ namespace dragonBones {
 
             for (const slot of this._armature.getSlots()) {
                 // (slot as EgretSlot).transformUpdateEnabled = true;
-                const display = (slot._meshData ? slot.meshDisplay : slot.rawDisplay) as (egret.Mesh | egret.Bitmap);
+                let display = (slot._meshData ? slot.meshDisplay : slot.rawDisplay) as (egret.Mesh | egret.Bitmap);
+                if (!slot.display && display === slot.meshDisplay) {
+                    display = slot.rawDisplay;
+                }
+
                 const node = display.$renderNode as (egret.sys.BitmapNode | egret.sys.MeshNode);
 
                 // Transform.

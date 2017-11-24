@@ -543,9 +543,8 @@ namespace dragonBones {
                     displayMatrix.ty = 0.0;
                 }
                 else {
-                    const transformationMatrix = this._renderDisplay.matrix;
-                    transformationMatrix.identity();
-                    this._renderDisplay.$setMatrix(transformationMatrix, this.transformUpdateEnabled);
+                    egret.$TempMatrix.identity();
+                    this._renderDisplay.$setMatrix(egret.$TempMatrix, this.transformUpdateEnabled);
                 }
             }
             else {
@@ -582,9 +581,8 @@ namespace dragonBones {
 
         private _updateTransformV5(isSkinnedMesh: boolean): void {
             if (isSkinnedMesh) { // Identity transform.
-                const transformationMatrix = this._renderDisplay.matrix;
-                transformationMatrix.identity();
-                this._renderDisplay.$setMatrix(transformationMatrix, this.transformUpdateEnabled);
+                egret.$TempMatrix.identity();
+                this._renderDisplay.$setMatrix(egret.$TempMatrix, this.transformUpdateEnabled);
             }
             else {
                 const globalTransformMatrix = this.globalTransformMatrix;
