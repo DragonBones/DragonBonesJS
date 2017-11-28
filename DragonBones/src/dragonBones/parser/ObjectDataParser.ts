@@ -448,12 +448,16 @@ namespace dragonBones {
             constraint.bendPositive = ObjectDataParser._getBoolean(rawData, ObjectDataParser.BEND_POSITIVE, true);
             constraint.weight = ObjectDataParser._getNumber(rawData, ObjectDataParser.WEIGHT, 1.0);
             constraint.name = ObjectDataParser._getString(rawData, ObjectDataParser.NAME, "");
-            constraint.bone = bone;
             constraint.target = target;
 
             const chain = ObjectDataParser._getNumber(rawData, ObjectDataParser.CHAIN, 0);
-            if (chain > 0) {
+            if (chain > 0 && bone.parent !== null) {
                 constraint.root = bone.parent;
+                constraint.bone = bone;
+            }
+            else {
+                constraint.root = bone;
+                constraint.bone = null;
             }
 
             return constraint;

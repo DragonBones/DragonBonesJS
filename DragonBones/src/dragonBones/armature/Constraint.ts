@@ -44,14 +44,14 @@ namespace dragonBones {
          * - For sort bones.
          * @internal
          */
-        public _bone: Bone;
-        protected _root: Bone | null;
+        public _root: Bone;
+        protected _bone: Bone | null;
 
         protected _onClear(): void {
             this._armature = null as any; //
             this._target = null as any; //
-            this._bone = null as any; //
-            this._root = null;
+            this._root = null as any; //
+            this._bone = null;
         }
 
         public abstract init(constraintData: ConstraintData, armature: Armature): void;
@@ -94,8 +94,8 @@ namespace dragonBones {
 
         private _computeA(): void {
             const ikGlobal = this._target.global;
-            const global = this._bone.global;
-            const globalTransformMatrix = this._bone.globalTransformMatrix;
+            const global = this._root.global;
+            const globalTransformMatrix = this._root.globalTransformMatrix;
 
             let radian = Math.atan2(ikGlobal.y - global.y, ikGlobal.x - global.x);
             if (global.scaleX < 0.0) {
@@ -107,12 +107,12 @@ namespace dragonBones {
         }
 
         private _computeB(): void {
-            const boneLength = this._bone._boneData.length;
+            const boneLength = (this._bone as Bone)._boneData.length;
             const parent = this._root as Bone;
             const ikGlobal = this._target.global;
             const parentGlobal = parent.global;
-            const global = this._bone.global;
-            const globalTransformMatrix = this._bone.globalTransformMatrix;
+            const global = (this._bone as Bone).global;
+            const globalTransformMatrix = (this._bone as Bone).globalTransformMatrix;
 
             const x = globalTransformMatrix.a * boneLength;
             const y = globalTransformMatrix.b * boneLength;
@@ -191,8 +191,8 @@ namespace dragonBones {
             this._constraintData = constraintData;
             this._armature = armature;
             this._target = this._armature.getBone(this._constraintData.target.name) as any;
-            this._bone = this._armature.getBone(this._constraintData.bone.name) as any;
-            this._root = this._constraintData.root !== null ? this._armature.getBone(this._constraintData.root.name) : null;
+            this._root = this._armature.getBone(this._constraintData.root.name) as any;
+            this._bone = this._constraintData.bone !== null ? this._armature.getBone(this._constraintData.bone.name) : null;
 
             {
                 const ikConstraintData = this._constraintData as IKConstraintData;
@@ -201,27 +201,25 @@ namespace dragonBones {
                 this._weight = ikConstraintData.weight;
             }
 
-            this._bone._hasConstraint = true;
+            this._root._hasConstraint = true;
         }
 
         public update(): void {
-            if (this._root === null) {
-                this._bone.updateByConstraint();
-                this._computeA();
-            }
-            else {
-                this._root.updateByConstraint();
+            this._root.updateByConstraint();
+
+            if (this._bone !== null) {
                 this._bone.updateByConstraint();
                 this._computeB();
+            }
+            else {
+                this._computeA();
             }
         }
 
         public invalidUpdate(): void {
-            if (this._root === null) {
-                this._bone.invalidUpdate();
-            }
-            else {
-                this._root.invalidUpdate();
+            this._root.invalidUpdate();
+
+            if (this._bone !== null) {
                 this._bone.invalidUpdate();
             }
         }

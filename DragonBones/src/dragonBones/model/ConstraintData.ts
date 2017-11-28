@@ -29,15 +29,15 @@ namespace dragonBones {
         public order: number;
         public name: string;
         public target: BoneData;
-        public bone: BoneData;
-        public root: BoneData | null;
+        public root: BoneData;
+        public bone: BoneData | null;
 
         protected _onClear(): void {
             this.order = 0;
             this.name = "";
             this.target = null as any; //
-            this.bone = null as any; //
-            this.root = null;
+            this.root = null as any; //
+            this.bone = null;
         }
     }
     /**

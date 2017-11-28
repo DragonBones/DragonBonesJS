@@ -361,7 +361,7 @@ namespace dragonBones {
                 else {
                     if (this._hasConstraint) { // Update constraints.
                         for (const constraint of this._armature._constraints) {
-                            if (constraint._bone === this) {
+                            if (constraint._root === this) {
                                 constraint.update();
                             }
                         }
@@ -387,7 +387,7 @@ namespace dragonBones {
             else {
                 if (this._hasConstraint) { // Update constraints.
                     for (const constraint of this._armature._constraints) {
-                        if (constraint._bone === this) {
+                        if (constraint._root === this) {
                             constraint.update();
                         }
                     }
@@ -465,7 +465,6 @@ namespace dragonBones {
          * @language zh_CN
          */
         public invalidUpdate(): void {
-            this._localDirty = true;
             this._transformDirty = true;
         }
         /**

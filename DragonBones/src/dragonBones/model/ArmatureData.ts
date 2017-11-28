@@ -248,7 +248,7 @@ namespace dragonBones {
                 let flag = false;
                 for (let k in this.constraints) { // Wait constraint.
                     const constraint = this.constraints[k];
-                    if (constraint.bone === bone && this.sortedBones.indexOf(constraint.target) < 0) {
+                    if (constraint.root === bone && this.sortedBones.indexOf(constraint.target) < 0) {
                         flag = true;
                         break;
                     }
@@ -564,6 +564,28 @@ namespace dragonBones {
             this.transform.identity();
             this.userData = null;
             this.parent = null;
+        }
+    }
+    /**
+     * @internal
+     * @private
+     */
+    export class SurfaceData extends BoneData {
+        public static toString(): string {
+            return "[class dragonBones.SurfaceData]";
+        }
+        public vertexCountX: number;
+        public vertexCountY: number;
+        public readonly vertices: Array<number> = [];
+        /**
+         * @inheritDoc
+         */
+        protected _onClear(): void {
+            super._onClear();
+
+            this.vertexCountX = 0;
+            this.vertexCountY = 0;
+            this.vertices.length = 0;
         }
     }
     /**
