@@ -9,7 +9,7 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-var SetBoneOffset = /** @class */ (function (_super) {
+var SetBoneOffset = (function (_super) {
     __extends(SetBoneOffset, _super);
     function SetBoneOffset() {
         var _this = _super.call(this) || this;

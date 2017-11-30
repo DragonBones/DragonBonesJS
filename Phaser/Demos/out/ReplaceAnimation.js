@@ -9,7 +9,7 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-var ReplaceAnimation = /** @class */ (function (_super) {
+var ReplaceAnimation = (function (_super) {
     __extends(ReplaceAnimation, _super);
     function ReplaceAnimation(game) {
         var _this = _super.call(this, game) || this;

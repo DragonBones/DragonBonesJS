@@ -15,7 +15,7 @@ var dragonBones;
 /**
  * The MIT License (MIT)
  *
- * Copyright (c) 2012-2016 DragonBones team and other contributors
+ * Copyright (c) 2012-2017 DragonBones team and other contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -39,7 +39,7 @@ var dragonBones;
     /**
      * @private
      */
-    var DragonBones = /** @class */ (function () {
+    var DragonBones = (function () {
         function DragonBones(eventManager) {
             this._clock = new dragonBones.WorldClock();
             this._events = [];
@@ -96,7 +96,7 @@ var dragonBones;
             enumerable: true,
             configurable: true
         });
-        DragonBones.VERSION = "5.6.0";
+        DragonBones.VERSION = "5.6.1";
         DragonBones.yDown = true;
         DragonBones.debug = false;
         DragonBones.debugDraw = false;
@@ -114,7 +114,7 @@ var dragonBones;
 /**
  * The MIT License (MIT)
  *
- * Copyright (c) 2012-2016 DragonBones team and other contributors
+ * Copyright (c) 2012-2017 DragonBones team and other contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -147,7 +147,7 @@ var dragonBones;
      * @version DragonBones 4.5
      * @language zh_CN
      */
-    var BaseObject = /** @class */ (function () {
+    var BaseObject = (function () {
         function BaseObject() {
             /**
              * - A unique identification number assigned to the object.
@@ -297,7 +297,7 @@ var dragonBones;
 /**
  * The MIT License (MIT)
  *
- * Copyright (c) 2012-2016 DragonBones team and other contributors
+ * Copyright (c) 2012-2017 DragonBones team and other contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -328,7 +328,7 @@ var dragonBones;
      * @version DragonBones 3.0
      * @language zh_CN
      */
-    var Matrix = /** @class */ (function () {
+    var Matrix = (function () {
         /**
          * @private
          */
@@ -560,7 +560,7 @@ var dragonBones;
 /**
  * The MIT License (MIT)
  *
- * Copyright (c) 2012-2016 DragonBones team and other contributors
+ * Copyright (c) 2012-2017 DragonBones team and other contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -591,7 +591,7 @@ var dragonBones;
      * @version DragonBones 3.0
      * @language zh_CN
      */
-    var Transform = /** @class */ (function () {
+    var Transform = (function () {
         /**
          * @private
          */
@@ -749,7 +749,7 @@ var dragonBones;
 /**
  * The MIT License (MIT)
  *
- * Copyright (c) 2012-2016 DragonBones team and other contributors
+ * Copyright (c) 2012-2017 DragonBones team and other contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -774,7 +774,7 @@ var dragonBones;
      * @internal
      * @private
      */
-    var ColorTransform = /** @class */ (function () {
+    var ColorTransform = (function () {
         function ColorTransform(alphaMultiplier, redMultiplier, greenMultiplier, blueMultiplier, alphaOffset, redOffset, greenOffset, blueOffset) {
             if (alphaMultiplier === void 0) { alphaMultiplier = 1.0; }
             if (redMultiplier === void 0) { redMultiplier = 1.0; }
@@ -814,7 +814,7 @@ var dragonBones;
 /**
  * The MIT License (MIT)
  *
- * Copyright (c) 2012-2016 DragonBones team and other contributors
+ * Copyright (c) 2012-2017 DragonBones team and other contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -845,7 +845,7 @@ var dragonBones;
      * @version DragonBones 3.0
      * @language zh_CN
      */
-    var Point = /** @class */ (function () {
+    var Point = (function () {
         /**
          * - Creates a new point. If you pass no parameters to this method, a point is created at (0,0).
          * @param x - The horizontal coordinate.
@@ -886,7 +886,7 @@ var dragonBones;
 /**
  * The MIT License (MIT)
  *
- * Copyright (c) 2012-2016 DragonBones team and other contributors
+ * Copyright (c) 2012-2017 DragonBones team and other contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -925,7 +925,7 @@ var dragonBones;
      * @version DragonBones 3.0
      * @language zh_CN
      */
-    var Rectangle = /** @class */ (function () {
+    var Rectangle = (function () {
         /**
          * @private
          */
@@ -962,7 +962,7 @@ var dragonBones;
 /**
  * The MIT License (MIT)
  *
- * Copyright (c) 2012-2016 DragonBones team and other contributors
+ * Copyright (c) 2012-2017 DragonBones team and other contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -993,7 +993,7 @@ var dragonBones;
      * @version DragonBones 5.0
      * @language zh_CN
      */
-    var UserData = /** @class */ (function (_super) {
+    var UserData = (function (_super) {
         __extends(UserData, _super);
         function UserData() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
@@ -1113,7 +1113,7 @@ var dragonBones;
      * @internal
      * @private
      */
-    var ActionData = /** @class */ (function (_super) {
+    var ActionData = (function (_super) {
         __extends(ActionData, _super);
         function ActionData() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
@@ -1140,7 +1140,7 @@ var dragonBones;
 /**
  * The MIT License (MIT)
  *
- * Copyright (c) 2012-2016 DragonBones team and other contributors
+ * Copyright (c) 2012-2017 DragonBones team and other contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -1175,7 +1175,7 @@ var dragonBones;
      * @version DragonBones 3.0
      * @language zh_CN
      */
-    var DragonBonesData = /** @class */ (function (_super) {
+    var DragonBonesData = (function (_super) {
         __extends(DragonBonesData, _super);
         function DragonBonesData() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
@@ -1291,7 +1291,7 @@ var dragonBones;
 /**
  * The MIT License (MIT)
  *
- * Copyright (c) 2012-2016 DragonBones team and other contributors
+ * Copyright (c) 2012-2017 DragonBones team and other contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -1322,7 +1322,7 @@ var dragonBones;
      * @version DragonBones 3.0
      * @language zh_CN
      */
-    var ArmatureData = /** @class */ (function (_super) {
+    var ArmatureData = (function (_super) {
         __extends(ArmatureData, _super);
         function ArmatureData() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
@@ -1474,7 +1474,7 @@ var dragonBones;
                 var flag = false;
                 for (var k in this.constraints) {
                     var constraint = this.constraints[k];
-                    if (constraint.bone === bone && this.sortedBones.indexOf(constraint.target) < 0) {
+                    if (constraint.root === bone && this.sortedBones.indexOf(constraint.target) < 0) {
                         flag = true;
                         break;
                     }
@@ -1701,7 +1701,7 @@ var dragonBones;
      * @version DragonBones 3.0
      * @language zh_CN
      */
-    var BoneData = /** @class */ (function (_super) {
+    var BoneData = (function (_super) {
         __extends(BoneData, _super);
         function BoneData() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
@@ -1739,6 +1739,32 @@ var dragonBones;
     }(dragonBones.BaseObject));
     dragonBones.BoneData = BoneData;
     /**
+     * @internal
+     * @private
+     */
+    var SurfaceData = (function (_super) {
+        __extends(SurfaceData, _super);
+        function SurfaceData() {
+            var _this = _super !== null && _super.apply(this, arguments) || this;
+            _this.vertices = [];
+            return _this;
+        }
+        SurfaceData.toString = function () {
+            return "[class dragonBones.SurfaceData]";
+        };
+        /**
+         * @inheritDoc
+         */
+        SurfaceData.prototype._onClear = function () {
+            _super.prototype._onClear.call(this);
+            this.vertexCountX = 0;
+            this.vertexCountY = 0;
+            this.vertices.length = 0;
+        };
+        return SurfaceData;
+    }(BoneData));
+    dragonBones.SurfaceData = SurfaceData;
+    /**
      * - The slot data.
      * @version DragonBones 3.0
      * @language en_US
@@ -1748,7 +1774,7 @@ var dragonBones;
      * @version DragonBones 3.0
      * @language zh_CN
      */
-    var SlotData = /** @class */ (function (_super) {
+    var SlotData = (function (_super) {
         __extends(SlotData, _super);
         function SlotData() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
@@ -1799,7 +1825,7 @@ var dragonBones;
 /**
  * The MIT License (MIT)
  *
- * Copyright (c) 2012-2016 DragonBones team and other contributors
+ * Copyright (c) 2012-2017 DragonBones team and other contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -1824,7 +1850,7 @@ var dragonBones;
      * @internal
      * @private
      */
-    var CanvasData = /** @class */ (function (_super) {
+    var CanvasData = (function (_super) {
         __extends(CanvasData, _super);
         function CanvasData() {
             return _super !== null && _super.apply(this, arguments) || this;
@@ -1847,7 +1873,7 @@ var dragonBones;
 /**
  * The MIT License (MIT)
  *
- * Copyright (c) 2012-2016 DragonBones team and other contributors
+ * Copyright (c) 2012-2017 DragonBones team and other contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -1878,7 +1904,7 @@ var dragonBones;
      * @version DragonBones 3.0
      * @language zh_CN
      */
-    var SkinData = /** @class */ (function (_super) {
+    var SkinData = (function (_super) {
         __extends(SkinData, _super);
         function SkinData() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
@@ -1954,7 +1980,7 @@ var dragonBones;
 /**
  * The MIT License (MIT)
  *
- * Copyright (c) 2012-2016 DragonBones team and other contributors
+ * Copyright (c) 2012-2017 DragonBones team and other contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -1979,7 +2005,7 @@ var dragonBones;
      * @internal
      * @private
      */
-    var ConstraintData = /** @class */ (function (_super) {
+    var ConstraintData = (function (_super) {
         __extends(ConstraintData, _super);
         function ConstraintData() {
             return _super !== null && _super.apply(this, arguments) || this;
@@ -1988,8 +2014,8 @@ var dragonBones;
             this.order = 0;
             this.name = "";
             this.target = null; //
-            this.bone = null; //
-            this.root = null;
+            this.root = null; //
+            this.bone = null;
         };
         return ConstraintData;
     }(dragonBones.BaseObject));
@@ -1998,7 +2024,7 @@ var dragonBones;
      * @internal
      * @private
      */
-    var IKConstraintData = /** @class */ (function (_super) {
+    var IKConstraintData = (function (_super) {
         __extends(IKConstraintData, _super);
         function IKConstraintData() {
             return _super !== null && _super.apply(this, arguments) || this;
@@ -2019,7 +2045,7 @@ var dragonBones;
 /**
  * The MIT License (MIT)
  *
- * Copyright (c) 2012-2016 DragonBones team and other contributors
+ * Copyright (c) 2012-2017 DragonBones team and other contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -2044,7 +2070,7 @@ var dragonBones;
      * @internal
      * @private
      */
-    var DisplayData = /** @class */ (function (_super) {
+    var DisplayData = (function (_super) {
         __extends(DisplayData, _super);
         function DisplayData() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
@@ -2064,7 +2090,7 @@ var dragonBones;
      * @internal
      * @private
      */
-    var ImageDisplayData = /** @class */ (function (_super) {
+    var ImageDisplayData = (function (_super) {
         __extends(ImageDisplayData, _super);
         function ImageDisplayData() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
@@ -2087,7 +2113,7 @@ var dragonBones;
      * @internal
      * @private
      */
-    var ArmatureDisplayData = /** @class */ (function (_super) {
+    var ArmatureDisplayData = (function (_super) {
         __extends(ArmatureDisplayData, _super);
         function ArmatureDisplayData() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
@@ -2121,7 +2147,7 @@ var dragonBones;
      * @internal
      * @private
      */
-    var MeshDisplayData = /** @class */ (function (_super) {
+    var MeshDisplayData = (function (_super) {
         __extends(MeshDisplayData, _super);
         function MeshDisplayData() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
@@ -2148,7 +2174,7 @@ var dragonBones;
      * @internal
      * @private
      */
-    var BoundingBoxDisplayData = /** @class */ (function (_super) {
+    var BoundingBoxDisplayData = (function (_super) {
         __extends(BoundingBoxDisplayData, _super);
         function BoundingBoxDisplayData() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
@@ -2173,7 +2199,7 @@ var dragonBones;
      * @internal
      * @private
      */
-    var WeightData = /** @class */ (function (_super) {
+    var WeightData = (function (_super) {
         __extends(WeightData, _super);
         function WeightData() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
@@ -2198,7 +2224,7 @@ var dragonBones;
 /**
  * The MIT License (MIT)
  *
- * Copyright (c) 2012-2016 DragonBones team and other contributors
+ * Copyright (c) 2012-2017 DragonBones team and other contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -2235,7 +2261,7 @@ var dragonBones;
      * @version DragonBones 5.0
      * @language zh_CN
      */
-    var BoundingBoxData = /** @class */ (function (_super) {
+    var BoundingBoxData = (function (_super) {
         __extends(BoundingBoxData, _super);
         function BoundingBoxData() {
             return _super !== null && _super.apply(this, arguments) || this;
@@ -2261,7 +2287,7 @@ var dragonBones;
      * @version DragonBones 5.1
      * @language zh_CN
      */
-    var RectangleBoundingBoxData = /** @class */ (function (_super) {
+    var RectangleBoundingBoxData = (function (_super) {
         __extends(RectangleBoundingBoxData, _super);
         function RectangleBoundingBoxData() {
             return _super !== null && _super.apply(this, arguments) || this;
@@ -2455,7 +2481,7 @@ var dragonBones;
      * @version DragonBones 5.1
      * @language zh_CN
      */
-    var EllipseBoundingBoxData = /** @class */ (function (_super) {
+    var EllipseBoundingBoxData = (function (_super) {
         __extends(EllipseBoundingBoxData, _super);
         function EllipseBoundingBoxData() {
             return _super !== null && _super.apply(this, arguments) || this;
@@ -2596,7 +2622,7 @@ var dragonBones;
      * @version DragonBones 5.1
      * @language zh_CN
      */
-    var PolygonBoundingBoxData = /** @class */ (function (_super) {
+    var PolygonBoundingBoxData = (function (_super) {
         __extends(PolygonBoundingBoxData, _super);
         function PolygonBoundingBoxData() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
@@ -2799,7 +2825,7 @@ var dragonBones;
 /**
  * The MIT License (MIT)
  *
- * Copyright (c) 2012-2016 DragonBones team and other contributors
+ * Copyright (c) 2012-2017 DragonBones team and other contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -2830,7 +2856,7 @@ var dragonBones;
      * @version DragonBones 3.0
      * @language zh_CN
      */
-    var AnimationData = /** @class */ (function (_super) {
+    var AnimationData = (function (_super) {
         __extends(AnimationData, _super);
         function AnimationData() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
@@ -3023,7 +3049,7 @@ var dragonBones;
      * @internal
      * @private
      */
-    var TimelineData = /** @class */ (function (_super) {
+    var TimelineData = (function (_super) {
         __extends(TimelineData, _super);
         function TimelineData() {
             return _super !== null && _super.apply(this, arguments) || this;
@@ -3043,7 +3069,7 @@ var dragonBones;
 /**
  * The MIT License (MIT)
  *
- * Copyright (c) 2012-2016 DragonBones team and other contributors
+ * Copyright (c) 2012-2017 DragonBones team and other contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -3080,7 +3106,7 @@ var dragonBones;
      * @version DragonBones 5.0
      * @language zh_CN
      */
-    var AnimationConfig = /** @class */ (function (_super) {
+    var AnimationConfig = (function (_super) {
         __extends(AnimationConfig, _super);
         function AnimationConfig() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
@@ -3225,7 +3251,7 @@ var dragonBones;
 /**
  * The MIT License (MIT)
  *
- * Copyright (c) 2012-2016 DragonBones team and other contributors
+ * Copyright (c) 2012-2017 DragonBones team and other contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -3256,7 +3282,7 @@ var dragonBones;
      * @version DragonBones 3.0
      * @language zh_CN
      */
-    var TextureAtlasData = /** @class */ (function (_super) {
+    var TextureAtlasData = (function (_super) {
         __extends(TextureAtlasData, _super);
         function TextureAtlasData() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
@@ -3328,7 +3354,7 @@ var dragonBones;
      * @internal
      * @private
      */
-    var TextureData = /** @class */ (function (_super) {
+    var TextureData = (function (_super) {
         __extends(TextureData, _super);
         function TextureData() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
@@ -3368,7 +3394,7 @@ var dragonBones;
 /**
  * The MIT License (MIT)
  *
- * Copyright (c) 2012-2016 DragonBones team and other contributors
+ * Copyright (c) 2012-2017 DragonBones team and other contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -3407,7 +3433,7 @@ var dragonBones;
      * @version DragonBones 3.0
      * @language zh_CN
      */
-    var Armature = /** @class */ (function (_super) {
+    var Armature = (function (_super) {
         __extends(Armature, _super);
         function Armature() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
@@ -3507,7 +3533,7 @@ var dragonBones;
                     var flag = false;
                     for (var _i = 0, _a = this._constraints; _i < _a.length; _i++) {
                         var constraint = _a[_i];
-                        if (constraint._bone === bone && this._bones.indexOf(constraint._target) < 0) {
+                        if (constraint._root === bone && this._bones.indexOf(constraint._target) < 0) {
                             flag = true;
                             break;
                         }
@@ -3700,7 +3726,7 @@ var dragonBones;
         /**
          * - Forces a specific bone or its owning slot to update the transform or display property in the next frame.
          * @param boneName - The bone name. (If not set, all bones will be update)
-         * @param updateSlot - Whether to update the bone's slots.
+         * @param updateSlot - Whether to update the bone's slots. (Default: false)
          * @see dragonBones.Bone#invalidUpdate()
          * @see dragonBones.Slot#invalidUpdate()
          * @version DragonBones 3.0
@@ -3709,7 +3735,7 @@ var dragonBones;
         /**
          * - 强制特定骨骼或其拥有的插槽在下一帧更新变换或显示属性。
          * @param boneName - 骨骼名称。 （如果未设置，将更新所有骨骼）
-         * @param updateSlot - 是否更新骨骼的插槽。
+         * @param updateSlot - 是否更新骨骼的插槽。 （默认: false）
          * @see dragonBones.Bone#invalidUpdate()
          * @see dragonBones.Slot#invalidUpdate()
          * @version DragonBones 3.0
@@ -3780,9 +3806,9 @@ var dragonBones;
          * @param yA - The vertical coordinate of the beginning of the segment.
          * @param xB - The horizontal coordinate of the end point of the segment.
          * @param yB - The vertical coordinate of the end point of the segment.
-         * @param intersectionPointA - The first intersection at which a line segment intersects the bounding box from the beginning to the end.
-         * @param intersectionPointB - The first intersection at which a line segment intersects the bounding box from the end to the beginning.
-         * @param normalRadians - The normal radians of the tangent of the intersection boundary box. [x: Normal radian of the first intersection tangent, y: Normal radian of the second intersection tangent]
+         * @param intersectionPointA - The first intersection at which a line segment intersects the bounding box from the beginning to the end. (If not set, the intersection point will not calculated)
+         * @param intersectionPointB - The first intersection at which a line segment intersects the bounding box from the end to the beginning. (If not set, the intersection point will not calculated)
+         * @param normalRadians - The normal radians of the tangent of the intersection boundary box. [x: Normal radian of the first intersection tangent, y: Normal radian of the second intersection tangent] (If not set, the normal will not calculated)
          * @returns The slot of the first custom bounding box where the segment intersects from the start point to the end point.
          * @version DragonBones 5.0
          * @language en_US
@@ -3795,9 +3821,9 @@ var dragonBones;
          * @param yA - 线段起点的垂直坐标。
          * @param xB - 线段终点的水平坐标。
          * @param yB - 线段终点的垂直坐标。
-         * @param intersectionPointA - 线段从起点到终点与边界框相交的第一个交点。
-         * @param intersectionPointB - 线段从终点到起点与边界框相交的第一个交点。
-         * @param normalRadians - 交点边界框切线的法线弧度。 [x: 第一个交点切线的法线弧度, y: 第二个交点切线的法线弧度]
+         * @param intersectionPointA - 线段从起点到终点与边界框相交的第一个交点。 （如果未设置，则不计算交点）
+         * @param intersectionPointB - 线段从终点到起点与边界框相交的第一个交点。 （如果未设置，则不计算交点）
+         * @param normalRadians - 交点边界框切线的法线弧度。 [x: 第一个交点切线的法线弧度, y: 第二个交点切线的法线弧度] （如果未设置，则不计算法线）
          * @returns 线段从起点到终点相交的第一个自定义边界框的插槽。
          * @version DragonBones 5.0
          * @language zh_CN
@@ -4387,7 +4413,7 @@ var dragonBones;
 /**
  * The MIT License (MIT)
  *
- * Copyright (c) 2012-2016 DragonBones team and other contributors
+ * Copyright (c) 2012-2017 DragonBones team and other contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -4420,7 +4446,7 @@ var dragonBones;
      * @version DragonBones 4.5
      * @language zh_CN
      */
-    var TransformObject = /** @class */ (function (_super) {
+    var TransformObject = (function (_super) {
         __extends(TransformObject, _super);
         function TransformObject() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
@@ -4548,7 +4574,7 @@ var dragonBones;
 /**
  * The MIT License (MIT)
  *
- * Copyright (c) 2012-2016 DragonBones team and other contributors
+ * Copyright (c) 2012-2017 DragonBones team and other contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -4588,7 +4614,7 @@ var dragonBones;
      * @version DragonBones 3.0
      * @language zh_CN
      */
-    var Bone = /** @class */ (function (_super) {
+    var Bone = (function (_super) {
         __extends(Bone, _super);
         function Bone() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
@@ -4824,7 +4850,7 @@ var dragonBones;
                     if (this._hasConstraint) {
                         for (var _i = 0, _a = this._armature._constraints; _i < _a.length; _i++) {
                             var constraint = _a[_i];
-                            if (constraint._bone === this) {
+                            if (constraint._root === this) {
                                 constraint.update();
                             }
                         }
@@ -4848,7 +4874,7 @@ var dragonBones;
                 if (this._hasConstraint) {
                     for (var _b = 0, _c = this._armature._constraints; _b < _c.length; _b++) {
                         var constraint = _c[_b];
-                        if (constraint._bone === this) {
+                        if (constraint._root === this) {
                             constraint.update();
                         }
                     }
@@ -5082,7 +5108,7 @@ var dragonBones;
 /**
  * The MIT License (MIT)
  *
- * Copyright (c) 2012-2016 DragonBones team and other contributors
+ * Copyright (c) 2012-2017 DragonBones team and other contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -5127,7 +5153,7 @@ var dragonBones;
      * @version DragonBones 3.0
      * @language zh_CN
      */
-    var Slot = /** @class */ (function (_super) {
+    var Slot = (function (_super) {
         __extends(Slot, _super);
         function Slot() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
@@ -5202,6 +5228,7 @@ var dragonBones;
             this._colorDirty = false;
             this._meshDirty = false;
             this._transformDirty = false;
+            this._skinedMeshTransformDirty = false;
             this._visible = true;
             this._blendMode = 0 /* Normal */;
             this._displayIndex = -1;
@@ -5354,6 +5381,7 @@ var dragonBones;
                 }
                 this._displayDirty = true;
                 this._transformDirty = true;
+                this._skinedMeshTransformDirty = true;
             }
         };
         /**
@@ -5640,8 +5668,9 @@ var dragonBones;
                     this._updateMesh();
                 }
                 if (isSkinned) {
-                    if (this._transformDirty) {
+                    if (this._transformDirty && this._skinedMeshTransformDirty) {
                         this._transformDirty = false;
+                        this._skinedMeshTransformDirty = false;
                         this._updateTransform(true);
                     }
                     return;
@@ -5730,9 +5759,9 @@ var dragonBones;
          * @param yA - The vertical coordinate of the beginning of the segment.
          * @param xB - The horizontal coordinate of the end point of the segment.
          * @param yB - The vertical coordinate of the end point of the segment.
-         * @param intersectionPointA - The first intersection at which a line segment intersects the bounding box from the beginning to the end.
-         * @param intersectionPointB - The first intersection at which a line segment intersects the bounding box from the end to the beginning.
-         * @param normalRadians - The normal radians of the tangent of the intersection boundary box. [x: Normal radian of the first intersection tangent, y: Normal radian of the second intersection tangent]
+         * @param intersectionPointA - The first intersection at which a line segment intersects the bounding box from the beginning to the end. (If not set, the intersection point will not calculated)
+         * @param intersectionPointB - The first intersection at which a line segment intersects the bounding box from the end to the beginning. (If not set, the intersection point will not calculated)
+         * @param normalRadians - The normal radians of the tangent of the intersection boundary box. [x: Normal radian of the first intersection tangent, y: Normal radian of the second intersection tangent] (If not set, the normal will not calculated)
          * @returns Intersection situation. [1: Disjoint and segments within the bounding box, 0: Disjoint, 1: Intersecting and having a nodal point and ending in the bounding box, 2: Intersecting and having a nodal point and starting at the bounding box, 3: Intersecting and having two intersections, N: Intersecting and having N intersections]
          * @version DragonBones 5.0
          * @language en_US
@@ -5745,9 +5774,9 @@ var dragonBones;
          * @param yA - 线段起点的垂直坐标。
          * @param xB - 线段终点的水平坐标。
          * @param yB - 线段终点的垂直坐标。
-         * @param intersectionPointA - 线段从起点到终点与边界框相交的第一个交点。
-         * @param intersectionPointB - 线段从终点到起点与边界框相交的第一个交点。
-         * @param normalRadians - 交点边界框切线的法线弧度。 [x: 第一个交点切线的法线弧度, y: 第二个交点切线的法线弧度]
+         * @param intersectionPointA - 线段从起点到终点与边界框相交的第一个交点。 （如果未设置，则不计算交点）
+         * @param intersectionPointB - 线段从终点到起点与边界框相交的第一个交点。 （如果未设置，则不计算交点）
+         * @param normalRadians - 交点边界框切线的法线弧度。 [x: 第一个交点切线的法线弧度, y: 第二个交点切线的法线弧度] （如果未设置，则不计算法线）
          * @returns 相交的情况。 [-1: 不相交且线段在包围盒内, 0: 不相交, 1: 相交且有一个交点且终点在包围盒内, 2: 相交且有一个交点且起点在包围盒内, 3: 相交且有两个交点, N: 相交且有 N 个交点]
          * @version DragonBones 5.0
          * @language zh_CN
@@ -6129,7 +6158,7 @@ var dragonBones;
 /**
  * The MIT License (MIT)
  *
- * Copyright (c) 2012-2016 DragonBones team and other contributors
+ * Copyright (c) 2012-2017 DragonBones team and other contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -6154,7 +6183,7 @@ var dragonBones;
      * @internal
      * @private
      */
-    var Constraint = /** @class */ (function (_super) {
+    var Constraint = (function (_super) {
         __extends(Constraint, _super);
         function Constraint() {
             return _super !== null && _super.apply(this, arguments) || this;
@@ -6162,8 +6191,8 @@ var dragonBones;
         Constraint.prototype._onClear = function () {
             this._armature = null; //
             this._target = null; //
-            this._bone = null; //
-            this._root = null;
+            this._root = null; //
+            this._bone = null;
         };
         Object.defineProperty(Constraint.prototype, "name", {
             get: function () {
@@ -6182,7 +6211,7 @@ var dragonBones;
      * @internal
      * @private
      */
-    var IKConstraint = /** @class */ (function (_super) {
+    var IKConstraint = (function (_super) {
         __extends(IKConstraint, _super);
         function IKConstraint() {
             return _super !== null && _super.apply(this, arguments) || this;
@@ -6199,8 +6228,8 @@ var dragonBones;
         };
         IKConstraint.prototype._computeA = function () {
             var ikGlobal = this._target.global;
-            var global = this._bone.global;
-            var globalTransformMatrix = this._bone.globalTransformMatrix;
+            var global = this._root.global;
+            var globalTransformMatrix = this._root.globalTransformMatrix;
             var radian = Math.atan2(ikGlobal.y - global.y, ikGlobal.x - global.x);
             if (global.scaleX < 0.0) {
                 radian += Math.PI;
@@ -6283,33 +6312,29 @@ var dragonBones;
             this._constraintData = constraintData;
             this._armature = armature;
             this._target = this._armature.getBone(this._constraintData.target.name);
-            this._bone = this._armature.getBone(this._constraintData.bone.name);
-            this._root = this._constraintData.root !== null ? this._armature.getBone(this._constraintData.root.name) : null;
+            this._root = this._armature.getBone(this._constraintData.root.name);
+            this._bone = this._constraintData.bone !== null ? this._armature.getBone(this._constraintData.bone.name) : null;
             {
                 var ikConstraintData = this._constraintData;
                 this._scaleEnabled = ikConstraintData.scaleEnabled;
                 this._bendPositive = ikConstraintData.bendPositive;
                 this._weight = ikConstraintData.weight;
             }
-            this._bone._hasConstraint = true;
+            this._root._hasConstraint = true;
         };
         IKConstraint.prototype.update = function () {
-            if (this._root === null) {
-                this._bone.updateByConstraint();
-                this._computeA();
-            }
-            else {
-                this._root.updateByConstraint();
+            this._root.updateByConstraint();
+            if (this._bone !== null) {
                 this._bone.updateByConstraint();
                 this._computeB();
             }
+            else {
+                this._computeA();
+            }
         };
         IKConstraint.prototype.invalidUpdate = function () {
-            if (this._root === null) {
-                this._bone.invalidUpdate();
-            }
-            else {
-                this._root.invalidUpdate();
+            this._root.invalidUpdate();
+            if (this._bone !== null) {
                 this._bone.invalidUpdate();
             }
         };
@@ -6320,7 +6345,7 @@ var dragonBones;
 /**
  * The MIT License (MIT)
  *
- * Copyright (c) 2012-2016 DragonBones team and other contributors
+ * Copyright (c) 2012-2017 DragonBones team and other contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -6355,7 +6380,7 @@ var dragonBones;
      * @version DragonBones 3.0
      * @language zh_CN
      */
-    var WorldClock = /** @class */ (function () {
+    var WorldClock = (function () {
         /**
          * - Creating a Worldclock instance. Typically, you do not need to create Worldclock instance.
          * When multiple Worldclock instances are running at different speeds, can achieving some specific animation effects, such as bullet time.
@@ -6581,7 +6606,7 @@ var dragonBones;
 /**
  * The MIT License (MIT)
  *
- * Copyright (c) 2012-2016 DragonBones team and other contributors
+ * Copyright (c) 2012-2017 DragonBones team and other contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -6616,7 +6641,7 @@ var dragonBones;
      * @version DragonBones 3.0
      * @language zh_CN
      */
-    var Animation = /** @class */ (function (_super) {
+    var Animation = (function (_super) {
         __extends(Animation, _super);
         function Animation() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
@@ -6830,7 +6855,7 @@ var dragonBones;
          * - Play animation with a specific animation config.
          * The API is still in the experimental phase and may encounter bugs or stability or compatibility issues when used.
          * @param animationConfig - The animation config.
-         * @returns The playing animation state
+         * @returns The playing animation state.
          * @see dragonBones.AnimationConfig
          * @beta
          * @version DragonBones 5.0
@@ -6840,7 +6865,7 @@ var dragonBones;
          * - 通过指定的动画配置来播放动画。
          * 该 API 仍在实验阶段，使用时可能遭遇 bug 或稳定性或兼容性问题。
          * @param animationConfig - 动画配置。
-         * @returns 播放的动画状态
+         * @returns 播放的动画状态。
          * @see dragonBones.AnimationConfig
          * @beta
          * @version DragonBones 5.0
@@ -6913,7 +6938,7 @@ var dragonBones;
                     }
                     else {
                         added = true;
-                        this._animationStates.splice(i + 1, 0, animationState);
+                        this._animationStates.splice(i, 0, animationState);
                         break;
                     }
                 }
@@ -6943,8 +6968,8 @@ var dragonBones;
         /**
          * - Play a specific animation.
          * @param animationName - The name of animation data. (If not set, The default animation will be played, or resume the animation playing from pause status, or replay the last playing animation)
-         * @param playTimes - Playing repeat times. [-1: Use default value of the animation data, 0: No end loop playing, [1~N]: Repeat N times]
-         * @returns The playing animation state
+         * @param playTimes - Playing repeat times. [-1: Use default value of the animation data, 0: No end loop playing, [1~N]: Repeat N times] (default: -1)
+         * @returns The playing animation state.
          * @example
          * <pre>
          *     armature.animation.play("walk");
@@ -6955,8 +6980,8 @@ var dragonBones;
         /**
          * - 播放指定动画。
          * @param animationName - 动画数据名称。 （如果未设置，则播放默认动画，或将暂停状态切换为播放状态，或重新播放之前播放的动画）
-         * @param playTimes - 循环播放次数。 [-1: 使用动画数据默认值, 0: 无限循环播放, [1~N]: 循环播放 N 次]
-         * @returns 播放的动画状态
+         * @param playTimes - 循环播放次数。 [-1: 使用动画数据默认值, 0: 无限循环播放, [1~N]: 循环播放 N 次] （默认: -1）
+         * @returns 播放的动画状态。
          * @example
          * <pre>
          *     armature.animation.play("walk");
@@ -6994,12 +7019,12 @@ var dragonBones;
         /**
          * - Fade in a specific animation.
          * @param animationName - The name of animation data.
-         * @param fadeInTime - The fade in time. [-1: Use the default value of animation data, [0~N]: The fade in time (In seconds)]
-         * @param playTimes - playing repeat times. [-1: Use the default value of animation data, 0: No end loop playing, [1~N]: Repeat N times]
-         * @param layer - The blending layer, the animation states in high level layer will get the blending weights with high priority, when the total blending weights are more than 1.0, there will be no more weights can be allocated to the other animation states.
-         * @param group - The blending group name, it is typically used to specify the substitution of multiple animation states blending.
-         * @param fadeOutMode - The fade out mode, which is typically used to specify alternate mode of multiple animation states blending.
-         * @returns The playing animation state
+         * @param fadeInTime - The fade in time. [-1: Use the default value of animation data, [0~N]: The fade in time (In seconds)] (Default: -1)
+         * @param playTimes - playing repeat times. [-1: Use the default value of animation data, 0: No end loop playing, [1~N]: Repeat N times] (Default: -1)
+         * @param layer - The blending layer, the animation states in high level layer will get the blending weights with high priority, when the total blending weights are more than 1.0, there will be no more weights can be allocated to the other animation states. (Default: 0)
+         * @param group - The blending group name, it is typically used to specify the substitution of multiple animation states blending. (Default: null)
+         * @param fadeOutMode - The fade out mode, which is typically used to specify alternate mode of multiple animation states blending. (Default: AnimationFadeOutMode.SameLayerAndGroup)
+         * @returns The playing animation state.
          * @example
          * <pre>
          *     armature.animation.fadeIn("walk", 0.3, 0, 0, "normalGroup").resetToPose = false;
@@ -7011,12 +7036,12 @@ var dragonBones;
         /**
          * - 淡入播放指定的动画。
          * @param animationName - 动画数据名称。
-         * @param fadeInTime - 淡入时间。 [-1: 使用动画数据默认值, [0~N]: 淡入时间 (以秒为单位)]
-         * @param playTimes - 播放次数。 [-1: 使用动画数据默认值, 0: 无限循环播放, [1~N]: 循环播放 N 次]
-         * @param layer - 混合图层，图层高的动画状态会优先获取混合权重，当混合权重分配总和超过 1.0 时，剩余的动画状态将不能再获得权重分配。
-         * @param group - 混合组名称，该属性通常用来指定多个动画状态混合时的相互替换关系。
-         * @param fadeOutMode - 淡出模式，该属性通常用来指定多个动画状态混合时的相互替换模式。
-         * @returns 播放的动画状态
+         * @param fadeInTime - 淡入时间。 [-1: 使用动画数据默认值, [0~N]: 淡入时间 (以秒为单位)] （默认: -1）
+         * @param playTimes - 播放次数。 [-1: 使用动画数据默认值, 0: 无限循环播放, [1~N]: 循环播放 N 次] （默认: -1）
+         * @param layer - 混合图层，图层高的动画状态会优先获取混合权重，当混合权重分配总和超过 1.0 时，剩余的动画状态将不能再获得权重分配。 （默认: 0）
+         * @param group - 混合组名称，该属性通常用来指定多个动画状态混合时的相互替换关系。 （默认: null）
+         * @param fadeOutMode - 淡出模式，该属性通常用来指定多个动画状态混合时的相互替换模式。 （默认: AnimationFadeOutMode.SameLayerAndGroup）
+         * @returns 播放的动画状态。
          * @example
          * <pre>
          *     armature.animation.fadeIn("walk", 0.3, 0, 0, "normalGroup").resetToPose = false;
@@ -7044,8 +7069,8 @@ var dragonBones;
          * - Play a specific animation from the specific time.
          * @param animationName - The name of animation data.
          * @param time - The start time point of playing. (In seconds)
-         * @param playTimes - Playing repeat times. [-1: Use the default value of animation data, 0: No end loop playing, [1~N]: Repeat N times]
-         * @returns The played animation state
+         * @param playTimes - Playing repeat times. [-1: Use the default value of animation data, 0: No end loop playing, [1~N]: Repeat N times] (Default: -1)
+         * @returns The played animation state.
          * @version DragonBones 4.5
          * @language en_US
          */
@@ -7053,8 +7078,8 @@ var dragonBones;
          * - 从指定时间开始播放指定的动画。
          * @param animationName - 动画数据名称。
          * @param time - 播放开始的时间。 (以秒为单位)
-         * @param playTimes - 循环播放次数。 [-1: 使用动画数据默认值, 0: 无限循环播放, [1~N]: 循环播放 N 次]
-         * @returns 播放的动画状态
+         * @param playTimes - 循环播放次数。 [-1: 使用动画数据默认值, 0: 无限循环播放, [1~N]: 循环播放 N 次] （默认: -1）
+         * @returns 播放的动画状态。
          * @version DragonBones 4.5
          * @language zh_CN
          */
@@ -7073,8 +7098,8 @@ var dragonBones;
          * - Play a specific animation from the specific frame.
          * @param animationName - The name of animation data.
          * @param frame - The start frame of playing.
-         * @param playTimes - Playing repeat times. [-1: Use the default value of animation data, 0: No end loop playing, [1~N]: Repeat N times]
-         * @returns The played animation state
+         * @param playTimes - Playing repeat times. [-1: Use the default value of animation data, 0: No end loop playing, [1~N]: Repeat N times] (Default: -1)
+         * @returns The played animation state.
          * @version DragonBones 4.5
          * @language en_US
          */
@@ -7082,8 +7107,8 @@ var dragonBones;
          * - 从指定帧开始播放指定的动画。
          * @param animationName - 动画数据名称。
          * @param frame - 播放开始的帧数。
-         * @param playTimes - 播放次数。 [-1: 使用动画数据默认值, 0: 无限循环播放, [1~N]: 循环播放 N 次]
-         * @returns 播放的动画状态
+         * @param playTimes - 播放次数。 [-1: 使用动画数据默认值, 0: 无限循环播放, [1~N]: 循环播放 N 次] （默认: -1）
+         * @returns 播放的动画状态。
          * @version DragonBones 4.5
          * @language zh_CN
          */
@@ -7105,8 +7130,8 @@ var dragonBones;
          * - Play a specific animation from the specific progress.
          * @param animationName - The name of animation data.
          * @param progress - The start progress value of playing.
-         * @param playTimes - Playing repeat times. [-1: Use the default value of animation data, 0: No end loop playing, [1~N]: Repeat N times]
-         * @returns The played animation state
+         * @param playTimes - Playing repeat times. [-1: Use the default value of animation data, 0: No end loop playing, [1~N]: Repeat N times] (Default: -1)
+         * @returns The played animation state.
          * @version DragonBones 4.5
          * @language en_US
          */
@@ -7114,8 +7139,8 @@ var dragonBones;
          * - 从指定进度开始播放指定的动画。
          * @param animationName - 动画数据名称。
          * @param progress - 开始播放的进度。
-         * @param playTimes - 播放次数。 [-1: 使用动画数据默认值, 0: 无限循环播放, [1~N]: 循环播放 N 次]
-         * @returns 播放的动画状态
+         * @param playTimes - 播放次数。 [-1: 使用动画数据默认值, 0: 无限循环播放, [1~N]: 循环播放 N 次] （默认: -1）
+         * @returns 播放的动画状态。
          * @version DragonBones 4.5
          * @language zh_CN
          */
@@ -7137,7 +7162,7 @@ var dragonBones;
          * - Stop a specific animation at the specific time.
          * @param animationName - The name of animation data.
          * @param time - The stop time. (In seconds)
-         * @returns The played animation state
+         * @returns The played animation state.
          * @version DragonBones 4.5
          * @language en_US
          */
@@ -7145,7 +7170,7 @@ var dragonBones;
          * - 在指定时间停止指定动画播放
          * @param animationName - 动画数据名称。
          * @param time - 停止的时间。 (以秒为单位)
-         * @returns 播放的动画状态
+         * @returns 播放的动画状态。
          * @version DragonBones 4.5
          * @language zh_CN
          */
@@ -7161,7 +7186,7 @@ var dragonBones;
          * - Stop a specific animation at the specific frame.
          * @param animationName - The name of animation data.
          * @param frame - The stop frame.
-         * @returns The played animation state
+         * @returns The played animation state.
          * @version DragonBones 4.5
          * @language en_US
          */
@@ -7169,7 +7194,7 @@ var dragonBones;
          * - 在指定帧停止指定动画的播放
          * @param animationName - 动画数据名称。
          * @param frame - 停止的帧数。
-         * @returns 播放的动画状态
+         * @returns 播放的动画状态。
          * @version DragonBones 4.5
          * @language zh_CN
          */
@@ -7185,7 +7210,7 @@ var dragonBones;
          * - Stop a specific animation at the specific progress.
          * @param animationName - The name of animation data.
          * @param progress - The stop progress value.
-         * @returns The played animation state
+         * @returns The played animation state.
          * @version DragonBones 4.5
          * @language en_US
          */
@@ -7193,7 +7218,7 @@ var dragonBones;
          * - 在指定的进度停止指定的动画播放。
          * @param animationName - 动画数据名称。
          * @param progress - 停止进度。
-         * @returns 播放的动画状态
+         * @returns 播放的动画状态。
          * @version DragonBones 4.5
          * @language zh_CN
          */
@@ -7520,7 +7545,7 @@ var dragonBones;
 /**
  * The MIT License (MIT)
  *
- * Copyright (c) 2012-2016 DragonBones team and other contributors
+ * Copyright (c) 2012-2017 DragonBones team and other contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -7555,7 +7580,7 @@ var dragonBones;
      * @version DragonBones 3.0
      * @language zh_CN
      */
-    var AnimationState = /** @class */ (function (_super) {
+    var AnimationState = (function (_super) {
         __extends(AnimationState, _super);
         function AnimationState() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
@@ -8536,7 +8561,7 @@ var dragonBones;
      * @internal
      * @private
      */
-    var BonePose = /** @class */ (function (_super) {
+    var BonePose = (function (_super) {
         __extends(BonePose, _super);
         function BonePose() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
@@ -8560,7 +8585,7 @@ var dragonBones;
 /**
  * The MIT License (MIT)
  *
- * Copyright (c) 2012-2016 DragonBones team and other contributors
+ * Copyright (c) 2012-2017 DragonBones team and other contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -8585,7 +8610,7 @@ var dragonBones;
      * @internal
      * @private
      */
-    var TimelineState = /** @class */ (function (_super) {
+    var TimelineState = (function (_super) {
         __extends(TimelineState, _super);
         function TimelineState() {
             return _super !== null && _super.apply(this, arguments) || this;
@@ -8733,7 +8758,7 @@ var dragonBones;
      * @internal
      * @private
      */
-    var TweenTimelineState = /** @class */ (function (_super) {
+    var TweenTimelineState = (function (_super) {
         __extends(TweenTimelineState, _super);
         function TweenTimelineState() {
             return _super !== null && _super.apply(this, arguments) || this;
@@ -8828,7 +8853,7 @@ var dragonBones;
      * @internal
      * @private
      */
-    var BoneTimelineState = /** @class */ (function (_super) {
+    var BoneTimelineState = (function (_super) {
         __extends(BoneTimelineState, _super);
         function BoneTimelineState() {
             return _super !== null && _super.apply(this, arguments) || this;
@@ -8845,7 +8870,7 @@ var dragonBones;
      * @internal
      * @private
      */
-    var SlotTimelineState = /** @class */ (function (_super) {
+    var SlotTimelineState = (function (_super) {
         __extends(SlotTimelineState, _super);
         function SlotTimelineState() {
             return _super !== null && _super.apply(this, arguments) || this;
@@ -8861,7 +8886,7 @@ var dragonBones;
      * @internal
      * @private
      */
-    var ConstraintTimelineState = /** @class */ (function (_super) {
+    var ConstraintTimelineState = (function (_super) {
         __extends(ConstraintTimelineState, _super);
         function ConstraintTimelineState() {
             return _super !== null && _super.apply(this, arguments) || this;
@@ -8877,7 +8902,7 @@ var dragonBones;
 /**
  * The MIT License (MIT)
  *
- * Copyright (c) 2012-2016 DragonBones team and other contributors
+ * Copyright (c) 2012-2017 DragonBones team and other contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -8902,7 +8927,7 @@ var dragonBones;
      * @internal
      * @private
      */
-    var ActionTimelineState = /** @class */ (function (_super) {
+    var ActionTimelineState = (function (_super) {
         __extends(ActionTimelineState, _super);
         function ActionTimelineState() {
             return _super !== null && _super.apply(this, arguments) || this;
@@ -9138,7 +9163,7 @@ var dragonBones;
      * @internal
      * @private
      */
-    var ZOrderTimelineState = /** @class */ (function (_super) {
+    var ZOrderTimelineState = (function (_super) {
         __extends(ZOrderTimelineState, _super);
         function ZOrderTimelineState() {
             return _super !== null && _super.apply(this, arguments) || this;
@@ -9165,7 +9190,7 @@ var dragonBones;
      * @internal
      * @private
      */
-    var BoneAllTimelineState = /** @class */ (function (_super) {
+    var BoneAllTimelineState = (function (_super) {
         __extends(BoneAllTimelineState, _super);
         function BoneAllTimelineState() {
             return _super !== null && _super.apply(this, arguments) || this;
@@ -9252,7 +9277,7 @@ var dragonBones;
      * @internal
      * @private
      */
-    var BoneTranslateTimelineState = /** @class */ (function (_super) {
+    var BoneTranslateTimelineState = (function (_super) {
         __extends(BoneTranslateTimelineState, _super);
         function BoneTranslateTimelineState() {
             return _super !== null && _super.apply(this, arguments) || this;
@@ -9310,7 +9335,7 @@ var dragonBones;
      * @internal
      * @private
      */
-    var BoneRotateTimelineState = /** @class */ (function (_super) {
+    var BoneRotateTimelineState = (function (_super) {
         __extends(BoneRotateTimelineState, _super);
         function BoneRotateTimelineState() {
             return _super !== null && _super.apply(this, arguments) || this;
@@ -9372,7 +9397,7 @@ var dragonBones;
      * @internal
      * @private
      */
-    var BoneScaleTimelineState = /** @class */ (function (_super) {
+    var BoneScaleTimelineState = (function (_super) {
         __extends(BoneScaleTimelineState, _super);
         function BoneScaleTimelineState() {
             return _super !== null && _super.apply(this, arguments) || this;
@@ -9429,7 +9454,7 @@ var dragonBones;
      * @internal
      * @private
      */
-    var SlotDislayTimelineState = /** @class */ (function (_super) {
+    var SlotDislayTimelineState = (function (_super) {
         __extends(SlotDislayTimelineState, _super);
         function SlotDislayTimelineState() {
             return _super !== null && _super.apply(this, arguments) || this;
@@ -9452,7 +9477,7 @@ var dragonBones;
      * @internal
      * @private
      */
-    var SlotColorTimelineState = /** @class */ (function (_super) {
+    var SlotColorTimelineState = (function (_super) {
         __extends(SlotColorTimelineState, _super);
         function SlotColorTimelineState() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
@@ -9593,7 +9618,7 @@ var dragonBones;
      * @internal
      * @private
      */
-    var SlotFFDTimelineState = /** @class */ (function (_super) {
+    var SlotFFDTimelineState = (function (_super) {
         __extends(SlotFFDTimelineState, _super);
         function SlotFFDTimelineState() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
@@ -9744,7 +9769,7 @@ var dragonBones;
      * @internal
      * @private
      */
-    var IKConstraintTimelineState = /** @class */ (function (_super) {
+    var IKConstraintTimelineState = (function (_super) {
         __extends(IKConstraintTimelineState, _super);
         function IKConstraintTimelineState() {
             return _super !== null && _super.apply(this, arguments) || this;
@@ -9800,7 +9825,7 @@ var dragonBones;
 /**
  * The MIT License (MIT)
  *
- * Copyright (c) 2012-2016 DragonBones team and other contributors
+ * Copyright (c) 2012-2017 DragonBones team and other contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -9832,7 +9857,7 @@ var dragonBones;
      * @version DragonBones 4.5
      * @language zh_CN
      */
-    var EventObject = /** @class */ (function (_super) {
+    var EventObject = (function (_super) {
         __extends(EventObject, _super);
         function EventObject() {
             return _super !== null && _super.apply(this, arguments) || this;
@@ -9959,7 +9984,7 @@ var dragonBones;
 /**
  * The MIT License (MIT)
  *
- * Copyright (c) 2012-2016 DragonBones team and other contributors
+ * Copyright (c) 2012-2017 DragonBones team and other contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -9984,7 +10009,7 @@ var dragonBones;
      * @internal
      * @private
      */
-    var DataParser = /** @class */ (function () {
+    var DataParser = (function () {
         function DataParser() {
         }
         DataParser._getArmatureType = function (value) {
@@ -10246,7 +10271,7 @@ var dragonBones;
 /**
  * The MIT License (MIT)
  *
- * Copyright (c) 2012-2016 DragonBones team and other contributors
+ * Copyright (c) 2012-2017 DragonBones team and other contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -10271,7 +10296,7 @@ var dragonBones;
      * @internal
      * @private
      */
-    var ObjectDataParser = /** @class */ (function (_super) {
+    var ObjectDataParser = (function (_super) {
         __extends(ObjectDataParser, _super);
         function ObjectDataParser() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
@@ -10647,11 +10672,15 @@ var dragonBones;
             constraint.bendPositive = ObjectDataParser._getBoolean(rawData, ObjectDataParser.BEND_POSITIVE, true);
             constraint.weight = ObjectDataParser._getNumber(rawData, ObjectDataParser.WEIGHT, 1.0);
             constraint.name = ObjectDataParser._getString(rawData, ObjectDataParser.NAME, "");
-            constraint.bone = bone;
             constraint.target = target;
             var chain = ObjectDataParser._getNumber(rawData, ObjectDataParser.CHAIN, 0);
-            if (chain > 0) {
+            if (chain > 0 && bone.parent !== null) {
                 constraint.root = bone.parent;
+                constraint.bone = bone;
+            }
+            else {
+                constraint.root = bone;
+                constraint.bone = null;
             }
             return constraint;
         };
@@ -11839,7 +11868,7 @@ var dragonBones;
      * @internal
      * @private
      */
-    var ActionFrame = /** @class */ (function () {
+    var ActionFrame = (function () {
         function ActionFrame() {
             this.frameStart = 0;
             this.actions = [];
@@ -11851,7 +11880,7 @@ var dragonBones;
 /**
  * The MIT License (MIT)
  *
- * Copyright (c) 2012-2016 DragonBones team and other contributors
+ * Copyright (c) 2012-2017 DragonBones team and other contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -11876,7 +11905,7 @@ var dragonBones;
      * @internal
      * @private
      */
-    var BinaryDataParser = /** @class */ (function (_super) {
+    var BinaryDataParser = (function (_super) {
         __extends(BinaryDataParser, _super);
         function BinaryDataParser() {
             return _super !== null && _super.apply(this, arguments) || this;
@@ -12220,7 +12249,7 @@ var dragonBones;
 /**
  * The MIT License (MIT)
  *
- * Copyright (c) 2012-2016 DragonBones team and other contributors
+ * Copyright (c) 2012-2017 DragonBones team and other contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -12263,7 +12292,7 @@ var dragonBones;
      * @version DragonBones 3.0
      * @language zh_CN
      */
-    var BaseFactory = /** @class */ (function () {
+    var BaseFactory = (function () {
         /**
          * - Create a factory instance. (typically only one global factory instance is required)
          * @version DragonBones 3.0
@@ -12534,7 +12563,7 @@ var dragonBones;
          * - Parse the raw data to a DragonBonesData instance and cache it to the factory.
          * @param rawData - The raw data.
          * @param name - Specify a cache name for the instance so that the instance can be obtained through this name. (If not set, use the instance name instead)
-         * @param scale - Specify a scaling value for all armatures. (Default does not scale)
+         * @param scale - Specify a scaling value for all armatures. (Default: 1.0)
          * @returns DragonBonesData instance
          * @see #getDragonBonesData()
          * @see #addDragonBonesData()
@@ -12547,7 +12576,7 @@ var dragonBones;
          * - 将原始数据解析为 DragonBonesData 实例，并缓存到工厂中。
          * @param rawData - 原始数据。
          * @param name - 为该实例指定一个缓存名称，以便可以通过此名称获取该实例。 （如果未设置，则使用该实例中的名称）
-         * @param scale - 为所有的骨架指定一个缩放值。 （默认不缩放）
+         * @param scale - 为所有的骨架指定一个缩放值。 （默认: 1.0）
          * @returns DragonBonesData 实例
          * @see #getDragonBonesData()
          * @see #addDragonBonesData()
@@ -12581,7 +12610,7 @@ var dragonBones;
          * @param rawData - The raw texture atlas data.
          * @param textureAtlas - The texture atlas object.
          * @param name - Specify a cache name for the instance so that the instance can be obtained through this name. (If not set, use the instance name instead)
-         * @param scale - Specify a scaling value for the map set. (Not scaled by default)
+         * @param scale - Specify a scaling value for the map set. (Default: 1.0)
          * @returns TextureAtlasData instance
          * @see #getTextureAtlasData()
          * @see #addTextureAtlasData()
@@ -12595,7 +12624,7 @@ var dragonBones;
          * @param rawData - 原始贴图集数据。
          * @param textureAtlas - 贴图集对象。
          * @param name - 为该实例指定一个缓存名称，以便可以通过此名称获取该实例。 （如果未设置，则使用该实例中的名称）
-         * @param scale - 为贴图集指定一个缩放值。 （默认不缩放）
+         * @param scale - 为贴图集指定一个缩放值。 （默认: 1.0）
          * @returns TextureAtlasData 实例
          * @see #getTextureAtlasData()
          * @see #addTextureAtlasData()
@@ -12688,7 +12717,7 @@ var dragonBones;
         /**
          * - Remove a DragonBonesData instance.
          * @param name - The DragonBonesData instance cache name.
-         * @param disposeData - Whether to dispose data.
+         * @param disposeData - Whether to dispose data. (Default: true)
          * @see #parseDragonBonesData()
          * @see #getDragonBonesData()
          * @see #addDragonBonesData()
@@ -12699,7 +12728,7 @@ var dragonBones;
         /**
          * - 移除 DragonBonesData 实例。
          * @param name - DragonBonesData 实例缓存名称。
-         * @param disposeData - 是否释放数据。
+         * @param disposeData - 是否释放数据。 （默认: true）
          * @see #parseDragonBonesData()
          * @see #getDragonBonesData()
          * @see #addDragonBonesData()
@@ -12864,7 +12893,7 @@ var dragonBones;
          * @param armatureName - The armature data name.
          * @param dragonBonesName - The cached name of the DragonBonesData instance. (If not set, all DragonBonesData instances are retrieved, and when multiple DragonBonesData instances contain a the same name armature data, it may not be possible to accurately create a specific armature)
          * @param skinName - The skin name, you can set a different ArmatureData name to share it's skin data. (If not set, use the default skin data)
-         * @returns The armature
+         * @returns The armature.
          * @example
          * <pre>
          *     let armature = factory.buildArmature("armatureName", "dragonBonesName");
@@ -12881,7 +12910,7 @@ var dragonBones;
          * @param armatureName - 骨架数据名称。
          * @param dragonBonesName - DragonBonesData 实例的缓存名称。 （如果未设置，将检索所有的 DragonBonesData 实例，当多个 DragonBonesData 实例中包含同名的骨架数据时，可能无法准确的创建出特定的骨架）
          * @param skinName - 皮肤名称，可以设置一个其他骨架数据名称来共享其皮肤数据（如果未设置，则使用默认的皮肤数据）。
-         * @returns 骨架
+         * @returns 骨架。
          * @example
          * <pre>
          *     let armature = factory.buildArmature("armatureName", "dragonBonesName");
@@ -12953,7 +12982,8 @@ var dragonBones;
             slot.displayList = displayList;
         };
         /**
-         * - Replaces the current display data for a particular slot with a specific display data. (Specify display data with "dragonBonesName/armatureName/slotName/displayName")
+         * - Replaces the current display data for a particular slot with a specific display data.
+         * Specify display data with "dragonBonesName/armatureName/slotName/displayName".
          * @param dragonBonesName - The DragonBonesData instance cache name.
          * @param armatureName - The armature data name.
          * @param slotName - The slot data name.
@@ -12969,7 +12999,8 @@ var dragonBones;
          * @language en_US
          */
         /**
-         * - 用特定的显示对象数据替换特定插槽当前的显示对象数据。(用 "dragonBonesName/armatureName/slotName/displayName" 指定显示对象数据)
+         * - 用特定的显示对象数据替换特定插槽当前的显示对象数据。
+         * 用 "dragonBonesName/armatureName/slotName/displayName" 指定显示对象数据。
          * @param dragonBonesName - DragonBonesData 实例的缓存名称。
          * @param armatureName - 骨架数据名称。
          * @param slotName - 插槽数据名称。
@@ -13021,7 +13052,7 @@ var dragonBones;
          * - Share specific skin data with specific armature.
          * @param armature - The armature.
          * @param skin - The skin data.
-         * @param isOverride - Whether it completely override the original skin.
+         * @param isOverride - Whether it completely override the original skin. (Default: false)
          * @param exclude - A list of slot names that do not need to be replace.
          * @example
          * <pre>
@@ -13033,14 +13064,14 @@ var dragonBones;
          * </pre>
          * @see dragonBones.Armature
          * @see dragonBones.SkinData
-         * @version DragonBones 5.1
+         * @version DragonBones 5.6
          * @language en_US
          */
         /**
          * - 将特定的皮肤数据共享给特定的骨架使用。
          * @param armature - 骨架。
          * @param skin - 皮肤数据。
-         * @param isOverride - 是否完全覆盖原来的皮肤。
+         * @param isOverride - 是否完全覆盖原来的皮肤。 （默认: false）
          * @param exclude - 不需要被替换的插槽名称列表。
          * @example
          * <pre>
@@ -13052,13 +13083,14 @@ var dragonBones;
          * </pre>
          * @see dragonBones.Armature
          * @see dragonBones.SkinData
-         * @version DragonBones 5.1
+         * @version DragonBones 5.6
          * @language zh_CN
          */
         BaseFactory.prototype.replaceSkin = function (armature, skin, isOverride, exclude) {
             if (isOverride === void 0) { isOverride = false; }
             if (exclude === void 0) { exclude = null; }
             var success = false;
+            var defaultSkin = skin.parent.defaultSkin;
             for (var _i = 0, _a = armature.getSlots(); _i < _a.length; _i++) {
                 var slot = _a[_i];
                 if (exclude !== null && exclude.indexOf(slot.name) >= 0) {
@@ -13066,11 +13098,16 @@ var dragonBones;
                 }
                 var displays = skin.getDisplays(slot.name);
                 if (!displays) {
-                    if (isOverride) {
-                        slot.rawDisplayDatas = null;
-                        slot.displayList = []; //
+                    if (defaultSkin !== null && skin !== defaultSkin) {
+                        displays = defaultSkin.getDisplays(slot.name);
                     }
-                    continue;
+                    if (!displays) {
+                        if (isOverride) {
+                            slot.rawDisplayDatas = null;
+                            slot.displayList = []; //
+                        }
+                        continue;
+                    }
                 }
                 var displayCount = dragonBones.DragonBones.webAssembly ? displays.size() : displays.length;
                 var displayList = slot.displayList; // Copy.
@@ -13093,6 +13130,9 @@ var dragonBones;
         /**
          * - Replaces the existing animation data for a specific armature with the animation data for the specific armature data.
          * This enables you to make a armature template so that other armature without animations can share it's animations.
+         * @param armature - The armtaure.
+         * @param armatureData - The armature data.
+         * @param isOverride - Whether to completely overwrite the original animation. (Default: false)
          * @example
          * <pre>
          *     let armatureA = factory.buildArmature("armatureA", "dragonBonesA");
@@ -13101,12 +13141,17 @@ var dragonBones;
          *     factory.replaceAnimation(armatureA, armatureDataB);
          *     }
          * </pre>
+         * @see dragonBones.Armature
+         * @see dragonBones.ArmatureData
          * @version DragonBones 5.6
          * @language en_US
          */
         /**
          * - 用特定骨架数据的动画数据替换特定骨架现有的动画数据。
          * 这样就能实现制作一个骨架动画模板，让其他没有制作动画的骨架共享该动画。
+         * @param armature - 骨架。
+         * @param armatureData - 骨架数据。
+         * @param isOverride - 是否完全覆盖原来的动画。（默认: false）。
          * @example
          * <pre>
          *     let armatureA = factory.buildArmature("armatureA", "dragonBonesA");
@@ -13115,16 +13160,18 @@ var dragonBones;
          *     factory.replaceAnimation(armatureA, armatureDataB);
          *     }
          * </pre>
+         * @see dragonBones.Armature
+         * @see dragonBones.ArmatureData
          * @version DragonBones 5.6
          * @language zh_CN
          */
-        BaseFactory.prototype.replaceAnimation = function (armature, armatureData, isReplaceAll) {
-            if (isReplaceAll === void 0) { isReplaceAll = true; }
+        BaseFactory.prototype.replaceAnimation = function (armature, armatureData, isOverride) {
+            if (isOverride === void 0) { isOverride = true; }
             var skinData = armatureData.defaultSkin;
             if (skinData === null) {
                 return false;
             }
-            if (isReplaceAll) {
+            if (isOverride) {
                 armature.animation.animations = armatureData.animations;
             }
             else {
@@ -13150,7 +13197,7 @@ var dragonBones;
                             if (displayData !== null && displayData.type === 1 /* Armature */) {
                                 var childArmatureData = this.getArmatureData(displayData.path, displayData.parent.parent.parent.name);
                                 if (childArmatureData) {
-                                    this.replaceAnimation(display, childArmatureData, isReplaceAll);
+                                    this.replaceAnimation(display, childArmatureData, isOverride);
                                 }
                             }
                         }
@@ -13250,7 +13297,7 @@ var dragonBones;
      * @internal
      * @private
      */
-    var BuildArmaturePackage = /** @class */ (function () {
+    var BuildArmaturePackage = (function () {
         function BuildArmaturePackage() {
             this.dataName = "";
             this.textureAtlasName = "";
@@ -13263,7 +13310,7 @@ var dragonBones;
 /**
  * The MIT License (MIT)
  *
- * Copyright (c) 2012-2016 DragonBones team and other contributors
+ * Copyright (c) 2012-2017 DragonBones team and other contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -13294,7 +13341,7 @@ var dragonBones;
      * @version DragonBones 3.0
      * @language zh_CN
      */
-    var PhaserTextureAtlasData = /** @class */ (function (_super) {
+    var PhaserTextureAtlasData = (function (_super) {
         __extends(PhaserTextureAtlasData, _super);
         function PhaserTextureAtlasData() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
@@ -13363,7 +13410,7 @@ var dragonBones;
      * @internal
      * @private
      */
-    var PhaserTextureData = /** @class */ (function (_super) {
+    var PhaserTextureData = (function (_super) {
         __extends(PhaserTextureData, _super);
         function PhaserTextureData() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
@@ -13387,7 +13434,7 @@ var dragonBones;
 /**
  * The MIT License (MIT)
  *
- * Copyright (c) 2012-2016 DragonBones team and other contributors
+ * Copyright (c) 2012-2017 DragonBones team and other contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -13411,7 +13458,7 @@ var dragonBones;
     /**
      * @inheritDoc
      */
-    var PhaserArmatureDisplay = /** @class */ (function (_super) {
+    var PhaserArmatureDisplay = (function (_super) {
         __extends(PhaserArmatureDisplay, _super);
         // private _debugDrawer: PIXI.Sprite | null = null;
         /**
@@ -13660,7 +13707,7 @@ var dragonBones;
 /**
  * The MIT License (MIT)
  *
- * Copyright (c) 2012-2016 DragonBones team and other contributors
+ * Copyright (c) 2012-2017 DragonBones team and other contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -13691,7 +13738,7 @@ var dragonBones;
      * @version DragonBones 3.0
      * @language zh_CN
      */
-    var PhaserSlot = /** @class */ (function (_super) {
+    var PhaserSlot = (function (_super) {
         __extends(PhaserSlot, _super);
         function PhaserSlot() {
             return _super !== null && _super.apply(this, arguments) || this;
@@ -14002,7 +14049,7 @@ var dragonBones;
 /**
  * The MIT License (MIT)
  *
- * Copyright (c) 2012-2016 DragonBones team and other contributors
+ * Copyright (c) 2012-2017 DragonBones team and other contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -14033,7 +14080,7 @@ var dragonBones;
      * @version DragonBones 3.0
      * @language zh_CN
      */
-    var PhaserFactory = /** @class */ (function (_super) {
+    var PhaserFactory = (function (_super) {
         __extends(PhaserFactory, _super);
         /**
          * @inheritDoc
@@ -14116,9 +14163,9 @@ var dragonBones;
         /**
          * - Create a armature from cached DragonBonesData instances and TextureAtlasData instances, then use the {@link #clock} to update it.
          * The difference is that the armature created by {@link #buildArmature} is not WorldClock instance update.
-         * @param armatureName - The armature data name
-         * @param dragonBonesName - The cached name of the DragonBonesData instance (If not set, all DragonBonesData instances are retrieved, and when multiple DragonBonesData instances contain a the same name armature data, it may not be possible to accurately create a specific armature)
-         * @param skinName - The skin name, you can set a different ArmatureData name to share it's skin data (If not set, use the default skin data)
+         * @param armatureName - The armature data name.
+         * @param dragonBonesName - The cached name of the DragonBonesData instance. (If not set, all DragonBonesData instances are retrieved, and when multiple DragonBonesData instances contain a the same name armature data, it may not be possible to accurately create a specific armature)
+         * @param skinName - The skin name, you can set a different ArmatureData name to share it's skin data. (If not set, use the default skin data)
          * @returns The armature display container.
          * @version DragonBones 4.5
          * @example
@@ -14130,9 +14177,9 @@ var dragonBones;
         /**
          * - 通过缓存的 DragonBonesData 实例和 TextureAtlasData 实例创建一个骨架，并用 {@link #clock} 更新该骨架。
          * 区别在于由 {@link #buildArmature} 创建的骨架没有 WorldClock 实例驱动。
-         * @param armatureName - 骨架数据名称
-         * @param dragonBonesName - DragonBonesData 实例的缓存名称 （如果未设置，将检索所有的 DragonBonesData 实例，当多个 DragonBonesData 实例中包含同名的骨架数据时，可能无法准确的创建出特定的骨架）
-         * @param skinName - 皮肤名称，可以设置一个其他骨架数据名称来共享其皮肤数据（如果未设置，则使用默认的皮肤数据）
+         * @param armatureName - 骨架数据名称。
+         * @param dragonBonesName - DragonBonesData 实例的缓存名称。 （如果未设置，将检索所有的 DragonBonesData 实例，当多个 DragonBonesData 实例中包含同名的骨架数据时，可能无法准确的创建出特定的骨架）
+         * @param skinName - 皮肤名称，可以设置一个其他骨架数据名称来共享其皮肤数据。 （如果未设置，则使用默认的皮肤数据）
          * @returns 骨架的显示容器。
          * @version DragonBones 4.5
          * @example
@@ -14154,15 +14201,15 @@ var dragonBones;
         };
         /**
          * - Create the display object with the specified texture.
-         * @param textureName The texture data name
-         * @param textureAtlasName The texture atlas data name (Of not set, all texture atlas data will be searched)
+         * @param textureName The texture data name.
+         * @param textureAtlasName The texture atlas data name.  (Of not set, all texture atlas data will be searched)
          * @version DragonBones 3.0
          * @language en_US
          */
         /**
          * - 创建带有指定贴图的显示对象。
          * @param textureName 贴图数据名称。
-         * @param textureAtlasName 贴图集数据名称 （如果未设置，将检索所有的贴图集数据）
+         * @param textureAtlasName 贴图集数据名称。 （如果未设置，将检索所有的贴图集数据）
          * @version DragonBones 3.0
          * @language zh_CN
          */

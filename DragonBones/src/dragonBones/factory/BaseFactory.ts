@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Copyright (c) 2012-2016 DragonBones team and other contributors
+ * Copyright (c) 2012-2017 DragonBones team and other contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -975,7 +975,7 @@ namespace dragonBones {
          * 这样就能实现制作一个骨架动画模板，让其他没有制作动画的骨架共享该动画。
          * @param armature - 骨架。
          * @param armatureData - 骨架数据。
-         * @param isOverride - 是否完全覆盖原来的动画。（默认: false）
+         * @param isOverride - 是否完全覆盖原来的动画。（默认: false）。
          * @example
          * <pre>
          *     let armatureA = factory.buildArmature("armatureA", "dragonBonesA");

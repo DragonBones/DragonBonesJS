@@ -11,7 +11,7 @@ var __extends = (this && this.__extends) || (function () {
 })();
 var coreElement;
 (function (coreElement) {
-    var Game = /** @class */ (function (_super) {
+    var Game = (function (_super) {
         __extends(Game, _super);
         function Game(game) {
             var _this = _super.call(this, game) || this;
@@ -123,7 +123,7 @@ var coreElement;
         return Game;
     }(BaseTest));
     coreElement.Game = Game;
-    var Mecha = /** @class */ (function () {
+    var Mecha = (function () {
         function Mecha() {
             this._isJumpingA = false;
             this._isJumpingB = false;
@@ -385,7 +385,7 @@ var coreElement;
         Mecha.SKINS = ["mecha_1502b", "skin_a", "skin_b", "skin_c"];
         return Mecha;
     }());
-    var Bullet = /** @class */ (function () {
+    var Bullet = (function () {
         function Bullet(armatureName, effectArmatureName, radian, speed, position) {
             this._speedX = 0.0;
             this._speedY = 0.0;
