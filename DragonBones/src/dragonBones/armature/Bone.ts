@@ -136,9 +136,11 @@ namespace dragonBones {
          * @private
          */
         private _updateGlobalTransformMatrix(isCache: boolean): void {
+            const boneData = this._boneData;
+            const parent = this._parent;
             const flipX = this._armature.flipX;
             const flipY = this._armature.flipY === DragonBones.yDown;
-            let inherit = this._parent !== null;
+            let inherit = parent !== null;
             let rotation = 0.0;
             const global = this.global;
             const globalTransformMatrix = this.globalTransformMatrix;
@@ -161,23 +163,23 @@ namespace dragonBones {
             }
 
             if (inherit) {
-                const parentMatrix = this._parent.globalTransformMatrix;
+                const parentMatrix = parent._boneData.type === BoneType.Bone ? parent.globalTransformMatrix : (parent as Surface)._getMatrix(global.x, global.y);
 
-                if (this._boneData.inheritScale) {
-                    if (!this._boneData.inheritRotation) {
-                        this._parent.updateGlobalTransform();
+                if (boneData.inheritScale) {
+                    if (!boneData.inheritRotation) {
+                        parent.updateGlobalTransform();
 
                         if (flipX && flipY) {
-                            rotation = global.rotation - (this._parent.global.rotation + Math.PI);
+                            rotation = global.rotation - (parent.global.rotation + Math.PI);
                         }
                         else if (flipX) {
-                            rotation = global.rotation + this._parent.global.rotation + Math.PI;
+                            rotation = global.rotation + parent.global.rotation + Math.PI;
                         }
                         else if (flipY) {
-                            rotation = global.rotation + this._parent.global.rotation;
+                            rotation = global.rotation + parent.global.rotation;
                         }
                         else {
-                            rotation = global.rotation - this._parent.global.rotation;
+                            rotation = global.rotation - parent.global.rotation;
                         }
 
                         global.rotation = rotation;
@@ -186,7 +188,7 @@ namespace dragonBones {
                     global.toMatrix(globalTransformMatrix);
                     globalTransformMatrix.concat(parentMatrix);
 
-                    if (this._boneData.inheritTranslation) {
+                    if (boneData.inheritTranslation) {
                         global.x = globalTransformMatrix.tx;
                         global.y = globalTransformMatrix.ty;
                     }
@@ -203,11 +205,11 @@ namespace dragonBones {
                     }
                 }
                 else {
-                    if (this._boneData.inheritTranslation) {
+                    if (boneData.inheritTranslation) {
                         const x = global.x;
                         const y = global.y;
                         global.x = parentMatrix.a * x + parentMatrix.c * y + parentMatrix.tx;
-                        global.y = parentMatrix.d * y + parentMatrix.b * x + parentMatrix.ty;
+                        global.y = parentMatrix.b * x + parentMatrix.d * y + parentMatrix.ty;
                     }
                     else {
                         if (flipX) {
@@ -219,20 +221,20 @@ namespace dragonBones {
                         }
                     }
 
-                    if (this._boneData.inheritRotation) {
-                        this._parent.updateGlobalTransform();
+                    if (boneData.inheritRotation) {
+                        parent.updateGlobalTransform();
 
-                        if (this._parent.global.scaleX < 0.0) {
-                            rotation = global.rotation + this._parent.global.rotation + Math.PI;
+                        if (parent.global.scaleX < 0.0) {
+                            rotation = global.rotation + parent.global.rotation + Math.PI;
                         }
                         else {
-                            rotation = global.rotation + this._parent.global.rotation;
+                            rotation = global.rotation + parent.global.rotation;
                         }
 
                         if (parentMatrix.a * parentMatrix.d - parentMatrix.b * parentMatrix.c < 0.0) {
                             rotation -= global.rotation * 2.0;
 
-                            if (flipX !== flipY || this._boneData.inheritReflection) {
+                            if (flipX !== flipY || boneData.inheritReflection) {
                                 global.skew += Math.PI;
                             }
                         }

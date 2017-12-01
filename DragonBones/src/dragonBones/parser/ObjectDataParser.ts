@@ -417,19 +417,44 @@ namespace dragonBones {
         }
 
         protected _parseBone(rawData: any): BoneData {
-            const bone = BaseObject.borrowObject(BoneData);
-            bone.inheritTranslation = ObjectDataParser._getBoolean(rawData, ObjectDataParser.INHERIT_TRANSLATION, true);
-            bone.inheritRotation = ObjectDataParser._getBoolean(rawData, ObjectDataParser.INHERIT_ROTATION, true);
-            bone.inheritScale = ObjectDataParser._getBoolean(rawData, ObjectDataParser.INHERIT_SCALE, true);
-            bone.inheritReflection = ObjectDataParser._getBoolean(rawData, ObjectDataParser.INHERIT_REFLECTION, true);
-            bone.length = ObjectDataParser._getNumber(rawData, ObjectDataParser.LENGTH, 0) * this._armature.scale;
-            bone.name = ObjectDataParser._getString(rawData, ObjectDataParser.NAME, "");
+            const type = ObjectDataParser._getNumber(rawData, ObjectDataParser.TYPE, BoneType.Bone) as BoneType;
 
-            if (ObjectDataParser.TRANSFORM in rawData) {
-                this._parseTransform(rawData[ObjectDataParser.TRANSFORM], bone.transform, this._armature.scale);
+            if (type === BoneType.Bone) {
+                const bone = BaseObject.borrowObject(BoneData);
+                bone.inheritTranslation = ObjectDataParser._getBoolean(rawData, ObjectDataParser.INHERIT_TRANSLATION, true);
+                bone.inheritRotation = ObjectDataParser._getBoolean(rawData, ObjectDataParser.INHERIT_ROTATION, true);
+                bone.inheritScale = ObjectDataParser._getBoolean(rawData, ObjectDataParser.INHERIT_SCALE, true);
+                bone.inheritReflection = ObjectDataParser._getBoolean(rawData, ObjectDataParser.INHERIT_REFLECTION, true);
+                bone.length = ObjectDataParser._getNumber(rawData, ObjectDataParser.LENGTH, 0) * this._armature.scale;
+                bone.name = ObjectDataParser._getString(rawData, ObjectDataParser.NAME, "");
+
+                if (ObjectDataParser.TRANSFORM in rawData) {
+                    this._parseTransform(rawData[ObjectDataParser.TRANSFORM], bone.transform, this._armature.scale);
+                }
+
+                return bone;
             }
 
-            return bone;
+            const surface = BaseObject.borrowObject(SurfaceData);
+            surface.name = ObjectDataParser._getString(rawData, ObjectDataParser.NAME, "");
+            surface.segmentX = ObjectDataParser._getNumber(rawData, "segmentX", 0);
+            surface.segmentY = ObjectDataParser._getNumber(rawData, "segmentY", 0);
+            surface.vertices.length = (surface.segmentX + 1) * (surface.segmentY + 1) * 2;
+
+            if (ObjectDataParser.VERTICES in rawData) {
+                const rawVertices = rawData[ObjectDataParser.VERTICES] as Array<number>;
+
+                for (let i = 0, l = surface.vertices.length; i < l; ++i) {
+                    if (i < rawVertices.length) {
+                        surface.vertices[i] = rawVertices[i];
+                    }
+                    else {
+                        surface.vertices[i] = 0.0;
+                    }
+                }
+            }
+
+            return surface;
         }
 
         protected _parseIKConstraint(rawData: any): ConstraintData | null {

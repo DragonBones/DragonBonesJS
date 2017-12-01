@@ -64,6 +64,14 @@ namespace dragonBones {
         Stage = 2
     }
     /**
+     * @internal
+     * @private
+     */
+    export const enum BoneType {
+        Bone = 0,
+        Surface = 1
+    }
+    /**
      * @private
      */
     export const enum DisplayType {
@@ -256,7 +264,7 @@ namespace dragonBones {
         public constructor(eventManager: IEventDispatcher) {
             this._eventManager = eventManager;
 
-            console.info(`DragonBones: ${DragonBones.VERSION}\nWebsite: http://www.dragonbones.com/\nSource: http://www.github.com/dragonbones/`);
+            console.info(`DragonBones: ${DragonBones.VERSION}\nWebsite: http://dragonbones.com/\nSource: https://github.com/DragonBones/`);
         }
 
         public advanceTime(passedTime: number): void {

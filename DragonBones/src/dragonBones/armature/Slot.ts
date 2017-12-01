@@ -561,8 +561,9 @@ namespace dragonBones {
          * @private
          */
         protected _updateGlobalTransformMatrix(isCache: boolean): void {
+            const parentMatrix = this._parent._boneData.type === BoneType.Bone ? this._parent.globalTransformMatrix : (this._parent as Surface)._getMatrix(this.global.x, this.global.y);
             this.globalTransformMatrix.copyFrom(this._localMatrix);
-            this.globalTransformMatrix.concat(this._parent.globalTransformMatrix);
+            this.globalTransformMatrix.concat(parentMatrix);
             if (isCache) {
                 this.global.fromMatrix(this.globalTransformMatrix);
             }

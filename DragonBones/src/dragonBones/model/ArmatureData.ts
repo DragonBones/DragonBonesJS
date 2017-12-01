@@ -506,6 +506,10 @@ namespace dragonBones {
          */
         public inheritReflection: boolean;
         /**
+         * @private
+         */
+        public type: BoneType;
+        /**
          * - The bone length.
          * @version DragonBones 3.0
          * @language en_US
@@ -559,6 +563,7 @@ namespace dragonBones {
             this.inheritRotation = false;
             this.inheritScale = false;
             this.inheritReflection = false;
+            this.type = BoneType.Bone;
             this.length = 0.0;
             this.name = "";
             this.transform.identity();
@@ -574,8 +579,8 @@ namespace dragonBones {
         public static toString(): string {
             return "[class dragonBones.SurfaceData]";
         }
-        public vertexCountX: number;
-        public vertexCountY: number;
+        public segmentX: number;
+        public segmentY: number;
         public readonly vertices: Array<number> = [];
         /**
          * @inheritDoc
@@ -583,8 +588,9 @@ namespace dragonBones {
         protected _onClear(): void {
             super._onClear();
 
-            this.vertexCountX = 0;
-            this.vertexCountY = 0;
+            this.type = BoneType.Surface;
+            this.segmentX = 0;
+            this.segmentY = 0;
             this.vertices.length = 0;
         }
     }
