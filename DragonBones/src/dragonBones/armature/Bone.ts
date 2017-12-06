@@ -72,34 +72,19 @@ namespace dragonBones {
          * @private
          */
         public _childrenTransformDirty: boolean;
-        /**
-         * @internal
-         * @private
-         */
-        public _blendDirty: boolean;
-        private _localDirty: boolean;
+        protected _localDirty: boolean;
         /**
          * @internal
          * @private
          */
         public _hasConstraint: boolean;
         private _visible: boolean;
-        private _cachedFrameIndex: number;
+        protected _cachedFrameIndex: number;
         /**
          * @internal
          * @private
          */
-        public _blendLayer: number;
-        /**
-         * @internal
-         * @private
-         */
-        public _blendLeftWeight: number;
-        /**
-         * @internal
-         * @private
-         */
-        public _blendLayerWeight: number;
+        public readonly _blendState: BlendState = new BlendState();
         /**
          * @internal
          * @private
@@ -121,21 +106,18 @@ namespace dragonBones {
 
             this._transformDirty = false;
             this._childrenTransformDirty = false;
-            this._blendDirty = false;
             this._localDirty = true;
             this._hasConstraint = false;
             this._visible = true;
             this._cachedFrameIndex = -1;
-            this._blendLayer = 0;
-            this._blendLeftWeight = 1.0;
-            this._blendLayerWeight = 0.0;
+            this._blendState.clear();
             this._boneData = null as any; //
             this._cachedFrameIndices = null;
         }
         /**
          * @private
          */
-        private _updateGlobalTransformMatrix(isCache: boolean): void {
+        protected _updateGlobalTransformMatrix(isCache: boolean): void {
             const boneData = this._boneData;
             const parent = this._parent;
             const flipX = this._armature.flipX;
@@ -349,7 +331,7 @@ namespace dragonBones {
          * @private
          */
         public update(cacheFrameIndex: number): void {
-            this._blendDirty = false;
+            this._blendState.dirty = false;
 
             if (cacheFrameIndex >= 0 && this._cachedFrameIndices !== null) {
                 const cachedFrameIndex = this._cachedFrameIndices[cacheFrameIndex];
@@ -405,7 +387,7 @@ namespace dragonBones {
             if (this._transformDirty) {
                 this._transformDirty = false;
                 this._childrenTransformDirty = true;
-
+                //
                 if (this._cachedFrameIndex < 0) {
                     const isCache = cacheFrameIndex >= 0;
                     if (this._localDirty) {
@@ -419,6 +401,7 @@ namespace dragonBones {
                 else {
                     this._armature._armatureData.getCacheFrame(this.globalTransformMatrix, this.global, this._cachedFrameIndex);
                 }
+                //
             }
             else if (this._childrenTransformDirty) {
                 this._childrenTransformDirty = false;

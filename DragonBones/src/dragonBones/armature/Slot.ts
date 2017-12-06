@@ -257,6 +257,7 @@ namespace dragonBones {
             this._cachedFrameIndex = -1;
             this._pivotX = 0.0;
             this._pivotY = 0.0;
+            this._blendState.clear();
             this._localMatrix.identity();
             this._colorTransform.identity();
             this._ffdVertices.length = 0;
@@ -330,16 +331,41 @@ namespace dragonBones {
         /**
          * @private
          */
+        protected _getDefaultRawDisplayData(): DisplayData | null {
+            const defaultSkin = this._armature.armatureData.defaultSkin;
+            if (defaultSkin !== null) {
+                const defaultRawDisplayDatas = defaultSkin.getDisplays(this._slotData.name);
+                if (defaultRawDisplayDatas !== null) {
+                    return this._displayIndex < defaultRawDisplayDatas.length ? defaultRawDisplayDatas[this._displayIndex] : null;
+                }
+            }
+
+            return null;
+        }
+        /**
+         * @private
+         */
         protected _updateDisplayData(): void {
             const prevDisplayData = this._displayData;
             const prevTextureData = this._textureData;
             const prevMeshData = this._meshData;
-            const rawDisplayData = this._displayIndex >= 0 && this._rawDisplayDatas !== null && this._displayIndex < this._rawDisplayDatas.length ? this._rawDisplayDatas[this._displayIndex] : null;
+            let rawDisplayData: DisplayData | null = null;
 
-            if (this._displayIndex >= 0 && this._displayIndex < this._displayDatas.length) {
-                this._displayData = this._displayDatas[this._displayIndex];
+            if (this._displayIndex >= 0) {
+                if (this._rawDisplayDatas !== null) {
+                    rawDisplayData = this._displayIndex < this._rawDisplayDatas.length ? this._rawDisplayDatas[this._displayIndex] : null;
+
+                    if (rawDisplayData === null) {
+                        rawDisplayData = this._getDefaultRawDisplayData();
+                    }
+                }
+
+                if (this._displayIndex < this._displayDatas.length) {
+                    this._displayData = this._displayDatas[this._displayIndex];
+                }
             }
             else {
+                rawDisplayData = null;
                 this._displayData = null;
             }
 
@@ -539,9 +565,16 @@ namespace dragonBones {
                             actions = (this._displayData as ArmatureDisplayData).actions;
                         }
                         else {
-                            const rawDisplayData = this._displayIndex >= 0 && this._rawDisplayDatas !== null && this._displayIndex < this._rawDisplayDatas.length ? this._rawDisplayDatas[this._displayIndex] : null;
-                            if (rawDisplayData !== null && rawDisplayData.type === DisplayType.Armature) {
-                                actions = (rawDisplayData as ArmatureDisplayData).actions;
+                            if (this._displayIndex >= 0 && this._rawDisplayDatas !== null) {
+                                let rawDisplayData = this._displayIndex < this._rawDisplayDatas.length ? this._rawDisplayDatas[this._displayIndex] : null;
+
+                                if (rawDisplayData === null) {
+                                    rawDisplayData = this._getDefaultRawDisplayData();
+                                }
+
+                                if (rawDisplayData !== null && rawDisplayData.type === DisplayType.Armature) {
+                                    actions = (rawDisplayData as ArmatureDisplayData).actions;
+                                }
                             }
                         }
 
@@ -1123,10 +1156,17 @@ namespace dragonBones {
             this._displayDirty = true;
             this._rawDisplayDatas = value;
 
-            if (this._rawDisplayDatas) {
+            if (this._rawDisplayDatas !== null) {
                 this._displayDatas.length = this._rawDisplayDatas.length;
+
                 for (let i = 0, l = this._displayDatas.length; i < l; ++i) {
-                    this._displayDatas[i] = this._rawDisplayDatas[i];
+                    let rawDisplayData = this._rawDisplayDatas[i];
+
+                    if (rawDisplayData === null) {
+                        rawDisplayData = this._getDefaultRawDisplayData();
+                    }
+
+                    this._displayDatas[i] = rawDisplayData;
                 }
             }
             else {

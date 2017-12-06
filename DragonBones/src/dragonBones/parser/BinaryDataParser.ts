@@ -211,7 +211,7 @@ namespace dragonBones {
         }
 
         protected _parseMesh(rawData: any, mesh: MeshDisplayData): void {
-            mesh.offset = rawData[ObjectDataParser.OFFSET];
+            mesh.offset = rawData[DataParser.OFFSET];
 
             const weightOffset = this._intArrayBuffer[mesh.offset + BinaryOffset.MeshWeightOffset];
             if (weightOffset >= 0) {
@@ -240,34 +240,34 @@ namespace dragonBones {
 
         protected _parseAnimation(rawData: any): AnimationData {
             const animation = BaseObject.borrowObject(AnimationData);
-            animation.frameCount = Math.max(ObjectDataParser._getNumber(rawData, ObjectDataParser.DURATION, 1), 1);
-            animation.playTimes = ObjectDataParser._getNumber(rawData, ObjectDataParser.PLAY_TIMES, 1);
+            animation.frameCount = Math.max(ObjectDataParser._getNumber(rawData, DataParser.DURATION, 1), 1);
+            animation.playTimes = ObjectDataParser._getNumber(rawData, DataParser.PLAY_TIMES, 1);
             animation.duration = animation.frameCount / this._armature.frameRate; // float
-            animation.fadeInTime = ObjectDataParser._getNumber(rawData, ObjectDataParser.FADE_IN_TIME, 0.0);
-            animation.scale = ObjectDataParser._getNumber(rawData, ObjectDataParser.SCALE, 1.0);
-            animation.name = ObjectDataParser._getString(rawData, ObjectDataParser.NAME, ObjectDataParser.DEFAULT_NAME);
+            animation.fadeInTime = ObjectDataParser._getNumber(rawData, DataParser.FADE_IN_TIME, 0.0);
+            animation.scale = ObjectDataParser._getNumber(rawData, DataParser.SCALE, 1.0);
+            animation.name = ObjectDataParser._getString(rawData, DataParser.NAME, DataParser.DEFAULT_NAME);
             if (animation.name.length === 0) {
-                animation.name = ObjectDataParser.DEFAULT_NAME;
+                animation.name = DataParser.DEFAULT_NAME;
             }
 
             // Offsets.
-            const offsets = rawData[ObjectDataParser.OFFSET] as Array<number>;
+            const offsets = rawData[DataParser.OFFSET] as Array<number>;
             animation.frameIntOffset = offsets[0];
             animation.frameFloatOffset = offsets[1];
             animation.frameOffset = offsets[2];
 
             this._animation = animation;
 
-            if (ObjectDataParser.ACTION in rawData) {
-                animation.actionTimeline = this._parseBinaryTimeline(TimelineType.Action, rawData[ObjectDataParser.ACTION]);
+            if (DataParser.ACTION in rawData) {
+                animation.actionTimeline = this._parseBinaryTimeline(TimelineType.Action, rawData[DataParser.ACTION]);
             }
 
-            if (ObjectDataParser.Z_ORDER in rawData) {
-                animation.zOrderTimeline = this._parseBinaryTimeline(TimelineType.ZOrder, rawData[ObjectDataParser.Z_ORDER]);
+            if (DataParser.Z_ORDER in rawData) {
+                animation.zOrderTimeline = this._parseBinaryTimeline(TimelineType.ZOrder, rawData[DataParser.Z_ORDER]);
             }
 
-            if (ObjectDataParser.BONE in rawData) {
-                const rawTimeliness = rawData[ObjectDataParser.BONE];
+            if (DataParser.BONE in rawData) {
+                const rawTimeliness = rawData[DataParser.BONE];
                 for (let k in rawTimeliness) {
                     const rawTimelines = rawTimeliness[k] as Array<number>;
                     if (DragonBones.webAssembly) {
@@ -288,8 +288,30 @@ namespace dragonBones {
                 }
             }
 
-            if (ObjectDataParser.SLOT in rawData) {
-                const rawTimeliness = rawData[ObjectDataParser.SLOT];
+            if (DataParser.SURFACE in rawData) {
+                const rawTimeliness = rawData[DataParser.SURFACE];
+                for (let k in rawTimeliness) {
+                    const rawTimelines = rawTimeliness[k] as Array<number>;
+                    if (DragonBones.webAssembly) {
+                        k = this._getUTF16Key(k);
+                    }
+
+                    const surface = this._armature.getBone(k) as SurfaceData;
+                    if (surface === null) {
+                        continue;
+                    }
+
+                    for (let i = 0, l = rawTimelines.length; i < l; i += 2) {
+                        const timelineType = rawTimelines[i];
+                        const timelineOffset = rawTimelines[i + 1];
+                        const timeline = this._parseBinaryTimeline(timelineType, timelineOffset);
+                        this._animation.addSurfaceTimeline(surface, timeline);
+                    }
+                }
+            }
+
+            if (DataParser.SLOT in rawData) {
+                const rawTimeliness = rawData[DataParser.SLOT];
                 for (let k in rawTimeliness) {
                     const rawTimelines = rawTimeliness[k] as Array<number>;
                     if (DragonBones.webAssembly) {
@@ -310,8 +332,8 @@ namespace dragonBones {
                 }
             }
 
-            if (ObjectDataParser.CONSTRAINT in rawData) {
-                const rawTimeliness = rawData[ObjectDataParser.CONSTRAINT];
+            if (DataParser.CONSTRAINT in rawData) {
+                const rawTimeliness = rawData[DataParser.CONSTRAINT];
                 for (let k in rawTimeliness) {
                     const rawTimelines = rawTimeliness[k] as Array<number>;
                     if (DragonBones.webAssembly) {
@@ -338,7 +360,7 @@ namespace dragonBones {
         }
 
         protected _parseArray(rawData: any): void {
-            const offsets = rawData[ObjectDataParser.OFFSET] as Array<number>;
+            const offsets = rawData[DataParser.OFFSET] as Array<number>;
             const l1 = offsets[1];
             const l2 = offsets[3];
             const l3 = offsets[5];

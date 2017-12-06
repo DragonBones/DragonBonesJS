@@ -57,6 +57,7 @@ namespace dragonBones {
         protected static readonly USER_DATA: string = "userData";
         protected static readonly ARMATURE: string = "armature";
         protected static readonly BONE: string = "bone";
+        protected static readonly SURFACE: string = "surface";
         protected static readonly SLOT: string = "slot";
         protected static readonly CONSTRAINT: string = "constraint";
         protected static readonly IK: string = "ik";
@@ -104,6 +105,8 @@ namespace dragonBones {
         protected static readonly INHERIT_REFLECTION: string = "inheritReflection";
         protected static readonly INHERIT_ANIMATION: string = "inheritAnimation";
         protected static readonly INHERIT_FFD: string = "inheritFFD";
+        protected static readonly SEGMENT_X: string = "segmentX";
+        protected static readonly SEGMENT_Y: string = "segmentY";
         protected static readonly BEND_POSITIVE: string = "bendPositive";
         protected static readonly CHAIN: string = "chain";
         protected static readonly WEIGHT: string = "weight";

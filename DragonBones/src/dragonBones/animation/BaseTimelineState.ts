@@ -353,6 +353,41 @@ namespace dragonBones {
             this.bone = null as any; //
             this.bonePose = null as any; //
         }
+
+        public blend(state: number): void {
+            const blendWeight = this.bone._blendState.blendWeight;
+            const animationPose = this.bone.animationPose;
+            const result = this.bonePose.result;
+
+            if (state > 0) {
+                animationPose.x += result.x * blendWeight;
+                animationPose.y += result.y * blendWeight;
+                animationPose.rotation += result.rotation * blendWeight;
+                animationPose.skew += result.skew * blendWeight;
+                animationPose.scaleX += (result.scaleX - 1.0) * blendWeight;
+                animationPose.scaleY += (result.scaleY - 1.0) * blendWeight;
+            }
+            else if (blendWeight !== 1.00) {
+                animationPose.x = result.x * blendWeight;
+                animationPose.y = result.y * blendWeight;
+                animationPose.rotation = result.rotation * blendWeight;
+                animationPose.skew = result.skew * blendWeight;
+                animationPose.scaleX = (result.scaleX - 1.0) * blendWeight + 1.0;
+                animationPose.scaleY = (result.scaleY - 1.0) * blendWeight + 1.0;
+            }
+            else {
+                animationPose.x = result.x;
+                animationPose.y = result.y;
+                animationPose.rotation = result.rotation;
+                animationPose.skew = result.skew;
+                animationPose.scaleX = result.scaleX;
+                animationPose.scaleY = result.scaleY;
+            }
+
+            if (this._animationState._fadeState !== 0 || this._animationState._subFadeState !== 0) {
+                this.bone._transformDirty = true;
+            }
+        }
     }
     /**
      * @internal

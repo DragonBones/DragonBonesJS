@@ -48,11 +48,11 @@ namespace dragonBones {
         FrameTweenEasingOrCurveSampleCount = 2,
         FrameCurveSamples = 3,
 
-        FFDTimelineMeshOffset = 0,
-        FFDTimelineFFDCount = 1,
-        FFDTimelineValueCount = 2,
-        FFDTimelineValueOffset = 3,
-        FFDTimelineFloatOffset = 4
+        DeformMeshOffset = 0,
+        DeformCount = 1,
+        DeformValueCount = 2,
+        DeformValueOffset = 3,
+        DeformFloatOffset = 4
     }
     /**
      * @internal
@@ -148,6 +148,8 @@ namespace dragonBones {
         BoneTranslate = 11,
         BoneRotate = 12,
         BoneScale = 13,
+        
+        Surface = 50,
 
         SlotDisplay = 20,
         SlotColor = 21,
