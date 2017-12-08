@@ -1138,7 +1138,7 @@ namespace dragonBones {
 
         public animationState: AnimationState;
 
-        private readonly _floats: Array<number> = [0.0, 0.0, 0.0, 0.0];
+        private readonly _floats: Array<number> = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0];
 
         protected _onClear(): void {
             super._onClear();
@@ -1158,7 +1158,7 @@ namespace dragonBones {
             const frameIntArray = this._frameIntArray;
 
             this._floats[0] = frameIntArray[valueOffset++] * frameRateR;
-            this._floats[2] = frameIntArray[valueOffset++] * 0.01;
+            this._floats[3] = frameIntArray[valueOffset++] * 0.01;
 
             if (this._tweenState === TweenState.Always) {
                 if (this._frameIndex === this._frameCount - 1) {
@@ -1166,11 +1166,11 @@ namespace dragonBones {
                 }
 
                 this._floats[1] = frameIntArray[valueOffset++] * frameRateR - this._floats[0];
-                this._floats[3] = frameIntArray[valueOffset++] * 0.01 - this._floats[2];
+                this._floats[4] = frameIntArray[valueOffset++] * 0.01 - this._floats[3];
             }
             else {
                 this._floats[1] = 0.0;
-                this._floats[3] = 0.0;
+                this._floats[4] = 0.0;
             }
         }
 
@@ -1181,10 +1181,24 @@ namespace dragonBones {
                 this._tweenState = TweenState.None;
             }
 
-            this.animationState.weight = this._floats[0] + this._floats[1] * this._tweenProgress;
+            if (this._floats[0] >= 0.0) {
+                this._floats[2] = this._floats[0] + this._floats[1] * this._tweenProgress;
+            }
 
-            if (this._floats[2] >= 0.0) {
-                this.animationState.currentTime = this._floats[2] + this._floats[3] * this._tweenProgress;
+            this._floats[5] = this._floats[3] + this._floats[4] * this._tweenProgress;
+        }
+
+        public blend(state: number): void {
+            const animationnState = this.animationState;
+            const blendWeight = animationnState._blendState.blendWeight;
+
+            if (state > 0) {
+                animationnState.currentTime = this._floats[2] * blendWeight;
+                animationnState.weight += this._floats[5] * blendWeight;
+            }
+            else {
+                animationnState.currentTime = this._floats[2] * blendWeight;
+                animationState.weight = this._floats[5] * blendWeight;
             }
         }
     }

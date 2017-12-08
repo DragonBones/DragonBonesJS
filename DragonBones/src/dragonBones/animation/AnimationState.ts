@@ -249,6 +249,11 @@ namespace dragonBones {
         public _actionTimeline: ActionTimelineState = null as any; // Initial value.
         private _zOrderTimeline: ZOrderTimelineState | null = null; // Initial value.
         /**
+         * @internal
+         * @private
+         */
+        public _parent: AnimationState = null as any; // Initial value.
+        /**
          * @private
          */
         protected _onClear(): void {
@@ -315,6 +320,7 @@ namespace dragonBones {
             this._armature = null as any; //
             this._actionTimeline = null as any; //
             this._zOrderTimeline = null;
+            this._parent = null as any; //
         }
 
         private _updateTimelines(): void {
