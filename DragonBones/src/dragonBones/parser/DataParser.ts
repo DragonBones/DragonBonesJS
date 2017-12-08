@@ -104,7 +104,7 @@ namespace dragonBones {
         protected static readonly INHERIT_SCALE: string = "inheritScale";
         protected static readonly INHERIT_REFLECTION: string = "inheritReflection";
         protected static readonly INHERIT_ANIMATION: string = "inheritAnimation";
-        protected static readonly INHERIT_FFD: string = "inheritFFD";
+        protected static readonly INHERIT_DEFORM: string = "inheritDeform";
         protected static readonly SEGMENT_X: string = "segmentX";
         protected static readonly SEGMENT_Y: string = "segmentY";
         protected static readonly BEND_POSITIVE: string = "bendPositive";
@@ -169,6 +169,19 @@ namespace dragonBones {
 
                 default:
                     return ArmatureType.Armature;
+            }
+        }
+
+        protected static _getBoneType(value: string): BoneType {
+            switch (value.toLowerCase()) {
+                case "bone":
+                    return BoneType.Bone;
+
+                case "surface":
+                    return BoneType.Surface;
+
+                default:
+                    return BoneType.Bone;
             }
         }
 

@@ -321,7 +321,7 @@ namespace dragonBones {
             let x3 = a * x + c * yMax + tx;
             let y3 = b * x + d * yMax + ty;
 
-            let tmp = 0;
+            let tmp = 0.0;
 
             if (x0 > x1) {
                 tmp = x0;

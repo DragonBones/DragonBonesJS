@@ -224,34 +224,32 @@ namespace dragonBones {
          * @private
          */
         public toMatrix(matrix: Matrix): Transform {
-            if (this.skew !== 0.0 || this.rotation !== 0.0) {
-                matrix.a = Math.cos(this.rotation);
-                matrix.b = Math.sin(this.rotation);
-
-                if (this.skew === 0.0) {
-                    matrix.c = -matrix.b;
-                    matrix.d = matrix.a;
-                }
-                else {
-                    matrix.c = -Math.sin(this.skew + this.rotation);
-                    matrix.d = Math.cos(this.skew + this.rotation);
-                }
-
-                if (this.scaleX !== 1.0) {
-                    matrix.a *= this.scaleX;
-                    matrix.b *= this.scaleX;
-                }
-
-                if (this.scaleY !== 1.0) {
-                    matrix.c *= this.scaleY;
-                    matrix.d *= this.scaleY;
-                }
+            if (this.rotation === 0.0) {
+                matrix.a = 1.0;
+                matrix.b = 0.0;
             }
             else {
-                matrix.a = this.scaleX;
-                matrix.b = 0.0;
-                matrix.c = 0.0;
-                matrix.d = this.scaleY;
+                matrix.a = Math.cos(this.rotation);
+                matrix.b = Math.sin(this.rotation);
+            }
+
+            if (this.skew === 0.0) {
+                matrix.c = -matrix.b;
+                matrix.d = matrix.a;
+            }
+            else {
+                matrix.c = -Math.sin(this.skew + this.rotation);
+                matrix.d = Math.cos(this.skew + this.rotation);
+            }
+
+            if (this.scaleX !== 1.0) {
+                matrix.a *= this.scaleX;
+                matrix.b *= this.scaleX;
+            }
+
+            if (this.scaleY !== 1.0) {
+                matrix.c *= this.scaleY;
+                matrix.d *= this.scaleY;
             }
 
             matrix.tx = this.x;

@@ -121,6 +121,7 @@ namespace dragonBones {
         private readonly _actionFrames: Array<ActionFrame> = [];
         private readonly _weightSlotPose: Map<Array<number>> = {};
         private readonly _weightBonePoses: Map<Array<number>> = {};
+        private readonly _meshMatrices: Map<Array<number>> = {};
         private readonly _cacheBones: Map<Array<BoneData>> = {};
         private readonly _cacheMeshs: Map<Map<Map<Array<MeshDisplayData>>>> = {};
         private readonly _slotChildActions: Map<Array<ActionData>> = {};
@@ -404,6 +405,9 @@ namespace dragonBones {
             for (let k in this._weightBonePoses) {
                 delete this._weightBonePoses[k];
             }
+            for (let k in this._meshMatrices) {
+                delete this._meshMatrices[k];
+            }
             for (let k in this._cacheMeshs) {
                 delete this._cacheMeshs[k];
             }
@@ -418,7 +422,13 @@ namespace dragonBones {
         }
 
         protected _parseBone(rawData: any): BoneData {
-            const type = ObjectDataParser._getNumber(rawData, DataParser.TYPE, BoneType.Bone) as BoneType;
+            let type: BoneType = BoneType.Bone;
+            if (DataParser.TYPE in rawData && typeof rawData[DataParser.TYPE] === "string") {
+                type = DataParser._getBoneType(rawData[DataParser.TYPE]);
+            }
+            else {
+                type = ObjectDataParser._getNumber(rawData, DataParser.TYPE, BoneType.Bone);
+            }
 
             if (type === BoneType.Bone) {
                 const bone = BaseObject.borrowObject(BoneData);
@@ -576,6 +586,10 @@ namespace dragonBones {
                     imageDisplay.name = name;
                     imageDisplay.path = path.length > 0 ? path : name;
                     this._parsePivot(rawData, imageDisplay);
+
+                    if (DataParser.TRANSFORM in rawData) {
+                        this._parseTransform(rawData[DataParser.TRANSFORM], imageDisplay.transform, this._armature.scale);
+                    }
                     break;
 
                 case DisplayType.Armature:
@@ -608,14 +622,14 @@ namespace dragonBones {
                     const meshDisplay = display = BaseObject.borrowObject(MeshDisplayData);
                     meshDisplay.name = name;
                     meshDisplay.path = path.length > 0 ? path : name;
-                    meshDisplay.inheritAnimation = ObjectDataParser._getBoolean(rawData, DataParser.INHERIT_FFD, true);
+                    meshDisplay.inheritAnimation = ObjectDataParser._getBoolean(rawData, DataParser.INHERIT_DEFORM, true);
                     this._parsePivot(rawData, meshDisplay);
 
                     if (shareName.length > 0) {
-                        let skinName = ObjectDataParser._getString(rawData, DataParser.SKIN, "");
+                        let skinName = ObjectDataParser._getString(rawData, DataParser.SKIN, DataParser.DEFAULT_NAME);
                         const slotName = this._slot.name;
 
-                        if (skinName.length === 0) {
+                        if (skinName.length === 0) { // 
                             skinName = DataParser.DEFAULT_NAME;
                         }
 
@@ -649,12 +663,6 @@ namespace dragonBones {
                         boundingBoxDisplay.boundingBox = boundingBox;
                     }
                     break;
-            }
-
-            if (display !== null) {
-                if (DataParser.TRANSFORM in rawData) {
-                    this._parseTransform(rawData[DataParser.TRANSFORM], display.transform, this._armature.scale);
-                }
             }
 
             return display;
@@ -759,11 +767,23 @@ namespace dragonBones {
                 this._weightSlotPose[meshName] = rawSlotPose;
                 this._weightBonePoses[meshName] = rawBonePoses;
             }
+            else if (DataParser.TRANSFORM in rawData) { // Transform mesh point to bone.
+                this._parseTransform(rawData[DataParser.TRANSFORM], this._helpTransform, this._armature.scale);
+                this._helpTransform.toMatrix(this._helpMatrixA);
+                this._meshMatrices[mesh.name] = [this._helpMatrixA.a, this._helpMatrixA.b, this._helpMatrixA.c, this._helpMatrixA.d, this._helpMatrixA.tx, this._helpMatrixA.ty];
+
+                for (let i = 0, l = vertexCount * 2; i < l; i += 2) {
+                    this._helpMatrixA.transformPoint(this._floatArray[vertexOffset + i], this._floatArray[vertexOffset + i + 1], this._helpPoint);
+                    this._floatArray[vertexOffset + i] = this._helpPoint.x;
+                    this._floatArray[vertexOffset + i + 1] = this._helpPoint.y;
+                }
+            }
         }
 
         protected _parseBoundingBox(rawData: any): BoundingBoxData | null {
             let boundingBox: BoundingBoxData | null = null;
             let type = BoundingBoxType.Rectangle;
+
             if (DataParser.SUB_TYPE in rawData && typeof rawData[DataParser.SUB_TYPE] === "string") {
                 type = DataParser._getBoundingBoxType(rawData[DataParser.SUB_TYPE]);
             }
@@ -790,6 +810,18 @@ namespace dragonBones {
                 if (boundingBox.type === BoundingBoxType.Rectangle || boundingBox.type === BoundingBoxType.Ellipse) {
                     boundingBox.width = ObjectDataParser._getNumber(rawData, DataParser.WIDTH, 0.0);
                     boundingBox.height = ObjectDataParser._getNumber(rawData, DataParser.HEIGHT, 0.0);
+
+                    if (DataParser.TRANSFORM in rawData) {
+                        this._parseTransform(
+                            rawData[DataParser.TRANSFORM],
+                            (
+                                boundingBox.type === BoundingBoxType.Rectangle ?
+                                    (boundingBox as RectangleBoundingBoxData) :
+                                    (boundingBox as EllipseBoundingBoxData)
+                            ).transform,
+                            this._armature.scale
+                        );
+                    }
                 }
             }
 
@@ -803,6 +835,14 @@ namespace dragonBones {
                 const rawVertices = rawData[DataParser.VERTICES] as Array<number>;
                 const vertices = polygonBoundingBox.vertices;
 
+                if (DataParser.TRANSFORM in rawData) {  // Transform point to bone.
+                    this._parseTransform(rawData[DataParser.TRANSFORM], this._helpTransform, this._armature.scale);
+                    this._helpTransform.toMatrix(this._helpMatrixA);
+                }
+                else {
+                    this._helpMatrixA.identity();
+                }
+
                 if (DragonBones.webAssembly) {
                     (vertices as any).resize(rawVertices.length, 0.0);
                 }
@@ -811,8 +851,12 @@ namespace dragonBones {
                 }
 
                 for (let i = 0, l = rawVertices.length; i < l; i += 2) {
-                    const x = rawVertices[i];
-                    const y = rawVertices[i + 1];
+                    let x = rawVertices[i];
+                    let y = rawVertices[i + 1];
+
+                    this._helpMatrixA.transformPoint(x, y, this._helpPoint);
+                    x = this._helpPoint.x;
+                    y = this._helpPoint.y;
 
                     if (DragonBones.webAssembly) {
                         (vertices as any).set(i, x);
@@ -933,11 +977,11 @@ namespace dragonBones {
             if (DataParser.FFD in rawData) {
                 const rawTimelines = rawData[DataParser.FFD] as Array<any>;
                 for (const rawTimeline of rawTimelines) {
-                    let skinName = ObjectDataParser._getString(rawTimeline, DataParser.SKIN, "");
+                    let skinName = ObjectDataParser._getString(rawTimeline, DataParser.SKIN, DataParser.DEFAULT_NAME);
                     const slotName = ObjectDataParser._getString(rawTimeline, DataParser.SLOT, "");
                     const displayName = ObjectDataParser._getString(rawTimeline, DataParser.NAME, "");
 
-                    if (skinName.length === 0) {
+                    if (skinName.length === 0) { //
                         skinName = DataParser.DEFAULT_NAME;
                     }
 
@@ -1460,9 +1504,9 @@ namespace dragonBones {
         protected _parseSurfaceFrame(rawData: any, frameStart: number, frameCount: number): number {
             const frameFloatOffset = this._frameFloatArray.length;
             const frameOffset = this._parseTweenFrame(rawData, frameStart, frameCount);
-            const rawVertices = rawData[DataParser.VALUE] as Array<number>;
+            const rawVertices = rawData[DataParser.VERTICES] as Array<number>;
             const offset = ObjectDataParser._getNumber(rawData, DataParser.OFFSET, 0); // uint
-            const vertexCount = this._surface.vertices.length / 2;
+            const vertexCount = this._surface.vertices.length / 2; // uint
             let x = 0.0;
             let y = 0.0;
             this._frameFloatArray.length += vertexCount * 2;
@@ -1635,7 +1679,14 @@ namespace dragonBones {
                         this._frameFloatArray[frameFloatOffset + iV++] = this._helpPoint.y;
                     }
                 }
-                else {
+                else { // Transform deform point to bone.
+                    if (this._mesh.name in this._meshMatrices) {
+                        this._helpMatrixA.copyFromArray(this._meshMatrices[this._mesh.name], 0);
+                        this._helpMatrixA.transformPoint(x, y, this._helpPoint, true);
+                        x = this._helpPoint.x;
+                        y = this._helpPoint.y;
+                    }
+
                     this._frameFloatArray[frameFloatOffset + i] = x;
                     this._frameFloatArray[frameFloatOffset + i + 1] = y;
                 }

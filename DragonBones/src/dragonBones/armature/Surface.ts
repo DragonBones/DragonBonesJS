@@ -50,7 +50,7 @@ namespace dragonBones {
         /**
          * x1, y1, x2, y2, x3, y3, x4, y4, d1X, d1Y, d2X, d2Y
          */
-        private readonly _sidesCache: Array<number> = [];
+        private readonly _hullCache: Array<number> = [];
         /**
          * Inside [flag, a, b, c, d, tx, ty], Outside [flag, a, b, c, d, tx, ty]
          */
@@ -69,7 +69,7 @@ namespace dragonBones {
             this._vertices.length = 0;
             this._deformVertices.length = 0;
             this._matrixCahce.length = 0;
-            this._sidesCache.length = 0;
+            this._hullCache.length = 0;
         }
 
         private _getAffineTransform(
@@ -107,7 +107,7 @@ namespace dragonBones {
                     for (let i = 0, l = originalVertices.length; i < l; i += 2) {
                         const x = originalVertices[i] + animationVertices[i];
                         const y = originalVertices[i + 1] + animationVertices[i];
-                        const matrix = (this._parent as Surface)._getMatrix(x, y);
+                        const matrix = (this._parent as Surface)._getGlobalTransformMatrix(x, y);
                         //
                         vertices[i] = matrix.a * x + matrix.c * y + matrix.tx;
                         vertices[i + 1] = matrix.b * x + matrix.d * y + matrix.ty;
@@ -167,7 +167,7 @@ namespace dragonBones {
             this._getAffineTransform(0.0, 0.0, lA, lA, aX, aY, bX, bY, cX, cY, this.global, this.globalTransformMatrix, false);
         }
 
-        public _getMatrix(x: number, y: number): Matrix {
+        public _getGlobalTransformMatrix(x: number, y: number): Matrix {
             const lB = 1000.0;
             if (x < -lB || lB < x || y < -lB || lB < y) {
                 return this.globalTransformMatrix;
@@ -195,17 +195,17 @@ namespace dragonBones {
                 }
 
                 isDown = y > this._kX * (x + lA) + pY;
-                matrixIndex = ((segmentX * segmentY + segmentX * 2 + segmentY + indexY) * 2 + (isDown ? 1 : 0)) * 7;
+                matrixIndex = ((segmentX * (segmentY + 1) + segmentX * 2 + segmentY + indexY) * 2 + (isDown ? 1 : 0)) * 7;
 
                 if (this._matrixCahce[matrixIndex] > 0.0) {
                     helpMatrix.copyFromArray(matrices, matrixIndex + 1);
                 }
                 else {
                     const vertexIndex = indexY * (segmentXD + 2);
-                    const ddX = this._sidesCache[4];
-                    const ddY = this._sidesCache[5];
-                    const sX = this._sidesCache[2] - (segmentY - indexY) * ddX;
-                    const sY = this._sidesCache[3] - (segmentY - indexY) * ddY;
+                    const ddX = this._hullCache[4];
+                    const ddY = this._hullCache[5];
+                    const sX = this._hullCache[2] - (segmentY - indexY) * ddX;
+                    const sY = this._hullCache[3] - (segmentY - indexY) * ddY;
                     const vertices = this._vertices;
 
                     if (isDown) {
@@ -246,17 +246,17 @@ namespace dragonBones {
                 }
 
                 isDown = y > this._kX * (x - lB) + pY;
-                matrixIndex = ((segmentX * segmentY + segmentX + indexY) * 2 + (isDown ? 1 : 0)) * 7;
+                matrixIndex = ((segmentX * (segmentY + 1) + segmentX + indexY) * 2 + (isDown ? 1 : 0)) * 7;
 
                 if (this._matrixCahce[matrixIndex] > 0.0) {
                     helpMatrix.copyFromArray(matrices, matrixIndex + 1);
                 }
                 else {
                     const vertexIndex = (indexY + 1) * (segmentXD + 2) - 2;
-                    const ddX = this._sidesCache[4];
-                    const ddY = this._sidesCache[5];
-                    const sX = this._sidesCache[0] + indexY * ddX;
-                    const sY = this._sidesCache[1] + indexY * ddY;
+                    const ddX = this._hullCache[4];
+                    const ddY = this._hullCache[5];
+                    const sX = this._hullCache[0] + indexY * ddX;
+                    const sY = this._hullCache[1] + indexY * ddY;
                     const vertices = this._vertices;
 
                     if (isDown) {
@@ -297,17 +297,17 @@ namespace dragonBones {
                 }
 
                 isDown = y > this._kY * (x - pX - dX) - lB;
-                matrixIndex = (segmentX * segmentY + indexX * 2 + (isDown ? 1 : 0)) * 7;
+                matrixIndex = (segmentX * (segmentY + 1) + indexX * 2 + (isDown ? 1 : 0)) * 7;
 
                 if (this._matrixCahce[matrixIndex] > 0.0) {
                     helpMatrix.copyFromArray(matrices, matrixIndex + 1);
                 }
                 else {
                     const vertexIndex = indexX * 2;
-                    const ddX = this._sidesCache[10];
-                    const ddY = this._sidesCache[11];
-                    const sX = this._sidesCache[8] + indexX * ddX;
-                    const sY = this._sidesCache[9] + indexX * ddY;
+                    const ddX = this._hullCache[10];
+                    const ddY = this._hullCache[11];
+                    const sX = this._hullCache[8] + indexX * ddX;
+                    const sY = this._hullCache[9] + indexX * ddY;
                     const vertices = this._vertices;
 
                     if (isDown) {
@@ -348,17 +348,17 @@ namespace dragonBones {
                 }
 
                 isDown = y > this._kY * (x - pX - dX) + lA;
-                matrixIndex = ((segmentX * segmentY + segmentX + segmentY + indexY) * 2 + (isDown ? 1 : 0)) * 7;
+                matrixIndex = ((segmentX * (segmentY + 1) + segmentX + segmentY + indexY) * 2 + (isDown ? 1 : 0)) * 7;
 
                 if (this._matrixCahce[matrixIndex] > 0.0) {
                     helpMatrix.copyFromArray(matrices, matrixIndex + 1);
                 }
                 else {
                     const vertexIndex = segmentY * (segmentXD + 2) + indexX * 2;
-                    const ddX = this._sidesCache[10];
-                    const ddY = this._sidesCache[11];
-                    const sX = this._sidesCache[6] - (segmentX - indexX) * ddX;
-                    const sY = this._sidesCache[7] - (segmentX - indexX) * ddY;
+                    const ddX = this._hullCache[10];
+                    const ddY = this._hullCache[11];
+                    const sX = this._hullCache[6] - (segmentX - indexX) * ddX;
+                    const sY = this._hullCache[7] - (segmentX - indexX) * ddY;
                     const vertices = this._vertices;
 
                     if (isDown) {
@@ -395,7 +395,7 @@ namespace dragonBones {
             }
             else {
                 isDown = y > this._k * (x - pX - dX) + pY;
-                matrixIndex = (indexX * indexY * 2 + (isDown ? 1 : 0)) * 7;
+                matrixIndex = ((segmentX * indexY + indexX) * 2 + (isDown ? 1 : 0)) * 7;
 
                 if (this._matrixCahce[matrixIndex] > 0.0) {
                     helpMatrix.copyFromArray(matrices, matrixIndex + 1);
@@ -461,7 +461,7 @@ namespace dragonBones {
             this._vertices.length = vertexCount;
             this._deformVertices.length = vertexCount;
             this._matrixCahce.length = (segmentX * segmentY + segmentX * 2 + segmentY * 2) * 2 * 7;
-            this._sidesCache.length = 10;
+            this._hullCache.length = 10;
 
             for (let i = 0; i < vertexCount; ++i) {
                 this._deformVertices[i] = 0.0;
@@ -472,7 +472,7 @@ namespace dragonBones {
          * @private
          */
         public update(cacheFrameIndex: number): void {
-            this._blendDirty = false;
+            this._blendState.dirty = false;
 
             if (cacheFrameIndex >= 0 && this._cachedFrameIndices !== null) {
                 const cachedFrameIndex = this._cachedFrameIndices[cacheFrameIndex];
@@ -548,7 +548,7 @@ namespace dragonBones {
                 else {
                     this._armature._armatureData.getCacheFrame(this.globalTransformMatrix, this.global, this._cachedFrameIndex);
                 }
-                //
+                // Update hull vertices.
                 const lB = 1000.0;
                 const lA = 200.0;
                 const ddX = 2 * this.global.x;
@@ -556,22 +556,22 @@ namespace dragonBones {
                 //
                 const helpPoint = Surface._helpPoint;
                 this.globalTransformMatrix.transformPoint(lB, -lA, helpPoint);
-                this._sidesCache[0] = helpPoint.x;
-                this._sidesCache[1] = helpPoint.y;
-                this._sidesCache[2] = ddX - helpPoint.x;
-                this._sidesCache[3] = ddY - helpPoint.y;
+                this._hullCache[0] = helpPoint.x;
+                this._hullCache[1] = helpPoint.y;
+                this._hullCache[2] = ddX - helpPoint.x;
+                this._hullCache[3] = ddY - helpPoint.y;
                 this.globalTransformMatrix.transformPoint(0.0, this._dY, helpPoint, true);
-                this._sidesCache[4] = helpPoint.x;
-                this._sidesCache[5] = helpPoint.y;
+                this._hullCache[4] = helpPoint.x;
+                this._hullCache[5] = helpPoint.y;
                 //
                 this.globalTransformMatrix.transformPoint(lA, lB, helpPoint);
-                this._sidesCache[6] = helpPoint.x;
-                this._sidesCache[7] = helpPoint.y;
-                this._sidesCache[8] = ddX - helpPoint.x;
-                this._sidesCache[9] = ddY - helpPoint.y;
+                this._hullCache[6] = helpPoint.x;
+                this._hullCache[7] = helpPoint.y;
+                this._hullCache[8] = ddX - helpPoint.x;
+                this._hullCache[9] = ddY - helpPoint.y;
                 this.globalTransformMatrix.transformPoint(this._dX, 0.0, helpPoint, true);
-                this._sidesCache[10] = helpPoint.x;
-                this._sidesCache[11] = helpPoint.y;
+                this._hullCache[10] = helpPoint.x;
+                this._hullCache[11] = helpPoint.y;
             }
             else if (this._childrenTransformDirty) {
                 this._childrenTransformDirty = false;

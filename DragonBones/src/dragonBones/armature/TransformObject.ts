@@ -86,7 +86,7 @@ namespace dragonBones {
         /**
          * @private
          */
-        public origin: Transform;
+        public origin: Transform | null;
         /**
          * @private
          */
@@ -112,7 +112,7 @@ namespace dragonBones {
             this.globalTransformMatrix.identity();
             this.global.identity();
             this.offset.identity();
-            this.origin = null as any; //
+            this.origin = null;
             this.userData = null;
 
             this._globalDirty = false;

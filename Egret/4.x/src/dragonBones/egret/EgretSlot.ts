@@ -62,9 +62,11 @@ namespace dragonBones {
 
             if (EgretFactory._isV5) {
                 this._updateTransform = this._updateTransformV5;
+                this._identityTransform = this._identityTransformV5;
             }
             else {
                 this._updateTransform = this._updateTransformV4;
+                this._identityTransform = this._identityTransformV4;
             }
         }
         /**
@@ -372,6 +374,12 @@ namespace dragonBones {
                         if (!EgretFactory._isV5) {
                             meshDisplay.$invalidateTransform();
                         }
+
+                        const isSkinned = (this._meshData as MeshDisplayData).weight !== null;
+                        const isSurface = this._parent._boneData.type !== BoneType.Bone;
+                        if (isSkinned || isSurface) {
+                            this._identityTransform();
+                        }
                     }
                     else { // Normal texture.
                         const scale = currentTextureData.parent.scale * this._armature._armatureData.scale;
@@ -497,6 +505,7 @@ namespace dragonBones {
                 }
             }
             else if (hasFFD) {
+                const isSurface = this._parent._boneData.type !== BoneType.Bone;
                 const data = meshData.parent.parent.parent;
                 const intArray = data.intArray;
                 const floatArray = data.floatArray;
@@ -506,8 +515,19 @@ namespace dragonBones {
                     vertexOffset += 65536; // Fixed out of bouds bug. 
                 }
 
-                for (let i = 0, l = vertexCount * 2; i < l; ++i) {
-                    meshNode.vertices[i] = floatArray[vertexOffset + i] * scale + this._ffdVertices[i];
+                for (let i = 0, l = vertexCount * 2; i < l; i += 2) {
+                    const x = floatArray[vertexOffset + i] * scale + this._ffdVertices[i];
+                    const y = floatArray[vertexOffset + i + 1] * scale + this._ffdVertices[i + 1];
+
+                    if (isSurface) {
+                        const matrix = (this._parent as Surface)._getGlobalTransformMatrix(x, y);
+                        meshNode.vertices[i] = matrix.a * x + matrix.c * y + matrix.tx;
+                        meshNode.vertices[i + 1] = matrix.b * x + matrix.d * y + matrix.ty;
+                    }
+                    else {
+                        meshNode.vertices[i] = x;
+                        meshNode.vertices[i + 1] = y;
+                    }
                 }
 
                 meshDisplay.$updateVertices();
@@ -524,81 +544,83 @@ namespace dragonBones {
         /**
          * @inheritDoc
          */
-        protected _updateTransform(isSkinnedMesh: boolean): void {
-            // tslint:disable-next-line:no-unused-expression
-            isSkinnedMesh;
+        protected _updateTransform(): void {
+            throw new Error();
+        }
+        /**
+         * @inheritDoc
+         */
+        protected _identityTransform(): void {
             throw new Error();
         }
 
-        private _updateTransformV4(isSkinnedMesh: boolean): void {
-            if (isSkinnedMesh) { // Identity transform.
-                if (this._armatureDisplay._batchEnabled) {
-                    this._armatureDisplay._childDirty = true;
-                    let displayMatrix = (this._renderDisplay.$renderNode as (egret.sys.BitmapNode | egret.sys.MeshNode)).matrix;
-                    displayMatrix.a = 1.0;
-                    displayMatrix.b = 0.0;
-                    displayMatrix.c = 0.0;
-                    displayMatrix.d = 1.0;
-                    displayMatrix.tx = 0.0;
-                    displayMatrix.ty = 0.0;
-                }
-                else {
-                    egret.$TempMatrix.identity();
-                    this._renderDisplay.$setMatrix(egret.$TempMatrix, this.transformUpdateEnabled);
-                }
+        private _identityTransformV4(): void {
+            if (this._armatureDisplay._batchEnabled) {
+                this._armatureDisplay._childDirty = true;
+                let displayMatrix = (this._renderDisplay.$renderNode as (egret.sys.BitmapNode | egret.sys.MeshNode)).matrix;
+                displayMatrix.a = 1.0;
+                displayMatrix.b = 0.0;
+                displayMatrix.c = 0.0;
+                displayMatrix.d = 1.0;
+                displayMatrix.tx = 0.0;
+                displayMatrix.ty = 0.0;
             }
             else {
-                const globalTransformMatrix = this.globalTransformMatrix;
-                if (this._armatureDisplay._batchEnabled) {
-                    this._armatureDisplay._childDirty = true;
-                    let displayMatrix = (this._renderDisplay.$renderNode as (egret.sys.BitmapNode | egret.sys.MeshNode)).matrix;
-                    displayMatrix.a = globalTransformMatrix.a;
-                    displayMatrix.b = globalTransformMatrix.b;
-                    displayMatrix.c = globalTransformMatrix.c;
-                    displayMatrix.d = globalTransformMatrix.d;
-                    displayMatrix.tx = this.globalTransformMatrix.tx - (this.globalTransformMatrix.a * this._pivotX + this.globalTransformMatrix.c * this._pivotY);
-                    displayMatrix.ty = this.globalTransformMatrix.ty - (this.globalTransformMatrix.b * this._pivotX + this.globalTransformMatrix.d * this._pivotY);
-                }
-                else if (this.transformUpdateEnabled) {
-                    this._renderDisplay.$setMatrix((globalTransformMatrix as any) as egret.Matrix, true);
-                }
-                else {
-                    const values = this._renderDisplay.$DisplayObject as any;
-                    const displayMatrix = values[6];
-
-                    displayMatrix.a = this.globalTransformMatrix.a;
-                    displayMatrix.b = this.globalTransformMatrix.b;
-                    displayMatrix.c = this.globalTransformMatrix.c;
-                    displayMatrix.d = this.globalTransformMatrix.d;
-                    displayMatrix.tx = this.globalTransformMatrix.tx;
-                    displayMatrix.ty = this.globalTransformMatrix.ty;
-
-                    this._renderDisplay.$removeFlags(8);
-                    this._renderDisplay.$invalidatePosition();
-                }
-            }
-        }
-
-        private _updateTransformV5(isSkinnedMesh: boolean): void {
-            if (isSkinnedMesh) { // Identity transform.
                 egret.$TempMatrix.identity();
                 this._renderDisplay.$setMatrix(egret.$TempMatrix, this.transformUpdateEnabled);
             }
+        }
+
+        private _identityTransformV5(): void {
+            egret.$TempMatrix.identity();
+            this._renderDisplay.$setMatrix(egret.$TempMatrix, this.transformUpdateEnabled);
+        }
+
+        private _updateTransformV4(): void {
+            const globalTransformMatrix = this.globalTransformMatrix;
+            if (this._armatureDisplay._batchEnabled) {
+                this._armatureDisplay._childDirty = true;
+                let displayMatrix = (this._renderDisplay.$renderNode as (egret.sys.BitmapNode | egret.sys.MeshNode)).matrix;
+                displayMatrix.a = globalTransformMatrix.a;
+                displayMatrix.b = globalTransformMatrix.b;
+                displayMatrix.c = globalTransformMatrix.c;
+                displayMatrix.d = globalTransformMatrix.d;
+                displayMatrix.tx = this.globalTransformMatrix.tx - (this.globalTransformMatrix.a * this._pivotX + this.globalTransformMatrix.c * this._pivotY);
+                displayMatrix.ty = this.globalTransformMatrix.ty - (this.globalTransformMatrix.b * this._pivotX + this.globalTransformMatrix.d * this._pivotY);
+            }
+            else if (this.transformUpdateEnabled) {
+                this._renderDisplay.$setMatrix((globalTransformMatrix as any) as egret.Matrix, true);
+            }
             else {
-                const globalTransformMatrix = this.globalTransformMatrix;
-                if (this._armatureDisplay._batchEnabled) {
-                    this._armatureDisplay._childDirty = true;
-                    let displayMatrix = (this._renderDisplay.$renderNode as (egret.sys.BitmapNode | egret.sys.MeshNode)).matrix;
-                    displayMatrix.a = globalTransformMatrix.a;
-                    displayMatrix.b = globalTransformMatrix.b;
-                    displayMatrix.c = globalTransformMatrix.c;
-                    displayMatrix.d = globalTransformMatrix.d;
-                    displayMatrix.tx = this.globalTransformMatrix.tx - (this.globalTransformMatrix.a * this._pivotX + this.globalTransformMatrix.c * this._pivotY);
-                    displayMatrix.ty = this.globalTransformMatrix.ty - (this.globalTransformMatrix.b * this._pivotX + this.globalTransformMatrix.d * this._pivotY);
-                }
-                else {
-                    this._renderDisplay.$setMatrix((globalTransformMatrix as any) as egret.Matrix, this.transformUpdateEnabled);
-                }
+                const values = this._renderDisplay.$DisplayObject as any;
+                const displayMatrix = values[6];
+
+                displayMatrix.a = this.globalTransformMatrix.a;
+                displayMatrix.b = this.globalTransformMatrix.b;
+                displayMatrix.c = this.globalTransformMatrix.c;
+                displayMatrix.d = this.globalTransformMatrix.d;
+                displayMatrix.tx = this.globalTransformMatrix.tx;
+                displayMatrix.ty = this.globalTransformMatrix.ty;
+
+                this._renderDisplay.$removeFlags(8);
+                this._renderDisplay.$invalidatePosition();
+            }
+        }
+
+        private _updateTransformV5(): void {
+            const globalTransformMatrix = this.globalTransformMatrix;
+            if (this._armatureDisplay._batchEnabled) {
+                this._armatureDisplay._childDirty = true;
+                let displayMatrix = (this._renderDisplay.$renderNode as (egret.sys.BitmapNode | egret.sys.MeshNode)).matrix;
+                displayMatrix.a = globalTransformMatrix.a;
+                displayMatrix.b = globalTransformMatrix.b;
+                displayMatrix.c = globalTransformMatrix.c;
+                displayMatrix.d = globalTransformMatrix.d;
+                displayMatrix.tx = this.globalTransformMatrix.tx - (this.globalTransformMatrix.a * this._pivotX + this.globalTransformMatrix.c * this._pivotY);
+                displayMatrix.ty = this.globalTransformMatrix.ty - (this.globalTransformMatrix.b * this._pivotX + this.globalTransformMatrix.d * this._pivotY);
+            }
+            else {
+                this._renderDisplay.$setMatrix((globalTransformMatrix as any) as egret.Matrix, this.transformUpdateEnabled);
             }
         }
     }

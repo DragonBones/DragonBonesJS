@@ -1024,7 +1024,7 @@ namespace dragonBones {
             // Fade animation.
             if (this._tweenState !== TweenState.None || this._dirty) {
                 const result = this.slot._ffdVertices;
-                
+
                 if (this._animationState._fadeState !== 0 || this._animationState._subFadeState !== 0) {
                     const fadeProgress = Math.pow(this._animationState._fadeProgress, 2);
 
@@ -1125,6 +1125,67 @@ namespace dragonBones {
             const ikConstraint = this.constraint as IKConstraint;
             ikConstraint._weight = this._current + this._delta * this._tweenProgress;
             ikConstraint.invalidUpdate();
+        }
+    }
+    /**
+     * @internal
+     * @private
+     */
+    export class AnimationTimelineState extends TweenTimelineState {
+        public static toString(): string {
+            return "[class dragonBones.AnimationTimelineState]";
+        }
+
+        public animationState: AnimationState;
+
+        private readonly _floats: Array<number> = [0.0, 0.0, 0.0, 0.0];
+
+        protected _onClear(): void {
+            super._onClear();
+
+            this.animationState = null as any;
+        }
+
+        protected _onArriveAtFrame(): void {
+            super._onArriveAtFrame();
+
+            if (this._timelineData === null) {
+                return;
+            }
+
+            let valueOffset = this._animationData.frameIntOffset + this._frameValueOffset + this._frameIndex * 2;
+            const frameRateR = 1.0 / this.animationState._animationData.parent.frameRate;
+            const frameIntArray = this._frameIntArray;
+
+            this._floats[0] = frameIntArray[valueOffset++] * frameRateR;
+            this._floats[2] = frameIntArray[valueOffset++] * 0.01;
+
+            if (this._tweenState === TweenState.Always) {
+                if (this._frameIndex === this._frameCount - 1) {
+                    valueOffset = this._animationData.frameFloatOffset + this._frameValueOffset; // + 0 * 2
+                }
+
+                this._floats[1] = frameIntArray[valueOffset++] * frameRateR - this._floats[0];
+                this._floats[3] = frameIntArray[valueOffset++] * 0.01 - this._floats[2];
+            }
+            else {
+                this._floats[1] = 0.0;
+                this._floats[3] = 0.0;
+            }
+        }
+
+        protected _onUpdateFrame(): void {
+            super._onUpdateFrame();
+
+            if (this._tweenState !== TweenState.Always) {
+                this._tweenState = TweenState.None;
+            }
+
+            this.animationState.weight = this._floats[0] + this._floats[1] * this._tweenProgress;
+
+            if (this._floats[2] >= 0.0) {
+                this.animationState.currentTime = this._floats[2] + this._floats[3] * this._tweenProgress;
+            }
         }
     }
 }

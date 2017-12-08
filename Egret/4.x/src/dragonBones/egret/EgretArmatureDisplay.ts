@@ -349,27 +349,35 @@ namespace dragonBones {
                 if (this._debugDraw) {
                     if (this._debugDrawer === null) {
                         this._debugDrawer = new egret.Sprite();
+                    }
+
+                    if (this._debugDrawer.parent !== this) {
                         this.addChild(this._debugDrawer);
                     }
 
+                    const boneStep = 2.0;
                     const graphics = this._debugDrawer.graphics;
                     graphics.clear();
 
                     for (const bone of this._armature.getBones()) {
                         if (bone.boneData.type === BoneType.Bone) {
-                            const boneLength = bone.boneData.length;
+                            const boneLength = Math.max(bone.boneData.length, boneStep);
                             const startX = bone.globalTransformMatrix.tx;
                             const startY = bone.globalTransformMatrix.ty;
-                            const endX = startX + bone.globalTransformMatrix.a * boneLength;
-                            const endY = startY + bone.globalTransformMatrix.b * boneLength;
+                            const aX = startX - bone.globalTransformMatrix.a * boneStep;
+                            const aY = startY - bone.globalTransformMatrix.b * boneStep;
+                            const bX = startX + bone.globalTransformMatrix.a * boneLength;
+                            const bY = startY + bone.globalTransformMatrix.b * boneLength;
+                            const cX = startX + aY - startY;
+                            const cY = startY + aX - startX;
+                            const dX = startX - aY + startY;
+                            const dY = startY - aX + startX;
                             //
                             graphics.lineStyle(2.0, 0x00FFFF, 0.7);
-                            graphics.moveTo(startX, startY);
-                            graphics.lineTo(endX, endY);
-                            graphics.lineStyle(0.0, 0, 0.0);
-                            graphics.beginFill(0x00FFFF, 0.7);
-                            graphics.drawCircle(startX, startY, 3.0);
-                            graphics.endFill();
+                            graphics.moveTo(aX, aY);
+                            graphics.lineTo(bX, bY);
+                            graphics.moveTo(cX, cY);
+                            graphics.lineTo(dX, dY);
                         }
                         else {
                             const surface = bone as Surface;
@@ -415,7 +423,7 @@ namespace dragonBones {
                             }
 
                             child.graphics.clear();
-                            child.graphics.beginFill(boundingBoxData.color ? boundingBoxData.color : 0xFF00FF, 0.3);
+                            child.graphics.lineStyle(2.0, 0xFF00FF, 0.7);
 
                             switch (boundingBoxData.type) {
                                 case BoundingBoxType.Rectangle:
@@ -445,10 +453,9 @@ namespace dragonBones {
                                     break;
                             }
 
-                            child.graphics.endFill();
                             slot.updateTransformAndMatrix();
                             slot.updateGlobalTransform();
-                            child.$setMatrix((slot.globalTransformMatrix as any) as egret.Matrix, true);
+                            child.$setMatrix((slot.globalTransformMatrix as any) as egret.Matrix, false);
                         }
                         else {
                             const child = this._debugDrawer.getChildByName(slot.name);

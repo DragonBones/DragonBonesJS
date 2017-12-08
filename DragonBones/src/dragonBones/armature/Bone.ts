@@ -128,16 +128,26 @@ namespace dragonBones {
             const globalTransformMatrix = this.globalTransformMatrix;
 
             if (this.offsetMode === OffsetMode.Additive) {
-                // global.copyFrom(this.origin).add(this.offset).add(this.animationPose);
-                global.x = this.origin.x + this.offset.x + this.animationPose.x;
-                global.y = this.origin.y + this.offset.y + this.animationPose.y;
-                global.skew = this.origin.skew + this.offset.skew + this.animationPose.skew;
-                global.rotation = this.origin.rotation + this.offset.rotation + this.animationPose.rotation;
-                global.scaleX = this.origin.scaleX * this.offset.scaleX * this.animationPose.scaleX;
-                global.scaleY = this.origin.scaleY * this.offset.scaleY * this.animationPose.scaleY;
+                if (this.origin !== null) {
+                    // global.copyFrom(this.origin).add(this.offset).add(this.animationPose);
+                    global.x = this.origin.x + this.offset.x + this.animationPose.x;
+                    global.y = this.origin.y + this.offset.y + this.animationPose.y;
+                    global.skew = this.origin.skew + this.offset.skew + this.animationPose.skew;
+                    global.rotation = this.origin.rotation + this.offset.rotation + this.animationPose.rotation;
+                    global.scaleX = this.origin.scaleX * this.offset.scaleX * this.animationPose.scaleX;
+                    global.scaleY = this.origin.scaleY * this.offset.scaleY * this.animationPose.scaleY;
+                }
+                else {
+                    global.copyFrom(this.offset).add(this.animationPose);
+                }
             }
             else if (this.offsetMode === OffsetMode.None) {
-                global.copyFrom(this.origin).add(this.animationPose);
+                if (this.origin !== null) {
+                    global.copyFrom(this.origin).add(this.animationPose);
+                }
+                else {
+                    global.copyFrom(this.animationPose);
+                }
             }
             else {
                 inherit = false;
@@ -145,7 +155,7 @@ namespace dragonBones {
             }
 
             if (inherit) {
-                const parentMatrix = parent._boneData.type === BoneType.Bone ? parent.globalTransformMatrix : (parent as Surface)._getMatrix(global.x, global.y);
+                const parentMatrix = parent._boneData.type === BoneType.Bone ? parent.globalTransformMatrix : (parent as Surface)._getGlobalTransformMatrix(global.x, global.y);
 
                 if (boneData.inheritScale) {
                     if (!boneData.inheritRotation) {

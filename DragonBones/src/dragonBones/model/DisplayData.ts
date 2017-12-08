@@ -29,13 +29,11 @@ namespace dragonBones {
         public type: DisplayType;
         public name: string;
         public path: string;
-        public readonly transform: Transform = new Transform();
         public parent: SkinData;
 
         protected _onClear(): void {
             this.name = "";
             this.path = "";
-            this.transform.identity();
             this.parent = null as any; //
         }
     }
@@ -49,6 +47,7 @@ namespace dragonBones {
         }
 
         public readonly pivot: Point = new Point();
+        public readonly transform: Transform = new Transform();
         public texture: TextureData | null;
 
         protected _onClear(): void {

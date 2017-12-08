@@ -98,10 +98,6 @@ namespace dragonBones {
         /**
          * @private
          */
-        protected _skinedMeshTransformDirty: boolean;
-        /**
-         * @private
-         */
         protected _visible: boolean;
         /**
          * @private
@@ -248,7 +244,6 @@ namespace dragonBones {
             this._colorDirty = false;
             this._meshDirty = false;
             this._transformDirty = false;
-            this._skinedMeshTransformDirty = false;
             this._visible = true;
             this._blendMode = BlendMode.Normal;
             this._displayIndex = -1;
@@ -257,7 +252,6 @@ namespace dragonBones {
             this._cachedFrameIndex = -1;
             this._pivotX = 0.0;
             this._pivotY = 0.0;
-            this._blendState.clear();
             this._localMatrix.identity();
             this._colorTransform.identity();
             this._ffdVertices.length = 0;
@@ -327,7 +321,11 @@ namespace dragonBones {
         /**
          * @private
          */
-        protected abstract _updateTransform(isSkinnedMesh: boolean): void;
+        protected abstract _updateTransform(): void;
+        /**
+         * @private
+         */
+        protected abstract _identityTransform(): void;
         /**
          * @private
          */
@@ -473,30 +471,36 @@ namespace dragonBones {
                 }
 
                 if (this._displayData !== null && rawDisplayData !== null && this._displayData !== rawDisplayData && this._meshData === null) {
-                    rawDisplayData.transform.toMatrix(Slot._helpMatrix);
-                    Slot._helpMatrix.invert();
-                    Slot._helpMatrix.transformPoint(0.0, 0.0, Slot._helpPoint);
-                    this._pivotX -= Slot._helpPoint.x;
-                    this._pivotY -= Slot._helpPoint.y;
+                    if (rawDisplayData.type === DisplayType.Image) {
+                        (rawDisplayData as ImageDisplayData).transform.toMatrix(Slot._helpMatrix);
+                        Slot._helpMatrix.invert();
+                        Slot._helpMatrix.transformPoint(0.0, 0.0, Slot._helpPoint);
+                        this._pivotX -= Slot._helpPoint.x;
+                        this._pivotY -= Slot._helpPoint.y;
+                    }
 
-                    this._displayData.transform.toMatrix(Slot._helpMatrix);
-                    Slot._helpMatrix.invert();
-                    Slot._helpMatrix.transformPoint(0.0, 0.0, Slot._helpPoint);
-                    this._pivotX += Slot._helpPoint.x;
-                    this._pivotY += Slot._helpPoint.y;
+                    if (this._displayData.type === DisplayType.Image) {
+                        (this._displayData as ImageDisplayData).transform.toMatrix(Slot._helpMatrix);
+                        Slot._helpMatrix.invert();
+                        Slot._helpMatrix.transformPoint(0.0, 0.0, Slot._helpPoint);
+                        this._pivotX += Slot._helpPoint.x;
+                        this._pivotY += Slot._helpPoint.y;
+                    }
                 }
 
                 // Update original transform.
-                if (rawDisplayData !== null) {
-                    this.origin = rawDisplayData.transform;
+                if (rawDisplayData !== null && rawDisplayData.type === DisplayType.Image) {
+                    this.origin = (rawDisplayData as ImageDisplayData).transform;
                 }
-                else if (this._displayData !== null) {
-                    this.origin = this._displayData.transform;
+                else if (this._displayData !== null && this._displayData.type === DisplayType.Image) {
+                    this.origin = (this._displayData as ImageDisplayData).transform;
+                }
+                else {
+                    this.origin = null;
                 }
 
                 this._displayDirty = true;
                 this._transformDirty = true;
-                this._skinedMeshTransformDirty = true;
             }
         }
         /**
@@ -594,7 +598,7 @@ namespace dragonBones {
          * @private
          */
         protected _updateGlobalTransformMatrix(isCache: boolean): void {
-            const parentMatrix = this._parent._boneData.type === BoneType.Bone ? this._parent.globalTransformMatrix : (this._parent as Surface)._getMatrix(this.global.x, this.global.y);
+            const parentMatrix = this._parent._boneData.type === BoneType.Bone ? this._parent.globalTransformMatrix : (this._parent as Surface)._getGlobalTransformMatrix(this.global.x, this.global.y);
             this.globalTransformMatrix.copyFrom(this._localMatrix);
             this.globalTransformMatrix.concat(parentMatrix);
             if (isCache) {
@@ -756,6 +760,7 @@ namespace dragonBones {
                 this._displayDirty = false;
                 this._updateDisplay();
 
+                // TODO remove slot
                 if (this._transformDirty) { // Update local matrix. (Only updated when both display and transform are dirty.)
                     if (this.origin !== null) {
                         this.global.copyFrom(this.origin).add(this.offset).toMatrix(this._localMatrix);
@@ -820,18 +825,18 @@ namespace dragonBones {
 
             if (this._meshData !== null && this._display === this._meshDisplay) {
                 const isSkinned = this._meshData.weight !== null;
-                if (this._meshDirty || (isSkinned && this._isMeshBonesUpdate())) {
+                const isSurface = this._parent._boneData.type !== BoneType.Bone;
+
+                if (
+                    this._meshDirty ||
+                    (isSkinned && this._isMeshBonesUpdate()) ||
+                    (isSurface && this._parent._childrenTransformDirty)
+                ) {
                     this._meshDirty = false;
                     this._updateMesh();
                 }
 
-                if (isSkinned) {
-                    if (this._transformDirty && this._skinedMeshTransformDirty) {
-                        this._transformDirty = false;
-                        this._skinedMeshTransformDirty = false;
-                        this._updateTransform(true);
-                    }
-
+                if (isSkinned || isSurface) {
                     return;
                 }
             }
@@ -851,7 +856,7 @@ namespace dragonBones {
                     this._armature._armatureData.getCacheFrame(this.globalTransformMatrix, this.global, this._cachedFrameIndex);
                 }
 
-                this._updateTransform(false);
+                this._updateTransform();
             }
         }
         /**
