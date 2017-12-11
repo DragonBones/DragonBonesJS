@@ -413,7 +413,7 @@ namespace dragonBones {
                             child.graphics.endFill();
                             slot.updateTransformAndMatrix();
                             slot.updateGlobalTransform();
-                            child.$setMatrix((slot.globalTransformMatrix as any) as egret.Matrix, true);
+                            child.$setMatrix((slot.globalTransformMatrix as any) as egret.Matrix, false);
                         }
                         else {
                             const child = this._debugDrawer.getChildByName(slot.name);
@@ -538,7 +538,7 @@ namespace dragonBones {
 
                     for (const slot of this._armature.getSlots()) {
                         const display = slot.display;
-                        if (!display || !display.$renderNode) {
+                        if (!display || !display.$renderNode || !display.$renderNode.image) {
                             continue;
                         }
 
