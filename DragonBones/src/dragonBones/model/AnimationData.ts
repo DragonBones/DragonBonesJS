@@ -139,6 +139,10 @@ namespace dragonBones {
         /**
          * @private
          */
+        public readonly animationTimelines: Map<Array<TimelineData>> = {};
+        /**
+         * @private
+         */
         public readonly boneCachedFrameIndices: Map<Array<number>> = {};
         /**
          * @private
@@ -192,6 +196,14 @@ namespace dragonBones {
                 delete this.constraintTimelines[k];
             }
 
+            for (let k in this.animationTimelines) {
+                for (const timeline of this.animationTimelines[k]) {
+                    timeline.returnToPool();
+                }
+
+                delete this.animationTimelines[k];
+            }
+
             for (let k in this.boneCachedFrameIndices) {
                 delete this.boneCachedFrameIndices[k];
             }
@@ -223,6 +235,7 @@ namespace dragonBones {
             // this.surfaceTimelines.clear();
             // this.slotTimelines.clear();
             // this.constraintTimelines.clear();
+            // this.animationTimelines.clear();
             // this.boneCachedFrameIndices.clear();
             // this.slotCachedFrameIndices.clear();
             this.actionTimeline = null;
@@ -303,6 +316,15 @@ namespace dragonBones {
         /**
          * @private
          */
+        public addAnimationTimeline(name: string, timeline: TimelineData): void {
+            const timelines = name in this.animationTimelines ? this.animationTimelines[name] : (this.animationTimelines[name] = []);
+            if (timelines.indexOf(timeline) < 0) {
+                timelines.push(timeline);
+            }
+        }
+        /**
+         * @private
+         */
         public getBoneTimelines(name: string): Array<TimelineData> | null {
             return name in this.boneTimelines ? this.boneTimelines[name] : null;
         }
@@ -323,6 +345,12 @@ namespace dragonBones {
          */
         public getConstraintTimelines(name: string): Array<TimelineData> | null {
             return name in this.constraintTimelines ? this.constraintTimelines[name] : null;
+        }
+        /**
+         * @private
+         */
+        public getAnimationTimelines(name: string): Array<TimelineData> | null {
+            return name in this.animationTimelines ? this.animationTimelines[name] : null;
         }
         /**
          * @private

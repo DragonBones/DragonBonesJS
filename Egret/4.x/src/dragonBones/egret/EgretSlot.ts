@@ -511,6 +511,7 @@ namespace dragonBones {
                 const floatArray = data.floatArray;
                 const vertexCount = intArray[meshData.offset + BinaryOffset.MeshVertexCount];
                 let vertexOffset = intArray[meshData.offset + BinaryOffset.MeshFloatOffset];
+                
                 if (vertexOffset < 0) {
                     vertexOffset += 65536; // Fixed out of bouds bug. 
                 }

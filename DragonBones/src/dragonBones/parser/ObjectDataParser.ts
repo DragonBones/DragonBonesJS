@@ -689,6 +689,7 @@ namespace dragonBones {
             const vertexOffset = this._floatArray.length;
             const uvOffset = vertexOffset + vertexCount * 2;
             const meshOffset = this._intArray.length;
+            const meshName = this._skin.name + "_" + this._slot.name + "_" + mesh.name; // Cache pose data.
 
             mesh.offset = meshOffset;
             this._intArray.length += 1 + 1 + 1 + 1 + triangleCount * 3;
@@ -762,15 +763,14 @@ namespace dragonBones {
                 }
 
                 mesh.weight = weight;
-                // Cache pose data.
-                const meshName = this._skin.name + "_" + this._slot.name + "_" + mesh.name;
                 this._weightSlotPose[meshName] = rawSlotPose;
                 this._weightBonePoses[meshName] = rawBonePoses;
             }
             else if (DataParser.TRANSFORM in rawData) { // Transform mesh point to bone.
+                this._helpTransform.identity();
                 this._parseTransform(rawData[DataParser.TRANSFORM], this._helpTransform, this._armature.scale);
                 this._helpTransform.toMatrix(this._helpMatrixA);
-                this._meshMatrices[mesh.name] = [this._helpMatrixA.a, this._helpMatrixA.b, this._helpMatrixA.c, this._helpMatrixA.d, this._helpMatrixA.tx, this._helpMatrixA.ty];
+                this._meshMatrices[meshName] = [this._helpMatrixA.a, this._helpMatrixA.b, this._helpMatrixA.c, this._helpMatrixA.d, this._helpMatrixA.tx, this._helpMatrixA.ty];
 
                 for (let i = 0, l = vertexCount * 2; i < l; i += 2) {
                     this._helpMatrixA.transformPoint(this._floatArray[vertexOffset + i], this._floatArray[vertexOffset + i + 1], this._helpPoint);
@@ -836,6 +836,7 @@ namespace dragonBones {
                 const vertices = polygonBoundingBox.vertices;
 
                 if (DataParser.TRANSFORM in rawData) {  // Transform point to bone.
+                    this._helpTransform.identity();
                     this._parseTransform(rawData[DataParser.TRANSFORM], this._helpTransform, this._armature.scale);
                     this._helpTransform.toMatrix(this._helpMatrixA);
                 }
@@ -1029,6 +1030,23 @@ namespace dragonBones {
 
                     if (timeline !== null) {
                         this._animation.addConstraintTimeline(constraint, timeline);
+                    }
+                }
+            }
+
+            if (DataParser.ANIMATION in rawData) {
+                const rawTimelines = rawData[DataParser.ANIMATION];
+                for (const rawTimeline of rawTimelines) {
+                    const animationName = ObjectDataParser._getString(rawTimeline, DataParser.NAME, "");
+
+                    const timeline = this._parseTimeline(
+                        rawTimeline, null, DataParser.FRAME, TimelineType.AnimationTime,
+                        true, false, 2,
+                        this._parseAnimationFrame
+                    );
+
+                    if (timeline !== null) {
+                        this._animation.addAnimationTimeline(animationName, timeline);
                     }
                 }
             }
@@ -1537,11 +1555,11 @@ namespace dragonBones {
             if (frameStart === 0) {
                 const frameIntOffset = this._frameIntArray.length;
                 this._frameIntArray.length += 1 + 1 + 1 + 1 + 1;
-                this._frameIntArray[frameIntOffset + BinaryOffset.DeformMeshOffset] = 0;
+                this._frameIntArray[frameIntOffset + BinaryOffset.DeformMeshOffset] = 0; // 
                 this._frameIntArray[frameIntOffset + BinaryOffset.DeformCount] = this._frameFloatArray.length - frameFloatOffset;
                 this._frameIntArray[frameIntOffset + BinaryOffset.DeformValueCount] = this._frameFloatArray.length - frameFloatOffset;
                 this._frameIntArray[frameIntOffset + BinaryOffset.DeformValueOffset] = 0;
-                this._frameIntArray[frameIntOffset + BinaryOffset.DeformFloatOffset] = frameFloatOffset;
+                this._frameIntArray[frameIntOffset + BinaryOffset.DeformFloatOffset] = frameFloatOffset - this._animation.frameFloatOffset;
                 this._timelineArray[this._timeline.offset + BinaryOffset.TimelineFrameValueCount] = frameIntOffset - this._animation.frameIntOffset;
             }
 
@@ -1680,8 +1698,8 @@ namespace dragonBones {
                     }
                 }
                 else { // Transform deform point to bone.
-                    if (this._mesh.name in this._meshMatrices) {
-                        this._helpMatrixA.copyFromArray(this._meshMatrices[this._mesh.name], 0);
+                    if (meshName in this._meshMatrices) {
+                        this._helpMatrixA.copyFromArray(this._meshMatrices[meshName], 0);
                         this._helpMatrixA.transformPoint(x, y, this._helpPoint, true);
                         x = this._helpPoint.x;
                         y = this._helpPoint.y;
@@ -1699,7 +1717,7 @@ namespace dragonBones {
                 this._frameIntArray[frameIntOffset + BinaryOffset.DeformCount] = this._frameFloatArray.length - frameFloatOffset;
                 this._frameIntArray[frameIntOffset + BinaryOffset.DeformValueCount] = this._frameFloatArray.length - frameFloatOffset;
                 this._frameIntArray[frameIntOffset + BinaryOffset.DeformValueOffset] = 0;
-                this._frameIntArray[frameIntOffset + BinaryOffset.DeformFloatOffset] = frameFloatOffset;
+                this._frameIntArray[frameIntOffset + BinaryOffset.DeformFloatOffset] = frameFloatOffset - this._animation.frameFloatOffset;
                 this._timelineArray[this._timeline.offset + BinaryOffset.TimelineFrameValueCount] = frameIntOffset - this._animation.frameIntOffset;
             }
 
@@ -1712,6 +1730,17 @@ namespace dragonBones {
             let frameIntOffset = this._frameIntArray.length;
             this._frameIntArray.length += 2;
             this._frameIntArray[frameIntOffset++] = ObjectDataParser._getBoolean(rawData, DataParser.BEND_POSITIVE, true) ? 1 : 0;
+            this._frameIntArray[frameIntOffset++] = Math.round(ObjectDataParser._getNumber(rawData, DataParser.WEIGHT, 1.0) * 100.0);
+
+            return frameOffset;
+        }
+
+        protected _parseAnimationFrame(rawData: any, frameStart: number, frameCount: number): number {
+            const frameOffset = this._parseTweenFrame(rawData, frameStart, frameCount);
+
+            let frameIntOffset = this._frameIntArray.length;
+            this._frameIntArray.length += 2;
+            this._frameIntArray[frameIntOffset++] = ObjectDataParser._getNumber(rawData, DataParser.VALUE, 0);
             this._frameIntArray[frameIntOffset++] = Math.round(ObjectDataParser._getNumber(rawData, DataParser.WEIGHT, 1.0) * 100.0);
 
             return frameOffset;

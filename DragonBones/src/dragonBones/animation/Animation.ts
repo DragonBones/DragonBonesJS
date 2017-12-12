@@ -93,6 +93,10 @@ namespace dragonBones {
             switch (animationConfig.fadeOutMode) {
                 case AnimationFadeOutMode.SameLayer:
                     for (const animationState of this._animationStates) {
+                        if (animationState._parent !== null) {
+                            continue;
+                        }
+
                         if (animationState.layer === animationConfig.layer) {
                             animationState.fadeOut(animationConfig.fadeOutTime, animationConfig.pauseFadeOut);
                         }
@@ -101,6 +105,10 @@ namespace dragonBones {
 
                 case AnimationFadeOutMode.SameGroup:
                     for (const animationState of this._animationStates) {
+                        if (animationState._parent !== null) {
+                            continue;
+                        }
+
                         if (animationState.group === animationConfig.group) {
                             animationState.fadeOut(animationConfig.fadeOutTime, animationConfig.pauseFadeOut);
                         }
@@ -109,6 +117,10 @@ namespace dragonBones {
 
                 case AnimationFadeOutMode.SameLayerAndGroup:
                     for (const animationState of this._animationStates) {
+                        if (animationState._parent !== null) {
+                            continue;
+                        }
+
                         if (
                             animationState.layer === animationConfig.layer &&
                             animationState.group === animationConfig.group
@@ -120,6 +132,10 @@ namespace dragonBones {
 
                 case AnimationFadeOutMode.All:
                     for (const animationState of this._animationStates) {
+                        if (animationState._parent !== null) {
+                            continue;
+                        }
+
                         animationState.fadeOut(animationConfig.fadeOutTime, animationConfig.pauseFadeOut);
                     }
                     break;
@@ -398,8 +414,17 @@ namespace dragonBones {
                 }
             }
 
+            for (let k in animationData.animationTimelines) {
+                const childAnimatiionState = this.fadeIn(k, animationConfig.fadeInTime, 1, 0, null, AnimationFadeOutMode.None);
+                if (childAnimatiionState !== null) {
+                    childAnimatiionState._parent = animationState;
+                    childAnimatiionState.resetToPose = false;
+                    childAnimatiionState.stop();
+                }
+            }
+
             if (animationConfig.fadeInTime <= 0.0) { // Blend animation state, update armature.
-                this._armature.advanceTime(0.0);
+                // this._armature.advanceTime(0.0);
             }
 
             this._lastAnimationState = animationState;

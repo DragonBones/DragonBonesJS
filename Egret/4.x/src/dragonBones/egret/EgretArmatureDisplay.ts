@@ -581,7 +581,7 @@ namespace dragonBones {
 
                     for (const slot of this._armature.getSlots()) {
                         const display = slot.display;
-                        if (!display || !display.$renderNode) {
+                        if (!display || !display.$renderNode || !display.$renderNode.image) {
                             continue;
                         }
 

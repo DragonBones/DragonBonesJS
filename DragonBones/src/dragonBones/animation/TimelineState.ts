@@ -774,7 +774,7 @@ namespace dragonBones {
                 let colorOffset = frameIntArray[valueOffset];
 
                 if (colorOffset < 0) {
-                    colorOffset += 32767; // Fixed out of bouds bug. 
+                    colorOffset += 65536; // Fixed out of bouds bug. 
                 }
 
                 this._current[0] = intArray[colorOffset++];
@@ -795,7 +795,7 @@ namespace dragonBones {
                     }
 
                     if (colorOffset < 0) {
-                        colorOffset += 32767; // Fixed out of bouds bug. 
+                        colorOffset += 65536; // Fixed out of bouds bug. 
                     }
 
                     this._delta[0] = intArray[colorOffset++] - this._current[0];
@@ -988,6 +988,11 @@ namespace dragonBones {
             if (this._timelineData !== null) {
                 const frameIntOffset = this._animationData.frameIntOffset + this._timelineArray[this._timelineData.offset + BinaryOffset.TimelineFrameValueCount];
                 this.meshOffset = this._frameIntArray[frameIntOffset + BinaryOffset.DeformMeshOffset];
+
+                if (this.meshOffset < 0) {
+                    this.meshOffset += 65536; // Fixed out of bouds bug. 
+                }
+
                 this._deformCount = this._frameIntArray[frameIntOffset + BinaryOffset.DeformCount];
                 this._valueCount = this._frameIntArray[frameIntOffset + BinaryOffset.DeformValueCount];
                 this._valueOffset = this._frameIntArray[frameIntOffset + BinaryOffset.DeformValueOffset];
@@ -1125,6 +1130,8 @@ namespace dragonBones {
             const ikConstraint = this.constraint as IKConstraint;
             ikConstraint._weight = this._current + this._delta * this._tweenProgress;
             ikConstraint.invalidUpdate();
+
+            // TODO fade update.
         }
     }
     /**
@@ -1162,7 +1169,7 @@ namespace dragonBones {
 
             if (this._tweenState === TweenState.Always) {
                 if (this._frameIndex === this._frameCount - 1) {
-                    valueOffset = this._animationData.frameFloatOffset + this._frameValueOffset; // + 0 * 2
+                    valueOffset = this._animationData.frameIntOffset + this._frameValueOffset; // + 0 * 2
                 }
 
                 this._floats[1] = frameIntArray[valueOffset++] * frameRateR - this._floats[0];
@@ -1189,16 +1196,16 @@ namespace dragonBones {
         }
 
         public blend(state: number): void {
-            const animationnState = this.animationState;
-            const blendWeight = animationnState._blendState.blendWeight;
+            const animationState = this.animationState;
+            const blendWeight = animationState._blendState.blendWeight;
 
             if (state > 0) {
-                animationnState.currentTime = this._floats[2] * blendWeight;
-                animationnState.weight += this._floats[5] * blendWeight;
+                animationState.weight += this._floats[5] * blendWeight;
+                animationState.currentTime += this._floats[2] * blendWeight;
             }
             else {
-                animationnState.currentTime = this._floats[2] * blendWeight;
                 animationState.weight = this._floats[5] * blendWeight;
+                animationState.currentTime = this._floats[2] * blendWeight;
             }
         }
     }
