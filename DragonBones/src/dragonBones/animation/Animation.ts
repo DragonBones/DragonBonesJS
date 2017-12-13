@@ -53,6 +53,7 @@ namespace dragonBones {
          */
         public timeScale: number;
 
+        private _lockUpdate: boolean;
         private _animationDirty: boolean; // Update bones and slots cachedFrameIndices.
         private _inheritTimeScale: number;
         private readonly _animationNames: Array<string> = [];
@@ -79,6 +80,7 @@ namespace dragonBones {
 
             this.timeScale = 1.0;
 
+            this._lockUpdate = false;
             this._animationDirty = false;
             this._inheritTimeScale = 1.0;
             this._animationNames.length = 0;
@@ -414,20 +416,32 @@ namespace dragonBones {
                 }
             }
 
+            let isLocked = false;
             for (let k in animationData.animationTimelines) {
-                const childAnimatiionState = this.fadeIn(k, animationConfig.fadeInTime, 1, 0, null, AnimationFadeOutMode.None);
+                if (!this._lockUpdate) {
+                    isLocked = true;
+                    this._lockUpdate = true;
+                }
+
+                const childAnimatiionState = this.fadeIn(k, animationConfig.fadeInTime, 1, animationState.layer, null, AnimationFadeOutMode.None);
                 if (childAnimatiionState !== null) {
-                    childAnimatiionState._parent = animationState;
                     childAnimatiionState.resetToPose = false;
+                    childAnimatiionState._parent = animationState;
                     childAnimatiionState.stop();
                 }
             }
 
-            if (animationConfig.fadeInTime <= 0.0) { // Blend animation state, update armature.
-                // this._armature.advanceTime(0.0);
+            if (isLocked) {
+                this._lockUpdate = false;
             }
 
-            this._lastAnimationState = animationState;
+            if (!this._lockUpdate) {
+                if (animationConfig.fadeInTime <= 0.0) { // Blend animation state, update armature.
+                    this._armature.advanceTime(0.0);
+                }
+
+                this._lastAnimationState = animationState;
+            }
 
             return animationState;
         }

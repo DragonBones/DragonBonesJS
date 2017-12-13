@@ -999,7 +999,7 @@ namespace dragonBones {
                 this._frameFloatOffset = this._frameIntArray[frameIntOffset + BinaryOffset.DeformFloatOffset] + this._animationData.frameFloatOffset;
             }
             else {
-                this._deformCount = this.slot._ffdVertices.length;
+                this._deformCount = this.slot._deformVertices.length;
                 this._valueCount = this._deformCount;
                 this._valueOffset = 0;
                 this._frameFloatOffset = 0;
@@ -1028,7 +1028,7 @@ namespace dragonBones {
 
             // Fade animation.
             if (this._tweenState !== TweenState.None || this._dirty) {
-                const result = this.slot._ffdVertices;
+                const result = this.slot._deformVertices;
 
                 if (this._animationState._fadeState !== 0 || this._animationState._subFadeState !== 0) {
                     const fadeProgress = Math.pow(this._animationState._fadeProgress, 2);

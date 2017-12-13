@@ -94,14 +94,16 @@ namespace dragonBones {
      * @internal
      * @private
      */
-    export class MeshDisplayData extends ImageDisplayData {
+    export class MeshDisplayData extends DisplayData {
         public static toString(): string {
             return "[class dragonBones.MeshDisplayData]";
         }
 
-        public inheritAnimation: boolean;
+        public inheritDeform: boolean;
         public offset: number; // IntArray.
         public weight: WeightData | null = null; // Initial value.
+        public glue: GlueData | null = null; // Initial value.
+        public texture: TextureData | null;
 
         protected _onClear(): void {
             super._onClear();
@@ -110,10 +112,16 @@ namespace dragonBones {
                 this.weight.returnToPool();
             }
 
+            if (this.glue !== null) {
+                this.glue.returnToPool();
+            }
+
             this.type = DisplayType.Mesh;
-            this.inheritAnimation = false;
+            this.inheritDeform = false;
             this.offset = 0;
             this.weight = null;
+            this.glue = null;
+            this.texture = null;
         }
     }
     /**
@@ -159,6 +167,27 @@ namespace dragonBones {
 
         public addBone(value: BoneData): void {
             this.bones.push(value);
+        }
+    }
+    /**
+     * @internal
+     * @private
+     */
+    export class GlueData extends BaseObject {
+        public static toString(): string {
+            return "[class dragonBones.GlueData]";
+        }
+
+        public readonly weights: Array<number>;
+        public readonly meshs: Array<MeshDisplayData | null> = [];
+
+        protected _onClear(): void {
+            this.weights.length = 0;
+            this.meshs.length = 0;
+        }
+
+        public addMesh(value: MeshDisplayData | null): void {
+            this.meshs.push(value);
         }
     }
 }

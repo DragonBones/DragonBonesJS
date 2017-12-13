@@ -151,6 +151,8 @@ namespace dragonBones {
         protected static readonly WEIGHTS: string = "weights";
         protected static readonly SLOT_POSE: string = "slotPose";
         protected static readonly BONE_POSE: string = "bonePose";
+        protected static readonly GLUE_WEIGHTS: string = "glueWeights";
+        protected static readonly GLUE_MESHES: string = "glueMeshes";
 
         protected static readonly GOTO_AND_PLAY: string = "gotoAndPlay";
 

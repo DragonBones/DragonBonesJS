@@ -767,6 +767,7 @@ namespace dragonBones {
                 this._time += passedTime;
             }
 
+            // Update timeline.
             if (this._timelineDirty !== 0) {
                 if (this._timelineDirty === 2) {
                     this._updateTimelines();
@@ -785,6 +786,10 @@ namespace dragonBones {
             let isUpdateBoneTimeline = true;
             let time = this._time;
             this._weightResult = this.weight * this._fadeProgress;
+
+            if (this._parent !== null) {
+                this._weightResult *= this._parent._weightResult / this._parent._fadeProgress;
+            }
 
             if (this._actionTimeline.playState <= 0) {
                 this._actionTimeline.update(time); // Update main timeline.

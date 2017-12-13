@@ -308,6 +308,7 @@ namespace dragonBones {
                         }
 
                         const uvOffset = vertexOffset + vertexCount * 2;
+                        const scale = this._armature._armatureData.scale;
 
                         const meshDisplay = this._renderDisplay as egret.Mesh;
                         const meshNode = meshDisplay.$renderNode as egret.sys.MeshNode;
@@ -317,7 +318,7 @@ namespace dragonBones {
                         meshNode.indices.length = triangleCount * 3;
 
                         for (let i = 0, l = vertexCount * 2; i < l; ++i) {
-                            meshNode.vertices[i] = floatArray[vertexOffset + i];
+                            meshNode.vertices[i] = floatArray[vertexOffset + i] * scale;
                             meshNode.uvs[i] = floatArray[uvOffset + i];
                         }
 
@@ -450,9 +451,9 @@ namespace dragonBones {
          * @inheritDoc
          */
         protected _updateMesh(): void {
-            const hasFFD = this._ffdVertices.length > 0;
             const scale = this._armature._armatureData.scale;
             const meshData = this._meshData as MeshDisplayData;
+            const hasDeform = this._deformVertices.length > 0 && meshData.inheritDeform;
             const weight = meshData.weight;
             const meshDisplay = this._renderDisplay as egret.Mesh;
             const meshNode = meshDisplay.$renderNode as egret.sys.MeshNode;
@@ -475,18 +476,20 @@ namespace dragonBones {
                 ) {
                     const boneCount = intArray[iB++];
                     let xG = 0.0, yG = 0.0;
+
                     for (let j = 0; j < boneCount; ++j) {
                         const boneIndex = intArray[iB++];
                         const bone = this._meshBones[boneIndex];
+
                         if (bone !== null) {
                             const matrix = bone.globalTransformMatrix;
                             const weight = floatArray[iV++];
                             let xL = floatArray[iV++] * scale;
                             let yL = floatArray[iV++] * scale;
 
-                            if (hasFFD) {
-                                xL += this._ffdVertices[iF++];
-                                yL += this._ffdVertices[iF++];
+                            if (hasDeform) {
+                                xL += this._deformVertices[iF++];
+                                yL += this._deformVertices[iF++];
                             }
 
                             xG += (matrix.a * xL + matrix.c * yL + matrix.tx) * weight;
@@ -504,23 +507,24 @@ namespace dragonBones {
                     meshDisplay.$invalidateTransform();
                 }
             }
-            else if (hasFFD) {
+            else if (hasDeform) {
                 const isSurface = this._parent._boneData.type !== BoneType.Bone;
+                const isGlue = meshData.glue !== null;
                 const data = meshData.parent.parent.parent;
                 const intArray = data.intArray;
                 const floatArray = data.floatArray;
                 const vertexCount = intArray[meshData.offset + BinaryOffset.MeshVertexCount];
                 let vertexOffset = intArray[meshData.offset + BinaryOffset.MeshFloatOffset];
-                
+
                 if (vertexOffset < 0) {
                     vertexOffset += 65536; // Fixed out of bouds bug. 
                 }
 
                 for (let i = 0, l = vertexCount * 2; i < l; i += 2) {
-                    const x = floatArray[vertexOffset + i] * scale + this._ffdVertices[i];
-                    const y = floatArray[vertexOffset + i + 1] * scale + this._ffdVertices[i + 1];
+                    const x = floatArray[vertexOffset + i] * scale + this._deformVertices[i];
+                    const y = floatArray[vertexOffset + i + 1] * scale + this._deformVertices[i + 1];
 
-                    if (isSurface) {
+                    if (isSurface || isGlue) {
                         const matrix = (this._parent as Surface)._getGlobalTransformMatrix(x, y);
                         meshNode.vertices[i] = matrix.a * x + matrix.c * y + matrix.tx;
                         meshNode.vertices[i + 1] = matrix.b * x + matrix.d * y + matrix.ty;
@@ -540,6 +544,51 @@ namespace dragonBones {
 
             if (this._armatureDisplay._batchEnabled) {
                 this._armatureDisplay._childDirty = true;
+            }
+        }
+        /**
+         * @inheritDoc
+         */
+        public _updateGlueMesh(): void {
+            const glue = (this._meshData as MeshDisplayData).glue as GlueData;
+            const weights = glue.weights;
+            const meshes = glue.meshes;
+            const meshDisplay = this._renderDisplay as egret.Mesh;
+            const vertices = (meshDisplay.$renderNode as egret.sys.MeshNode).vertices;
+
+            for (let i = 0, l = weights.length;
+                i < l;
+                ++i
+            ) {
+                const iV = weights[i];
+                const meshCount = weights[i++];
+                let totalWeight = 1.0;
+                let x = 0.0;
+                let y = 0.0;
+
+                for (let j = 0; j < meshCount; ++j) {
+                    const iM = weights[i++];
+                    const iMV = weights[i++] * 2;
+                    const weight = weights[i++];
+                    const slot = this._meshSlots[iM];
+                    const mesh = meshes[iM];
+                    totalWeight -= weight;
+
+                    if (slot !== null && mesh !== null && slot._meshData !== null && slot._meshData.offset === mesh.offset) {
+                        const glueVertices = ((slot.display as egret.Mesh).$renderNode as egret.sys.MeshNode).vertices;
+                        x += glueVertices[iMV] * weight;
+                        y += glueVertices[iMV + 1] * weight;
+                    }
+                }
+
+                vertices[iV] = x + vertices[iV] * totalWeight;
+                vertices[iV + 1] = y + vertices[iV + 1] * totalWeight;
+            }
+
+            meshDisplay.$updateVertices();
+
+            if (!EgretFactory._isV5) {
+                meshDisplay.$invalidateTransform();
             }
         }
         /**

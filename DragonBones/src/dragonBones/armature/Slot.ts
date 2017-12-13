@@ -143,7 +143,7 @@ namespace dragonBones {
          * @internal
          * @private
          */
-        public readonly _ffdVertices: Array<number> = [];
+        public readonly _deformVertices: Array<number> = [];
         /**
          * @private
          */
@@ -156,6 +156,10 @@ namespace dragonBones {
          * @private
          */
         protected readonly _meshBones: Array<Bone | null> = [];
+        /**
+         * @private
+         */
+        protected readonly _meshSlots: Array<Slot | null> = [];
         /**
          * @internal
          * @private
@@ -254,10 +258,11 @@ namespace dragonBones {
             this._pivotY = 0.0;
             this._localMatrix.identity();
             this._colorTransform.identity();
-            this._ffdVertices.length = 0;
+            this._deformVertices.length = 0;
             this._displayList.length = 0;
             this._displayDatas.length = 0;
             this._meshBones.length = 0;
+            this._meshSlots.length = 0;
             this._slotData = null as any; //
             this._rawDisplayDatas = null;
             this._displayData = null;
@@ -319,6 +324,11 @@ namespace dragonBones {
          */
         protected abstract _updateMesh(): void;
         /**
+         * @internal
+         * @private
+         */
+        public abstract _updateGlueMesh(): void;
+        /**
          * @private
          */
         protected abstract _updateTransform(): void;
@@ -370,14 +380,16 @@ namespace dragonBones {
             // Update texture and mesh data.
             if (this._displayData !== null) {
                 if (this._displayData.type === DisplayType.Image || this._displayData.type === DisplayType.Mesh) {
-                    this._textureData = (this._displayData as ImageDisplayData).texture;
                     if (this._displayData.type === DisplayType.Mesh) {
+                        this._textureData = (this._displayData as MeshDisplayData).texture;
                         this._meshData = this._displayData as MeshDisplayData;
                     }
                     else if (rawDisplayData !== null && rawDisplayData.type === DisplayType.Mesh) {
+                        this._textureData = (this._displayData as ImageDisplayData).texture;
                         this._meshData = rawDisplayData as MeshDisplayData;
                     }
                     else {
+                        this._textureData = (this._displayData as ImageDisplayData).texture;
                         this._meshData = null;
                     }
                 }
@@ -438,38 +450,7 @@ namespace dragonBones {
                     this._pivotY = 0.0;
                 }
 
-                // Update mesh bones and ffd vertices.
-                if (this._meshData !== prevMeshData) {
-                    if (this._meshData !== null) { // && this._meshData === this._displayData
-                        if (this._meshData.weight !== null) {
-                            this._ffdVertices.length = this._meshData.weight.count * 2;
-                            this._meshBones.length = this._meshData.weight.bones.length;
-
-                            for (let i = 0, l = this._meshBones.length; i < l; ++i) {
-                                this._meshBones[i] = this._armature.getBone(this._meshData.weight.bones[i].name);
-                            }
-                        }
-                        else {
-                            const vertexCount = this._meshData.parent.parent.parent.intArray[this._meshData.offset + BinaryOffset.MeshVertexCount];
-                            this._ffdVertices.length = vertexCount * 2;
-                            this._meshBones.length = 0;
-                        }
-
-                        for (let i = 0, l = this._ffdVertices.length; i < l; ++i) {
-                            this._ffdVertices[i] = 0.0;
-                        }
-
-                        this._meshDirty = true;
-                    }
-                    else {
-                        this._ffdVertices.length = 0;
-                        this._meshBones.length = 0;
-                    }
-                }
-                else if (this._meshData !== null && this._textureData !== prevTextureData) { // Update mesh after update frame.
-                    this._meshDirty = true;
-                }
-
+                // Update replace pivot.
                 if (this._displayData !== null && rawDisplayData !== null && this._displayData !== rawDisplayData && this._meshData === null) {
                     if (rawDisplayData.type === DisplayType.Image) {
                         (rawDisplayData as ImageDisplayData).transform.toMatrix(Slot._helpMatrix);
@@ -497,6 +478,88 @@ namespace dragonBones {
                 }
                 else {
                     this.origin = null;
+                }
+
+                // Update mesh bones and deform vertices.
+                if (this._meshData !== prevMeshData) {
+                    if (this._meshData !== null) { // && this._meshData === this._displayData
+                        // Update skined mesh.
+                        if (this._meshData.weight !== null) {
+                            this._deformVertices.length = this._meshData.weight.count * 2;
+                            this._meshBones.length = this._meshData.weight.bones.length;
+
+                            for (let i = 0, l = this._meshBones.length; i < l; ++i) {
+                                this._meshBones[i] = this._armature.getBone(this._meshData.weight.bones[i].name);
+                            }
+                        }
+                        else {
+                            const vertexCount = this._meshData.parent.parent.parent.intArray[this._meshData.offset + BinaryOffset.MeshVertexCount];
+                            this._deformVertices.length = vertexCount * 2;
+                            this._meshBones.length = 0;
+                        }
+
+                        // Update glue mesh.
+                        const armatureGlueSlots = this._armature._glueSlots;
+                        if (this._meshData.glue !== null) {
+                            this._meshSlots.length = this._meshData.glue.meshes.length;
+
+                            for (let i = 0, l = this._meshSlots.length; i < l; ++i) {
+                                const mesh = this._meshData.glue.meshes[i];
+                                if (mesh !== null) {
+                                    let flag = false;
+                                    for (const slot of this._armature.getSlots()) {
+                                        for (const displayData of slot._displayDatas) {
+                                            if (
+                                                displayData !== null &&
+                                                displayData.type === DisplayType.Mesh &&
+                                                (displayData as MeshDisplayData).offset === mesh.offset
+                                            ) {
+                                                flag = true;
+                                                this._meshSlots[i] = slot;
+                                                break;
+                                            }
+                                        }
+
+                                        if (flag) {
+                                            break;
+                                        }
+                                    }
+
+                                    if (!flag) {
+                                        this._meshSlots[i] = null;
+                                    }
+                                }
+                                else {
+                                    this._meshSlots[i] = null;
+                                }
+                            }
+
+                            if (armatureGlueSlots.indexOf(this) < 0) {
+                                armatureGlueSlots.push(this);
+                            }
+                        }
+                        else {
+                            const index = armatureGlueSlots.indexOf(this);
+                            if (index >= 0) {
+                                armatureGlueSlots.slice(index, 1);
+                            }
+                        }
+
+                        // Clear deform to zero.
+                        for (let i = 0, l = this._deformVertices.length; i < l; ++i) {
+                            this._deformVertices[i] = 0.0;
+                        }
+
+                        this._meshDirty = true;
+                    }
+                    else {
+                        this._deformVertices.length = 0;
+                        this._meshBones.length = 0;
+                        this._meshSlots.length = 0;
+                    }
+                }
+                else if (this._meshData !== null && this._textureData !== prevTextureData) { // Update mesh after update frame.
+                    this._meshDirty = true;
                 }
 
                 this._displayDirty = true;
@@ -826,17 +889,19 @@ namespace dragonBones {
             if (this._meshData !== null && this._display === this._meshDisplay) {
                 const isSkinned = this._meshData.weight !== null;
                 const isSurface = this._parent._boneData.type !== BoneType.Bone;
+                const isGule = this._meshData.glue !== null;
 
                 if (
                     this._meshDirty ||
                     (isSkinned && this._isMeshBonesUpdate()) ||
-                    (isSurface && this._parent._childrenTransformDirty)
+                    (isSurface && this._parent._childrenTransformDirty) ||
+                    (isGule && this._parent._childrenTransformDirty) // TODO
                 ) {
                     this._meshDirty = false;
                     this._updateMesh();
                 }
 
-                if (isSkinned || isSurface) {
+                if (isSkinned || isSurface || isGule) {
                     return;
                 }
             }
