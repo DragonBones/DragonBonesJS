@@ -123,7 +123,7 @@ namespace dragonBones {
                         this.currentTime = 0.0;
                     }
                     else {
-                        this.currentTime = this._duration;
+                        this.currentTime = this._duration + 0.000001; // Precision problem
                     }
                 }
                 else {

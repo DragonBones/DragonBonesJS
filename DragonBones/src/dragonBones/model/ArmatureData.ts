@@ -460,6 +460,18 @@ namespace dragonBones {
             return name in this.skins ? this.skins[name] : null;
         }
         /**
+         * @internal
+         * @private
+         */
+        public getMesh(skinName: string, slotName: string, meshName: string): MeshDisplayData | null {
+            const skin = this.getSkin(skinName);
+            if (skin === null) {
+                return null;
+            }
+
+            return skin.getDisplay(slotName, meshName) as MeshDisplayData | null;
+        }
+        /**
          * - Get a specific animation data.
          * @param name - The animation name.
          * @version DragonBones 3.0

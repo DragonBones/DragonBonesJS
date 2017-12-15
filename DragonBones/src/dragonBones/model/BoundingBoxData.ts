@@ -297,10 +297,6 @@ namespace dragonBones {
             return intersectionCount;
         }
         /**
-         * @private
-         */
-        public readonly transform: Transform = new Transform();
-        /**
          * @inheritDoc
          * @private
          */
@@ -308,7 +304,6 @@ namespace dragonBones {
             super._onClear();
 
             this.type = BoundingBoxType.Rectangle;
-            this.transform.identity();
         }
         /**
          * @inheritDoc
@@ -465,10 +460,6 @@ namespace dragonBones {
             return intersectionCount;
         }
         /**
-         * @private
-         */
-        public readonly transform: Transform = new Transform();
-        /**
          * @inheritDoc
          * @private
          */
@@ -476,7 +467,6 @@ namespace dragonBones {
             super._onClear();
 
             this.type = BoundingBoxType.Ellipse;
-            this.transform.identity();
         }
         /**
          * @inheritDoc

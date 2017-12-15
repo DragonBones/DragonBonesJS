@@ -30,10 +30,12 @@ namespace dragonBones {
         public name: string;
         public path: string;
         public parent: SkinData;
+        public readonly transform: Transform = new Transform();
 
         protected _onClear(): void {
             this.name = "";
             this.path = "";
+            this.transform.identity();
             this.parent = null as any; //
         }
     }
@@ -47,7 +49,6 @@ namespace dragonBones {
         }
 
         public readonly pivot: Point = new Point();
-        public readonly transform: Transform = new Transform();
         public texture: TextureData | null;
 
         protected _onClear(): void {
@@ -179,15 +180,15 @@ namespace dragonBones {
         }
 
         public readonly weights: Array<number>;
-        public readonly meshs: Array<MeshDisplayData | null> = [];
+        public readonly meshes: Array<MeshDisplayData | null> = [];
 
         protected _onClear(): void {
             this.weights.length = 0;
-            this.meshs.length = 0;
+            this.meshes.length = 0;
         }
 
         public addMesh(value: MeshDisplayData | null): void {
-            this.meshs.push(value);
+            this.meshes.push(value);
         }
     }
 }

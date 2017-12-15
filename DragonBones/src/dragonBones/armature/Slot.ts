@@ -362,7 +362,6 @@ namespace dragonBones {
             if (this._displayIndex >= 0) {
                 if (this._rawDisplayDatas !== null) {
                     rawDisplayData = this._displayIndex < this._rawDisplayDatas.length ? this._rawDisplayDatas[this._displayIndex] : null;
-
                     if (rawDisplayData === null) {
                         rawDisplayData = this._getDefaultRawDisplayData();
                     }
@@ -452,29 +451,25 @@ namespace dragonBones {
 
                 // Update replace pivot.
                 if (this._displayData !== null && rawDisplayData !== null && this._displayData !== rawDisplayData && this._meshData === null) {
-                    if (rawDisplayData.type === DisplayType.Image) {
-                        (rawDisplayData as ImageDisplayData).transform.toMatrix(Slot._helpMatrix);
-                        Slot._helpMatrix.invert();
-                        Slot._helpMatrix.transformPoint(0.0, 0.0, Slot._helpPoint);
-                        this._pivotX -= Slot._helpPoint.x;
-                        this._pivotY -= Slot._helpPoint.y;
-                    }
+                    rawDisplayData.transform.toMatrix(Slot._helpMatrix);
+                    Slot._helpMatrix.invert();
+                    Slot._helpMatrix.transformPoint(0.0, 0.0, Slot._helpPoint);
+                    this._pivotX -= Slot._helpPoint.x;
+                    this._pivotY -= Slot._helpPoint.y;
 
-                    if (this._displayData.type === DisplayType.Image) {
-                        (this._displayData as ImageDisplayData).transform.toMatrix(Slot._helpMatrix);
-                        Slot._helpMatrix.invert();
-                        Slot._helpMatrix.transformPoint(0.0, 0.0, Slot._helpPoint);
-                        this._pivotX += Slot._helpPoint.x;
-                        this._pivotY += Slot._helpPoint.y;
-                    }
+                    this._displayData.transform.toMatrix(Slot._helpMatrix);
+                    Slot._helpMatrix.invert();
+                    Slot._helpMatrix.transformPoint(0.0, 0.0, Slot._helpPoint);
+                    this._pivotX += Slot._helpPoint.x;
+                    this._pivotY += Slot._helpPoint.y;
                 }
 
                 // Update original transform.
-                if (rawDisplayData !== null && rawDisplayData.type === DisplayType.Image) {
-                    this.origin = (rawDisplayData as ImageDisplayData).transform;
+                if (rawDisplayData !== null) { // Compatible.
+                    this.origin = rawDisplayData.transform;
                 }
-                else if (this._displayData !== null && this._displayData.type === DisplayType.Image) {
-                    this.origin = (this._displayData as ImageDisplayData).transform;
+                else if (this._displayData !== null) { // Compatible.
+                    this.origin = this._displayData.transform;
                 }
                 else {
                     this.origin = null;
