@@ -1,4 +1,4 @@
-class PerformanceTest extends BaseTest {
+class PerformanceTest extends BaseDemo {
     private _addingArmature: boolean = false;
     private _removingArmature: boolean = false;
     private readonly _armatures: Array<dragonBones.EgretArmatureDisplay> = [];

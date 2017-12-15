@@ -1,17 +1,17 @@
-abstract class BaseTest extends egret.DisplayObjectContainer {
+abstract class BaseDemo extends egret.DisplayObjectContainer {
+    private static BACKGROUND_URL: string = "resource/background.png";
     protected _loadCount: number = 0;
-    protected readonly _background: egret.Shape = new egret.Shape();
+    protected readonly _background: egret.Bitmap = new egret.Bitmap();
     protected readonly _resources: string[] = [];
     protected readonly _resourceMap: any = {};
 
     public constructor() {
         super();
 
+        this._resources.push(BaseDemo.BACKGROUND_URL);
         this.addEventListener(egret.Event.ADDED_TO_STAGE, () => {
-            this._background.graphics.beginFill(0x666666);
-            this._background.graphics.drawRect(0.0, 0.0, this.stage.stageWidth, this.stage.stageHeight);
-            this.addChild(this._background);
-
+            this.x = this.stageWidth * 0.5;
+            this.y = this.stageHeight * 0.5;
             this._loadResources();
         }, this);
     }
@@ -31,6 +31,12 @@ abstract class BaseTest extends egret.DisplayObjectContainer {
                         RES.getRes = (name: string) => { // Modify res bug.
                             return this._resourceMap[name];
                         };
+                        //
+                        this._background.texture = RES.getRes(BaseDemo.BACKGROUND_URL);
+                        this._background.x = -this._background.texture.textureWidth * 0.5;
+                        this._background.y = -this._background.texture.textureHeight * 0.5;
+                        this.addChild(this._background);
+                        //
                         this._onStart();
                     }
                 },
@@ -45,8 +51,8 @@ abstract class BaseTest extends egret.DisplayObjectContainer {
         text.textAlign = egret.HorizontalAlign.CENTER;
         text.text = string;
         text.width = this.stageWidth;
-        text.x = 0;
-        text.y = this.stageHeight - 60;
+        text.x = -this.stageWidth * 0.5;
+        text.y = this.stageHeight * 0.5 - 100;
         this.addChild(text);
 
         return text;

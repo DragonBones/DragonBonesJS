@@ -1,4 +1,4 @@
-class SetBoneOffset extends BaseTest {
+class SetBoneOffset extends BaseDemo {
     public constructor() {
         super();
 

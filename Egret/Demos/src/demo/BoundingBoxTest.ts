@@ -1,4 +1,4 @@
-class BoundingBoxTest extends BaseTest {
+class BoundingBoxTest extends BaseDemo {
     private readonly _helpPointA: egret.Point = new egret.Point();
     private readonly _helpPointB: egret.Point = new egret.Point();
     private readonly _helpPointC: egret.Point = new egret.Point();

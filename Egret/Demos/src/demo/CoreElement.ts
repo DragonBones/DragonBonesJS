@@ -3,7 +3,7 @@ namespace coreElement {
     type ArmatureDisplayType = dragonBones.EgretArmatureDisplay;
     type EventType = dragonBones.EgretEvent;
 
-    export class Game extends BaseTest {
+    export class Game extends BaseDemo {
         public static GROUND: number;
         public static G: number = 0.6;
         public static instance: Game;

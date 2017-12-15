@@ -1,27 +1,26 @@
-class AnimationBaseTest extends BaseTest {
+class AnimationBase extends BaseDemo {
     private _armatureDisplay: dragonBones.EgretArmatureDisplay;
 
     public constructor() {
         super();
 
         this._resources.push(
-            "resource/assets/animation_base_test_ske.json",
-            "resource/assets/animation_base_test_tex.json",
-            "resource/assets/animation_base_test_tex.png"
+            "resource/progress_bar/progress_bar_ske.json",
+            "resource/progress_bar/progress_bar_tex.json",
+            "resource/progress_bar/progress_bar_tex.png"
         );
     }
 
     protected _onStart(): void {
         const factory = dragonBones.EgretFactory.factory;
-        factory.parseDragonBonesData(RES.getRes("resource/assets/animation_base_test_ske.json"));
-        factory.parseTextureAtlasData(RES.getRes("resource/assets/animation_base_test_tex.json"), RES.getRes("resource/assets/animation_base_test_tex.png"));
+        factory.parseDragonBonesData(RES.getRes("resource/progress_bar/progress_bar_ske.json"));
+        factory.parseTextureAtlasData(RES.getRes("resource/progress_bar/progress_bar_tex.json"), RES.getRes("resource/progress_bar/progress_bar_tex.png"));
         //
-        this._armatureDisplay = factory.buildArmatureDisplay("progressBar");
-        this._armatureDisplay.x = this.stageWidth * 0.5;
-        this._armatureDisplay.y = this.stageHeight * 0.5;
-        this._armatureDisplay.scaleX = this._armatureDisplay.scaleY = this.stageWidth >= 300 ? 1 : this.stageWidth / 330;
+        this._armatureDisplay = factory.buildArmatureDisplay("progress_bar");
+        this._armatureDisplay.x = 0.0;
+        this._armatureDisplay.y = 0.0;
         this.addChild(this._armatureDisplay);
-        // Test animation event
+        // Add animation event listener.
         this._armatureDisplay.addEventListener(dragonBones.EventObject.START, this._animationEventHandler, this);
         this._armatureDisplay.addEventListener(dragonBones.EventObject.LOOP_COMPLETE, this._animationEventHandler, this);
         this._armatureDisplay.addEventListener(dragonBones.EventObject.COMPLETE, this._animationEventHandler, this);
@@ -31,24 +30,7 @@ class AnimationBaseTest extends BaseTest {
         this._armatureDisplay.addEventListener(dragonBones.EventObject.FADE_OUT_COMPLETE, this._animationEventHandler, this);
         this._armatureDisplay.addEventListener(dragonBones.EventObject.FRAME_EVENT, this._animationEventHandler, this);
         this._armatureDisplay.animation.play("idle");
-
-        // Test animation config.
-        // const animaitonConfig = this._armatureDisplay.animation.animationConfig;
-        // animaitonConfig.name = "test"; // Animation state name.
-        // animaitonConfig.animation = "idle"; // Animation name.
-
-        // animaitonConfig.playTimes = 1; // Play one time.
-        // animaitonConfig.playTimes = 3; // Play several times.
-        // animaitonConfig.playTimes = 0; // Loop play.
-
-        // animaitonConfig.timeScale = 1.0; // Play speed.
-        // animaitonConfig.timeScale = -1.0; // Reverse play.
-
-        // animaitonConfig.position = 1.0; // Goto and play.
-        // animaitonConfig.duration = 0.0; // Goto and stop.
-        // animaitonConfig.duration = 3.0; // Interval play.
-        // this._armatureDisplay.animation.playConfig(animaitonConfig);
-        //            
+        //
         this.stage.addEventListener(egret.TouchEvent.TOUCH_BEGIN, this._touchHandler, this);
         this.stage.addEventListener(egret.TouchEvent.TOUCH_END, this._touchHandler, this);
         this.stage.addEventListener(egret.TouchEvent.TOUCH_MOVE, this._touchHandler, this);
@@ -57,7 +39,7 @@ class AnimationBaseTest extends BaseTest {
     }
 
     private _touchHandler(event: egret.TouchEvent): void {
-        const progress = Math.min(Math.max((event.stageX - this._armatureDisplay.x + 300 * this._armatureDisplay.scaleX) / 600 * this._armatureDisplay.scaleX, 0), 1);
+        const progress = Math.min(Math.max((event.stageX - this.x + 300.0) / 600.0, 0.0), 1.0);
         switch (event.type) {
             case egret.TouchEvent.TOUCH_BEGIN:
                 this._armatureDisplay.animation.gotoAndStopByProgress("idle", progress);
@@ -79,6 +61,6 @@ class AnimationBaseTest extends BaseTest {
     }
 
     private _animationEventHandler(event: dragonBones.EgretEvent): void {
-        console.log(event.eventObject.animationState.name, event.type, event.eventObject.name || "");
+        console.log(event.eventObject.animationState.name, event.type, event.eventObject.name);
     }
 }
