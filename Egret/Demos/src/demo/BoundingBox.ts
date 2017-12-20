@@ -1,4 +1,4 @@
-class BoundingBoxTest extends BaseDemo {
+class BoundingBox extends BaseDemo {
     private readonly _helpPointA: egret.Point = new egret.Point();
     private readonly _helpPointB: egret.Point = new egret.Point();
     private readonly _helpPointC: egret.Point = new egret.Point();
@@ -7,58 +7,57 @@ class BoundingBoxTest extends BaseDemo {
     private _boundingBoxTester: dragonBones.EgretArmatureDisplay;
     private _targetA: dragonBones.EgretArmatureDisplay;
     private _targetB: dragonBones.EgretArmatureDisplay;
-    private _line: egret.Bitmap;
-    private _pointA: egret.Bitmap;
-    private _pointB: egret.Bitmap;
+    private _line: dragonBones.Bone;
+    private _pointA: dragonBones.Bone;
+    private _pointB: dragonBones.Bone;
 
     public constructor() {
         super();
 
         this._resources.push(
-            "resource/assets/core_element/mecha_2903_ske.json",
-            "resource/assets/core_element/mecha_2903_tex.json",
-            "resource/assets/core_element/mecha_2903_tex.png",
-            "resource/assets/bounding_box_test_ske.json",
-            "resource/assets/bounding_box_test_tex.json",
-            "resource/assets/bounding_box_test_tex.png"
+            "resource/mecha_2903/mecha_2903_ske.json",
+            "resource/mecha_2903/mecha_2903_tex.json",
+            "resource/mecha_2903/mecha_2903_tex.png",
+            "resource/bounding_box_tester/bounding_box_tester_ske.json",
+            "resource/bounding_box_tester/bounding_box_tester_tex.json",
+            "resource/bounding_box_tester/bounding_box_tester_tex.png"
         );
     }
 
     protected _onStart(): void {
         const factory = dragonBones.EgretFactory.factory;
-        factory.parseDragonBonesData(RES.getRes("resource/assets/core_element/mecha_2903_ske.json"));
-        factory.parseTextureAtlasData(RES.getRes("resource/assets/core_element/mecha_2903_tex.json"), RES.getRes("resource/assets/core_element/mecha_2903_tex.png"));
-        factory.parseDragonBonesData(RES.getRes("resource/assets/bounding_box_test_ske.json"));
-        factory.parseTextureAtlasData(RES.getRes("resource/assets/bounding_box_test_tex.json"), RES.getRes("resource/assets/bounding_box_test_tex.png"));
+        factory.parseDragonBonesData(RES.getRes("resource/mecha_2903/mecha_2903_ske.json"));
+        factory.parseTextureAtlasData(RES.getRes("resource/mecha_2903/mecha_2903_tex.json"), RES.getRes("resource/mecha_2903/mecha_2903_tex.png"));
+        factory.parseDragonBonesData(RES.getRes("resource/bounding_box_tester/bounding_box_tester_ske.json"));
+        factory.parseTextureAtlasData(RES.getRes("resource/bounding_box_tester/bounding_box_tester_tex.json"), RES.getRes("resource/bounding_box_tester/bounding_box_tester_tex.png"));
         //
         this._armatureDisplay = factory.buildArmatureDisplay("mecha_2903d");
         this._boundingBoxTester = factory.buildArmatureDisplay("tester");
         this._targetA = this._boundingBoxTester.armature.getSlot("target_a").display;
         this._targetB = this._boundingBoxTester.armature.getSlot("target_b").display;
-        this._line = this._boundingBoxTester.armature.getSlot("line").display;
-        this._pointA = this._boundingBoxTester.armature.getSlot("point_a").display;
-        this._pointB = this._boundingBoxTester.armature.getSlot("point_b").display;
+        this._line = this._boundingBoxTester.armature.getBone("line");
+        this._pointA = this._boundingBoxTester.armature.getBone("point_a");
+        this._pointB = this._boundingBoxTester.armature.getBone("point_b");
         //
         this._armatureDisplay.debugDraw = true;
-        this._armatureDisplay.x = this.stageWidth * 0.5;
-        this._armatureDisplay.y = this.stageHeight * 0.5;
-        this._boundingBoxTester.x = this.stageWidth * 0.5;
-        this._boundingBoxTester.y = this.stageHeight * 0.5 + 100.0;
+        this._armatureDisplay.x = 0.0;
+        this._armatureDisplay.y = 100.0;
+        this._boundingBoxTester.x = 0.0;
+        this._boundingBoxTester.y = 200.0;
         this._targetA.armature.inheritAnimation = false;
         this._targetB.armature.inheritAnimation = false;
+        this._line.offsetMode = dragonBones.OffsetMode.Override;
+        this._pointA.offsetMode = dragonBones.OffsetMode.Override;
+        this._pointB.offsetMode = dragonBones.OffsetMode.Override;
         this._armatureDisplay.animation.play("walk");
         this._boundingBoxTester.animation.play("0");
-        //
-        this._line.anchorOffsetX = 0;
-        // this._line.anchorOffsetY = 0;
         //
         this.addChild(this._armatureDisplay);
         this.addChild(this._boundingBoxTester);
         this.addEventListener(egret.Event.ENTER_FRAME, this._enterFrameHandler, this);
         //
-        enableDrag(this._targetA);
-        enableDrag(this._targetB);
-        enableDrag(this._boundingBoxTester);
+        DragHelper.getInstance().enableDrag(this._targetA);
+        DragHelper.getInstance().enableDrag(this._targetB);
         //
         this.createText("Drag to move bounding box tester.");
     }
@@ -88,12 +87,15 @@ class BoundingBoxTest extends BaseDemo {
         }
 
         {
-            const dX = this._targetB.x - this._targetA.x;
-            const dY = this._targetB.y - this._targetA.y;
-            this._line.x = this._targetA.x;
-            this._line.y = this._targetA.y;
-            this._line.scaleX = Math.sqrt(dX * dX + dY * dY) / 400.0;
-            this._line.rotation = Math.atan2(dY, dX) * dragonBones.Transform.RAD_DEG;
+            const targetA = this._targetA.armature.parent.parent;
+            const targetB = this._targetB.armature.parent.parent;
+            const dX = targetB.global.x - targetA.global.x;
+            const dY = targetB.global.y - targetA.global.y;
+            this._line.offset.x = targetA.global.x;
+            this._line.offset.y = targetA.global.y;
+            this._line.offset.scaleX = Math.sqrt(dX * dX + dY * dY) / 100.0;
+            this._line.offset.rotation = Math.atan2(dY, dX);
+            this._line.invalidUpdate();
 
             const animationName = intersectsSlots ? "1" : "0";
             if (this._boundingBoxTester.animation.lastAnimationName !== animationName) {
@@ -108,15 +110,14 @@ class BoundingBoxTest extends BaseDemo {
 
                 this._pointA.visible = true;
                 this._pointB.visible = true;
-                this._pointA.x = this._helpPointA.x;
-                this._pointA.y = this._helpPointA.y;
-                this._pointB.x = this._helpPointB.x;
-                this._pointB.y = this._helpPointB.y;
-                this._pointA.rotation = this._helpPointC.x * dragonBones.Transform.RAD_DEG;
-                this._pointB.rotation = this._helpPointC.y * dragonBones.Transform.RAD_DEG;
-                //
-                this._pointA.scaleX = this._pointA.scaleY = 0.6;
-                this._pointB.scaleX = this._pointB.scaleY = 0.4;
+                this._pointA.offset.x = this._helpPointA.x;
+                this._pointA.offset.y = this._helpPointA.y;
+                this._pointB.offset.x = this._helpPointB.x;
+                this._pointB.offset.y = this._helpPointB.y;
+                this._pointA.offset.rotation = this._helpPointC.x;
+                this._pointB.offset.rotation = this._helpPointC.y;
+                this._pointA.invalidUpdate();
+                this._pointB.invalidUpdate();
             }
             else {
                 this._pointA.visible = false;

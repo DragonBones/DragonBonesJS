@@ -20,8 +20,8 @@ class HelloDragonBones extends BaseDemo {
         super();
 
         this._resources.push(
-            "resource/mecha_1002_101d_show/mecha_1002_101d_show_ske.json",
-            // "resource/mecha_1002_101d_show/mecha_1002_101d_ske.dbbin",
+            // "resource/mecha_1002_101d_show/mecha_1002_101d_show_ske.json",
+            "resource/mecha_1002_101d_show/mecha_1002_101d_show_ske.dbbin",
             "resource/mecha_1002_101d_show/mecha_1002_101d_show_tex.json",
             "resource/mecha_1002_101d_show/mecha_1002_101d_show_tex.png"
         );
@@ -29,8 +29,8 @@ class HelloDragonBones extends BaseDemo {
 
     protected _onStart(): void {
         const factory = dragonBones.EgretFactory.factory;
-        factory.parseDragonBonesData(RES.getRes("resource/mecha_1002_101d_show/mecha_1002_101d_show_ske.json"));
-        // factory.parseDragonBonesData(RES.getRes("resource/mecha_1002_101d/mecha_1002_101d_ske.dbbin"));
+        // factory.parseDragonBonesData(RES.getRes("resource/mecha_1002_101d_show/mecha_1002_101d_show_ske.json"));
+        factory.parseDragonBonesData(RES.getRes("resource/mecha_1002_101d_show/mecha_1002_101d_show_ske.dbbin"));
         factory.parseTextureAtlasData(RES.getRes("resource/mecha_1002_101d_show/mecha_1002_101d_show_tex.json"), RES.getRes("resource/mecha_1002_101d_show/mecha_1002_101d_show_tex.png"));
 
         const armatureDisplay = factory.buildArmatureDisplay("mecha_1002_101d", "mecha_1002_101d_show");
