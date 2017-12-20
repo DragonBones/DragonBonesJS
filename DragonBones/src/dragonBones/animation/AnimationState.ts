@@ -831,7 +831,7 @@ namespace dragonBones {
                         }
 
                         if (i === l - 1 || timeline.bone !== this._boneTimelines[i + 1].bone) {
-                            const state = timeline.bone._blendState.update(this._weightResult);
+                            const state = timeline.bone._blendState.update(this._weightResult, this.layer);
                             if (state !== 0) {
                                 timeline.blend(state);
                             }
@@ -841,7 +841,7 @@ namespace dragonBones {
 
                 for (let i = 0, l = this._surfaceTimelines.length; i < l; ++i) {
                     const timeline = this._surfaceTimelines[i];
-                    const state = timeline.surface._blendState.update(this._weightResult);
+                    const state = timeline.surface._blendState.update(this._weightResult, this.layer);
 
                     if (timeline.playState <= 0) {
                         timeline.update(time);
@@ -878,7 +878,7 @@ namespace dragonBones {
 
                 for (let i = 0, l = this._animationTimelines.length; i < l; ++i) {
                     const timeline = this._animationTimelines[i];
-                    const state = timeline.animationState._blendState.update(this._weightResult);
+                    const state = timeline.animationState._blendState.update(this._weightResult, this.layer);
 
                     if (timeline.playState <= 0) {
                         timeline.update(time);
@@ -1304,17 +1304,17 @@ namespace dragonBones {
         public layerWeight: number;
         public blendWeight: number;
 
-        public update(weight: number): number {
+        public update(weight: number, layer: number): number {
             if (this.dirty) {
                 if (this.leftWeight > 0.0) {
-                    if (this.layer !== this.layer) {
+                    if (this.layer !== layer) {
                         if (this.layerWeight >= this.leftWeight) {
                             this.leftWeight = 0.0;
 
                             return 0;
                         }
                         else {
-                            this.layer = this.layer;
+                            this.layer = layer;
                             this.leftWeight -= this.layerWeight;
                             this.layerWeight = 0.0;
                         }
@@ -1332,7 +1332,7 @@ namespace dragonBones {
             }
 
             this.dirty = true;
-            this.layer = this.layer;
+            this.layer = layer;
             this.layerWeight = weight;
             this.leftWeight = 1.0;
             this.blendWeight = weight;

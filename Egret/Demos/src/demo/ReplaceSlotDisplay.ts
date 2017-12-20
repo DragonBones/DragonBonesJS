@@ -35,10 +35,10 @@ class ReplaceSlotDisplay extends BaseDemo {
         //
         this.stage.addEventListener(egret.TouchEvent.TOUCH_BEGIN, (event: egret.TouchEvent) => {
             const localX = event.stageX - this.x;
-            if (localX < -150) {
+            if (localX < -150.0) {
                 this._replaceDisplay(-1);
             }
-            else if (localX > 150) {
+            else if (localX > 150.0) {
                 this._replaceDisplay(1);
             }
             else {

@@ -447,6 +447,8 @@ namespace dragonBones {
                                             child.graphics.lineTo(x, y);
                                         }
                                     }
+
+                                    child.graphics.lineTo(vertices[0], vertices[1]);
                                     break;
 
                                 default:

@@ -1,6 +1,7 @@
 abstract class BaseDemo extends egret.DisplayObjectContainer {
     private static BACKGROUND_URL: string = "resource/background.png";
     protected _loadCount: number = 0;
+    protected readonly _loadingText: egret.TextField = new egret.TextField();
     protected readonly _background: egret.Bitmap = new egret.Bitmap();
     protected readonly _resources: string[] = [];
     protected readonly _resourceMap: any = {};
@@ -8,7 +9,9 @@ abstract class BaseDemo extends egret.DisplayObjectContainer {
     public constructor() {
         super();
 
+        this._updateLoadingText(`Loading 0%`);
         this._resources.push(BaseDemo.BACKGROUND_URL);
+        this.addChild(this._loadingText);
         this.addEventListener(egret.Event.ADDED_TO_STAGE, () => {
             this.x = this.stageWidth * 0.5;
             this.y = this.stageHeight * 0.5;
@@ -17,6 +20,12 @@ abstract class BaseDemo extends egret.DisplayObjectContainer {
     }
 
     protected abstract _onStart(): void;
+
+    private _updateLoadingText(text: string): void {
+        this._loadingText.text = text;
+        this._loadingText.x = -this._loadingText.width * 0.5;
+        this._loadingText.y = -this._loadingText.height * 0.5;
+    }
 
     protected _loadResources(): void {
         this._loadCount = this._resources.length;
@@ -38,6 +47,9 @@ abstract class BaseDemo extends egret.DisplayObjectContainer {
                         this.addChild(this._background);
                         //
                         this._onStart();
+                    }
+                    else {
+                        this._updateLoadingText(`Loading ${Math.round((1.0 - this._loadCount / this._resources.length) * 100.0)}%`);
                     }
                 },
                 this, resource.indexOf(".dbbin") > 0 ? RES.ResourceItem.TYPE_BIN : null

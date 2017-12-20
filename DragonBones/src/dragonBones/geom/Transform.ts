@@ -35,6 +35,10 @@ namespace dragonBones {
         /**
          * @private
          */
+        public static readonly PI: number = Math.PI;
+        /**
+         * @private
+         */
         public static readonly PI_D: number = Math.PI * 2.0;
         /**
          * @private

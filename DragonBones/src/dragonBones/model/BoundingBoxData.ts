@@ -735,7 +735,7 @@ namespace dragonBones {
             normalRadians: { x: number, y: number } | null = null
         ): number {
             let intersectionCount = 0;
-            if (RectangleBoundingBoxData.rectangleIntersectsSegment(xA, yA, xB, yB, this.x, this.y, this.width, this.height, null, null, null) !== 0) {
+            if (RectangleBoundingBoxData.rectangleIntersectsSegment(xA, yA, xB, yB, this.x, this.y, this.x + this.width, this.y + this.height, null, null, null) !== 0) {
                 intersectionCount = PolygonBoundingBoxData.polygonIntersectsSegment(
                     xA, yA, xB, yB,
                     this.vertices,

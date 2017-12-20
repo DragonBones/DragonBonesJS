@@ -148,7 +148,7 @@ namespace dragonBones {
         BoneTranslate = 11,
         BoneRotate = 12,
         BoneScale = 13,
-        
+
         Surface = 50,
 
         SlotDisplay = 20,
@@ -251,7 +251,7 @@ namespace dragonBones {
      * @private
      */
     export class DragonBones {
-        public static readonly VERSION: string = "5.6.1";
+        public static readonly VERSION: string = "5.6.2";
 
         public static yDown: boolean = true;
         public static debug: boolean = false;
@@ -266,7 +266,7 @@ namespace dragonBones {
         public constructor(eventManager: IEventDispatcher) {
             this._eventManager = eventManager;
 
-            console.info(`DragonBones: ${DragonBones.VERSION}\nWebsite: http://dragonbones.com/\nSource: https://github.com/DragonBones/`);
+            console.info(`DragonBones: ${DragonBones.VERSION}\nWebsite: http://dragonbones.com/\nSource and Demos: https://github.com/DragonBones/`);
         }
 
         public advanceTime(passedTime: number): void {

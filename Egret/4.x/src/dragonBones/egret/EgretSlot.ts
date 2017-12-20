@@ -82,16 +82,33 @@ namespace dragonBones {
         /**
          * @inheritDoc
          */
-        protected _initDisplay(value: any): void {
+        protected _initDisplay(value: any, isRetain: boolean): void {
             // tslint:disable-next-line:no-unused-expression
             value;
+
+            if (!isRetain) {
+                if (EgretFactory._isV5) {
+                    if (this._renderDisplay === this._rawDisplay && !(this._renderDisplay.$renderNode instanceof egret.sys.BitmapNode)) {
+                        this._renderDisplay.$renderNode = new egret.sys.BitmapNode();
+                    }
+                }
+    
+                if (this._armatureDisplay._batchEnabled) {
+                    const node = this._renderDisplay.$renderNode as (egret.sys.BitmapNode | egret.sys.MeshNode);
+                    if (!node.matrix) {
+                        node.matrix = new egret.Matrix();
+                    }
+                }
+            }
         }
         /**
          * @inheritDoc
          */
-        protected _disposeDisplay(value: any): void {
+        protected _disposeDisplay(value: any, isRelease: boolean): void {
             // tslint:disable-next-line:no-unused-expression
             value;
+            // tslint:disable-next-line:no-unused-expression
+            isRelease;
         }
         /**
          * @inheritDoc
@@ -100,22 +117,8 @@ namespace dragonBones {
             this._armatureDisplay = this._armature.display;
             this._renderDisplay = (this._display !== null ? this._display : this._rawDisplay) as egret.DisplayObject;
 
-            if (EgretFactory._isV5) {
-                if (this._renderDisplay === this._rawDisplay && !(this._renderDisplay.$renderNode instanceof egret.sys.BitmapNode)) {
-                    this._renderDisplay.$renderNode = new egret.sys.BitmapNode();
-                }
-            }
-
-            if (this._armatureDisplay._batchEnabled) {
-                if (this._renderDisplay !== this._rawDisplay && this._renderDisplay !== this._meshDisplay) {
-                    this._armatureDisplay.disableBatch();
-                }
-                else {
-                    const node = this._renderDisplay.$renderNode as (egret.sys.BitmapNode | egret.sys.MeshNode);
-                    if (!node.matrix) {
-                        node.matrix = new egret.Matrix();
-                    }
-                }
+            if (this._armatureDisplay._batchEnabled && this._renderDisplay !== this._rawDisplay && this._renderDisplay !== this._meshDisplay) {
+                this._armatureDisplay.disableBatch();
             }
         }
         /**
@@ -509,7 +512,7 @@ namespace dragonBones {
             }
             else if (hasDeform) {
                 const isSurface = this._parent._boneData.type !== BoneType.Bone;
-                const isGlue = meshData.glue !== null;
+                // const isGlue = meshData.glue !== null; TODO
                 const data = meshData.parent.parent.parent;
                 const intArray = data.intArray;
                 const floatArray = data.floatArray;
@@ -524,7 +527,7 @@ namespace dragonBones {
                     const x = floatArray[vertexOffset + i] * scale + this._deformVertices[i];
                     const y = floatArray[vertexOffset + i + 1] * scale + this._deformVertices[i + 1];
 
-                    if (isSurface || isGlue) {
+                    if (isSurface) {
                         const matrix = (this._parent as Surface)._getGlobalTransformMatrix(x, y);
                         meshNode.vertices[i] = matrix.a * x + matrix.c * y + matrix.tx;
                         meshNode.vertices[i + 1] = matrix.b * x + matrix.d * y + matrix.ty;

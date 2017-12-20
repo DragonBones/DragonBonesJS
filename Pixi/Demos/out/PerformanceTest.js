@@ -9,14 +9,14 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-var PerformanceTest = (function (_super) {
+var PerformanceTest = /** @class */ (function (_super) {
     __extends(PerformanceTest, _super);
     function PerformanceTest() {
         var _this = _super.call(this) || this;
         _this._addingArmature = false;
         _this._removingArmature = false;
         _this._armatures = [];
-        _this._resources.push("resource/assets/dragon_boy_ske.dbbin", "resource/assets/dragon_boy_tex.json", "resource/assets/dragon_boy_tex.png");
+        _this._resources.push("resource/mecha_1406/mecha_1406_ske.dbbin", "resource/mecha_1406/mecha_1406_tex.json", "resource/mecha_1406/mecha_1406_tex.png");
         return _this;
     }
     PerformanceTest.prototype._onStart = function () {
@@ -68,13 +68,13 @@ var PerformanceTest = (function (_super) {
     PerformanceTest.prototype._addArmature = function () {
         var factory = dragonBones.PixiFactory.factory;
         if (this._armatures.length === 0) {
-            factory.parseDragonBonesData(this._pixiResources["resource/assets/dragon_boy_ske.dbbin"].data);
-            factory.parseTextureAtlasData(this._pixiResources["resource/assets/dragon_boy_tex.json"].data, this._pixiResources["resource/assets/dragon_boy_tex.png"].texture);
+            factory.parseDragonBonesData(this._pixiResources["resource/mecha_1406/mecha_1406_ske.dbbin"].data);
+            factory.parseTextureAtlasData(this._pixiResources["resource/mecha_1406/mecha_1406_tex.json"].data, this._pixiResources["resource/mecha_1406/mecha_1406_tex.png"].texture);
         }
-        var armatureDisplay = dragonBones.PixiFactory.factory.buildArmatureDisplay("DragonBoy");
+        var armatureDisplay = dragonBones.PixiFactory.factory.buildArmatureDisplay("mecha_1406");
         armatureDisplay.armature.cacheFrameRate = 24;
         armatureDisplay.animation.play("walk", 0);
-        armatureDisplay.scale.x = armatureDisplay.scale.y = 0.7;
+        armatureDisplay.scale.x = armatureDisplay.scale.y = 0.5;
         this.addChild(armatureDisplay);
         this._armatures.push(armatureDisplay);
     };
@@ -95,26 +95,27 @@ var PerformanceTest = (function (_super) {
         if (armatureCount === 0) {
             return;
         }
-        var paddingH = 50;
-        var paddingV = 150;
-        var gapping = 100;
+        var paddingH = 100;
+        var paddingT = 200;
+        var paddingB = 100;
+        var gapping = 90;
         var stageWidth = this.stageWidth - paddingH * 2;
         var columnCount = Math.floor(stageWidth / gapping);
         var paddingHModify = (this.stageWidth - columnCount * gapping) * 0.5;
         var dX = stageWidth / columnCount;
-        var dY = (this.stageHeight - paddingV * 2) / Math.ceil(armatureCount / columnCount);
+        var dY = (this.stageHeight - paddingT - paddingB) / Math.ceil(armatureCount / columnCount);
         for (var i = 0, l = armatureCount; i < l; ++i) {
             var armatureDisplay = this._armatures[i];
             var lineY = Math.floor(i / columnCount);
-            armatureDisplay.x = (i % columnCount) * dX + paddingHModify;
-            armatureDisplay.y = lineY * dY + paddingV;
+            armatureDisplay.x = (i % columnCount) * dX + paddingHModify - this.stageWidth * 0.5;
+            armatureDisplay.y = lineY * dY + paddingT - this.stageHeight * 0.5;
         }
     };
     PerformanceTest.prototype._updateText = function () {
-        this._text.text = "Count: " + this._armatures.length + " \nTouch screen left to decrease count / right to increase count.";
-        this._text.x = (this.stageWidth - this._text.width) * 0.5;
-        this._text.y = this.stageHeight - 60;
+        this._text.text = "Count: " + this._armatures.length + ". Touch screen left to decrease count / right to increase count.";
+        this._text.x = -this._text.width * 0.5;
+        this._text.y = this.stageHeight * 0.5 - 100.0;
         this.addChild(this._text);
     };
     return PerformanceTest;
-}(BaseTest));
+}(BaseDemo));

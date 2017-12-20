@@ -862,6 +862,9 @@ namespace dragonBones {
                         }
                     }
                 }
+
+                polygonBoundingBox.width -= polygonBoundingBox.x;
+                polygonBoundingBox.height -= polygonBoundingBox.y;
             }
             else {
                 console.warn("Data error.\n Please reexport DragonBones Data to fixed the bug.");

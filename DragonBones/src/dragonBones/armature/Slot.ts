@@ -228,16 +228,16 @@ namespace dragonBones {
                     eachDisplay.dispose();
                 }
                 else {
-                    this._disposeDisplay(eachDisplay);
+                    this._disposeDisplay(eachDisplay, false);
                 }
             }
 
             if (this._meshDisplay !== null && this._meshDisplay !== this._rawDisplay) { // May be _meshDisplay and _rawDisplay is the same one.
-                this._disposeDisplay(this._meshDisplay);
+                this._disposeDisplay(this._meshDisplay, false);
             }
 
             if (this._rawDisplay !== null) {
-                this._disposeDisplay(this._rawDisplay);
+                this._disposeDisplay(this._rawDisplay, false);
             }
 
             this.displayController = null;
@@ -278,11 +278,11 @@ namespace dragonBones {
         /**
          * @private
          */
-        protected abstract _initDisplay(value: any): void;
+        protected abstract _initDisplay(value: any, isRetain: boolean): void;
         /**
          * @private
          */
-        protected abstract _disposeDisplay(value: any): void;
+        protected abstract _disposeDisplay(value: any, isRelease: boolean): void;
         /**
          * @private
          */
@@ -766,7 +766,7 @@ namespace dragonBones {
                         eachDisplay !== null && eachDisplay !== this._rawDisplay && eachDisplay !== this._meshDisplay &&
                         !(eachDisplay instanceof Armature) && this._displayList.indexOf(eachDisplay) < 0
                     ) {
-                        this._initDisplay(eachDisplay);
+                        this._initDisplay(eachDisplay, true);
                     }
 
                     this._displayList[i] = eachDisplay;
@@ -808,6 +808,11 @@ namespace dragonBones {
             this._meshDisplay = meshDisplay;
             //
             this.rawDisplayDatas = displayDatas; //
+            //
+            this._initDisplay(this._rawDisplay, false);
+            if (this._rawDisplay !== this._meshDisplay) {
+                this._initDisplay(this._meshDisplay, false);
+            }
         }
         /**
          * @internal
@@ -1188,7 +1193,7 @@ namespace dragonBones {
                     (eachDisplay as Armature).dispose();
                 }
                 else {
-                    this._disposeDisplay(eachDisplay);
+                    this._disposeDisplay(eachDisplay, true);
                 }
             }
         }

@@ -391,7 +391,7 @@ namespace coreElement {
             if (this._speedX !== 0.0) {
                 this._armatureDisplay.x += this._speedX;
                 if (this._armatureDisplay.x < -Game.instance.stageWidth * 0.5) {
-                    this._armatureDisplay.x = -Game.instance.stageWidth * 0.5
+                    this._armatureDisplay.x = -Game.instance.stageWidth * 0.5;
                 }
                 else if (this._armatureDisplay.x > Game.instance.stageWidth * 0.5) {
                     this._armatureDisplay.x = Game.instance.stageWidth * 0.5;

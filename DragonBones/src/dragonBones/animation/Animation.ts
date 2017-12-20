@@ -387,11 +387,14 @@ namespace dragonBones {
             if (this._animationStates.length > 0) {
                 let added = false;
                 for (let i = 0, l = this._animationStates.length; i < l; ++i) {
-                    if (animationState.layer >= this._animationStates[i].layer) {
-                    }
-                    else {
+                    if (animationState.layer > this._animationStates[i].layer) {
                         added = true;
                         this._animationStates.splice(i, 0, animationState);
+                        break;
+                    }
+                    else if (i !== l - 1 && animationState.layer > this._animationStates[i + 1].layer) {
+                        added = true;
+                        this._animationStates.splice(i + 1, 0, animationState);
                         break;
                     }
                 }

@@ -99,6 +99,7 @@ class ReplaceSkin extends BaseDemo {
         this.stage.addEventListener(egret.TouchEvent.TOUCH_BEGIN, () => {
             this._randomReplaceSkin();
         }, this);
+        //
         this.createText("Touch to replace armature skin.");
     }
 
@@ -112,7 +113,7 @@ class ReplaceSkin extends BaseDemo {
 
     private _randomReplaceSkin(): void {
         // This suit has been replaced, next suit.
-        if (this._replaceSuitParts.length == 0) {
+        if (this._replaceSuitParts.length === 0) {
             this._replaceSuitIndex++;
 
             if (this._replaceSuitIndex >= this._suitConfigs.length) {

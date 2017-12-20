@@ -72,9 +72,9 @@ class PerformanceTest extends BaseDemo {
         }
 
         const armatureDisplay = factory.buildArmatureDisplay("mecha_1406");
-        armatureDisplay.scaleX = armatureDisplay.scaleY = 0.5;
         armatureDisplay.armature.cacheFrameRate = 24;
         armatureDisplay.animation.play("walk");
+        armatureDisplay.scaleX = armatureDisplay.scaleY = 0.5;
         this.addChild(armatureDisplay);
 
         this._armatures.push(armatureDisplay);

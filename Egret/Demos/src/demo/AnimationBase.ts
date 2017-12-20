@@ -35,7 +35,7 @@ class AnimationBase extends BaseDemo {
         this.stage.addEventListener(egret.TouchEvent.TOUCH_END, this._touchHandler, this);
         this.stage.addEventListener(egret.TouchEvent.TOUCH_MOVE, this._touchHandler, this);
         //
-        this.createText("Click to control animation play progress.");
+        this.createText("Touch to control animation play progress.");
     }
 
     private _touchHandler(event: egret.TouchEvent): void {

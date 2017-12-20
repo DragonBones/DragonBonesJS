@@ -47,7 +47,7 @@ class ReplaceAnimation extends BaseDemo {
             this._changeAnimation();
         }, this);
         //
-        this.createText("Click to change animation.");
+        this.createText("Touch to change animation.");
     }
 
     private _changeAnimation(): void {

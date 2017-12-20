@@ -63,7 +63,7 @@ class InverseKinematics extends BaseDemo {
         //
         DragHelper.getInstance().enableDrag(this._floorBoard.armature.getSlot("circle").display);
         //
-        this.createText("Drag circle to modify IK bones.");
+        this.createText("Touch to drag circle to modify IK bones.");
     }
 
     private _enterFrameHandler(event: egret.Event): void {

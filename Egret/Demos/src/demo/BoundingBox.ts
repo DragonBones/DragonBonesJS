@@ -59,7 +59,7 @@ class BoundingBox extends BaseDemo {
         DragHelper.getInstance().enableDrag(this._targetA);
         DragHelper.getInstance().enableDrag(this._targetB);
         //
-        this.createText("Drag to move bounding box tester.");
+        this.createText("Touch to drag bounding box tester.");
     }
 
     private _enterFrameHandler(event: egret.Event): void {
