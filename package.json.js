@@ -47,7 +47,8 @@ const packageConfig = {
         'del': '^3.0.0',
         'download': '^6.2.5',
         'tar-pack': '^3.4.1',
-        'semver': '^5.4.1'
+        'semver': '^5.4.1',
+        'debug': '^3.1.0'
     }
 };
 
