@@ -197,6 +197,7 @@ namespace dragonBones {
             {
                 const ikConstraintData = this._constraintData as IKConstraintData;
                 this._scaleEnabled = ikConstraintData.scaleEnabled;
+                this._scaleEnabled = this._scaleEnabled; // TODO
                 this._bendPositive = ikConstraintData.bendPositive;
                 this._weight = ikConstraintData.weight;
             }

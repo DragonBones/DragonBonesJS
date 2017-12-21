@@ -11,6 +11,8 @@
 
 ## To learn more about
 * [DragonBones offical website](http://www.dragonbones.com/)
-* [Online demos](http://www.dragonbones.com/demo/index.html)
+
+## Online demos
+[![PerformanceTest](https://dragonbones.github.io/demo/shot.jpg)](https://github.com/DragonBones/Demos)
 
 Copyright 2012-2017 The DragonBones Team.

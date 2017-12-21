@@ -24,5 +24,5 @@ Your project
 ```
 
 ## Pixijs
-[Get pixi.js](https://github.com/pixijs/pixi.js/releases/)
-[Get pixi.js.d.ts](https://github.com/pixijs/pixi-typescript/blob/v4.x/pixi.js.d.ts)
+* [Get pixi.js](https://github.com/pixijs/pixi.js/releases/)
+* [Get pixi.js.d.ts](https://github.com/pixijs/pixi-typescript/blob/v4.x/pixi.js.d.ts)

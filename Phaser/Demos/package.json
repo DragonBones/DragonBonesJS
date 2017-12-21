@@ -1,6 +1,6 @@
 {
   "name": "dragonbones-phaser-demos",
-  "version": "5.6.0",
+  "version": "5.6.2",
   "main": "",
   "scripts": {
     "start": "tsc & copyfiles -u 3 -s ../2.x/out/* libs/dragonBones/ & anywhere",

@@ -9,10 +9,8 @@ Your project
         |-- dragonBones
             |-- dragonBones.js
             |-- ...
-        |-- phaser
-            |-- phaser.d.ts
-            |-- pixi.d.ts
-            |-- p2.d.ts
+        |-- hilo
+            |-- hilo.d.ts
             |-- ...
     |-- node_modules
         |-- ...
@@ -25,5 +23,5 @@ Your project
     |-- ...
 ```
 
-## Phaser declaration
-[Get phaser.d.ts, pixi.d.ts, p2.d.ts](https://github.com/photonstorm/phaser-ce/tree/master/typescript/)
+## Hilo declaration
+* [Get hilo.d.ts](https://github.com/hiloteam/Hilo/tree/dev/d.ts)

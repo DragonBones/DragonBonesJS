@@ -25,16 +25,29 @@ namespace dragonBones {
      * @inheritDoc
      */
     export class PhaserArmatureDisplay extends Phaser.Sprite implements IArmatureProxy {
+        /**
+         * @private
+         */
+        public debugDraw: boolean = false;
         private _debugDraw: boolean = false;
-        private _disposeProxy: boolean = false;
         private _armature: Armature = null as any;
         private readonly _signals: Map<Phaser.Signal> = {};
-        // private _debugDrawer: PIXI.Sprite | null = null;
+        private _debugDrawer: Phaser.Sprite | null = null;
         /**
          * @inheritDoc
          */
         public constructor() {
             super(PhaserFactory._game, 0.0, 0.0);
+        }
+
+        private _getChildByName(container: Phaser.Sprite, name: string): PIXI.DisplayObject | null {
+            for (const child of container.children) {
+                if ((child as any).name === name) {
+                    return child;
+                }
+            }
+
+            return null;
         }
         /**
          * @inheritDoc
@@ -54,30 +67,130 @@ namespace dragonBones {
                 delete this._signals[k];
             }
 
-            // if (this._debugDrawer !== null) {
-            //     this._debugDrawer.destroy(true);
-            // }
+            if (this._debugDrawer !== null) {
+                // this._debugDrawer.destroy(true);
+            }
 
-            this._disposeProxy = false;
-            this._armature = null as any;
+            // this._armature = null as any;
             // this._debugDrawer = null;
 
             super.destroy(false);
         }
         /**
-         * @private
+         * @inheritDoc
          */
         public dbUpdate(): void {
-            const drawed = DragonBones.debugDraw;
+            const drawed = DragonBones.debugDraw || this.debugDraw;
             if (drawed || this._debugDraw) {
                 this._debugDraw = drawed;
+                if (this._debugDraw) {
+                    if (this._debugDrawer === null) {
+                        this._debugDrawer = new Phaser.Sprite(this.game, 0.0, 0.0);
+                        const boneDrawer = new Phaser.Graphics(this.game);
+                        this._debugDrawer.addChild(boneDrawer);
+                    }
+
+                    this.addChild(this._debugDrawer);
+                    const boneDrawer = this._debugDrawer.getChildAt(0) as Phaser.Graphics;
+                    boneDrawer.clear();
+
+                    const bones = this._armature.getBones();
+                    for (let i = 0, l = bones.length; i < l; ++i) {
+                        const bone = bones[i];
+                        const boneLength = bone.boneData.length;
+                        const startX = bone.globalTransformMatrix.tx;
+                        const startY = bone.globalTransformMatrix.ty;
+                        const endX = startX + bone.globalTransformMatrix.a * boneLength;
+                        const endY = startY + bone.globalTransformMatrix.b * boneLength;
+
+                        boneDrawer.lineStyle(2.0, 0x00FFFF, 0.7);
+                        boneDrawer.moveTo(startX, startY);
+                        boneDrawer.lineTo(endX, endY);
+                        boneDrawer.lineStyle(0.0, 0, 0.0);
+                        boneDrawer.beginFill(0x00FFFF, 0.7);
+                        boneDrawer.drawCircle(startX, startY, 3.0);
+                        boneDrawer.endFill();
+                    }
+
+                    const slots = this._armature.getSlots();
+                    for (let i = 0, l = slots.length; i < l; ++i) {
+                        const slot = slots[i];
+                        const boundingBoxData = slot.boundingBoxData;
+
+                        if (boundingBoxData) {
+                            let child = this._getChildByName(this._debugDrawer, slot.name) as Phaser.Graphics;
+                            if (!child) {
+                                child = new Phaser.Graphics(this.game);
+                                child.name = slot.name;
+                                this._debugDrawer.addChild(child);
+                            }
+
+                            child.clear();
+                            child.lineStyle(2.0, 0xFF00FF, 0.7);
+
+                            switch (boundingBoxData.type) {
+                                case BoundingBoxType.Rectangle:
+                                    child.drawRect(-boundingBoxData.width * 0.5, -boundingBoxData.height * 0.5, boundingBoxData.width, boundingBoxData.height);
+                                    break;
+
+                                case BoundingBoxType.Ellipse:
+                                    child.drawEllipse(-boundingBoxData.width * 0.5, -boundingBoxData.height * 0.5, boundingBoxData.width, boundingBoxData.height);
+                                    break;
+
+                                case BoundingBoxType.Polygon:
+                                    const vertices = (boundingBoxData as PolygonBoundingBoxData).vertices;
+                                    for (let i = 0, l = vertices.length; i < l; i += 2) {
+                                        const x = vertices[i];
+                                        const y = vertices[i + 1];
+
+                                        if (i === 0) {
+                                            child.moveTo(x, y);
+                                        }
+                                        else {
+                                            child.lineTo(x, y);
+                                        }
+                                    }
+
+                                    child.lineTo(vertices[0], vertices[1]);
+                                    break;
+
+                                default:
+                                    break;
+                            }
+
+                            child.endFill();
+                            slot.updateTransformAndMatrix();
+                            slot.updateGlobalTransform();
+
+                            const transform = slot.global;
+                            child.x = transform.x;
+                            child.y = transform.y;
+                            child.rotation = transform.rotation;
+                            // child.skew = transform.skew; // TODO
+                            child.scale.x = transform.scaleX;
+                            child.scale.y = transform.scaleY;
+                            child.pivot.x = slot._pivotX;
+                            child.pivot.y = slot._pivotY;
+                        }
+                        else {
+                            const child = this._getChildByName(this._debugDrawer, slot.name);
+                            if (child) {
+                                this._debugDrawer.removeChild(child);
+                            }
+                        }
+                    }
+                }
+                else if (this._debugDrawer !== null && this._debugDrawer.parent === this) {
+                    this.removeChild(this._debugDrawer);
+                }
             }
         }
         /**
          * @inheritDoc
          */
         public dispose(disposeProxy: boolean = true): void {
-            this._disposeProxy = disposeProxy;
+            // tslint:disable-next-line:no-unused-expression
+            disposeProxy;
             if (this._armature !== null) {
                 this._armature.dispose();
                 this._armature = null as any;
@@ -159,7 +272,7 @@ namespace dragonBones {
         }
     }
 
-    // PhaserArmatureDisplay.prototype.updateTransform = ????????????????????????
+    // PhaserArmatureDisplay.prototype.updateTransform = ???????????????????????? TODO
     Phaser.Image.prototype.updateTransform = function (parent) {
         if (!parent && !this.parent && !this.game) {
             return this;

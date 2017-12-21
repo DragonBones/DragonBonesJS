@@ -11,18 +11,18 @@ var __extends = (this && this.__extends) || (function () {
 })();
 var coreElement;
 (function (coreElement) {
-    var Game = (function (_super) {
+    var Game = /** @class */ (function (_super) {
         __extends(Game, _super);
         function Game(game) {
             var _this = _super.call(this, game) || this;
             _this._left = false;
             _this._right = false;
             _this._bullets = [];
-            _this._resources.push("resource/assets/core_element/mecha_1502b_ske.json", "resource/assets/core_element/mecha_1502b_tex.json", "resource/assets/core_element/mecha_1502b_tex.png", "resource/assets/core_element/skin_1502b_ske.json", "resource/assets/core_element/skin_1502b_tex.json", "resource/assets/core_element/skin_1502b_tex.png", "resource/assets/core_element/weapon_1000_ske.json", "resource/assets/core_element/weapon_1000_tex.json", "resource/assets/core_element/weapon_1000_tex.png");
+            _this._resources.push("resource/mecha_1502b/mecha_1502b_ske.json", "resource/mecha_1502b/mecha_1502b_tex.json", "resource/mecha_1502b/mecha_1502b_tex.png", "resource/skin_1502b/skin_1502b_ske.json", "resource/skin_1502b/skin_1502b_tex.json", "resource/skin_1502b/skin_1502b_tex.png", "resource/weapon_1000/weapon_1000_ske.json", "resource/weapon_1000/weapon_1000_tex.json", "resource/weapon_1000/weapon_1000_tex.png");
             return _this;
         }
         Game.prototype._onStart = function () {
-            Game.GROUND = this.stageHeight - 150;
+            Game.GROUND = this.stageHeight * 0.5 - 150.0;
             Game.instance = this;
             //
             this.inputEnabled = true;
@@ -31,21 +31,21 @@ var coreElement;
             document.addEventListener("keydown", this._keyHandler);
             document.addEventListener("keyup", this._keyHandler);
             //
-            this.createText("Press W/A/S/D to move. Press Q/E to switch weapons. Press SPACE to switch skin.\nMouse Move to aim. Click to fire.");
+            this.createText("Press W/A/S/D to move. Press Q/E/SPACE to switch weapons and skin. Touch to aim and fire.");
             //
             var factory = dragonBones.PhaserFactory.factory;
-            factory.parseDragonBonesData(this.game.cache.getItem("resource/assets/core_element/mecha_1502b_ske.json", Phaser.Cache.JSON).data);
-            factory.parseTextureAtlasData(this.game.cache.getItem("resource/assets/core_element/mecha_1502b_tex.json", Phaser.Cache.JSON).data, this.game.cache.getImage("resource/assets/core_element/mecha_1502b_tex.png", true).base);
-            factory.parseDragonBonesData(this.game.cache.getItem("resource/assets/core_element/skin_1502b_ske.json", Phaser.Cache.JSON).data);
-            factory.parseTextureAtlasData(this.game.cache.getItem("resource/assets/core_element/skin_1502b_tex.json", Phaser.Cache.JSON).data, this.game.cache.getImage("resource/assets/core_element/skin_1502b_tex.png", true).base);
-            factory.parseDragonBonesData(this.game.cache.getItem("resource/assets/core_element/weapon_1000_ske.json", Phaser.Cache.JSON).data);
-            factory.parseTextureAtlasData(this.game.cache.getItem("resource/assets/core_element/weapon_1000_tex.json", Phaser.Cache.JSON).data, this.game.cache.getImage("resource/assets/core_element/weapon_1000_tex.png", true).base);
+            factory.parseDragonBonesData(this.game.cache.getItem("resource/mecha_1502b/mecha_1502b_ske.json", Phaser.Cache.JSON).data);
+            factory.parseTextureAtlasData(this.game.cache.getItem("resource/mecha_1502b/mecha_1502b_tex.json", Phaser.Cache.JSON).data, this.game.cache.getImage("resource/mecha_1502b/mecha_1502b_tex.png", true).base);
+            factory.parseDragonBonesData(this.game.cache.getItem("resource/skin_1502b/skin_1502b_ske.json", Phaser.Cache.JSON).data);
+            factory.parseTextureAtlasData(this.game.cache.getItem("resource/skin_1502b/skin_1502b_tex.json", Phaser.Cache.JSON).data, this.game.cache.getImage("resource/skin_1502b/skin_1502b_tex.png", true).base);
+            factory.parseDragonBonesData(this.game.cache.getItem("resource/weapon_1000/weapon_1000_ske.json", Phaser.Cache.JSON).data);
+            factory.parseTextureAtlasData(this.game.cache.getItem("resource/weapon_1000/weapon_1000_tex.json", Phaser.Cache.JSON).data, this.game.cache.getImage("resource/weapon_1000/weapon_1000_tex.png", true).base);
             //
             this._player = new Mecha();
         };
         Game.prototype.update = function () {
             if (this._player) {
-                this._player.aim(this.game.input.x, this.game.input.y);
+                this._player.aim(this.game.input.x - this.x, this.game.input.y - this.y);
                 this._player.update();
             }
             var i = this._bullets.length;
@@ -121,12 +121,11 @@ var coreElement;
         };
         Game.G = 0.6;
         return Game;
-    }(BaseTest));
+    }(BaseDemo));
     coreElement.Game = Game;
-    var Mecha = (function () {
+    var Mecha = /** @class */ (function () {
         function Mecha() {
             this._isJumpingA = false;
-            this._isJumpingB = false;
             this._isSquating = false;
             this._isAttackingA = false;
             this._isAttackingB = false;
@@ -145,7 +144,7 @@ var coreElement;
             this._target = new PIXI.Point();
             this._helpPoint = new PIXI.Point();
             this._armatureDisplay = dragonBones.PhaserFactory.factory.buildArmatureDisplay("mecha_1502b");
-            this._armatureDisplay.x = Game.instance.stageWidth * 0.5;
+            this._armatureDisplay.x = 0.0;
             this._armatureDisplay.y = Game.GROUND;
             this._armature = this._armatureDisplay.armature;
             this._armature.eventDispatcher.addEvent(dragonBones.EventObject.FADE_IN_COMPLETE, this._animationEventHandler, this);
@@ -225,7 +224,6 @@ var coreElement;
             switch (event.type) {
                 case dragonBones.EventObject.FADE_IN_COMPLETE:
                     if (event.animationState.name === "jump_1") {
-                        this._isJumpingB = true;
                         this._speedY = -Mecha.JUMP_SPEED;
                         if (this._moveDir !== 0) {
                             if (this._moveDir * this._faceDir > 0) {
@@ -247,7 +245,6 @@ var coreElement;
                 case dragonBones.EventObject.COMPLETE:
                     if (event.animationState.name === "jump_4") {
                         this._isJumpingA = false;
-                        this._isJumpingB = false;
                         this._updateAnimation();
                     }
                     break;
@@ -258,8 +255,8 @@ var coreElement;
                 this._helpPoint.x = event.bone.global.x;
                 this._helpPoint.y = event.bone.global.y;
                 var globalPoint = event.armature.display.toGlobal(this._helpPoint);
-                this._helpPoint.x = globalPoint.x;
-                this._helpPoint.y = globalPoint.y;
+                this._helpPoint.x = globalPoint.x - Game.instance.x;
+                this._helpPoint.y = globalPoint.y - Game.instance.y;
                 this._fire(this._helpPoint);
             }
         };
@@ -305,11 +302,11 @@ var coreElement;
         Mecha.prototype._updatePosition = function () {
             if (this._speedX !== 0.0) {
                 this._armatureDisplay.x += this._speedX;
-                if (this._armatureDisplay.x < 0) {
-                    this._armatureDisplay.x = 0;
+                if (this._armatureDisplay.x < -Game.instance.stageWidth * 0.5) {
+                    this._armatureDisplay.x = -Game.instance.stageWidth * 0.5;
                 }
-                else if (this._armatureDisplay.x > Game.instance.stageWidth) {
-                    this._armatureDisplay.x = Game.instance.stageWidth;
+                else if (this._armatureDisplay.x > Game.instance.stageWidth * 0.5) {
+                    this._armatureDisplay.x = Game.instance.stageWidth * 0.5;
                 }
             }
             if (this._speedY !== 0.0) {
@@ -385,7 +382,7 @@ var coreElement;
         Mecha.SKINS = ["mecha_1502b", "skin_a", "skin_b", "skin_c"];
         return Mecha;
     }());
-    var Bullet = (function () {
+    var Bullet = /** @class */ (function () {
         function Bullet(armatureName, effectArmatureName, radian, speed, position) {
             this._speedX = 0.0;
             this._speedY = 0.0;
@@ -415,8 +412,8 @@ var coreElement;
         Bullet.prototype.update = function () {
             this._armatureDisplay.x += this._speedX;
             this._armatureDisplay.y += this._speedY;
-            if (this._armatureDisplay.x < -100.0 || this._armatureDisplay.x >= Game.instance.stageWidth + 100.0 ||
-                this._armatureDisplay.y < -100.0 || this._armatureDisplay.y >= Game.instance.stageHeight + 100.0) {
+            if (this._armatureDisplay.x < -Game.instance.stageWidth * 0.5 - 100.0 || this._armatureDisplay.x > Game.instance.stageWidth * 0.5 + 100.0 ||
+                this._armatureDisplay.y < -Game.instance.stageHeight * 0.5 - 100.0 || this._armatureDisplay.y > Game.instance.stageHeight * 0.5 + 100.0) {
                 Game.instance.removeChild(this._armatureDisplay);
                 this._armatureDisplay.dispose();
                 if (this._effecDisplay !== null) {

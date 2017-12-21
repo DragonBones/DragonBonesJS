@@ -52,6 +52,7 @@
 		"../../DragonBones/src/dragonBones/armature/Armature.ts",
 		"../../DragonBones/src/dragonBones/armature/TransformObject.ts",
 		"../../DragonBones/src/dragonBones/armature/Bone.ts",
+		"../../DragonBones/src/dragonBones/armature/Surface.ts",
 		"../../DragonBones/src/dragonBones/armature/Slot.ts",
 		"../../DragonBones/src/dragonBones/armature/Constraint.ts",
 

@@ -317,7 +317,6 @@ namespace dragonBones {
          */
         public _childDirty: boolean = true;
         private _debugDraw: boolean = false;
-        private _disposeProxy: boolean = false;
         private _armature: Armature = null as any; //
         private _bounds: egret.Rectangle | null = null;
         private _debugDrawer: egret.Sprite | null = null;
@@ -352,23 +351,64 @@ namespace dragonBones {
                         this._debugDrawer = new egret.Sprite();
                     }
 
-                    this.addChild(this._debugDrawer);
-                    this._debugDrawer.graphics.clear();
+                    if (this._debugDrawer.parent !== this) {
+                        this.addChild(this._debugDrawer);
+                    }
+
+                    const boneStep = 2.0;
+                    const graphics = this._debugDrawer.graphics;
+                    graphics.clear();
 
                     for (const bone of this._armature.getBones()) {
-                        const boneLength = bone.boneData.length;
-                        const startX = bone.globalTransformMatrix.tx;
-                        const startY = bone.globalTransformMatrix.ty;
-                        const endX = startX + bone.globalTransformMatrix.a * boneLength;
-                        const endY = startY + bone.globalTransformMatrix.b * boneLength;
+                        if (bone.boneData.type === BoneType.Bone) {
+                            const boneLength = Math.max(bone.boneData.length, boneStep);
+                            const startX = bone.globalTransformMatrix.tx;
+                            const startY = bone.globalTransformMatrix.ty;
+                            const aX = startX - bone.globalTransformMatrix.a * boneStep;
+                            const aY = startY - bone.globalTransformMatrix.b * boneStep;
+                            const bX = startX + bone.globalTransformMatrix.a * boneLength;
+                            const bY = startY + bone.globalTransformMatrix.b * boneLength;
+                            const cX = startX + aY - startY;
+                            const cY = startY + aX - startX;
+                            const dX = startX - aY + startY;
+                            const dY = startY - aX + startX;
+                            //
+                            graphics.lineStyle(2.0, 0x00FFFF, 0.7);
+                            graphics.moveTo(aX, aY);
+                            graphics.lineTo(bX, bY);
+                            graphics.moveTo(cX, cY);
+                            graphics.lineTo(dX, dY);
+                        }
+                        else {
+                            const surface = bone as Surface;
+                            const surfaceData = surface._boneData as SurfaceData;
+                            const segmentX = surfaceData.segmentX;
+                            const segmentY = surfaceData.segmentY;
+                            const vertices = surface._vertices;
+                            graphics.lineStyle(2.0, 0xFFFF00, 0.7);
 
-                        this._debugDrawer.graphics.lineStyle(2.0, 0x00FFFF, 0.7);
-                        this._debugDrawer.graphics.moveTo(startX, startY);
-                        this._debugDrawer.graphics.lineTo(endX, endY);
-                        this._debugDrawer.graphics.lineStyle(0.0, 0, 0.0);
-                        this._debugDrawer.graphics.beginFill(0x00FFFF, 0.7);
-                        this._debugDrawer.graphics.drawCircle(startX, startY, 3.0);
-                        this._debugDrawer.graphics.endFill();
+                            for (let iY = 0; iY < segmentY; ++iY) {
+                                for (let iX = 0; iX < segmentX; ++iX) {
+                                    const vertexIndex = (iX + iY * (segmentX + 1)) * 2;
+                                    const x = vertices[vertexIndex];
+                                    const y = vertices[vertexIndex + 1];
+                                    graphics.moveTo(x, y);
+                                    graphics.lineTo(vertices[vertexIndex + 2], vertices[vertexIndex + 3]);
+                                    graphics.moveTo(x, y);
+                                    graphics.lineTo(vertices[vertexIndex + (segmentX + 1) * 2], vertices[vertexIndex + (segmentX + 1) * 2 + 1]);
+
+                                    if (iX === segmentX - 1) {
+                                        graphics.moveTo(vertices[vertexIndex + 2], vertices[vertexIndex + 3]);
+                                        graphics.lineTo(vertices[vertexIndex + (segmentX + 2) * 2], vertices[vertexIndex + (segmentX + 2) * 2 + 1]);
+                                    }
+
+                                    if (iY === segmentY - 1) {
+                                        graphics.moveTo(vertices[vertexIndex + (segmentX + 1) * 2], vertices[vertexIndex + (segmentX + 1) * 2 + 1]);
+                                        graphics.lineTo(vertices[vertexIndex + (segmentX + 2) * 2], vertices[vertexIndex + (segmentX + 2) * 2 + 1]);
+                                    }
+                                }
+                            }
+                        }
                     }
 
                     for (const slot of this._armature.getSlots()) {
@@ -383,7 +423,7 @@ namespace dragonBones {
                             }
 
                             child.graphics.clear();
-                            child.graphics.beginFill(boundingBoxData.color ? boundingBoxData.color : 0xFF00FF, 0.3);
+                            child.graphics.lineStyle(2.0, 0xFF00FF, 0.7);
 
                             switch (boundingBoxData.type) {
                                 case BoundingBoxType.Rectangle:
@@ -397,20 +437,24 @@ namespace dragonBones {
                                 case BoundingBoxType.Polygon:
                                     const vertices = (boundingBoxData as PolygonBoundingBoxData).vertices;
                                     for (let i = 0; i < vertices.length; i += 2) {
+                                        const x = vertices[i];
+                                        const y = vertices[i + 1];
+
                                         if (i === 0) {
-                                            child.graphics.moveTo(vertices[i], vertices[i + 1]);
+                                            child.graphics.moveTo(x, y);
                                         }
                                         else {
-                                            child.graphics.lineTo(vertices[i], vertices[i + 1]);
+                                            child.graphics.lineTo(x, y);
                                         }
                                     }
+
+                                    child.graphics.lineTo(vertices[0], vertices[1]);
                                     break;
 
                                 default:
                                     break;
                             }
 
-                            child.graphics.endFill();
                             slot.updateTransformAndMatrix();
                             slot.updateGlobalTransform();
                             child.$setMatrix((slot.globalTransformMatrix as any) as egret.Matrix, false);
@@ -436,7 +480,8 @@ namespace dragonBones {
          * @inheritDoc
          */
         public dispose(disposeProxy: boolean = true): void {
-            this._disposeProxy = disposeProxy;
+            // tslint:disable-next-line:no-unused-expression
+            disposeProxy;
 
             if (this._armature !== null) {
                 this._armature.dispose();
