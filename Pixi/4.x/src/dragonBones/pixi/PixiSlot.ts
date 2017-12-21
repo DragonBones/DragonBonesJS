@@ -161,6 +161,7 @@ namespace dragonBones {
                         break;
                 }
             }
+            // TODO child armature.
         }
         /**
          * @inheritDoc
@@ -171,6 +172,7 @@ namespace dragonBones {
                 const color = (Math.round(this._colorTransform.redMultiplier * 0xFF) << 16) + (Math.round(this._colorTransform.greenMultiplier * 0xFF) << 8) + Math.round(this._colorTransform.blueMultiplier * 0xFF);
                 this._renderDisplay.tint = color;
             }
+            // TODO child armature.
         }
         /**
          * @inheritDoc

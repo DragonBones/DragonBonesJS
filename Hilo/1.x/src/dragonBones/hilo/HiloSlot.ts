@@ -50,16 +50,20 @@ namespace dragonBones {
         /**
          * @inheritDoc
          */
-        protected _initDisplay(value: any): void {
+        protected _initDisplay(value: any, isRetain: boolean): void {
             // tslint:disable-next-line:no-unused-expression
             value;
+            // tslint:disable-next-line:no-unused-expression
+            isRetain;
         }
         /**
          * @inheritDoc
          */
-        protected _disposeDisplay(value: any): void {
+        protected _disposeDisplay(value: any, isRelease: boolean): void {
             // tslint:disable-next-line:no-unused-expression
             value;
+            // tslint:disable-next-line:no-unused-expression
+            isRelease;
         }
         /**
          * @inheritDoc
@@ -150,52 +154,7 @@ namespace dragonBones {
                 const renderTexture = currentTextureAtlasData.renderTexture;
                 if (renderTexture !== null) {
                     if (meshData !== null) { // Mesh.
-                        // const data = meshData.parent.parent.parent;
-                        // const intArray = data.intArray;
-                        // const floatArray = data.floatArray;
-                        // const vertexCount = intArray[meshData.offset + BinaryOffset.MeshVertexCount];
-                        // const triangleCount = intArray[meshData.offset + BinaryOffset.MeshTriangleCount];
-                        // let vertexOffset = intArray[meshData.offset + BinaryOffset.MeshFloatOffset];
-
-                        // if (vertexOffset < 0) {
-                        //     vertexOffset += 65536; // Fixed out of bouds bug. 
-                        // }
-
-                        // const uvOffset = vertexOffset + vertexCount * 2;
-
-                        // const meshDisplay = this._renderDisplay as PIXI.mesh.Mesh;
-                        // const textureAtlasWidth = currentTextureAtlasData.width > 0.0 ? currentTextureAtlasData.width : renderTexture.width;
-                        // const textureAtlasHeight = currentTextureAtlasData.height > 0.0 ? currentTextureAtlasData.height : renderTexture.height;
-
-                        // meshDisplay.vertices = new Float32Array(vertexCount * 2) as any;
-                        // meshDisplay.uvs = new Float32Array(vertexCount * 2) as any;
-                        // meshDisplay.indices = new Uint16Array(triangleCount * 3) as any;
-                        // for (let i = 0, l = vertexCount * 2; i < l; ++i) {
-                        //     meshDisplay.vertices[i] = floatArray[vertexOffset + i];
-                        //     meshDisplay.uvs[i] = floatArray[uvOffset + i];
-                        // }
-
-                        // for (let i = 0; i < triangleCount * 3; ++i) {
-                        //     meshDisplay.indices[i] = intArray[meshData.offset + BinaryOffset.MeshVertexIndices + i];
-                        // }
-
-                        // for (let i = 0, l = meshDisplay.uvs.length; i < l; i += 2) {
-                        //     const u = meshDisplay.uvs[i];
-                        //     const v = meshDisplay.uvs[i + 1];
-                        //     if (currentTextureData.rotated) {
-                        //         meshDisplay.uvs[i] = (currentTextureData.region.x + (1.0 - v) * currentTextureData.region.width) / textureAtlasWidth;
-                        //         meshDisplay.uvs[i + 1] = (currentTextureData.region.y + u * currentTextureData.region.height) / textureAtlasHeight;
-                        //     }
-                        //     else {
-                        //         meshDisplay.uvs[i] = (currentTextureData.region.x + u * currentTextureData.region.width) / textureAtlasWidth;
-                        //         meshDisplay.uvs[i + 1] = (currentTextureData.region.y + v * currentTextureData.region.height) / textureAtlasHeight;
-                        //     }
-                        // }
-
-                        // this._textureScale = 1.0;
-                        // meshDisplay.texture = renderTexture as any;
-                        // //meshDisplay.dirty = true; // Pixi 3.x
-                        // meshDisplay.dirty++; // Pixi 4.x Can not support change mesh vertice count.
+                        // TODO
                     }
                     else { // Normal texture.
                         this._textureScale = currentTextureData.parent.scale * this._armature._armatureData.scale;
@@ -209,11 +168,7 @@ namespace dragonBones {
             }
 
             if (meshData !== null) {
-                // const meshDisplay = this._renderDisplay as PIXI.mesh.Mesh;
-                // meshDisplay.texture = null as any;
-                // meshDisplay.x = 0.0;
-                // meshDisplay.y = 0.0;
-                // meshDisplay.visible = false;
+                // TODO
             }
             else {
                 const normalDisplay = this._renderDisplay as Hilo.Bitmap;
@@ -228,105 +183,50 @@ namespace dragonBones {
          */
         protected _updateMesh(): void {
             // TODO
-            // const hasFFD = this._ffdVertices.length > 0;
-            // const scale = this._armature._armatureData.scale;
-            // const meshData = this._meshData as MeshDisplayData;
-            // const weight = meshData.weight;
-            // const meshDisplay = this._renderDisplay as PIXI.mesh.Mesh;
-
-            // if (weight !== null) {
-            //     const data = meshData.parent.parent.parent;
-            //     const intArray = data.intArray;
-            //     const floatArray = data.floatArray;
-            //     const vertexCount = intArray[meshData.offset + BinaryOffset.MeshVertexCount];
-            //     let weightFloatOffset = intArray[weight.offset + BinaryOffset.WeigthFloatOffset];
-
-            //     if (weightFloatOffset < 0) {
-            //         weightFloatOffset += 65536; // Fixed out of bouds bug. 
-            //     }
-
-            //     for (
-            //         let i = 0, iD = 0, iB = weight.offset + BinaryOffset.WeigthBoneIndices + weight.bones.length, iV = weightFloatOffset, iF = 0;
-            //         i < vertexCount;
-            //         ++i
-            //     ) {
-            //         const boneCount = intArray[iB++];
-            //         let xG = 0.0, yG = 0.0;
-            //         for (let j = 0; j < boneCount; ++j) {
-            //             const boneIndex = intArray[iB++];
-            //             const bone = this._meshBones[boneIndex];
-            //             if (bone !== null) {
-            //                 const matrix = bone.globalTransformMatrix;
-            //                 const weight = floatArray[iV++];
-            //                 let xL = floatArray[iV++] * scale;
-            //                 let yL = floatArray[iV++] * scale;
-
-            //                 if (hasFFD) {
-            //                     xL += this._ffdVertices[iF++];
-            //                     yL += this._ffdVertices[iF++];
-            //                 }
-
-            //                 xG += (matrix.a * xL + matrix.c * yL + matrix.tx) * weight;
-            //                 yG += (matrix.b * xL + matrix.d * yL + matrix.ty) * weight;
-            //             }
-            //         }
-
-            //         meshDisplay.vertices[iD++] = xG;
-            //         meshDisplay.vertices[iD++] = yG;
-            //     }
-            // }
-            // else if (hasFFD) {
-            //     const data = meshData.parent.parent.parent;
-            //     const intArray = data.intArray;
-            //     const floatArray = data.floatArray;
-            //     const vertexCount = intArray[meshData.offset + BinaryOffset.MeshVertexCount];
-            //     let vertexOffset = intArray[meshData.offset + BinaryOffset.MeshFloatOffset];
-
-            //     if (vertexOffset < 0) {
-            //         vertexOffset += 65536; // Fixed out of bouds bug. 
-            //     }
-
-            //     for (let i = 0, l = vertexCount * 2; i < l; ++i) {
-            //         meshDisplay.vertices[i] = floatArray[vertexOffset + i] * scale + this._ffdVertices[i];
-            //     }
-            // }
         }
         /**
          * @inheritDoc
          */
-        protected _updateTransform(isSkinnedMesh: boolean): void {
-            if (isSkinnedMesh) { // Identity transform.
-                this._renderDisplay.x = 0.0;
-                this._renderDisplay.y = 0.0;
-                this._renderDisplay.rotation = 0.0;
-                (this._renderDisplay as any).skew = 0.0;
-                this._renderDisplay.scaleX = 1.0;
-                this._renderDisplay.scaleY = 1.0;
+        public _updateGlueMesh(): void {
+            // TODO
+        }
+        /**
+         * @inheritDoc
+         */
+        protected _updateTransform(): void {
+            this.updateGlobalTransform(); // Update transform.
+
+            const transform = this.global;
+
+            if (this._renderDisplay === this._rawDisplay || this._renderDisplay === this._meshDisplay) {
+                const x = transform.x - (this.globalTransformMatrix.a * this._pivotX + this.globalTransformMatrix.c * this._pivotY);
+                const y = transform.y - (this.globalTransformMatrix.b * this._pivotX + this.globalTransformMatrix.d * this._pivotY);
+                this._renderDisplay.x = x;
+                this._renderDisplay.y = y;
+                this._renderDisplay.rotation = transform.rotation * Transform.RAD_DEG;
+                (this._renderDisplay as any).skew = transform.skew; // Hilo can not support skew. TODO
+                this._renderDisplay.scaleX = transform.scaleX * this._textureScale;
+                this._renderDisplay.scaleY = transform.scaleY * this._textureScale;
             }
             else {
-                this.updateGlobalTransform(); // Update transform.
-
-                const transform = this.global;
-
-                if (this._renderDisplay === this._rawDisplay || this._renderDisplay === this._meshDisplay) {
-                    const x = transform.x - (this.globalTransformMatrix.a * this._pivotX + this.globalTransformMatrix.c * this._pivotY);
-                    const y = transform.y - (this.globalTransformMatrix.b * this._pivotX + this.globalTransformMatrix.d * this._pivotY);
-                    this._renderDisplay.x = x;
-                    this._renderDisplay.y = y;
-                    this._renderDisplay.rotation = transform.rotation * Transform.RAD_DEG;
-                    (this._renderDisplay as any).skew = transform.skew; // Hilo can not support skew.
-                    this._renderDisplay.scaleX = transform.scaleX * this._textureScale;
-                    this._renderDisplay.scaleY = transform.scaleY * this._textureScale;
-                }
-                else {
-                    this._renderDisplay.x = transform.x;
-                    this._renderDisplay.y = transform.y;
-                    this._renderDisplay.rotation = transform.rotation * Transform.RAD_DEG;
-                    (this._renderDisplay as any).skew = transform.skew; // Hilo can not support skew.
-                    this._renderDisplay.scaleX = transform.scaleX * this._textureScale;
-                    this._renderDisplay.scaleY = transform.scaleY * this._textureScale;
-                }
+                this._renderDisplay.x = transform.x;
+                this._renderDisplay.y = transform.y;
+                this._renderDisplay.rotation = transform.rotation * Transform.RAD_DEG;
+                (this._renderDisplay as any).skew = transform.skew; // Hilo can not support skew. TODO
+                this._renderDisplay.scaleX = transform.scaleX * this._textureScale;
+                this._renderDisplay.scaleY = transform.scaleY * this._textureScale;
             }
+        }
+        /**
+         * @inheritDoc
+         */
+        protected _identityTransform(): void {
+            this._renderDisplay.x = 0.0;
+            this._renderDisplay.y = 0.0;
+            this._renderDisplay.rotation = 0.0;
+            (this._renderDisplay as any).skew = 0.0;
+            this._renderDisplay.scaleX = 1.0;
+            this._renderDisplay.scaleY = 1.0;
         }
     }
 }

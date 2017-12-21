@@ -24,9 +24,11 @@ namespace dragonBones {
     /**
      * @inheritDoc
      */
-    export class HiloArmatureDisplay extends Hilo.Container implements IArmatureProxy {
+    export class HiloArmatureDisplay extends Hilo.Container implements IArmatureProxy {        /**
+        * @private
+        */
+        public debugDraw: boolean = false;
         private _debugDraw: boolean = false;
-        private _disposeProxy: boolean = false;
         private _armature: Armature = null as any;
         /**
          * @inheritDoc
@@ -44,15 +46,19 @@ namespace dragonBones {
          * @private
          */
         public dbUpdate(): void {
-            const drawed = DragonBones.debugDraw;
+            const drawed = DragonBones.debugDraw || this.debugDraw;
             if (drawed || this._debugDraw) {
+            }
+            else {
             }
         }
         /**
          * @inheritDoc
          */
         public dispose(disposeProxy: boolean = true): void {
-            this._disposeProxy = disposeProxy;
+            // tslint:disable-next-line:no-unused-expression
+            disposeProxy;
+
             if (this._armature !== null) {
                 this._armature.dispose();
                 this._armature = null as any;
