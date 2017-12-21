@@ -29,8 +29,6 @@ var BoneOffset = /** @class */ (function (_super) {
             //
             this._moveTo(armatureDisplay);
         }
-        //
-        this.createText("Bone offset.");
     };
     BoneOffset.prototype._animationHandler = function (event) {
         this._moveTo(event.armature.display);
@@ -50,7 +48,7 @@ var BoneOffset = /** @class */ (function (_super) {
         rootSlot.offset.skew = Math.random() * Math.PI - Math.PI * 0.5; // Random skew.
         bulletSlot.offset.scaleX = 0.5 + Math.random() * 0.5; // Random scale.
         bulletSlot.offset.scaleY = 0.5 + Math.random() * 0.5;
-        // Update root and effect bone.
+        // Update root and bullet bone.
         rootSlot.invalidUpdate();
         bulletSlot.invalidUpdate();
         //

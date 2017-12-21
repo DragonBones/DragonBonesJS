@@ -29,8 +29,6 @@ var BoneOffset = /** @class */ (function (_super) {
             //
             this._moveTo(armatureDisplay);
         }
-        //
-        this.createText("Bone offset.");
     };
     BoneOffset.prototype._animationHandler = function (event) {
         this._moveTo(event.armature.display);

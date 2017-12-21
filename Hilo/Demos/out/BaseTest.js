@@ -9,7 +9,7 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-var BaseTest = (function (_super) {
+var BaseTest = /** @class */ (function (_super) {
     __extends(BaseTest, _super);
     function BaseTest() {
         var _this = _super.call(this, { background: "#666666", width: 1136, height: 640 }) || this;

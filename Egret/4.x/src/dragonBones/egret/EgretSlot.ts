@@ -85,21 +85,8 @@ namespace dragonBones {
         protected _initDisplay(value: any, isRetain: boolean): void {
             // tslint:disable-next-line:no-unused-expression
             value;
-
-            if (!isRetain) {
-                if (EgretFactory._isV5) {
-                    if (this._renderDisplay === this._rawDisplay && !(this._renderDisplay.$renderNode instanceof egret.sys.BitmapNode)) {
-                        this._renderDisplay.$renderNode = new egret.sys.BitmapNode();
-                    }
-                }
-    
-                if (this._armatureDisplay._batchEnabled) {
-                    const node = this._renderDisplay.$renderNode as (egret.sys.BitmapNode | egret.sys.MeshNode);
-                    if (!node.matrix) {
-                        node.matrix = new egret.Matrix();
-                    }
-                }
-            }
+            // tslint:disable-next-line:no-unused-expression
+            isRetain;
         }
         /**
          * @inheritDoc
@@ -117,8 +104,22 @@ namespace dragonBones {
             this._armatureDisplay = this._armature.display;
             this._renderDisplay = (this._display !== null ? this._display : this._rawDisplay) as egret.DisplayObject;
 
-            if (this._armatureDisplay._batchEnabled && this._renderDisplay !== this._rawDisplay && this._renderDisplay !== this._meshDisplay) {
-                this._armatureDisplay.disableBatch();
+            if (EgretFactory._isV5) {
+                if (this._renderDisplay === this._rawDisplay && !(this._renderDisplay.$renderNode instanceof egret.sys.BitmapNode)) {
+                    this._renderDisplay.$renderNode = new egret.sys.BitmapNode();
+                }
+            }
+
+            if (this._armatureDisplay._batchEnabled) {
+                if (this._renderDisplay !== this._rawDisplay && this._renderDisplay !== this._meshDisplay) {
+                    this._armatureDisplay.disableBatch();
+                }
+                else {
+                    const node = this._renderDisplay.$renderNode as (egret.sys.BitmapNode | egret.sys.MeshNode);
+                    if (!node.matrix) {
+                        node.matrix = new egret.Matrix();
+                    }
+                }
             }
         }
         /**

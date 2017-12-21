@@ -26,8 +26,6 @@ var AnimationLayer = /** @class */ (function (_super) {
         this._armatureDisplay.x = 0.0;
         this._armatureDisplay.y = 100.0;
         this.addChild(this._armatureDisplay);
-        //
-        this.createText("Animation blend layer.");
     };
     AnimationLayer.prototype._animationEventHandler = function (event) {
         var attackState = this._armatureDisplay.animation.getState("attack_01");

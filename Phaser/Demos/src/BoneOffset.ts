@@ -26,8 +26,6 @@ class BoneOffset extends BaseDemo {
             //
             this._moveTo(armatureDisplay);
         }
-        //
-        this.createText("Bone offset.");
     }
 
     private _animationHandler(event: dragonBones.EventObject): void {

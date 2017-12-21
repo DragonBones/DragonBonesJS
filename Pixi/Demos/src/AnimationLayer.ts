@@ -23,8 +23,6 @@ class AnimationLayer extends BaseDemo {
         this._armatureDisplay.x = 0.0;
         this._armatureDisplay.y = 100.0;
         this.addChild(this._armatureDisplay);
-        //
-        this.createText("Animation blend layer.");
     }
 
     private _animationEventHandler(event: dragonBones.EventObject): void {

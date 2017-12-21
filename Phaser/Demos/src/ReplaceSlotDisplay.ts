@@ -1,5 +1,5 @@
 class ReplaceSlotDisplay extends BaseDemo {
-    private static readonly WEAPON_RIGHT_LIST: string[] = ["weapon_1004_r", "weapon_1004b_r", "weapon_1004c_r", "weapon_1004d_r", "weapon_1004e_r", "weapon_1004s_r"];
+    private static readonly WEAPON_RIGHT_LIST: string[] = ["weapon_1004_r", "weapon_1004b_r", "weapon_1004c_r", "weapon_1004d_r", "weapon_1004e_r"];
 
     private _leftWeaponIndex: number = 0;
     private _rightWeaponIndex: number = 0;

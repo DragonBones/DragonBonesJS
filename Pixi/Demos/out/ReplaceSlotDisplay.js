@@ -48,6 +48,7 @@ var ReplaceSlotDisplay = /** @class */ (function (_super) {
         };
         this.addListener("touchstart", touchHandler, this);
         this.addListener("mousedown", touchHandler, this);
+        //
         this.createText("Touch screen left / center / right to relace slot display.");
     };
     ReplaceSlotDisplay.prototype._replaceDisplay = function (type) {
@@ -78,6 +79,6 @@ var ReplaceSlotDisplay = /** @class */ (function (_super) {
             }
         }
     };
-    ReplaceSlotDisplay.WEAPON_RIGHT_LIST = ["weapon_1004_r", "weapon_1004b_r", "weapon_1004c_r", "weapon_1004d_r", "weapon_1004e_r", "weapon_1004s_r"];
+    ReplaceSlotDisplay.WEAPON_RIGHT_LIST = ["weapon_1004_r", "weapon_1004b_r", "weapon_1004c_r", "weapon_1004d_r", "weapon_1004e_r"];
     return ReplaceSlotDisplay;
 }(BaseDemo));

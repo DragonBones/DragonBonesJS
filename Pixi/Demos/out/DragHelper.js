@@ -14,8 +14,6 @@ var DragHelper = /** @class */ (function () {
         displayObject.addListener("touchend", this._dragHandler, this);
         displayObject.addListener("mousedown", this._dragHandler, this);
         displayObject.addListener("mouseup", this._dragHandler, this);
-        // displayObject.addListener("touchmove", this._touchHandler, this);
-        // displayObject.addListener("mousemove", this._touchHandler, this);
     };
     DragHelper.prototype.disableDrag = function (displayObject) {
         displayObject.removeListener("touchstart", this._dragHandler, this);

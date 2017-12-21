@@ -16,7 +16,7 @@ var InverseKinematics = /** @class */ (function (_super) {
         _this._faceDir = 0;
         _this._aimRadian = 0.0;
         _this._offsetRotation = 0.0;
-        _this._target = new dragonBones.Point();
+        _this._target = new PIXI.Point();
         _this._resources.push("resource/mecha_1406/mecha_1406_ske.json", "resource/mecha_1406/mecha_1406_tex.json", "resource/mecha_1406/mecha_1406_tex.png", "resource/floor_board/floor_board_ske.json", "resource/floor_board/floor_board_tex.json", "resource/floor_board/floor_board_tex.png");
         return _this;
     }
