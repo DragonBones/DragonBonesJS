@@ -46,7 +46,7 @@ class BoneOffset extends BaseDemo {
         rootSlot.offset.skew = Math.random() * Math.PI - Math.PI * 0.5; // Random skew.
         bulletSlot.offset.scaleX = 0.5 + Math.random() * 0.5; // Random scale.
         bulletSlot.offset.scaleY = 0.5 + Math.random() * 0.5;
-        // Update root and effect bone.
+        // Update root and bullet bone.
         rootSlot.invalidUpdate();
         bulletSlot.invalidUpdate();
         //

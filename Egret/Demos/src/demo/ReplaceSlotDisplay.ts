@@ -45,6 +45,7 @@ class ReplaceSlotDisplay extends BaseDemo {
                 this._replaceDisplay(0);
             }
         }, this);
+        //
         this.createText("Touch screen left / center / right to relace slot display.");
     }
 

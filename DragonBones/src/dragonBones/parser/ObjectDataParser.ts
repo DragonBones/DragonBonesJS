@@ -1366,8 +1366,9 @@ namespace dragonBones {
                         while (originalIndex !== slotIndex) {
                             unchanged[unchangedIndex++] = originalIndex++;
                         }
-
-                        zOrders[originalIndex + zOrderOffset] = originalIndex++;
+                        
+                        const index = originalIndex + zOrderOffset;
+                        zOrders[index] = originalIndex++;
                     }
 
                     while (originalIndex < slotCount) {

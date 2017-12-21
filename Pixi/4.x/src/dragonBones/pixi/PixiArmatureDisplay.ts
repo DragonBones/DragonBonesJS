@@ -53,7 +53,7 @@ namespace dragonBones {
             super.destroy();
         }
         /**
-         * @private
+         * @inheritDoc
          */
         public dbUpdate(): void {
             const drawed = DragonBones.debugDraw || this.debugDraw;
@@ -155,7 +155,7 @@ namespace dragonBones {
                         }
                     }
                 }
-                else if (this._debugDrawer && this._debugDrawer.parent === this) {
+                else if (this._debugDrawer !== null && this._debugDrawer.parent === this) {
                     this.removeChild(this._debugDrawer);
                 }
             }

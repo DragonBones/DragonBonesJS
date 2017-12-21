@@ -8,7 +8,7 @@
     "build-pixi": "cd.. & cd Pixi & cd 4.x & npm run build & cd.. & cd Demos & tsc & cd.. & cd.. & cd DragonBones",
     "build-phaser": "cd.. & cd Phaser & cd 2.x & npm run build & cd.. & cd Demos & tsc & cd.. & cd.. & cd DragonBones",
     "build-hilo": "cd.. & cd hilo & cd 1.x & npm run build & cd.. & cd Demos & tsc & cd.. & cd.. & cd DragonBones",
-    "build-all": "npm run build & npm run build-egret-4.x & npm run build-pixi & npm run build-phaser & npm run build-hilo"
+    "build-all": "npm run build-egret-4.x & npm run build-pixi & npm run build-phaser & npm run build-hilo"
   },
   "devDependencies": {
     "typescript": "^2.4.2",

@@ -48,6 +48,7 @@ class ReplaceSlotDisplay extends BaseDemo {
         };
         this.addListener("touchstart", touchHandler, this);
         this.addListener("mousedown", touchHandler, this);
+        //
         this.createText("Touch screen left / center / right to relace slot display.");
     }
 

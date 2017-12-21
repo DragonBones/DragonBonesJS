@@ -2,7 +2,7 @@ class InverseKinematics extends BaseDemo {
     private _faceDir: number = 0;
     private _aimRadian: number = 0.0;
     private _offsetRotation: number = 0.0;
-    private readonly _target: dragonBones.Point = new dragonBones.Point();
+    private readonly _target: PIXI.Point = new PIXI.Point();
     private _armatureDisplay: dragonBones.PixiArmatureDisplay;
     private _floorBoard: dragonBones.PixiArmatureDisplay;
     private _chestBone: dragonBones.Bone;
