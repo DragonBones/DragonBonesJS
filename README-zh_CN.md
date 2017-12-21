@@ -15,4 +15,4 @@
 ## 在线示例
 [![PerformanceTest](https://dragonbones.github.io/demo/shot.jpg)](https://github.com/DragonBones/Demos)
 
-Copyright 2012-2017 The DragonBones Team.
+Copyright (c) 2012-2018 The DragonBones team and other contributors.
