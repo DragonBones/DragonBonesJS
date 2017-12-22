@@ -359,7 +359,7 @@ namespace dragonBones {
             const animationPose = this.bone.animationPose;
             const result = this.bonePose.result;
 
-            if (state > 0) {
+            if (state === 2) {
                 animationPose.x += result.x * blendWeight;
                 animationPose.y += result.y * blendWeight;
                 animationPose.rotation += result.rotation * blendWeight;
@@ -367,7 +367,7 @@ namespace dragonBones {
                 animationPose.scaleX += (result.scaleX - 1.0) * blendWeight;
                 animationPose.scaleY += (result.scaleY - 1.0) * blendWeight;
             }
-            else if (blendWeight !== 1.00) {
+            else if (blendWeight !== 1.0) {
                 animationPose.x = result.x * blendWeight;
                 animationPose.y = result.y * blendWeight;
                 animationPose.rotation = result.rotation * blendWeight;

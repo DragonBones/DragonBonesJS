@@ -1304,17 +1304,20 @@ namespace dragonBones {
         public layerWeight: number;
         public blendWeight: number;
 
-        public update(weight: number, layer: number): number {
+        /**
+         * -1: First blending, 0: No blending, 1: Blending.
+         */
+        public update(weight: number, p_layer: number): number {
             if (this.dirty) {
                 if (this.leftWeight > 0.0) {
-                    if (this.layer !== layer) {
+                    if (this.layer !== p_layer) {
                         if (this.layerWeight >= this.leftWeight) {
                             this.leftWeight = 0.0;
 
                             return 0;
                         }
                         else {
-                            this.layer = layer;
+                            this.layer = p_layer;
                             this.leftWeight -= this.layerWeight;
                             this.layerWeight = 0.0;
                         }
@@ -1328,16 +1331,16 @@ namespace dragonBones {
                 this.layerWeight += weight;
                 this.blendWeight = weight;
 
-                return 1;
+                return 2;
             }
 
             this.dirty = true;
-            this.layer = layer;
+            this.layer = p_layer;
             this.layerWeight = weight;
             this.leftWeight = 1.0;
             this.blendWeight = weight;
 
-            return -1;
+            return 1;
         }
 
         public clear(): void {
