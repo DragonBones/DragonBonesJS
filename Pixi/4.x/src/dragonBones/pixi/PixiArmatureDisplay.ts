@@ -25,8 +25,12 @@ namespace dragonBones {
      * @inheritDoc
      */
     export class PixiArmatureDisplay extends PIXI.Sprite implements IArmatureProxy {
+        /**
+         * @private
+         */
+        public debugDraw: boolean = false;
         private _debugDraw: boolean = false;
-        private _disposeProxy: boolean = false;
+        // private _disposeProxy: boolean = false;
         private _armature: Armature = null as any;
         private _debugDrawer: PIXI.Sprite | null = null;
         /**
@@ -43,17 +47,16 @@ namespace dragonBones {
                 this._debugDrawer.destroy(true);
             }
 
-            this._disposeProxy = false;
             this._armature = null as any;
             this._debugDrawer = null;
 
             super.destroy();
         }
         /**
-         * @private
+         * @inheritDoc
          */
         public dbUpdate(): void {
-            const drawed = DragonBones.debugDraw;
+            const drawed = DragonBones.debugDraw || this.debugDraw;
             if (drawed || this._debugDraw) {
                 this._debugDraw = drawed;
                 if (this._debugDraw) {
@@ -99,7 +102,7 @@ namespace dragonBones {
                             }
 
                             child.clear();
-                            child.beginFill(0xFF00FF, 0.3);
+                            child.lineStyle(2.0, 0xFF00FF, 0.7);
 
                             switch (boundingBoxData.type) {
                                 case BoundingBoxType.Rectangle:
@@ -113,13 +116,18 @@ namespace dragonBones {
                                 case BoundingBoxType.Polygon:
                                     const vertices = (boundingBoxData as PolygonBoundingBoxData).vertices;
                                     for (let i = 0, l = vertices.length; i < l; i += 2) {
+                                        const x = vertices[i];
+                                        const y = vertices[i + 1];
+
                                         if (i === 0) {
-                                            child.moveTo(vertices[i], vertices[i + 1]);
+                                            child.moveTo(x, y);
                                         }
                                         else {
-                                            child.lineTo(vertices[i], vertices[i + 1]);
+                                            child.lineTo(x, y);
                                         }
                                     }
+
+                                    child.lineTo(vertices[0], vertices[1]);
                                     break;
 
                                 default:
@@ -147,7 +155,7 @@ namespace dragonBones {
                         }
                     }
                 }
-                else if (this._debugDrawer && this._debugDrawer.parent === this) {
+                else if (this._debugDrawer !== null && this._debugDrawer.parent === this) {
                     this.removeChild(this._debugDrawer);
                 }
             }
@@ -156,7 +164,8 @@ namespace dragonBones {
          * @inheritDoc
          */
         public dispose(disposeProxy: boolean = true): void {
-            this._disposeProxy = disposeProxy;
+            // tslint:disable-next-line:no-unused-expression
+            disposeProxy;
             if (this._armature !== null) {
                 this._armature.dispose();
                 this._armature = null as any;

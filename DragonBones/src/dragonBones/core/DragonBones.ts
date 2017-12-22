@@ -48,11 +48,11 @@ namespace dragonBones {
         FrameTweenEasingOrCurveSampleCount = 2,
         FrameCurveSamples = 3,
 
-        FFDTimelineMeshOffset = 0,
-        FFDTimelineFFDCount = 1,
-        FFDTimelineValueCount = 2,
-        FFDTimelineValueOffset = 3,
-        FFDTimelineFloatOffset = 4
+        DeformMeshOffset = 0,
+        DeformCount = 1,
+        DeformValueCount = 2,
+        DeformValueOffset = 3,
+        DeformFloatOffset = 4
     }
     /**
      * @internal
@@ -62,6 +62,14 @@ namespace dragonBones {
         Armature = 0,
         MovieClip = 1,
         Stage = 2
+    }
+    /**
+     * @internal
+     * @private
+     */
+    export const enum BoneType {
+        Bone = 0,
+        Surface = 1
     }
     /**
      * @private
@@ -140,6 +148,8 @@ namespace dragonBones {
         BoneTranslate = 11,
         BoneRotate = 12,
         BoneScale = 13,
+
+        Surface = 50,
 
         SlotDisplay = 20,
         SlotColor = 21,
@@ -241,7 +251,7 @@ namespace dragonBones {
      * @private
      */
     export class DragonBones {
-        public static readonly VERSION: string = "5.6.1";
+        public static readonly VERSION: string = "5.6.2";
 
         public static yDown: boolean = true;
         public static debug: boolean = false;
@@ -256,7 +266,7 @@ namespace dragonBones {
         public constructor(eventManager: IEventDispatcher) {
             this._eventManager = eventManager;
 
-            console.info(`DragonBones: ${DragonBones.VERSION}\nWebsite: http://www.dragonbones.com/\nSource: http://www.github.com/dragonbones/`);
+            console.info(`DragonBones: ${DragonBones.VERSION}\nWebsite: http://dragonbones.com/\nSource and Demos: https://github.com/DragonBones/`);
         }
 
         public advanceTime(passedTime: number): void {

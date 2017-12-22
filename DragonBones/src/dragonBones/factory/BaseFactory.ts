@@ -192,7 +192,7 @@ namespace dragonBones {
          */
         protected _buildBones(dataPackage: BuildArmaturePackage, armature: Armature): void {
             for (const boneData of dataPackage.armature.sortedBones) {
-                const bone = BaseObject.borrowObject(Bone);
+                const bone = BaseObject.borrowObject(boneData.type === BoneType.Bone ? Bone : Surface);
                 bone.init(boneData);
 
                 if (boneData.parent !== null) {
@@ -909,7 +909,7 @@ namespace dragonBones {
         public replaceSkin(armature: Armature, skin: SkinData, isOverride: boolean = false, exclude: Array<string> | null = null): boolean {
             let success = false;
             const defaultSkin = skin.parent.defaultSkin;
-            
+
             for (const slot of armature.getSlots()) {
                 if (exclude !== null && exclude.indexOf(slot.name) >= 0) {
                     continue;

@@ -50,6 +50,7 @@
 		"./src/dragonBones/armature/Armature.ts",
 		"./src/dragonBones/armature/TransformObject.ts",
 		"./src/dragonBones/armature/Bone.ts",
+		"./src/dragonBones/armature/Surface.ts",
 		"./src/dragonBones/armature/Slot.ts",
 		"./src/dragonBones/armature/Constraint.ts",
 

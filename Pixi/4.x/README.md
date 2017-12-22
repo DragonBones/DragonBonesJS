@@ -17,4 +17,4 @@ Your project
 ```
 
 ## Pixi declaration
-[Get pixi.js.d.ts](https://github.com/pixijs/pixi-typescript/blob/v4.x/pixi.js.d.ts)
+* [Get pixi.js.d.ts](https://github.com/pixijs/pixi-typescript/blob/v4.x/pixi.js.d.ts)

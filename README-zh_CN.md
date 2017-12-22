@@ -11,6 +11,8 @@
 
 ## 了解更多
 * [DragonBones 官网](http://www.dragonbones.com/)
-* [在线示例](http://www.dragonbones.com/demo/index.html)
 
-Copyright 2012-2017 The DragonBones Team.
+## 在线示例
+[![PerformanceTest](https://dragonbones.github.io/demo/shot.jpg)](https://github.com/DragonBones/Demos)
+
+Copyright (c) 2012-2018 The DragonBones team and other contributors.
