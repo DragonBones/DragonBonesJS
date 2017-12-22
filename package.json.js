@@ -26,6 +26,11 @@ const packageConfig = {
     keywords: ['dragonbones', 'egret', 'hilo', 'phaser', 'pixi', 'bones'],
 
     /**
+     * enter point
+     */
+    main: './builds/index.js',
+
+    /**
      * cli
      */
     bin: {
@@ -41,12 +46,10 @@ const packageConfig = {
         
         'lodash': '^4.17.4',
         'async': '^2.6.0',
-        'liftoff': '^2.3.0',
         'minimist': '^1.2.0',
         'copy': '^0.3.1',
         'del': '^3.0.0',
         'download': '^6.2.5',
-        'tar-pack': '^3.4.1',
         'semver': '^5.4.1',
         'debug': '^3.1.0'
     }

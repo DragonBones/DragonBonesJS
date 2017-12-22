@@ -10,10 +10,7 @@ const path = require('path');
 const copy = require('copy');
 const del = require('del');
 const download = require('download');
-const semver = require('semver');
-const unpack = require('tar-pack').unpack;
 const exec = require('child_process').exec;
-const debug = require('debug')('dragonbones');
 
 const tscPath = require.resolve('typescript/bin/tsc');
 const cacheFolder = path.join(__dirname, '../.cache');
@@ -34,23 +31,29 @@ class BuildBase {
      * @constructor
      */
     constructor (config) {
-        this.outFolder = config.outFolder;
+        this.outFolder = config.outFolder || path.join(process.cwd(), './dragonbones-out');
         this.version = config.version;
         this.registry = registryMap[config.registry] || registryMap['npm'];
 
+        this.cacheFolder = cacheFolder;
         this.cacheSourceFolder = path.join(cacheFolder, 'source/');
         this.tsconfigFolder = this.cacheSourceFolder;
+
+        this.debug = null;
     }
 
     /**
      * clear the cache
      * @param {Function} callback - callback function
      */
-    clearCache (callback) => {
-        del([
-            path.join(cacheFolder, '*/**'),
-            path.join(cacheFolder, '*')
-        ]).then(
+    clearCache (callback) {
+        del(
+            [
+                path.join(cacheFolder, '*/**'),
+                path.join(cacheFolder, '*')
+            ],
+            { force: true }
+        ).then(
             () => callback(),
             (err) => callback(err)
         );
@@ -64,7 +67,7 @@ class BuildBase {
     rewriteOutFile (outFolder, tsconfigPath) {
         const tsConfigStr = fs.readFileSync(tsconfigPath, { encoding: 'utf8' });
         const tsConfig = JSON.parse(tsConfigStr);
-        _.set(tsConfig, 'compilerOptions.outFile', path.join(outFolder, 'dragonBones.js'));
+        _.set(tsConfig, 'compilerOptions.outFile', path.join(this.outFolder, 'dragonBones.js'));
 
         fs.writeFileSync(tsconfigPath, JSON.stringify(tsConfig, null, 2), {
             encoding: 'utf8',
@@ -95,8 +98,8 @@ class BuildBase {
             this.outFolder,
             path.join(this.tsconfigFolder, 'tsconfig.json')
         );
-        exec(`node ${ tscPath } -p ${ tsconfigFolder }`, (err, stdout, stderr) => {
-            debug(stdout);
+        exec(`node ${ tscPath } -p ${ this.tsconfigFolder }`, (err, stdout, stderr) => {
+            this.debug(stdout);
             return callback();
         });
     }
@@ -108,29 +111,46 @@ class BuildBase {
      */
     build (callback) {
         async.auto({
+            // check version
+            check: (callback) => {
+                if (!this.checkVersion) {
+                    return callback(new Error(`do not support the version ${ this.version }`));
+                }
+                return callback();
+            },
             // clear cache
-            clear: (callback) => this.clearCache(callback),
+            clear: ['check', (results, callback) => this.clearCache(callback)],
             // copy the src file
             copySrc: ['clear', (results, callback) => {
-                debug('copy source files to cache');
-                copy(this.copyPath, this.cacheSourceFolder, callback);
+                this.debug('copy source files to cache');
+                copy(this.copySrcPath, this.cacheSourceFolder, callback);
             }],
             // download
             download: ['clear', (results, callback) => {
-                debug('download and unpack the lib');
+                this.debug('download and unpack the lib');
                 this.download(callback);
             }],
             // copy the .d.ts
             copyDeclear: ['copySrc', 'download', (results, callback) => {
-                debug('download and unpack the lib');
+                this.debug('copy the .d.ts files');
                 this.copyDeclear(callback);
             }],
             compile: ['copyDeclear', (results, callback) => {
-                debug('tsc compile');
+                this.debug('tsc compile');
                 this.compile(callback);
             }]
         }, (err) => callback(err));
     }
+
+    /**
+     * check the version
+     * @return {Boolean} the version is valid or not
+     * @abstract
+     */
+    get checkVersion () {
+        return true;
+    }
+
 
     /**
      * get the src files's copy path
