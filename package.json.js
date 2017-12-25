@@ -5,7 +5,7 @@
 
 const packageConfig = {
     // basic
-    name: 'dragonbones-js',
+    name: 'dragonbones-runtime',
     version: '5.6.0',
     description: 'the tools to build dragonbones file for diffrent framework',
     homepage: 'https://github.com/DragonBones/DragonBonesJS',
@@ -34,7 +34,7 @@ const packageConfig = {
      * cli
      */
     bin: {
-        'dragonbones-cli': './bin/cli.js'
+        'dbr': './bin/cli.js'
     },
 
     /**
