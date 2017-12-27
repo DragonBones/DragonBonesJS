@@ -135,6 +135,7 @@ class BuildBase {
                 this.debug('copy the .d.ts files');
                 this.copyDeclear(callback);
             }],
+            // use tsc to compile
             compile: ['copyDeclear', (results, callback) => {
                 this.debug('tsc compile');
                 this.compile(callback);
