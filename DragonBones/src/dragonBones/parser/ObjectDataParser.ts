@@ -629,7 +629,7 @@ namespace dragonBones {
 
                     if (DataParser.SHARE in rawData) {
                         this._cacheRawMeshes.push(rawData);
-                        this._cacheRawMeshes.push(meshDisplay);
+                        this._cacheMeshes.push(meshDisplay);
                     }
                     else {
                         this._parseMesh(rawData, meshDisplay);
@@ -637,7 +637,7 @@ namespace dragonBones {
 
                     if ((DataParser.GLUE_WEIGHTS in rawData) && (DataParser.GLUE_MESHES in rawData)) {
                         this._cacheRawMeshes.push(rawData);
-                        this._cacheRawMeshes.push(meshDisplay);
+                        this._cacheMeshes.push(meshDisplay);
                     }
                     break;
 
@@ -1366,7 +1366,7 @@ namespace dragonBones {
                         while (originalIndex !== slotIndex) {
                             unchanged[unchangedIndex++] = originalIndex++;
                         }
-                        
+
                         const index = originalIndex + zOrderOffset;
                         zOrders[index] = originalIndex++;
                     }

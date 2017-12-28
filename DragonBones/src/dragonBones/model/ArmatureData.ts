@@ -460,7 +460,6 @@ namespace dragonBones {
             return name in this.skins ? this.skins[name] : null;
         }
         /**
-         * @internal
          * @private
          */
         public getMesh(skinName: string, slotName: string, meshName: string): MeshDisplayData | null {

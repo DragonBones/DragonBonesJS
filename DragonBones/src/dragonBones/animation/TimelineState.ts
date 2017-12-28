@@ -710,7 +710,7 @@ namespace dragonBones {
                     value = this._frameFloatArray[this._frameFloatOffset + i - this._valueCount];
                 }
 
-                if (state > 0) {
+                if (state === 2) {
                     result[i] += value * blendWeight;
                 }
                 else if (blendWeight !== 1.0) {
@@ -1199,7 +1199,7 @@ namespace dragonBones {
             const animationState = this.animationState;
             const blendWeight = animationState._blendState.blendWeight;
 
-            if (state > 0) {
+            if (state === 2) {
                 animationState.weight += this._floats[5] * blendWeight;
                 animationState.currentTime += this._floats[2] * blendWeight;
             }

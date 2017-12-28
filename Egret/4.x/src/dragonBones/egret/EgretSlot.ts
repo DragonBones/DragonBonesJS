@@ -106,7 +106,7 @@ namespace dragonBones {
 
             if (EgretFactory._isV5) {
                 if (this._renderDisplay === this._rawDisplay && !(this._renderDisplay.$renderNode instanceof egret.sys.BitmapNode)) {
-                    this._renderDisplay.$renderNode = new egret.sys.BitmapNode();
+                    this._renderDisplay.$renderNode = new egret.sys.BitmapNode();  // 默认是 sys.NormalBitmapNode 没有矩阵，需要替换成 egret.sys.BitmapNode。
                 }
             }
 
