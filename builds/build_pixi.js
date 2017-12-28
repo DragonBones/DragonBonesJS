@@ -22,7 +22,7 @@ class BuildPixi extends BuildBase {
      * @return {Boolean} the version is valid or not
      */
     get checkVersion () {
-        
+        return semver.satisfies(this.version, '4.0.0 - 4');
     }
 
     /**
@@ -30,7 +30,11 @@ class BuildPixi extends BuildBase {
      * @returns {[String]} the glob path
      */
     get copySrcPath () {
-
+        const majorVer = semver.major(this.version);
+        return [
+            path.join(__dirname, `../Pixi/${ majorVer }.x/*/**`),
+            path.join(__dirname, `../Pixi/${ majorVer }.x/*`)
+        ];
     }
 
     /**
@@ -38,7 +42,8 @@ class BuildPixi extends BuildBase {
      * @returns {String} the download url
      */
     get downloadUrl () {
-
+        // return `${ this.registry }@types/pixi.js/-/@types/pixi.js-${ this.version }.tgz`;
+        return `https://github.com/pixijs/pixi-typescript/archive/v${ this.version }.tar.gz`;
     }
 
     /**
@@ -46,7 +51,14 @@ class BuildPixi extends BuildBase {
      * @param {Function} callback - callback function
      */
     copyDeclear (callback) {
-
+        copy(
+            [
+                path.join(this.cacheFolder, `pixi-typescript-4.6.2/pixi.js.d.ts`)
+            ],
+            path.join(this.cacheSourceFolder, 'libs'),
+            { flatten: true },
+            callback
+        );
     }
 }
 

@@ -22,7 +22,7 @@ class BuildHilo extends BuildBase {
      * @return {Boolean} the version is valid or not
      */
     get checkVersion () {
-        
+        return semver.satisfies(this.version, '1.0.0 - 1');
     }
 
     /**
@@ -30,7 +30,11 @@ class BuildHilo extends BuildBase {
      * @returns {[String]} the glob path
      */
     get copySrcPath () {
-
+        const majorVer = semver.major(this.version);
+        return [
+            path.join(__dirname, `../Hilo/${ majorVer }.x/*/**`),
+            path.join(__dirname, `../Hilo/${ majorVer }.x/*`)
+        ];
     }
 
     /**
@@ -38,7 +42,7 @@ class BuildHilo extends BuildBase {
      * @returns {String} the download url
      */
     get downloadUrl () {
-
+        return `https://github.com/hiloteam/Hilo/archive/v${ this.version }.tar.gz`;
     }
 
     /**
@@ -46,7 +50,15 @@ class BuildHilo extends BuildBase {
      * @param {Function} callback - callback function
      */
     copyDeclear (callback) {
-
+        return callback();
+        copy(
+            [
+                path.join(this.cacheFolder, `Hilo-${ this.version }/d.ts/hilo.d.ts`)
+            ],
+            path.join(this.cacheSourceFolder, 'libs'),
+            { flatten: true },
+            callback
+        );
     }
 }
 

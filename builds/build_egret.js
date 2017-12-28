@@ -50,7 +50,14 @@ class BuildEgret extends BuildBase {
      * @param {Function} callback - callback function
      */
     copyDeclear (callback) {
-
+        copy(
+            [
+                path.join(this.cacheFolder, `egret-core-${ this.version }/build/egret/egret.d.ts`)
+            ],
+            path.join(this.cacheSourceFolder, 'libs'),
+            { flatten: true },
+            callback
+        );
     }
 }
 
