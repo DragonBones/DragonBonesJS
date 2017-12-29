@@ -22,7 +22,7 @@ class BuildEgret extends BuildBase {
      * @return {Boolean} the version is valid or not
      */
     get checkVersion () {
-        return semver.satisfies(this.version, '4.0.0 - 5');
+        return semver.satisfies(this.version, '4.0.0 - 4');
     }
 
     /**
