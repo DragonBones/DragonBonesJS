@@ -34,7 +34,7 @@ const packageConfig = {
      * cli
      */
     bin: {
-        'dbr': './bin/cli.js'
+        'dbr': './builds/cli.js'
     },
 
     /**
