@@ -316,8 +316,8 @@ namespace dragonBones {
         /**
          * @private
          */
-        public addAnimationTimeline(name: string, timeline: TimelineData): void {
-            const timelines = name in this.animationTimelines ? this.animationTimelines[name] : (this.animationTimelines[name] = []);
+        public addAnimationTimeline(timelineName: string, timeline: TimelineData): void {
+            const timelines = timelineName in this.animationTimelines ? this.animationTimelines[timelineName] : (this.animationTimelines[timelineName] = []);
             if (timelines.indexOf(timeline) < 0) {
                 timelines.push(timeline);
             }
@@ -325,44 +325,44 @@ namespace dragonBones {
         /**
          * @private
          */
-        public getBoneTimelines(name: string): Array<TimelineData> | null {
-            return name in this.boneTimelines ? this.boneTimelines[name] : null;
+        public getBoneTimelines(timelineName: string): Array<TimelineData> | null {
+            return timelineName in this.boneTimelines ? this.boneTimelines[timelineName] : null;
         }
         /**
          * @private
          */
-        public getSurfaceTimelines(name: string): Array<TimelineData> | null {
-            return name in this.surfaceTimelines ? this.surfaceTimelines[name] : null;
+        public getSurfaceTimelines(timelineName: string): Array<TimelineData> | null {
+            return timelineName in this.surfaceTimelines ? this.surfaceTimelines[timelineName] : null;
         }
         /**
          * @private
          */
-        public getSlotTimelines(name: string): Array<TimelineData> | null {
-            return name in this.slotTimelines ? this.slotTimelines[name] : null;
+        public getSlotTimelines(timelineName: string): Array<TimelineData> | null {
+            return timelineName in this.slotTimelines ? this.slotTimelines[timelineName] : null;
         }
         /**
          * @private
          */
-        public getConstraintTimelines(name: string): Array<TimelineData> | null {
-            return name in this.constraintTimelines ? this.constraintTimelines[name] : null;
+        public getConstraintTimelines(timelineName: string): Array<TimelineData> | null {
+            return timelineName in this.constraintTimelines ? this.constraintTimelines[timelineName] : null;
         }
         /**
          * @private
          */
-        public getAnimationTimelines(name: string): Array<TimelineData> | null {
-            return name in this.animationTimelines ? this.animationTimelines[name] : null;
+        public getAnimationTimelines(timelineName: string): Array<TimelineData> | null {
+            return timelineName in this.animationTimelines ? this.animationTimelines[timelineName] : null;
         }
         /**
          * @private
          */
-        public getBoneCachedFrameIndices(name: string): Array<number> | null {
-            return name in this.boneCachedFrameIndices ? this.boneCachedFrameIndices[name] : null;
+        public getBoneCachedFrameIndices(boneName: string): Array<number> | null {
+            return boneName in this.boneCachedFrameIndices ? this.boneCachedFrameIndices[boneName] : null;
         }
         /**
          * @private
          */
-        public getSlotCachedFrameIndices(name: string): Array<number> | null {
-            return name in this.slotCachedFrameIndices ? this.slotCachedFrameIndices[name] : null;
+        public getSlotCachedFrameIndices(slotName: string): Array<number> | null {
+            return slotName in this.slotCachedFrameIndices ? this.slotCachedFrameIndices[slotName] : null;
         }
     }
     /**

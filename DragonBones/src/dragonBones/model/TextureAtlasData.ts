@@ -136,8 +136,8 @@ namespace dragonBones {
         /**
          * @private
          */
-        public getTexture(name: string): TextureData | null {
-            return name in this.textures ? this.textures[name] : null;
+        public getTexture(textureName: string): TextureData | null {
+            return textureName in this.textures ? this.textures[textureName] : null;
         }
     }
     /**

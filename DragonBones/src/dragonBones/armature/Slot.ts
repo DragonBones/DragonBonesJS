@@ -228,7 +228,7 @@ namespace dragonBones {
                     eachDisplay.dispose();
                 }
                 else {
-                    this._disposeDisplay(eachDisplay, false);
+                    this._disposeDisplay(eachDisplay, true);
                 }
             }
 
@@ -456,6 +456,10 @@ namespace dragonBones {
                     if (frame !== null) {
                         this._pivotX += frame.x * scale;
                         this._pivotY += frame.y * scale;
+                    }
+
+                    if (!DragonBones.yDown) {
+                        this._pivotY -= (this._textureData.rotated ? this._textureData.region.width : this._textureData.region.height) * scale;
                     }
                 }
                 else {
@@ -1191,7 +1195,7 @@ namespace dragonBones {
 
             for (const eachDisplay of disposeDisplayList) {
                 if (eachDisplay instanceof Armature) {
-                    (eachDisplay as Armature).dispose();
+                    // (eachDisplay as Armature).dispose();
                 }
                 else {
                     this._disposeDisplay(eachDisplay, true);
@@ -1320,6 +1324,10 @@ namespace dragonBones {
          * @example
          * <pre>
          *     let slot = armature.getSlot("weapon");
+         *     let prevChildArmature = slot.childArmature;
+         *     if (prevChildArmature) {
+         *         prevChildArmature.dispose();
+         *     }
          *     slot.childArmature = factory.buildArmature("weapon_blabla", "weapon_blabla_project");
          * </pre>
          * @version DragonBones 3.0
@@ -1327,9 +1335,14 @@ namespace dragonBones {
          */
         /**
          * - 插槽此时显示的子骨架。
+         * 注意，被替换的对象并不会被回收，根据语言和引擎的不同，需要额外处理。
          * @example
          * <pre>
          *     let slot = armature.getSlot("weapon");
+         *     let prevChildArmature = slot.childArmature;
+         *     if (prevChildArmature) {
+         *         prevChildArmature.dispose();
+         *     }
          *     slot.childArmature = factory.buildArmature("weapon_blabla", "weapon_blabla_project");
          * </pre>
          * @version DragonBones 3.0

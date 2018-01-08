@@ -344,12 +344,12 @@ namespace dragonBones {
             }
 
             for (let i = 0, l = this._cacheRawMeshes.length; i < l; ++i) { // Link glue mesh.
-                const rawData = this._cacheRawMeshes[i];
-                if (!(DataParser.GLUE_WEIGHTS in rawData) || !(DataParser.GLUE_MESHES in rawData)) {
+                const rawMeshData = this._cacheRawMeshes[i];
+                if (!(DataParser.GLUE_WEIGHTS in rawMeshData) || !(DataParser.GLUE_MESHES in rawMeshData)) {
                     continue;
                 }
 
-                this._parseMeshGlue(rawData, this._cacheMeshes[i]);
+                this._parseMeshGlue(rawMeshData, this._cacheMeshes[i]);
             }
 
             for (let i = 0, l = this._cacheRawMeshes.length; i < l; ++i) { // Link mesh.
@@ -827,8 +827,8 @@ namespace dragonBones {
                 }
 
                 for (let i = 0, l = rawVertices.length; i < l; i += 2) {
-                    let x = rawVertices[i] * scale;
-                    let y = rawVertices[i + 1] * scale;
+                    const x = rawVertices[i] * scale;
+                    const y = rawVertices[i + 1] * scale;
 
                     if (DragonBones.webAssembly) {
                         (vertices as any).set(i, x);

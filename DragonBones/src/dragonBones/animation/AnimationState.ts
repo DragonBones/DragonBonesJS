@@ -1013,41 +1013,41 @@ namespace dragonBones {
         }
         /**
          * - Check if a specific bone mask is included.
-         * @param name - The bone name.
+         * @param boneName - The bone name.
          * @version DragonBones 3.0
          * @language en_US
          */
         /**
          * - 检查是否包含特定骨骼遮罩。
-         * @param name - 骨骼名称。
+         * @param boneName - 骨骼名称。
          * @version DragonBones 3.0
          * @language zh_CN
          */
-        public containsBoneMask(name: string): boolean {
-            return this._boneMask.length === 0 || this._boneMask.indexOf(name) >= 0;
+        public containsBoneMask(boneName: string): boolean {
+            return this._boneMask.length === 0 || this._boneMask.indexOf(boneName) >= 0;
         }
         /**
          * - Add a specific bone mask.
-         * @param name - The bone name.
+         * @param boneName - The bone name.
          * @param recursive - Whether or not to add a mask to the bone's sub-bone.
          * @version DragonBones 3.0
          * @language en_US
          */
         /**
          * - 添加特定的骨骼遮罩。
-         * @param name - 骨骼名称。
+         * @param boneName - 骨骼名称。
          * @param recursive - 是否为该骨骼的子骨骼添加遮罩。
          * @version DragonBones 3.0
          * @language zh_CN
          */
-        public addBoneMask(name: string, recursive: boolean = true): void {
-            const currentBone = this._armature.getBone(name);
+        public addBoneMask(boneName: string, recursive: boolean = true): void {
+            const currentBone = this._armature.getBone(boneName);
             if (currentBone === null) {
                 return;
             }
 
-            if (this._boneMask.indexOf(name) < 0) { // Add mixing
-                this._boneMask.push(name);
+            if (this._boneMask.indexOf(boneName) < 0) { // Add mixing
+                this._boneMask.push(boneName);
             }
 
             if (recursive) { // Add recursive mixing.
@@ -1062,26 +1062,26 @@ namespace dragonBones {
         }
         /**
          * - Remove the mask of a specific bone.
-         * @param name - The bone name.
+         * @param boneName - The bone name.
          * @param recursive - Whether to remove the bone's sub-bone mask.
          * @version DragonBones 3.0
          * @language en_US
          */
         /**
          * - 删除特定骨骼的遮罩。
-         * @param name - 骨骼名称。
+         * @param boneName - 骨骼名称。
          * @param recursive - 是否删除该骨骼的子骨骼遮罩。
          * @version DragonBones 3.0
          * @language zh_CN
          */
-        public removeBoneMask(name: string, recursive: boolean = true): void {
-            const index = this._boneMask.indexOf(name);
+        public removeBoneMask(boneName: string, recursive: boolean = true): void {
+            const index = this._boneMask.indexOf(boneName);
             if (index >= 0) { // Remove mixing.
                 this._boneMask.splice(index, 1);
             }
 
             if (recursive) {
-                const currentBone = this._armature.getBone(name);
+                const currentBone = this._armature.getBone(boneName);
                 if (currentBone !== null) {
                     const bones = this._armature.getBones();
                     if (this._boneMask.length > 0) { // Remove recursive mixing.

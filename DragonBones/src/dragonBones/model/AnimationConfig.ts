@@ -342,20 +342,20 @@ namespace dragonBones {
         /**
          * @private
          */
-        public containsBoneMask(name: string): boolean {
-            return this.boneMask.length === 0 || this.boneMask.indexOf(name) >= 0;
+        public containsBoneMask(boneName: string): boolean {
+            return this.boneMask.length === 0 || this.boneMask.indexOf(boneName) >= 0;
         }
         /**
          * @private
          */
-        public addBoneMask(armature: Armature, name: string, recursive: boolean = true): void {
-            const currentBone = armature.getBone(name);
+        public addBoneMask(armature: Armature, boneName: string, recursive: boolean = true): void {
+            const currentBone = armature.getBone(boneName);
             if (currentBone === null) {
                 return;
             }
 
-            if (this.boneMask.indexOf(name) < 0) { // Add mixing
-                this.boneMask.push(name);
+            if (this.boneMask.indexOf(boneName) < 0) { // Add mixing
+                this.boneMask.push(boneName);
             }
 
             if (recursive) { // Add recursive mixing.
@@ -369,14 +369,14 @@ namespace dragonBones {
         /**
          * @private
          */
-        public removeBoneMask(armature: Armature, name: string, recursive: boolean = true): void {
-            const index = this.boneMask.indexOf(name);
+        public removeBoneMask(armature: Armature, boneName: string, recursive: boolean = true): void {
+            const index = this.boneMask.indexOf(boneName);
             if (index >= 0) { // Remove mixing.
                 this.boneMask.splice(index, 1);
             }
 
             if (recursive) {
-                const currentBone = armature.getBone(name);
+                const currentBone = armature.getBone(boneName);
                 if (currentBone !== null) {
                     if (this.boneMask.length > 0) { // Remove recursive mixing.
                         for (const bone of armature.getBones()) {

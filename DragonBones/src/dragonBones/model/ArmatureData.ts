@@ -410,54 +410,54 @@ namespace dragonBones {
         }
         /**
          * - Get a specific done data.
-         * @param name - The bone name.
+         * @param boneName - The bone name.
          * @version DragonBones 3.0
          * @language en_US
          */
         /**
          * - 获取特定的骨骼数据。
-         * @param name - 骨骼名称。
+         * @param boneName - 骨骼名称。
          * @version DragonBones 3.0
          * @language zh_CN
          */
-        public getBone(name: string): BoneData | null {
-            return name in this.bones ? this.bones[name] : null;
+        public getBone(boneName: string): BoneData | null {
+            return boneName in this.bones ? this.bones[boneName] : null;
         }
         /**
          * - Get a specific slot data.
-         * @param name - The slot name.
+         * @param slotName - The slot name.
          * @version DragonBones 3.0
          * @language en_US
          */
         /**
          * - 获取特定的插槽数据。
-         * @param name - 插槽名称。
+         * @param slotName - 插槽名称。
          * @version DragonBones 3.0
          * @language zh_CN
          */
-        public getSlot(name: string): SlotData | null {
-            return name in this.slots ? this.slots[name] : null;
+        public getSlot(slotName: string): SlotData | null {
+            return slotName in this.slots ? this.slots[slotName] : null;
         }
         /**
          * @private
          */
-        public getConstraint(name: string): ConstraintData | null {
-            return name in this.constraints ? this.constraints[name] : null;
+        public getConstraint(constraintName: string): ConstraintData | null {
+            return constraintName in this.constraints ? this.constraints[constraintName] : null;
         }
         /**
          * - Get a specific skin data.
-         * @param name - The skin name.
+         * @param skinName - The skin name.
          * @version DragonBones 3.0
          * @language en_US
          */
         /**
          * - 获取特定皮肤数据。
-         * @param name - 皮肤名称。
+         * @param skinName - 皮肤名称。
          * @version DragonBones 3.0
          * @language zh_CN
          */
-        public getSkin(name: string): SkinData | null {
-            return name in this.skins ? this.skins[name] : null;
+        public getSkin(skinName: string): SkinData | null {
+            return skinName in this.skins ? this.skins[skinName] : null;
         }
         /**
          * @private
@@ -472,18 +472,18 @@ namespace dragonBones {
         }
         /**
          * - Get a specific animation data.
-         * @param name - The animation name.
+         * @param animationName - The animation animationName.
          * @version DragonBones 3.0
          * @language en_US
          */
         /**
          * - 获取特定的动画数据。
-         * @param name - 动画名称。
+         * @param animationName - 动画名称。
          * @version DragonBones 3.0
          * @language zh_CN
          */
-        public getAnimation(name: string): AnimationData | null {
-            return name in this.animations ? this.animations[name] : null;
+        public getAnimation(animationName: string): AnimationData | null {
+            return animationName in this.animations ? this.animations[animationName] : null;
         }
     }
     /**

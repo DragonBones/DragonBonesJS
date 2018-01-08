@@ -198,7 +198,18 @@ namespace dragonBones {
                         }
 
                         for (const slot of this._armature.getSlots()) {
-                            slot._cachedFrameIndices = animationData.getSlotCachedFrameIndices(slot.name);
+                            const rawDisplayDatas = slot.rawDisplayDatas;
+                            if (rawDisplayDatas !== null && rawDisplayDatas.length > 0) {
+                                const rawDsplayData = rawDisplayDatas[0];
+                                if (rawDsplayData !== null) {
+                                    if (rawDsplayData.parent === this._armature.armatureData.defaultSkin) {
+                                        slot._cachedFrameIndices = animationData.getSlotCachedFrameIndices(slot.name);
+                                        continue;
+                                    }
+                                }
+                            }
+
+                            slot._cachedFrameIndices = null;
                         }
                     }
 

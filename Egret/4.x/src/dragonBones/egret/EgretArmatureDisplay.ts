@@ -310,7 +310,7 @@ namespace dragonBones {
          * @internal
          * @private
          */
-        public _batchEnabled: boolean = !__global["nativeRender"]; //
+        public _batchEnabled: boolean = !global["nativeRender"]; //
         /**
          * @internal
          * @private
