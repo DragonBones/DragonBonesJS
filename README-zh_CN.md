@@ -13,6 +13,6 @@
 * [DragonBones 官网](http://www.dragonbones.com/)
 
 ## 在线示例
-[![PerformanceTest](https://dragonbones.github.io/demo/shot.jpg)](https://github.com/DragonBones/Demos)
+[![PerformanceTest](https://dragonbones.github.io/demo/demos.png)](https://github.com/DragonBones/Demos)
 
 Copyright (c) 2012-2018 The DragonBones team and other contributors.
