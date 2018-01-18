@@ -5,6 +5,7 @@ bin/
 libs/
 node_modules/
 modules/
+.cache/
 
 pids
 logs

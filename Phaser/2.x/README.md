@@ -19,4 +19,4 @@ Your project
 ```
 
 ## Phaser declaration
-[Get phaser.d.ts, pixi.d.ts, p2.d.ts](https://github.com/photonstorm/phaser-ce/tree/master/typescript/)
+* [Get phaser.d.ts, pixi.d.ts, p2.d.ts](https://github.com/photonstorm/phaser-ce/tree/master/typescript/)

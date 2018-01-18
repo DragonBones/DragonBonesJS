@@ -1114,7 +1114,9 @@ namespace dragonBones {
                             this._cacheRectangle.height = prevCacheRectangle.height;
                         }
 
-                        this.$invalidateContentBounds();
+                        if (!EgretFactory._isV5) {
+                            this.$invalidateContentBounds();
+                        }
                     }
                 }
 

@@ -72,34 +72,19 @@ namespace dragonBones {
          * @private
          */
         public _childrenTransformDirty: boolean;
-        /**
-         * @internal
-         * @private
-         */
-        public _blendDirty: boolean;
-        private _localDirty: boolean;
+        protected _localDirty: boolean;
         /**
          * @internal
          * @private
          */
         public _hasConstraint: boolean;
         private _visible: boolean;
-        private _cachedFrameIndex: number;
+        protected _cachedFrameIndex: number;
         /**
          * @internal
          * @private
          */
-        public _blendLayer: number;
-        /**
-         * @internal
-         * @private
-         */
-        public _blendLeftWeight: number;
-        /**
-         * @internal
-         * @private
-         */
-        public _blendLayerWeight: number;
+        public readonly _blendState: BlendState = new BlendState();
         /**
          * @internal
          * @private
@@ -121,39 +106,48 @@ namespace dragonBones {
 
             this._transformDirty = false;
             this._childrenTransformDirty = false;
-            this._blendDirty = false;
             this._localDirty = true;
             this._hasConstraint = false;
             this._visible = true;
             this._cachedFrameIndex = -1;
-            this._blendLayer = 0;
-            this._blendLeftWeight = 1.0;
-            this._blendLayerWeight = 0.0;
+            this._blendState.clear();
             this._boneData = null as any; //
             this._cachedFrameIndices = null;
         }
         /**
          * @private
          */
-        private _updateGlobalTransformMatrix(isCache: boolean): void {
+        protected _updateGlobalTransformMatrix(isCache: boolean): void {
+            const boneData = this._boneData;
+            const parent = this._parent;
             const flipX = this._armature.flipX;
             const flipY = this._armature.flipY === DragonBones.yDown;
-            let inherit = this._parent !== null;
+            let inherit = parent !== null;
             let rotation = 0.0;
             const global = this.global;
             const globalTransformMatrix = this.globalTransformMatrix;
 
             if (this.offsetMode === OffsetMode.Additive) {
-                // global.copyFrom(this.origin).add(this.offset).add(this.animationPose);
-                global.x = this.origin.x + this.offset.x + this.animationPose.x;
-                global.y = this.origin.y + this.offset.y + this.animationPose.y;
-                global.skew = this.origin.skew + this.offset.skew + this.animationPose.skew;
-                global.rotation = this.origin.rotation + this.offset.rotation + this.animationPose.rotation;
-                global.scaleX = this.origin.scaleX * this.offset.scaleX * this.animationPose.scaleX;
-                global.scaleY = this.origin.scaleY * this.offset.scaleY * this.animationPose.scaleY;
+                if (this.origin !== null) {
+                    // global.copyFrom(this.origin).add(this.offset).add(this.animationPose);
+                    global.x = this.origin.x + this.offset.x + this.animationPose.x;
+                    global.y = this.origin.y + this.offset.y + this.animationPose.y;
+                    global.skew = this.origin.skew + this.offset.skew + this.animationPose.skew;
+                    global.rotation = this.origin.rotation + this.offset.rotation + this.animationPose.rotation;
+                    global.scaleX = this.origin.scaleX * this.offset.scaleX * this.animationPose.scaleX;
+                    global.scaleY = this.origin.scaleY * this.offset.scaleY * this.animationPose.scaleY;
+                }
+                else {
+                    global.copyFrom(this.offset).add(this.animationPose);
+                }
             }
             else if (this.offsetMode === OffsetMode.None) {
-                global.copyFrom(this.origin).add(this.animationPose);
+                if (this.origin !== null) {
+                    global.copyFrom(this.origin).add(this.animationPose);
+                }
+                else {
+                    global.copyFrom(this.animationPose);
+                }
             }
             else {
                 inherit = false;
@@ -161,23 +155,23 @@ namespace dragonBones {
             }
 
             if (inherit) {
-                const parentMatrix = this._parent.globalTransformMatrix;
+                const parentMatrix = parent._boneData.type === BoneType.Bone ? parent.globalTransformMatrix : (parent as Surface)._getGlobalTransformMatrix(global.x, global.y);
 
-                if (this._boneData.inheritScale) {
-                    if (!this._boneData.inheritRotation) {
-                        this._parent.updateGlobalTransform();
+                if (boneData.inheritScale) {
+                    if (!boneData.inheritRotation) {
+                        parent.updateGlobalTransform();
 
                         if (flipX && flipY) {
-                            rotation = global.rotation - (this._parent.global.rotation + Math.PI);
+                            rotation = global.rotation - (parent.global.rotation + Math.PI);
                         }
                         else if (flipX) {
-                            rotation = global.rotation + this._parent.global.rotation + Math.PI;
+                            rotation = global.rotation + parent.global.rotation + Math.PI;
                         }
                         else if (flipY) {
-                            rotation = global.rotation + this._parent.global.rotation;
+                            rotation = global.rotation + parent.global.rotation;
                         }
                         else {
-                            rotation = global.rotation - this._parent.global.rotation;
+                            rotation = global.rotation - parent.global.rotation;
                         }
 
                         global.rotation = rotation;
@@ -186,7 +180,7 @@ namespace dragonBones {
                     global.toMatrix(globalTransformMatrix);
                     globalTransformMatrix.concat(parentMatrix);
 
-                    if (this._boneData.inheritTranslation) {
+                    if (boneData.inheritTranslation) {
                         global.x = globalTransformMatrix.tx;
                         global.y = globalTransformMatrix.ty;
                     }
@@ -203,11 +197,11 @@ namespace dragonBones {
                     }
                 }
                 else {
-                    if (this._boneData.inheritTranslation) {
+                    if (boneData.inheritTranslation) {
                         const x = global.x;
                         const y = global.y;
                         global.x = parentMatrix.a * x + parentMatrix.c * y + parentMatrix.tx;
-                        global.y = parentMatrix.d * y + parentMatrix.b * x + parentMatrix.ty;
+                        global.y = parentMatrix.b * x + parentMatrix.d * y + parentMatrix.ty;
                     }
                     else {
                         if (flipX) {
@@ -219,20 +213,20 @@ namespace dragonBones {
                         }
                     }
 
-                    if (this._boneData.inheritRotation) {
-                        this._parent.updateGlobalTransform();
+                    if (boneData.inheritRotation) {
+                        parent.updateGlobalTransform();
 
-                        if (this._parent.global.scaleX < 0.0) {
-                            rotation = global.rotation + this._parent.global.rotation + Math.PI;
+                        if (parent.global.scaleX < 0.0) {
+                            rotation = global.rotation + parent.global.rotation + Math.PI;
                         }
                         else {
-                            rotation = global.rotation + this._parent.global.rotation;
+                            rotation = global.rotation + parent.global.rotation;
                         }
 
                         if (parentMatrix.a * parentMatrix.d - parentMatrix.b * parentMatrix.c < 0.0) {
                             rotation -= global.rotation * 2.0;
 
-                            if (flipX !== flipY || this._boneData.inheritReflection) {
+                            if (flipX !== flipY || boneData.inheritReflection) {
                                 global.skew += Math.PI;
                             }
                         }
@@ -347,7 +341,7 @@ namespace dragonBones {
          * @private
          */
         public update(cacheFrameIndex: number): void {
-            this._blendDirty = false;
+            this._blendState.dirty = false;
 
             if (cacheFrameIndex >= 0 && this._cachedFrameIndices !== null) {
                 const cachedFrameIndex = this._cachedFrameIndices[cacheFrameIndex];
@@ -403,7 +397,7 @@ namespace dragonBones {
             if (this._transformDirty) {
                 this._transformDirty = false;
                 this._childrenTransformDirty = true;
-
+                //
                 if (this._cachedFrameIndex < 0) {
                     const isCache = cacheFrameIndex >= 0;
                     if (this._localDirty) {
@@ -417,6 +411,7 @@ namespace dragonBones {
                 else {
                     this._armature._armatureData.getCacheFrame(this.globalTransformMatrix, this.global, this._cachedFrameIndex);
                 }
+                //
             }
             else if (this._childrenTransformDirty) {
                 this._childrenTransformDirty = false;

@@ -53,6 +53,7 @@ namespace dragonBones {
          */
         public timeScale: number;
 
+        private _lockUpdate: boolean;
         private _animationDirty: boolean; // Update bones and slots cachedFrameIndices.
         private _inheritTimeScale: number;
         private readonly _animationNames: Array<string> = [];
@@ -79,6 +80,7 @@ namespace dragonBones {
 
             this.timeScale = 1.0;
 
+            this._lockUpdate = false;
             this._animationDirty = false;
             this._inheritTimeScale = 1.0;
             this._animationNames.length = 0;
@@ -93,6 +95,10 @@ namespace dragonBones {
             switch (animationConfig.fadeOutMode) {
                 case AnimationFadeOutMode.SameLayer:
                     for (const animationState of this._animationStates) {
+                        if (animationState._parent !== null) {
+                            continue;
+                        }
+
                         if (animationState.layer === animationConfig.layer) {
                             animationState.fadeOut(animationConfig.fadeOutTime, animationConfig.pauseFadeOut);
                         }
@@ -101,6 +107,10 @@ namespace dragonBones {
 
                 case AnimationFadeOutMode.SameGroup:
                     for (const animationState of this._animationStates) {
+                        if (animationState._parent !== null) {
+                            continue;
+                        }
+
                         if (animationState.group === animationConfig.group) {
                             animationState.fadeOut(animationConfig.fadeOutTime, animationConfig.pauseFadeOut);
                         }
@@ -109,6 +119,10 @@ namespace dragonBones {
 
                 case AnimationFadeOutMode.SameLayerAndGroup:
                     for (const animationState of this._animationStates) {
+                        if (animationState._parent !== null) {
+                            continue;
+                        }
+
                         if (
                             animationState.layer === animationConfig.layer &&
                             animationState.group === animationConfig.group
@@ -120,6 +134,10 @@ namespace dragonBones {
 
                 case AnimationFadeOutMode.All:
                     for (const animationState of this._animationStates) {
+                        if (animationState._parent !== null) {
+                            continue;
+                        }
+
                         animationState.fadeOut(animationConfig.fadeOutTime, animationConfig.pauseFadeOut);
                     }
                     break;
@@ -180,7 +198,18 @@ namespace dragonBones {
                         }
 
                         for (const slot of this._armature.getSlots()) {
-                            slot._cachedFrameIndices = animationData.getSlotCachedFrameIndices(slot.name);
+                            const rawDisplayDatas = slot.rawDisplayDatas;
+                            if (rawDisplayDatas !== null && rawDisplayDatas.length > 0) {
+                                const rawDsplayData = rawDisplayDatas[0];
+                                if (rawDsplayData !== null) {
+                                    if (rawDsplayData.parent === this._armature.armatureData.defaultSkin) {
+                                        slot._cachedFrameIndices = animationData.getSlotCachedFrameIndices(slot.name);
+                                        continue;
+                                    }
+                                }
+                            }
+
+                            slot._cachedFrameIndices = null;
                         }
                     }
 
@@ -369,11 +398,14 @@ namespace dragonBones {
             if (this._animationStates.length > 0) {
                 let added = false;
                 for (let i = 0, l = this._animationStates.length; i < l; ++i) {
-                    if (animationState.layer >= this._animationStates[i].layer) {
-                    }
-                    else {
+                    if (animationState.layer > this._animationStates[i].layer) {
                         added = true;
                         this._animationStates.splice(i, 0, animationState);
+                        break;
+                    }
+                    else if (i !== l - 1 && animationState.layer > this._animationStates[i + 1].layer) {
+                        added = true;
+                        this._animationStates.splice(i + 1, 0, animationState);
                         break;
                     }
                 }
@@ -398,11 +430,32 @@ namespace dragonBones {
                 }
             }
 
-            if (animationConfig.fadeInTime <= 0.0) { // Blend animation state, update armature.
-                this._armature.advanceTime(0.0);
+            let isLocked = false;
+            for (let k in animationData.animationTimelines) {
+                if (!this._lockUpdate) {
+                    isLocked = true;
+                    this._lockUpdate = true;
+                }
+
+                const childAnimatiionState = this.fadeIn(k, animationConfig.fadeInTime, 1, animationState.layer, null, AnimationFadeOutMode.None);
+                if (childAnimatiionState !== null) {
+                    childAnimatiionState.resetToPose = false;
+                    childAnimatiionState._parent = animationState;
+                    childAnimatiionState.stop();
+                }
             }
 
-            this._lastAnimationState = animationState;
+            if (isLocked) {
+                this._lockUpdate = false;
+            }
+
+            if (!this._lockUpdate) {
+                if (animationConfig.fadeInTime <= 0.0) { // Blend animation state, update armature.
+                    this._armature.advanceTime(0.0);
+                }
+
+                this._lastAnimationState = animationState;
+            }
 
             return animationState;
         }

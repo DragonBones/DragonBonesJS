@@ -84,7 +84,7 @@ namespace dragonBones {
                         <any>textureData.region as PIXI.Rectangle, // No need to set frame.
                         <any>textureData.region as PIXI.Rectangle,
                         new PIXI.Rectangle(0, 0, textureData.region.width, textureData.region.height),
-                    ); // Phaser-ce can not support texture rotate.
+                    ); // Phaser-ce can not support texture rotate. TODO
                 }
             }
             else {

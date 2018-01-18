@@ -102,7 +102,7 @@ namespace dragonBones {
                 radian += Math.PI;
             }
 
-            global.rotation += (radian - global.rotation) * this._weight;
+            global.rotation += Transform.normalizeRadian(radian - global.rotation) * this._weight;
             global.toMatrix(globalTransformMatrix);
         }
 
@@ -197,6 +197,7 @@ namespace dragonBones {
             {
                 const ikConstraintData = this._constraintData as IKConstraintData;
                 this._scaleEnabled = ikConstraintData.scaleEnabled;
+                this._scaleEnabled = this._scaleEnabled; // TODO
                 this._bendPositive = ikConstraintData.bendPositive;
                 this._weight = ikConstraintData.weight;
             }

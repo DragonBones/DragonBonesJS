@@ -40,7 +40,7 @@ namespace dragonBones {
             const dragonBonesInstance = new DragonBones(eventManager);
             (dragonBonesInstance as any).tick = (passedTime: number) => {
                 HiloFactory._dragonBonesInstance.advanceTime(passedTime * 0.001);
-            }
+            };
 
             return dragonBonesInstance;
         }

@@ -6,7 +6,7 @@
 ```
 Your project
     |-- libs
-        |-- pixi.js.d.ts
+        |-- hilo.d.ts
     |-- node_modules
         |-- ...
     |-- out
@@ -17,4 +17,4 @@ Your project
 ```
 
 ## Hilo declaration
-[Get pixi.js.d.ts](https://github.com/pixijs/pixi-typescript/blob/v4.x/pixi.js.d.ts)
+* [Get hilo.d.ts](https://github.com/hiloteam/Hilo/tree/dev/d.ts)

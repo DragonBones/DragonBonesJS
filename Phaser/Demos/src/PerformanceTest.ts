@@ -1,4 +1,4 @@
-class PerformanceTest extends BaseTest {
+class PerformanceTest extends BaseDemo {
     private _addingArmature: boolean = false;
     private _removingArmature: boolean = false;
     private readonly _armatures: Array<dragonBones.PhaserArmatureDisplay> = [];
@@ -8,9 +8,9 @@ class PerformanceTest extends BaseTest {
         super(game);
 
         this._resources.push(
-            "resource/assets/dragon_boy_ske.dbbin",
-            "resource/assets/dragon_boy_tex.json",
-            "resource/assets/dragon_boy_tex.png"
+            "resource/mecha_1406/mecha_1406_ske.dbbin",
+            "resource/mecha_1406/mecha_1406_tex.json",
+            "resource/mecha_1406/mecha_1406_tex.png"
         );
     }
 
@@ -63,17 +63,17 @@ class PerformanceTest extends BaseTest {
     private _addArmature(): void {
         const factory = dragonBones.PhaserFactory.factory;
         if (this._armatures.length === 0) {
-            factory.parseDragonBonesData(this.game.cache.getItem("resource/assets/dragon_boy_ske.dbbin", Phaser.Cache.BINARY));
+            factory.parseDragonBonesData(this.game.cache.getItem("resource/mecha_1406/mecha_1406_ske.dbbin", Phaser.Cache.BINARY));
             factory.parseTextureAtlasData(
-                this.game.cache.getItem("resource/assets/dragon_boy_tex.json", Phaser.Cache.JSON).data,
-                (this.game.cache.getImage("resource/assets/dragon_boy_tex.png", true) as any).base
+                this.game.cache.getItem("resource/mecha_1406/mecha_1406_tex.json", Phaser.Cache.JSON).data,
+                (this.game.cache.getImage("resource/mecha_1406/mecha_1406_tex.png", true) as any).base
             );
         }
 
-        const armatureDisplay = factory.buildArmatureDisplay("DragonBoy");
+        const armatureDisplay = factory.buildArmatureDisplay("mecha_1406");
         armatureDisplay.armature.cacheFrameRate = 24;
-        armatureDisplay.animation.play("walk", 0);
-        armatureDisplay.scale.x = armatureDisplay.scale.y = 0.7;
+        armatureDisplay.animation.play("walk");
+        armatureDisplay.scale.x = armatureDisplay.scale.y = 0.5;
         this.addChild(armatureDisplay);
 
         this._armatures.push(armatureDisplay);
@@ -100,27 +100,28 @@ class PerformanceTest extends BaseTest {
             return;
         }
 
-        const paddingH = 50;
-        const paddingV = 150;
-        const gapping = 100;
+        const paddingH = 100;
+        const paddingT = 200;
+        const paddingB = 100;
+        const gapping = 90;
         const stageWidth = this.stageWidth - paddingH * 2;
         const columnCount = Math.floor(stageWidth / gapping);
         const paddingHModify = (this.stageWidth - columnCount * gapping) * 0.5;
         const dX = stageWidth / columnCount;
-        const dY = (this.stageHeight - paddingV * 2) / Math.ceil(armatureCount / columnCount);
+        const dY = (this.stageHeight - paddingT - paddingB) / Math.ceil(armatureCount / columnCount);
 
         for (let i = 0, l = armatureCount; i < l; ++i) {
             const armatureDisplay = this._armatures[i];
             const lineY = Math.floor(i / columnCount);
-            armatureDisplay.x = (i % columnCount) * dX + paddingHModify;
-            armatureDisplay.y = lineY * dY + paddingV;
+            armatureDisplay.x = (i % columnCount) * dX + paddingHModify - this.stageWidth * 0.5;
+            armatureDisplay.y = lineY * dY + paddingT - this.stageHeight * 0.5;
         }
     }
 
     private _updateText(): void {
-        this._text.text = "Count: " + this._armatures.length + " \nTouch screen left to decrease count / right to increase count.";
-        this._text.x = (this.stageWidth - this._text.width) * 0.5;
-        this._text.y = this.stageHeight - 60;
+        this._text.text = "Count: " + this._armatures.length + ". Touch screen left to decrease count / right to increase count.";
+        this._text.x = - this._text.width * 0.5;
+        this._text.y = this.stageHeight * 0.5 - 100;
         this.addChild(this._text);
     }
 }

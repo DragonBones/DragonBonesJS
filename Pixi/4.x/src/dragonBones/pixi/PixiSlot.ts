@@ -51,15 +51,21 @@ namespace dragonBones {
         /**
          * @inheritDoc
          */
-        protected _initDisplay(value: any): void {
+        protected _initDisplay(value: any, isRetain: boolean): void {
             // tslint:disable-next-line:no-unused-expression
             value;
+            // tslint:disable-next-line:no-unused-expression
+            isRetain;
         }
         /**
          * @inheritDoc
          */
-        protected _disposeDisplay(value: any): void {
-            (value as PIXI.DisplayObject).destroy();
+        protected _disposeDisplay(value: any, isRelease: boolean): void {
+            // tslint:disable-next-line:no-unused-expression
+            value;
+            if (!isRelease) {
+                (value as PIXI.DisplayObject).destroy();
+            }
         }
         /**
          * @inheritDoc
@@ -155,6 +161,7 @@ namespace dragonBones {
                         break;
                 }
             }
+            // TODO child armature.
         }
         /**
          * @inheritDoc
@@ -165,6 +172,7 @@ namespace dragonBones {
                 const color = (Math.round(this._colorTransform.redMultiplier * 0xFF) << 16) + (Math.round(this._colorTransform.greenMultiplier * 0xFF) << 8) + Math.round(this._colorTransform.blueMultiplier * 0xFF);
                 this._renderDisplay.tint = color;
             }
+            // TODO child armature.
         }
         /**
          * @inheritDoc
@@ -204,6 +212,7 @@ namespace dragonBones {
                         }
 
                         const uvOffset = vertexOffset + vertexCount * 2;
+                        const scale = this._armature._armatureData.scale;
 
                         const meshDisplay = this._renderDisplay as PIXI.mesh.Mesh;
                         const textureAtlasWidth = currentTextureAtlasData.width > 0.0 ? currentTextureAtlasData.width : renderTexture.width;
@@ -213,7 +222,7 @@ namespace dragonBones {
                         meshDisplay.uvs = new Float32Array(vertexCount * 2) as any;
                         meshDisplay.indices = new Uint16Array(triangleCount * 3) as any;
                         for (let i = 0, l = vertexCount * 2; i < l; ++i) {
-                            meshDisplay.vertices[i] = floatArray[vertexOffset + i];
+                            meshDisplay.vertices[i] = floatArray[vertexOffset + i] * scale;
                             meshDisplay.uvs[i] = floatArray[uvOffset + i];
                         }
 
@@ -236,8 +245,8 @@ namespace dragonBones {
 
                         this._textureScale = 1.0;
                         meshDisplay.texture = renderTexture as any;
-                        //meshDisplay.dirty = true; // Pixi 3.x
-                        meshDisplay.dirty++; // Pixi 4.x Can not support change mesh vertice count.
+                        meshDisplay.dirty++;
+                        meshDisplay.indexDirty++;
                     }
                     else { // Normal texture.
                         this._textureScale = currentTextureData.parent.scale * this._armature._armatureData.scale;
@@ -246,6 +255,7 @@ namespace dragonBones {
                     }
 
                     this._visibleDirty = true;
+
                     return;
                 }
             }
@@ -269,9 +279,9 @@ namespace dragonBones {
          * @inheritDoc
          */
         protected _updateMesh(): void {
-            const hasFFD = this._ffdVertices.length > 0;
             const scale = this._armature._armatureData.scale;
             const meshData = this._meshData as MeshDisplayData;
+            const hasDeform = this._deformVertices.length > 0 && meshData.inheritDeform;
             const weight = meshData.weight;
             const meshDisplay = this._renderDisplay as PIXI.mesh.Mesh;
 
@@ -293,18 +303,20 @@ namespace dragonBones {
                 ) {
                     const boneCount = intArray[iB++];
                     let xG = 0.0, yG = 0.0;
+
                     for (let j = 0; j < boneCount; ++j) {
                         const boneIndex = intArray[iB++];
                         const bone = this._meshBones[boneIndex];
+
                         if (bone !== null) {
                             const matrix = bone.globalTransformMatrix;
                             const weight = floatArray[iV++];
                             let xL = floatArray[iV++] * scale;
                             let yL = floatArray[iV++] * scale;
 
-                            if (hasFFD) {
-                                xL += this._ffdVertices[iF++];
-                                yL += this._ffdVertices[iF++];
+                            if (hasDeform) {
+                                xL += this._deformVertices[iF++];
+                                yL += this._deformVertices[iF++];
                             }
 
                             xG += (matrix.a * xL + matrix.c * yL + matrix.tx) * weight;
@@ -316,7 +328,9 @@ namespace dragonBones {
                     meshDisplay.vertices[iD++] = yG;
                 }
             }
-            else if (hasFFD) {
+            else if (hasDeform) {
+                const isSurface = this._parent._boneData.type !== BoneType.Bone;
+                // const isGlue = meshData.glue !== null; TODO
                 const data = meshData.parent.parent.parent;
                 const intArray = data.intArray;
                 const floatArray = data.floatArray;
@@ -327,78 +341,89 @@ namespace dragonBones {
                     vertexOffset += 65536; // Fixed out of bouds bug. 
                 }
 
-                for (let i = 0, l = vertexCount * 2; i < l; ++i) {
-                    meshDisplay.vertices[i] = floatArray[vertexOffset + i] * scale + this._ffdVertices[i];
+                for (let i = 0, l = vertexCount * 2; i < l; i += 2) {
+                    const x = floatArray[vertexOffset + i] * scale + this._deformVertices[i];
+                    const y = floatArray[vertexOffset + i + 1] * scale + this._deformVertices[i + 1];
+
+                    if (isSurface) {
+                        const matrix = (this._parent as Surface)._getGlobalTransformMatrix(x, y);
+                        meshDisplay.vertices[i] = matrix.a * x + matrix.c * y + matrix.tx;
+                        meshDisplay.vertices[i + 1] = matrix.b * x + matrix.d * y + matrix.ty;
+                    }
+                    else {
+                        meshDisplay.vertices[i] = x;
+                        meshDisplay.vertices[i + 1] = y;
+                    }
                 }
             }
         }
         /**
          * @inheritDoc
          */
-        protected _updateTransform(isSkinnedMesh: boolean): void {
-            // tslint:disable-next-line:no-unused-expression
-            isSkinnedMesh;
+        public _updateGlueMesh(): void {
+            // TODO
+        }
+        /**
+         * @inheritDoc
+         */
+        protected _updateTransform(): void {
             throw new Error();
         }
         /**
          * @inheritDoc
          */
-        protected _updateTransformV3(isSkinnedMesh: boolean): void {
-            if (isSkinnedMesh) { // Identity transform.
-                this._renderDisplay.setTransform(0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 0.0);
+        protected _updateTransformV3(): void {
+            this.updateGlobalTransform(); // Update transform.
+
+            const transform = this.global;
+
+            if (this._renderDisplay === this._rawDisplay || this._renderDisplay === this._meshDisplay) {
+                const x = transform.x - (this.globalTransformMatrix.a * this._pivotX + this.globalTransformMatrix.c * this._pivotY);
+                const y = transform.y - (this.globalTransformMatrix.b * this._pivotX + this.globalTransformMatrix.d * this._pivotY);
+                this._renderDisplay.setTransform(
+                    x, y,
+                    transform.scaleX * this._textureScale, transform.scaleY * this._textureScale,
+                    transform.rotation,
+                    transform.skew, 0.0,
+                );
             }
             else {
-                this.updateGlobalTransform(); // Update transform.
-
-                const transform = this.global;
-                
-                if (this._renderDisplay === this._rawDisplay || this._renderDisplay === this._meshDisplay) {
-                    const x = transform.x - (this.globalTransformMatrix.a * this._pivotX + this.globalTransformMatrix.c * this._pivotY);
-                    const y = transform.y - (this.globalTransformMatrix.b * this._pivotX + this.globalTransformMatrix.d * this._pivotY);
-                    this._renderDisplay.setTransform(
-                        x, y,
-                        transform.scaleX * this._textureScale, transform.scaleY * this._textureScale,
-                        transform.rotation,
-                        transform.skew, 0.0,
-                    );
-                }
-                else {
-                    this._renderDisplay.position.set(transform.x, transform.y);
-                    this._renderDisplay.rotation = transform.rotation;
-                    this._renderDisplay.skew.set(transform.skew, 0.0);
-                    this._renderDisplay.scale.set(transform.scaleX, transform.scaleY);
-                }
+                this._renderDisplay.position.set(transform.x, transform.y);
+                this._renderDisplay.rotation = transform.rotation;
+                this._renderDisplay.skew.set(transform.skew, 0.0);
+                this._renderDisplay.scale.set(transform.scaleX, transform.scaleY);
             }
         }
         /**
          * @inheritDoc
          */
-        protected _updateTransformV4(isSkinnedMesh: boolean): void {
-            if (isSkinnedMesh) { // Identity transform.
-                this._renderDisplay.setTransform(0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 0.0);
+        protected _updateTransformV4(): void {
+            this.updateGlobalTransform(); // Update transform.
+
+            const transform = this.global;
+
+            if (this._renderDisplay === this._rawDisplay || this._renderDisplay === this._meshDisplay) {
+                const x = transform.x - (this.globalTransformMatrix.a * this._pivotX + this.globalTransformMatrix.c * this._pivotY);
+                const y = transform.y - (this.globalTransformMatrix.b * this._pivotX + this.globalTransformMatrix.d * this._pivotY);
+                this._renderDisplay.setTransform(
+                    x, y,
+                    transform.scaleX * this._textureScale, transform.scaleY * this._textureScale,
+                    transform.rotation,
+                    -transform.skew, 0.0
+                );
             }
             else {
-                this.updateGlobalTransform(); // Update transform.
-
-                const transform = this.global;
-
-                if (this._renderDisplay === this._rawDisplay || this._renderDisplay === this._meshDisplay) {
-                    const x = transform.x - (this.globalTransformMatrix.a * this._pivotX + this.globalTransformMatrix.c * this._pivotY);
-                    const y = transform.y - (this.globalTransformMatrix.b * this._pivotX + this.globalTransformMatrix.d * this._pivotY);
-                    this._renderDisplay.setTransform(
-                        x, y,
-                        transform.scaleX * this._textureScale, transform.scaleY * this._textureScale,
-                        transform.rotation,
-                        -transform.skew, 0.0
-                    );
-                }
-                else {
-                    this._renderDisplay.position.set(transform.x, transform.y);
-                    this._renderDisplay.rotation = transform.rotation;
-                    this._renderDisplay.skew.set(-transform.skew, 0.0);
-                    this._renderDisplay.scale.set(transform.scaleX, transform.scaleY);
-                }
+                this._renderDisplay.position.set(transform.x, transform.y);
+                this._renderDisplay.rotation = transform.rotation;
+                this._renderDisplay.skew.set(-transform.skew, 0.0);
+                this._renderDisplay.scale.set(transform.scaleX, transform.scaleY);
             }
+        }
+        /**
+         * @inheritDoc
+         */
+        protected _identityTransform(): void {
+            this._renderDisplay.setTransform(0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 0.0);
         }
     }
 }

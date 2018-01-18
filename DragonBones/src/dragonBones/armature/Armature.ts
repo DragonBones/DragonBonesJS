@@ -83,6 +83,11 @@ namespace dragonBones {
          * @internal
          * @private
          */
+        public readonly _glueSlots: Array<Slot> = [];
+        /**
+         * @internal
+         * @private
+         */
         public readonly _constraints: Array<Constraint> = [];
         private readonly _actions: Array<ActionData> = [];
         /**
@@ -154,6 +159,7 @@ namespace dragonBones {
             this._cacheFrameIndex = -1;
             this._bones.length = 0;
             this._slots.length = 0;
+            this._glueSlots.length = 0;
             this._constraints.length = 0;
             this._actions.length = 0;
             this._armatureData = null as any; //
@@ -384,6 +390,10 @@ namespace dragonBones {
 
                 for (i = 0, l = this._slots.length; i < l; ++i) {
                     this._slots[i].update(this._cacheFrameIndex);
+                }
+
+                for (i = 0, l = this._glueSlots.length; i < l; ++i) {
+                    this._glueSlots[i]._updateGlueMesh();
                 }
             }
 
