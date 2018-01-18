@@ -502,6 +502,7 @@ namespace dragonBones {
                 this._onUpdateDisplay();
                 this._replaceDisplay(prevDisplay);
 
+                this._transformDirty = true;
                 this._visibleDirty = true;
                 this._blendModeDirty = true;
                 this._colorDirty = true;
