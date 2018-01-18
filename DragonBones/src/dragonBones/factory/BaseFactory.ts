@@ -207,9 +207,26 @@ namespace dragonBones {
             for (let k in constraints) {
                 const constraintData = constraints[k];
                 // TODO more constraint type.
-                const constraint = BaseObject.borrowObject(IKConstraint);
-                constraint.init(constraintData, armature);
-                armature.addConstraint(constraint);
+                switch (constraintData.type) {
+                    case ConstraintType.IK:
+                        const ikConstraint = BaseObject.borrowObject(IKConstraint);
+                        ikConstraint.init(constraintData, armature);
+                        armature.addConstraint(ikConstraint);
+                        break;
+
+                    case ConstraintType.Path:
+                        const pathConstraint = BaseObject.borrowObject(PathConstraint);
+                        pathConstraint.init(constraintData, armature);
+                        armature.addConstraint(pathConstraint);
+                        break;
+
+                    default:
+                        const constraint = BaseObject.borrowObject(IKConstraint);
+                        constraint.init(constraintData, armature);
+                        armature.addConstraint(constraint);
+                        break;
+                }
+
             }
         }
         /**

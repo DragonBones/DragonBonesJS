@@ -61,6 +61,8 @@ namespace dragonBones {
         protected static readonly SLOT: string = "slot";
         protected static readonly CONSTRAINT: string = "constraint";
         protected static readonly IK: string = "ik";
+        protected static readonly PATH_CONSTRAINT: string = "path";
+
         protected static readonly SKIN: string = "skin";
         protected static readonly DISPLAY: string = "display";
         protected static readonly ANIMATION: string = "animation";
@@ -154,6 +156,20 @@ namespace dragonBones {
         protected static readonly GLUE_WEIGHTS: string = "glueWeights";
         protected static readonly GLUE_MESHES: string = "glueMeshes";
 
+        protected static readonly BONES: string = "bones";
+        protected static readonly POSITION_MODE: string = "positionMode";
+        protected static readonly SPACING_MODE: string = "spacingMode";
+        protected static readonly ROTATE_MODE: string = "rotateMode";
+        protected static readonly SPACING: string = "spacing";
+        protected static readonly ROTATE_OFFSET: string = "rotateOffset";
+        protected static readonly ROTATE_MIX: string = "rotateMix";
+        protected static readonly TRANSLATE_MIX: string = "translateMix";
+
+        protected static readonly CLOSED: string = "closed";
+        protected static readonly CONSTANT_SPEED: string = "constantSpeed";
+        protected static readonly VERTEX_COUNT: string = "vertexCount";
+        protected static readonly LENGTHS: string = "lengths";
+
         protected static readonly GOTO_AND_PLAY: string = "gotoAndPlay";
 
         protected static readonly DEFAULT_NAME: string = "default";
@@ -200,6 +216,9 @@ namespace dragonBones {
 
                 case "boundingbox":
                     return DisplayType.BoundingBox;
+
+                case "path":
+                    return DisplayType.Path;
 
                 default:
                     return DisplayType.Image;
@@ -284,6 +303,45 @@ namespace dragonBones {
 
                 default:
                     return BlendMode.Normal;
+            }
+        }
+
+        protected static _getPositionMode(value: string): PositionMode {
+            switch (value.toLocaleLowerCase()) {
+                case "percent":
+                    return PositionMode.Percent;
+
+                case "fixed":
+                    return PositionMode.Fixed;
+
+                default:
+                    return PositionMode.Percent;
+            }
+        }
+
+        protected static _getSpacingMode(value: string): SpacingMode {
+            switch (value.toLocaleLowerCase()) {
+                case "length":
+                    return SpacingMode.Length;
+                case "percent":
+                    return SpacingMode.Percent;
+                case "fixed":
+                    return SpacingMode.Fixed;
+                default:
+                    return SpacingMode.Length;
+            }
+        }
+
+        protected static _getRotateMode(value: string): RotateMode {
+            switch (value.toLocaleLowerCase()) {
+                case "tangent":
+                    return RotateMode.Tangent;
+                case "chain":
+                    return RotateMode.Chain;
+                case "chainscale":
+                    return RotateMode.ChainScale;
+                default:
+                    return RotateMode.Tangent;
             }
         }
 

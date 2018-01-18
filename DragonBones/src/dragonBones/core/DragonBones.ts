@@ -52,7 +52,9 @@ namespace dragonBones {
         DeformCount = 1,
         DeformValueCount = 2,
         DeformValueOffset = 3,
-        DeformFloatOffset = 4
+        DeformFloatOffset = 4,
+
+        PathVertexCount = 0,
     }
     /**
      * @internal
@@ -78,7 +80,8 @@ namespace dragonBones {
         Image = 0,
         Armature = 1,
         Mesh = 2,
-        BoundingBox = 3
+        BoundingBox = 3,
+        Path = 4
     }
     /**
      * - Bounding box type.
@@ -241,6 +244,29 @@ namespace dragonBones {
          */
         Single = 5
     }
+
+    export const enum ConstraintType {
+        IK,
+        Path
+    }
+
+    export const enum PositionMode {
+        Fixed,
+        Percent
+    }
+
+    export const enum SpacingMode {
+        Length,
+        Fixed,
+        Percent
+    }
+
+    export const enum RotateMode {
+        Tangent,
+        Chain,
+        ChainScale
+    }
+
     /**
      * @private
      */

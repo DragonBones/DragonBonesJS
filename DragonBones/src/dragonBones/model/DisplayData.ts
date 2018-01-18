@@ -151,6 +151,38 @@ namespace dragonBones {
      * @internal
      * @private
      */
+    export class PathDisplayData extends DisplayData {
+        public static toString(): string {
+            return "[class dragonBones.PathDisplayData]";
+        }
+        public offset: number; // IntArray.
+
+        public closed: boolean;
+        public constantSpeed: boolean;
+
+        public vertices: Array<number> = [];
+        public lengths: Array<number> = [];
+
+        public weight: WeightData | null = null; // Initial value.
+
+        protected _onClear(): void {
+            super._onClear();
+
+            this.offset = -1;
+            
+            this.closed = false;
+            this.constantSpeed = false;
+
+            this.vertices.length = 0;
+            this.lengths.length = 0;
+
+            this.weight = null;
+        }
+    }
+    /**
+     * @internal
+     * @private
+     */
     export class WeightData extends BaseObject {
         public static toString(): string {
             return "[class dragonBones.WeightData]";

@@ -225,4 +225,52 @@ namespace dragonBones {
             }
         }
     }
+
+    /**
+     * @internal
+     * @private
+     */
+    export class PathConstraint extends Constraint {
+        
+        private _pathSlot : Slot;
+
+        public static toString(): string {
+            return "[class dragonBones.PathConstraint]";
+        }
+
+        protected _onClear(): void {
+            super._onClear();
+
+            this._pathSlot = null as any;
+        }
+
+        public init(constraintData: ConstraintData, armature: Armature): void {
+            this._constraintData = constraintData;
+            this._armature = armature;
+
+            //
+
+        }
+
+        public update(): void {
+            //
+            const constraintData = this._constraintData as PathConstraintData;
+            const pathDisplayData = constraintData.pathSlot;
+            const pathSlot = this._pathSlot;
+
+            //
+            const positionMode = constraintData.positionMode;
+            const spacingMode = constraintData.spacingMode;
+            const rotateMode =  constraintData.rotateMode;
+
+            const position = constraintData.position;
+            const spacing = constraintData.spacing;
+            const rotateOffset = constraintData.rotateOffset;
+
+        }
+
+        public invalidUpdate(): void {
+
+        }
+    }
 }
