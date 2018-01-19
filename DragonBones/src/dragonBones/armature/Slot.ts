@@ -183,6 +183,11 @@ namespace dragonBones {
          */
         public _meshData: MeshDisplayData | null;
         /**
+         * @internal
+         * @private
+         */
+        public _pathData: PathDisplayData | null;
+        /**
          * @private
          */
         protected _boundingBoxData: BoundingBoxData | null;
@@ -268,6 +273,7 @@ namespace dragonBones {
             this._displayData = null;
             this._textureData = null;
             this._meshData = null;
+            this._pathData = null;
             this._boundingBoxData = null;
             this._rawDisplay = null;
             this._meshDisplay = null;
@@ -382,24 +388,34 @@ namespace dragonBones {
                     if (this._displayData.type === DisplayType.Mesh) {
                         this._textureData = (this._displayData as MeshDisplayData).texture;
                         this._meshData = this._displayData as MeshDisplayData;
+                        this._pathData = null;
                     }
                     else if (rawDisplayData !== null && rawDisplayData.type === DisplayType.Mesh) {
                         this._textureData = (this._displayData as ImageDisplayData).texture;
                         this._meshData = rawDisplayData as MeshDisplayData;
+                        this._pathData = null;
                     }
                     else {
                         this._textureData = (this._displayData as ImageDisplayData).texture;
                         this._meshData = null;
+                        this._pathData = null;
                     }
+                }
+                else if (this._displayData.type === DisplayType.Path) {
+                    this._textureData = null;
+                    this._meshData = null;
+                    this._pathData = this._displayData as PathDisplayData;
                 }
                 else {
                     this._textureData = null;
                     this._meshData = null;
+                    this._pathData = null;
                 }
             }
             else {
                 this._textureData = null;
                 this._meshData = null;
+                this._pathData = null;
             }
 
             // Update bounding box data.

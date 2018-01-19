@@ -231,8 +231,20 @@ namespace dragonBones {
      * @private
      */
     export class PathConstraint extends Constraint {
-        
-        private _pathSlot : Slot;
+
+        public _position: number;
+        public _spacing: number;
+        public _rotateOffset: number;
+        public _rotateMix: number;
+        public _translateMix: number;
+
+        private _pathSlot: Slot;
+        private _bones: Array<Bone> = [];
+
+        private _spaces: Array<number> = [];
+        private _positions: Array<number> = [];
+        private _curves: Array<number> = [];
+        private _lengths: Array<number> = [];
 
         public static toString(): string {
             return "[class dragonBones.PathConstraint]";
@@ -241,14 +253,134 @@ namespace dragonBones {
         protected _onClear(): void {
             super._onClear();
 
+            this._position = 0.0;
+            this._spacing = 0.0;
+            this._rotateOffset = 0.0;
+            this._rotateMix = 1.0;
+            this._translateMix = 1.0;
+
             this._pathSlot = null as any;
+            this._bones.length = 0;
+
+            this._spaces.length = 0;
+            this._positions.length = 0;
+            this._curves.length = 0;
+            this._lengths.length = 0;
+        }
+
+        protected _computeBezierCurve(pathDisplayDta: PathDisplayData, spaceCount: number, tangents: boolean, percentPosition: boolean, percentSpacing: boolean): void {
+
+            const positions = this._positions;
+            const spaces = this._spaces;
+            const closed = pathDisplayDta.closed;
+            const verticesLength = pathDisplayDta.vertices.length;
+            const curves = Array<number>(8);
+            let curveCount = verticesLength / 6;
+            let preCurve = -1;
+            let position = this._position;
+
+            positions.length = spaceCount * 3 + 2;
+
+            let pathLength = 0.0;
+            //不需要匀速运动，效率高些
+            if (!pathDisplayDta.constantSpeed) {
+                const lenghts = pathDisplayDta.lengths;
+                curveCount -= closed ? 1 : 2;
+                pathLength = lenghts[curveCount];
+
+                if (percentPosition) {
+                    position *= pathLength;
+                }
+
+                if (percentSpacing) {
+                    for (let i = 0; i < spaceCount; i++) {
+                        spaces[i] *= pathLength;
+                    }
+                }
+
+                for (let i = 0, o = 0, curve = 0; i < spaceCount; i++ , o += 3) {
+                    const space = spaces[i];
+                    position += space;
+
+                    if (closed) {
+                        position %= pathLength;
+                        if (position < 0) {
+                            position += pathLength;
+                        }
+                        curve = 0;
+                    }
+                    else if (position < 0) {
+                        //TODO
+                        continue;
+                    }
+                    else if (position > pathLength) {
+                        //TODO
+                        continue;
+                    }
+
+                    let percent = 0.0;
+                    for (; ; curve++) {
+                        const len = lenghts[curve];
+                        if (position > len) {
+                            continue;
+                        }
+                        if (curve === 0) {
+                            percent = position / len;
+                        }
+                        else {
+                            const preLen = lenghts[curve - 1];
+                            percent = (position - preLen) / (len - preLen);
+                        }
+                        break;
+                    }
+
+                    if (curve !== preCurve) {
+                        preCurve = curve;
+                        if (closed && curve === curveCount) {
+                            //计算曲线
+                        }
+                        else {
+
+                        }
+                    }
+
+                    //
+                    //AddCurvePosition
+                }
+
+                return;
+            }
+            //计算曲线的节点数据
+
+            //没有骨骼约束我
+
+            //有骨骼约束我
+
+            //节点k帧
         }
 
         public init(constraintData: ConstraintData, armature: Armature): void {
             this._constraintData = constraintData;
             this._armature = armature;
 
+            const data = constraintData as PathConstraintData;
+
             //
+            this._position = data.position;
+            this._spacing = data.spacing;
+            this._rotateOffset = data.rotateOffset;
+            this._rotateMix = data.rotateMix;
+            this._translateMix = data.translateMix;
+
+            //
+            this._pathSlot = this._armature.getSlot(data.pathSlot.name) as Slot;
+
+            for (let i = 0, l = data.bones.length; i < l; i++) {
+                const bone = this._armature.getBone(data.bones[i].name);
+                if (bone !== null) {
+                    this._bones.push(bone);
+                }
+            }
 
         }
 
@@ -261,12 +393,54 @@ namespace dragonBones {
             //
             const positionMode = constraintData.positionMode;
             const spacingMode = constraintData.spacingMode;
-            const rotateMode =  constraintData.rotateMode;
+            const rotateMode = constraintData.rotateMode;
 
-            const position = constraintData.position;
-            const spacing = constraintData.spacing;
-            const rotateOffset = constraintData.rotateOffset;
+            const position = this._position;
+            const spacing = this._spacing;
+            const rotateOffset = this._rotateOffset;
+            const rotateMix = this._rotateMix;
+            const translateMix = this._translateMix;
 
+            const bones = this._bones;
+
+            const lengthSpacing = spacingMode === SpacingMode.Length;
+            const scale = rotateMode === RotateMode.ChainScale;
+            const tangents = rotateMode === RotateMode.Tangent;
+            const boneCount = bones.length;
+            const spacesCount = tangents ? boneCount : boneCount + 1;
+
+            this._spaces.length = spacesCount;
+
+            //计曲线间隔和长度
+            if (scale || lengthSpacing) {
+                if (scale) {
+                    this._lengths.length = bones.length;
+                }
+
+                for (let i = 0, l = spacesCount; i < l; i++) {
+                    const bone = bones[i];
+                    const boneLength = bone._boneData.length;
+                    const globalTransformMatrix = bone.globalTransformMatrix;
+                    const x = boneLength * globalTransformMatrix.a;
+                    const y = boneLength * globalTransformMatrix.c;
+
+                    const len = Math.sqrt(x * x + y * y);
+                    if (scale) {
+                        this._lengths[i] = len;
+                    }
+                    this._spaces[i] = (boneLength + spacing) * len / boneLength;
+                }
+            }
+            else {
+
+                for (let i = 0; i < spacesCount; i++) {
+                    this._spaces[i] = spacing;
+                }
+            }
+
+            //重新计算曲线的节点数据
+
+            //根据新的节点数据重新采样
         }
 
         public invalidUpdate(): void {
