@@ -22,6 +22,11 @@
  */
 namespace dragonBones {
     /**
+     * @internal
+     * @private
+     */
+    export const isV5 = Number(egret.Capabilities.engineVersion.substr(0, 3)) >= 5.1;
+    /**
      * - The Egret factory.
      * @version DragonBones 3.0
      * @language en_US
@@ -32,11 +37,6 @@ namespace dragonBones {
      * @language zh_CN
      */
     export class EgretFactory extends BaseFactory {
-        /**
-         * @internal
-         * @private
-         */
-        public static _isV5: boolean = false;
         private static _dragonBonesInstance: DragonBones = null as any;
         private static _factory: EgretFactory | null = null;
 
@@ -73,7 +73,6 @@ namespace dragonBones {
             super(dataParser);
 
             if (EgretFactory._dragonBonesInstance === null) {
-                EgretFactory._isV5 = Number(egret.Capabilities.engineVersion.substr(0, 3)) >= 5.1;
                 //
                 const eventManager = new EgretArmatureDisplay();
                 EgretFactory._dragonBonesInstance = new DragonBones(eventManager);

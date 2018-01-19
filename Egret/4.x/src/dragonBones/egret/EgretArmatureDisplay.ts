@@ -310,7 +310,7 @@ namespace dragonBones {
          * @internal
          * @private
          */
-        public _batchEnabled: boolean = !global["nativeRender"]; //
+        public _batchEnabled: boolean = !(global["nativeRender"] || global["bricks"]); //
         /**
          * @internal
          * @private
@@ -472,7 +472,7 @@ namespace dragonBones {
                 }
             }
 
-            if (!EgretFactory._isV5 && this._batchEnabled && this._childDirty) {
+            if (!isV5 && this._batchEnabled && this._childDirty) {
                 this.$invalidateContentBounds();
             }
         }
@@ -660,7 +660,7 @@ namespace dragonBones {
                     bounds.width -= bounds.x;
                     bounds.height -= bounds.y;
 
-                    if (EgretFactory._isV5) {
+                    if (isV5) {
                         if (this._bounds === null) {
                             this._bounds = new egret.Rectangle();
                         }
@@ -668,7 +668,7 @@ namespace dragonBones {
                         this._bounds.copyFrom(bounds);
                     }
                 }
-                else if (EgretFactory._isV5) {
+                else if (isV5) {
                     if (this._bounds === null) {
                         this._bounds = new egret.Rectangle();
                     }

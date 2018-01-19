@@ -96,12 +96,7 @@ namespace dragonBones {
                         textureData.renderTexture = new egret.Texture();
                     }
 
-                    if (EgretFactory._isV5) {
-                        (textureData.renderTexture as any)["$bitmapData"] = bitmapData;
-                    }
-                    else {
-                        textureData.renderTexture._bitmapData = bitmapData;
-                    }
+                    textureData.renderTexture.bitmapData = bitmapData;
 
                     if (textureData.rotated) {
                         textureData.renderTexture.$initData(

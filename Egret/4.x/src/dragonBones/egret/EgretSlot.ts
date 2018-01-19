@@ -60,7 +60,7 @@ namespace dragonBones {
         public init(slotData: SlotData, displayDatas: Array<DisplayData | null> | null, rawDisplay: any, meshDisplay: any): void {
             super.init(slotData, displayDatas, rawDisplay, meshDisplay);
 
-            if (EgretFactory._isV5) {
+            if (isV5) {
                 this._updateTransform = this._updateTransformV5;
                 this._identityTransform = this._identityTransformV5;
             }
@@ -104,7 +104,7 @@ namespace dragonBones {
             this._armatureDisplay = this._armature.display;
             this._renderDisplay = (this._display !== null ? this._display : this._rawDisplay) as egret.DisplayObject;
 
-            if (EgretFactory._isV5) {
+            if (isV5 && this._armatureDisplay._batchEnabled) {
                 if (this._renderDisplay === this._rawDisplay && !(this._renderDisplay.$renderNode instanceof egret.sys.BitmapNode)) {
                     this._renderDisplay.$renderNode = new egret.sys.BitmapNode();  // 默认是 sys.NormalBitmapNode 没有矩阵，需要替换成 egret.sys.BitmapNode。
                 }
@@ -335,15 +335,9 @@ namespace dragonBones {
                             const node = this._renderDisplay.$renderNode as egret.sys.MeshNode;
                             egret.sys.RenderNode.prototype.cleanBeforeRender.call(node);
 
-                            if (EgretFactory._isV5) {
-                                node.image = (texture as any)["$bitmapData"];
-                            }
-                            else {
-                                node.image = texture._bitmapData;
-                            }
+                            node.image = texture.bitmapData;
 
-                            if (EgretFactory._isV5) {
-                                node.image = (texture as any)["$bitmapData"];
+                            if (isV5) {
                                 node.drawMesh(
                                     (texture as any).$bitmapX, (texture as any).$bitmapY,
                                     (texture as any).$bitmapWidth, (texture as any).$bitmapHeight,
@@ -355,7 +349,6 @@ namespace dragonBones {
                                 node.imageHeight = (texture as any).$sourceHeight;
                             }
                             else {
-                                node.image = texture._bitmapData;
                                 node.drawMesh(
                                     texture._bitmapX, texture._bitmapY,
                                     texture._bitmapWidth, texture._bitmapHeight,
@@ -376,7 +369,7 @@ namespace dragonBones {
                         meshDisplay.$setAnchorOffsetY(this._pivotY);
                         meshDisplay.$updateVertices();
 
-                        if (!EgretFactory._isV5) {
+                        if (!isV5) {
                             meshDisplay.$invalidateTransform();
                         }
 
@@ -398,8 +391,9 @@ namespace dragonBones {
                             const node = this._renderDisplay.$renderNode as egret.sys.BitmapNode;
                             egret.sys.RenderNode.prototype.cleanBeforeRender.call(node);
 
-                            if (EgretFactory._isV5) {
-                                node.image = (texture as any)["$bitmapData"];
+                            node.image = texture.bitmapData;
+
+                            if (isV5) {
                                 node.drawImage(
                                     (texture as any).$bitmapX, (texture as any).$bitmapY,
                                     (texture as any).$bitmapWidth, (texture as any).$bitmapHeight,
@@ -411,7 +405,6 @@ namespace dragonBones {
                                 node.imageHeight = (texture as any).$sourceHeight;
                             }
                             else {
-                                node.image = texture._bitmapData;
                                 node.drawImage(
                                     texture._bitmapX, texture._bitmapY,
                                     texture._bitmapWidth, texture._bitmapHeight,
@@ -446,7 +439,7 @@ namespace dragonBones {
             }
 
             const normalDisplay = this._renderDisplay as egret.Bitmap;
-            normalDisplay.$setBitmapData(null as any);
+            normalDisplay.texture = null as any;
             normalDisplay.x = 0.0;
             normalDisplay.y = 0.0;
             normalDisplay.visible = false;
@@ -507,7 +500,7 @@ namespace dragonBones {
 
                 meshDisplay.$updateVertices();
 
-                if (!EgretFactory._isV5) {
+                if (!isV5) {
                     meshDisplay.$invalidateTransform();
                 }
             }
@@ -541,7 +534,7 @@ namespace dragonBones {
 
                 meshDisplay.$updateVertices();
 
-                if (!EgretFactory._isV5) {
+                if (!isV5) {
                     meshDisplay.$invalidateTransform();
                 }
             }
@@ -591,7 +584,7 @@ namespace dragonBones {
 
             meshDisplay.$updateVertices();
 
-            if (!EgretFactory._isV5) {
+            if (!isV5) {
                 meshDisplay.$invalidateTransform();
             }
         }
