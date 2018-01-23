@@ -534,6 +534,7 @@ namespace dragonBones {
             constraint.name = ObjectDataParser._getString(rawData, DataParser.NAME, "");
             constraint.type = ConstraintType.Path;
             constraint.pathSlot = target;
+            constraint.target = target.parent;
             constraint.positionMode = DataParser._getPositionMode(ObjectDataParser._getString(rawData, DataParser.POSITION_MODE, ""));
             constraint.spacingMode = DataParser._getSpacingMode(ObjectDataParser._getString(rawData, DataParser.SPACING_MODE, ""));
             constraint.rotateMode = DataParser._getRotateMode(ObjectDataParser._getString(rawData, DataParser.ROTATE_MODE, ""));
@@ -548,6 +549,10 @@ namespace dragonBones {
                 const bone = this._armature.getBone(boneName);
                 if (bone != null) {
                     constraint.AddBone(bone);
+
+                    if (constraint.root === null) {
+                        constraint.root = bone;
+                    }
                 }
             }
 
@@ -722,8 +727,9 @@ namespace dragonBones {
             const pathOffset = this._intArray.length;
             display.offset = pathOffset;
 
-            this._intArray.length += 1;
+            this._intArray.length += 1 + 1;
             this._intArray[pathOffset + BinaryOffset.PathVertexCount] = vertexCount;
+            this._intArray[pathOffset + BinaryOffset.PathFloatOffset] = vertexOffset;
 
             this._floatArray.length += rawVertices.length;
             for (let i = 0, l = rawVertices.length; i < l; ++i) {

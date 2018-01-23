@@ -203,31 +203,7 @@ namespace dragonBones {
                 }
             }
 
-            const constraints = dataPackage.armature.constraints;
-            for (let k in constraints) {
-                const constraintData = constraints[k];
-                // TODO more constraint type.
-                switch (constraintData.type) {
-                    case ConstraintType.IK:
-                        const ikConstraint = BaseObject.borrowObject(IKConstraint);
-                        ikConstraint.init(constraintData, armature);
-                        armature.addConstraint(ikConstraint);
-                        break;
 
-                    case ConstraintType.Path:
-                        const pathConstraint = BaseObject.borrowObject(PathConstraint);
-                        pathConstraint.init(constraintData, armature);
-                        armature.addConstraint(pathConstraint);
-                        break;
-
-                    default:
-                        const constraint = BaseObject.borrowObject(IKConstraint);
-                        constraint.init(constraintData, armature);
-                        armature.addConstraint(constraint);
-                        break;
-                }
-
-            }
         }
         /**
          * @private
@@ -276,6 +252,36 @@ namespace dragonBones {
                 }
 
                 slot._setDisplayIndex(slotData.displayIndex, true);
+            }
+        }
+        /**
+         * @private
+         */
+        protected _buildConstraints(dataPackage: BuildArmaturePackage, armature: Armature): void {
+            const constraints = dataPackage.armature.constraints;
+            for (let k in constraints) {
+                const constraintData = constraints[k];
+                // TODO more constraint type.
+                switch (constraintData.type) {
+                    case ConstraintType.IK:
+                        const ikConstraint = BaseObject.borrowObject(IKConstraint);
+                        ikConstraint.init(constraintData, armature);
+                        armature.addConstraint(ikConstraint);
+                        break;
+
+                    case ConstraintType.Path:
+                        const pathConstraint = BaseObject.borrowObject(PathConstraint);
+                        pathConstraint.init(constraintData, armature);
+                        armature.addConstraint(pathConstraint);
+                        break;
+
+                    default:
+                        const constraint = BaseObject.borrowObject(IKConstraint);
+                        constraint.init(constraintData, armature);
+                        armature.addConstraint(constraint);
+                        break;
+                }
+
             }
         }
         /**
@@ -747,6 +753,7 @@ namespace dragonBones {
             const armature = this._buildArmature(dataPackage);
             this._buildBones(dataPackage, armature);
             this._buildSlots(dataPackage, armature);
+            this._buildConstraints(dataPackage, armature);
             armature.invalidUpdate(null, true);
             armature.advanceTime(0.0); // Update armature pose.
 

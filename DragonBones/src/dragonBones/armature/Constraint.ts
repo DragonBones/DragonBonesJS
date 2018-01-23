@@ -268,18 +268,98 @@ namespace dragonBones {
             this._lengths.length = 0;
         }
 
+        protected _computeVertices(pathDisplayDta: PathDisplayData, start: number, count: number, offset: number, out: Array<number>): void {
+            offset;
+
+            //计算曲线的节点数据
+            out.length = count;
+
+
+            const armature = this._armature;
+            const dragonBonesData = armature.armatureData.parent;
+            const intArray = dragonBonesData.intArray;
+            const floatArray = dragonBonesData.floatArray;
+
+            const pathOffset = pathDisplayDta.offset;
+            // const pathVertexCount = intArray[pathOffset + BinaryOffset.PathVertexCount];
+            const pathVertexOffset = intArray[pathOffset + BinaryOffset.PathFloatOffset];
+
+            const weightData = pathDisplayDta.weight;
+            //没有骨骼约束我,那节点只受自己的Bone控制
+            if (weightData === null) {
+                const parentBone = this._pathSlot.parent;
+                parentBone.updateByConstraint();
+
+                const matrix = parentBone.globalTransformMatrix;
+
+                for (let i = start, iW = 0, iV = pathVertexOffset, l = i + count; i < l; i += 2) {
+                    const vx = floatArray[iV + i];
+                    const vy = floatArray[iV + i + 1];
+
+                    const x = matrix.a * vx + matrix.b * vy + matrix.tx;
+                    const y = matrix.c * vx + matrix.d * vy + matrix.ty;
+
+                    //
+                    out[iW++] = x;
+                    out[iW++] = y;
+                }
+
+                return;
+            }
+
+            //有骨骼约束我,那我的节点受骨骼权重控制
+            const bones = this._bones;
+            const weightBoneCount = weightData.bones.length;
+
+            const weightOffset = weightData.offset;
+            const floatOffset = intArray[weightOffset + BinaryOffset.WeigthFloatOffset];
+
+            for (let i = start, iW = 0, iV = floatOffset, iB = weightOffset + BinaryOffset.WeigthBoneIndices + weightBoneCount, l = i + count; i < l; i += 2) {
+                const vertexBoneCount = intArray[iB++]; //
+
+                let xG = 0.0, yG = 0.0;
+                for (let ii = 0, ll = vertexBoneCount; ii < ll; ii++) {
+                    const boneIndex = intArray[iB++];
+                    const bone = bones[boneIndex];
+                    // const bone = armature.getBone(bones[boneIndex].name);
+                    if (bone === null) {
+                        continue;
+                    }
+
+                    bone.updateByConstraint();
+                    const matrix = bone.globalTransformMatrix;
+                    const weight = floatArray[iV++];
+                    const vx = floatArray[iV++];
+                    const vy = floatArray[iV++];
+                    xG += (matrix.a * vx + matrix.b * vy + matrix.tx) * weight;
+                    yG += (matrix.c * vx + matrix.d * vy + matrix.ty) * weight;
+                }
+
+                out[iW] = xG;
+                out[iW + 1] = yG;
+            }
+
+            //节点k帧TODO
+        }
+
+        //计算当前的骨骼在曲线上的位置
         protected _computeBezierCurve(pathDisplayDta: PathDisplayData, spaceCount: number, tangents: boolean, percentPosition: boolean, percentSpacing: boolean): void {
+            const armature = this._armature;
+            const dragonBonesData = armature.armatureData.parent;
+            const intArray = dragonBonesData.intArray;
+            const vertexCount = intArray[pathDisplayDta.offset + BinaryOffset.PathVertexCount];
 
             const positions = this._positions;
             const spaces = this._spaces;
             const closed = pathDisplayDta.closed;
-            const verticesLength = pathDisplayDta.vertices.length;
-            const curves = Array<number>(8);
+            const verticesLength = vertexCount * 2;
+            const curveVertices = Array<number>(8);
             let curveCount = verticesLength / 6;
             let preCurve = -1;
             let position = this._position;
 
             positions.length = spaceCount * 3 + 2;
+
 
             let pathLength = 0.0;
             //不需要匀速运动，效率高些
@@ -340,30 +420,60 @@ namespace dragonBones {
                             //计算曲线
                         }
                         else {
-
+                            this._computeVertices(pathDisplayDta, curve * 6 + 2, 8, 0, curveVertices);
                         }
                     }
 
                     //
-                    //AddCurvePosition
+                    this.addCurvePosition(percent, curveVertices[0], curveVertices[1], curveVertices[2], curveVertices[3], curveVertices[4], curveVertices[5], curveVertices[6], curveVertices[7], positions, o, tangents);
                 }
 
                 return;
             }
-            //计算曲线的节点数据
 
-            //没有骨骼约束我
+            //匀速的TODO
+        }
 
-            //有骨骼约束我
+        //Calculates a point on the curve, for a given t value between 0 and 1.
+        private addCurvePosition(t: number, x1: number, y1: number, cx1: number, cy1: number, cx2: number, cy2: number, x2: number, y2: number, out: Array<number>, offset: number, tangents: boolean) {
+            if (t === 0) {
+                out[offset] = x1;
+                out[offset + 1] = y1;
+                out[offset + 2] = 0;
+                return;
+            }
 
-            //节点k帧
+            if (t === 1) {
+                out[offset] = x2;
+                out[offset + 1] = y2;
+                out[offset + 2] = 0;
+                return;
+            }
+
+            const mt = 1 - t;
+            const mt2 = mt * mt;
+            const t2 = t * t;
+            const a = mt2 * mt;
+            const b = mt2 * t * 3;
+            const c = mt2 * t2 * 3;
+            const d = t * t2;
+
+            const x = a * x1 + b * cx1 + c * cx2 + d * x2;
+            const y = a * y1 + b * cy1 + c * cy2 + d * y2;
+
+            out[offset] = x;
+            out[offset + 1] = y;
+            if (tangents) {
+                //Calculates the curve tangent at the specified t value
+                out[offset + 2] = Math.atan2(y - (a * y1 + b * cy1 + c * cy2), x - (a * x1 + b * cx1 + c * cx2));
+            }
         }
 
         public init(constraintData: ConstraintData, armature: Armature): void {
             this._constraintData = constraintData;
             this._armature = armature;
 
-            const data = constraintData as PathConstraintData;
+            let data = constraintData as PathConstraintData;
 
             //
             this._position = data.position;
@@ -373,6 +483,8 @@ namespace dragonBones {
             this._translateMix = data.translateMix;
 
             //
+            this._root = this._armature.getBone(data.root.name) as Bone;
+            this._target = this._armature.getBone(data.target.name) as Bone;
             this._pathSlot = this._armature.getSlot(data.pathSlot.name) as Slot;
 
             for (let i = 0, l = data.bones.length; i < l; i++) {
@@ -382,24 +494,36 @@ namespace dragonBones {
                 }
             }
 
+            this._root._hasConstraint = true;
+
+            //TODO
+            (this._pathSlot._displayData as PathDisplayData).constantSpeed = false;
         }
 
         public update(): void {
             //
             const constraintData = this._constraintData as PathConstraintData;
-            const pathDisplayData = constraintData.pathSlot;
             const pathSlot = this._pathSlot;
+            const pathDisplayData = pathSlot._displayData as PathDisplayData;
+            if (pathDisplayData === null) {
+                return;
+            }
+            //
+            const rotateMix = this._rotateMix;
+            const translateMix = this._translateMix;
+
+            const translate = translateMix > 0, rotate = rotateMix > 0;
+            if (!translate && !rotate) {
+                return;
+            }
 
             //
             const positionMode = constraintData.positionMode;
             const spacingMode = constraintData.spacingMode;
             const rotateMode = constraintData.rotateMode;
 
-            const position = this._position;
+            // const position = this._position;
             const spacing = this._spacing;
-            const rotateOffset = this._rotateOffset;
-            const rotateMix = this._rotateMix;
-            const translateMix = this._translateMix;
 
             const bones = this._bones;
 
@@ -417,7 +541,7 @@ namespace dragonBones {
                     this._lengths.length = bones.length;
                 }
 
-                for (let i = 0, l = spacesCount; i < l; i++) {
+                for (let i = 0, l = spacesCount - 1; i < l; i++) {
                     const bone = bones[i];
                     const boneLength = bone._boneData.length;
                     const globalTransformMatrix = bone.globalTransformMatrix;
@@ -438,9 +562,85 @@ namespace dragonBones {
                 }
             }
 
-            //重新计算曲线的节点数据
+            //计算当前被约束的骨骼在曲线上的位置
+            this._computeBezierCurve(pathDisplayData, spacesCount, tangents, positionMode === PositionMode.Percent, spacingMode === SpacingMode.Percent)
 
             //根据新的节点数据重新采样
+            let rotateOffset = this._rotateOffset;
+            let boneX = this._positions[0], boneY = this._positions[1];
+            let tip: boolean;
+            if (rotateOffset === 0) {
+                tip = rotateMode === RotateMode.Chain;
+            }
+            else {
+                tip = false;
+                const bone = pathSlot.parent;
+                if (bone !== null) {
+                    const matrix = bone.globalTransformMatrix;
+                    rotateOffset *= matrix.a * matrix.d - matrix.b * matrix.c > 0 ? Transform.DEG_RAD : - Transform.DEG_RAD;
+                }
+            }
+
+            for (let i = 0, p = 3; i < boneCount; i++ , p += 3) {
+                let bone = bones[i];
+                bone.updateByConstraint();
+                let matrix = bone.globalTransformMatrix;
+                matrix.tx += (boneX - matrix.tx) * translateMix;
+                matrix.ty += (boneY - matrix.ty) * translateMix;
+
+                const x = this._positions[p], y = this._positions[p + 1];
+                const dx = x - boneX, dy = y - boneY;
+                if (scale) {
+                    const lenght = this._lengths[i];
+
+                    const s = (Math.sqrt(dx * dx + dy * dy) / lenght - 1) * rotateMix + 1;
+                    matrix.a *= s;
+                    matrix.c *= s;
+                }
+
+                boneX = x;
+                boneY = y;
+                if (rotate) {
+                    let a = matrix.a, b = matrix.b, c = matrix.c, d = matrix.d, r, cos, sin;
+                    if (tangents) {
+                        r = this._positions[p - 1];
+                    }
+                    else {
+                        r = Math.atan2(dy, dx);
+                    }
+
+                    r -= Math.atan2(c, a);
+
+                    if (tip) {
+                        cos = Math.cos(r);
+                        sin = Math.sin(r);
+
+                        const length = bone._boneData.length;
+                        boneX += (length * (cos * a - sin * c) - dx) * rotateMix;
+                        boneY += (length * (sin * a + cos * c) - dy) * rotateMix;
+                    }
+                    else {
+                        r += rotateOffset;
+                    }
+
+                    if (r > Transform.PI) {
+                        r -= Transform.PI_D;
+                    }
+                    else if (r < - Transform.PI) {
+                        r += Transform.PI_D;
+                    }
+
+                    r *= rotateMix;
+
+                    cos = Math.cos(r);
+                    sin = Math.sin(r);
+
+                    matrix.a = cos * a - sin * c;
+                    matrix.b = cos * b - sin * d;
+                    matrix.c = sin * a + cos * c;
+                    matrix.d = sin * b + cos * d;
+                }
+            }
         }
 
         public invalidUpdate(): void {

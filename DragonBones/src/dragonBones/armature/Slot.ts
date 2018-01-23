@@ -170,9 +170,10 @@ namespace dragonBones {
          */
         protected _rawDisplayDatas: Array<DisplayData | null> | null;
         /**
+         * @internal
          * @private
          */
-        protected _displayData: DisplayData | null;
+        public _displayData: DisplayData | null;
         /**
          * @private
          */
@@ -835,6 +836,10 @@ namespace dragonBones {
          * @private
          */
         public update(cacheFrameIndex: number): void {
+            if (this._displayData !== null && this._displayData.type === DisplayType.Path) {
+                return;
+            }
+            
             if (this._displayDirty) {
                 this._displayDirty = false;
                 this._updateDisplay();
