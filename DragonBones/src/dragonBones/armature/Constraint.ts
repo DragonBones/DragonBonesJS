@@ -277,6 +277,7 @@ namespace dragonBones {
 
             const armature = this._armature;
             const dragonBonesData = armature.armatureData.parent;
+            const scale = armature.armatureData.scale;
             const intArray = dragonBonesData.intArray;
             const floatArray = dragonBonesData.floatArray;
 
@@ -293,8 +294,8 @@ namespace dragonBones {
                 const matrix = parentBone.globalTransformMatrix;
 
                 for (let i = start, iW = 0, iV = pathVertexOffset, l = i + count; i < l; i += 2) {
-                    const vx = floatArray[iV + i];
-                    const vy = floatArray[iV + i + 1];
+                    const vx = floatArray[iV + i] * scale;
+                    const vy = floatArray[iV + i + 1] * scale;
 
                     const x = matrix.a * vx + matrix.b * vy + matrix.tx;
                     const y = matrix.c * vx + matrix.d * vy + matrix.ty;
@@ -321,7 +322,6 @@ namespace dragonBones {
                 for (let ii = 0, ll = vertexBoneCount; ii < ll; ii++) {
                     const boneIndex = intArray[iB++];
                     const bone = bones[boneIndex];
-                    // const bone = armature.getBone(bones[boneIndex].name);
                     if (bone === null) {
                         continue;
                     }
@@ -329,10 +329,10 @@ namespace dragonBones {
                     bone.updateByConstraint();
                     const matrix = bone.globalTransformMatrix;
                     const weight = floatArray[iV++];
-                    const vx = floatArray[iV++];
-                    const vy = floatArray[iV++];
-                    xG += (matrix.a * vx + matrix.b * vy + matrix.tx) * weight;
-                    yG += (matrix.c * vx + matrix.d * vy + matrix.ty) * weight;
+                    const vx = floatArray[iV++] * scale;
+                    const vy = floatArray[iV++] * scale;
+                    xG += (matrix.a * vx + matrix.c * vy + matrix.tx) * weight;
+                    yG += (matrix.b * vx + matrix.d * vy + matrix.ty) * weight;
                 }
 
                 out[iW] = xG;
@@ -543,6 +543,7 @@ namespace dragonBones {
 
                 for (let i = 0, l = spacesCount - 1; i < l; i++) {
                     const bone = bones[i];
+                    bone.updateByConstraint();
                     const boneLength = bone._boneData.length;
                     const globalTransformMatrix = bone.globalTransformMatrix;
                     const x = boneLength * globalTransformMatrix.a;
