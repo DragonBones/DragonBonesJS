@@ -7126,6 +7126,7 @@ var dragonBones;
         function PathConstraint() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
             _this._bones = [];
+            _this._weightBones = [];
             _this._spaces = [];
             _this._positions = [];
             _this._curves = [];
@@ -7144,6 +7145,7 @@ var dragonBones;
             this._translateMix = 1.0;
             this._pathSlot = null;
             this._bones.length = 0;
+            this._weightBones.length = 0;
             this._spaces.length = 0;
             this._positions.length = 0;
             this._curves.length = 0;
@@ -7155,6 +7157,7 @@ var dragonBones;
             out.length = count;
             var armature = this._armature;
             var dragonBonesData = armature.armatureData.parent;
+            var scale = armature.armatureData.scale;
             var intArray = dragonBonesData.intArray;
             var floatArray = dragonBonesData.floatArray;
             var pathOffset = pathDisplayDta.offset;
@@ -7166,9 +7169,9 @@ var dragonBones;
                 var parentBone = this._pathSlot.parent;
                 parentBone.updateByConstraint();
                 var matrix = parentBone.globalTransformMatrix;
-                for (var i = start, iW = 0, iV = pathVertexOffset, l = i + count; i < l; i += 2) {
-                    var vx = floatArray[iV + i];
-                    var vy = floatArray[iV + i + 1];
+                for (var i = start, iW = 0, iV_1 = pathVertexOffset, l = i + count; i < l; i += 2) {
+                    var vx = floatArray[iV_1 + i] * scale;
+                    var vy = floatArray[iV_1 + i + 1] * scale;
                     var x = matrix.a * vx + matrix.b * vy + matrix.tx;
                     var y = matrix.c * vx + matrix.d * vy + matrix.ty;
                     //
@@ -7178,30 +7181,37 @@ var dragonBones;
                 return;
             }
             //有骨骼约束我,那我的节点受骨骼权重控制
-            var bones = this._bones;
+            var bones = this._weightBones;
             var weightBoneCount = weightData.bones.length;
             var weightOffset = weightData.offset;
             var floatOffset = intArray[weightOffset + 1 /* WeigthFloatOffset */];
-            for (var i = start, iW = 0, iV = floatOffset, iB = weightOffset + 2 /* WeigthBoneIndices */ + weightBoneCount, l = i + count; i < l; i += 2) {
+            var iV = floatOffset;
+            var iB = weightOffset + 2 /* WeigthBoneIndices */ + weightBoneCount;
+            // let skip = 0;
+            for (var i = 0; i < start; i += 2) {
+                var n = intArray[iB];
+                iV += n + 1;
+                iB += n;
+            }
+            for (var i = start, iW = 0, l = i + count; i < l; i += 2) {
                 var vertexBoneCount = intArray[iB++]; //
                 var xG = 0.0, yG = 0.0;
                 for (var ii = 0, ll = vertexBoneCount; ii < ll; ii++) {
                     var boneIndex = intArray[iB++];
                     var bone = bones[boneIndex];
-                    // const bone = armature.getBone(bones[boneIndex].name);
                     if (bone === null) {
                         continue;
                     }
                     bone.updateByConstraint();
                     var matrix = bone.globalTransformMatrix;
                     var weight = floatArray[iV++];
-                    var vx = floatArray[iV++];
-                    var vy = floatArray[iV++];
-                    xG += (matrix.a * vx + matrix.b * vy + matrix.tx) * weight;
-                    yG += (matrix.c * vx + matrix.d * vy + matrix.ty) * weight;
+                    var vx = floatArray[iV++] * scale;
+                    var vy = floatArray[iV++] * scale;
+                    xG += (matrix.a * vx + matrix.c * vy + matrix.tx) * weight;
+                    yG += (matrix.b * vx + matrix.d * vy + matrix.ty) * weight;
                 }
-                out[iW] = xG;
-                out[iW + 1] = yG;
+                out[iW++] = xG;
+                out[iW++] = yG;
             }
             //节点k帧TODO
         };
@@ -7334,8 +7344,20 @@ var dragonBones;
                 }
             }
             this._root._hasConstraint = true;
-            //TODO
-            this._pathSlot._displayData.constantSpeed = false;
+            var pathDisplayDta = this._pathSlot._displayData;
+            if (pathDisplayDta !== null) {
+                if (pathDisplayDta.weight != null) {
+                    for (var i = 0, l = pathDisplayDta.weight.bones.length; i < l; i++) {
+                        var boneData = pathDisplayDta.weight.bones[i];
+                        var bone = this._armature.getBone(boneData.name);
+                        if (bone !== null) {
+                            this._weightBones.push(bone);
+                        }
+                    }
+                }
+                //TODO
+                pathDisplayDta.constantSpeed = false;
+            }
         };
         PathConstraint.prototype.update = function () {
             //
@@ -7372,10 +7394,11 @@ var dragonBones;
                 }
                 for (var i = 0, l = spacesCount - 1; i < l; i++) {
                     var bone = bones[i];
+                    bone.updateByConstraint();
                     var boneLength = bone._boneData.length;
                     var globalTransformMatrix = bone.globalTransformMatrix;
                     var x = boneLength * globalTransformMatrix.a;
-                    var y = boneLength * globalTransformMatrix.c;
+                    var y = boneLength * globalTransformMatrix.b;
                     var len = Math.sqrt(x * x + y * y);
                     if (scale) {
                         this._lengths[i] = len;

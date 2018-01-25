@@ -240,6 +240,7 @@ namespace dragonBones {
 
         private _pathSlot: Slot;
         private _bones: Array<Bone> = [];
+        private _weightBones: Array<Bone> = [];
 
         private _spaces: Array<number> = [];
         private _positions: Array<number> = [];
@@ -261,6 +262,7 @@ namespace dragonBones {
 
             this._pathSlot = null as any;
             this._bones.length = 0;
+            this._weightBones.length = 0;
 
             this._spaces.length = 0;
             this._positions.length = 0;
@@ -309,13 +311,22 @@ namespace dragonBones {
             }
 
             //有骨骼约束我,那我的节点受骨骼权重控制
-            const bones = this._bones;
+            const bones = this._weightBones;
             const weightBoneCount = weightData.bones.length;
 
             const weightOffset = weightData.offset;
             const floatOffset = intArray[weightOffset + BinaryOffset.WeigthFloatOffset];
 
-            for (let i = start, iW = 0, iV = floatOffset, iB = weightOffset + BinaryOffset.WeigthBoneIndices + weightBoneCount, l = i + count; i < l; i += 2) {
+            let iV = floatOffset;
+            let iB = weightOffset + BinaryOffset.WeigthBoneIndices + weightBoneCount;
+            // let skip = 0;
+            for (let i = 0; i < start; i += 2) {
+                let n = intArray[iB];
+                iV += n + 1;
+                iB += n;
+            }
+
+            for (let i = start, iW = 0, l = i + count; i < l; i += 2) {
                 const vertexBoneCount = intArray[iB++]; //
 
                 let xG = 0.0, yG = 0.0;
@@ -335,8 +346,8 @@ namespace dragonBones {
                     yG += (matrix.b * vx + matrix.d * vy + matrix.ty) * weight;
                 }
 
-                out[iW] = xG;
-                out[iW + 1] = yG;
+                out[iW++] = xG;
+                out[iW++] = yG;
             }
 
             //节点k帧TODO
@@ -455,7 +466,7 @@ namespace dragonBones {
             const t2 = t * t;
             const a = mt2 * mt;
             const b = mt2 * t * 3;
-            const c = mt2 * t2 * 3;
+            const c = mt * t2 * 3;
             const d = t * t2;
 
             const x = a * x1 + b * cx1 + c * cx2 + d * x2;
@@ -496,8 +507,20 @@ namespace dragonBones {
 
             this._root._hasConstraint = true;
 
-            //TODO
-            (this._pathSlot._displayData as PathDisplayData).constantSpeed = false;
+            const pathDisplayDta = this._pathSlot._displayData as PathDisplayData;
+            if (pathDisplayDta !== null) {
+                if (pathDisplayDta.weight != null) {
+                    for (let i = 0, l = pathDisplayDta.weight.bones.length; i < l; i++) {
+                        const boneData = pathDisplayDta.weight.bones[i];
+                        const bone = this._armature.getBone(boneData.name);
+                        if (bone !== null) {
+                            this._weightBones.push(bone);
+                        }
+                    }
+                }
+                //TODO
+                pathDisplayDta.constantSpeed = false;
+            }
         }
 
         public update(): void {
@@ -547,7 +570,7 @@ namespace dragonBones {
                     const boneLength = bone._boneData.length;
                     const globalTransformMatrix = bone.globalTransformMatrix;
                     const x = boneLength * globalTransformMatrix.a;
-                    const y = boneLength * globalTransformMatrix.c;
+                    const y = boneLength * globalTransformMatrix.b;
 
                     const len = Math.sqrt(x * x + y * y);
                     if (scale) {
