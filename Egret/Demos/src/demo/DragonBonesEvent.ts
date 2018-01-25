@@ -15,12 +15,12 @@ class DragonBonesEvent extends BaseDemo {
         const factory = dragonBones.EgretFactory.factory;
         factory.parseDragonBonesData(RES.getRes("resource/mecha_1004d/mecha_1004d_ske.json"));
         factory.parseTextureAtlasData(RES.getRes("resource/mecha_1004d/mecha_1004d_tex.json"), RES.getRes("resource/mecha_1004d/mecha_1004d_tex.png"));
+        //
         factory.soundEventManager.addEventListener(dragonBones.EventObject.SOUND_EVENT, this._soundEventHandler, this);
-
+        //
         this._armatureDisplay = factory.buildArmatureDisplay("mecha_1004d");
         this._armatureDisplay.addEventListener(dragonBones.EventObject.COMPLETE, this._animationEventHandler, this);
         this._armatureDisplay.animation.play("walk");
-
         this._armatureDisplay.x = 0.0;
         this._armatureDisplay.y = 100.0;
         this.addChild(this._armatureDisplay);

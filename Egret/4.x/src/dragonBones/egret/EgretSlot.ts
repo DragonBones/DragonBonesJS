@@ -262,7 +262,7 @@ namespace dragonBones {
                 }
 
                 this._renderDisplay.filters = filters;
-                this._renderDisplay.$setAlpha(1.0);
+                this._renderDisplay.alpha = 1.0;
             }
             else {
                 if (this._armatureDisplay._batchEnabled) {
@@ -272,7 +272,7 @@ namespace dragonBones {
                 }
 
                 this._renderDisplay.filters = null as any;
-                this._renderDisplay.$setAlpha(this._colorTransform.alphaMultiplier);
+                this._renderDisplay.alpha = this._colorTransform.alphaMultiplier;
             }
         }
         /**
@@ -365,8 +365,8 @@ namespace dragonBones {
                         }
 
                         meshDisplay.texture = currentTextureData.renderTexture;
-                        meshDisplay.$setAnchorOffsetX(this._pivotX);
-                        meshDisplay.$setAnchorOffsetY(this._pivotY);
+                        meshDisplay.anchorOffsetX = this._pivotX;
+                        meshDisplay.anchorOffsetY = this._pivotY;
                         meshDisplay.$updateVertices();
 
                         if (!isV5) {
@@ -424,8 +424,8 @@ namespace dragonBones {
                             normalDisplay.height = textureHeight;
                         }
 
-                        normalDisplay.$setAnchorOffsetX(this._pivotX);
-                        normalDisplay.$setAnchorOffsetY(this._pivotY);
+                        normalDisplay.anchorOffsetX = this._pivotX;
+                        normalDisplay.anchorOffsetY = this._pivotY;
                     }
 
                     this._visibleDirty = true;

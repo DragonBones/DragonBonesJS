@@ -24,7 +24,7 @@ class ReplaceSkin extends BaseDemo {
             "2080100e_1",
             "20803005",
             "2080500b",
-            "2080500b_1",
+            "2080500b_1"
         ]);
 
         this._suitConfigs.push([
@@ -40,7 +40,7 @@ class ReplaceSkin extends BaseDemo {
             "20703020",
             "20703020_1",
             "2080b003",
-            "20801015",
+            "20801015"
         ]);
 
         this._resources.push(
@@ -52,7 +52,7 @@ class ReplaceSkin extends BaseDemo {
         for (let i = 0, l = this._suitConfigs.length; i < l; ++i) {
             for (const partArmatureName of this._suitConfigs[i]) {
                 // resource/you_xin/suit1/2010600a/xxxxxx
-                const path = "resource/you_xin/" + "suit" + (i + 1) + "/" + partArmatureName + "/" + partArmatureName;
+                const path = "resource/you_xin/suit" + (i + 1) + "/" + partArmatureName + "/" + partArmatureName;
                 const dragonBonesJSONPath = path + "_ske.json";
                 const textureAtlasJSONPath = path + "_tex.json";
                 const textureAtlasPath = path + "_tex.png";
@@ -72,7 +72,7 @@ class ReplaceSkin extends BaseDemo {
 
         for (let i = 0, l = this._suitConfigs.length; i < l; ++i) {
             for (const partArmatureName of this._suitConfigs[i]) {
-                const path = "resource/you_xin/" + "suit" + (i + 1) + "/" + partArmatureName + "/" + partArmatureName;
+                const path = "resource/you_xin/suit" + (i + 1) + "/" + partArmatureName + "/" + partArmatureName;
                 const dragonBonesJSONPath = path + "_ske.json";
                 const textureAtlasJSONPath = path + "_tex.json";
                 const textureAtlasPath = path + "_tex.png";
