@@ -57,8 +57,8 @@ namespace dragonBones {
         /**
          * @inheritDoc
          */
-        public init(slotData: SlotData, displayDatas: Array<DisplayData | null> | null, rawDisplay: any, meshDisplay: any): void {
-            super.init(slotData, displayDatas, rawDisplay, meshDisplay);
+        public init(slotData: SlotData, armatureValue: Armature, rawDisplay: any, meshDisplay: any): void {
+            super.init(slotData, armatureValue, rawDisplay, meshDisplay);
 
             if (isV5) {
                 this._updateTransform = this._updateTransformV5;

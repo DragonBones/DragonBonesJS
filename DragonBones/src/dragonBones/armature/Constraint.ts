@@ -149,8 +149,9 @@ namespace dragonBones {
                 const rY = dX * r;
 
                 let isPPR = false;
-                if (parent._parent !== null) {
-                    const parentParentMatrix = parent._parent.globalTransformMatrix;
+                const parentParent = parent.parent;
+                if (parentParent !== null) {
+                    const parentParentMatrix = parentParent.globalTransformMatrix;
                     isPPR = parentParentMatrix.a * parentParentMatrix.d - parentParentMatrix.b * parentParentMatrix.c < 0.0;
                 }
 

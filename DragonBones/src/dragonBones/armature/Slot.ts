@@ -203,6 +203,10 @@ namespace dragonBones {
          */
         protected _childArmature: Armature | null;
         /**
+         * @private
+         */
+        protected _parent: Bone;
+        /**
          * @internal
          * @private
          */
@@ -273,6 +277,7 @@ namespace dragonBones {
             this._meshDisplay = null;
             this._display = null;
             this._childArmature = null;
+            this._parent = null as any; //
             this._cachedFrameIndices = null;
         }
         /**
@@ -685,30 +690,6 @@ namespace dragonBones {
             }
         }
         /**
-         * @inheritDoc
-         */
-        public _setArmature(value: Armature | null): void {
-            if (this._armature === value) {
-                return;
-            }
-
-            if (this._armature !== null) {
-                this._armature._removeSlotFromSlotList(this);
-            }
-
-            this._armature = value as any; //
-
-            this._onUpdateDisplay();
-
-            if (this._armature !== null) {
-                this._armature._addSlotToSlotList(this);
-                this._addDisplay();
-            }
-            else {
-                this._removeDisplay();
-            }
-        }
-        /**
          * @internal
          * @private
          */
@@ -797,13 +778,13 @@ namespace dragonBones {
          * @internal
          * @private
          */
-        public init(slotData: SlotData, displayDatas: Array<DisplayData | null> | null, rawDisplay: any, meshDisplay: any): void {
+        public init(slotData: SlotData, armatureValue: Armature, rawDisplay: any, meshDisplay: any): void {
             if (this._slotData !== null) {
                 return;
             }
 
             this._slotData = slotData;
-            //
+
             this._visibleDirty = true;
             this._blendModeDirty = true;
             this._colorDirty = true;
@@ -813,12 +794,28 @@ namespace dragonBones {
             this._rawDisplay = rawDisplay;
             this._meshDisplay = meshDisplay;
             //
-            this.rawDisplayDatas = displayDatas; //
+            this._armature = armatureValue;
+
+            const slotParent = this._armature.getBone(this._slotData.parent.name);
+            if (slotParent !== null) {
+                this._parent = slotParent;
+            }
+            else {
+                // Never;
+            }
+
+            this._armature._addSlot(this);
             //
             this._initDisplay(this._rawDisplay, false);
             if (this._rawDisplay !== this._meshDisplay) {
                 this._initDisplay(this._meshDisplay, false);
             }
+
+            this._onUpdateDisplay();
+            this._addDisplay();
+
+            //
+            // this.rawDisplayDatas = displayDatas; // TODO
         }
         /**
          * @internal
@@ -1358,6 +1355,19 @@ namespace dragonBones {
             }
 
             this.display = value;
+        }
+        /**
+         * - The parent bone to which it belongs.
+         * @version DragonBones 3.0
+         * @language en_US
+         */
+        /**
+         * - 所属的父骨骼。
+         * @version DragonBones 3.0
+         * @language zh_CN
+         */
+        public get parent(): Bone {
+            return this._parent;
         }
 
         /**

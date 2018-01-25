@@ -104,7 +104,7 @@ namespace dragonBones {
         /**
          * @inheritDoc
          */
-        protected _buildSlot(dataPackage: BuildArmaturePackage, slotData: SlotData, displays: Array<DisplayData | null> | null, armature: Armature): Slot {
+        protected _buildSlot(dataPackage: BuildArmaturePackage, slotData: SlotData, armature: Armature): Slot {
             // tslint:disable-next-line:no-unused-expression
             dataPackage;
             // tslint:disable-next-line:no-unused-expression
@@ -113,7 +113,7 @@ namespace dragonBones {
             const slot = BaseObject.borrowObject(PixiSlot);
 
             slot.init(
-                slotData, displays,
+                slotData, armature,
                 new PIXI.Sprite(), new PIXI.mesh.Mesh(null as any, null as any, null as any, null as any, PIXI.mesh.Mesh.DRAW_MODES.TRIANGLES)
             );
 
