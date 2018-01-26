@@ -7312,7 +7312,7 @@ var dragonBones;
             var t2 = t * t;
             var a = mt2 * mt;
             var b = mt2 * t * 3;
-            var c = mt2 * t2 * 3;
+            var c = mt * t2 * 3;
             var d = t * t2;
             var x = a * x1 + b * cx1 + c * cx2 + d * x2;
             var y = a * y1 + b * cy1 + c * cy2 + d * y2;

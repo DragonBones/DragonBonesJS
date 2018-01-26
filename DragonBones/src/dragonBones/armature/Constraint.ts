@@ -299,8 +299,8 @@ namespace dragonBones {
                     const vx = floatArray[iV + i] * scale;
                     const vy = floatArray[iV + i + 1] * scale;
 
-                    const x = matrix.a * vx + matrix.b * vy + matrix.tx;
-                    const y = matrix.c * vx + matrix.d * vy + matrix.ty;
+                    const x = matrix.a * vx + matrix.c * vy + matrix.tx;
+                    const y = matrix.b * vx + matrix.d * vy + matrix.ty;
 
                     //
                     out[iW++] = x;
@@ -322,8 +322,8 @@ namespace dragonBones {
             // let skip = 0;
             for (let i = 0; i < start; i += 2) {
                 let n = intArray[iB];
-                iV += n + 1;
-                iB += n;
+                iV += n * 3;
+                iB += n * 2;
             }
 
             for (let i = start, iW = 0, l = i + count; i < l; i += 2) {
@@ -478,6 +478,9 @@ namespace dragonBones {
                 //Calculates the curve tangent at the specified t value
                 out[offset + 2] = Math.atan2(y - (a * y1 + b * cy1 + c * cy2), x - (a * x1 + b * cx1 + c * cx2));
             }
+            else {
+                out[offset + 2] = 0;
+            }
         }
 
         public init(constraintData: ConstraintData, armature: Armature): void {
@@ -619,7 +622,7 @@ namespace dragonBones {
 
                     const s = (Math.sqrt(dx * dx + dy * dy) / lenght - 1) * rotateMix + 1;
                     matrix.a *= s;
-                    matrix.c *= s;
+                    matrix.b *= s;
                 }
 
                 boneX = x;
@@ -633,15 +636,15 @@ namespace dragonBones {
                         r = Math.atan2(dy, dx);
                     }
 
-                    r -= Math.atan2(c, a);
+                    r -= Math.atan2(b, a);
 
                     if (tip) {
                         cos = Math.cos(r);
                         sin = Math.sin(r);
 
                         const length = bone._boneData.length;
-                        boneX += (length * (cos * a - sin * c) - dx) * rotateMix;
-                        boneY += (length * (sin * a + cos * c) - dy) * rotateMix;
+                        boneX += (length * (cos * a - sin * b) - dx) * rotateMix;
+                        boneY += (length * (sin * a + cos * b) - dy) * rotateMix;
                     }
                     else {
                         r += rotateOffset;
@@ -660,10 +663,12 @@ namespace dragonBones {
                     sin = Math.sin(r);
 
                     matrix.a = cos * a - sin * c;
-                    matrix.b = cos * b - sin * d;
-                    matrix.c = sin * a + cos * c;
+                    matrix.b = sin * a + cos * c;
+                    matrix.c = cos * b - sin * d;
                     matrix.d = sin * b + cos * d;
                 }
+                
+                bone.global.fromMatrix(matrix);
             }
         }
 
