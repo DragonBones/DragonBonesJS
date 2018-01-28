@@ -111,7 +111,7 @@ namespace dragonBones {
             }
 
             if (passedTime < 0.0) {
-                this.time -= passedTime;
+                this.time += passedTime;
             }
             else {
                 this.time += passedTime;
