@@ -34,6 +34,6 @@ cnpm - http://r.cnpmjs.org/
 * [DragonBones offical website](http://www.dragonbones.com/)
 
 ## Online demos
-[![PerformanceTest](https://dragonbones.github.io/demo/shot.jpg)](https://github.com/DragonBones/Demos)
+[![PerformanceTest](https://dragonbones.github.io/demo/demos.jpg)](https://github.com/DragonBones/Demos)
 
 Copyright (c) 2012-2018 The DragonBones team and other contributors.
