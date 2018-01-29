@@ -102,20 +102,16 @@ namespace dragonBones {
                 passedTime = 0.0;
             }
 
+            let currentTime = new Date().getTime();
             if (passedTime < 0.0) {
-                passedTime = new Date().getTime() * 0.001 - this.time;
+                passedTime = currentTime * 0.001 - this.time;
             }
 
             if (this.timeScale !== 1.0) {
                 passedTime *= this.timeScale;
             }
 
-            if (passedTime < 0.0) {
-                this.time -= passedTime;
-            }
-            else {
-                this.time += passedTime;
-            }
+            this.time = currentTime;
 
             if (passedTime === 0.0) {
                 return;
