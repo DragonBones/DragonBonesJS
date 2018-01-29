@@ -48,7 +48,8 @@ class PathDemo extends BaseDemo {
         // armatureDisplay.x = this.stage.stageWidth * 0.5;
         // armatureDisplay.y = this.stage.stageHeight * 0.5;
 
-        armatureDisplay.x -= 200.0;
+        armatureDisplay.x -= 150.0;
+        armatureDisplay.y += 250.0;
 
         armatureDisplay.scaleX = armatureDisplay.scaleY = 0.5;
         this.addChild(armatureDisplay);

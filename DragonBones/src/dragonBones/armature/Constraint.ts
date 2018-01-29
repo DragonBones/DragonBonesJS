@@ -295,7 +295,7 @@ namespace dragonBones {
 
                 const matrix = parentBone.globalTransformMatrix;
 
-                for (let i = start, iW = 0, iV = pathVertexOffset, l = i + count; i < l; i += 2) {
+                for (let i = 0, iW = 0, iV = pathVertexOffset, l = count; i < l; i += 2) {
                     const vx = floatArray[iV + i] * scale;
                     const vy = floatArray[iV + i + 1] * scale;
 
@@ -323,10 +323,10 @@ namespace dragonBones {
             for (let i = 0; i < start; i += 2) {
                 let n = intArray[iB];
                 iV += n * 3;
-                iB += n * 2;
+                iB += n + 1;
             }
 
-            for (let i = start, iW = 0, l = i + count; i < l; i += 2) {
+            for (let i = 0, iW = 0, l = count; i < l; i += 2) {
                 const vertexBoneCount = intArray[iB++]; //
 
                 let xG = 0.0, yG = 0.0;
@@ -567,6 +567,7 @@ namespace dragonBones {
                     this._lengths.length = bones.length;
                 }
 
+                this._spaces[0] = 0;
                 for (let i = 0, l = spacesCount - 1; i < l; i++) {
                     const bone = bones[i];
                     bone.updateByConstraint();
@@ -579,7 +580,7 @@ namespace dragonBones {
                     if (scale) {
                         this._lengths[i] = len;
                     }
-                    this._spaces[i] = (boneLength + spacing) * len / boneLength;
+                    this._spaces[i + 1] = (boneLength + spacing) * len / boneLength;
                 }
             }
             else {
@@ -662,10 +663,10 @@ namespace dragonBones {
                     cos = Math.cos(r);
                     sin = Math.sin(r);
 
-                    matrix.a = cos * a - sin * c;
-                    matrix.b = sin * a + cos * c;
-                    matrix.c = cos * b - sin * d;
-                    matrix.d = sin * b + cos * d;
+                    matrix.a = cos * a - sin * b;
+                    matrix.b = sin * a + cos * b;
+                    matrix.c = cos * c - sin * d;
+                    matrix.d = sin * c + cos * d;
                 }
                 
                 bone.global.fromMatrix(matrix);

@@ -7169,11 +7169,11 @@ var dragonBones;
                 var parentBone = this._pathSlot.parent;
                 parentBone.updateByConstraint();
                 var matrix = parentBone.globalTransformMatrix;
-                for (var i = start, iW = 0, iV_1 = pathVertexOffset, l = i + count; i < l; i += 2) {
+                for (var i = 0, iW = 0, iV_1 = pathVertexOffset, l = count; i < l; i += 2) {
                     var vx = floatArray[iV_1 + i] * scale;
                     var vy = floatArray[iV_1 + i + 1] * scale;
-                    var x = matrix.a * vx + matrix.b * vy + matrix.tx;
-                    var y = matrix.c * vx + matrix.d * vy + matrix.ty;
+                    var x = matrix.a * vx + matrix.c * vy + matrix.tx;
+                    var y = matrix.b * vx + matrix.d * vy + matrix.ty;
                     //
                     out[iW++] = x;
                     out[iW++] = y;
@@ -7190,10 +7190,10 @@ var dragonBones;
             // let skip = 0;
             for (var i = 0; i < start; i += 2) {
                 var n = intArray[iB];
-                iV += n + 1;
-                iB += n;
+                iV += n * 3;
+                iB += n + 1;
             }
-            for (var i = start, iW = 0, l = i + count; i < l; i += 2) {
+            for (var i = 0, iW = 0, l = count; i < l; i += 2) {
                 var vertexBoneCount = intArray[iB++]; //
                 var xG = 0.0, yG = 0.0;
                 for (var ii = 0, ll = vertexBoneCount; ii < ll; ii++) {
@@ -7322,6 +7322,9 @@ var dragonBones;
                 //Calculates the curve tangent at the specified t value
                 out[offset + 2] = Math.atan2(y - (a * y1 + b * cy1 + c * cy2), x - (a * x1 + b * cx1 + c * cx2));
             }
+            else {
+                out[offset + 2] = 0;
+            }
         };
         PathConstraint.prototype.init = function (constraintData, armature) {
             this._constraintData = constraintData;
@@ -7392,6 +7395,7 @@ var dragonBones;
                 if (scale) {
                     this._lengths.length = bones.length;
                 }
+                this._spaces[0] = 0;
                 for (var i = 0, l = spacesCount - 1; i < l; i++) {
                     var bone = bones[i];
                     bone.updateByConstraint();
@@ -7403,7 +7407,7 @@ var dragonBones;
                     if (scale) {
                         this._lengths[i] = len;
                     }
-                    this._spaces[i] = (boneLength + spacing) * len / boneLength;
+                    this._spaces[i + 1] = (boneLength + spacing) * len / boneLength;
                 }
             }
             else {
@@ -7440,7 +7444,7 @@ var dragonBones;
                     var lenght = this._lengths[i];
                     var s = (Math.sqrt(dx * dx + dy * dy) / lenght - 1) * rotateMix + 1;
                     matrix.a *= s;
-                    matrix.c *= s;
+                    matrix.b *= s;
                 }
                 boneX = x;
                 boneY = y;
@@ -7452,13 +7456,13 @@ var dragonBones;
                     else {
                         r = Math.atan2(dy, dx);
                     }
-                    r -= Math.atan2(c, a);
+                    r -= Math.atan2(b, a);
                     if (tip) {
                         cos = Math.cos(r);
                         sin = Math.sin(r);
                         var length_1 = bone._boneData.length;
-                        boneX += (length_1 * (cos * a - sin * c) - dx) * rotateMix;
-                        boneY += (length_1 * (sin * a + cos * c) - dy) * rotateMix;
+                        boneX += (length_1 * (cos * a - sin * b) - dx) * rotateMix;
+                        boneY += (length_1 * (sin * a + cos * b) - dy) * rotateMix;
                     }
                     else {
                         r += rotateOffset;
@@ -7472,11 +7476,12 @@ var dragonBones;
                     r *= rotateMix;
                     cos = Math.cos(r);
                     sin = Math.sin(r);
-                    matrix.a = cos * a - sin * c;
-                    matrix.b = cos * b - sin * d;
-                    matrix.c = sin * a + cos * c;
-                    matrix.d = sin * b + cos * d;
+                    matrix.a = cos * a - sin * b;
+                    matrix.b = sin * a + cos * b;
+                    matrix.c = cos * c - sin * d;
+                    matrix.d = sin * c + cos * d;
                 }
+                bone.global.fromMatrix(matrix);
             }
         };
         PathConstraint.prototype.invalidUpdate = function () {
