@@ -318,16 +318,22 @@ namespace dragonBones {
             return this._eventManager;
         }
     }
-
-    if (!console.warn) {
-        console.warn = function () { };
-    }
-
-    if (!console.assert) {
-        console.assert = function () { };
-    }
 }
 //
-if (typeof global === 'undefined') {
+if (typeof global === "undefined") {
     var global = window as any;
+}
+//
+if (!console.warn) {
+    console.warn = function () { };
+}
+
+if (!console.assert) {
+    console.assert = function () { };
+}
+//
+if (!Date.now) {
+    Date.now = function now() {
+        return new Date().getTime();
+    };
 }

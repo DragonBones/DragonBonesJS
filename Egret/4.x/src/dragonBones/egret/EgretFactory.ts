@@ -37,15 +37,16 @@ namespace dragonBones {
      * @language zh_CN
      */
     export class EgretFactory extends BaseFactory {
+        private static _time: number = 0.0;
         private static _dragonBonesInstance: DragonBones = null as any;
         private static _factory: EgretFactory | null = null;
 
         private static _clockHandler(time: number): boolean {
             time *= 0.001;
-            const clock = EgretFactory._dragonBonesInstance.clock;
-            const passedTime = time - clock.time;
+
+            const passedTime = time - this._time;
             EgretFactory._dragonBonesInstance.advanceTime(passedTime);
-            clock.time = time;
+            this._time = time;
 
             return false;
         }
@@ -76,7 +77,7 @@ namespace dragonBones {
                 //
                 const eventManager = new EgretArmatureDisplay();
                 EgretFactory._dragonBonesInstance = new DragonBones(eventManager);
-                EgretFactory._dragonBonesInstance.clock.time = egret.getTimer() * 0.001;
+                EgretFactory._time = egret.getTimer() * 0.001;
                 egret.startTick(EgretFactory._clockHandler, EgretFactory);
             }
 
