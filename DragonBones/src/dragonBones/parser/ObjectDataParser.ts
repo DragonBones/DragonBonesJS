@@ -706,7 +706,7 @@ namespace dragonBones {
                     const pathDisplay = display = BaseObject.borrowObject(PathDisplayData);
                     pathDisplay.closed = ObjectDataParser._getBoolean(rawData, DataParser.CLOSED, false);
                     pathDisplay.constantSpeed = ObjectDataParser._getBoolean(rawData, DataParser.CONSTANT_SPEED, false);
-                    pathDisplay.lengths = rawData[DataParser.LENGTHS] as Array<number>;
+                    pathDisplay.curveLengths = rawData[DataParser.LENGTHS] as Array<number>;
 
                     this._parsePath(rawData, pathDisplay);
                     break;

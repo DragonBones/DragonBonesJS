@@ -245,7 +245,7 @@ namespace dragonBones {
         private _spaces: Array<number> = [];
         private _positions: Array<number> = [];
         private _curves: Array<number> = [];
-        private _lengths: Array<number> = [];
+        private _boneLengths: Array<number> = [];
 
         public static toString(): string {
             return "[class dragonBones.PathConstraint]";
@@ -267,7 +267,7 @@ namespace dragonBones {
             this._spaces.length = 0;
             this._positions.length = 0;
             this._curves.length = 0;
-            this._lengths.length = 0;
+            this._boneLengths.length = 0;
         }
 
         protected _computeVertices(pathDisplayDta: PathDisplayData, start: number, count: number, offset: number, out: Array<number>): void {
@@ -275,7 +275,6 @@ namespace dragonBones {
 
             //计算曲线的节点数据
             out.length = count;
-
 
             const armature = this._armature;
             const dragonBonesData = armature.armatureData.parent;
@@ -295,7 +294,7 @@ namespace dragonBones {
 
                 const matrix = parentBone.globalTransformMatrix;
 
-                for (let i = 0, iW = 0, iV = pathVertexOffset, l = count; i < l; i += 2) {
+                for (let i = 0, iW = offset, iV = pathVertexOffset, l = count; i < l; i += 2) {
                     const vx = floatArray[iV + i] * scale;
                     const vy = floatArray[iV + i + 1] * scale;
 
@@ -326,7 +325,7 @@ namespace dragonBones {
                 iB += n + 1;
             }
 
-            for (let i = 0, iW = 0, l = count; i < l; i += 2) {
+            for (let i = 0, iW = offset, l = count; i < l; i += 2) {
                 const vertexBoneCount = intArray[iB++]; //
 
                 let xG = 0.0, yG = 0.0;
@@ -375,7 +374,7 @@ namespace dragonBones {
             let pathLength = 0.0;
             //不需要匀速运动，效率高些
             if (!pathDisplayDta.constantSpeed) {
-                const lenghts = pathDisplayDta.lengths;
+                const lenghts = pathDisplayDta.curveLengths;
                 curveCount -= closed ? 1 : 2;
                 pathLength = lenghts[curveCount];
 
@@ -429,6 +428,8 @@ namespace dragonBones {
                         preCurve = curve;
                         if (closed && curve === curveCount) {
                             //计算曲线
+                            this._computeVertices(pathDisplayDta, verticesLength - 4, 4, 0, curveVertices);
+                            this._computeVertices(pathDisplayDta, 0, 4, 4, curveVertices);
                         }
                         else {
                             this._computeVertices(pathDisplayDta, curve * 6 + 2, 8, 0, curveVertices);
@@ -548,7 +549,6 @@ namespace dragonBones {
             const spacingMode = constraintData.spacingMode;
             const rotateMode = constraintData.rotateMode;
 
-            // const position = this._position;
             const spacing = this._spacing;
 
             const bones = this._bones;
@@ -564,7 +564,7 @@ namespace dragonBones {
             //计曲线间隔和长度
             if (scale || lengthSpacing) {
                 if (scale) {
-                    this._lengths.length = bones.length;
+                    this._boneLengths.length = bones.length;
                 }
 
                 this._spaces[0] = 0;
@@ -572,19 +572,18 @@ namespace dragonBones {
                     const bone = bones[i];
                     bone.updateByConstraint();
                     const boneLength = bone._boneData.length;
-                    const globalTransformMatrix = bone.globalTransformMatrix;
-                    const x = boneLength * globalTransformMatrix.a;
-                    const y = boneLength * globalTransformMatrix.b;
+                    const matrix = bone.globalTransformMatrix;
+                    const x = boneLength * matrix.a;
+                    const y = boneLength * matrix.b;
 
                     const len = Math.sqrt(x * x + y * y);
                     if (scale) {
-                        this._lengths[i] = len;
+                        this._boneLengths[i] = len;
                     }
                     this._spaces[i + 1] = (boneLength + spacing) * len / boneLength;
                 }
             }
             else {
-
                 for (let i = 0; i < spacesCount; i++) {
                     this._spaces[i] = spacing;
                 }
@@ -619,7 +618,7 @@ namespace dragonBones {
                 const x = this._positions[p], y = this._positions[p + 1];
                 const dx = x - boneX, dy = y - boneY;
                 if (scale) {
-                    const lenght = this._lengths[i];
+                    const lenght = this._boneLengths[i];
 
                     const s = (Math.sqrt(dx * dx + dy * dy) / lenght - 1) * rotateMix + 1;
                     matrix.a *= s;

@@ -161,7 +161,7 @@ namespace dragonBones {
         public constantSpeed: boolean;
 
         // public vertices: Array<number> = [];
-        public lengths: Array<number> = [];
+        public curveLengths : Array<number> = [];
 
         public weight: WeightData | null = null; // Initial value.
 
@@ -174,7 +174,7 @@ namespace dragonBones {
             this.constantSpeed = false;
 
             // this.vertices.length = 0;
-            this.lengths.length = 0;
+            this.curveLengths.length = 0;
 
             this.weight = null;
         }
