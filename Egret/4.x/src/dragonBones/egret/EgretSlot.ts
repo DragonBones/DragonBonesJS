@@ -62,11 +62,9 @@ namespace dragonBones {
 
             if (isV5) {
                 this._updateTransform = this._updateTransformV5;
-                this._identityTransform = this._identityTransformV5;
             }
             else {
                 this._updateTransform = this._updateTransformV4;
-                this._identityTransform = this._identityTransformV4;
             }
         }
         /**
@@ -598,10 +596,6 @@ namespace dragonBones {
          * @inheritDoc
          */
         protected _identityTransform(): void {
-            throw new Error();
-        }
-
-        private _identityTransformV4(): void {
             if (this._armatureDisplay._batchEnabled) {
                 this._armatureDisplay._childDirty = true;
                 let displayMatrix = (this._renderDisplay.$renderNode as (egret.sys.BitmapNode | egret.sys.MeshNode)).matrix;
@@ -616,11 +610,6 @@ namespace dragonBones {
                 egret.$TempMatrix.identity();
                 this._renderDisplay.$setMatrix(egret.$TempMatrix, this.transformUpdateEnabled);
             }
-        }
-
-        private _identityTransformV5(): void {
-            egret.$TempMatrix.identity();
-            this._renderDisplay.$setMatrix(egret.$TempMatrix, this.transformUpdateEnabled);
         }
 
         private _updateTransformV4(): void {
