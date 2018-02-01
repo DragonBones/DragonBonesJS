@@ -271,7 +271,6 @@ namespace dragonBones {
         }
 
         protected _computeVertices(pathDisplayDta: PathDisplayData, start: number, count: number, offset: number, out: Array<number>): void {
-            offset;
 
             //计算曲线的节点数据
             out.length = count;
@@ -283,7 +282,6 @@ namespace dragonBones {
             const floatArray = dragonBonesData.floatArray;
 
             const pathOffset = pathDisplayDta.offset;
-            // const pathVertexCount = intArray[pathOffset + BinaryOffset.PathVertexCount];
             const pathVertexOffset = intArray[pathOffset + BinaryOffset.PathFloatOffset];
 
             const weightData = pathDisplayDta.weight;
@@ -294,16 +292,16 @@ namespace dragonBones {
 
                 const matrix = parentBone.globalTransformMatrix;
 
-                for (let i = 0, iW = offset, iV = pathVertexOffset, l = count; i < l; i += 2) {
-                    const vx = floatArray[iV + i] * scale;
-                    const vy = floatArray[iV + i + 1] * scale;
+                for (let i = offset, iV = start + pathVertexOffset; i < count; i += 2) {
+                    const vx = floatArray[iV++] * scale;
+                    const vy = floatArray[iV++] * scale;
 
                     const x = matrix.a * vx + matrix.c * vy + matrix.tx;
                     const y = matrix.b * vx + matrix.d * vy + matrix.ty;
 
                     //
-                    out[iW++] = x;
-                    out[iW++] = y;
+                    out[i] = x;
+                    out[i + 1] = y;
                 }
 
                 return;
@@ -318,14 +316,13 @@ namespace dragonBones {
 
             let iV = floatOffset;
             let iB = weightOffset + BinaryOffset.WeigthBoneIndices + weightBoneCount;
-            // let skip = 0;
             for (let i = 0; i < start; i += 2) {
                 let n = intArray[iB];
                 iV += n * 3;
                 iB += n + 1;
             }
 
-            for (let i = 0, iW = offset, l = count; i < l; i += 2) {
+            for (let i = offset; i < count; i += 2) {
                 const vertexBoneCount = intArray[iB++]; //
 
                 let xG = 0.0, yG = 0.0;
@@ -345,8 +342,8 @@ namespace dragonBones {
                     yG += (matrix.b * vx + matrix.d * vy + matrix.ty) * weight;
                 }
 
-                out[iW++] = xG;
-                out[iW++] = yG;
+                out[i] = xG;
+                out[i + 1] = yG;
             }
 
             //节点k帧TODO
@@ -667,7 +664,7 @@ namespace dragonBones {
                     matrix.c = cos * c - sin * d;
                     matrix.d = sin * c + cos * d;
                 }
-                
+
                 bone.global.fromMatrix(matrix);
             }
         }
