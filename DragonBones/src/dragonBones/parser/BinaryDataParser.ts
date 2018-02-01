@@ -238,6 +238,34 @@ namespace dragonBones {
             }
         }
 
+        protected _parsePath(rawData: any, display: PathDisplayData) {
+            display.offset = rawData[DataParser.OFFSET];
+
+            const weightOffset = this._intArrayBuffer[display.offset + BinaryOffset.PathWeightOffset];
+            if (weightOffset > 0) {
+                const weight = BaseObject.borrowObject(WeightData);
+                const vertexCount = this._intArrayBuffer[display.offset + BinaryOffset.PathVertexCount];
+                const weightBoneCount = this._intArrayBuffer[weightOffset + BinaryOffset.WeigthBoneCount];
+                weight.offset = weightOffset;
+
+                for (let i = 0; i < weightBoneCount; ++i) {
+                    const boneIndex = this._intArrayBuffer[weightOffset + BinaryOffset.WeigthBoneIndices + i];
+                    weight.addBone(this._rawBones[boneIndex]);
+                }
+
+                let boneIndicesOffset = weightOffset + BinaryOffset.WeigthBoneIndices + weightBoneCount;
+                let weightCount = 0;
+                for (let i = 0, l = vertexCount; i < l; ++i) {
+                    const vertexBoneCount = this._intArrayBuffer[boneIndicesOffset++];
+                    weightCount += vertexBoneCount;
+                    boneIndicesOffset += vertexBoneCount;
+                }
+
+                weight.count = weightCount;
+                display.weight = weight;
+            }
+        }
+
         protected _parseAnimation(rawData: any): AnimationData {
             const animation = BaseObject.borrowObject(AnimationData);
             animation.frameCount = Math.max(ObjectDataParser._getNumber(rawData, DataParser.DURATION, 1), 1);
