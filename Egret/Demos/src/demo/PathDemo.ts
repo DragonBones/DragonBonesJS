@@ -20,10 +20,10 @@ class PathDemo extends BaseDemo {
         super();
 
         this._resources.push(
-            // "resource/assets/dragon_boy_ske.json",
-            "resource/vine/vine-pro_ske.json",
-            "resource/vine/vine-pro_tex.json",
-            "resource/vine/vine-pro_tex.png",
+            "resource/vine1/vine-pro_ske.dbbin",
+            "resource/vine1/vine-pro_ske.json",
+            "resource/vine1/vine-pro_tex.json",
+            "resource/vine1/vine-pro_tex.png",
             "resource/Ubbie/Ubbie.json",
             "resource/Ubbie/texture.json",
             "resource/Ubbie/texture.png"
@@ -32,9 +32,9 @@ class PathDemo extends BaseDemo {
 
     protected _onStart(): void {
         const factory = dragonBones.EgretFactory.factory;
-        // factory.parseDragonBonesData(RES.getRes("resource/assets/dragon_boy_ske.json"));
-        factory.parseDragonBonesData(RES.getRes("resource/vine/vine-pro_ske.json"));
-        factory.parseTextureAtlasData(RES.getRes("resource/vine/vine-pro_tex.json"), RES.getRes("resource/vine/vine-pro_tex.png"));
+        factory.parseDragonBonesData(RES.getRes("resource/vine1/vine-pro_ske.dbbin"));
+        // factory.parseDragonBonesData(RES.getRes("resource/vine1/vine-pro_ske.json"));
+        factory.parseTextureAtlasData(RES.getRes("resource/vine1/vine-pro_tex.json"), RES.getRes("resource/vine1/vine-pro_tex.png"));
 
         // factory.parseDragonBonesData(RES.getRes("resource/Ubbie/Ubbie.json"));
         // factory.parseTextureAtlasData(RES.getRes("resource/Ubbie/texture.json"), RES.getRes("resource/Ubbie/texture.png"));

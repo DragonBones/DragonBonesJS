@@ -2259,7 +2259,7 @@ var dragonBones;
         function PathDisplayData() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
             // public vertices: Array<number> = [];
-            _this.lengths = [];
+            _this.curveLengths = [];
             _this.weight = null; // Initial value.
             return _this;
         }
@@ -2272,7 +2272,7 @@ var dragonBones;
             this.closed = false;
             this.constantSpeed = false;
             // this.vertices.length = 0;
-            this.lengths.length = 0;
+            this.curveLengths.length = 0;
             this.weight = null;
         };
         return PathDisplayData;
@@ -7130,7 +7130,7 @@ var dragonBones;
             _this._spaces = [];
             _this._positions = [];
             _this._curves = [];
-            _this._lengths = [];
+            _this._boneLengths = [];
             return _this;
         }
         PathConstraint.toString = function () {
@@ -7149,7 +7149,7 @@ var dragonBones;
             this._spaces.length = 0;
             this._positions.length = 0;
             this._curves.length = 0;
-            this._lengths.length = 0;
+            this._boneLengths.length = 0;
         };
         PathConstraint.prototype._computeVertices = function (pathDisplayDta, start, count, offset, out) {
             offset;
@@ -7169,7 +7169,7 @@ var dragonBones;
                 var parentBone = this._pathSlot.parent;
                 parentBone.updateByConstraint();
                 var matrix = parentBone.globalTransformMatrix;
-                for (var i = 0, iW = 0, iV_1 = pathVertexOffset, l = count; i < l; i += 2) {
+                for (var i = 0, iW = offset, iV_1 = pathVertexOffset, l = count; i < l; i += 2) {
                     var vx = floatArray[iV_1 + i] * scale;
                     var vy = floatArray[iV_1 + i + 1] * scale;
                     var x = matrix.a * vx + matrix.c * vy + matrix.tx;
@@ -7193,7 +7193,7 @@ var dragonBones;
                 iV += n * 3;
                 iB += n + 1;
             }
-            for (var i = 0, iW = 0, l = count; i < l; i += 2) {
+            for (var i = 0, iW = offset, l = count; i < l; i += 2) {
                 var vertexBoneCount = intArray[iB++]; //
                 var xG = 0.0, yG = 0.0;
                 for (var ii = 0, ll = vertexBoneCount; ii < ll; ii++) {
@@ -7233,7 +7233,7 @@ var dragonBones;
             var pathLength = 0.0;
             //不需要匀速运动，效率高些
             if (!pathDisplayDta.constantSpeed) {
-                var lenghts = pathDisplayDta.lengths;
+                var lenghts = pathDisplayDta.curveLengths;
                 curveCount -= closed ? 1 : 2;
                 pathLength = lenghts[curveCount];
                 if (percentPosition) {
@@ -7281,6 +7281,8 @@ var dragonBones;
                         preCurve = curve;
                         if (closed && curve === curveCount) {
                             //计算曲线
+                            this._computeVertices(pathDisplayDta, verticesLength - 4, 4, 0, curveVertices);
+                            this._computeVertices(pathDisplayDta, 0, 4, 4, curveVertices);
                         }
                         else {
                             this._computeVertices(pathDisplayDta, curve * 6 + 2, 8, 0, curveVertices);
@@ -7381,7 +7383,6 @@ var dragonBones;
             var positionMode = constraintData.positionMode;
             var spacingMode = constraintData.spacingMode;
             var rotateMode = constraintData.rotateMode;
-            // const position = this._position;
             var spacing = this._spacing;
             var bones = this._bones;
             var lengthSpacing = spacingMode === 0 /* Length */;
@@ -7393,19 +7394,19 @@ var dragonBones;
             //计曲线间隔和长度
             if (scale || lengthSpacing) {
                 if (scale) {
-                    this._lengths.length = bones.length;
+                    this._boneLengths.length = bones.length;
                 }
                 this._spaces[0] = 0;
                 for (var i = 0, l = spacesCount - 1; i < l; i++) {
                     var bone = bones[i];
                     bone.updateByConstraint();
                     var boneLength = bone._boneData.length;
-                    var globalTransformMatrix = bone.globalTransformMatrix;
-                    var x = boneLength * globalTransformMatrix.a;
-                    var y = boneLength * globalTransformMatrix.b;
+                    var matrix = bone.globalTransformMatrix;
+                    var x = boneLength * matrix.a;
+                    var y = boneLength * matrix.b;
                     var len = Math.sqrt(x * x + y * y);
                     if (scale) {
-                        this._lengths[i] = len;
+                        this._boneLengths[i] = len;
                     }
                     this._spaces[i + 1] = (boneLength + spacing) * len / boneLength;
                 }
@@ -7441,7 +7442,7 @@ var dragonBones;
                 var x = this._positions[p], y = this._positions[p + 1];
                 var dx = x - boneX, dy = y - boneY;
                 if (scale) {
-                    var lenght = this._lengths[i];
+                    var lenght = this._boneLengths[i];
                     var s = (Math.sqrt(dx * dx + dy * dy) / lenght - 1) * rotateMix + 1;
                     matrix.a *= s;
                     matrix.b *= s;
@@ -12423,7 +12424,7 @@ var dragonBones;
                     var pathDisplay = display = dragonBones.BaseObject.borrowObject(dragonBones.PathDisplayData);
                     pathDisplay.closed = ObjectDataParser._getBoolean(rawData, dragonBones.DataParser.CLOSED, false);
                     pathDisplay.constantSpeed = ObjectDataParser._getBoolean(rawData, dragonBones.DataParser.CONSTANT_SPEED, false);
-                    pathDisplay.lengths = rawData[dragonBones.DataParser.LENGTHS];
+                    pathDisplay.curveLengths = rawData[dragonBones.DataParser.LENGTHS];
                     this._parsePath(rawData, pathDisplay);
                     break;
             }
@@ -12434,68 +12435,113 @@ var dragonBones;
         };
         ObjectDataParser.prototype._parsePath = function (rawData, display) {
             var rawVertices = rawData[dragonBones.DataParser.VERTICES];
-            var vertexCount = Math.floor(rawVertices.length / 2); // uint
+            var vertexCount = ObjectDataParser._getNumber(rawData, dragonBones.DataParser.VERTEX_COUNT, 0); // uint
             var vertexOffset = this._floatArray.length;
             var pathOffset = this._intArray.length;
             display.offset = pathOffset;
             this._intArray.length += 1 + 1;
             this._intArray[pathOffset + 0 /* PathVertexCount */] = vertexCount;
             this._intArray[pathOffset + 1 /* PathFloatOffset */] = vertexOffset;
-            this._floatArray.length += rawVertices.length;
-            for (var i = 0, l = rawVertices.length; i < l; ++i) {
-                this._floatArray[vertexOffset + i] = rawVertices[i];
+            var hasWeights = dragonBones.DataParser.WEIGHTS in rawData;
+            if (!hasWeights) {
+                this._floatArray.length += rawVertices.length;
+                for (var i = 0, l = rawVertices.length; i < l; ++i) {
+                    this._floatArray[vertexOffset + i] = rawVertices[i];
+                }
             }
-            //
-            if (dragonBones.DataParser.WEIGHTS in rawData) {
+            else {
                 var rawWeights = rawData[dragonBones.DataParser.WEIGHTS];
-                var rawSlotPose = rawData[dragonBones.DataParser.SLOT_POSE];
-                var rawBonePoses = rawData[dragonBones.DataParser.BONE_POSE];
-                var sortedBones = this._armature.sortedBones;
-                var weightBoneIndices = new Array();
-                var weightBoneCount = Math.floor(rawBonePoses.length / 7); // uint
-                var floatOffset = this._floatArray.length;
+                var rawBones = rawData[dragonBones.DataParser.BONES];
+                var weightBoneCount = rawBones.length;
                 var weightCount = Math.floor(rawWeights.length - vertexCount) / 2; // uint
                 var weightOffset = this._intArray.length;
+                var floatOffset = this._floatArray.length;
+                var sortedBones = this._armature.sortedBones;
                 var weight = dragonBones.BaseObject.borrowObject(dragonBones.WeightData);
                 weight.count = weightCount;
                 weight.offset = weightOffset;
-                weightBoneIndices.length = weightBoneCount;
                 this._intArray.length += 1 + 1 + weightBoneCount + vertexCount + weightCount;
+                //
+                this._intArray[weightOffset + 0 /* WeigthBoneCount */] = weightBoneCount;
                 this._intArray[weightOffset + 1 /* WeigthFloatOffset */] = floatOffset;
-                for (var i = 0; i < weightBoneCount; ++i) {
-                    var rawBoneIndex = rawBonePoses[i * 7]; // uint
+                for (var i = 0; i < weightBoneCount; i++) {
+                    var rawBoneIndex = rawBones[i];
                     var bone = this._rawBones[rawBoneIndex];
                     weight.addBone(bone);
-                    weightBoneIndices[i] = rawBoneIndex;
                     this._intArray[weightOffset + 2 /* WeigthBoneIndices */ + i] = sortedBones.indexOf(bone);
                 }
                 this._floatArray.length += weightCount * 3;
-                this._helpMatrixA.copyFromArray(rawSlotPose, 0);
-                for (var i = 0, iW = 0, iB = weightOffset + 2 /* WeigthBoneIndices */ + weightBoneCount, iV = floatOffset; i < vertexCount; ++i) {
-                    var iD = i * 2;
-                    var vertexBoneCount = this._intArray[iB++] = rawWeights[iW++]; // uint
-                    var x = this._floatArray[vertexOffset + iD];
-                    var y = this._floatArray[vertexOffset + iD + 1];
-                    this._helpMatrixA.transformPoint(x, y, this._helpPoint);
-                    x = this._helpPoint.x;
-                    y = this._helpPoint.y;
-                    for (var j = 0; j < vertexBoneCount; ++j) {
-                        var rawBoneIndex = rawWeights[iW++]; // uint
-                        var boneIndex = weightBoneIndices.indexOf(rawBoneIndex);
-                        this._helpMatrixB.copyFromArray(rawBonePoses, boneIndex * 7 + 1);
-                        this._helpMatrixB.invert();
-                        this._helpMatrixB.transformPoint(x, y, this._helpPoint);
-                        this._intArray[iB++] = boneIndex;
-                        this._floatArray[iV++] = rawWeights[iW++];
-                        this._floatArray[iV++] = this._helpPoint.x;
-                        this._floatArray[iV++] = this._helpPoint.y;
+                for (var i = 0, iW = 0, iV = 0, iB = weightOffset + 2 /* WeigthBoneIndices */ + weightBoneCount, iF = floatOffset; i < weightCount; i++) {
+                    var boneCount = rawWeights[iW++];
+                    this._intArray[iB++] = boneCount;
+                    for (var j = 0; j < boneCount; j++) {
+                        var boneIndex = rawWeights[iW++];
+                        var boneWeight = rawWeights[iW++];
+                        var x = rawVertices[iV++];
+                        var y = rawVertices[iV++];
+                        this._intArray[iB++] = rawBones.indexOf(boneIndex);
+                        this._floatArray[iF++] = boneWeight;
+                        this._floatArray[iF++] = x;
+                        this._floatArray[iF++] = y;
                     }
                 }
                 display.weight = weight;
-                var meshName = this._skin.name + "_" + this._slot.name + "_" + display.name; // Cache pose data.
-                this._weightSlotPose[meshName] = rawSlotPose;
-                this._weightBonePoses[meshName] = rawBonePoses;
             }
+            //
+            // if (DataParser.WEIGHTS in rawData) {
+            //     const rawWeights = rawData[DataParser.WEIGHTS] as Array<number>;
+            //     const rawSlotPose = rawData[DataParser.SLOT_POSE] as Array<number>;
+            //     const rawBonePoses = rawData[DataParser.BONE_POSE] as Array<number>;
+            //     const sortedBones = this._armature.sortedBones;
+            //     const weightBoneIndices = new Array<number>();
+            //     const weightBoneCount = Math.floor(rawBonePoses.length / 7); // uint
+            //     const floatOffset = this._floatArray.length;
+            //     const weightCount = Math.floor(rawWeights.length - vertexCount) / 2; // uint
+            //     const weightOffset = this._intArray.length;
+            //     const weight = BaseObject.borrowObject(WeightData);
+            //     weight.count = weightCount;
+            //     weight.offset = weightOffset;
+            //     weightBoneIndices.length = weightBoneCount;
+            //     this._intArray.length += 1 + 1 + weightBoneCount + vertexCount + weightCount;
+            //     this._intArray[weightOffset + BinaryOffset.WeigthFloatOffset] = floatOffset;
+            //     for (let i = 0; i < weightBoneCount; ++i) {
+            //         const rawBoneIndex = rawBonePoses[i * 7]; // uint
+            //         const bone = this._rawBones[rawBoneIndex];
+            //         weight.addBone(bone);
+            //         weightBoneIndices[i] = rawBoneIndex;
+            //         this._intArray[weightOffset + BinaryOffset.WeigthBoneIndices + i] = sortedBones.indexOf(bone);
+            //     }
+            //     this._floatArray.length += weightCount * 3;
+            //     this._helpMatrixA.copyFromArray(rawSlotPose, 0);
+            //     for (
+            //         let i = 0, iW = 0, iB = weightOffset + BinaryOffset.WeigthBoneIndices + weightBoneCount, iV = floatOffset;
+            //         i < vertexCount;
+            //         ++i
+            //     ) {
+            //         const iD = i * 2;
+            //         const vertexBoneCount = this._intArray[iB++] = rawWeights[iW++]; // uint
+            //         let x = this._floatArray[vertexOffset + iD];
+            //         let y = this._floatArray[vertexOffset + iD + 1];
+            //         this._helpMatrixA.transformPoint(x, y, this._helpPoint);
+            //         x = this._helpPoint.x;
+            //         y = this._helpPoint.y;
+            //         for (let j = 0; j < vertexBoneCount; ++j) {
+            //             const rawBoneIndex = rawWeights[iW++]; // uint
+            //             const boneIndex = weightBoneIndices.indexOf(rawBoneIndex);
+            //             this._helpMatrixB.copyFromArray(rawBonePoses, boneIndex * 7 + 1);
+            //             this._helpMatrixB.invert();
+            //             this._helpMatrixB.transformPoint(x, y, this._helpPoint);
+            //             this._intArray[iB++] = boneIndex;
+            //             this._floatArray[iV++] = rawWeights[iW++];
+            //             this._floatArray[iV++] = this._helpPoint.x;
+            //             this._floatArray[iV++] = this._helpPoint.y;
+            //         }
+            //     }
+            //     display.weight = weight;
+            //     const meshName = this._skin.name + "_" + this._slot.name + "_" + display.name; // Cache pose data.
+            //     this._weightSlotPose[meshName] = rawSlotPose;
+            //     this._weightBonePoses[meshName] = rawBonePoses;
+            // }
         };
         ObjectDataParser.prototype._parsePivot = function (rawData, display) {
             if (dragonBones.DataParser.PIVOT in rawData) {
@@ -13835,6 +13881,29 @@ var dragonBones;
                 }
                 weight.count = weightCount;
                 mesh.weight = weight;
+            }
+        };
+        BinaryDataParser.prototype._parsePath = function (rawData, display) {
+            display.offset = rawData[dragonBones.DataParser.OFFSET];
+            var weightOffset = this._intArrayBuffer[display.offset + 2 /* PathWeightOffset */];
+            if (weightOffset > 0) {
+                var weight = dragonBones.BaseObject.borrowObject(dragonBones.WeightData);
+                var vertexCount = this._intArrayBuffer[display.offset + 0 /* PathVertexCount */];
+                var weightBoneCount = this._intArrayBuffer[weightOffset + 0 /* WeigthBoneCount */];
+                weight.offset = weightOffset;
+                for (var i = 0; i < weightBoneCount; ++i) {
+                    var boneIndex = this._intArrayBuffer[weightOffset + 2 /* WeigthBoneIndices */ + i];
+                    weight.addBone(this._rawBones[boneIndex]);
+                }
+                var boneIndicesOffset = weightOffset + 2 /* WeigthBoneIndices */ + weightBoneCount;
+                var weightCount = 0;
+                for (var i = 0, l = vertexCount; i < l; ++i) {
+                    var vertexBoneCount = this._intArrayBuffer[boneIndicesOffset++];
+                    weightCount += vertexBoneCount;
+                    boneIndicesOffset += vertexBoneCount;
+                }
+                weight.count = weightCount;
+                display.weight = weight;
             }
         };
         BinaryDataParser.prototype._parseAnimation = function (rawData) {
