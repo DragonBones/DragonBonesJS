@@ -24,9 +24,9 @@ class PathDemo extends BaseDemo {
             "resource/vine1/vine-pro_ske.json",
             "resource/vine1/vine-pro_tex.json",
             "resource/vine1/vine-pro_tex.png",
-            "resource/Ubbie/Ubbie.json",
-            "resource/Ubbie/texture.json",
-            "resource/Ubbie/texture.png"
+            "resource/stretchyman/stretchyman-pro_ske.json",
+            "resource/stretchyman/stretchyman-pro_tex.json",
+            "resource/stretchyman/stretchyman-pro_tex.png",
         );
     }
 
@@ -36,11 +36,11 @@ class PathDemo extends BaseDemo {
         // factory.parseDragonBonesData(RES.getRes("resource/vine1/vine-pro_ske.json"));
         factory.parseTextureAtlasData(RES.getRes("resource/vine1/vine-pro_tex.json"), RES.getRes("resource/vine1/vine-pro_tex.png"));
 
-        // factory.parseDragonBonesData(RES.getRes("resource/Ubbie/Ubbie.json"));
-        // factory.parseTextureAtlasData(RES.getRes("resource/Ubbie/texture.json"), RES.getRes("resource/Ubbie/texture.png"));
+        // factory.parseDragonBonesData(RES.getRes("resource/stretchyman/stretchyman-pro_ske.json"));
+        // factory.parseTextureAtlasData(RES.getRes("resource/stretchyman/stretchyman-pro_tex.json"), RES.getRes("resource/stretchyman/stretchyman-pro_tex.png"));
 
-        // const armatureDisplay = factory.buildArmatureDisplay("ubbie");
-        // armatureDisplay.animation.play("stand");
+        // const armatureDisplay = factory.buildArmatureDisplay("stretchyman-pro");
+        // armatureDisplay.animation.play("sneak");
 
         const armatureDisplay = factory.buildArmatureDisplay("vine-pro");
         armatureDisplay.animation.play("grow");

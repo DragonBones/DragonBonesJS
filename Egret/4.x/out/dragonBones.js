@@ -7131,6 +7131,55 @@ var dragonBones;
             _this._positions = [];
             _this._curves = [];
             _this._boneLengths = [];
+            _this._pathGlobalVertices = [];
+            _this.tvalues = [-0.0640568928626056260850430826247450385909,
+                0.0640568928626056260850430826247450385909,
+                -0.1911188674736163091586398207570696318404,
+                0.1911188674736163091586398207570696318404,
+                -0.3150426796961633743867932913198102407864,
+                0.3150426796961633743867932913198102407864,
+                -0.4337935076260451384870842319133497124524,
+                0.4337935076260451384870842319133497124524,
+                -0.5454214713888395356583756172183723700107,
+                0.5454214713888395356583756172183723700107,
+                -0.6480936519369755692524957869107476266696,
+                0.6480936519369755692524957869107476266696,
+                -0.7401241915785543642438281030999784255232,
+                0.7401241915785543642438281030999784255232,
+                -0.8200019859739029219539498726697452080761,
+                0.8200019859739029219539498726697452080761,
+                -0.8864155270044010342131543419821967550873,
+                0.8864155270044010342131543419821967550873,
+                -0.9382745520027327585236490017087214496548,
+                0.9382745520027327585236490017087214496548,
+                -0.9747285559713094981983919930081690617411,
+                0.9747285559713094981983919930081690617411,
+                -0.9951872199970213601799974097007368118745,
+                0.9951872199970213601799974097007368118745];
+            _this.cvalues = [0.1279381953467521569740561652246953718517,
+                0.1279381953467521569740561652246953718517,
+                0.1258374563468282961213753825111836887264,
+                0.1258374563468282961213753825111836887264,
+                0.1216704729278033912044631534762624256070,
+                0.1216704729278033912044631534762624256070,
+                0.1155056680537256013533444839067835598622,
+                0.1155056680537256013533444839067835598622,
+                0.1074442701159656347825773424466062227946,
+                0.1074442701159656347825773424466062227946,
+                0.0976186521041138882698806644642471544279,
+                0.0976186521041138882698806644642471544279,
+                0.0861901615319532759171852029837426671850,
+                0.0861901615319532759171852029837426671850,
+                0.0733464814110803057340336152531165181193,
+                0.0733464814110803057340336152531165181193,
+                0.0592985849154367807463677585001085845412,
+                0.0592985849154367807463677585001085845412,
+                0.0442774388174198061686027482113382288593,
+                0.0442774388174198061686027482113382288593,
+                0.0285313886289336631813078159518782864491,
+                0.0285313886289336631813078159518782864491,
+                0.0123412297999871995468056670700372915759,
+                0.0123412297999871995468056670700372915759];
             return _this;
         }
         PathConstraint.toString = function () {
@@ -7150,33 +7199,33 @@ var dragonBones;
             this._positions.length = 0;
             this._curves.length = 0;
             this._boneLengths.length = 0;
+            this._pathGlobalVertices.length = 0;
         };
-        PathConstraint.prototype._computeVertices = function (pathDisplayDta, start, count, offset, out) {
-            offset;
+        PathConstraint.prototype._updatePathDisplay = function (pathDisplayDta) {
             //计算曲线的节点数据
-            out.length = count;
             var armature = this._armature;
             var dragonBonesData = armature.armatureData.parent;
             var scale = armature.armatureData.scale;
             var intArray = dragonBonesData.intArray;
             var floatArray = dragonBonesData.floatArray;
             var pathOffset = pathDisplayDta.offset;
-            // const pathVertexCount = intArray[pathOffset + BinaryOffset.PathVertexCount];
+            var pathVertexCount = intArray[pathOffset + 0 /* PathVertexCount */];
             var pathVertexOffset = intArray[pathOffset + 1 /* PathFloatOffset */];
+            this._pathGlobalVertices.length = pathVertexCount * 2;
             var weightData = pathDisplayDta.weight;
             //没有骨骼约束我,那节点只受自己的Bone控制
             if (weightData === null) {
                 var parentBone = this._pathSlot.parent;
                 parentBone.updateByConstraint();
                 var matrix = parentBone.globalTransformMatrix;
-                for (var i = 0, iW = offset, iV_1 = pathVertexOffset, l = count; i < l; i += 2) {
-                    var vx = floatArray[iV_1 + i] * scale;
-                    var vy = floatArray[iV_1 + i + 1] * scale;
+                for (var i = 0, iV_1 = pathVertexOffset; i < pathVertexCount; i += 2) {
+                    var vx = floatArray[iV_1++] * scale;
+                    var vy = floatArray[iV_1++] * scale;
                     var x = matrix.a * vx + matrix.c * vy + matrix.tx;
                     var y = matrix.b * vx + matrix.d * vy + matrix.ty;
                     //
-                    out[iW++] = x;
-                    out[iW++] = y;
+                    this._pathGlobalVertices[i] = x;
+                    this._pathGlobalVertices[i + 1] = y;
                 }
                 return;
             }
@@ -7187,13 +7236,7 @@ var dragonBones;
             var floatOffset = intArray[weightOffset + 1 /* WeigthFloatOffset */];
             var iV = floatOffset;
             var iB = weightOffset + 2 /* WeigthBoneIndices */ + weightBoneCount;
-            // let skip = 0;
-            for (var i = 0; i < start; i += 2) {
-                var n = intArray[iB];
-                iV += n * 3;
-                iB += n + 1;
-            }
-            for (var i = 0, iW = offset, l = count; i < l; i += 2) {
+            for (var i = 0, iW = 0; i < pathVertexCount; i++) {
                 var vertexBoneCount = intArray[iB++]; //
                 var xG = 0.0, yG = 0.0;
                 for (var ii = 0, ll = vertexBoneCount; ii < ll; ii++) {
@@ -7210,8 +7253,78 @@ var dragonBones;
                     xG += (matrix.a * vx + matrix.c * vy + matrix.tx) * weight;
                     yG += (matrix.b * vx + matrix.d * vy + matrix.ty) * weight;
                 }
-                out[iW++] = xG;
-                out[iW++] = yG;
+                this._pathGlobalVertices[iW++] = xG;
+                this._pathGlobalVertices[iW++] = yG;
+            }
+        };
+        PathConstraint.prototype._computeVertices = function (pathDisplayDta, start, count, offset, out) {
+            pathDisplayDta;
+            start;
+            count;
+            offset;
+            out;
+            for (var i = offset, iW = start; i < count; i += 2) {
+                out[i] = this._pathGlobalVertices[iW++];
+                out[i + 1] = this._pathGlobalVertices[iW++];
+            }
+        };
+        PathConstraint.prototype._computeVertices2 = function (pathDisplayDta, start, count, offset, out) {
+            //计算曲线的节点数据
+            var armature = this._armature;
+            var dragonBonesData = armature.armatureData.parent;
+            var scale = armature.armatureData.scale;
+            var intArray = dragonBonesData.intArray;
+            var floatArray = dragonBonesData.floatArray;
+            var pathOffset = pathDisplayDta.offset;
+            var pathVertexOffset = intArray[pathOffset + 1 /* PathFloatOffset */];
+            var weightData = pathDisplayDta.weight;
+            //没有骨骼约束我,那节点只受自己的Bone控制
+            if (weightData === null) {
+                var parentBone = this._pathSlot.parent;
+                parentBone.updateByConstraint();
+                var matrix = parentBone.globalTransformMatrix;
+                for (var i = offset, iV_2 = start + pathVertexOffset; i < count; i += 2) {
+                    var vx = floatArray[iV_2++] * scale;
+                    var vy = floatArray[iV_2++] * scale;
+                    var x = matrix.a * vx + matrix.c * vy + matrix.tx;
+                    var y = matrix.b * vx + matrix.d * vy + matrix.ty;
+                    //
+                    out[i] = x;
+                    out[i + 1] = y;
+                }
+                return;
+            }
+            //有骨骼约束我,那我的节点受骨骼权重控制
+            var bones = this._weightBones;
+            var weightBoneCount = weightData.bones.length;
+            var weightOffset = weightData.offset;
+            var floatOffset = intArray[weightOffset + 1 /* WeigthFloatOffset */];
+            var iV = floatOffset;
+            var iB = weightOffset + 2 /* WeigthBoneIndices */ + weightBoneCount;
+            for (var i = 0; i < start; i += 2) {
+                var n = intArray[iB];
+                iV += n * 3;
+                iB += n + 1;
+            }
+            for (var i = offset; i < count; i += 2) {
+                var vertexBoneCount = intArray[iB++]; //
+                var xG = 0.0, yG = 0.0;
+                for (var ii = 0, ll = vertexBoneCount; ii < ll; ii++) {
+                    var boneIndex = intArray[iB++];
+                    var bone = bones[boneIndex];
+                    if (bone === null) {
+                        continue;
+                    }
+                    bone.updateByConstraint();
+                    var matrix = bone.globalTransformMatrix;
+                    var weight = floatArray[iV++];
+                    var vx = floatArray[iV++] * scale;
+                    var vy = floatArray[iV++] * scale;
+                    xG += (matrix.a * vx + matrix.c * vy + matrix.tx) * weight;
+                    yG += (matrix.b * vx + matrix.d * vy + matrix.ty) * weight;
+                }
+                out[i] = xG;
+                out[i + 1] = yG;
             }
             //节点k帧TODO
         };
@@ -7224,12 +7337,13 @@ var dragonBones;
             var positions = this._positions;
             var spaces = this._spaces;
             var closed = pathDisplayDta.closed;
+            var curveVertices = Array();
             var verticesLength = vertexCount * 2;
-            var curveVertices = Array(8);
             var curveCount = verticesLength / 6;
             var preCurve = -1;
             var position = this._position;
             positions.length = spaceCount * 3 + 2;
+            this._updatePathDisplay(pathDisplayDta);
             var pathLength = 0.0;
             //不需要匀速运动，效率高些
             if (!pathDisplayDta.constantSpeed) {
@@ -7244,6 +7358,7 @@ var dragonBones;
                         spaces[i] *= pathLength;
                     }
                 }
+                curveVertices.length = 8;
                 for (var i = 0, o = 0, curve = 0; i < spaceCount; i++, o += 3) {
                     var space = spaces[i];
                     position += space;
@@ -7294,6 +7409,187 @@ var dragonBones;
                 return;
             }
             //匀速的TODO
+            if (closed) {
+                verticesLength += 2;
+                curveVertices.length = vertexCount;
+                this._computeVertices(pathDisplayDta, 2, verticesLength - 4, 0, curveVertices);
+                this._computeVertices(pathDisplayDta, 0, 2, verticesLength - 4, curveVertices);
+                curveVertices[verticesLength - 2] = curveVertices[0];
+                curveVertices[verticesLength - 1] = curveVertices[1];
+            }
+            else {
+                curveCount--;
+                verticesLength -= 4;
+                curveVertices.length = verticesLength;
+                this._computeVertices(pathDisplayDta, 2, verticesLength, 0, curveVertices);
+            }
+            var curves = new Array(curveCount);
+            pathLength = 0;
+            var x1 = curveVertices[0], y1 = curveVertices[1], cx1 = 0, cy1 = 0, cx2 = 0, cy2 = 0, x2 = 0, y2 = 0;
+            var tmpx, tmpy, dddfx, dddfy, ddfx, ddfy, dfx, dfy;
+            for (var i = 0, w = 2; i < curveCount; i++, w += 6) {
+                cx1 = curveVertices[w];
+                cy1 = curveVertices[w + 1];
+                cx2 = curveVertices[w + 2];
+                cy2 = curveVertices[w + 3];
+                x2 = curveVertices[w + 4];
+                y2 = curveVertices[w + 5];
+                var xx1 = (cx1 - x1) * 3;
+                var yy1 = (cy1 - y1) * 3;
+                var xx2 = (cx2 - cx1) * 3;
+                var yy2 = (cy2 - cy1) * 3;
+                var xx3 = (x2 - cx2) * 3;
+                var yy3 = (y2 - cy2) * 3;
+                pathLength += this.calCurveLength(xx1, yy1, xx2, yy2, xx3, yy3);
+                curves[i] = pathLength;
+                x1 = x2;
+                y1 = y2;
+            }
+            // for (let i = 0, w = 2; i < curveCount; i++ , w += 6) {
+            //     cx1 = curveVertices[w];
+            //     cy1 = curveVertices[w + 1];
+            //     cx2 = curveVertices[w + 2];
+            //     cy2 = curveVertices[w + 3];
+            //     x2 = curveVertices[w + 4];
+            //     y2 = curveVertices[w + 5];
+            //     tmpx = (x1 - cx1 * 2 + cx2) * 0.1875;
+            //     tmpy = (y1 - cy1 * 2 + cy2) * 0.1875;
+            //     dddfx = ((cx1 - cx2) * 3 - x1 + x2) * 0.09375;
+            //     dddfy = ((cy1 - cy2) * 3 - y1 + y2) * 0.09375;
+            //     ddfx = tmpx * 2 + dddfx;
+            //     ddfy = tmpy * 2 + dddfy;
+            //     dfx = (cx1 - x1) * 0.75 + tmpx + dddfx * 0.16666667;
+            //     dfy = (cy1 - y1) * 0.75 + tmpy + dddfy * 0.16666667;
+            //     pathLength += Math.sqrt(dfx * dfx + dfy * dfy);
+            //     dfx += ddfx;
+            //     dfy += ddfy;
+            //     ddfx += dddfx;
+            //     ddfy += dddfy;
+            //     pathLength += Math.sqrt(dfx * dfx + dfy * dfy);
+            //     dfx += ddfx;
+            //     dfy += ddfy;
+            //     pathLength += Math.sqrt(dfx * dfx + dfy * dfy);
+            //     dfx += ddfx + dddfx;
+            //     dfy += ddfy + dddfy;
+            //     pathLength += Math.sqrt(dfx * dfx + dfy * dfy);
+            //     curves[i] = pathLength;
+            //     x1 = x2;
+            //     y1 = y2;
+            // }
+            if (percentPosition) {
+                position *= pathLength;
+            }
+            if (percentSpacing) {
+                for (var i = 0; i < spaceCount; i++)
+                    spaces[i] *= pathLength;
+            }
+            var segments = new Array(10);
+            var curveLength = 0;
+            for (var i = 0, o = 0, curve = 0, segment = 0; i < spaceCount; i++, o += 3) {
+                var space = spaces[i];
+                position += space;
+                var p = position;
+                if (closed) {
+                    p %= pathLength;
+                    if (p < 0)
+                        p += pathLength;
+                    curve = 0;
+                }
+                else if (p < 0) {
+                    // AddBeforePosition(p, world, 0, output, o);
+                    continue;
+                }
+                else if (p > pathLength) {
+                    // AddAfterPosition(p - pathLength, world, verticesLength - 4, output, o);
+                    continue;
+                }
+                // Determine curve containing position.
+                for (;; curve++) {
+                    var length_1 = curves[curve];
+                    if (p > length_1)
+                        continue;
+                    if (curve == 0)
+                        p /= length_1;
+                    else {
+                        var prev = curves[curve - 1];
+                        p = (p - prev) / (length_1 - prev);
+                    }
+                    break;
+                }
+                if (curve != preCurve) {
+                    preCurve = curve;
+                    var ii = curve * 6;
+                    x1 = curveVertices[ii];
+                    y1 = curveVertices[ii + 1];
+                    cx1 = curveVertices[ii + 2];
+                    cy1 = curveVertices[ii + 3];
+                    cx2 = curveVertices[ii + 4];
+                    cy2 = curveVertices[ii + 5];
+                    x2 = curveVertices[ii + 6];
+                    y2 = curveVertices[ii + 7];
+                    tmpx = (x1 - cx1 * 2 + cx2) * 0.03;
+                    tmpy = (y1 - cy1 * 2 + cy2) * 0.03;
+                    dddfx = ((cx1 - cx2) * 3 - x1 + x2) * 0.006;
+                    dddfy = ((cy1 - cy2) * 3 - y1 + y2) * 0.006;
+                    ddfx = tmpx * 2 + dddfx;
+                    ddfy = tmpy * 2 + dddfy;
+                    dfx = (cx1 - x1) * 0.3 + tmpx + dddfx * 0.16666667;
+                    dfy = (cy1 - y1) * 0.3 + tmpy + dddfy * 0.16666667;
+                    curveLength = Math.sqrt(dfx * dfx + dfy * dfy);
+                    segments[0] = curveLength;
+                    for (ii = 1; ii < 8; ii++) {
+                        dfx += ddfx;
+                        dfy += ddfy;
+                        ddfx += dddfx;
+                        ddfy += dddfy;
+                        curveLength += Math.sqrt(dfx * dfx + dfy * dfy);
+                        segments[ii] = curveLength;
+                    }
+                    dfx += ddfx;
+                    dfy += ddfy;
+                    curveLength += Math.sqrt(dfx * dfx + dfy * dfy);
+                    segments[8] = curveLength;
+                    dfx += ddfx + dddfx;
+                    dfy += ddfy + dddfy;
+                    curveLength += Math.sqrt(dfx * dfx + dfy * dfy);
+                    segments[9] = curveLength;
+                    segment = 0;
+                }
+                // Weight by segment length.
+                p *= curveLength;
+                for (;; segment++) {
+                    var length_2 = segments[segment];
+                    if (p > length_2)
+                        continue;
+                    if (segment == 0)
+                        p /= length_2;
+                    else {
+                        var prev = segments[segment - 1];
+                        p = segment + (p - prev) / (length_2 - prev);
+                    }
+                    break;
+                }
+                this.addCurvePosition(p * 0.1, x1, y1, cx1, cy1, cx2, cy2, x2, y2, positions, o, tangents);
+            }
+        };
+        PathConstraint.prototype.calCurveLength = function (x1, y1, cx1, cy1, cx2, cy2) {
+            var z = 0.5;
+            var sum = 0, len = this.tvalues.length, i = 0, t = 0;
+            for (i = 0; i < len; i++) {
+                t = z * this.tvalues[i] + z;
+                sum += this.cvalues[i] * this.arcfn(t, x1, y1, cx1, cy1, cx2, cy2);
+            }
+            return z * sum;
+        };
+        PathConstraint.prototype.arcfn = function (t, x1, y1, cx1, cy1, cx2, cy2) {
+            var mt = 1 - t, a, b, c = 0;
+            a = mt * mt;
+            b = mt * t * 2;
+            c = t * t;
+            var x = a * x1 + b * cx1 + c * cx2;
+            var y = a * y1 + b * cy1 + c * cy2;
+            var l = Math.sqrt(x * x + y * y);
+            return l;
         };
         //Calculates a point on the curve, for a given t value between 0 and 1.
         PathConstraint.prototype.addCurvePosition = function (t, x1, y1, cx1, cy1, cx2, cy2, x2, y2, out, offset, tangents) {
@@ -7361,7 +7657,7 @@ var dragonBones;
                     }
                 }
                 //TODO
-                pathDisplayDta.constantSpeed = false;
+                // pathDisplayDta.constantSpeed = false;
             }
         };
         PathConstraint.prototype.update = function () {
@@ -7461,9 +7757,9 @@ var dragonBones;
                     if (tip) {
                         cos = Math.cos(r);
                         sin = Math.sin(r);
-                        var length_1 = bone._boneData.length;
-                        boneX += (length_1 * (cos * a - sin * b) - dx) * rotateMix;
-                        boneY += (length_1 * (sin * a + cos * b) - dy) * rotateMix;
+                        var length_3 = bone._boneData.length;
+                        boneX += (length_3 * (cos * a - sin * b) - dx) * rotateMix;
+                        boneY += (length_3 * (sin * a + cos * b) - dy) * rotateMix;
                     }
                     else {
                         r += rotateOffset;
