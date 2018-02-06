@@ -907,12 +907,12 @@ namespace dragonBones {
      * @internal
      * @private
      */
-    export class SlotFFDTimelineState extends SlotTimelineState {
+    export class DeformTimelineState extends SlotTimelineState {
         public static toString(): string {
-            return "[class dragonBones.SlotFFDTimelineState]";
+            return "[class dragonBones.DeformTimelineState]";
         }
 
-        public meshOffset: number;
+        public vertexOffset: number;
 
         private _dirty: boolean;
         private _frameFloatOffset: number;
@@ -926,7 +926,7 @@ namespace dragonBones {
         protected _onClear(): void {
             super._onClear();
 
-            this.meshOffset = 0;
+            this.vertexOffset = 0;
 
             this._dirty = false;
             this._frameFloatOffset = 0;
@@ -987,10 +987,10 @@ namespace dragonBones {
 
             if (this._timelineData !== null) {
                 const frameIntOffset = this._animationData.frameIntOffset + this._timelineArray[this._timelineData.offset + BinaryOffset.TimelineFrameValueCount];
-                this.meshOffset = this._frameIntArray[frameIntOffset + BinaryOffset.DeformMeshOffset];
+                this.vertexOffset = this._frameIntArray[frameIntOffset + BinaryOffset.DeformVertexOffset];
 
-                if (this.meshOffset < 0) {
-                    this.meshOffset += 65536; // Fixed out of bouds bug. 
+                if (this.vertexOffset < 0) {
+                    this.vertexOffset += 65536; // Fixed out of bouds bug. 
                 }
 
                 this._deformCount = this._frameIntArray[frameIntOffset + BinaryOffset.DeformCount];
@@ -999,8 +999,7 @@ namespace dragonBones {
                 this._frameFloatOffset = this._frameIntArray[frameIntOffset + BinaryOffset.DeformFloatOffset] + this._animationData.frameFloatOffset;
             }
             else {
-                // this._deformCount = this.slot._deformVertices.length;
-                this._deformCount = this.slot._deformVertices !== null ? this.slot._deformVertices.vertices.length : 0;
+                this._deformCount = (this.slot._deformVertices as DeformVertices).vertices.length;
                 this._valueCount = this._deformCount;
                 this._valueOffset = 0;
                 this._frameFloatOffset = 0;
@@ -1021,16 +1020,17 @@ namespace dragonBones {
         }
 
         public update(passedTime: number): void {
-            if (this.slot._meshData === null || this.slot._meshData.offset !== this.meshOffset) {
+            const displayData = this.slot._displayData;
+            if (displayData === null ||
+                !((displayData.type === DisplayType.Mesh || displayData.type === DisplayType.Path) && (displayData as VerticesDisplayData).offset === this.vertexOffset)) {
                 return;
             }
 
             super.update(passedTime);
 
             // Fade animation.
+            const deformVertices = (this.slot._deformVertices as DeformVertices);
             if (this._tweenState !== TweenState.None || this._dirty) {
-                // const result = this.slot._deformVertices;
-                const deformVertices = (this.slot._deformVertices as DeformVertices);
                 const result = deformVertices.vertices;
 
                 if (this._animationState._fadeState !== 0 || this._animationState._subFadeState !== 0) {
@@ -1049,7 +1049,6 @@ namespace dragonBones {
                     }
 
                     deformVertices.verticeDirty = true;
-                    // this.slot._meshDirty = true;
                 }
                 else if (this._dirty) {
                     this._dirty = false;
@@ -1066,8 +1065,7 @@ namespace dragonBones {
                         }
                     }
 
-                    (this.slot._deformVertices as DeformVertices).verticeDirty = true;
-                    // this.slot._meshDirty = true;
+                    deformVertices.verticeDirty = true;
                 }
             }
         }

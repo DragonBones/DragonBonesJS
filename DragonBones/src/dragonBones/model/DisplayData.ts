@@ -95,23 +95,39 @@ namespace dragonBones {
      * @internal
      * @private
      */
-    export class MeshDisplayData extends DisplayData {
+    export abstract class VerticesDisplayData extends DisplayData {
+        public offset: number;
+        public weight: WeightData | null = null; // Initial value.
+
+        protected _onClear(): void {
+            super._onClear();
+
+            this.offset = 0;
+
+            if (this.weight !== null) {
+                this.weight.returnToPool();
+            }
+
+            this.weight = null;
+        }
+    }
+    /**
+     * @internal
+     * @private
+     */
+    export class MeshDisplayData extends VerticesDisplayData {
         public static toString(): string {
             return "[class dragonBones.MeshDisplayData]";
         }
 
         public inheritDeform: boolean;
         public offset: number; // IntArray.
-        public weight: WeightData | null = null; // Initial value.
+
         public glue: GlueData | null = null; // Initial value.
         public texture: TextureData | null;
 
         protected _onClear(): void {
             super._onClear();
-
-            if (this.weight !== null) {
-                this.weight.returnToPool();
-            }
 
             if (this.glue !== null) {
                 this.glue.returnToPool();
@@ -120,7 +136,6 @@ namespace dragonBones {
             this.type = DisplayType.Mesh;
             this.inheritDeform = false;
             this.offset = 0;
-            this.weight = null;
             this.glue = null;
             this.texture = null;
         }
@@ -151,32 +166,26 @@ namespace dragonBones {
      * @internal
      * @private
      */
-    export class PathDisplayData extends DisplayData {
+    export class PathDisplayData extends VerticesDisplayData {
         public static toString(): string {
             return "[class dragonBones.PathDisplayData]";
         }
-        public offset: number; // IntArray.
-
         public closed: boolean;
         public constantSpeed: boolean;
 
         // public vertices: Array<number> = [];
-        public curveLengths : Array<number> = [];
-
-        public weight: WeightData | null = null; // Initial value.
+        public curveLengths: Array<number> = [];
 
         protected _onClear(): void {
             super._onClear();
 
             this.offset = -1;
-            
+
             this.closed = false;
             this.constantSpeed = false;
 
             // this.vertices.length = 0;
             this.curveLengths.length = 0;
-
-            this.weight = null;
         }
     }
     /**

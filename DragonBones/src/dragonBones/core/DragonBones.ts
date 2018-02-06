@@ -48,7 +48,7 @@ namespace dragonBones {
         FrameTweenEasingOrCurveSampleCount = 2,
         FrameCurveSamples = 3,
 
-        DeformMeshOffset = 0,
+        DeformVertexOffset = 0,
         DeformCount = 1,
         DeformValueCount = 2,
         DeformValueOffset = 3,

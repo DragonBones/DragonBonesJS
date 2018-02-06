@@ -1726,7 +1726,7 @@ namespace dragonBones {
             if (frameStart === 0) {
                 const frameIntOffset = this._frameIntArray.length;
                 this._frameIntArray.length += 1 + 1 + 1 + 1 + 1;
-                this._frameIntArray[frameIntOffset + BinaryOffset.DeformMeshOffset] = 0; // 
+                this._frameIntArray[frameIntOffset + BinaryOffset.DeformVertexOffset] = 0; // 
                 this._frameIntArray[frameIntOffset + BinaryOffset.DeformCount] = this._frameFloatArray.length - frameFloatOffset;
                 this._frameIntArray[frameIntOffset + BinaryOffset.DeformValueCount] = this._frameFloatArray.length - frameFloatOffset;
                 this._frameIntArray[frameIntOffset + BinaryOffset.DeformValueOffset] = 0;
@@ -1877,7 +1877,7 @@ namespace dragonBones {
             if (frameStart === 0) {
                 const frameIntOffset = this._frameIntArray.length;
                 this._frameIntArray.length += 1 + 1 + 1 + 1 + 1;
-                this._frameIntArray[frameIntOffset + BinaryOffset.DeformMeshOffset] = this._mesh.offset;
+                this._frameIntArray[frameIntOffset + BinaryOffset.DeformVertexOffset] = this._mesh.offset;
                 this._frameIntArray[frameIntOffset + BinaryOffset.DeformCount] = this._frameFloatArray.length - frameFloatOffset;
                 this._frameIntArray[frameIntOffset + BinaryOffset.DeformValueCount] = this._frameFloatArray.length - frameFloatOffset;
                 this._frameIntArray[frameIntOffset + BinaryOffset.DeformValueOffset] = 0;

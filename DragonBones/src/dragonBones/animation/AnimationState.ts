@@ -557,11 +557,11 @@ namespace dragonBones {
                                     }
 
                                     case TimelineType.SlotFFD: {
-                                        const timeline = BaseObject.borrowObject(SlotFFDTimelineState);
+                                        const timeline = BaseObject.borrowObject(DeformTimelineState);
                                         timeline.slot = slot;
                                         timeline.init(this._armature, this, timelineData);
                                         this._slotTimelines.push(timeline);
-                                        ffdFlags.push(timeline.meshOffset);
+                                        ffdFlags.push(timeline.vertexOffset);
                                         break;
                                     }
 
@@ -593,8 +593,8 @@ namespace dragonBones {
                                     if (displayData !== null && displayData.type === DisplayType.Mesh) {
                                         const meshOffset = (displayData as MeshDisplayData).offset;
                                         if (ffdFlags.indexOf(meshOffset) < 0) {
-                                            const timeline = BaseObject.borrowObject(SlotFFDTimelineState);
-                                            timeline.meshOffset = meshOffset; //
+                                            const timeline = BaseObject.borrowObject(DeformTimelineState);
+                                            timeline.vertexOffset = meshOffset; //
                                             timeline.slot = slot;
                                             timeline.init(this._armature, this, null);
                                             this._slotTimelines.push(timeline);

@@ -519,7 +519,7 @@ namespace dragonBones {
                             // }
                         }
                         else {
-                            vertexCount = this._meshData.parent.parent.parent.intArray[this._meshData.offset + BinaryOffset.MeshVertexCount];
+                            vertexCount = this._meshData.parent.parent.parent.intArray[this._meshData.offset + BinaryOffset.MeshVertexCount] * 2;
                             // const vertexCount = this._meshData.parent.parent.parent.intArray[this._meshData.offset + BinaryOffset.MeshVertexCount];
                             // this._deformVertices.length = vertexCount * 2;
                             // this._meshBones.length = 0;
