@@ -556,7 +556,7 @@ namespace dragonBones {
                                         break;
                                     }
 
-                                    case TimelineType.SlotFFD: {
+                                    case TimelineType.SlotDeform: {
                                         const timeline = BaseObject.borrowObject(DeformTimelineState);
                                         timeline.slot = slot;
                                         timeline.init(this._armature, this, timelineData);

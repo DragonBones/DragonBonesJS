@@ -1169,7 +1169,7 @@ namespace dragonBones {
                     }
 
                     const timeline = this._parseTimeline(
-                        rawTimeline, null, DataParser.FRAME, TimelineType.SlotFFD,
+                        rawTimeline, null, DataParser.FRAME, TimelineType.SlotDeform,
                         false, true, 0,
                         this._parseSlotFFDFrame
                     );
