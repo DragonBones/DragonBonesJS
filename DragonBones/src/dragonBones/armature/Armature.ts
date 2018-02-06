@@ -89,7 +89,7 @@ namespace dragonBones {
          * @private
          */
         public readonly _constraints: Array<Constraint> = [];
-        private readonly _actions: Array<ActionData> = [];
+        private readonly _actions: Array<EventObject> = [];
         /**
          * @internal
          * @private
@@ -290,13 +290,13 @@ namespace dragonBones {
          * @internal
          * @private
          */
-        public _bufferAction(action: ActionData, append: boolean): void {
+        public _bufferAction(action: EventObject, append: boolean): void {
             if (this._actions.indexOf(action) < 0) {
                 if (append) {
-                    this._actions.push(action);
+                    this._actions.unshift(action);
                 }
                 else {
-                    this._actions.unshift(action);
+                    this._actions.push(action);
                 }
             }
         }
@@ -402,8 +402,31 @@ namespace dragonBones {
                 this._lockUpdate = true;
 
                 for (const action of this._actions) {
-                    if (action.type === ActionType.Play) {
-                        this._animation.fadeIn(action.name);
+                    const actionData = action.actionData;
+                    if (actionData === null) { //
+                        continue;
+                    }
+
+                    if (actionData.type === ActionType.Play) {
+                        if (action.slot !== null) {
+                            const childArmature = action.slot.childArmature;
+                            if (childArmature !== null) {
+                                childArmature.animation.fadeIn(actionData.name);
+                            }
+                        }
+                        else if (action.bone !== null) {
+                            for (const slot of this.getSlots()) {
+                                if (slot.parent === action.bone) {
+                                    const childArmature = slot.childArmature;
+                                    if (childArmature !== null) {
+                                        childArmature.animation.fadeIn(actionData.name);
+                                    }
+                                }
+                            }
+                        }
+                        else {
+                            this._animation.fadeIn(actionData.name);
+                        }
                     }
                 }
 

@@ -321,7 +321,10 @@ namespace dragonBones {
                             const actions = armatureDisplayData.actions.length > 0 ? armatureDisplayData.actions : childArmature.armatureData.defaultActions;
                             if (actions.length > 0) {
                                 for (const action of actions) {
-                                    childArmature._bufferAction(action, true);
+                                    const eventObject = BaseObject.borrowObject(EventObject);
+                                    EventObject.actionDataToInstance(action, eventObject, slot.armature);
+                                    eventObject.slot = slot;
+                                    slot.armature._bufferAction(eventObject, false);
                                 }
                             }
                             else {

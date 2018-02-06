@@ -659,7 +659,10 @@ namespace dragonBones {
 
                         if (actions !== null && actions.length > 0) {
                             for (const action of actions) {
-                                this._childArmature._bufferAction(action, false); // Make sure default action at the beginning.
+                                const eventObject = BaseObject.borrowObject(EventObject);
+                                EventObject.actionDataToInstance(action, eventObject, this._armature);
+                                eventObject.slot = this;
+                                this._armature._bufferAction(eventObject, false);
                             }
                         }
                         else {
