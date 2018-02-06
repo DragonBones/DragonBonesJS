@@ -457,7 +457,9 @@ namespace dragonBones {
         protected _updateMesh(): void {
             const scale = this._armature._armatureData.scale;
             const meshData = this._meshData as MeshDisplayData;
-            const hasDeform = this._deformVertices.length > 0 && meshData.inheritDeform;
+            const deformVerticesData = this._deformVertices as DeformVertices;
+            const deformVertices = deformVerticesData._vertices;
+            const hasDeform = deformVertices.length > 0 && meshData.inheritDeform;
             const weight = meshData.weight;
             const meshDisplay = this._renderDisplay as egret.Mesh;
             const meshNode = meshDisplay.$renderNode as egret.sys.MeshNode;
@@ -483,7 +485,8 @@ namespace dragonBones {
 
                     for (let j = 0; j < boneCount; ++j) {
                         const boneIndex = intArray[iB++];
-                        const bone = this._meshBones[boneIndex];
+                        // const bone = this._meshBones[boneIndex];
+                        const bone = deformVerticesData._bones[boneIndex];
 
                         if (bone !== null) {
                             const matrix = bone.globalTransformMatrix;
@@ -492,8 +495,8 @@ namespace dragonBones {
                             let yL = floatArray[iV++] * scale;
 
                             if (hasDeform) {
-                                xL += this._deformVertices[iF++];
-                                yL += this._deformVertices[iF++];
+                                xL += deformVertices[iF++];
+                                yL += deformVertices[iF++];
                             }
 
                             xG += (matrix.a * xL + matrix.c * yL + matrix.tx) * weight;
@@ -525,8 +528,8 @@ namespace dragonBones {
                 }
 
                 for (let i = 0, l = vertexCount * 2; i < l; i += 2) {
-                    const x = floatArray[vertexOffset + i] * scale + this._deformVertices[i];
-                    const y = floatArray[vertexOffset + i + 1] * scale + this._deformVertices[i + 1];
+                    const x = floatArray[vertexOffset + i] * scale + deformVertices[i];
+                    const y = floatArray[vertexOffset + i + 1] * scale + deformVertices[i + 1];
 
                     if (isSurface) {
                         const matrix = (this._parent as Surface)._getGlobalTransformMatrix(x, y);

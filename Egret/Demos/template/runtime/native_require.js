@@ -7,14 +7,14 @@ var game_file_list = [
 	"libs/modules/dragonBones/dragonBones.js",
 	"libs/modules/res/res.js",
 	"bin-debug/BaseDemo.js",
-	"bin-debug/DragHelper.js",
+	"bin-debug/demo/ReplaceSlotDisplay.js",
 	"bin-debug/Main.js",
 	"bin-debug/demo/AnimationBase.js",
 	"bin-debug/demo/AnimationLayer.js",
 	"bin-debug/demo/BoneOffset.js",
 	"bin-debug/demo/BoundingBox.js",
 	"bin-debug/demo/CoreElement.js",
-	"bin-debug/demo/DragonBonesEvent.js",
+	"bin-debug/DragHelper.js",
 	"bin-debug/demo/HelloDragonBones.js",
 	"bin-debug/demo/InverseKinematics.js",
 	"bin-debug/demo/MyTest.js",
@@ -22,7 +22,7 @@ var game_file_list = [
 	"bin-debug/demo/PerformanceTest.js",
 	"bin-debug/demo/ReplaceAnimation.js",
 	"bin-debug/demo/ReplaceSkin.js",
-	"bin-debug/demo/ReplaceSlotDisplay.js",
+	"bin-debug/demo/DragonBonesEvent.js",
 	//----auto game_file_list end----
 ];
 

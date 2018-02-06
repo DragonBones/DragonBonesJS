@@ -2,6 +2,7 @@ class Main extends egret.DisplayObjectContainer {
     public constructor() {
         super();
 
+        // this.addChild(new MyTest());
         // this.addChild(new HelloDragonBones());
         // this.addChild(new AnimationBase());
         // this.addChild(new DragonBonesEvent());

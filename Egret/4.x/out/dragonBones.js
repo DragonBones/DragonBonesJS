@@ -3552,6 +3552,64 @@ var dragonBones;
     }(dragonBones.BaseObject));
     dragonBones.TextureData = TextureData;
 })(dragonBones || (dragonBones = {}));
+var dragonBones;
+(function (dragonBones) {
+    var DeformVertices = /** @class */ (function (_super) {
+        __extends(DeformVertices, _super);
+        function DeformVertices() {
+            var _this = _super !== null && _super.apply(this, arguments) || this;
+            _this._vertices = [];
+            _this._bones = [];
+            return _this;
+        }
+        DeformVertices.toString = function () {
+            return "[class dragonBones.DeformVerticesData]";
+        };
+        DeformVertices.prototype._onClear = function () {
+            this._vertices.length = 0;
+            this._weightData = null;
+            this._bones.length = 0;
+        };
+        DeformVertices.prototype._isBonesUpdate = function () {
+            for (var _i = 0, _a = this._bones; _i < _a.length; _i++) {
+                var bone = _a[_i];
+                if (bone !== null && bone._childrenTransformDirty) {
+                    return true;
+                }
+            }
+            return false;
+        };
+        DeformVertices.prototype.clear = function () {
+            this._vertices.length = 0;
+            this._weightData = null;
+            this._bones.length = 0;
+        };
+        DeformVertices.prototype.init = function (weightData, armature, vertexCount) {
+            this._vertices.length = vertexCount;
+            this._weightData = weightData;
+            //
+            if (weightData !== null) {
+                this._bones = new Array();
+                for (var i = 0, l = weightData.bones.length; i < l; ++i) {
+                    var bone = armature.getBone(weightData.bones[i].name);
+                    if (bone !== null) {
+                        this._bones.push(bone);
+                    }
+                }
+            }
+            else {
+                this._bones.length = 0;
+            }
+        };
+        DeformVertices.prototype.clearDeformVertices = function () {
+            for (var i = 0, l = this._vertices.length; i < l; ++i) {
+                this._vertices[i] = 0.0;
+            }
+        };
+        return DeformVertices;
+    }(dragonBones.BaseObject));
+    dragonBones.DeformVertices = DeformVertices;
+})(dragonBones || (dragonBones = {}));
 /**
  * The MIT License (MIT)
  *
@@ -5838,7 +5896,7 @@ var dragonBones;
              * @internal
              * @private
              */
-            _this._deformVertices = [];
+            // public readonly _deformVertices: Array<number> = [];
             /**
              * @private
              */
@@ -5850,11 +5908,12 @@ var dragonBones;
             /**
              * @private
              */
-            _this._meshBones = [];
+            // protected readonly _meshBones: Array<Bone | null> = [];
             /**
              * @private
              */
             _this._meshSlots = [];
+            _this._deformVertices = null;
             /**
              * @private
              */
@@ -5910,10 +5969,10 @@ var dragonBones;
             this._pivotY = 0.0;
             this._localMatrix.identity();
             this._colorTransform.identity();
-            this._deformVertices.length = 0;
+            // this._deformVertices.length = 0;
             this._displayList.length = 0;
             this._displayDatas.length = 0;
-            this._meshBones.length = 0;
+            // this._meshBones.length = 0;
             this._meshSlots.length = 0;
             this._slotData = null; //
             this._rawDisplayDatas = null;
@@ -5921,6 +5980,9 @@ var dragonBones;
             this._textureData = null;
             this._meshData = null;
             this._pathData = null;
+            if (this._deformVertices !== null) {
+                this._deformVertices.returnToPool();
+            }
             this._boundingBoxData = null;
             this._rawDisplay = null;
             this._meshDisplay = null;
@@ -5948,6 +6010,7 @@ var dragonBones;
             var prevDisplayData = this._displayData;
             var prevTextureData = this._textureData;
             var prevMeshData = this._meshData;
+            var prePathData = this._pathData;
             var rawDisplayData = null;
             if (this._displayIndex >= 0) {
                 if (this._rawDisplayDatas !== null) {
@@ -6066,18 +6129,25 @@ var dragonBones;
                 if (this._meshData !== prevMeshData) {
                     if (this._meshData !== null) {
                         // Update skined mesh.
+                        if (this._deformVertices === null) {
+                            this._deformVertices = dragonBones.BaseObject.borrowObject(dragonBones.DeformVertices);
+                        }
+                        var vertexCount = 0;
                         if (this._meshData.weight !== null) {
-                            this._deformVertices.length = this._meshData.weight.count * 2;
-                            this._meshBones.length = this._meshData.weight.bones.length;
-                            for (var i = 0, l = this._meshBones.length; i < l; ++i) {
-                                this._meshBones[i] = this._armature.getBone(this._meshData.weight.bones[i].name);
-                            }
+                            vertexCount = this._meshData.weight.count * 2;
+                            // this._deformVertices.length = this._meshData.weight.count * 2;
+                            // this._meshBones.length = this._meshData.weight.bones.length;
+                            // for (let i = 0, l = this._meshBones.length; i < l; ++i) {
+                            //     this._meshBones[i] = this._armature.getBone(this._meshData.weight.bones[i].name);
+                            // }
                         }
                         else {
-                            var vertexCount = this._meshData.parent.parent.parent.intArray[this._meshData.offset + 0 /* MeshVertexCount */];
-                            this._deformVertices.length = vertexCount * 2;
-                            this._meshBones.length = 0;
+                            vertexCount = this._meshData.parent.parent.parent.intArray[this._meshData.offset + 0 /* MeshVertexCount */];
+                            // const vertexCount = this._meshData.parent.parent.parent.intArray[this._meshData.offset + BinaryOffset.MeshVertexCount];
+                            // this._deformVertices.length = vertexCount * 2;
+                            // this._meshBones.length = 0;
                         }
+                        this._deformVertices.init(this._meshData.weight, this._armature, vertexCount);
                         // Update glue mesh.
                         var armatureGlueSlots = this._armature._glueSlots;
                         if (this._meshData.glue !== null) {
@@ -6121,19 +6191,29 @@ var dragonBones;
                             }
                         }
                         // Clear deform to zero.
-                        for (var i = 0, l = this._deformVertices.length; i < l; ++i) {
-                            this._deformVertices[i] = 0.0;
+                        // for (let i = 0, l = this._deformVertices.length; i < l; ++i) {
+                        //     this._deformVertices[i] = 0.0;
+                        // }
+                        if (this._deformVertices !== null) {
+                            this._deformVertices.clearDeformVertices();
                         }
                         this._meshDirty = true;
                     }
                     else {
-                        this._deformVertices.length = 0;
-                        this._meshBones.length = 0;
+                        // this._deformVertices.length = 0;
+                        // this._meshBones.length = 0;
                         this._meshSlots.length = 0;
                     }
                 }
                 else if (this._meshData !== null && this._textureData !== prevTextureData) {
                     this._meshDirty = true;
+                }
+                //
+                if (this._pathData !== prePathData) {
+                    if (this._pathData !== null) {
+                    }
+                    else {
+                    }
                 }
                 this._displayDirty = true;
                 this._transformDirty = true;
@@ -6239,13 +6319,16 @@ var dragonBones;
          * @private
          */
         Slot.prototype._isMeshBonesUpdate = function () {
-            for (var _i = 0, _a = this._meshBones; _i < _a.length; _i++) {
-                var bone = _a[_i];
-                if (bone !== null && bone._childrenTransformDirty) {
-                    return true;
-                }
+            if (this._deformVertices !== null) {
+                return this._deformVertices._isBonesUpdate();
             }
             return false;
+            // for (const bone of this._meshBones) {
+            //     if (bone !== null && bone._childrenTransformDirty) {
+            //         return true;
+            //     }
+            // }
+            // return false;
         };
         /**
          * @inheritDoc
@@ -6369,9 +6452,6 @@ var dragonBones;
          * @private
          */
         Slot.prototype.update = function (cacheFrameIndex) {
-            if (this._displayData !== null && this._displayData.type === 4 /* Path */) {
-                return;
-            }
             if (this._displayDirty) {
                 this._displayDirty = false;
                 this._updateDisplay();
@@ -7132,54 +7212,6 @@ var dragonBones;
             _this._curves = [];
             _this._boneLengths = [];
             _this._pathGlobalVertices = [];
-            _this.tvalues = [-0.0640568928626056260850430826247450385909,
-                0.0640568928626056260850430826247450385909,
-                -0.1911188674736163091586398207570696318404,
-                0.1911188674736163091586398207570696318404,
-                -0.3150426796961633743867932913198102407864,
-                0.3150426796961633743867932913198102407864,
-                -0.4337935076260451384870842319133497124524,
-                0.4337935076260451384870842319133497124524,
-                -0.5454214713888395356583756172183723700107,
-                0.5454214713888395356583756172183723700107,
-                -0.6480936519369755692524957869107476266696,
-                0.6480936519369755692524957869107476266696,
-                -0.7401241915785543642438281030999784255232,
-                0.7401241915785543642438281030999784255232,
-                -0.8200019859739029219539498726697452080761,
-                0.8200019859739029219539498726697452080761,
-                -0.8864155270044010342131543419821967550873,
-                0.8864155270044010342131543419821967550873,
-                -0.9382745520027327585236490017087214496548,
-                0.9382745520027327585236490017087214496548,
-                -0.9747285559713094981983919930081690617411,
-                0.9747285559713094981983919930081690617411,
-                -0.9951872199970213601799974097007368118745,
-                0.9951872199970213601799974097007368118745];
-            _this.cvalues = [0.1279381953467521569740561652246953718517,
-                0.1279381953467521569740561652246953718517,
-                0.1258374563468282961213753825111836887264,
-                0.1258374563468282961213753825111836887264,
-                0.1216704729278033912044631534762624256070,
-                0.1216704729278033912044631534762624256070,
-                0.1155056680537256013533444839067835598622,
-                0.1155056680537256013533444839067835598622,
-                0.1074442701159656347825773424466062227946,
-                0.1074442701159656347825773424466062227946,
-                0.0976186521041138882698806644642471544279,
-                0.0976186521041138882698806644642471544279,
-                0.0861901615319532759171852029837426671850,
-                0.0861901615319532759171852029837426671850,
-                0.0733464814110803057340336152531165181193,
-                0.0733464814110803057340336152531165181193,
-                0.0592985849154367807463677585001085845412,
-                0.0592985849154367807463677585001085845412,
-                0.0442774388174198061686027482113382288593,
-                0.0442774388174198061686027482113382288593,
-                0.0285313886289336631813078159518782864491,
-                0.0285313886289336631813078159518782864491,
-                0.0123412297999871995468056670700372915759,
-                0.0123412297999871995468056670700372915759];
             return _this;
         }
         PathConstraint.toString = function () {
@@ -7427,24 +7459,6 @@ var dragonBones;
             pathLength = 0;
             var x1 = curveVertices[0], y1 = curveVertices[1], cx1 = 0, cy1 = 0, cx2 = 0, cy2 = 0, x2 = 0, y2 = 0;
             var tmpx, tmpy, dddfx, dddfy, ddfx, ddfy, dfx, dfy;
-            for (var i = 0, w = 2; i < curveCount; i++, w += 6) {
-                cx1 = curveVertices[w];
-                cy1 = curveVertices[w + 1];
-                cx2 = curveVertices[w + 2];
-                cy2 = curveVertices[w + 3];
-                x2 = curveVertices[w + 4];
-                y2 = curveVertices[w + 5];
-                var xx1 = (cx1 - x1) * 3;
-                var yy1 = (cy1 - y1) * 3;
-                var xx2 = (cx2 - cx1) * 3;
-                var yy2 = (cy2 - cy1) * 3;
-                var xx3 = (x2 - cx2) * 3;
-                var yy3 = (y2 - cy2) * 3;
-                pathLength += this.calCurveLength(xx1, yy1, xx2, yy2, xx3, yy3);
-                curves[i] = pathLength;
-                x1 = x2;
-                y1 = y2;
-            }
             // for (let i = 0, w = 2; i < curveCount; i++ , w += 6) {
             //     cx1 = curveVertices[w];
             //     cy1 = curveVertices[w + 1];
@@ -7452,30 +7466,48 @@ var dragonBones;
             //     cy2 = curveVertices[w + 3];
             //     x2 = curveVertices[w + 4];
             //     y2 = curveVertices[w + 5];
-            //     tmpx = (x1 - cx1 * 2 + cx2) * 0.1875;
-            //     tmpy = (y1 - cy1 * 2 + cy2) * 0.1875;
-            //     dddfx = ((cx1 - cx2) * 3 - x1 + x2) * 0.09375;
-            //     dddfy = ((cy1 - cy2) * 3 - y1 + y2) * 0.09375;
-            //     ddfx = tmpx * 2 + dddfx;
-            //     ddfy = tmpy * 2 + dddfy;
-            //     dfx = (cx1 - x1) * 0.75 + tmpx + dddfx * 0.16666667;
-            //     dfy = (cy1 - y1) * 0.75 + tmpy + dddfy * 0.16666667;
-            //     pathLength += Math.sqrt(dfx * dfx + dfy * dfy);
-            //     dfx += ddfx;
-            //     dfy += ddfy;
-            //     ddfx += dddfx;
-            //     ddfy += dddfy;
-            //     pathLength += Math.sqrt(dfx * dfx + dfy * dfy);
-            //     dfx += ddfx;
-            //     dfy += ddfy;
-            //     pathLength += Math.sqrt(dfx * dfx + dfy * dfy);
-            //     dfx += ddfx + dddfx;
-            //     dfy += ddfy + dddfy;
-            //     pathLength += Math.sqrt(dfx * dfx + dfy * dfy);
+            //     const xx1 = (cx1 - x1) * 3;
+            //     const yy1 = (cy1 - y1) * 3;
+            //     const xx2 = (cx2 - cx1) * 3;
+            //     const yy2 = (cy2 - cy1) * 3;
+            //     const xx3 = (x2 - cx2) * 3;
+            //     const yy3 = (y2 - cy2) * 3;
+            //     pathLength += this.calCurveLength(xx1, yy1, xx2, yy2, xx3, yy3);
             //     curves[i] = pathLength;
             //     x1 = x2;
             //     y1 = y2;
             // }
+            for (var i = 0, w = 2; i < curveCount; i++, w += 6) {
+                cx1 = curveVertices[w];
+                cy1 = curveVertices[w + 1];
+                cx2 = curveVertices[w + 2];
+                cy2 = curveVertices[w + 3];
+                x2 = curveVertices[w + 4];
+                y2 = curveVertices[w + 5];
+                tmpx = (x1 - cx1 * 2 + cx2) * 0.1875;
+                tmpy = (y1 - cy1 * 2 + cy2) * 0.1875;
+                dddfx = ((cx1 - cx2) * 3 - x1 + x2) * 0.09375;
+                dddfy = ((cy1 - cy2) * 3 - y1 + y2) * 0.09375;
+                ddfx = tmpx * 2 + dddfx;
+                ddfy = tmpy * 2 + dddfy;
+                dfx = (cx1 - x1) * 0.75 + tmpx + dddfx * 0.16666667;
+                dfy = (cy1 - y1) * 0.75 + tmpy + dddfy * 0.16666667;
+                pathLength += Math.sqrt(dfx * dfx + dfy * dfy);
+                dfx += ddfx;
+                dfy += ddfy;
+                ddfx += dddfx;
+                ddfy += dddfy;
+                pathLength += Math.sqrt(dfx * dfx + dfy * dfy);
+                dfx += ddfx;
+                dfy += ddfy;
+                pathLength += Math.sqrt(dfx * dfx + dfy * dfy);
+                dfx += ddfx + dddfx;
+                dfy += ddfy + dddfy;
+                pathLength += Math.sqrt(dfx * dfx + dfy * dfy);
+                curves[i] = pathLength;
+                x1 = x2;
+                y1 = y2;
+            }
             if (percentPosition) {
                 position *= pathLength;
             }
@@ -7508,7 +7540,7 @@ var dragonBones;
                     var length_1 = curves[curve];
                     if (p > length_1)
                         continue;
-                    if (curve == 0)
+                    if (curve === 0)
                         p /= length_1;
                     else {
                         var prev = curves[curve - 1];
@@ -7516,7 +7548,7 @@ var dragonBones;
                     }
                     break;
                 }
-                if (curve != preCurve) {
+                if (curve !== preCurve) {
                     preCurve = curve;
                     var ii = curve * 6;
                     x1 = curveVertices[ii];
@@ -7561,7 +7593,7 @@ var dragonBones;
                     var length_2 = segments[segment];
                     if (p > length_2)
                         continue;
-                    if (segment == 0)
+                    if (segment === 0)
                         p /= length_2;
                     else {
                         var prev = segments[segment - 1];
@@ -7572,25 +7604,72 @@ var dragonBones;
                 this.addCurvePosition(p * 0.1, x1, y1, cx1, cy1, cx2, cy2, x2, y2, positions, o, tangents);
             }
         };
-        PathConstraint.prototype.calCurveLength = function (x1, y1, cx1, cy1, cx2, cy2) {
-            var z = 0.5;
-            var sum = 0, len = this.tvalues.length, i = 0, t = 0;
-            for (i = 0; i < len; i++) {
-                t = z * this.tvalues[i] + z;
-                sum += this.cvalues[i] * this.arcfn(t, x1, y1, cx1, cy1, cx2, cy2);
-            }
-            return z * sum;
-        };
-        PathConstraint.prototype.arcfn = function (t, x1, y1, cx1, cy1, cx2, cy2) {
-            var mt = 1 - t, a, b, c = 0;
-            a = mt * mt;
-            b = mt * t * 2;
-            c = t * t;
-            var x = a * x1 + b * cx1 + c * cx2;
-            var y = a * y1 + b * cy1 + c * cy2;
-            var l = Math.sqrt(x * x + y * y);
-            return l;
-        };
+        // private readonly tvalues: number[] = [-0.0640568928626056260850430826247450385909,
+        //     0.0640568928626056260850430826247450385909,
+        // -0.1911188674736163091586398207570696318404,
+        //     0.1911188674736163091586398207570696318404,
+        // -0.3150426796961633743867932913198102407864,
+        //     0.3150426796961633743867932913198102407864,
+        // -0.4337935076260451384870842319133497124524,
+        //     0.4337935076260451384870842319133497124524,
+        // -0.5454214713888395356583756172183723700107,
+        //     0.5454214713888395356583756172183723700107,
+        // -0.6480936519369755692524957869107476266696,
+        //     0.6480936519369755692524957869107476266696,
+        // -0.7401241915785543642438281030999784255232,
+        //     0.7401241915785543642438281030999784255232,
+        // -0.8200019859739029219539498726697452080761,
+        //     0.8200019859739029219539498726697452080761,
+        // -0.8864155270044010342131543419821967550873,
+        //     0.8864155270044010342131543419821967550873,
+        // -0.9382745520027327585236490017087214496548,
+        //     0.9382745520027327585236490017087214496548,
+        // -0.9747285559713094981983919930081690617411,
+        //     0.9747285559713094981983919930081690617411,
+        // -0.9951872199970213601799974097007368118745,
+        //     0.9951872199970213601799974097007368118745];
+        // private readonly cvalues: number[] = [0.1279381953467521569740561652246953718517,
+        //     0.1279381953467521569740561652246953718517,
+        //     0.1258374563468282961213753825111836887264,
+        //     0.1258374563468282961213753825111836887264,
+        //     0.1216704729278033912044631534762624256070,
+        //     0.1216704729278033912044631534762624256070,
+        //     0.1155056680537256013533444839067835598622,
+        //     0.1155056680537256013533444839067835598622,
+        //     0.1074442701159656347825773424466062227946,
+        //     0.1074442701159656347825773424466062227946,
+        //     0.0976186521041138882698806644642471544279,
+        //     0.0976186521041138882698806644642471544279,
+        //     0.0861901615319532759171852029837426671850,
+        //     0.0861901615319532759171852029837426671850,
+        //     0.0733464814110803057340336152531165181193,
+        //     0.0733464814110803057340336152531165181193,
+        //     0.0592985849154367807463677585001085845412,
+        //     0.0592985849154367807463677585001085845412,
+        //     0.0442774388174198061686027482113382288593,
+        //     0.0442774388174198061686027482113382288593,
+        //     0.0285313886289336631813078159518782864491,
+        //     0.0285313886289336631813078159518782864491,
+        //     0.0123412297999871995468056670700372915759,
+        //     0.0123412297999871995468056670700372915759];
+        // private calCurveLength(x1: number, y1: number, cx1: number, cy1: number, cx2: number, cy2: number): number {
+        //     const z = 0.5;
+        //     let sum = 0, len = this.tvalues.length, i = 0, t = 0;
+        //     for (i = 0; i < len; i++) {
+        //         t = z * this.tvalues[i] + z;
+        //         sum += this.cvalues[i] * this.arcfn(t, x1, y1, cx1, cy1, cx2, cy2);
+        //     }
+        //     return z * sum;
+        // }
+        // private arcfn(t: number, x1: number, y1: number, cx1: number, cy1: number, cx2: number, cy2: number): number {
+        //     let mt = 1 - t,
+        //         a, b, c = 0;
+        //     a = mt * mt; b = mt * t * 2; c = t * t;
+        //     const x = a * x1 + b * cx1 + c * cx2;
+        //     const y = a * y1 + b * cy1 + c * cy2;
+        //     const l = Math.sqrt(x * x + y * y);
+        //     return l;
+        // }
         //Calculates a point on the curve, for a given t value between 0 and 1.
         PathConstraint.prototype.addCurvePosition = function (t, x1, y1, cx1, cy1, cx2, cy2, x2, y2, out, offset, tangents) {
             if (t === 0) {
@@ -11404,7 +11483,8 @@ var dragonBones;
                 this._frameFloatOffset = this._frameIntArray[frameIntOffset + 4 /* DeformFloatOffset */] + this._animationData.frameFloatOffset;
             }
             else {
-                this._deformCount = this.slot._deformVertices.length;
+                // this._deformCount = this.slot._deformVertices.length;
+                this._deformCount = this.slot._deformVertices !== null ? this.slot._deformVertices._vertices.length : 0;
                 this._valueCount = this._deformCount;
                 this._valueOffset = 0;
                 this._frameFloatOffset = 0;
@@ -11427,7 +11507,8 @@ var dragonBones;
             _super.prototype.update.call(this, passedTime);
             // Fade animation.
             if (this._tweenState !== 0 /* None */ || this._dirty) {
-                var result = this.slot._deformVertices;
+                // const result = this.slot._deformVertices;
+                var result = this.slot._deformVertices._vertices;
                 if (this._animationState._fadeState !== 0 || this._animationState._subFadeState !== 0) {
                     var fadeProgress = Math.pow(this._animationState._fadeProgress, 2);
                     for (var i = 0; i < this._deformCount; ++i) {
@@ -16942,7 +17023,9 @@ var dragonBones;
         EgretSlot.prototype._updateMesh = function () {
             var scale = this._armature._armatureData.scale;
             var meshData = this._meshData;
-            var hasDeform = this._deformVertices.length > 0 && meshData.inheritDeform;
+            var deformVerticesData = this._deformVertices;
+            var deformVertices = deformVerticesData._vertices;
+            var hasDeform = deformVertices.length > 0 && meshData.inheritDeform;
             var weight = meshData.weight;
             var meshDisplay = this._renderDisplay;
             var meshNode = meshDisplay.$renderNode;
@@ -16960,15 +17043,16 @@ var dragonBones;
                     var xG = 0.0, yG = 0.0;
                     for (var j = 0; j < boneCount; ++j) {
                         var boneIndex = intArray[iB++];
-                        var bone = this._meshBones[boneIndex];
+                        // const bone = this._meshBones[boneIndex];
+                        var bone = deformVerticesData._bones[boneIndex];
                         if (bone !== null) {
                             var matrix = bone.globalTransformMatrix;
                             var weight_1 = floatArray[iV++];
                             var xL = floatArray[iV++] * scale;
                             var yL = floatArray[iV++] * scale;
                             if (hasDeform) {
-                                xL += this._deformVertices[iF++];
-                                yL += this._deformVertices[iF++];
+                                xL += deformVertices[iF++];
+                                yL += deformVertices[iF++];
                             }
                             xG += (matrix.a * xL + matrix.c * yL + matrix.tx) * weight_1;
                             yG += (matrix.b * xL + matrix.d * yL + matrix.ty) * weight_1;
@@ -16994,8 +17078,8 @@ var dragonBones;
                     vertexOffset += 65536; // Fixed out of bouds bug. 
                 }
                 for (var i = 0, l = vertexCount * 2; i < l; i += 2) {
-                    var x = floatArray[vertexOffset + i] * scale + this._deformVertices[i];
-                    var y = floatArray[vertexOffset + i + 1] * scale + this._deformVertices[i + 1];
+                    var x = floatArray[vertexOffset + i] * scale + deformVertices[i];
+                    var y = floatArray[vertexOffset + i + 1] * scale + deformVertices[i + 1];
                     if (isSurface) {
                         var matrix = this._parent._getGlobalTransformMatrix(x, y);
                         meshNode.vertices[i] = matrix.a * x + matrix.c * y + matrix.tx;
