@@ -458,7 +458,7 @@ namespace dragonBones {
             const scale = this._armature._armatureData.scale;
             const meshData = this._meshData as MeshDisplayData;
             const deformVerticesData = this._deformVertices as DeformVertices;
-            const deformVertices = deformVerticesData._vertices;
+            const deformVertices = deformVerticesData.vertices;
             const hasDeform = deformVertices.length > 0 && meshData.inheritDeform;
             const weight = meshData.weight;
             const meshDisplay = this._renderDisplay as egret.Mesh;
@@ -486,7 +486,7 @@ namespace dragonBones {
                     for (let j = 0; j < boneCount; ++j) {
                         const boneIndex = intArray[iB++];
                         // const bone = this._meshBones[boneIndex];
-                        const bone = deformVerticesData._bones[boneIndex];
+                        const bone = deformVerticesData.bones[boneIndex];
 
                         if (bone !== null) {
                             const matrix = bone.globalTransformMatrix;

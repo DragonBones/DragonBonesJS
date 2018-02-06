@@ -232,6 +232,8 @@ namespace dragonBones {
      */
     export class PathConstraint extends Constraint {
 
+        public dirty: boolean;
+        public pathOffset : number;
         public _position: number;
         public _spacing: number;
         public _rotateOffset: number;
@@ -243,7 +245,7 @@ namespace dragonBones {
         private _weightBones: Array<Bone> = [];
 
         private _spaces: Array<number> = [];
-        private _positions: Array<number> = [];
+        public _positions: Array<number> = [];
         private _curves: Array<number> = [];
         private _boneLengths: Array<number> = [];
 
@@ -255,6 +257,9 @@ namespace dragonBones {
 
         protected _onClear(): void {
             super._onClear();
+
+            this.dirty = false;
+            this.pathOffset = 0;
 
             this._position = 0.0;
             this._spacing = 0.0;
@@ -354,83 +359,6 @@ namespace dragonBones {
             }
         }
 
-        protected _computeVertices2(pathDisplayDta: PathDisplayData, start: number, count: number, offset: number, out: Array<number>): void {
-
-            //计算曲线的节点数据
-
-            const armature = this._armature;
-            const dragonBonesData = armature.armatureData.parent;
-            const scale = armature.armatureData.scale;
-            const intArray = dragonBonesData.intArray;
-            const floatArray = dragonBonesData.floatArray;
-
-            const pathOffset = pathDisplayDta.offset;
-            const pathVertexOffset = intArray[pathOffset + BinaryOffset.PathFloatOffset];
-
-            const weightData = pathDisplayDta.weight;
-            //没有骨骼约束我,那节点只受自己的Bone控制
-            if (weightData === null) {
-                const parentBone = this._pathSlot.parent;
-                parentBone.updateByConstraint();
-
-                const matrix = parentBone.globalTransformMatrix;
-
-                for (let i = offset, iV = start + pathVertexOffset; i < count; i += 2) {
-                    const vx = floatArray[iV++] * scale;
-                    const vy = floatArray[iV++] * scale;
-
-                    const x = matrix.a * vx + matrix.c * vy + matrix.tx;
-                    const y = matrix.b * vx + matrix.d * vy + matrix.ty;
-
-                    //
-                    out[i] = x;
-                    out[i + 1] = y;
-                }
-                return;
-            }
-
-            //有骨骼约束我,那我的节点受骨骼权重控制
-            const bones = this._weightBones;
-            const weightBoneCount = weightData.bones.length;
-
-            const weightOffset = weightData.offset;
-            const floatOffset = intArray[weightOffset + BinaryOffset.WeigthFloatOffset];
-
-            let iV = floatOffset;
-            let iB = weightOffset + BinaryOffset.WeigthBoneIndices + weightBoneCount;
-            for (let i = 0; i < start; i += 2) {
-                let n = intArray[iB];
-                iV += n * 3;
-                iB += n + 1;
-            }
-
-            for (let i = offset; i < count; i += 2) {
-                const vertexBoneCount = intArray[iB++]; //
-
-                let xG = 0.0, yG = 0.0;
-                for (let ii = 0, ll = vertexBoneCount; ii < ll; ii++) {
-                    const boneIndex = intArray[iB++];
-                    const bone = bones[boneIndex];
-                    if (bone === null) {
-                        continue;
-                    }
-
-                    bone.updateByConstraint();
-                    const matrix = bone.globalTransformMatrix;
-                    const weight = floatArray[iV++];
-                    const vx = floatArray[iV++] * scale;
-                    const vy = floatArray[iV++] * scale;
-                    xG += (matrix.a * vx + matrix.c * vy + matrix.tx) * weight;
-                    yG += (matrix.b * vx + matrix.d * vy + matrix.ty) * weight;
-                }
-
-                out[i] = xG;
-                out[i + 1] = yG;
-            }
-
-            //节点k帧TODO
-        }
-
         //计算当前的骨骼在曲线上的位置
         protected _computeBezierCurve(pathDisplayDta: PathDisplayData, spaceCount: number, tangents: boolean, percentPosition: boolean, percentSpacing: boolean): void {
             const armature = this._armature;
@@ -449,7 +377,6 @@ namespace dragonBones {
 
             positions.length = spaceCount * 3 + 2;
 
-            this._updatePathDisplay(pathDisplayDta);
             let pathLength = 0.0;
             //不需要匀速运动，效率高些
             if (!pathDisplayDta.constantSpeed) {
@@ -523,7 +450,7 @@ namespace dragonBones {
                 return;
             }
 
-            //匀速的TODO
+            //匀速的
             if (closed) {
                 verticesLength += 2;
                 curveVertices.length = vertexCount;
@@ -601,8 +528,9 @@ namespace dragonBones {
                 position *= pathLength;
             }
             if (percentSpacing) {
-                for (let i = 0; i < spaceCount; i++)
+                for (let i = 0; i < spaceCount; i++) {
                     spaces[i] *= pathLength;
+                }
             }
 
             let segments: Array<number> = new Array<number>(10);
@@ -695,80 +623,6 @@ namespace dragonBones {
             }
         }
 
-        // private readonly tvalues: number[] = [-0.0640568928626056260850430826247450385909,
-        //     0.0640568928626056260850430826247450385909,
-        // -0.1911188674736163091586398207570696318404,
-        //     0.1911188674736163091586398207570696318404,
-        // -0.3150426796961633743867932913198102407864,
-        //     0.3150426796961633743867932913198102407864,
-        // -0.4337935076260451384870842319133497124524,
-        //     0.4337935076260451384870842319133497124524,
-        // -0.5454214713888395356583756172183723700107,
-        //     0.5454214713888395356583756172183723700107,
-        // -0.6480936519369755692524957869107476266696,
-        //     0.6480936519369755692524957869107476266696,
-        // -0.7401241915785543642438281030999784255232,
-        //     0.7401241915785543642438281030999784255232,
-        // -0.8200019859739029219539498726697452080761,
-        //     0.8200019859739029219539498726697452080761,
-        // -0.8864155270044010342131543419821967550873,
-        //     0.8864155270044010342131543419821967550873,
-        // -0.9382745520027327585236490017087214496548,
-        //     0.9382745520027327585236490017087214496548,
-        // -0.9747285559713094981983919930081690617411,
-        //     0.9747285559713094981983919930081690617411,
-        // -0.9951872199970213601799974097007368118745,
-        //     0.9951872199970213601799974097007368118745];
-
-        // private readonly cvalues: number[] = [0.1279381953467521569740561652246953718517,
-        //     0.1279381953467521569740561652246953718517,
-        //     0.1258374563468282961213753825111836887264,
-        //     0.1258374563468282961213753825111836887264,
-        //     0.1216704729278033912044631534762624256070,
-        //     0.1216704729278033912044631534762624256070,
-        //     0.1155056680537256013533444839067835598622,
-        //     0.1155056680537256013533444839067835598622,
-        //     0.1074442701159656347825773424466062227946,
-        //     0.1074442701159656347825773424466062227946,
-        //     0.0976186521041138882698806644642471544279,
-        //     0.0976186521041138882698806644642471544279,
-        //     0.0861901615319532759171852029837426671850,
-        //     0.0861901615319532759171852029837426671850,
-        //     0.0733464814110803057340336152531165181193,
-        //     0.0733464814110803057340336152531165181193,
-        //     0.0592985849154367807463677585001085845412,
-        //     0.0592985849154367807463677585001085845412,
-        //     0.0442774388174198061686027482113382288593,
-        //     0.0442774388174198061686027482113382288593,
-        //     0.0285313886289336631813078159518782864491,
-        //     0.0285313886289336631813078159518782864491,
-        //     0.0123412297999871995468056670700372915759,
-        //     0.0123412297999871995468056670700372915759];
-
-        // private calCurveLength(x1: number, y1: number, cx1: number, cy1: number, cx2: number, cy2: number): number {
-        //     const z = 0.5;
-        //     let sum = 0, len = this.tvalues.length, i = 0, t = 0;
-
-        //     for (i = 0; i < len; i++) {
-        //         t = z * this.tvalues[i] + z;
-        //         sum += this.cvalues[i] * this.arcfn(t, x1, y1, cx1, cy1, cx2, cy2);
-        //     }
-
-        //     return z * sum;
-        // }
-
-        // private arcfn(t: number, x1: number, y1: number, cx1: number, cy1: number, cx2: number, cy2: number): number {
-        //     let mt = 1 - t,
-        //         a, b, c = 0;
-        //     a = mt * mt; b = mt * t * 2; c = t * t;
-
-        //     const x = a * x1 + b * cx1 + c * cx2;
-        //     const y = a * y1 + b * cy1 + c * cy2;
-        //     const l = Math.sqrt(x * x + y * y);
-
-        //     return l;
-        // }
-
         //Calculates a point on the curve, for a given t value between 0 and 1.
         private addCurvePosition(t: number, x1: number, y1: number, cx1: number, cy1: number, cx2: number, cy2: number, x2: number, y2: number, out: Array<number>, offset: number, tangents: boolean) {
             if (t === 0) {
@@ -813,6 +667,8 @@ namespace dragonBones {
 
             let data = constraintData as PathConstraintData;
 
+            this.pathOffset = data.pathDisplayData.offset;
+
             //
             this._position = data.position;
             this._spacing = data.spacing;
@@ -834,7 +690,7 @@ namespace dragonBones {
 
             this._root._hasConstraint = true;
 
-            const pathDisplayDta = this._pathSlot._displayData as PathDisplayData;
+            const pathDisplayDta = data.pathDisplayData;
             if (pathDisplayDta !== null) {
                 if (pathDisplayDta.weight != null) {
                     for (let i = 0, l = pathDisplayDta.weight.bones.length; i < l; i++) {
@@ -855,7 +711,7 @@ namespace dragonBones {
             const constraintData = this._constraintData as PathConstraintData;
             const pathSlot = this._pathSlot;
             const pathDisplayData = pathSlot._displayData as PathDisplayData;
-            if (pathDisplayData === null) {
+            if (pathDisplayData === null || pathDisplayData.offset !== this.pathOffset) {
                 return;
             }
             //
@@ -883,6 +739,25 @@ namespace dragonBones {
             const spacesCount = tangents ? boneCount : boneCount + 1;
 
             this._spaces.length = spacesCount;
+
+            //判断是否需要重新采样
+            //曲线节点if()数据改变:父亲bone改变，权重bones改变，变形顶点改变
+            // 
+            let isPathVerticeDirty = false;
+            let deformVertices = pathSlot._deformVertices;
+            if (this._root._childrenTransformDirty) {
+                this._updatePathDisplay(pathDisplayData);
+                isPathVerticeDirty = true;
+            }
+            else if (deformVertices !== null && (deformVertices.verticeDirty || deformVertices._isBonesUpdate())) {
+                this._updatePathDisplay(pathDisplayData);
+                deformVertices.verticeDirty = false;
+                isPathVerticeDirty = true;
+            }
+
+            if (!isPathVerticeDirty && !this.dirty) {
+                return;
+            }
 
             //计曲线间隔和长度
             if (scale || lengthSpacing) {
@@ -993,6 +868,8 @@ namespace dragonBones {
 
                 bone.global.fromMatrix(matrix);
             }
+
+            this.dirty = false;
         }
 
         public invalidUpdate(): void {

@@ -336,6 +336,13 @@ namespace dragonBones {
                 }
             }
 
+            if (DataParser.SKIN in rawData) {
+                const rawSkins = rawData[DataParser.SKIN] as Array<any>;
+                for (const rawSkin of rawSkins) {
+                    armature.addSkin(this._parseSkin(rawSkin));
+                }
+            }
+            
             if (DataParser.PATH_CONSTRAINT in rawData) {
                 const rawPaths = rawData[DataParser.PATH_CONSTRAINT] as Array<any>;
                 for (const rawPath of rawPaths) {
@@ -343,13 +350,6 @@ namespace dragonBones {
                     if (constraint) {
                         armature.addConstraint(constraint);
                     }
-                }
-            }
-
-            if (DataParser.SKIN in rawData) {
-                const rawSkins = rawData[DataParser.SKIN] as Array<any>;
-                for (const rawSkin of rawSkins) {
-                    armature.addSkin(this._parseSkin(rawSkin));
                 }
             }
 
@@ -525,6 +525,17 @@ namespace dragonBones {
                 return null;
             }
 
+            const defaultSkin = this._armature.defaultSkin;
+            if (defaultSkin === null) {
+                return null;
+            }
+
+            //TODO
+            const targetDisplay = defaultSkin.getDisplay(target.name, ObjectDataParser._getString(rawData, DataParser.TARGET_DISPLAY, target.name));
+            if (targetDisplay === null || !(targetDisplay instanceof PathDisplayData)) {
+                return null;
+            }
+
             const bones = rawData[DataParser.BONES] as Array<string>;
             if (bones === null || bones.length === 0) {
                 return null;
@@ -534,6 +545,7 @@ namespace dragonBones {
             constraint.name = ObjectDataParser._getString(rawData, DataParser.NAME, "");
             constraint.type = ConstraintType.Path;
             constraint.pathSlot = target;
+            constraint.pathDisplayData = targetDisplay;
             constraint.target = target.parent;
             constraint.positionMode = DataParser._getPositionMode(ObjectDataParser._getString(rawData, DataParser.POSITION_MODE, ""));
             constraint.spacingMode = DataParser._getSpacingMode(ObjectDataParser._getString(rawData, DataParser.SPACING_MODE, ""));
@@ -707,6 +719,8 @@ namespace dragonBones {
                     pathDisplay.closed = ObjectDataParser._getBoolean(rawData, DataParser.CLOSED, false);
                     pathDisplay.constantSpeed = ObjectDataParser._getBoolean(rawData, DataParser.CONSTANT_SPEED, false);
                     pathDisplay.curveLengths = rawData[DataParser.LENGTHS] as Array<number>;
+                    pathDisplay.name = name;
+                    pathDisplay.path = path.length > 0 ? path : name;
 
                     this._parsePath(rawData, pathDisplay);
                     break;

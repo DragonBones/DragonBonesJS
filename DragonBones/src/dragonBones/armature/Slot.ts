@@ -90,7 +90,7 @@ namespace dragonBones {
          * @internal
          * @private
          */
-        public _meshDirty: boolean;
+        // public _meshDirty: boolean;
         /**
          * @private
          */
@@ -254,7 +254,7 @@ namespace dragonBones {
             this._zOrderDirty = false;
             this._blendModeDirty = false;
             this._colorDirty = false;
-            this._meshDirty = false;
+            // this._meshDirty = false;
             this._transformDirty = false;
             this._visible = true;
             this._blendMode = BlendMode.Normal;
@@ -582,9 +582,10 @@ namespace dragonBones {
 
                         if(this._deformVertices !== null) {
                             this._deformVertices.clearDeformVertices();
+                            this._deformVertices.verticeDirty = true;
                         }
 
-                        this._meshDirty = true;
+                        // this._meshDirty = true;
                     }
                     else {
                         // this._deformVertices.length = 0;
@@ -593,7 +594,10 @@ namespace dragonBones {
                     }
                 }
                 else if (this._meshData !== null && this._textureData !== prevTextureData) { // Update mesh after update frame.
-                    this._meshDirty = true;
+                    if(this._deformVertices !== null) {
+                            this._deformVertices.verticeDirty = true;
+                        }
+                    // this._meshDirty = true;
                 }
 
                 //
@@ -725,13 +729,6 @@ namespace dragonBones {
             }
 
             return false;
-            // for (const bone of this._meshBones) {
-            //     if (bone !== null && bone._childrenTransformDirty) {
-            //         return true;
-            //     }
-            // }
-
-            // return false;
         }
         /**
          * @inheritDoc
@@ -945,14 +942,17 @@ namespace dragonBones {
                 const isSkinned = this._meshData.weight !== null;
                 const isSurface = this._parent._boneData.type !== BoneType.Bone;
                 const isGule = this._meshData.glue !== null;
+                const deformVertices = this._deformVertices as DeformVertices;
 
                 if (
-                    this._meshDirty ||
-                    (isSkinned && this._isMeshBonesUpdate()) ||
+                    // this._meshDirty ||
+                    deformVertices.verticeDirty ||
+                    (isSkinned && deformVertices._isBonesUpdate()) ||
                     (isSurface && this._parent._childrenTransformDirty) ||
                     (isGule && this._parent._childrenTransformDirty) // TODO
                 ) {
-                    this._meshDirty = false;
+                    deformVertices.verticeDirty = false;
+                    // this._meshDirty = false;
                     this._updateMesh();
                 }
 

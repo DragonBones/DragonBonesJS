@@ -466,6 +466,32 @@ namespace dragonBones {
                             }
                         }
                     }
+
+                    for (const constraint of this._armature._constraints) {
+                        if (constraint instanceof PathConstraint) {
+                            let child = this._debugDrawer.getChildByName(constraint.name) as egret.Shape;
+                            if (child === null) {
+                                child = new egret.Shape();
+                                child.name = constraint.name;
+                                this._debugDrawer.addChild(child);
+                            }
+
+                            child.graphics.clear();
+                            child.graphics.lineStyle(2.0, 0x0000FF, 0.7);
+                            const positions = constraint._positions;
+
+                            for (let i = 0, l = positions.length; i < l; i+=2) {
+                                const x = positions[i];
+                                const y = positions[i + 1];
+                                if (i === 0) {
+                                    child.graphics.moveTo(x, y);
+                                }
+                                else {
+                                    child.graphics.lineTo(x, y);
+                                }
+                            }
+                        }
+                    }
                 }
                 else if (this._debugDrawer !== null && this._debugDrawer.parent === this) {
                     this.removeChild(this._debugDrawer);

@@ -31,6 +31,7 @@ class PathDemo extends BaseDemo {
     }
 
     protected _onStart(): void {
+        // dragonBones.DragonBones.debugDraw = true;
         const factory = dragonBones.EgretFactory.factory;
         factory.parseDragonBonesData(RES.getRes("resource/vine1/vine-pro_ske.dbbin"));
         // factory.parseDragonBonesData(RES.getRes("resource/vine1/vine-pro_ske.json"));

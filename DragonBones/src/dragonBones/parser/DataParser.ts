@@ -165,6 +165,7 @@ namespace dragonBones {
         protected static readonly ROTATE_MIX: string = "rotateMix";
         protected static readonly TRANSLATE_MIX: string = "translateMix";
 
+        protected static readonly TARGET_DISPLAY : string = "targetDisplay";
         protected static readonly CLOSED: string = "closed";
         protected static readonly CONSTANT_SPEED: string = "constantSpeed";
         protected static readonly VERTEX_COUNT: string = "vertexCount";

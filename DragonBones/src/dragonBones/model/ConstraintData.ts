@@ -74,6 +74,7 @@ namespace dragonBones {
         }
 
         public pathSlot : SlotData;
+        public pathDisplayData : PathDisplayData;
         public bones : Array<BoneData> = [];
 
         public positionMode : PositionMode;
@@ -90,6 +91,7 @@ namespace dragonBones {
             super._onClear();
 
             this.pathSlot = null as any;
+            this.pathDisplayData = null as any;
             this.bones.length = 0;
 
             this.positionMode = PositionMode.Fixed;

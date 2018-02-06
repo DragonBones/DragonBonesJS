@@ -1000,7 +1000,7 @@ namespace dragonBones {
             }
             else {
                 // this._deformCount = this.slot._deformVertices.length;
-                this._deformCount = this.slot._deformVertices !== null ? this.slot._deformVertices._vertices.length : 0;
+                this._deformCount = this.slot._deformVertices !== null ? this.slot._deformVertices.vertices.length : 0;
                 this._valueCount = this._deformCount;
                 this._valueOffset = 0;
                 this._frameFloatOffset = 0;
@@ -1030,7 +1030,8 @@ namespace dragonBones {
             // Fade animation.
             if (this._tweenState !== TweenState.None || this._dirty) {
                 // const result = this.slot._deformVertices;
-                const result = (this.slot._deformVertices as DeformVertices)._vertices;
+                const deformVertices = (this.slot._deformVertices as DeformVertices);
+                const result = deformVertices.vertices;
 
                 if (this._animationState._fadeState !== 0 || this._animationState._subFadeState !== 0) {
                     const fadeProgress = Math.pow(this._animationState._fadeProgress, 2);
@@ -1047,7 +1048,8 @@ namespace dragonBones {
                         }
                     }
 
-                    this.slot._meshDirty = true;
+                    deformVertices.verticeDirty = true;
+                    // this.slot._meshDirty = true;
                 }
                 else if (this._dirty) {
                     this._dirty = false;
@@ -1064,7 +1066,8 @@ namespace dragonBones {
                         }
                     }
 
-                    this.slot._meshDirty = true;
+                    (this.slot._deformVertices as DeformVertices).verticeDirty = true;
+                    // this.slot._meshDirty = true;
                 }
             }
         }
