@@ -133,14 +133,13 @@ namespace dragonBones {
         /**
          * @inheritDoc
          */
-        protected _buildSlot(dataPackage: BuildArmaturePackage, slotData: SlotData, displays: Array<DisplayData | null> | null, armature: Armature): Slot {
+        protected _buildSlot(dataPackage: BuildArmaturePackage, slotData: SlotData, armature: Armature): Slot {
             // tslint:disable-next-line:no-unused-expression
             dataPackage;
-            // tslint:disable-next-line:no-unused-expression
-            armature;
+
             const slot = BaseObject.borrowObject(EgretSlot);
             slot.init(
-                slotData, displays,
+                slotData, armature,
                 new egret.Bitmap(), new egret.Mesh()
             );
 

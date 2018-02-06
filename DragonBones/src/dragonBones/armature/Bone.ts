@@ -91,6 +91,10 @@ namespace dragonBones {
          */
         public _boneData: BoneData;
         /**
+         * @private
+         */
+        protected _parent: Bone | null;
+        /**
          * @internal
          * @private
          */
@@ -112,6 +116,7 @@ namespace dragonBones {
             this._cachedFrameIndex = -1;
             this._blendState.clear();
             this._boneData = null as any; //
+            this._parent = null as any; //
             this._cachedFrameIndices = null;
         }
         /**
@@ -119,7 +124,7 @@ namespace dragonBones {
          */
         protected _updateGlobalTransformMatrix(isCache: boolean): void {
             const boneData = this._boneData;
-            const parent = this._parent;
+            const parent = this._parent as Bone; //
             const flipX = this._armature.flipX;
             const flipY = this._armature.flipY === DragonBones.yDown;
             let inherit = parent !== null;
@@ -285,54 +290,22 @@ namespace dragonBones {
             }
         }
         /**
-         * @inheritDoc
-         */
-        public _setArmature(value: Armature | null): void {
-            if (this._armature === value) {
-                return;
-            }
-
-            let oldSlots: Array<Slot> | null = null;
-            let oldBones: Array<Bone> | null = null;
-
-            if (this._armature !== null) {
-                oldSlots = this.getSlots();
-                oldBones = this.getBones();
-                this._armature._removeBoneFromBoneList(this);
-            }
-
-            this._armature = value as any; //
-
-            if (this._armature !== null) {
-                this._armature._addBoneToBoneList(this);
-            }
-
-            if (oldSlots !== null) {
-                for (const slot of oldSlots) {
-                    if (slot.parent === this) {
-                        slot._setArmature(this._armature);
-                    }
-                }
-            }
-
-            if (oldBones !== null) {
-                for (const bone of oldBones) {
-                    if (bone.parent === this) {
-                        bone._setArmature(this._armature);
-                    }
-                }
-            }
-        }
-        /**
          * @internal
          * @private
          */
-        public init(boneData: BoneData): void {
+        public init(boneData: BoneData, armatureValue: Armature): void {
             if (this._boneData !== null) {
                 return;
             }
 
             this._boneData = boneData;
+            this._armature = armatureValue;
+
+            if (this._boneData.parent !== null) {
+                this._parent = this._armature.getBone(this._boneData.parent.name);
+            }
+
+            this._armature._addBone(this);
             //
             this.origin = this._boneData.transform;
         }
@@ -476,12 +449,12 @@ namespace dragonBones {
          * @version DragonBones 3.0
          * @language zh_CN
          */
-        public contains(value: TransformObject): boolean {
+        public contains(value: Bone | Slot): boolean {
             if (value === this) {
                 return false;
             }
 
-            let ancestor: TransformObject | null = value;
+            let ancestor: Bone | Slot | null = value;
             while (ancestor !== this && ancestor !== null) {
                 ancestor = ancestor.parent;
             }
@@ -526,7 +499,7 @@ namespace dragonBones {
             this._visible = value;
 
             for (const slot of this._armature.getSlots()) {
-                if (slot._parent === this) {
+                if (slot.parent === this) {
                     slot._updateVisible();
                 }
             }
@@ -543,6 +516,19 @@ namespace dragonBones {
          */
         public get name(): string {
             return this._boneData.name;
+        }
+        /**
+         * - The parent bone to which it belongs.
+         * @version DragonBones 3.0
+         * @language en_US
+         */
+        /**
+         * - 所属的父骨骼。
+         * @version DragonBones 3.0
+         * @language zh_CN
+         */
+        public get parent(): Bone | null {
+            return this._parent;
         }
 
         /**
