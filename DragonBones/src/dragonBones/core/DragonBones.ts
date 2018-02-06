@@ -158,7 +158,7 @@ namespace dragonBones {
 
         SlotDisplay = 20,
         SlotColor = 21,
-        SlotFFD = 22,
+        SlotDeform = 22,
 
         IKConstraint = 30,
 

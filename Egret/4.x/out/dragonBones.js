@@ -2285,6 +2285,7 @@ var dragonBones;
         };
         PathDisplayData.prototype._onClear = function () {
             _super.prototype._onClear.call(this);
+            this.type = 4 /* Path */;
             this.offset = -1;
             this.closed = false;
             this.constantSpeed = false;
@@ -6000,6 +6001,7 @@ var dragonBones;
             if (this._deformVertices !== null) {
                 this._deformVertices.returnToPool();
             }
+            this._deformVertices = null;
             this._boundingBoxData = null;
             this._rawDisplay = null;
             this._meshDisplay = null;
@@ -6152,17 +6154,9 @@ var dragonBones;
                         var vertexCount = 0;
                         if (this._meshData.weight !== null) {
                             vertexCount = this._meshData.weight.count * 2;
-                            // this._deformVertices.length = this._meshData.weight.count * 2;
-                            // this._meshBones.length = this._meshData.weight.bones.length;
-                            // for (let i = 0, l = this._meshBones.length; i < l; ++i) {
-                            //     this._meshBones[i] = this._armature.getBone(this._meshData.weight.bones[i].name);
-                            // }
                         }
                         else {
                             vertexCount = this._meshData.parent.parent.parent.intArray[this._meshData.offset + 0 /* MeshVertexCount */] * 2;
-                            // const vertexCount = this._meshData.parent.parent.parent.intArray[this._meshData.offset + BinaryOffset.MeshVertexCount];
-                            // this._deformVertices.length = vertexCount * 2;
-                            // this._meshBones.length = 0;
                         }
                         this._deformVertices.init(this._meshData.weight, this._armature, vertexCount);
                         // Update glue mesh.
@@ -6207,15 +6201,10 @@ var dragonBones;
                                 armatureGlueSlots.slice(index, 1);
                             }
                         }
-                        // Clear deform to zero.
-                        // for (let i = 0, l = this._deformVertices.length; i < l; ++i) {
-                        //     this._deformVertices[i] = 0.0;
-                        // }
                         if (this._deformVertices !== null) {
                             this._deformVertices.clearDeformVertices();
                             this._deformVertices.verticeDirty = true;
                         }
-                        // this._meshDirty = true;
                     }
                     else {
                         // this._deformVertices.length = 0;
@@ -6227,11 +6216,21 @@ var dragonBones;
                     if (this._deformVertices !== null) {
                         this._deformVertices.verticeDirty = true;
                     }
-                    // this._meshDirty = true;
                 }
                 //
                 if (this._pathData !== prePathData) {
                     if (this._pathData !== null) {
+                        if (this._deformVertices === null) {
+                            this._deformVertices = dragonBones.BaseObject.borrowObject(dragonBones.DeformVertices);
+                        }
+                        var vertexCount = 0;
+                        if (this._pathData.weight !== null) {
+                            vertexCount = this._pathData.weight.count * 2;
+                        }
+                        else {
+                            vertexCount = this._pathData.parent.parent.parent.intArray[this._pathData.offset + 0 /* PathVertexCount */] * 2;
+                        }
+                        this._deformVertices.init(this._pathData.weight, this._armature, vertexCount);
                     }
                     else {
                     }
@@ -7225,7 +7224,6 @@ var dragonBones;
         function PathConstraint() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
             _this._bones = [];
-            _this._weightBones = [];
             _this._spaces = [];
             _this._positions = [];
             _this._curves = [];
@@ -7247,14 +7245,13 @@ var dragonBones;
             this._translateMix = 1.0;
             this._pathSlot = null;
             this._bones.length = 0;
-            this._weightBones.length = 0;
             this._spaces.length = 0;
             this._positions.length = 0;
             this._curves.length = 0;
             this._boneLengths.length = 0;
             this._pathGlobalVertices.length = 0;
         };
-        PathConstraint.prototype._updatePathDisplay = function (pathDisplayDta) {
+        PathConstraint.prototype._updatePathVertices = function (pathDisplayDta) {
             //计算曲线的节点数据
             var armature = this._armature;
             var dragonBonesData = armature.armatureData.parent;
@@ -7283,7 +7280,8 @@ var dragonBones;
                 return;
             }
             //有骨骼约束我,那我的节点受骨骼权重控制
-            var bones = this._weightBones;
+            // const bones = this._weightBones;
+            var bones = this._pathSlot._deformVertices.bones;
             var weightBoneCount = weightData.bones.length;
             var weightOffset = weightData.offset;
             var floatOffset = intArray[weightOffset + 1 /* WeigthFloatOffset */];
@@ -7419,24 +7417,6 @@ var dragonBones;
             pathLength = 0;
             var x1 = curveVertices[0], y1 = curveVertices[1], cx1 = 0, cy1 = 0, cx2 = 0, cy2 = 0, x2 = 0, y2 = 0;
             var tmpx, tmpy, dddfx, dddfy, ddfx, ddfy, dfx, dfy;
-            // for (let i = 0, w = 2; i < curveCount; i++ , w += 6) {
-            //     cx1 = curveVertices[w];
-            //     cy1 = curveVertices[w + 1];
-            //     cx2 = curveVertices[w + 2];
-            //     cy2 = curveVertices[w + 3];
-            //     x2 = curveVertices[w + 4];
-            //     y2 = curveVertices[w + 5];
-            //     const xx1 = (cx1 - x1) * 3;
-            //     const yy1 = (cy1 - y1) * 3;
-            //     const xx2 = (cx2 - cx1) * 3;
-            //     const yy2 = (cy2 - cy1) * 3;
-            //     const xx3 = (x2 - cx2) * 3;
-            //     const yy3 = (y2 - cy2) * 3;
-            //     pathLength += this.calCurveLength(xx1, yy1, xx2, yy2, xx3, yy3);
-            //     curves[i] = pathLength;
-            //     x1 = x2;
-            //     y1 = y2;
-            // }
             for (var i = 0, w = 2; i < curveCount; i++, w += 6) {
                 cx1 = curveVertices[w];
                 cy1 = curveVertices[w + 1];
@@ -7620,20 +7600,6 @@ var dragonBones;
                 }
             }
             this._root._hasConstraint = true;
-            var pathDisplayDta = data.pathDisplayData;
-            if (pathDisplayDta !== null) {
-                if (pathDisplayDta.weight != null) {
-                    for (var i = 0, l = pathDisplayDta.weight.bones.length; i < l; i++) {
-                        var boneData = pathDisplayDta.weight.bones[i];
-                        var bone = this._armature.getBone(boneData.name);
-                        if (bone !== null) {
-                            this._weightBones.push(bone);
-                        }
-                    }
-                }
-                //TODO
-                // pathDisplayDta.constantSpeed = false;
-            }
         };
         PathConstraint.prototype.update = function () {
             //
@@ -7646,10 +7612,6 @@ var dragonBones;
             //
             var rotateMix = this._rotateMix;
             var translateMix = this._translateMix;
-            var translate = translateMix > 0, rotate = rotateMix > 0;
-            if (!translate && !rotate) {
-                return;
-            }
             //
             var positionMode = constraintData.positionMode;
             var spacingMode = constraintData.spacingMode;
@@ -7662,17 +7624,16 @@ var dragonBones;
             var boneCount = bones.length;
             var spacesCount = tangents ? boneCount : boneCount + 1;
             this._spaces.length = spacesCount;
-            //判断是否需要重新采样
-            //曲线节点if()数据改变:父亲bone改变，权重bones改变，变形顶点改变
+            //曲线节点数据改变:父亲bone改变，权重bones改变，变形顶点改变
             // 
             var isPathVerticeDirty = false;
             var deformVertices = pathSlot._deformVertices;
             if (this._root._childrenTransformDirty) {
-                this._updatePathDisplay(pathDisplayData);
+                this._updatePathVertices(pathDisplayData);
                 isPathVerticeDirty = true;
             }
             else if (deformVertices !== null && (deformVertices.verticeDirty || deformVertices._isBonesUpdate())) {
-                this._updatePathDisplay(pathDisplayData);
+                this._updatePathVertices(pathDisplayData);
                 deformVertices.verticeDirty = false;
                 isPathVerticeDirty = true;
             }
@@ -7704,8 +7665,10 @@ var dragonBones;
                     this._spaces[i] = spacing;
                 }
             }
-            //计算当前被约束的骨骼在曲线上的位置
-            this._computeBezierCurve(pathDisplayData, spacesCount, tangents, positionMode === 1 /* Percent */, spacingMode === 2 /* Percent */);
+            //判断是否需要重新采样
+            if (isPathVerticeDirty || this.dirty) {
+                this._computeBezierCurve(pathDisplayData, spacesCount, tangents, positionMode === 1 /* Percent */, spacingMode === 2 /* Percent */);
+            }
             //根据新的节点数据重新采样
             var rotateOffset = this._rotateOffset;
             var boneX = this._positions[0], boneY = this._positions[1];
@@ -7737,7 +7700,7 @@ var dragonBones;
                 }
                 boneX = x;
                 boneY = y;
-                if (rotate) {
+                if (rotateMix > 0) {
                     var a = matrix.a, b = matrix.b, c = matrix.c, d = matrix.d, r = void 0, cos = void 0, sin = void 0;
                     if (tangents) {
                         r = this._positions[p - 1];

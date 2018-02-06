@@ -179,6 +179,8 @@ namespace dragonBones {
         protected _onClear(): void {
             super._onClear();
 
+            this.type = DisplayType.Path;
+
             this.offset = -1;
 
             this.closed = false;

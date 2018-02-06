@@ -282,6 +282,8 @@ namespace dragonBones {
                 this._deformVertices.returnToPool();
             }
 
+            this._deformVertices = null;
+
             this._boundingBoxData = null;
             this._rawDisplay = null;
             this._meshDisplay = null;
@@ -511,18 +513,9 @@ namespace dragonBones {
                         let vertexCount = 0;
                         if (this._meshData.weight !== null) {
                             vertexCount = this._meshData.weight.count * 2;
-                            // this._deformVertices.length = this._meshData.weight.count * 2;
-                            // this._meshBones.length = this._meshData.weight.bones.length;
-
-                            // for (let i = 0, l = this._meshBones.length; i < l; ++i) {
-                            //     this._meshBones[i] = this._armature.getBone(this._meshData.weight.bones[i].name);
-                            // }
                         }
                         else {
                             vertexCount = this._meshData.parent.parent.parent.intArray[this._meshData.offset + BinaryOffset.MeshVertexCount] * 2;
-                            // const vertexCount = this._meshData.parent.parent.parent.intArray[this._meshData.offset + BinaryOffset.MeshVertexCount];
-                            // this._deformVertices.length = vertexCount * 2;
-                            // this._meshBones.length = 0;
                         }
 
 
@@ -575,17 +568,10 @@ namespace dragonBones {
                             }
                         }
 
-                        // Clear deform to zero.
-                        // for (let i = 0, l = this._deformVertices.length; i < l; ++i) {
-                        //     this._deformVertices[i] = 0.0;
-                        // }
-
-                        if(this._deformVertices !== null) {
+                        if (this._deformVertices !== null) {
                             this._deformVertices.clearDeformVertices();
                             this._deformVertices.verticeDirty = true;
                         }
-
-                        // this._meshDirty = true;
                     }
                     else {
                         // this._deformVertices.length = 0;
@@ -594,16 +580,27 @@ namespace dragonBones {
                     }
                 }
                 else if (this._meshData !== null && this._textureData !== prevTextureData) { // Update mesh after update frame.
-                    if(this._deformVertices !== null) {
-                            this._deformVertices.verticeDirty = true;
-                        }
-                    // this._meshDirty = true;
+                    if (this._deformVertices !== null) {
+                        this._deformVertices.verticeDirty = true;
+                    }
                 }
 
                 //
                 if (this._pathData !== prePathData) {
                     if (this._pathData !== null) {
+                        if (this._deformVertices === null) {
+                            this._deformVertices = BaseObject.borrowObject(DeformVertices);
+                        }
 
+                        let vertexCount = 0;
+                        if (this._pathData.weight !== null) {
+                            vertexCount = this._pathData.weight.count * 2;
+                        }
+                        else {
+                            vertexCount = this._pathData.parent.parent.parent.intArray[this._pathData.offset + BinaryOffset.PathVertexCount] * 2;
+                        }
+
+                        this._deformVertices.init(this._pathData.weight, this._armature, vertexCount);
                     }
                     else {
 
@@ -723,8 +720,7 @@ namespace dragonBones {
          * @private
          */
         protected _isMeshBonesUpdate(): boolean {
-            if(this._deformVertices !== null)
-            {
+            if (this._deformVertices !== null) {
                 return this._deformVertices._isBonesUpdate();
             }
 
