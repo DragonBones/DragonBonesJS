@@ -816,9 +816,6 @@ namespace dragonBones {
 
             this._onUpdateDisplay();
             this._addDisplay();
-
-            //
-            // this.rawDisplayDatas = displayDatas; // TODO
         }
         /**
          * @internal
@@ -1384,7 +1381,7 @@ namespace dragonBones {
          * @language zh_CN
          */
         public getDisplay(): any {
-            return this.display;
+            return this._display;
         }
         /**
          * - Deprecated, please refer to {@link #display}.

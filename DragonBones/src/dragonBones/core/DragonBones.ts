@@ -251,7 +251,7 @@ namespace dragonBones {
      * @private
      */
     export class DragonBones {
-        public static readonly VERSION: string = "5.6.202";
+        public static readonly VERSION: string = "5.6.300";
 
         public static yDown: boolean = true;
         public static debug: boolean = false;
@@ -338,7 +338,7 @@ if (!Date.now) {
     };
 }
 // Weixin can not support typescript extends.
-var __extends = function (t: any, e: any) {
+var __extends: any = function (t: any, e: any) {
     function r(this: any) {
         this.constructor = t;
     }

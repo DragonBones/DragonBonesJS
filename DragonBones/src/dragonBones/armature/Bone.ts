@@ -542,6 +542,7 @@ namespace dragonBones {
          * @language zh_CN
          */
         public getBones(): Array<Bone> {
+            console.warn("Deprecated.");
             const bones = new Array<Bone>();
 
             for (const bone of this._armature.getBones()) {
@@ -563,6 +564,7 @@ namespace dragonBones {
          * @language zh_CN
          */
         public getSlots(): Array<Slot> {
+            console.warn("Deprecated.");
             const slots = new Array<Slot>();
 
             for (const slot of this._armature.getSlots()) {
@@ -584,6 +586,7 @@ namespace dragonBones {
          * @language zh_CN
          */
         public get slot(): Slot | null {
+            console.warn("Deprecated.");
             for (const slot of this._armature.getSlots()) {
                 if (slot.parent === this) {
                     return slot;

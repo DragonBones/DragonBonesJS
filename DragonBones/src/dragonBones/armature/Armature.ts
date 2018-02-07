@@ -336,31 +336,31 @@ namespace dragonBones {
 
                 for (const action of this._actions) {
                     const actionData = action.actionData;
-                    if (actionData === null) { //
-                        continue;
-                    }
-
-                    if (actionData.type === ActionType.Play) {
-                        if (action.slot !== null) {
-                            const childArmature = action.slot.childArmature;
-                            if (childArmature !== null) {
-                                childArmature.animation.fadeIn(actionData.name);
+                    if (actionData !== null) {
+                        if (actionData.type === ActionType.Play) {
+                            if (action.slot !== null) {
+                                const childArmature = action.slot.childArmature;
+                                if (childArmature !== null) {
+                                    childArmature.animation.fadeIn(actionData.name);
+                                }
                             }
-                        }
-                        else if (action.bone !== null) {
-                            for (const slot of this.getSlots()) {
-                                if (slot.parent === action.bone) {
-                                    const childArmature = slot.childArmature;
-                                    if (childArmature !== null) {
-                                        childArmature.animation.fadeIn(actionData.name);
+                            else if (action.bone !== null) {
+                                for (const slot of this.getSlots()) {
+                                    if (slot.parent === action.bone) {
+                                        const childArmature = slot.childArmature;
+                                        if (childArmature !== null) {
+                                            childArmature.animation.fadeIn(actionData.name);
+                                        }
                                     }
                                 }
                             }
-                        }
-                        else {
-                            this._animation.fadeIn(actionData.name);
+                            else {
+                                this._animation.fadeIn(actionData.name);
+                            }
                         }
                     }
+
+                    action.returnToPool();
                 }
 
                 this._actions.length = 0;
@@ -927,6 +927,7 @@ namespace dragonBones {
          * @language zh_CN
          */
         public hasEventListener(type: EventStringType): boolean {
+            console.warn("Deprecated.");
             return this._proxy.hasDBEventListener(type);
         }
         /**
@@ -940,6 +941,7 @@ namespace dragonBones {
          * @language zh_CN
          */
         public addEventListener(type: EventStringType, listener: Function, target: any): void {
+            console.warn("Deprecated.");
             this._proxy.addDBEventListener(type, listener, target);
         }
         /**
@@ -953,6 +955,7 @@ namespace dragonBones {
          * @language zh_CN
          */
         public removeEventListener(type: EventStringType, listener: Function, target: any): void {
+            console.warn("Deprecated.");
             this._proxy.removeDBEventListener(type, listener, target);
         }
         /**
@@ -966,6 +969,7 @@ namespace dragonBones {
          * @language zh_CN
          */
         public enableAnimationCache(frameRate: number): void {
+            console.warn("Deprecated.");
             this.cacheFrameRate = frameRate;
         }
         /**
