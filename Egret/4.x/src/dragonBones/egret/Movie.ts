@@ -747,14 +747,7 @@ namespace dragonBones {
                         const height = this._groupConfig.rectangleArray[regionIndex + 3];
 
                         slot.displayConfig.texture = new egret.Texture();
-
-                        if (EgretFactory._isV5) {
-                            (slot.displayConfig.texture as any)["$bitmapData"] = (textureAtlasTexture as any)["$bitmapData"];
-                        }
-                        else {
-                            slot.displayConfig.texture._bitmapData = textureAtlasTexture._bitmapData;
-                        }
-
+                        slot.displayConfig.texture.bitmapData = textureAtlasTexture._bitmapData;
                         slot.displayConfig.texture.$initData(
                             x, y,
                             Math.min(width, textureAtlasTexture.textureWidth - x), Math.min(height, textureAtlasTexture.textureHeight - y),
@@ -770,8 +763,9 @@ namespace dragonBones {
                         const bitmapNode = slot.rawDisplay.$renderNode as egret.sys.BitmapNode;
                         egret.sys.RenderNode.prototype.cleanBeforeRender.call(slot.rawDisplay.$renderNode);
 
-                        if (EgretFactory._isV5) {
-                            bitmapNode.image = (texture as any)["$bitmapData"];
+                        bitmapNode.image = texture.bitmapData;
+
+                        if (isV5) {
                             bitmapNode.drawImage(
                                 (texture as any).$bitmapX, (texture as any).$bitmapY,
                                 (texture as any).$bitmapWidth, (texture as any).$bitmapHeight,
@@ -783,8 +777,6 @@ namespace dragonBones {
                             bitmapNode.imageHeight = (texture as any)._sourceHeight;
                         }
                         else {
-                            bitmapNode.image = texture._bitmapData;
-
                             bitmapNode.drawImage(
                                 texture._bitmapX, texture._bitmapY,
                                 texture._bitmapWidth, texture._bitmapHeight,
@@ -1114,7 +1106,9 @@ namespace dragonBones {
                             this._cacheRectangle.height = prevCacheRectangle.height;
                         }
 
-                        this.$invalidateContentBounds();
+                        if (!isV5) {
+                            this.$invalidateContentBounds();
+                        }
                     }
                 }
 

@@ -102,7 +102,7 @@ namespace dragonBones {
                 radian += Math.PI;
             }
 
-            global.rotation += (radian - global.rotation) * this._weight;
+            global.rotation += Transform.normalizeRadian(radian - global.rotation) * this._weight;
             global.toMatrix(globalTransformMatrix);
         }
 

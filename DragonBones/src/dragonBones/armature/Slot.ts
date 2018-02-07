@@ -236,7 +236,7 @@ namespace dragonBones {
                     eachDisplay.dispose();
                 }
                 else {
-                    this._disposeDisplay(eachDisplay, false);
+                    this._disposeDisplay(eachDisplay, true);
                 }
             }
 
@@ -353,14 +353,15 @@ namespace dragonBones {
          */
         protected abstract _identityTransform(): void;
         /**
+         * Support default skin data.
          * @private
          */
-        protected _getDefaultRawDisplayData(): DisplayData | null {
-            const defaultSkin = this._armature.armatureData.defaultSkin;
+        protected _getDefaultRawDisplayData(displayIndex: number): DisplayData | null {
+            const defaultSkin = this._armature._armatureData.defaultSkin;
             if (defaultSkin !== null) {
                 const defaultRawDisplayDatas = defaultSkin.getDisplays(this._slotData.name);
                 if (defaultRawDisplayDatas !== null) {
-                    return this._displayIndex < defaultRawDisplayDatas.length ? defaultRawDisplayDatas[this._displayIndex] : null;
+                    return displayIndex < defaultRawDisplayDatas.length ? defaultRawDisplayDatas[displayIndex] : null;
                 }
             }
 
@@ -379,9 +380,10 @@ namespace dragonBones {
             if (this._displayIndex >= 0) {
                 if (this._rawDisplayDatas !== null) {
                     rawDisplayData = this._displayIndex < this._rawDisplayDatas.length ? this._rawDisplayDatas[this._displayIndex] : null;
-                    if (rawDisplayData === null) {
-                        rawDisplayData = this._getDefaultRawDisplayData();
-                    }
+                }
+
+                if (rawDisplayData === null) {
+                    rawDisplayData = this._getDefaultRawDisplayData(this._displayIndex);
                 }
 
                 if (this._displayIndex < this._displayDatas.length) {
@@ -402,7 +404,7 @@ namespace dragonBones {
                         this._pathData = null;
                     }
                     else if (rawDisplayData !== null && rawDisplayData.type === DisplayType.Mesh) {
-                        this._textureData = (this._displayData as ImageDisplayData).texture;
+                        this._textureData = (this._displayData as MeshDisplayData).texture;
                         this._meshData = rawDisplayData as MeshDisplayData;
                         this._pathData = null;
                     }
@@ -469,6 +471,10 @@ namespace dragonBones {
                     if (frame !== null) {
                         this._pivotX += frame.x * scale;
                         this._pivotY += frame.y * scale;
+                    }
+
+                    if (!DragonBones.yDown) {
+                        this._pivotY -= (this._textureData.rotated ? this._textureData.region.width : this._textureData.region.height) * scale;
                     }
                 }
                 else {
@@ -640,6 +646,7 @@ namespace dragonBones {
                 this._onUpdateDisplay();
                 this._replaceDisplay(prevDisplay);
 
+                this._transformDirty = true;
                 this._visibleDirty = true;
                 this._blendModeDirty = true;
                 this._colorDirty = true;
@@ -676,17 +683,15 @@ namespace dragonBones {
                         if (this._displayData !== null && this._displayData.type === DisplayType.Armature) {
                             actions = (this._displayData as ArmatureDisplayData).actions;
                         }
-                        else {
-                            if (this._displayIndex >= 0 && this._rawDisplayDatas !== null) {
-                                let rawDisplayData = this._displayIndex < this._rawDisplayDatas.length ? this._rawDisplayDatas[this._displayIndex] : null;
+                        else if (this._displayIndex >= 0 && this._rawDisplayDatas !== null) {
+                            let rawDisplayData = this._displayIndex < this._rawDisplayDatas.length ? this._rawDisplayDatas[this._displayIndex] : null;
 
-                                if (rawDisplayData === null) {
-                                    rawDisplayData = this._getDefaultRawDisplayData();
-                                }
+                            if (rawDisplayData === null) {
+                                rawDisplayData = this._getDefaultRawDisplayData(this._displayIndex);
+                            }
 
-                                if (rawDisplayData !== null && rawDisplayData.type === DisplayType.Armature) {
-                                    actions = (rawDisplayData as ArmatureDisplayData).actions;
-                                }
+                            if (rawDisplayData !== null && rawDisplayData.type === DisplayType.Armature) {
+                                actions = (rawDisplayData as ArmatureDisplayData).actions;
                             }
                         }
 
@@ -709,26 +714,15 @@ namespace dragonBones {
             const parentMatrix = this._parent._boneData.type === BoneType.Bone ? this._parent.globalTransformMatrix : (this._parent as Surface)._getGlobalTransformMatrix(this.global.x, this.global.y);
             this.globalTransformMatrix.copyFrom(this._localMatrix);
             this.globalTransformMatrix.concat(parentMatrix);
+
             if (isCache) {
                 this.global.fromMatrix(this.globalTransformMatrix);
             }
             else {
                 this._globalDirty = true;
             }
-        }
-        /**
-         * @private
-         */
-        protected _isMeshBonesUpdate(): boolean {
-            if (this._deformVertices !== null) {
-                return this._deformVertices._isBonesUpdate();
-            }
+        }  
 
-            return false;
-        }
-        /**
-         * @inheritDoc
-         */
         public _setArmature(value: Armature | null): void {
             if (this._armature === value) {
                 return;
@@ -871,7 +865,7 @@ namespace dragonBones {
                 this._displayDirty = false;
                 this._updateDisplay();
 
-                // TODO remove slot
+                // TODO remove slot offset.
                 if (this._transformDirty) { // Update local matrix. (Only updated when both display and transform are dirty.)
                     if (this.origin !== null) {
                         this.global.copyFrom(this.origin).add(this.offset).toMatrix(this._localMatrix);
@@ -1241,7 +1235,7 @@ namespace dragonBones {
 
             for (const eachDisplay of disposeDisplayList) {
                 if (eachDisplay instanceof Armature) {
-                    (eachDisplay as Armature).dispose();
+                    // (eachDisplay as Armature).dispose();
                 }
                 else {
                     this._disposeDisplay(eachDisplay, true);
@@ -1284,7 +1278,7 @@ namespace dragonBones {
                     let rawDisplayData = this._rawDisplayDatas[i];
 
                     if (rawDisplayData === null) {
-                        rawDisplayData = this._getDefaultRawDisplayData();
+                        rawDisplayData = this._getDefaultRawDisplayData(i);
                     }
 
                     this._displayDatas[i] = rawDisplayData;
@@ -1370,6 +1364,10 @@ namespace dragonBones {
          * @example
          * <pre>
          *     let slot = armature.getSlot("weapon");
+         *     let prevChildArmature = slot.childArmature;
+         *     if (prevChildArmature) {
+         *         prevChildArmature.dispose();
+         *     }
          *     slot.childArmature = factory.buildArmature("weapon_blabla", "weapon_blabla_project");
          * </pre>
          * @version DragonBones 3.0
@@ -1377,9 +1375,14 @@ namespace dragonBones {
          */
         /**
          * - 插槽此时显示的子骨架。
+         * 注意，被替换的对象并不会被回收，根据语言和引擎的不同，需要额外处理。
          * @example
          * <pre>
          *     let slot = armature.getSlot("weapon");
+         *     let prevChildArmature = slot.childArmature;
+         *     if (prevChildArmature) {
+         *         prevChildArmature.dispose();
+         *     }
          *     slot.childArmature = factory.buildArmature("weapon_blabla", "weapon_blabla_project");
          * </pre>
          * @version DragonBones 3.0

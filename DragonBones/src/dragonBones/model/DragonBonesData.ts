@@ -193,18 +193,18 @@ namespace dragonBones {
         }
         /**
          * - Get a specific armature data.
-         * @param name - The armature data name.
+         * @param armatureName - The armature data name.
          * @version DragonBones 3.0
          * @language en_US
          */
         /**
          * - 获取特定的骨架数据。
-         * @param name - 骨架数据名称。
+         * @param armatureName - 骨架数据名称。
          * @version DragonBones 3.0
          * @language zh_CN
          */
-        public getArmature(name: string): ArmatureData | null {
-            return name in this.armatures ? this.armatures[name] : null;
+        public getArmature(armatureName: string): ArmatureData | null {
+            return armatureName in this.armatures ? this.armatures[armatureName] : null;
         }
 
         /**

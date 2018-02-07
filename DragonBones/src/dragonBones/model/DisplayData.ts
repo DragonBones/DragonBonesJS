@@ -29,8 +29,8 @@ namespace dragonBones {
         public type: DisplayType;
         public name: string;
         public path: string;
-        public parent: SkinData;
         public readonly transform: Transform = new Transform();
+        public parent: SkinData;
 
         protected _onClear(): void {
             this.name = "";
