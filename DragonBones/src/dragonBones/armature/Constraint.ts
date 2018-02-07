@@ -234,21 +234,22 @@ namespace dragonBones {
 
         public dirty: boolean;
         public pathOffset: number;
-        public _position: number;
-        public _spacing: number;
-        public _rotateOffset: number;
-        public _rotateMix: number;
-        public _translateMix: number;
+        public position: number;
+        public spacing: number;
+        public rotateOffset: number;
+        public rotateMix: number;
+        public translateMix: number;
 
         private _pathSlot: Slot;
         private _bones: Array<Bone> = [];
 
         private _spaces: Array<number> = [];
-        public _positions: Array<number> = [];
+        private _positions: Array<number> = [];
         private _curves: Array<number> = [];
         private _boneLengths: Array<number> = [];
 
         private _pathGlobalVertices: Array<number> = [];
+        private _segments : Array<number> = [10];
 
         public static toString(): string {
             return "[class dragonBones.PathConstraint]";
@@ -260,11 +261,11 @@ namespace dragonBones {
             this.dirty = false;
             this.pathOffset = 0;
 
-            this._position = 0.0;
-            this._spacing = 0.0;
-            this._rotateOffset = 0.0;
-            this._rotateMix = 1.0;
-            this._translateMix = 1.0;
+            this.position = 0.0;
+            this.spacing = 0.0;
+            this.rotateOffset = 0.0;
+            this.rotateMix = 1.0;
+            this.translateMix = 1.0;
 
             this._pathSlot = null as any;
             this._bones.length = 0;
@@ -347,7 +348,7 @@ namespace dragonBones {
                 this._pathGlobalVertices[iW++] = yG;
             }
         }
-
+        //TODO优化
         protected _computeVertices(pathDisplayDta: PathDisplayData, start: number, count: number, offset: number, out: Array<number>): void {
             pathDisplayDta; start; count; offset; out;
 
@@ -360,18 +361,17 @@ namespace dragonBones {
         //计算当前的骨骼在曲线上的位置
         protected _computeBezierCurve(pathDisplayDta: PathDisplayData, spaceCount: number, tangents: boolean, percentPosition: boolean, percentSpacing: boolean): void {
             const armature = this._armature;
-            const dragonBonesData = armature.armatureData.parent;
-            const intArray = dragonBonesData.intArray;
+            const intArray = armature.armatureData.parent.intArray;
             const vertexCount = intArray[pathDisplayDta.offset + BinaryOffset.PathVertexCount];
 
             const positions = this._positions;
             const spaces = this._spaces;
-            const closed = pathDisplayDta.closed;
+            const isClosed = pathDisplayDta.closed;
             const curveVertices = Array<number>();
             let verticesLength = vertexCount * 2;
             let curveCount = verticesLength / 6;
             let preCurve = -1;
-            let position = this._position;
+            let position = this.position;
 
             positions.length = spaceCount * 3 + 2;
 
@@ -379,7 +379,7 @@ namespace dragonBones {
             //不需要匀速运动，效率高些
             if (!pathDisplayDta.constantSpeed) {
                 const lenghts = pathDisplayDta.curveLengths;
-                curveCount -= closed ? 1 : 2;
+                curveCount -= isClosed ? 1 : 2;
                 pathLength = lenghts[curveCount];
 
                 if (percentPosition) {
@@ -397,7 +397,7 @@ namespace dragonBones {
                     const space = spaces[i];
                     position += space;
 
-                    if (closed) {
+                    if (isClosed) {
                         position %= pathLength;
                         if (position < 0) {
                             position += pathLength;
@@ -431,7 +431,7 @@ namespace dragonBones {
 
                     if (curve !== preCurve) {
                         preCurve = curve;
-                        if (closed && curve === curveCount) {
+                        if (isClosed && curve === curveCount) {
                             //计算曲线
                             this._computeVertices(pathDisplayDta, verticesLength - 4, 4, 0, curveVertices);
                             this._computeVertices(pathDisplayDta, 0, 4, 4, curveVertices);
@@ -449,7 +449,7 @@ namespace dragonBones {
             }
 
             //匀速的
-            if (closed) {
+            if (isClosed) {
                 verticesLength += 2;
                 curveVertices.length = vertexCount;
                 this._computeVertices(pathDisplayDta, 2, verticesLength - 4, 0, curveVertices);
@@ -464,7 +464,7 @@ namespace dragonBones {
                 curveVertices.length = verticesLength;
                 this._computeVertices(pathDisplayDta, 2, verticesLength, 0, curveVertices);
             }
-
+            //
             let curves: Array<number> = new Array<number>(curveCount);
             pathLength = 0;
             let x1 = curveVertices[0], y1 = curveVertices[1], cx1 = 0, cy1 = 0, cx2 = 0, cy2 = 0, x2 = 0, y2 = 0;
@@ -511,22 +511,20 @@ namespace dragonBones {
                 }
             }
 
-            let segments: Array<number> = new Array<number>(10);
+            let segments = this._segments;
             let curveLength: number = 0;
             for (let i = 0, o = 0, curve = 0, segment = 0; i < spaceCount; i++ , o += 3) {
                 const space = spaces[i];
                 position += space;
                 let p = position;
 
-                if (closed) {
+                if (isClosed) {
                     p %= pathLength;
                     if (p < 0) p += pathLength;
                     curve = 0;
                 } else if (p < 0) {
-                    // AddBeforePosition(p, world, 0, output, o);
                     continue;
                 } else if (p > pathLength) {
-                    // AddAfterPosition(p - pathLength, world, verticesLength - 4, output, o);
                     continue;
                 }
 
@@ -648,11 +646,11 @@ namespace dragonBones {
             this.pathOffset = data.pathDisplayData.offset;
 
             //
-            this._position = data.position;
-            this._spacing = data.spacing;
-            this._rotateOffset = data.rotateOffset;
-            this._rotateMix = data.rotateMix;
-            this._translateMix = data.translateMix;
+            this.position = data.position;
+            this.spacing = data.spacing;
+            this.rotateOffset = data.rotateOffset;
+            this.rotateMix = data.rotateMix;
+            this.translateMix = data.translateMix;
 
             //
             this._root = this._armature.getBone(data.root.name) as Bone;
@@ -666,6 +664,10 @@ namespace dragonBones {
                 }
             }
 
+            if (data.rotateMode === RotateMode.ChainScale) {
+                this._boneLengths.length = this._bones.length;
+            }
+
             this._root._hasConstraint = true;
         }
 
@@ -677,29 +679,8 @@ namespace dragonBones {
             if (pathDisplayData === null || pathDisplayData.offset !== this.pathOffset) {
                 return;
             }
-            //
-            const rotateMix = this._rotateMix;
-            const translateMix = this._translateMix;
-
-            //
-            const positionMode = constraintData.positionMode;
-            const spacingMode = constraintData.spacingMode;
-            const rotateMode = constraintData.rotateMode;
-
-            const spacing = this._spacing;
-
-            const bones = this._bones;
-
-            const lengthSpacing = spacingMode === SpacingMode.Length;
-            const scale = rotateMode === RotateMode.ChainScale;
-            const tangents = rotateMode === RotateMode.Tangent;
-            const boneCount = bones.length;
-            const spacesCount = tangents ? boneCount : boneCount + 1;
-
-            this._spaces.length = spacesCount;
 
             //曲线节点数据改变:父亲bone改变，权重bones改变，变形顶点改变
-            // 
             let isPathVerticeDirty = false;
             let deformVertices = pathSlot._deformVertices;
             if (this._root._childrenTransformDirty) {
@@ -716,13 +697,27 @@ namespace dragonBones {
                 return;
             }
 
-            //计曲线间隔和长度
-            if (scale || lengthSpacing) {
-                if (scale) {
-                    this._boneLengths.length = bones.length;
-                }
+            //
+            const positionMode = constraintData.positionMode;
+            const spacingMode = constraintData.spacingMode;
+            const rotateMode = constraintData.rotateMode;
 
-                this._spaces[0] = 0;
+            const bones = this._bones;
+
+            const isLengthMode = spacingMode === SpacingMode.Length;
+            const isChainScaleMode = rotateMode === RotateMode.ChainScale;
+            const isTangentMode = rotateMode === RotateMode.Tangent;
+            const boneCount = bones.length;
+            const spacesCount = isTangentMode ? boneCount : boneCount + 1;
+
+            const spacing = this.spacing;
+            let spaces = this._spaces;
+            spaces.length = spacesCount;
+
+            //计曲线间隔和长度
+            if (isChainScaleMode || isLengthMode) {
+                //Bone改变和spacing改变触发
+                spaces[0] = 0;
                 for (let i = 0, l = spacesCount - 1; i < l; i++) {
                     const bone = bones[i];
                     bone.updateByConstraint();
@@ -732,26 +727,24 @@ namespace dragonBones {
                     const y = boneLength * matrix.b;
 
                     const len = Math.sqrt(x * x + y * y);
-                    if (scale) {
+                    if (isChainScaleMode) {
                         this._boneLengths[i] = len;
                     }
-                    this._spaces[i + 1] = (boneLength + spacing) * len / boneLength;
+                    spaces[i + 1] = (boneLength + spacing) * len / boneLength;
                 }
             }
             else {
                 for (let i = 0; i < spacesCount; i++) {
-                    this._spaces[i] = spacing;
+                    spaces[i] = spacing;
                 }
             }
-
-            //判断是否需要重新采样
-            if (isPathVerticeDirty || this.dirty) {
-                this._computeBezierCurve(pathDisplayData, spacesCount, tangents, positionMode === PositionMode.Percent, spacingMode === SpacingMode.Percent)
-            }
+            //
+            this._computeBezierCurve(pathDisplayData, spacesCount, isTangentMode, positionMode === PositionMode.Percent, spacingMode === SpacingMode.Percent)
 
             //根据新的节点数据重新采样
-            let rotateOffset = this._rotateOffset;
-            let boneX = this._positions[0], boneY = this._positions[1];
+            const positions = this._positions;
+            let rotateOffset = this.rotateOffset;
+            let boneX = positions[0], boneY = positions[1];
             let tip: boolean;
             if (rotateOffset === 0) {
                 tip = rotateMode === RotateMode.Chain;
@@ -764,7 +757,10 @@ namespace dragonBones {
                     rotateOffset *= matrix.a * matrix.d - matrix.b * matrix.c > 0 ? Transform.DEG_RAD : - Transform.DEG_RAD;
                 }
             }
-
+            
+             //
+            const rotateMix = this.rotateMix;
+            const translateMix = this.translateMix;
             for (let i = 0, p = 3; i < boneCount; i++ , p += 3) {
                 let bone = bones[i];
                 bone.updateByConstraint();
@@ -772,9 +768,9 @@ namespace dragonBones {
                 matrix.tx += (boneX - matrix.tx) * translateMix;
                 matrix.ty += (boneY - matrix.ty) * translateMix;
 
-                const x = this._positions[p], y = this._positions[p + 1];
+                const x = positions[p], y = positions[p + 1];
                 const dx = x - boneX, dy = y - boneY;
-                if (scale) {
+                if (isChainScaleMode) {
                     const lenght = this._boneLengths[i];
 
                     const s = (Math.sqrt(dx * dx + dy * dy) / lenght - 1) * rotateMix + 1;
@@ -786,8 +782,8 @@ namespace dragonBones {
                 boneY = y;
                 if (rotateMix > 0) {
                     let a = matrix.a, b = matrix.b, c = matrix.c, d = matrix.d, r, cos, sin;
-                    if (tangents) {
-                        r = this._positions[p - 1];
+                    if (isTangentMode) {
+                        r = positions[p - 1];
                     }
                     else {
                         r = Math.atan2(dy, dx);

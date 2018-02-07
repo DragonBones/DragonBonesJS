@@ -745,8 +745,7 @@ namespace dragonBones {
             this._intArray[pathOffset + BinaryOffset.PathVertexCount] = vertexCount;
             this._intArray[pathOffset + BinaryOffset.PathFloatOffset] = vertexOffset;
 
-            const hasWeights = DataParser.WEIGHTS in rawData;
-            if (!hasWeights) {
+            if (!(DataParser.WEIGHTS in rawData)) {
                 this._floatArray.length += rawVertices.length;
                 for (let i = 0, l = rawVertices.length; i < l; ++i) {
                     this._floatArray[vertexOffset + i] = rawVertices[i];
@@ -796,69 +795,6 @@ namespace dragonBones {
 
                 display.weight = weight;
             }
-
-            //
-            // if (DataParser.WEIGHTS in rawData) {
-            //     const rawWeights = rawData[DataParser.WEIGHTS] as Array<number>;
-            //     const rawSlotPose = rawData[DataParser.SLOT_POSE] as Array<number>;
-            //     const rawBonePoses = rawData[DataParser.BONE_POSE] as Array<number>;
-            //     const sortedBones = this._armature.sortedBones;
-            //     const weightBoneIndices = new Array<number>();
-            //     const weightBoneCount = Math.floor(rawBonePoses.length / 7); // uint
-            //     const floatOffset = this._floatArray.length;
-            //     const weightCount = Math.floor(rawWeights.length - vertexCount) / 2; // uint
-            //     const weightOffset = this._intArray.length;
-            //     const weight = BaseObject.borrowObject(WeightData);
-
-            //     weight.count = weightCount;
-            //     weight.offset = weightOffset;
-            //     weightBoneIndices.length = weightBoneCount;
-            //     this._intArray.length += 1 + 1 + weightBoneCount + vertexCount + weightCount;
-            //     this._intArray[weightOffset + BinaryOffset.WeigthFloatOffset] = floatOffset;
-
-            //     for (let i = 0; i < weightBoneCount; ++i) {
-            //         const rawBoneIndex = rawBonePoses[i * 7]; // uint
-            //         const bone = this._rawBones[rawBoneIndex];
-            //         weight.addBone(bone);
-            //         weightBoneIndices[i] = rawBoneIndex;
-            //         this._intArray[weightOffset + BinaryOffset.WeigthBoneIndices + i] = sortedBones.indexOf(bone);
-            //     }
-
-            //     this._floatArray.length += weightCount * 3;
-            //     this._helpMatrixA.copyFromArray(rawSlotPose, 0);
-
-            //     for (
-            //         let i = 0, iW = 0, iB = weightOffset + BinaryOffset.WeigthBoneIndices + weightBoneCount, iV = floatOffset;
-            //         i < vertexCount;
-            //         ++i
-            //     ) {
-            //         const iD = i * 2;
-            //         const vertexBoneCount = this._intArray[iB++] = rawWeights[iW++]; // uint
-
-            //         let x = this._floatArray[vertexOffset + iD];
-            //         let y = this._floatArray[vertexOffset + iD + 1];
-            //         this._helpMatrixA.transformPoint(x, y, this._helpPoint);
-            //         x = this._helpPoint.x;
-            //         y = this._helpPoint.y;
-
-            //         for (let j = 0; j < vertexBoneCount; ++j) {
-            //             const rawBoneIndex = rawWeights[iW++]; // uint
-            //             const boneIndex = weightBoneIndices.indexOf(rawBoneIndex);
-            //             this._helpMatrixB.copyFromArray(rawBonePoses, boneIndex * 7 + 1);
-            //             this._helpMatrixB.invert();
-            //             this._helpMatrixB.transformPoint(x, y, this._helpPoint);
-            //             this._intArray[iB++] = boneIndex;
-            //             this._floatArray[iV++] = rawWeights[iW++];
-            //             this._floatArray[iV++] = this._helpPoint.x;
-            //             this._floatArray[iV++] = this._helpPoint.y;
-            //         }
-            //     }
-
-            //     display.weight = weight;
-            //     const meshName = this._skin.name + "_" + this._slot.name + "_" + display.name; // Cache pose data.
-            //     this._weightSlotPose[meshName] = rawSlotPose;
-            //     this._weightBonePoses[meshName] = rawBonePoses;
-            // }
         }
 
         protected _parsePivot(rawData: any, display: ImageDisplayData): void {

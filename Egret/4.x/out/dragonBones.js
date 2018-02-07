@@ -3580,7 +3580,7 @@ var dragonBones;
             return _this;
         }
         DeformVertices.toString = function () {
-            return "[class dragonBones.DeformVerticesData]";
+            return "[class dragonBones.DeformVertices]";
         };
         DeformVertices.prototype._onClear = function () {
             this.verticeDirty = false;
@@ -7229,6 +7229,7 @@ var dragonBones;
             _this._curves = [];
             _this._boneLengths = [];
             _this._pathGlobalVertices = [];
+            _this._segments = [10];
             return _this;
         }
         PathConstraint.toString = function () {
@@ -7238,11 +7239,11 @@ var dragonBones;
             _super.prototype._onClear.call(this);
             this.dirty = false;
             this.pathOffset = 0;
-            this._position = 0.0;
-            this._spacing = 0.0;
-            this._rotateOffset = 0.0;
-            this._rotateMix = 1.0;
-            this._translateMix = 1.0;
+            this.position = 0.0;
+            this.spacing = 0.0;
+            this.rotateOffset = 0.0;
+            this.rotateMix = 1.0;
+            this.translateMix = 1.0;
             this._pathSlot = null;
             this._bones.length = 0;
             this._spaces.length = 0;
@@ -7280,7 +7281,6 @@ var dragonBones;
                 return;
             }
             //有骨骼约束我,那我的节点受骨骼权重控制
-            // const bones = this._weightBones;
             var bones = this._pathSlot._deformVertices.bones;
             var weightBoneCount = weightData.bones.length;
             var weightOffset = weightData.offset;
@@ -7308,6 +7308,7 @@ var dragonBones;
                 this._pathGlobalVertices[iW++] = yG;
             }
         };
+        //TODO优化
         PathConstraint.prototype._computeVertices = function (pathDisplayDta, start, count, offset, out) {
             pathDisplayDta;
             start;
@@ -7322,23 +7323,22 @@ var dragonBones;
         //计算当前的骨骼在曲线上的位置
         PathConstraint.prototype._computeBezierCurve = function (pathDisplayDta, spaceCount, tangents, percentPosition, percentSpacing) {
             var armature = this._armature;
-            var dragonBonesData = armature.armatureData.parent;
-            var intArray = dragonBonesData.intArray;
+            var intArray = armature.armatureData.parent.intArray;
             var vertexCount = intArray[pathDisplayDta.offset + 0 /* PathVertexCount */];
             var positions = this._positions;
             var spaces = this._spaces;
-            var closed = pathDisplayDta.closed;
+            var isClosed = pathDisplayDta.closed;
             var curveVertices = Array();
             var verticesLength = vertexCount * 2;
             var curveCount = verticesLength / 6;
             var preCurve = -1;
-            var position = this._position;
+            var position = this.position;
             positions.length = spaceCount * 3 + 2;
             var pathLength = 0.0;
             //不需要匀速运动，效率高些
             if (!pathDisplayDta.constantSpeed) {
                 var lenghts = pathDisplayDta.curveLengths;
-                curveCount -= closed ? 1 : 2;
+                curveCount -= isClosed ? 1 : 2;
                 pathLength = lenghts[curveCount];
                 if (percentPosition) {
                     position *= pathLength;
@@ -7352,7 +7352,7 @@ var dragonBones;
                 for (var i = 0, o = 0, curve = 0; i < spaceCount; i++, o += 3) {
                     var space = spaces[i];
                     position += space;
-                    if (closed) {
+                    if (isClosed) {
                         position %= pathLength;
                         if (position < 0) {
                             position += pathLength;
@@ -7384,7 +7384,7 @@ var dragonBones;
                     }
                     if (curve !== preCurve) {
                         preCurve = curve;
-                        if (closed && curve === curveCount) {
+                        if (isClosed && curve === curveCount) {
                             //计算曲线
                             this._computeVertices(pathDisplayDta, verticesLength - 4, 4, 0, curveVertices);
                             this._computeVertices(pathDisplayDta, 0, 4, 4, curveVertices);
@@ -7399,7 +7399,7 @@ var dragonBones;
                 return;
             }
             //匀速的
-            if (closed) {
+            if (isClosed) {
                 verticesLength += 2;
                 curveVertices.length = vertexCount;
                 this._computeVertices(pathDisplayDta, 2, verticesLength - 4, 0, curveVertices);
@@ -7413,6 +7413,7 @@ var dragonBones;
                 curveVertices.length = verticesLength;
                 this._computeVertices(pathDisplayDta, 2, verticesLength, 0, curveVertices);
             }
+            //
             var curves = new Array(curveCount);
             pathLength = 0;
             var x1 = curveVertices[0], y1 = curveVertices[1], cx1 = 0, cy1 = 0, cx2 = 0, cy2 = 0, x2 = 0, y2 = 0;
@@ -7456,24 +7457,22 @@ var dragonBones;
                     spaces[i] *= pathLength;
                 }
             }
-            var segments = new Array(10);
+            var segments = this._segments;
             var curveLength = 0;
             for (var i = 0, o = 0, curve = 0, segment = 0; i < spaceCount; i++, o += 3) {
                 var space = spaces[i];
                 position += space;
                 var p = position;
-                if (closed) {
+                if (isClosed) {
                     p %= pathLength;
                     if (p < 0)
                         p += pathLength;
                     curve = 0;
                 }
                 else if (p < 0) {
-                    // AddBeforePosition(p, world, 0, output, o);
                     continue;
                 }
                 else if (p > pathLength) {
-                    // AddAfterPosition(p - pathLength, world, verticesLength - 4, output, o);
                     continue;
                 }
                 // Determine curve containing position.
@@ -7584,11 +7583,11 @@ var dragonBones;
             var data = constraintData;
             this.pathOffset = data.pathDisplayData.offset;
             //
-            this._position = data.position;
-            this._spacing = data.spacing;
-            this._rotateOffset = data.rotateOffset;
-            this._rotateMix = data.rotateMix;
-            this._translateMix = data.translateMix;
+            this.position = data.position;
+            this.spacing = data.spacing;
+            this.rotateOffset = data.rotateOffset;
+            this.rotateMix = data.rotateMix;
+            this.translateMix = data.translateMix;
             //
             this._root = this._armature.getBone(data.root.name);
             this._target = this._armature.getBone(data.target.name);
@@ -7598,6 +7597,9 @@ var dragonBones;
                 if (bone !== null) {
                     this._bones.push(bone);
                 }
+            }
+            if (data.rotateMode === 2 /* ChainScale */) {
+                this._boneLengths.length = this._bones.length;
             }
             this._root._hasConstraint = true;
         };
@@ -7609,23 +7611,7 @@ var dragonBones;
             if (pathDisplayData === null || pathDisplayData.offset !== this.pathOffset) {
                 return;
             }
-            //
-            var rotateMix = this._rotateMix;
-            var translateMix = this._translateMix;
-            //
-            var positionMode = constraintData.positionMode;
-            var spacingMode = constraintData.spacingMode;
-            var rotateMode = constraintData.rotateMode;
-            var spacing = this._spacing;
-            var bones = this._bones;
-            var lengthSpacing = spacingMode === 0 /* Length */;
-            var scale = rotateMode === 2 /* ChainScale */;
-            var tangents = rotateMode === 0 /* Tangent */;
-            var boneCount = bones.length;
-            var spacesCount = tangents ? boneCount : boneCount + 1;
-            this._spaces.length = spacesCount;
             //曲线节点数据改变:父亲bone改变，权重bones改变，变形顶点改变
-            // 
             var isPathVerticeDirty = false;
             var deformVertices = pathSlot._deformVertices;
             if (this._root._childrenTransformDirty) {
@@ -7640,12 +7626,23 @@ var dragonBones;
             if (!isPathVerticeDirty && !this.dirty) {
                 return;
             }
+            //
+            var positionMode = constraintData.positionMode;
+            var spacingMode = constraintData.spacingMode;
+            var rotateMode = constraintData.rotateMode;
+            var bones = this._bones;
+            var isLengthMode = spacingMode === 0 /* Length */;
+            var isChainScaleMode = rotateMode === 2 /* ChainScale */;
+            var isTangentMode = rotateMode === 0 /* Tangent */;
+            var boneCount = bones.length;
+            var spacesCount = isTangentMode ? boneCount : boneCount + 1;
+            var spacing = this.spacing;
+            var spaces = this._spaces;
+            spaces.length = spacesCount;
             //计曲线间隔和长度
-            if (scale || lengthSpacing) {
-                if (scale) {
-                    this._boneLengths.length = bones.length;
-                }
-                this._spaces[0] = 0;
+            if (isChainScaleMode || isLengthMode) {
+                //Bone改变和spacing改变触发
+                spaces[0] = 0;
                 for (var i = 0, l = spacesCount - 1; i < l; i++) {
                     var bone = bones[i];
                     bone.updateByConstraint();
@@ -7654,24 +7651,23 @@ var dragonBones;
                     var x = boneLength * matrix.a;
                     var y = boneLength * matrix.b;
                     var len = Math.sqrt(x * x + y * y);
-                    if (scale) {
+                    if (isChainScaleMode) {
                         this._boneLengths[i] = len;
                     }
-                    this._spaces[i + 1] = (boneLength + spacing) * len / boneLength;
+                    spaces[i + 1] = (boneLength + spacing) * len / boneLength;
                 }
             }
             else {
                 for (var i = 0; i < spacesCount; i++) {
-                    this._spaces[i] = spacing;
+                    spaces[i] = spacing;
                 }
             }
-            //判断是否需要重新采样
-            if (isPathVerticeDirty || this.dirty) {
-                this._computeBezierCurve(pathDisplayData, spacesCount, tangents, positionMode === 1 /* Percent */, spacingMode === 2 /* Percent */);
-            }
+            //
+            this._computeBezierCurve(pathDisplayData, spacesCount, isTangentMode, positionMode === 1 /* Percent */, spacingMode === 2 /* Percent */);
             //根据新的节点数据重新采样
-            var rotateOffset = this._rotateOffset;
-            var boneX = this._positions[0], boneY = this._positions[1];
+            var positions = this._positions;
+            var rotateOffset = this.rotateOffset;
+            var boneX = positions[0], boneY = positions[1];
             var tip;
             if (rotateOffset === 0) {
                 tip = rotateMode === 1 /* Chain */;
@@ -7684,15 +7680,18 @@ var dragonBones;
                     rotateOffset *= matrix.a * matrix.d - matrix.b * matrix.c > 0 ? dragonBones.Transform.DEG_RAD : -dragonBones.Transform.DEG_RAD;
                 }
             }
+            //
+            var rotateMix = this.rotateMix;
+            var translateMix = this.translateMix;
             for (var i = 0, p = 3; i < boneCount; i++, p += 3) {
                 var bone = bones[i];
                 bone.updateByConstraint();
                 var matrix = bone.globalTransformMatrix;
                 matrix.tx += (boneX - matrix.tx) * translateMix;
                 matrix.ty += (boneY - matrix.ty) * translateMix;
-                var x = this._positions[p], y = this._positions[p + 1];
+                var x = positions[p], y = positions[p + 1];
                 var dx = x - boneX, dy = y - boneY;
-                if (scale) {
+                if (isChainScaleMode) {
                     var lenght = this._boneLengths[i];
                     var s = (Math.sqrt(dx * dx + dy * dy) / lenght - 1) * rotateMix + 1;
                     matrix.a *= s;
@@ -7702,8 +7701,8 @@ var dragonBones;
                 boneY = y;
                 if (rotateMix > 0) {
                     var a = matrix.a, b = matrix.b, c = matrix.c, d = matrix.d, r = void 0, cos = void 0, sin = void 0;
-                    if (tangents) {
-                        r = this._positions[p - 1];
+                    if (isTangentMode) {
+                        r = positions[p - 1];
                     }
                     else {
                         r = Math.atan2(dy, dx);
@@ -9330,7 +9329,7 @@ var dragonBones;
                                         colorFlag = true;
                                         break;
                                     }
-                                    case 22 /* SlotFFD */: {
+                                    case 22 /* SlotDeform */: {
                                         var timeline = dragonBones.BaseObject.borrowObject(dragonBones.DeformTimelineState);
                                         timeline.slot = slot;
                                         timeline.init(this._armature, this, timelineData);
@@ -12710,8 +12709,7 @@ var dragonBones;
             this._intArray.length += 1 + 1;
             this._intArray[pathOffset + 0 /* PathVertexCount */] = vertexCount;
             this._intArray[pathOffset + 1 /* PathFloatOffset */] = vertexOffset;
-            var hasWeights = dragonBones.DataParser.WEIGHTS in rawData;
-            if (!hasWeights) {
+            if (!(dragonBones.DataParser.WEIGHTS in rawData)) {
                 this._floatArray.length += rawVertices.length;
                 for (var i = 0, l = rawVertices.length; i < l; ++i) {
                     this._floatArray[vertexOffset + i] = rawVertices[i];
@@ -12755,61 +12753,6 @@ var dragonBones;
                 }
                 display.weight = weight;
             }
-            //
-            // if (DataParser.WEIGHTS in rawData) {
-            //     const rawWeights = rawData[DataParser.WEIGHTS] as Array<number>;
-            //     const rawSlotPose = rawData[DataParser.SLOT_POSE] as Array<number>;
-            //     const rawBonePoses = rawData[DataParser.BONE_POSE] as Array<number>;
-            //     const sortedBones = this._armature.sortedBones;
-            //     const weightBoneIndices = new Array<number>();
-            //     const weightBoneCount = Math.floor(rawBonePoses.length / 7); // uint
-            //     const floatOffset = this._floatArray.length;
-            //     const weightCount = Math.floor(rawWeights.length - vertexCount) / 2; // uint
-            //     const weightOffset = this._intArray.length;
-            //     const weight = BaseObject.borrowObject(WeightData);
-            //     weight.count = weightCount;
-            //     weight.offset = weightOffset;
-            //     weightBoneIndices.length = weightBoneCount;
-            //     this._intArray.length += 1 + 1 + weightBoneCount + vertexCount + weightCount;
-            //     this._intArray[weightOffset + BinaryOffset.WeigthFloatOffset] = floatOffset;
-            //     for (let i = 0; i < weightBoneCount; ++i) {
-            //         const rawBoneIndex = rawBonePoses[i * 7]; // uint
-            //         const bone = this._rawBones[rawBoneIndex];
-            //         weight.addBone(bone);
-            //         weightBoneIndices[i] = rawBoneIndex;
-            //         this._intArray[weightOffset + BinaryOffset.WeigthBoneIndices + i] = sortedBones.indexOf(bone);
-            //     }
-            //     this._floatArray.length += weightCount * 3;
-            //     this._helpMatrixA.copyFromArray(rawSlotPose, 0);
-            //     for (
-            //         let i = 0, iW = 0, iB = weightOffset + BinaryOffset.WeigthBoneIndices + weightBoneCount, iV = floatOffset;
-            //         i < vertexCount;
-            //         ++i
-            //     ) {
-            //         const iD = i * 2;
-            //         const vertexBoneCount = this._intArray[iB++] = rawWeights[iW++]; // uint
-            //         let x = this._floatArray[vertexOffset + iD];
-            //         let y = this._floatArray[vertexOffset + iD + 1];
-            //         this._helpMatrixA.transformPoint(x, y, this._helpPoint);
-            //         x = this._helpPoint.x;
-            //         y = this._helpPoint.y;
-            //         for (let j = 0; j < vertexBoneCount; ++j) {
-            //             const rawBoneIndex = rawWeights[iW++]; // uint
-            //             const boneIndex = weightBoneIndices.indexOf(rawBoneIndex);
-            //             this._helpMatrixB.copyFromArray(rawBonePoses, boneIndex * 7 + 1);
-            //             this._helpMatrixB.invert();
-            //             this._helpMatrixB.transformPoint(x, y, this._helpPoint);
-            //             this._intArray[iB++] = boneIndex;
-            //             this._floatArray[iV++] = rawWeights[iW++];
-            //             this._floatArray[iV++] = this._helpPoint.x;
-            //             this._floatArray[iV++] = this._helpPoint.y;
-            //         }
-            //     }
-            //     display.weight = weight;
-            //     const meshName = this._skin.name + "_" + this._slot.name + "_" + display.name; // Cache pose data.
-            //     this._weightSlotPose[meshName] = rawSlotPose;
-            //     this._weightBonePoses[meshName] = rawBonePoses;
-            // }
         };
         ObjectDataParser.prototype._parsePivot = function (rawData, display) {
             if (dragonBones.DataParser.PIVOT in rawData) {
@@ -13064,7 +13007,7 @@ var dragonBones;
                     if (this._slot === null || this._mesh === null) {
                         continue;
                     }
-                    var timeline = this._parseTimeline(rawTimeline, null, dragonBones.DataParser.FRAME, 22 /* SlotFFD */, false, true, 0, this._parseSlotFFDFrame);
+                    var timeline = this._parseTimeline(rawTimeline, null, dragonBones.DataParser.FRAME, 22 /* SlotDeform */, false, true, 0, this._parseSlotFFDFrame);
                     if (timeline !== null) {
                         this._animation.addSlotTimeline(this._slot, timeline);
                     }
@@ -16127,30 +16070,6 @@ var dragonBones;
                             var child = this._debugDrawer.getChildByName(slot.name);
                             if (child !== null) {
                                 this._debugDrawer.removeChild(child);
-                            }
-                        }
-                    }
-                    for (var _d = 0, _e = this._armature._constraints; _d < _e.length; _d++) {
-                        var constraint = _e[_d];
-                        if (constraint instanceof dragonBones.PathConstraint) {
-                            var child = this._debugDrawer.getChildByName(constraint.name);
-                            if (child === null) {
-                                child = new egret.Shape();
-                                child.name = constraint.name;
-                                this._debugDrawer.addChild(child);
-                            }
-                            child.graphics.clear();
-                            child.graphics.lineStyle(2.0, 0x0000FF, 0.7);
-                            var positions = constraint._positions;
-                            for (var i = 0, l = positions.length; i < l; i += 2) {
-                                var x = positions[i];
-                                var y = positions[i + 1];
-                                if (i === 0) {
-                                    child.graphics.moveTo(x, y);
-                                }
-                                else {
-                                    child.graphics.lineTo(x, y);
-                                }
                             }
                         }
                     }
