@@ -78,7 +78,7 @@ namespace dragonBones {
          * @private
          */
         public _hasConstraint: boolean;
-        private _visible: boolean;
+        protected _visible: boolean;
         protected _cachedFrameIndex: number;
         /**
          * @internal
@@ -123,40 +123,45 @@ namespace dragonBones {
          * @private
          */
         protected _updateGlobalTransformMatrix(isCache: boolean): void {
+            // For typescript.
             const boneData = this._boneData;
+            const global = this.global;
+            const globalTransformMatrix = this.globalTransformMatrix;
+            const origin = this.origin;
+            const offset = this.offset;
+            const animationPose = this.animationPose;
             const parent = this._parent as Bone; //
+
             const flipX = this._armature.flipX;
             const flipY = this._armature.flipY === DragonBones.yDown;
             let inherit = parent !== null;
             let rotation = 0.0;
-            const global = this.global;
-            const globalTransformMatrix = this.globalTransformMatrix;
 
             if (this.offsetMode === OffsetMode.Additive) {
-                if (this.origin !== null) {
+                if (origin !== null) {
                     // global.copyFrom(this.origin).add(this.offset).add(this.animationPose);
-                    global.x = this.origin.x + this.offset.x + this.animationPose.x;
-                    global.y = this.origin.y + this.offset.y + this.animationPose.y;
-                    global.skew = this.origin.skew + this.offset.skew + this.animationPose.skew;
-                    global.rotation = this.origin.rotation + this.offset.rotation + this.animationPose.rotation;
-                    global.scaleX = this.origin.scaleX * this.offset.scaleX * this.animationPose.scaleX;
-                    global.scaleY = this.origin.scaleY * this.offset.scaleY * this.animationPose.scaleY;
+                    global.x = origin.x + offset.x + animationPose.x;
+                    global.y = origin.y + offset.y + animationPose.y;
+                    global.skew = origin.skew + offset.skew + animationPose.skew;
+                    global.rotation = origin.rotation + offset.rotation + animationPose.rotation;
+                    global.scaleX = origin.scaleX * offset.scaleX * animationPose.scaleX;
+                    global.scaleY = origin.scaleY * offset.scaleY * animationPose.scaleY;
                 }
                 else {
-                    global.copyFrom(this.offset).add(this.animationPose);
+                    global.copyFrom(offset).add(animationPose);
                 }
             }
             else if (this.offsetMode === OffsetMode.None) {
-                if (this.origin !== null) {
-                    global.copyFrom(this.origin).add(this.animationPose);
+                if (origin !== null) {
+                    global.copyFrom(origin).add(animationPose);
                 }
                 else {
-                    global.copyFrom(this.animationPose);
+                    global.copyFrom(animationPose);
                 }
             }
             else {
                 inherit = false;
-                global.copyFrom(this.offset);
+                global.copyFrom(offset);
             }
 
             if (inherit) {
@@ -436,25 +441,23 @@ namespace dragonBones {
             this._transformDirty = true;
         }
         /**
-         * - Check whether the bone contains a specific bone or slot.
+         * - Check whether the bone contains a specific bone.
          * @see dragonBones.Bone
-         * @see dragonBones.Slot
          * @version DragonBones 3.0
          * @language en_US
          */
         /**
-         * - 检查该骨骼是否包含特定的骨骼或插槽。
+         * - 检查该骨骼是否包含特定的骨骼。
          * @see dragonBones.Bone
-         * @see dragonBones.Slot
          * @version DragonBones 3.0
          * @language zh_CN
          */
-        public contains(value: Bone | Slot): boolean {
+        public contains(value: Bone): boolean {
             if (value === this) {
                 return false;
             }
 
-            let ancestor: Bone | Slot | null = value;
+            let ancestor: Bone | null = value;
             while (ancestor !== this && ancestor !== null) {
                 ancestor = ancestor.parent;
             }

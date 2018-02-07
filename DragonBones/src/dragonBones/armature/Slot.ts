@@ -787,7 +787,7 @@ namespace dragonBones {
             }
 
             this._slotData = slotData;
-
+            //
             this._visibleDirty = true;
             this._blendModeDirty = true;
             this._colorDirty = true;
@@ -798,7 +798,7 @@ namespace dragonBones {
             this._meshDisplay = meshDisplay;
             //
             this._armature = armatureValue;
-
+            //
             const slotParent = this._armature.getBone(this._slotData.parent.name);
             if (slotParent !== null) {
                 this._parent = slotParent;
@@ -1333,7 +1333,7 @@ namespace dragonBones {
          */
         /**
          * - 插槽此时显示的子骨架。
-         * 注意，被替换的对象并不会被回收，根据语言和引擎的不同，需要额外处理。
+         * 注意，被替换的对象或子骨架并不会被回收，根据语言和引擎的不同，需要额外处理。
          * @example
          * <pre>
          *     let slot = armature.getSlot("weapon");

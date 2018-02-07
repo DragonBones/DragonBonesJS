@@ -134,6 +134,10 @@ namespace dragonBones {
                 constraint.returnToPool();
             }
 
+            for (const action of this._actions) {
+                action.returnToPool();
+            }
+
             if (this._animation !== null) {
                 this._animation.returnToPool();
             }
@@ -150,7 +154,7 @@ namespace dragonBones {
             this.userData = null;
 
             this._lockUpdate = false;
-            this._slotsDirty = false;
+            this._slotsDirty = true;
             this._zOrderDirty = false;
             this._flipX = false;
             this._flipY = false;
@@ -211,7 +215,6 @@ namespace dragonBones {
          */
         public _addSlot(value: Slot): void {
             if (this._slots.indexOf(value) < 0) {
-                this._slotsDirty = true;
                 this._slots.push(value);
             }
         }
@@ -231,10 +234,10 @@ namespace dragonBones {
         public _bufferAction(action: EventObject, append: boolean): void {
             if (this._actions.indexOf(action) < 0) {
                 if (append) {
-                    this._actions.unshift(action);
+                    this._actions.push(action);
                 }
                 else {
-                    this._actions.push(action);
+                    this._actions.unshift(action);
                 }
             }
         }
