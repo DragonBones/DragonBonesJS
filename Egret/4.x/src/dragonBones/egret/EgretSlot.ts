@@ -478,7 +478,6 @@ namespace dragonBones {
 
                     for (let j = 0; j < boneCount; ++j) {
                         const boneIndex = intArray[iB++];
-                        // const bone = this._meshBones[boneIndex];
                         const bone = deformVerticesData.bones[boneIndex];
 
                         if (bone !== null) {

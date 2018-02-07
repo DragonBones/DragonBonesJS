@@ -96,18 +96,19 @@ namespace dragonBones {
      * @private
      */
     export abstract class VerticesDisplayData extends DisplayData {
+        public inheritDeform: boolean;
         public offset: number;
         public weight: WeightData | null = null; // Initial value.
 
         protected _onClear(): void {
             super._onClear();
 
-            this.offset = 0;
-
             if (this.weight !== null) {
                 this.weight.returnToPool();
             }
 
+            this.inheritDeform = false;
+            this.offset = 0;
             this.weight = null;
         }
     }
@@ -120,9 +121,6 @@ namespace dragonBones {
             return "[class dragonBones.MeshDisplayData]";
         }
 
-        public inheritDeform: boolean;
-        public offset: number; // IntArray.
-
         public glue: GlueData | null = null; // Initial value.
         public texture: TextureData | null;
 
@@ -134,8 +132,6 @@ namespace dragonBones {
             }
 
             this.type = DisplayType.Mesh;
-            this.inheritDeform = false;
-            this.offset = 0;
             this.glue = null;
             this.texture = null;
         }
@@ -172,21 +168,14 @@ namespace dragonBones {
         }
         public closed: boolean;
         public constantSpeed: boolean;
-
-        // public vertices: Array<number> = [];
-        public curveLengths: Array<number> = [];
+        public readonly curveLengths: Array<number> = [];
 
         protected _onClear(): void {
             super._onClear();
 
             this.type = DisplayType.Path;
-
-            this.offset = -1;
-
             this.closed = false;
             this.constantSpeed = false;
-
-            // this.vertices.length = 0;
             this.curveLengths.length = 0;
         }
     }

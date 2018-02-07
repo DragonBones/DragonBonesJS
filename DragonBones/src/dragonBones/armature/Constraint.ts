@@ -197,7 +197,6 @@ namespace dragonBones {
             {
                 const ikConstraintData = this._constraintData as IKConstraintData;
                 this._scaleEnabled = ikConstraintData.scaleEnabled;
-                this._scaleEnabled = this._scaleEnabled; // TODO
                 this._bendPositive = ikConstraintData.bendPositive;
                 this._weight = ikConstraintData.weight;
             }
@@ -687,9 +686,9 @@ namespace dragonBones {
                 this._updatePathVertices(pathDisplayData);
                 isPathVerticeDirty = true;
             }
-            else if (deformVertices !== null && (deformVertices.verticeDirty || deformVertices._isBonesUpdate())) {
+            else if (deformVertices !== null && (deformVertices.vertexDirty || deformVertices.isBonesUpdate())) {
                 this._updatePathVertices(pathDisplayData);
-                deformVertices.verticeDirty = false;
+                deformVertices.vertexDirty = false;
                 isPathVerticeDirty = true;
             }
 

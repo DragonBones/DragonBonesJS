@@ -1022,15 +1022,19 @@ namespace dragonBones {
         public update(passedTime: number): void {
             const displayData = this.slot._displayData;
             if (displayData === null ||
-                !((displayData.type === DisplayType.Mesh || displayData.type === DisplayType.Path) && (displayData as VerticesDisplayData).offset === this.vertexOffset)) {
+                !(
+                    (displayData.type === DisplayType.Mesh || displayData.type === DisplayType.Path) &&
+                    (displayData as VerticesDisplayData).offset === this.vertexOffset
+                )
+            ) {
                 return;
             }
 
             super.update(passedTime);
 
             // Fade animation.
-            const deformVertices = (this.slot._deformVertices as DeformVertices);
             if (this._tweenState !== TweenState.None || this._dirty) {
+                const deformVertices = (this.slot._deformVertices as DeformVertices);
                 const result = deformVertices.vertices;
 
                 if (this._animationState._fadeState !== 0 || this._animationState._subFadeState !== 0) {
@@ -1048,7 +1052,7 @@ namespace dragonBones {
                         }
                     }
 
-                    deformVertices.verticeDirty = true;
+                    deformVertices.vertexDirty = true;
                 }
                 else if (this._dirty) {
                     this._dirty = false;
@@ -1065,7 +1069,7 @@ namespace dragonBones {
                         }
                     }
 
-                    deformVertices.verticeDirty = true;
+                    deformVertices.vertexDirty = true;
                 }
             }
         }

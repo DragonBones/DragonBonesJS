@@ -87,11 +87,6 @@ namespace dragonBones {
          */
         public _colorDirty: boolean;
         /**
-         * @internal
-         * @private
-         */
-        // public _meshDirty: boolean;
-        /**
          * @private
          */
         protected _transformDirty: boolean;
@@ -140,11 +135,6 @@ namespace dragonBones {
          */
         public readonly _colorTransform: ColorTransform = new ColorTransform();
         /**
-         * @internal
-         * @private
-         */
-        // public readonly _deformVertices: Array<number> = [];
-        /**
          * @private
          */
         public readonly _displayDatas: Array<DisplayData | null> = [];
@@ -152,10 +142,6 @@ namespace dragonBones {
          * @private
          */
         protected readonly _displayList: Array<any | Armature> = [];
-        /**
-         * @private
-         */
-        // protected readonly _meshBones: Array<Bone | null> = [];
         /**
          * @private
          */
@@ -188,12 +174,14 @@ namespace dragonBones {
          * @private
          */
         public _pathData: PathDisplayData | null;
-
-        public _deformVertices: DeformVertices | null = null;
         /**
          * @private
          */
         protected _boundingBoxData: BoundingBoxData | null;
+        /**
+         * @internal
+         */
+        public _deformVertices: DeformVertices | null = null;
         /**
          * @private
          */
@@ -240,6 +228,10 @@ namespace dragonBones {
                 }
             }
 
+            if (this._deformVertices !== null) {
+                this._deformVertices.returnToPool();
+            }
+
             if (this._meshDisplay !== null && this._meshDisplay !== this._rawDisplay) { // May be _meshDisplay and _rawDisplay is the same one.
                 this._disposeDisplay(this._meshDisplay, false);
             }
@@ -254,7 +246,6 @@ namespace dragonBones {
             this._zOrderDirty = false;
             this._blendModeDirty = false;
             this._colorDirty = false;
-            // this._meshDirty = false;
             this._transformDirty = false;
             this._visible = true;
             this._blendMode = BlendMode.Normal;
@@ -266,10 +257,8 @@ namespace dragonBones {
             this._pivotY = 0.0;
             this._localMatrix.identity();
             this._colorTransform.identity();
-            // this._deformVertices.length = 0;
             this._displayList.length = 0;
             this._displayDatas.length = 0;
-            // this._meshBones.length = 0;
             this._meshSlots.length = 0;
             this._slotData = null as any; //
             this._rawDisplayDatas = null;
@@ -277,14 +266,8 @@ namespace dragonBones {
             this._textureData = null;
             this._meshData = null;
             this._pathData = null;
-
-            if (this._deformVertices !== null) {
-                this._deformVertices.returnToPool();
-            }
-
-            this._deformVertices = null;
-
             this._boundingBoxData = null;
+            this._deformVertices = null;
             this._rawDisplay = null;
             this._meshDisplay = null;
             this._display = null;
@@ -511,11 +494,6 @@ namespace dragonBones {
                 // Update mesh bones and deform vertices.
                 if (this._meshData !== prevMeshData) {
                     if (this._meshData !== null) { // && this._meshData === this._displayData
-                        // Update skined mesh.
-                        if (this._deformVertices === null) {
-                            this._deformVertices = BaseObject.borrowObject(DeformVertices);
-                        }
-
                         let vertexCount = 0;
                         if (this._meshData.weight !== null) {
                             vertexCount = this._meshData.weight.count * 2;
@@ -524,6 +502,9 @@ namespace dragonBones {
                             vertexCount = this._meshData.parent.parent.parent.intArray[this._meshData.offset + BinaryOffset.MeshVertexCount] * 2;
                         }
 
+                        if (this._deformVertices === null) {
+                            this._deformVertices = BaseObject.borrowObject(DeformVertices);
+                        }
 
                         this._deformVertices.init(this._meshData.weight, this._armature, vertexCount);
 
@@ -573,21 +554,18 @@ namespace dragonBones {
                                 armatureGlueSlots.slice(index, 1);
                             }
                         }
-
-                        if (this._deformVertices !== null) {
-                            this._deformVertices.clearDeformVertices();
-                            this._deformVertices.verticeDirty = true;
-                        }
                     }
                     else {
-                        // this._deformVertices.length = 0;
-                        // this._meshBones.length = 0;
+                        if (this._deformVertices !== null) {
+                            this._deformVertices.clear();
+                        }
+
                         this._meshSlots.length = 0;
                     }
                 }
                 else if (this._meshData !== null && this._textureData !== prevTextureData) { // Update mesh after update frame.
                     if (this._deformVertices !== null) {
-                        this._deformVertices.verticeDirty = true;
+                        this._deformVertices.vertexDirty = true;
                     }
                 }
 
@@ -721,7 +699,7 @@ namespace dragonBones {
             else {
                 this._globalDirty = true;
             }
-        }  
+        }
 
         public _setArmature(value: Armature | null): void {
             if (this._armature === value) {
@@ -935,14 +913,12 @@ namespace dragonBones {
                 const deformVertices = this._deformVertices as DeformVertices;
 
                 if (
-                    // this._meshDirty ||
-                    deformVertices.verticeDirty ||
-                    (isSkinned && deformVertices._isBonesUpdate()) ||
+                    deformVertices.vertexDirty ||
+                    (isSkinned && deformVertices.isBonesUpdate()) ||
                     (isSurface && this._parent._childrenTransformDirty) ||
                     (isGule && this._parent._childrenTransformDirty) // TODO
                 ) {
-                    deformVertices.verticeDirty = false;
-                    // this._meshDirty = false;
+                    deformVertices.vertexDirty = false;
                     this._updateMesh();
                 }
 
