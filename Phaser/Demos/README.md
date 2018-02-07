@@ -31,6 +31,8 @@ DragonBonesJS/Phaser/Demos
     |-- README.md
     |-- ...
 ```
+**NOTE:** we are fetching Phaser with the package manager `npm` so you don't need to install it to run the demos. If you installed your own version of Phaser in `./libs/phaser/phaser.js`, you will need to modify the file `index.html`. Find the line `<script src="//cdn.jsdelivr.net/npm/phaser-ce@2.9.2/build/phaser.js"></script>`, and replace it to `<script src="./libs/phaser/phaser.js"></script>`
+
 5. start a local server in `Phaser/Demos/` and go to visit `localhost:xxxx` in your favorite browser
 
 ## Phaser declaration
