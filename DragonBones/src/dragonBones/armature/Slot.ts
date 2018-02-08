@@ -143,10 +143,6 @@ namespace dragonBones {
          */
         protected readonly _displayList: Array<any | Armature> = [];
         /**
-         * @private
-         */
-        protected readonly _meshSlots: Array<Slot | null> = [];
-        /**
          * @internal
          * @private
          */
@@ -163,21 +159,11 @@ namespace dragonBones {
         /**
          * @private
          */
-        protected _textureData: TextureData | null;
-        /**
-         * @internal
-         * @private
-         */
-        public _meshData: MeshDisplayData | null;
-        /**
-         * @internal
-         * @private
-         */
-        public _pathData: PathDisplayData | null;
-        /**
-         * @private
-         */
         protected _boundingBoxData: BoundingBoxData | null;
+        /**
+         * @private
+         */
+        protected _textureData: TextureData | null;
         /**
          * @internal
          */
@@ -259,14 +245,11 @@ namespace dragonBones {
             this._colorTransform.identity();
             this._displayList.length = 0;
             this._displayDatas.length = 0;
-            this._meshSlots.length = 0;
             this._slotData = null as any; //
             this._rawDisplayDatas = null;
             this._displayData = null;
-            this._textureData = null;
-            this._meshData = null;
-            this._pathData = null;
             this._boundingBoxData = null;
+            this._textureData = null;
             this._deformVertices = null;
             this._rawDisplay = null;
             this._meshDisplay = null;
@@ -355,10 +338,14 @@ namespace dragonBones {
          */
         protected _updateDisplayData(): void {
             const prevDisplayData = this._displayData;
+            const prevVerticesData = this._deformVertices !== null ? this._deformVertices.verticesData : null;
             const prevTextureData = this._textureData;
-            const prevMeshData = this._meshData;
-            const prePathData = this._pathData;
             let rawDisplayData: DisplayData | null = null;
+            let currentVerticesData: VerticesData | null = null;
+
+            this._displayData = null;
+            this._boundingBoxData = null;
+            this._textureData = null;
 
             if (this._displayIndex >= 0) {
                 if (this._rawDisplayDatas !== null) {
@@ -373,65 +360,43 @@ namespace dragonBones {
                     this._displayData = this._displayDatas[this._displayIndex];
                 }
             }
-            else {
-                rawDisplayData = null;
-                this._displayData = null;
-            }
 
-            // Update texture and mesh data.
             if (this._displayData !== null) {
-                if (this._displayData.type === DisplayType.Image || this._displayData.type === DisplayType.Mesh) {
-                    if (this._displayData.type === DisplayType.Mesh) {
-                        this._textureData = (this._displayData as MeshDisplayData).texture;
-                        this._meshData = this._displayData as MeshDisplayData;
-                        this._pathData = null;
-                    }
-                    else if (rawDisplayData !== null && rawDisplayData.type === DisplayType.Mesh) {
-                        this._textureData = (this._displayData as MeshDisplayData).texture;
-                        this._meshData = rawDisplayData as MeshDisplayData;
-                        this._pathData = null;
-                    }
-                    else {
-                        this._textureData = (this._displayData as ImageDisplayData).texture;
-                        this._meshData = null;
-                        this._pathData = null;
-                    }
+                if (this._displayData.type === DisplayType.Mesh) {
+                    currentVerticesData = (this._displayData as MeshDisplayData).vertices;
                 }
                 else if (this._displayData.type === DisplayType.Path) {
-                    this._textureData = null;
-                    this._meshData = null;
-                    this._pathData = this._displayData as PathDisplayData;
+                    currentVerticesData = (this._displayData as PathDisplayData).vertices;
                 }
-                else {
-                    this._textureData = null;
-                    this._meshData = null;
-                    this._pathData = null;
+                else if (rawDisplayData !== null) {
+                    if (rawDisplayData.type === DisplayType.Mesh) {
+                        currentVerticesData = (rawDisplayData as MeshDisplayData).vertices;
+                    }
+                    else if (rawDisplayData.type === DisplayType.Path) {
+                        currentVerticesData = (rawDisplayData as PathDisplayData).vertices;
+                    }
                 }
-            }
-            else {
-                this._textureData = null;
-                this._meshData = null;
-                this._pathData = null;
+
+                if (this._displayData.type === DisplayType.BoundingBox) {
+                    this._boundingBoxData = (this._displayData as BoundingBoxDisplayData).boundingBox;
+                }
+                else if (rawDisplayData !== null) {
+                    if (rawDisplayData.type === DisplayType.BoundingBox) {
+                        this._boundingBoxData = (rawDisplayData as BoundingBoxDisplayData).boundingBox;
+                    }
+                }
+
+                if (this._displayData.type === DisplayType.Image) {
+                    this._textureData = (this._displayData as ImageDisplayData).texture;
+                }
+                else if (this._displayData.type === DisplayType.Mesh) {
+                    this._textureData = (this._displayData as MeshDisplayData).texture;
+                }
             }
 
-            // Update bounding box data.
-            if (this._displayData !== null && this._displayData.type === DisplayType.BoundingBox) {
-                this._boundingBoxData = (this._displayData as BoundingBoxDisplayData).boundingBox;
-            }
-            else if (rawDisplayData !== null && rawDisplayData.type === DisplayType.BoundingBox) {
-                this._boundingBoxData = (rawDisplayData as BoundingBoxDisplayData).boundingBox;
-            }
-            else {
-                this._boundingBoxData = null;
-            }
-
-            if (this._displayData !== prevDisplayData || this._textureData !== prevTextureData || this._meshData !== prevMeshData) {
+            if (this._displayData !== prevDisplayData || currentVerticesData !== prevVerticesData || this._textureData !== prevTextureData) {
                 // Update pivot offset.
-                if (this._meshData !== null) {
-                    this._pivotX = 0.0;
-                    this._pivotY = 0.0;
-                }
-                else if (this._textureData !== null) {
+                if (currentVerticesData === null && this._textureData !== null) { // TODO
                     const imageDisplayData = this._displayData as ImageDisplayData;
                     const scale = this._textureData.parent.scale * this._armature._armatureData.scale;
                     const frame = this._textureData.frame;
@@ -459,25 +424,25 @@ namespace dragonBones {
                     if (!DragonBones.yDown) {
                         this._pivotY -= (this._textureData.rotated ? this._textureData.region.width : this._textureData.region.height) * scale;
                     }
+
+                    // Update replace pivot. TODO
+                    if (this._displayData !== null && rawDisplayData !== null && this._displayData !== rawDisplayData) {
+                        rawDisplayData.transform.toMatrix(Slot._helpMatrix);
+                        Slot._helpMatrix.invert();
+                        Slot._helpMatrix.transformPoint(0.0, 0.0, Slot._helpPoint);
+                        this._pivotX -= Slot._helpPoint.x;
+                        this._pivotY -= Slot._helpPoint.y;
+
+                        this._displayData.transform.toMatrix(Slot._helpMatrix);
+                        Slot._helpMatrix.invert();
+                        Slot._helpMatrix.transformPoint(0.0, 0.0, Slot._helpPoint);
+                        this._pivotX += Slot._helpPoint.x;
+                        this._pivotY += Slot._helpPoint.y;
+                    }
                 }
                 else {
                     this._pivotX = 0.0;
                     this._pivotY = 0.0;
-                }
-
-                // Update replace pivot.
-                if (this._displayData !== null && rawDisplayData !== null && this._displayData !== rawDisplayData && this._meshData === null) {
-                    rawDisplayData.transform.toMatrix(Slot._helpMatrix);
-                    Slot._helpMatrix.invert();
-                    Slot._helpMatrix.transformPoint(0.0, 0.0, Slot._helpPoint);
-                    this._pivotX -= Slot._helpPoint.x;
-                    this._pivotY -= Slot._helpPoint.y;
-
-                    this._displayData.transform.toMatrix(Slot._helpMatrix);
-                    Slot._helpMatrix.invert();
-                    Slot._helpMatrix.transformPoint(0.0, 0.0, Slot._helpPoint);
-                    this._pivotX += Slot._helpPoint.x;
-                    this._pivotY += Slot._helpPoint.y;
                 }
 
                 // Update original transform.
@@ -491,104 +456,16 @@ namespace dragonBones {
                     this.origin = null;
                 }
 
-                // Update mesh bones and deform vertices.
-                if (this._meshData !== prevMeshData) {
-                    if (this._meshData !== null) { // && this._meshData === this._displayData
-                        let vertexCount = 0;
-                        if (this._meshData.weight !== null) {
-                            vertexCount = this._meshData.weight.count * 2;
-                        }
-                        else {
-                            vertexCount = this._meshData.parent.parent.parent.intArray[this._meshData.offset + BinaryOffset.MeshVertexCount] * 2;
-                        }
-
-                        if (this._deformVertices === null) {
-                            this._deformVertices = BaseObject.borrowObject(DeformVertices);
-                        }
-
-                        this._deformVertices.init(this._meshData.weight, this._armature, vertexCount);
-
-                        // Update glue mesh.
-                        const armatureGlueSlots = this._armature._glueSlots;
-                        if (this._meshData.glue !== null) {
-                            this._meshSlots.length = this._meshData.glue.meshes.length;
-
-                            for (let i = 0, l = this._meshSlots.length; i < l; ++i) {
-                                const mesh = this._meshData.glue.meshes[i];
-                                if (mesh !== null) {
-                                    let flag = false;
-                                    for (const slot of this._armature.getSlots()) {
-                                        for (const displayData of slot._displayDatas) {
-                                            if (
-                                                displayData !== null &&
-                                                displayData.type === DisplayType.Mesh &&
-                                                (displayData as MeshDisplayData).offset === mesh.offset
-                                            ) {
-                                                flag = true;
-                                                this._meshSlots[i] = slot;
-                                                break;
-                                            }
-                                        }
-
-                                        if (flag) {
-                                            break;
-                                        }
-                                    }
-
-                                    if (!flag) {
-                                        this._meshSlots[i] = null;
-                                    }
-                                }
-                                else {
-                                    this._meshSlots[i] = null;
-                                }
-                            }
-
-                            if (armatureGlueSlots.indexOf(this) < 0) {
-                                armatureGlueSlots.push(this);
-                            }
-                        }
-                        else {
-                            const index = armatureGlueSlots.indexOf(this);
-                            if (index >= 0) {
-                                armatureGlueSlots.slice(index, 1);
-                            }
-                        }
+                // Update vertices.
+                if (currentVerticesData !== prevVerticesData) {
+                    if (this._deformVertices === null) {
+                        this._deformVertices = BaseObject.borrowObject(DeformVertices);
                     }
-                    else {
-                        if (this._deformVertices !== null) {
-                            this._deformVertices.clear();
-                        }
 
-                        this._meshSlots.length = 0;
-                    }
+                    this._deformVertices.init(currentVerticesData, this._armature);
                 }
-                else if (this._meshData !== null && this._textureData !== prevTextureData) { // Update mesh after update frame.
-                    if (this._deformVertices !== null) {
-                        this._deformVertices.vertexDirty = true;
-                    }
-                }
-
-                //
-                if (this._pathData !== prePathData) {
-                    if (this._pathData !== null) {
-                        if (this._deformVertices === null) {
-                            this._deformVertices = BaseObject.borrowObject(DeformVertices);
-                        }
-
-                        let vertexCount = 0;
-                        if (this._pathData.weight !== null) {
-                            vertexCount = this._pathData.weight.count * 2;
-                        }
-                        else {
-                            vertexCount = this._pathData.parent.parent.parent.intArray[this._pathData.offset + BinaryOffset.PathVertexCount] * 2;
-                        }
-
-                        this._deformVertices.init(this._pathData.weight, this._armature, vertexCount);
-                    }
-                    else {
-
-                    }
+                else if (this._deformVertices !== null && this._textureData !== prevTextureData) { // Update mesh after update frame.
+                    this._deformVertices.verticesDirty = true;
                 }
 
                 this._displayDirty = true;
@@ -906,23 +783,20 @@ namespace dragonBones {
                 this._updateColor();
             }
 
-            if (this._meshData !== null && this._display === this._meshDisplay) {
-                const isSkinned = this._meshData.weight !== null;
+            if (this._deformVertices !== null && this._deformVertices.verticesData !== null && this._display === this._meshDisplay) {
+                const isSkinned = this._deformVertices.verticesData.weight !== null;
                 const isSurface = this._parent._boneData.type !== BoneType.Bone;
-                const isGule = this._meshData.glue !== null;
-                const deformVertices = this._deformVertices as DeformVertices;
 
                 if (
-                    deformVertices.vertexDirty ||
-                    (isSkinned && deformVertices.isBonesUpdate()) ||
-                    (isSurface && this._parent._childrenTransformDirty) ||
-                    (isGule && this._parent._childrenTransformDirty) // TODO
+                    this._deformVertices.verticesDirty ||
+                    (isSkinned && this._deformVertices.isBonesUpdate()) ||
+                    (isSurface && this._parent._childrenTransformDirty)
                 ) {
-                    deformVertices.vertexDirty = false;
+                    this._deformVertices.verticesDirty = false;
                     this._updateMesh();
                 }
 
-                if (isSkinned || isSurface || isGule) {
+                if (isSkinned || isSurface) { // Compatible.
                     return;
                 }
             }

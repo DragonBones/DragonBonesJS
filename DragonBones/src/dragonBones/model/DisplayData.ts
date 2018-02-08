@@ -25,6 +25,35 @@ namespace dragonBones {
      * @internal
      * @private
      */
+    export class VerticesData {
+        public isShared: boolean;
+        public inheritDeform: boolean;
+        public offset: number;
+        public data: DragonBonesData;
+        public weight: WeightData | null = null; // Initial value.
+
+        public clear(): void {
+            if (!this.isShared && this.weight !== null) {
+                this.weight.returnToPool();
+            }
+
+            this.isShared = false;
+            this.inheritDeform = false;
+            this.offset = 0;
+            this.data = null as any;
+            this.weight = null;
+        }
+
+        public shareFrom(value: VerticesData): void {
+            this.isShared = true;
+            this.offset = value.offset;
+            this.weight = value.weight;
+        }
+    }
+    /**
+     * @internal
+     * @private
+     */
     export abstract class DisplayData extends BaseObject {
         public type: DisplayType;
         public name: string;
@@ -95,44 +124,19 @@ namespace dragonBones {
      * @internal
      * @private
      */
-    export abstract class VerticesDisplayData extends DisplayData {
-        public inheritDeform: boolean;
-        public offset: number;
-        public weight: WeightData | null = null; // Initial value.
-
-        protected _onClear(): void {
-            super._onClear();
-
-            if (this.weight !== null) {
-                this.weight.returnToPool();
-            }
-
-            this.inheritDeform = false;
-            this.offset = 0;
-            this.weight = null;
-        }
-    }
-    /**
-     * @internal
-     * @private
-     */
-    export class MeshDisplayData extends VerticesDisplayData {
+    export class MeshDisplayData extends DisplayData {
         public static toString(): string {
             return "[class dragonBones.MeshDisplayData]";
         }
 
-        public glue: GlueData | null = null; // Initial value.
+        public readonly vertices: VerticesData = new VerticesData();
         public texture: TextureData | null;
 
         protected _onClear(): void {
             super._onClear();
 
-            if (this.glue !== null) {
-                this.glue.returnToPool();
-            }
-
             this.type = DisplayType.Mesh;
-            this.glue = null;
+            this.vertices.clear();
             this.texture = null;
         }
     }
@@ -162,12 +166,13 @@ namespace dragonBones {
      * @internal
      * @private
      */
-    export class PathDisplayData extends VerticesDisplayData {
+    export class PathDisplayData extends DisplayData {
         public static toString(): string {
             return "[class dragonBones.PathDisplayData]";
         }
         public closed: boolean;
         public constantSpeed: boolean;
+        public readonly vertices: VerticesData = new VerticesData();
         public readonly curveLengths: Array<number> = [];
 
         protected _onClear(): void {
@@ -176,6 +181,7 @@ namespace dragonBones {
             this.type = DisplayType.Path;
             this.closed = false;
             this.constantSpeed = false;
+            this.vertices.clear();
             this.curveLengths.length = 0;
         }
     }
@@ -189,7 +195,7 @@ namespace dragonBones {
         }
 
         public count: number;
-        public offset: number; // IntArray.
+        public offset: number;
         public readonly bones: Array<BoneData> = [];
 
         protected _onClear(): void {
@@ -200,27 +206,6 @@ namespace dragonBones {
 
         public addBone(value: BoneData): void {
             this.bones.push(value);
-        }
-    }
-    /**
-     * @internal
-     * @private
-     */
-    export class GlueData extends BaseObject {
-        public static toString(): string {
-            return "[class dragonBones.GlueData]";
-        }
-
-        public readonly weights: Array<number>;
-        public readonly meshes: Array<MeshDisplayData | null> = [];
-
-        protected _onClear(): void {
-            this.weights.length = 0;
-            this.meshes.length = 0;
-        }
-
-        public addMesh(value: MeshDisplayData | null): void {
-            this.meshes.push(value);
         }
     }
 }

@@ -279,7 +279,7 @@ namespace dragonBones {
          * @inheritDoc
          */
         protected _updateFrame(): void {
-            const meshData = this._display === this._meshDisplay ? this._meshData : null;
+            const currentVerticesData = (this._deformVertices !== null && this._display === this._meshDisplay) ? this._deformVertices.verticesData : null;
             let currentTextureData = this._textureData as (EgretTextureData | null);
 
             if (this._displayIndex >= 0 && this._display !== null && currentTextureData !== null) {
@@ -299,13 +299,13 @@ namespace dragonBones {
                 }
 
                 if (currentTextureData.renderTexture !== null) {
-                    if (meshData !== null) { // Mesh.
-                        const data = meshData.parent.parent.parent;
+                    if (currentVerticesData !== null) { // Mesh.
+                        const data = currentVerticesData.data;
                         const intArray = data.intArray;
                         const floatArray = data.floatArray;
-                        const vertexCount = intArray[meshData.offset + BinaryOffset.MeshVertexCount];
-                        const triangleCount = intArray[meshData.offset + BinaryOffset.MeshTriangleCount];
-                        let vertexOffset = intArray[meshData.offset + BinaryOffset.MeshFloatOffset];
+                        const vertexCount = intArray[currentVerticesData.offset + BinaryOffset.MeshVertexCount];
+                        const triangleCount = intArray[currentVerticesData.offset + BinaryOffset.MeshTriangleCount];
+                        let vertexOffset = intArray[currentVerticesData.offset + BinaryOffset.MeshFloatOffset];
 
                         if (vertexOffset < 0) {
                             vertexOffset += 65536; // Fixed out of bouds bug. 
@@ -327,7 +327,7 @@ namespace dragonBones {
                         }
 
                         for (let i = 0; i < triangleCount * 3; ++i) {
-                            meshNode.indices[i] = intArray[meshData.offset + BinaryOffset.MeshVertexIndices + i];
+                            meshNode.indices[i] = intArray[currentVerticesData.offset + BinaryOffset.MeshVertexIndices + i];
                         }
 
                         if (this._armatureDisplay._batchEnabled) {
@@ -373,7 +373,7 @@ namespace dragonBones {
                             meshDisplay.$invalidateTransform();
                         }
 
-                        const isSkinned = (this._meshData as MeshDisplayData).weight !== null;
+                        const isSkinned = currentVerticesData.weight !== null;
                         const isSurface = this._parent._boneData.type !== BoneType.Bone;
                         if (isSkinned || isSurface) {
                             this._identityTransform();
@@ -449,27 +449,28 @@ namespace dragonBones {
          */
         protected _updateMesh(): void {
             const scale = this._armature._armatureData.scale;
-            const meshData = this._meshData as MeshDisplayData;
-            const deformVerticesData = this._deformVertices as DeformVertices;
-            const deformVertices = deformVerticesData.vertices;
-            const hasDeform = deformVertices.length > 0 && meshData.inheritDeform;
-            const weight = meshData.weight;
+            const deformVertices = (this._deformVertices as DeformVertices).vertices;
+            const bones = (this._deformVertices as DeformVertices).bones;
+            const verticesData = (this._deformVertices as DeformVertices).verticesData as VerticesData;
+            const weightData = verticesData.weight;
+
+            const hasDeform = deformVertices.length > 0 && verticesData.inheritDeform;
             const meshDisplay = this._renderDisplay as egret.Mesh;
             const meshNode = meshDisplay.$renderNode as egret.sys.MeshNode;
 
-            if (weight !== null) {
-                const data = meshData.parent.parent.parent;
+            if (weightData !== null) {
+                const data = verticesData.data;
                 const intArray = data.intArray;
                 const floatArray = data.floatArray;
-                const vertexCount = intArray[meshData.offset + BinaryOffset.MeshVertexCount];
-                let weightFloatOffset = intArray[weight.offset + BinaryOffset.WeigthFloatOffset];
+                const vertexCount = intArray[verticesData.offset + BinaryOffset.MeshVertexCount];
+                let weightFloatOffset = intArray[weightData.offset + BinaryOffset.WeigthFloatOffset];
 
                 if (weightFloatOffset < 0) {
                     weightFloatOffset += 65536; // Fixed out of bouds bug. 
                 }
 
                 for (
-                    let i = 0, iD = 0, iB = weight.offset + BinaryOffset.WeigthBoneIndices + weight.bones.length, iV = weightFloatOffset, iF = 0;
+                    let i = 0, iD = 0, iB = weightData.offset + BinaryOffset.WeigthBoneIndices + weightData.bones.length, iV = weightFloatOffset, iF = 0;
                     i < vertexCount;
                     ++i
                 ) {
@@ -478,7 +479,7 @@ namespace dragonBones {
 
                     for (let j = 0; j < boneCount; ++j) {
                         const boneIndex = intArray[iB++];
-                        const bone = deformVerticesData.bones[boneIndex];
+                        const bone = bones[boneIndex];
 
                         if (bone !== null) {
                             const matrix = bone.globalTransformMatrix;
@@ -508,12 +509,11 @@ namespace dragonBones {
             }
             else if (hasDeform) {
                 const isSurface = this._parent._boneData.type !== BoneType.Bone;
-                // const isGlue = meshData.glue !== null; TODO
-                const data = meshData.parent.parent.parent;
+                const data = verticesData.data;
                 const intArray = data.intArray;
                 const floatArray = data.floatArray;
-                const vertexCount = intArray[meshData.offset + BinaryOffset.MeshVertexCount];
-                let vertexOffset = intArray[meshData.offset + BinaryOffset.MeshFloatOffset];
+                const vertexCount = intArray[verticesData.offset + BinaryOffset.MeshVertexCount];
+                let vertexOffset = intArray[verticesData.offset + BinaryOffset.MeshFloatOffset];
 
                 if (vertexOffset < 0) {
                     vertexOffset += 65536; // Fixed out of bouds bug. 
@@ -549,46 +549,6 @@ namespace dragonBones {
          * @inheritDoc
          */
         public _updateGlueMesh(): void {
-            const glue = (this._meshData as MeshDisplayData).glue as GlueData;
-            const weights = glue.weights;
-            const meshes = glue.meshes;
-            const meshDisplay = this._renderDisplay as egret.Mesh;
-            const vertices = (meshDisplay.$renderNode as egret.sys.MeshNode).vertices;
-
-            for (let i = 0, l = weights.length;
-                i < l;
-                ++i
-            ) {
-                const iV = weights[i];
-                const meshCount = weights[i++];
-                let totalWeight = 1.0;
-                let x = 0.0;
-                let y = 0.0;
-
-                for (let j = 0; j < meshCount; ++j) {
-                    const iM = weights[i++];
-                    const iMV = weights[i++] * 2;
-                    const weight = weights[i++];
-                    const slot = this._meshSlots[iM];
-                    const mesh = meshes[iM];
-                    totalWeight -= weight;
-
-                    if (slot !== null && mesh !== null && slot._meshData !== null && slot._meshData.offset === mesh.offset) {
-                        const glueVertices = ((slot.display as egret.Mesh).$renderNode as egret.sys.MeshNode).vertices;
-                        x += glueVertices[iMV] * weight;
-                        y += glueVertices[iMV + 1] * weight;
-                    }
-                }
-
-                vertices[iV] = x + vertices[iV] * totalWeight;
-                vertices[iV + 1] = y + vertices[iV + 1] * totalWeight;
-            }
-
-            meshDisplay.$updateVertices();
-
-            if (!isV5) {
-                meshDisplay.$invalidateTransform();
-            }
         }
         /**
          * @inheritDoc

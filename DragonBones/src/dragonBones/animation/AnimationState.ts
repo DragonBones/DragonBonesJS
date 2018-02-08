@@ -591,7 +591,7 @@ namespace dragonBones {
                             if (slot.rawDisplayDatas !== null) {
                                 for (const displayData of slot.rawDisplayDatas) {
                                     if (displayData !== null && displayData.type === DisplayType.Mesh) {
-                                        const meshOffset = (displayData as MeshDisplayData).offset;
+                                        const meshOffset = (displayData as MeshDisplayData).vertices.offset;
                                         if (ffdFlags.indexOf(meshOffset) < 0) {
                                             const timeline = BaseObject.borrowObject(DeformTimelineState);
                                             timeline.vertexOffset = meshOffset; //

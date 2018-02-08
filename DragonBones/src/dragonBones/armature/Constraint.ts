@@ -686,9 +686,9 @@ namespace dragonBones {
                 this._updatePathVertices(pathDisplayData);
                 isPathVerticeDirty = true;
             }
-            else if (deformVertices !== null && (deformVertices.vertexDirty || deformVertices.isBonesUpdate())) {
+            else if (deformVertices !== null && (deformVertices.verticesDirty || deformVertices.isBonesUpdate())) {
                 this._updatePathVertices(pathDisplayData);
-                deformVertices.vertexDirty = false;
+                deformVertices.verticesDirty = false;
                 isPathVerticeDirty = true;
             }
 

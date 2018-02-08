@@ -682,25 +682,16 @@ namespace dragonBones {
          */
         public readonly vertices: Array<number> = [];
         /**
-         * @private
-         */
-        public weight: WeightData | null = null; // Initial value.
-        /**
          * @inheritDoc
          * @private
          */
         protected _onClear(): void {
             super._onClear();
 
-            if (this.weight !== null) {
-                this.weight.returnToPool();
-            }
-
             this.type = BoundingBoxType.Polygon;
             this.x = 0.0;
             this.y = 0.0;
             this.vertices.length = 0;
-            this.weight = null;
         }
         /**
          * @inheritDoc

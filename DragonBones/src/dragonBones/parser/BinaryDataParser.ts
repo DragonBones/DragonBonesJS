@@ -210,13 +210,13 @@ namespace dragonBones {
             return timeline;
         }
 
-        protected _parseMesh(rawData: any, mesh: MeshDisplayData): void {
-            mesh.offset = rawData[DataParser.OFFSET];
+        private _parseVertices(rawData: any, vertices: VerticesData): void {
+            vertices.offset = rawData[DataParser.OFFSET];
 
-            const weightOffset = this._intArrayBuffer[mesh.offset + BinaryOffset.MeshWeightOffset];
+            const weightOffset = this._intArrayBuffer[vertices.offset + BinaryOffset.MeshWeightOffset];
             if (weightOffset >= 0) {
                 const weight = BaseObject.borrowObject(WeightData);
-                const vertexCount = this._intArrayBuffer[mesh.offset + BinaryOffset.MeshVertexCount];
+                const vertexCount = this._intArrayBuffer[vertices.offset + BinaryOffset.MeshVertexCount];
                 const boneCount = this._intArrayBuffer[weightOffset + BinaryOffset.WeigthBoneCount];
                 weight.offset = weightOffset;
 
@@ -234,36 +234,16 @@ namespace dragonBones {
                 }
 
                 weight.count = weightCount;
-                mesh.weight = weight;
+                vertices.weight = weight;
             }
         }
 
-        protected _parsePath(rawData: any, display: PathDisplayData) {
-            display.offset = rawData[DataParser.OFFSET];
+        protected _parseMesh(rawData: any, mesh: MeshDisplayData): void {
+            this._parseVertices(rawData, mesh.vertices);
+        }
 
-            const weightOffset = this._intArrayBuffer[display.offset + BinaryOffset.PathWeightOffset];
-            if (weightOffset > 0) {
-                const weight = BaseObject.borrowObject(WeightData);
-                const vertexCount = this._intArrayBuffer[display.offset + BinaryOffset.PathVertexCount];
-                const weightBoneCount = this._intArrayBuffer[weightOffset + BinaryOffset.WeigthBoneCount];
-                weight.offset = weightOffset;
-
-                for (let i = 0; i < weightBoneCount; ++i) {
-                    const boneIndex = this._intArrayBuffer[weightOffset + BinaryOffset.WeigthBoneIndices + i];
-                    weight.addBone(this._rawBones[boneIndex]);
-                }
-
-                let boneIndicesOffset = weightOffset + BinaryOffset.WeigthBoneIndices + weightBoneCount;
-                let weightCount = 0;
-                for (let i = 0, l = vertexCount; i < l; ++i) {
-                    const vertexBoneCount = this._intArrayBuffer[boneIndicesOffset++];
-                    weightCount += vertexBoneCount;
-                    boneIndicesOffset += vertexBoneCount;
-                }
-
-                weight.count = weightCount;
-                display.weight = weight;
-            }
+        protected _parsePath(rawData: any, path: PathDisplayData): void {
+            this._parseVertices(rawData, path.vertices);
         }
 
         protected _parseAnimation(rawData: any): AnimationData {
