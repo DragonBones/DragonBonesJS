@@ -277,7 +277,7 @@ namespace dragonBones {
             this._pathGlobalVertices.length = 0;
         }
 
-        protected _updatePathVertices(pathDisplayDta: PathDisplayData): void {
+        protected _updatePathVertices(verticesData: VerticesData): void {
             //计算曲线的节点数据
             const armature = this._armature;
             const dragonBonesData = armature.armatureData.parent;
@@ -285,13 +285,13 @@ namespace dragonBones {
             const intArray = dragonBonesData.intArray;
             const floatArray = dragonBonesData.floatArray;
 
-            const pathOffset = pathDisplayDta.offset;
+            const pathOffset = verticesData.offset;
             const pathVertexCount = intArray[pathOffset + BinaryOffset.PathVertexCount];
             const pathVertexOffset = intArray[pathOffset + BinaryOffset.PathFloatOffset];
 
             this._pathGlobalVertices.length = pathVertexCount * 2;
 
-            const weightData = pathDisplayDta.weight;
+            const weightData = verticesData.weight;
             //没有骨骼约束我,那节点只受自己的Bone控制
             if (weightData === null) {
                 const parentBone = this._pathSlot.parent;
@@ -348,9 +348,7 @@ namespace dragonBones {
             }
         }
         //TODO优化
-        protected _computeVertices(pathDisplayDta: PathDisplayData, start: number, count: number, offset: number, out: Array<number>): void {
-            pathDisplayDta; start; count; offset; out;
-
+        protected _computeVertices(start: number, count: number, offset: number, out: Array<number>): void {
             for (let i = offset, iW = start; i < count; i += 2) {
                 out[i] = this._pathGlobalVertices[iW++];
                 out[i + 1] = this._pathGlobalVertices[iW++];
@@ -361,7 +359,7 @@ namespace dragonBones {
         protected _computeBezierCurve(pathDisplayDta: PathDisplayData, spaceCount: number, tangents: boolean, percentPosition: boolean, percentSpacing: boolean): void {
             const armature = this._armature;
             const intArray = armature.armatureData.parent.intArray;
-            const vertexCount = intArray[pathDisplayDta.offset + BinaryOffset.PathVertexCount];
+            const vertexCount = intArray[pathDisplayDta.vertices.offset + BinaryOffset.PathVertexCount];
 
             const positions = this._positions;
             const spaces = this._spaces;
@@ -432,11 +430,11 @@ namespace dragonBones {
                         preCurve = curve;
                         if (isClosed && curve === curveCount) {
                             //计算曲线
-                            this._computeVertices(pathDisplayDta, verticesLength - 4, 4, 0, curveVertices);
-                            this._computeVertices(pathDisplayDta, 0, 4, 4, curveVertices);
+                            this._computeVertices(verticesLength - 4, 4, 0, curveVertices);
+                            this._computeVertices(0, 4, 4, curveVertices);
                         }
                         else {
-                            this._computeVertices(pathDisplayDta, curve * 6 + 2, 8, 0, curveVertices);
+                            this._computeVertices(curve * 6 + 2, 8, 0, curveVertices);
                         }
                     }
 
@@ -451,8 +449,8 @@ namespace dragonBones {
             if (isClosed) {
                 verticesLength += 2;
                 curveVertices.length = vertexCount;
-                this._computeVertices(pathDisplayDta, 2, verticesLength - 4, 0, curveVertices);
-                this._computeVertices(pathDisplayDta, 0, 2, verticesLength - 4, curveVertices);
+                this._computeVertices(2, verticesLength - 4, 0, curveVertices);
+                this._computeVertices(0, 2, verticesLength - 4, curveVertices);
 
                 curveVertices[verticesLength - 2] = curveVertices[0];
                 curveVertices[verticesLength - 1] = curveVertices[1];
@@ -461,7 +459,7 @@ namespace dragonBones {
                 curveCount--;
                 verticesLength -= 4;
                 curveVertices.length = verticesLength;
-                this._computeVertices(pathDisplayDta, 2, verticesLength, 0, curveVertices);
+                this._computeVertices(2, verticesLength, 0, curveVertices);
             }
             //
             let curves: Array<number> = new Array<number>(curveCount);
@@ -642,7 +640,7 @@ namespace dragonBones {
 
             let data = constraintData as PathConstraintData;
 
-            this.pathOffset = data.pathDisplayData.offset;
+            this.pathOffset = data.pathDisplayData.vertices.offset;
 
             //
             this.position = data.position;
@@ -675,7 +673,7 @@ namespace dragonBones {
             const constraintData = this._constraintData as PathConstraintData;
             const pathSlot = this._pathSlot;
             const pathDisplayData = pathSlot._displayData as PathDisplayData;
-            if (pathDisplayData === null || pathDisplayData.offset !== this.pathOffset) {
+            if (pathDisplayData === null || pathDisplayData.vertices.offset !== this.pathOffset) {
                 return;
             }
 
@@ -683,11 +681,11 @@ namespace dragonBones {
             let isPathVerticeDirty = false;
             let deformVertices = pathSlot._deformVertices;
             if (this._root._childrenTransformDirty) {
-                this._updatePathVertices(pathDisplayData);
+                this._updatePathVertices(pathDisplayData.vertices);
                 isPathVerticeDirty = true;
             }
             else if (deformVertices !== null && (deformVertices.verticesDirty || deformVertices.isBonesUpdate())) {
-                this._updatePathVertices(pathDisplayData);
+                this._updatePathVertices(pathDisplayData.vertices);
                 deformVertices.verticesDirty = false;
                 isPathVerticeDirty = true;
             }

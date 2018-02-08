@@ -903,6 +903,7 @@ namespace dragonBones {
         }
 
         protected _parseMeshGlue(rawData: any, mesh: MeshDisplayData): void {
+            rawData;mesh;
             // const rawWeights = rawData[DataParser.GLUE_WEIGHTS] as Array<number>;
             // const rawMeshes = rawData[DataParser.GLUE_MESHES] as Array<string>;
             // mesh.glue = BaseObject.borrowObject(GlueData);
