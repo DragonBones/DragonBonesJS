@@ -422,7 +422,7 @@ namespace dragonBones {
                     }
 
                     if (!DragonBones.yDown) {
-                        this._pivotY -= (this._textureData.rotated ? this._textureData.region.width : this._textureData.region.height) * scale;
+                        this._pivotY = (this._textureData.rotated ? this._textureData.region.width : this._textureData.region.height) * scale - this._pivotY;
                     }
 
                     // Update replace pivot. TODO

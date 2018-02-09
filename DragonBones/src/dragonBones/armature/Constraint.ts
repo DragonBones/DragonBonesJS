@@ -736,7 +736,7 @@ namespace dragonBones {
                 }
             }
             //
-            this._computeBezierCurve(pathDisplayData, spacesCount, isTangentMode, positionMode === PositionMode.Percent, spacingMode === SpacingMode.Percent)
+            this._computeBezierCurve(pathDisplayData, spacesCount, isTangentMode, positionMode === PositionMode.Percent, spacingMode === SpacingMode.Percent);
 
             //根据新的节点数据重新采样
             const positions = this._positions;

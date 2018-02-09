@@ -999,7 +999,8 @@ namespace dragonBones {
                 this._frameFloatOffset = this._frameIntArray[frameIntOffset + BinaryOffset.DeformFloatOffset] + this._animationData.frameFloatOffset;
             }
             else {
-                this._deformCount = (this.slot._deformVertices as DeformVertices).vertices.length;
+                const deformVertices = this.slot._deformVertices;
+                this._deformCount = deformVertices !== null ? deformVertices.vertices.length : 0;
                 this._valueCount = this._deformCount;
                 this._valueOffset = 0;
                 this._frameFloatOffset = 0;
