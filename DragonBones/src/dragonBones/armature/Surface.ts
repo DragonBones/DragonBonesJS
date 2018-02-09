@@ -439,13 +439,16 @@ namespace dragonBones {
 
             return helpMatrix;
         }
-
-        public init(surfaceData: SurfaceData): void {
+        /**
+         * @internal
+         * @private
+         */
+        public init(surfaceData: SurfaceData, armatureValue: Armature): void {
             if (this._boneData !== null) {
                 return;
             }
 
-            super.init(surfaceData);
+            super.init(surfaceData, armatureValue);
 
             const segmentX = surfaceData.segmentX;
             const segmentY = surfaceData.segmentY;

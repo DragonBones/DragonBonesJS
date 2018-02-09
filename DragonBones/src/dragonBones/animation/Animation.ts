@@ -933,6 +933,7 @@ namespace dragonBones {
             layer: number = 0, group: string | null = null, fadeOutMode: AnimationFadeOutMode = AnimationFadeOutMode.SameLayerAndGroup,
             pauseFadeOut: boolean = true, pauseFadeIn: boolean = true
         ): AnimationState | null {
+            console.warn("Deprecated.");
             // tslint:disable-next-line:no-unused-expression
             pauseFadeOut;
             // tslint:disable-next-line:no-unused-expression
@@ -965,6 +966,7 @@ namespace dragonBones {
          * @language zh_CN
          */
         public gotoAndStop(animationName: string, time: number = 0): AnimationState | null {
+            console.warn("Deprecated.");
             return this.gotoAndStopByTime(animationName, time);
         }
         /**
@@ -978,6 +980,7 @@ namespace dragonBones {
          * @language zh_CN
          */
         public get animationList(): Array<string> {
+            console.warn("Deprecated.");
             return this._animationNames;
         }
         /**
@@ -991,6 +994,7 @@ namespace dragonBones {
          * @language zh_CN
          */
         public get animationDataList(): Array<AnimationData> {
+            console.warn("Deprecated.");
             const list: AnimationData[] = [];
             for (let i = 0, l = this._animationNames.length; i < l; ++i) {
                 list.push(this._animations[this._animationNames[i]]);

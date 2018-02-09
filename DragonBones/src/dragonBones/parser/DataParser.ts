@@ -361,6 +361,7 @@ namespace dragonBones {
          * @language zh_CN
          */
         public static parseDragonBonesData(rawData: any): DragonBonesData | null {
+            console.warn("Deprecated.");
             if (rawData instanceof ArrayBuffer) {
                 return BinaryDataParser.getInstance().parseDragonBonesData(rawData);
             }

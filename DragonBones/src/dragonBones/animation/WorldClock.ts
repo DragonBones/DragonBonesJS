@@ -63,6 +63,7 @@ namespace dragonBones {
          */
         public timeScale: number = 1.0;
 
+        private _systemTime: number = 0.0;
         private readonly _animatebles: Array<IAnimatable | null> = [];
         private _clock: WorldClock | null = null;
         /**
@@ -77,13 +78,9 @@ namespace dragonBones {
          * @version DragonBones 3.0
          * @language zh_CN
          */
-        public constructor(time: number = -1.0) {
-            if (time < 0.0) {
-                this.time = new Date().getTime() * 0.001;
-            }
-            else {
-                this.time = time;
-            }
+        public constructor(time: number = 0.0) {
+            this.time = time;
+            this._systemTime = new Date().getTime() * 0.001;
         }
         /**
          * - Advance time for all IAnimatable instances.
@@ -102,12 +99,20 @@ namespace dragonBones {
                 passedTime = 0.0;
             }
 
+            const currentTime = Date.now() * 0.001;
+
             if (passedTime < 0.0) {
-                passedTime = new Date().getTime() * 0.001 - this.time;
+                passedTime = currentTime - this._systemTime;
             }
+
+            this._systemTime = currentTime;
 
             if (this.timeScale !== 1.0) {
                 passedTime *= this.timeScale;
+            }
+
+            if (passedTime === 0.0) {
+                return;
             }
 
             if (passedTime < 0.0) {
@@ -115,10 +120,6 @@ namespace dragonBones {
             }
             else {
                 this.time += passedTime;
-            }
-
-            if (passedTime === 0.0) {
-                return;
             }
 
             let i = 0, r = 0, l = this._animatebles.length;

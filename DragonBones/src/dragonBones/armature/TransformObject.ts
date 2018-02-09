@@ -101,11 +101,6 @@ namespace dragonBones {
          */
         public _armature: Armature;
         /**
-         * @internal
-         * @private
-         */
-        public _parent: Bone;
-        /**
          * @private
          */
         protected _onClear(): void {
@@ -117,21 +112,6 @@ namespace dragonBones {
 
             this._globalDirty = false;
             this._armature = null as any; //
-            this._parent = null as any; //
-        }
-        /**
-         * @internal
-         * @private
-         */
-        public _setArmature(value: Armature | null): void {
-            this._armature = value as any;
-        }
-        /**
-         * @internal
-         * @private
-         */
-        public _setParent(value: Bone | null): void {
-            this._parent = value as any;
         }
         /**
          * - For performance considerations, rotation or scale in the {@link #global} attribute of the bone or slot is not always properly accessible,
@@ -174,19 +154,6 @@ namespace dragonBones {
          */
         public get armature(): Armature {
             return this._armature;
-        }
-        /**
-         * - The parent bone to which it belongs.
-         * @version DragonBones 3.0
-         * @language en_US
-         */
-        /**
-         * - 所属的父骨骼。
-         * @version DragonBones 3.0
-         * @language zh_CN
-         */
-        public get parent(): Bone {
-            return this._parent;
         }
     }
 }

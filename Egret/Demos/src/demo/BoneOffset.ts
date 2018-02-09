@@ -39,7 +39,7 @@ class BoneOffset extends BaseDemo {
         const rootSlot = armatureDisplay.armature.getBone("root");
         const bulletSlot = armatureDisplay.armature.getBone("bullet");
         // Modify root and bullet bone offset.
-        rootSlot.offset.scaleX = Math.sqrt(dX * dX + dY * dY) / 100; // Bullet translate distance is 100 px.
+        rootSlot.offset.scaleX = Math.sqrt(dX * dX + dY * dY) / 100.0; // Bullet translate distance is 100 px.
         rootSlot.offset.rotation = Math.atan2(dY, dX);
         rootSlot.offset.skew = Math.random() * Math.PI - Math.PI * 0.5; // Random skew.
         bulletSlot.offset.scaleX = 0.5 + Math.random() * 0.5; // Random scale.

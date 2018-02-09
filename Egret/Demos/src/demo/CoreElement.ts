@@ -157,8 +157,8 @@ namespace coreElement {
         private static readonly NORMAL_ANIMATION_GROUP: string = "normal";
         private static readonly AIM_ANIMATION_GROUP: string = "aim";
         private static readonly ATTACK_ANIMATION_GROUP: string = "attack";
-        private static readonly WEAPON_L_LIST: Array<string> = ["weapon_1502b_l", "weapon_1005", "weapon_1005b", "weapon_1005c", "weapon_1005d", "weapon_1005e"];
-        private static readonly WEAPON_R_LIST: Array<string> = ["weapon_1502b_r", "weapon_1005", "weapon_1005b", "weapon_1005c", "weapon_1005d"];
+        private static readonly WEAPON_L_LIST: Array<string> = ["weapon_1502b_l", "weapon_1005", "weapon_1005b", "weapon_1005c", "weapon_1005d", "weapon_1005e", ""];
+        private static readonly WEAPON_R_LIST: Array<string> = ["weapon_1502b_r", "weapon_1005", "weapon_1005b", "weapon_1005c", "weapon_1005d", ""];
         private static readonly SKINS: Array<string> = ["mecha_1502b", "skin_a", "skin_b", "skin_c"];
 
         private _isJumpingA: boolean = false;
@@ -176,8 +176,8 @@ namespace coreElement {
         private _speedY: number = 0.0;
         private _armature: dragonBones.Armature;
         private _armatureDisplay: ArmatureDisplayType;
-        private _weaponL: dragonBones.Armature;
-        private _weaponR: dragonBones.Armature;
+        private _weaponL: dragonBones.Armature | null = null;
+        private _weaponR: dragonBones.Armature | null = null;
         private _aimState: dragonBones.AnimationState | null = null;
         private _walkState: dragonBones.AnimationState | null = null;
         private _attackState: dragonBones.AnimationState | null = null;
@@ -196,8 +196,13 @@ namespace coreElement {
             // Get weapon childArmature.
             this._weaponL = this._armature.getSlot("weapon_l").childArmature;
             this._weaponR = this._armature.getSlot("weapon_r").childArmature;
-            this._weaponL.eventDispatcher.addDBEventListener(dragonBones.EventObject.FRAME_EVENT, this._frameEventHandler, this);
-            this._weaponR.eventDispatcher.addDBEventListener(dragonBones.EventObject.FRAME_EVENT, this._frameEventHandler, this);
+            if (this._weaponL) {
+                this._weaponL.eventDispatcher.addDBEventListener(dragonBones.EventObject.FRAME_EVENT, this._frameEventHandler, this);
+            }
+
+            if (this._weaponR) {
+                this._weaponR.eventDispatcher.addDBEventListener(dragonBones.EventObject.FRAME_EVENT, this._frameEventHandler, this);
+            }
 
             Game.instance.addChild(this._armatureDisplay);
             this._updateAnimation();
@@ -244,25 +249,43 @@ namespace coreElement {
         }
 
         public switchWeaponL(): void {
-            this._weaponL.eventDispatcher.removeDBEventListener(dragonBones.EventObject.FRAME_EVENT, this._frameEventHandler, this);
+            if (this._weaponL) {
+                this._weaponL.eventDispatcher.removeDBEventListener(dragonBones.EventObject.FRAME_EVENT, this._frameEventHandler, this);
+            }
 
             this._weaponLIndex++;
             this._weaponLIndex %= Mecha.WEAPON_L_LIST.length;
             const weaponName = Mecha.WEAPON_L_LIST[this._weaponLIndex];
-            this._weaponL = dragonBones.EgretFactory.factory.buildArmature(weaponName);
-            this._armature.getSlot("weapon_l").childArmature = this._weaponL;
-            this._weaponL.eventDispatcher.addDBEventListener(dragonBones.EventObject.FRAME_EVENT, this._frameEventHandler, this);
+
+            if (weaponName) {
+                this._weaponL = dragonBones.EgretFactory.factory.buildArmature(weaponName);
+                this._armature.getSlot("weapon_l").childArmature = this._weaponL;
+                this._weaponL.eventDispatcher.addDBEventListener(dragonBones.EventObject.FRAME_EVENT, this._frameEventHandler, this);
+            }
+            else {
+                this._weaponL = null;
+                this._armature.getSlot("weapon_l").childArmature = this._weaponL;
+            }
         }
 
         public switchWeaponR(): void {
-            this._weaponR.eventDispatcher.removeDBEventListener(dragonBones.EventObject.FRAME_EVENT, this._frameEventHandler, this);
+            if (this._weaponR) {
+                this._weaponR.eventDispatcher.removeDBEventListener(dragonBones.EventObject.FRAME_EVENT, this._frameEventHandler, this);
+            }
 
             this._weaponRIndex++;
             this._weaponRIndex %= Mecha.WEAPON_R_LIST.length;
             const weaponName = Mecha.WEAPON_R_LIST[this._weaponRIndex];
-            this._weaponR = dragonBones.EgretFactory.factory.buildArmature(weaponName);
-            this._armature.getSlot("weapon_r").childArmature = this._weaponR;
-            this._weaponR.eventDispatcher.addDBEventListener(dragonBones.EventObject.FRAME_EVENT, this._frameEventHandler, this);
+
+            if (weaponName) {
+                this._weaponR = dragonBones.EgretFactory.factory.buildArmature(weaponName);
+                this._armature.getSlot("weapon_r").childArmature = this._weaponR;
+                this._weaponR.eventDispatcher.addDBEventListener(dragonBones.EventObject.FRAME_EVENT, this._frameEventHandler, this);
+            }
+            else {
+                this._weaponR = null;
+                this._armature.getSlot("weapon_r").childArmature = this._weaponR;
+            }
         }
 
         public switchSkin(): void {
