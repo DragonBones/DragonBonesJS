@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Copyright (c) 2012-2017 DragonBones team and other contributors
+ * Copyright (c) 2012-2018 DragonBones team and other contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -221,7 +221,6 @@ namespace dragonBones {
         }
         /**
          * @internal
-         * @private
          */
         public sortBones(): void {
             const total = this.sortedBones.length;
@@ -266,7 +265,6 @@ namespace dragonBones {
         }
         /**
          * @internal
-         * @private
          */
         public cacheFrames(frameRate: number): void {
             if (this.cacheFrameRate > 0) { // TODO clear cache.
@@ -280,7 +278,6 @@ namespace dragonBones {
         }
         /**
          * @internal
-         * @private
          */
         public setCacheFrame(globalTransformMatrix: Matrix, transform: Transform): number {
             const dataArray = this.parent.cachedFrames;
@@ -302,7 +299,6 @@ namespace dragonBones {
         }
         /**
          * @internal
-         * @private
          */
         public getCacheFrame(globalTransformMatrix: Matrix, transform: Transform, arrayOffset: number): void {
             const dataArray = this.parent.cachedFrames;
@@ -321,7 +317,6 @@ namespace dragonBones {
         }
         /**
          * @internal
-         * @private
          */
         public addBone(value: BoneData): void {
             if (value.name in this.bones) {
@@ -334,7 +329,6 @@ namespace dragonBones {
         }
         /**
          * @internal
-         * @private
          */
         public addSlot(value: SlotData): void {
             if (value.name in this.slots) {
@@ -347,7 +341,6 @@ namespace dragonBones {
         }
         /**
          * @internal
-         * @private
          */
         public addConstraint(value: ConstraintData): void {
             if (value.name in this.constraints) {
@@ -359,7 +352,6 @@ namespace dragonBones {
         }
         /**
          * @internal
-         * @private
          */
         public addSkin(value: SkinData): void {
             if (value.name in this.skins) {
@@ -379,7 +371,6 @@ namespace dragonBones {
         }
         /**
          * @internal
-         * @private
          */
         public addAnimation(value: AnimationData): void {
             if (value.name in this.animations) {
@@ -396,7 +387,6 @@ namespace dragonBones {
         }
         /**
          * @internal
-         * @private
          */
         public addAction(value: ActionData, isDefault: boolean): void {
             if (isDefault) {
@@ -579,7 +569,6 @@ namespace dragonBones {
     }
     /**
      * @internal
-     * @private
      */
     export class SurfaceData extends BoneData {
         public static toString(): string {
@@ -611,12 +600,10 @@ namespace dragonBones {
     export class SlotData extends BaseObject {
         /**
          * @internal
-         * @private
          */
         public static readonly DEFAULT_COLOR: ColorTransform = new ColorTransform();
         /**
          * @internal
-         * @private
          */
         public static createColor(): ColorTransform {
             return new ColorTransform();

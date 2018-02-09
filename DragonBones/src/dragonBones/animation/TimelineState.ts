@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Copyright (c) 2012-2017 DragonBones team and other contributors
+ * Copyright (c) 2012-2018 DragonBones team and other contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -23,7 +23,6 @@
 namespace dragonBones {
     /**
      * @internal
-     * @private
      */
     export class ActionTimelineState extends TimelineState {
         public static toString(): string {
@@ -291,7 +290,6 @@ namespace dragonBones {
     }
     /**
      * @internal
-     * @private
      */
     export class ZOrderTimelineState extends TimelineState {
         public static toString(): string {
@@ -314,7 +312,6 @@ namespace dragonBones {
     }
     /**
      * @internal
-     * @private
      */
     export class BoneAllTimelineState extends BoneTimelineState {
         public static toString(): string {
@@ -404,7 +401,6 @@ namespace dragonBones {
     }
     /**
      * @internal
-     * @private
      */
     export class BoneTranslateTimelineState extends BoneTimelineState {
         public static toString(): string {
@@ -465,7 +461,6 @@ namespace dragonBones {
     }
     /**
      * @internal
-     * @private
      */
     export class BoneRotateTimelineState extends BoneTimelineState {
         public static toString(): string {
@@ -531,7 +526,6 @@ namespace dragonBones {
     }
     /**
      * @internal
-     * @private
      */
     export class BoneScaleTimelineState extends BoneTimelineState {
         public static toString(): string {
@@ -591,7 +585,6 @@ namespace dragonBones {
     }
     /**
      * @internal
-     * @private
      */
     export class SurfaceTimelineState extends TweenTimelineState {
         public static toString(): string {
@@ -728,7 +721,6 @@ namespace dragonBones {
     }
     /**
      * @internal
-     * @private
      */
     export class SlotDislayTimelineState extends SlotTimelineState {
         public static toString(): string {
@@ -746,7 +738,6 @@ namespace dragonBones {
     }
     /**
      * @internal
-     * @private
      */
     export class SlotColorTimelineState extends SlotTimelineState {
         public static toString(): string {
@@ -905,7 +896,6 @@ namespace dragonBones {
     }
     /**
      * @internal
-     * @private
      */
     export class DeformTimelineState extends SlotTimelineState {
         public static toString(): string {
@@ -1071,7 +1061,6 @@ namespace dragonBones {
     }
     /**
      * @internal
-     * @private
      */
     export class IKConstraintTimelineState extends ConstraintTimelineState {
         public static toString(): string {
@@ -1138,7 +1127,6 @@ namespace dragonBones {
     }
     /**
      * @internal
-     * @private
      */
     export class AnimationTimelineState extends TweenTimelineState {
         public static toString(): string {

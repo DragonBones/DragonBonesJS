@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Copyright (c) 2012-2017 DragonBones team and other contributors
+ * Copyright (c) 2012-2018 DragonBones team and other contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -23,7 +23,6 @@
 namespace dragonBones {
     /**
      * @internal
-     * @private
      */
     export class VerticesData {
         public isShared: boolean;
@@ -52,7 +51,6 @@ namespace dragonBones {
     }
     /**
      * @internal
-     * @private
      */
     export abstract class DisplayData extends BaseObject {
         public type: DisplayType;
@@ -70,7 +68,6 @@ namespace dragonBones {
     }
     /**
      * @internal
-     * @private
      */
     export class ImageDisplayData extends DisplayData {
         public static toString(): string {
@@ -90,7 +87,6 @@ namespace dragonBones {
     }
     /**
      * @internal
-     * @private
      */
     export class ArmatureDisplayData extends DisplayData {
         public static toString(): string {
@@ -122,7 +118,6 @@ namespace dragonBones {
     }
     /**
      * @internal
-     * @private
      */
     export class MeshDisplayData extends DisplayData {
         public static toString(): string {
@@ -142,7 +137,6 @@ namespace dragonBones {
     }
     /**
      * @internal
-     * @private
      */
     export class BoundingBoxDisplayData extends DisplayData {
         public static toString(): string {
@@ -164,7 +158,6 @@ namespace dragonBones {
     }
     /**
      * @internal
-     * @private
      */
     export class PathDisplayData extends DisplayData {
         public static toString(): string {
@@ -187,7 +180,6 @@ namespace dragonBones {
     }
     /**
      * @internal
-     * @private
      */
     export class WeightData extends BaseObject {
         public static toString(): string {

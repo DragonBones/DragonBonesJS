@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Copyright (c) 2012-2017 DragonBones team and other contributors
+ * Copyright (c) 2012-2018 DragonBones team and other contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -188,46 +188,38 @@ namespace dragonBones {
         /**
          * - xx: Play Enabled, Fade Play Enabled
          * @internal
-         * @private
          */
         public _playheadState: number;
         /**
          * -1: Fade in, 0: Fade complete, 1: Fade out;
          * @internal
-         * @private
          */
         public _fadeState: number;
         /**
          * -1: Fade start, 0: Fading, 1: Fade complete;
          * @internal
-         * @private
          */
         public _subFadeState: number;
         /**
          * @internal
-         * @private
          */
         public _position: number;
         /**
          * @internal
-         * @private
          */
         public _duration: number;
         private _fadeTime: number;
         private _time: number;
         /**
          * @internal
-         * @private
          */
         public _fadeProgress: number;
         /**
          * @internal
-         * @private
          */
         public _weightResult: number;
         /**
          * @internal
-         * @private
          */
         public readonly _blendState: BlendState = new BlendState();
         private readonly _boneMask: Array<string> = [];
@@ -240,19 +232,16 @@ namespace dragonBones {
         private readonly _bonePoses: Map<BonePose> = {};
         /**
          * @internal
-         * @private
          */
         public _animationData: AnimationData;
         private _armature: Armature;
         /**
          * @internal
-         * @private
          */
         public _actionTimeline: ActionTimelineState = null as any; // Initial value.
         private _zOrderTimeline: ZOrderTimelineState | null = null; // Initial value.
         /**
          * @internal
-         * @private
          */
         public _parent: AnimationState = null as any; // Initial value.
 
@@ -665,7 +654,6 @@ namespace dragonBones {
         }
         /**
          * @internal
-         * @private
          */
         public init(armature: Armature, animationData: AnimationData, animationConfig: AnimationConfig): void {
             if (this._armature !== null) {
@@ -746,7 +734,6 @@ namespace dragonBones {
         }
         /**
          * @internal
-         * @private
          */
         public advanceTime(passedTime: number, cacheFrameRate: number): void {
             this._blendState.dirty = false;
@@ -1274,7 +1261,6 @@ namespace dragonBones {
     }
     /**
      * @internal
-     * @private
      */
     export class BonePose extends BaseObject {
         public static toString(): string {
@@ -1293,7 +1279,6 @@ namespace dragonBones {
     }
     /**
      * @internal
-     * @private
      */
     export class BlendState {
         public dirty: boolean;

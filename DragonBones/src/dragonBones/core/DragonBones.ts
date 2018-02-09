@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Copyright (c) 2012-2017 DragonBones team and other contributors
+ * Copyright (c) 2012-2018 DragonBones team and other contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -23,7 +23,6 @@
 namespace dragonBones {
     /**
      * @internal
-     * @private
      */
     export const enum BinaryOffset {
         WeigthBoneCount = 0,
@@ -60,7 +59,6 @@ namespace dragonBones {
     }
     /**
      * @internal
-     * @private
      */
     export const enum ArmatureType {
         Armature = 0,
@@ -69,7 +67,6 @@ namespace dragonBones {
     }
     /**
      * @internal
-     * @private
      */
     export const enum BoneType {
         Bone = 0,
@@ -102,7 +99,6 @@ namespace dragonBones {
     }
     /**
      * @internal
-     * @private
      */
     export const enum ActionType {
         Play = 0,
@@ -111,7 +107,6 @@ namespace dragonBones {
     }
     /**
      * @internal
-     * @private
      */
     export const enum BlendMode {
         Normal = 0,
@@ -131,7 +126,6 @@ namespace dragonBones {
     }
     /**
      * @internal
-     * @private
      */
     export const enum TweenType {
         None = 0,
@@ -143,7 +137,6 @@ namespace dragonBones {
     }
     /**
      * @internal
-     * @private
      */
     export const enum TimelineType {
         Action = 0,

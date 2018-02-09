@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Copyright (c) 2012-2017 DragonBones team and other contributors
+ * Copyright (c) 2012-2018 DragonBones team and other contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -71,7 +71,6 @@ namespace dragonBones {
         protected _blendModeDirty: boolean;
         /**
          * @internal
-         * @private
          */
         public _colorDirty: boolean;
         protected _transformDirty: boolean;
@@ -81,24 +80,20 @@ namespace dragonBones {
         protected _animationDisplayIndex: number;
         /**
          * @internal
-         * @private
          */
         public _zOrder: number;
         protected _cachedFrameIndex: number;
         /**
          * @internal
-         * @private
          */
         public _pivotX: number;
         /**
          * @internal
-         * @private
          */
         public _pivotY: number;
         protected readonly _localMatrix: Matrix = new Matrix();
         /**
          * @internal
-         * @private
          */
         public readonly _colorTransform: ColorTransform = new ColorTransform();
         /**
@@ -108,13 +103,11 @@ namespace dragonBones {
         protected readonly _displayList: Array<any | Armature> = [];
         /**
          * @internal
-         * @private
          */
         public _slotData: SlotData;
         protected _rawDisplayDatas: Array<DisplayData | null> | null;
         /**
          * @internal
-         * @private
          */
         public _displayData: DisplayData | null;
         protected _boundingBoxData: BoundingBoxData | null;
@@ -129,7 +122,6 @@ namespace dragonBones {
         protected _childArmature: Armature | null;
         /**
          * @internal
-         * @private
          */
         public _cachedFrameIndices: Array<number> | null;
 
@@ -221,7 +213,7 @@ namespace dragonBones {
         protected abstract _updateTransform(): void;
         protected abstract _identityTransform(): void;
         /**
-         * Support default skin data.
+         * - Support default skin data.
          */
         protected _getDefaultRawDisplayData(displayIndex: number): DisplayData | null {
             const defaultSkin = this._armature._armatureData.defaultSkin;
@@ -496,7 +488,6 @@ namespace dragonBones {
         }
         /**
          * @internal
-         * @private
          */
         public _setDisplayIndex(value: number, isAnimation: boolean = false): boolean {
             if (isAnimation) {
@@ -520,7 +511,6 @@ namespace dragonBones {
         }
         /**
          * @internal
-         * @private
          */
         public _setZorder(value: number): boolean {
             if (this._zOrder === value) {
@@ -534,7 +524,6 @@ namespace dragonBones {
         }
         /**
          * @internal
-         * @private
          */
         public _setColor(value: ColorTransform): boolean {
             this._colorTransform.copyFrom(value);
@@ -544,7 +533,6 @@ namespace dragonBones {
         }
         /**
          * @internal
-         * @private
          */
         public _setDisplayList(value: Array<any> | null): boolean {
             if (value !== null && value.length > 0) {
@@ -581,7 +569,6 @@ namespace dragonBones {
         }
         /**
          * @internal
-         * @private
          */
         public init(slotData: SlotData, displayDatas: Array<DisplayData | null> | null, rawDisplay: any, meshDisplay: any): void {
             if (this._slotData !== null) {
@@ -608,7 +595,6 @@ namespace dragonBones {
         }
         /**
          * @internal
-         * @private
          */
         public update(cacheFrameIndex: number): void {
             if (this._displayDirty) {
@@ -1109,9 +1095,9 @@ namespace dragonBones {
          * @example
          * <pre>
          *     let slot = armature.getSlot("weapon");
-         *     let prevChildArmature = slot.childArmature;
-         *     if (prevChildArmature) {
-         *         prevChildArmature.dispose();
+         * let prevChildArmature = slot.childArmature;
+         * if (prevChildArmature) {
+         * prevChildArmature.dispose();
          *     }
          *     slot.childArmature = factory.buildArmature("weapon_blabla", "weapon_blabla_project");
          * </pre>
@@ -1124,9 +1110,9 @@ namespace dragonBones {
          * @example
          * <pre>
          *     let slot = armature.getSlot("weapon");
-         *     let prevChildArmature = slot.childArmature;
-         *     if (prevChildArmature) {
-         *         prevChildArmature.dispose();
+         * let prevChildArmature = slot.childArmature;
+         * if (prevChildArmature) {
+         * prevChildArmature.dispose();
          *     }
          *     slot.childArmature = factory.buildArmature("weapon_blabla", "weapon_blabla_project");
          * </pre>

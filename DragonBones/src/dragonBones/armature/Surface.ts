@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Copyright (c) 2012-2017 DragonBones team and other contributors
+ * Copyright (c) 2012-2018 DragonBones team and other contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -23,7 +23,6 @@
 namespace dragonBones {
     /**
      * @internal
-     * @private
      */
     export class Surface extends Bone {
         public static toString(): string {
@@ -36,23 +35,21 @@ namespace dragonBones {
         private _kX: number;
         private _kY: number;
         /**
-         * For debug draw.
+         * - For debug draw.
          * @internal
-         * @private
          */
         public readonly _vertices: Array<number> = [];
         /**
-         * For timeline state.
+         * - For timeline state.
          * @internal
-         * @private
          */
         public readonly _deformVertices: Array<number> = [];
         /**
-         * x1, y1, x2, y2, x3, y3, x4, y4, d1X, d1Y, d2X, d2Y
+         * - x1, y1, x2, y2, x3, y3, x4, y4, d1X, d1Y, d2X, d2Y
          */
         private readonly _hullCache: Array<number> = [];
         /**
-         * Inside [flag, a, b, c, d, tx, ty], Outside [flag, a, b, c, d, tx, ty]
+         * - Inside [flag, a, b, c, d, tx, ty], Outside [flag, a, b, c, d, tx, ty]
          */
         private readonly _matrixCahce: Array<number> = [];
 
@@ -465,7 +462,6 @@ namespace dragonBones {
         }
         /**
          * @internal
-         * @private
          */
         public update(cacheFrameIndex: number): void {
             this._blendState.dirty = false;

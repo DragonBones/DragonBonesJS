@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Copyright (c) 2012-2017 DragonBones team and other contributors
+ * Copyright (c) 2012-2018 DragonBones team and other contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -38,19 +38,16 @@ namespace dragonBones {
         /**
          * - FrameIntArray.
          * @internal
-         * @private
          */
         public frameIntOffset: number;
         /**
          * - FrameFloatArray.
          * @internal
-         * @private
          */
         public frameFloatOffset: number;
         /**
          * - FrameArray.
          * @internal
-         * @private
          */
         public frameOffset: number;
         /**
@@ -242,7 +239,6 @@ namespace dragonBones {
         }
         /**
          * @internal
-         * @private
          */
         public cacheFrames(frameRate: number): void {
             if (this.cacheFrameRate > 0.0) { // TODO clear cache.
@@ -365,7 +361,6 @@ namespace dragonBones {
     }
     /**
      * @internal
-     * @private
      */
     export class TimelineData extends BaseObject {
         public static toString(): string {

@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Copyright (c) 2012-2017 DragonBones team and other contributors
+ * Copyright (c) 2012-2018 DragonBones team and other contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -74,20 +74,17 @@ namespace dragonBones {
         private _flipY: boolean;
         /**
          * @internal
-         * @private
          */
         public _cacheFrameIndex: number;
         private readonly _bones: Array<Bone> = [];
         private readonly _slots: Array<Slot> = [];
         /**
          * @internal
-         * @private
          */
         public readonly _constraints: Array<Constraint> = [];
         private readonly _actions: Array<ActionData> = [];
         /**
          * @internal
-         * @private
          */
         public _armatureData: ArmatureData;
         private _animation: Animation = null as any; // Initial value.
@@ -95,19 +92,16 @@ namespace dragonBones {
         private _display: any;
         /**
          * @internal
-         * @private
          */
         public _replaceTextureAtlasData: TextureAtlasData | null = null; // Initial value.
         private _replacedTexture: any;
         /**
          * @internal
-         * @private
          */
         public _dragonBones: DragonBones;
         private _clock: WorldClock | null = null; // Initial value.
         /**
          * @internal
-         * @private
          */
         public _parent: Slot | null;
         
@@ -214,7 +208,6 @@ namespace dragonBones {
         }
         /**
          * @internal
-         * @private
          */
         public _sortZOrder(slotIndices: Array<number> | Int16Array | null, offset: number): void {
             const slotDatas = this._armatureData.sortedSlots;
@@ -240,7 +233,6 @@ namespace dragonBones {
         }
         /**
          * @internal
-         * @private
          */
         public _addBoneToBoneList(value: Bone): void {
             if (this._bones.indexOf(value) < 0) {
@@ -250,7 +242,6 @@ namespace dragonBones {
         }
         /**
          * @internal
-         * @private
          */
         public _removeBoneFromBoneList(value: Bone): void {
             const index = this._bones.indexOf(value);
@@ -260,7 +251,6 @@ namespace dragonBones {
         }
         /**
          * @internal
-         * @private
          */
         public _addSlotToSlotList(value: Slot): void {
             if (this._slots.indexOf(value) < 0) {
@@ -270,7 +260,6 @@ namespace dragonBones {
         }
         /**
          * @internal
-         * @private
          */
         public _removeSlotFromSlotList(value: Slot): void {
             const index = this._slots.indexOf(value);
@@ -280,7 +269,6 @@ namespace dragonBones {
         }
         /**
          * @internal
-         * @private
          */
         public _bufferAction(action: ActionData, append: boolean): void {
             if (this._actions.indexOf(action) < 0) {
@@ -320,7 +308,6 @@ namespace dragonBones {
         }
         /**
          * @internal
-         * @private
          */
         public init(
             armatureData: ArmatureData,

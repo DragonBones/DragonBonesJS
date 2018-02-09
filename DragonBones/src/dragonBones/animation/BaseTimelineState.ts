@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Copyright (c) 2012-2017 DragonBones team and other contributors
+ * Copyright (c) 2012-2018 DragonBones team and other contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -23,7 +23,6 @@
 namespace dragonBones {
     /**
      * @internal
-     * @private
      */
     export const enum TweenState {
         None,
@@ -32,7 +31,6 @@ namespace dragonBones {
     }
     /**
      * @internal
-     * @private
      */
     export abstract class TimelineState extends BaseObject {
         public playState: number; // -1: start, 0: play, 1: complete;
@@ -228,7 +226,6 @@ namespace dragonBones {
     }
     /**
      * @internal
-     * @private
      */
     export abstract class TweenTimelineState extends TimelineState {
         private static _getEasingValue(tweenType: TweenType, progress: number, easing: number): number {
@@ -341,7 +338,6 @@ namespace dragonBones {
     }
     /**
      * @internal
-     * @private
      */
     export abstract class BoneTimelineState extends TweenTimelineState {
         public bone: Bone;
@@ -391,7 +387,6 @@ namespace dragonBones {
     }
     /**
      * @internal
-     * @private
      */
     export abstract class SlotTimelineState extends TweenTimelineState {
         public slot: Slot;
@@ -404,7 +399,6 @@ namespace dragonBones {
     }
     /**
      * @internal
-     * @private
      */
     export abstract class ConstraintTimelineState extends TweenTimelineState {
         public constraint: Constraint;

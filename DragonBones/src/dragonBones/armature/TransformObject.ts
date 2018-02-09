@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Copyright (c) 2012-2017 DragonBones team and other contributors
+ * Copyright (c) 2012-2018 DragonBones team and other contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -85,12 +85,10 @@ namespace dragonBones {
         protected _globalDirty: boolean;
         /**
          * @internal
-         * @private
          */
         public _armature: Armature;
         /**
          * @internal
-         * @private
          */
         public _parent: Bone;
         
@@ -107,14 +105,12 @@ namespace dragonBones {
         }
         /**
          * @internal
-         * @private
          */
         public _setArmature(value: Armature | null): void {
             this._armature = value as any;
         }
         /**
          * @internal
-         * @private
          */
         public _setParent(value: Bone | null): void {
             this._parent = value as any;

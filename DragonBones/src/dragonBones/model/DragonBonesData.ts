@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Copyright (c) 2012-2017 DragonBones team and other contributors
+ * Copyright (c) 2012-2018 DragonBones team and other contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -84,12 +84,10 @@ namespace dragonBones {
         public stage: ArmatureData | null;
         /**
          * @internal
-         * @private
          */
         public readonly frameIndices: Array<number> = [];
         /**
          * @internal
-         * @private
          */
         public readonly cachedFrames: Array<number> = [];
         /**
@@ -109,37 +107,30 @@ namespace dragonBones {
         public readonly armatures: Map<ArmatureData> = {};
         /**
          * @internal
-         * @private
          */
         public binary: ArrayBuffer;
         /**
          * @internal
-         * @private
          */
         public intArray: Int16Array;
         /**
          * @internal
-         * @private
          */
         public floatArray: Float32Array;
         /**
          * @internal
-         * @private
          */
         public frameIntArray: Int16Array;
         /**
          * @internal
-         * @private
          */
         public frameFloatArray: Float32Array;
         /**
          * @internal
-         * @private
          */
         public frameArray: Int16Array;
         /**
          * @internal
-         * @private
          */
         public timelineArray: Uint16Array;
         /**
@@ -177,7 +168,6 @@ namespace dragonBones {
         }
         /**
          * @internal
-         * @private
          */
         public addArmature(value: ArmatureData): void {
             if (value.name in this.armatures) {

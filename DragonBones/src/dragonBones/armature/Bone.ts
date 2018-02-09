@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Copyright (c) 2012-2017 DragonBones team and other contributors
+ * Copyright (c) 2012-2018 DragonBones team and other contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -59,40 +59,33 @@ namespace dragonBones {
         public offsetMode: OffsetMode;
         /**
          * @internal
-         * @private
          */
         public readonly animationPose: Transform = new Transform();
         /**
          * @internal
-         * @private
          */
         public _transformDirty: boolean;
         /**
          * @internal
-         * @private
          */
         public _childrenTransformDirty: boolean;
         protected _localDirty: boolean;
         /**
          * @internal
-         * @private
          */
         public _hasConstraint: boolean;
         private _visible: boolean;
         protected _cachedFrameIndex: number;
         /**
          * @internal
-         * @private
          */
         public readonly _blendState: BlendState = new BlendState();
         /**
          * @internal
-         * @private
          */
         public _boneData: BoneData;
         /**
          * @internal
-         * @private
          */
         public _cachedFrameIndices: Array<number> | null;
 
@@ -321,7 +314,6 @@ namespace dragonBones {
         }
         /**
          * @internal
-         * @private
          */
         public init(boneData: BoneData): void {
             if (this._boneData !== null) {
@@ -334,7 +326,6 @@ namespace dragonBones {
         }
         /**
          * @internal
-         * @private
          */
         public update(cacheFrameIndex: number): void {
             this._blendState.dirty = false;
@@ -417,7 +408,6 @@ namespace dragonBones {
         }
         /**
          * @internal
-         * @private
          */
         public updateByConstraint(): void {
             if (this._localDirty) {

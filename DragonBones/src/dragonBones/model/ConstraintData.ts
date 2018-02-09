@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Copyright (c) 2012-2017 DragonBones team and other contributors
+ * Copyright (c) 2012-2018 DragonBones team and other contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -23,7 +23,6 @@
 namespace dragonBones {
     /**
      * @internal
-     * @private
      */
     export abstract class ConstraintData extends BaseObject {
         public order: number;
@@ -44,7 +43,6 @@ namespace dragonBones {
     }
     /**
      * @internal
-     * @private
      */
     export class IKConstraintData extends ConstraintData {
         public static toString(): string {
@@ -66,7 +64,6 @@ namespace dragonBones {
 
     /**
      * @internal
-     * @private
      */
     export class PathConstraintData extends ConstraintData {
         public static toString(): string {
