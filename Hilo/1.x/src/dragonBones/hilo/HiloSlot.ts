@@ -132,7 +132,7 @@ namespace dragonBones {
          * @inheritDoc
          */
         protected _updateFrame(): void {
-            const meshData = this._display === this._meshDisplay ? this._meshData : null;
+            const currentVerticesData = (this._deformVertices !== null && this._display === this._meshDisplay) ? this._deformVertices.verticesData : null;
             let currentTextureData = this._textureData as (HiloTextureData | null);
 
             if (this._displayIndex >= 0 && this._display !== null && currentTextureData !== null) {
@@ -153,7 +153,7 @@ namespace dragonBones {
 
                 const renderTexture = currentTextureAtlasData.renderTexture;
                 if (renderTexture !== null) {
-                    if (meshData !== null) { // Mesh.
+                    if (currentVerticesData !== null) { // Mesh.
                         // TODO
                     }
                     else { // Normal texture.
@@ -167,7 +167,7 @@ namespace dragonBones {
                 }
             }
 
-            if (meshData !== null) {
+            if (currentVerticesData !== null) {
                 // TODO
             }
             else {
