@@ -34,15 +34,8 @@ namespace dragonBones {
         private _k: number;
         private _kX: number;
         private _kY: number;
-        /**
-         * - For debug draw.
-         * @internal
-         */
+        
         public readonly _vertices: Array<number> = [];
-        /**
-         * - For timeline state.
-         * @internal
-         */
         public readonly _deformVertices: Array<number> = [];
         /**
          * - x1, y1, x2, y2, x3, y3, x4, y4, d1X, d1Y, d2X, d2Y

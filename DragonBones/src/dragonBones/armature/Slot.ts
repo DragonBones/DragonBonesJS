@@ -96,20 +96,14 @@ namespace dragonBones {
          * @internal
          */
         public readonly _colorTransform: ColorTransform = new ColorTransform();
-        /**
-         * @internal
-         */
-        public readonly _displayDatas: Array<DisplayData | null> = [];
+        protected readonly _displayDatas: Array<DisplayData | null> = [];
         protected readonly _displayList: Array<any | Armature> = [];
         /**
          * @internal
          */
         public _slotData: SlotData;
         protected _rawDisplayDatas: Array<DisplayData | null> | null;
-        /**
-         * @internal
-         */
-        public _displayData: DisplayData | null;
+        protected _displayData: DisplayData | null;
         protected _boundingBoxData: BoundingBoxData | null;
         protected _textureData: TextureData | null;
         /**
@@ -451,7 +445,7 @@ namespace dragonBones {
                 }
             }
         }
-        
+
         protected _updateGlobalTransformMatrix(isCache: boolean): void {
             const parentMatrix = this._parent._boneData.type === BoneType.Bone ? this._parent.globalTransformMatrix : (this._parent as Surface)._getGlobalTransformMatrix(this.global.x, this.global.y);
             this.globalTransformMatrix.copyFrom(this._localMatrix);
@@ -1018,6 +1012,12 @@ namespace dragonBones {
             else {
                 this._displayDatas.length = 0;
             }
+        }
+        /**
+         * @private
+         */
+        public get displayData(): DisplayData | null {
+            return this._displayData;
         }
         /**
          * - The custom bounding box data for the slot at current time.

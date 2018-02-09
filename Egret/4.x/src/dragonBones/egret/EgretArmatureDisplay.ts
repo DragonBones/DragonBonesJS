@@ -610,7 +610,7 @@ namespace dragonBones {
                             }
                         }
                         else {
-                            const displayData = slot._displayDatas[slot.displayIndex];
+                            const displayData = slot.displayData;
                             if (displayData && displayData instanceof ImageDisplayData && displayData.texture) {
                                 const scale = displayData.texture.parent.scale;
                                 helpRectangle.x = 0;
