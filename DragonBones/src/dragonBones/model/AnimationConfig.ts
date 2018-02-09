@@ -273,9 +273,7 @@ namespace dragonBones {
          * @private
          */
         public readonly boneMask: Array<string> = [];
-        /**
-         * @private
-         */
+
         protected _onClear(): void {
             this.pauseFadeOut = true;
             this.fadeOutMode = AnimationFadeOutMode.All;

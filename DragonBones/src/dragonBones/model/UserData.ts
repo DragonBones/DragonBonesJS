@@ -68,9 +68,7 @@ namespace dragonBones {
          * @language zh_CN
          */
         public readonly strings: Array<string> = [];
-        /**
-         * @inheritDoc
-         */
+
         protected _onClear(): void {
             this.ints.length = 0;
             this.floats.length = 0;

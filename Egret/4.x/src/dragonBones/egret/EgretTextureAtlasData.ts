@@ -42,9 +42,7 @@ namespace dragonBones {
         public disposeEnabled: boolean;
 
         private _renderTexture: egret.Texture | null = null; // Initial value.
-        /**
-         * @inheritDoc
-         */
+
         protected _onClear(): void {
             super._onClear();
 

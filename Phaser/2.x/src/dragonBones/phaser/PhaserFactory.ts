@@ -74,17 +74,13 @@ namespace dragonBones {
 
             this._dragonBones = PhaserFactory._dragonBonesInstance;
         }
-        /**
-         * @private
-         */
+
         protected _isSupportMesh(): boolean {
             console.warn("Phaser-ce can not support mesh.");
 
             return false;
         }
-        /**
-         * @inheritDoc
-         */
+
         protected _buildTextureAtlasData(textureAtlasData: PhaserTextureAtlasData | null, textureAtlas: PIXI.BaseTexture | null): PhaserTextureAtlasData {
             if (textureAtlasData) {
                 textureAtlasData.renderTexture = textureAtlas;
@@ -95,9 +91,7 @@ namespace dragonBones {
 
             return textureAtlasData;
         }
-        /**
-         * @inheritDoc
-         */
+
         protected _buildArmature(dataPackage: BuildArmaturePackage): Armature {
             const armature = BaseObject.borrowObject(Armature);
             const armatureDisplay = new PhaserArmatureDisplay();
@@ -109,9 +103,7 @@ namespace dragonBones {
 
             return armature;
         }
-        /**
-         * @inheritDoc
-         */
+
         protected _buildSlot(dataPackage: BuildArmaturePackage, slotData: SlotData, displays: Array<DisplayData | null> | null, armature: Armature): Slot {
             // tslint:disable-next-line:no-unused-expression
             dataPackage;

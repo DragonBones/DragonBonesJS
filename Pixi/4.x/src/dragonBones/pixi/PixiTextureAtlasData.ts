@@ -37,9 +37,7 @@ namespace dragonBones {
         }
 
         private _renderTexture: PIXI.BaseTexture | null = null; // Initial value.
-        /**
-         * @inheritDoc
-         */
+
         protected _onClear(): void {
             super._onClear();
 

@@ -38,9 +38,7 @@ namespace dragonBones {
 
         private _textureScale: number;
         private _renderDisplay: PIXI.DisplayObject;
-        /**
-         * @inheritDoc
-         */
+
         protected _onClear(): void {
             super._onClear();
 
@@ -48,18 +46,14 @@ namespace dragonBones {
             this._renderDisplay = null as any;
             this._updateTransform = PIXI.VERSION[0] === "3" ? this._updateTransformV3 : this._updateTransformV4;
         }
-        /**
-         * @inheritDoc
-         */
+
         protected _initDisplay(value: any, isRetain: boolean): void {
             // tslint:disable-next-line:no-unused-expression
             value;
             // tslint:disable-next-line:no-unused-expression
             isRetain;
         }
-        /**
-         * @inheritDoc
-         */
+
         protected _disposeDisplay(value: any, isRelease: boolean): void {
             // tslint:disable-next-line:no-unused-expression
             value;
@@ -67,22 +61,16 @@ namespace dragonBones {
                 (value as PIXI.DisplayObject).destroy();
             }
         }
-        /**
-         * @inheritDoc
-         */
+
         protected _onUpdateDisplay(): void {
             this._renderDisplay = (this._display ? this._display : this._rawDisplay) as PIXI.DisplayObject;
         }
-        /**
-         * @inheritDoc
-         */
+
         protected _addDisplay(): void {
             const container = this._armature.display as PixiArmatureDisplay;
             container.addChild(this._renderDisplay);
         }
-        /**
-         * @inheritDoc
-         */
+
         protected _replaceDisplay(value: any): void {
             const container = this._armature.display as PixiArmatureDisplay;
             const prevDisplay = value as PIXI.DisplayObject;
@@ -91,15 +79,11 @@ namespace dragonBones {
             container.removeChild(prevDisplay);
             this._textureScale = 1.0;
         }
-        /**
-         * @inheritDoc
-         */
+
         protected _removeDisplay(): void {
             this._renderDisplay.parent.removeChild(this._renderDisplay);
         }
-        /**
-         * @inheritDoc
-         */
+
         protected _updateZOrder(): void {
             const container = this._armature.display as PixiArmatureDisplay;
             const index = container.getChildIndex(this._renderDisplay);
@@ -110,14 +94,12 @@ namespace dragonBones {
             container.addChildAt(this._renderDisplay, this._zOrder);
         }
         /**
-         * @inheritDoc
+         * @internal
          */
         public _updateVisible(): void {
             this._renderDisplay.visible = this._parent.visible && this._visible;
         }
-        /**
-         * @inheritDoc
-         */
+
         protected _updateBlendMode(): void {
             if (this._renderDisplay instanceof PIXI.Sprite) {
                 switch (this._blendMode) {
@@ -163,9 +145,7 @@ namespace dragonBones {
             }
             // TODO child armature.
         }
-        /**
-         * @inheritDoc
-         */
+
         protected _updateColor(): void {
             this._renderDisplay.alpha = this._colorTransform.alphaMultiplier;
             if (this._renderDisplay instanceof PIXI.Sprite || this._renderDisplay instanceof PIXI.mesh.Mesh) {
@@ -174,9 +154,7 @@ namespace dragonBones {
             }
             // TODO child armature.
         }
-        /**
-         * @inheritDoc
-         */
+
         protected _updateFrame(): void {
             const currentVerticesData = (this._deformVertices !== null && this._display === this._meshDisplay) ? this._deformVertices.verticesData : null;
             let currentTextureData = this._textureData as (PixiTextureData | null);
@@ -275,9 +253,7 @@ namespace dragonBones {
                 normalDisplay.visible = false;
             }
         }
-        /**
-         * @inheritDoc
-         */
+
         protected _updateMesh(): void {
             const scale = this._armature._armatureData.scale;
             const deformVertices = (this._deformVertices as DeformVertices).vertices;
@@ -360,20 +336,16 @@ namespace dragonBones {
             }
         }
         /**
-         * @inheritDoc
+         * @internal
          */
         public _updateGlueMesh(): void {
             // TODO
         }
-        /**
-         * @inheritDoc
-         */
+
         protected _updateTransform(): void {
             throw new Error();
         }
-        /**
-         * @inheritDoc
-         */
+
         protected _updateTransformV3(): void {
             this.updateGlobalTransform(); // Update transform.
 
@@ -396,9 +368,7 @@ namespace dragonBones {
                 this._renderDisplay.scale.set(transform.scaleX, transform.scaleY);
             }
         }
-        /**
-         * @inheritDoc
-         */
+
         protected _updateTransformV4(): void {
             this.updateGlobalTransform(); // Update transform.
 
@@ -421,9 +391,7 @@ namespace dragonBones {
                 this._renderDisplay.scale.set(transform.scaleX, transform.scaleY);
             }
         }
-        /**
-         * @inheritDoc
-         */
+
         protected _identityTransform(): void {
             this._renderDisplay.setTransform(0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 0.0);
         }

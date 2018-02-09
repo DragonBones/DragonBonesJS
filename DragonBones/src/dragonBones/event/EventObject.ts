@@ -234,9 +234,7 @@ namespace dragonBones {
          * @language zh_CN
          */
         public data: UserData | null;
-        /**
-         * @private
-         */
+
         protected _onClear(): void {
             this.time = 0.0;
             this.type = "";

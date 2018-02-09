@@ -38,49 +38,37 @@ namespace dragonBones {
 
         private _textureScale: number;
         private _renderDisplay: Hilo.View;
-        /**
-         * @inheritDoc
-         */
+
         protected _onClear(): void {
             super._onClear();
 
             this._textureScale = 1.0;
             this._renderDisplay = null as any;
         }
-        /**
-         * @inheritDoc
-         */
+
         protected _initDisplay(value: any, isRetain: boolean): void {
             // tslint:disable-next-line:no-unused-expression
             value;
             // tslint:disable-next-line:no-unused-expression
             isRetain;
         }
-        /**
-         * @inheritDoc
-         */
+
         protected _disposeDisplay(value: any, isRelease: boolean): void {
             // tslint:disable-next-line:no-unused-expression
             value;
             // tslint:disable-next-line:no-unused-expression
             isRelease;
         }
-        /**
-         * @inheritDoc
-         */
+
         protected _onUpdateDisplay(): void {
             this._renderDisplay = (this._display ? this._display : this._rawDisplay) as Hilo.View;
         }
-        /**
-         * @inheritDoc
-         */
+
         protected _addDisplay(): void {
             const container = this._armature.display as HiloArmatureDisplay;
             container.addChild(this._renderDisplay);
         }
-        /**
-         * @inheritDoc
-         */
+
         protected _replaceDisplay(value: any): void {
             const container = this._armature.display as HiloArmatureDisplay;
             const prevDisplay = value as Hilo.View;
@@ -89,15 +77,11 @@ namespace dragonBones {
             container.removeChild(prevDisplay);
             this._textureScale = 1.0;
         }
-        /**
-         * @inheritDoc
-         */
+
         protected _removeDisplay(): void {
             this._renderDisplay.parent.removeChild(this._renderDisplay);
         }
-        /**
-         * @inheritDoc
-         */
+
         protected _updateZOrder(): void {
             const container = this._armature.display as HiloArmatureDisplay;
             const index = container.getChildIndex(this._renderDisplay);
@@ -108,29 +92,23 @@ namespace dragonBones {
             container.addChildAt(this._renderDisplay, this._zOrder);
         }
         /**
-         * @inheritDoc
+         * @internal
          */
         public _updateVisible(): void {
             this._renderDisplay.visible = this._parent.visible && this._visible;
         }
-        /**
-         * @inheritDoc
-         */
+
         protected _updateBlendMode(): void {
             // TODO
         }
-        /**
-         * @inheritDoc
-         */
+
         protected _updateColor(): void {
             const color = (Math.round(this._colorTransform.redMultiplier * 0xFF) << 16) + (Math.round(this._colorTransform.greenMultiplier * 0xFF) << 8) + Math.round(this._colorTransform.blueMultiplier * 0xFF);
 
             this._renderDisplay.alpha = this._colorTransform.alphaMultiplier;
             this._renderDisplay.tint = color;
         }
-        /**
-         * @inheritDoc
-         */
+
         protected _updateFrame(): void {
             const currentVerticesData = (this._deformVertices !== null && this._display === this._meshDisplay) ? this._deformVertices.verticesData : null;
             let currentTextureData = this._textureData as (HiloTextureData | null);
@@ -178,21 +156,17 @@ namespace dragonBones {
                 normalDisplay.visible = false;
             }
         }
-        /**
-         * @inheritDoc
-         */
+
         protected _updateMesh(): void {
             // TODO
         }
         /**
-         * @inheritDoc
+         * @internal
          */
         public _updateGlueMesh(): void {
             // TODO
         }
-        /**
-         * @inheritDoc
-         */
+
         protected _updateTransform(): void {
             this.updateGlobalTransform(); // Update transform.
 
@@ -217,9 +191,7 @@ namespace dragonBones {
                 this._renderDisplay.scaleY = transform.scaleY * this._textureScale;
             }
         }
-        /**
-         * @inheritDoc
-         */
+
         protected _identityTransform(): void {
             this._renderDisplay.x = 0.0;
             this._renderDisplay.y = 0.0;

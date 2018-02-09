@@ -74,9 +74,7 @@ namespace dragonBones {
 
             this._dragonBones = PixiFactory._dragonBonesInstance;
         }
-        /**
-         * @inheritDoc
-         */
+
         protected _buildTextureAtlasData(textureAtlasData: PixiTextureAtlasData | null, textureAtlas: PIXI.BaseTexture | null): PixiTextureAtlasData {
             if (textureAtlasData) {
                 textureAtlasData.renderTexture = textureAtlas;
@@ -87,9 +85,7 @@ namespace dragonBones {
 
             return textureAtlasData;
         }
-        /**
-         * @inheritDoc
-         */
+
         protected _buildArmature(dataPackage: BuildArmaturePackage): Armature {
             const armature = BaseObject.borrowObject(Armature);
             const armatureDisplay = new PixiArmatureDisplay();
@@ -101,9 +97,7 @@ namespace dragonBones {
 
             return armature;
         }
-        /**
-         * @inheritDoc
-         */
+
         protected _buildSlot(dataPackage: BuildArmaturePackage, slotData: SlotData, displays: Array<DisplayData | null> | null, armature: Armature): Slot {
             // tslint:disable-next-line:no-unused-expression
             dataPackage;

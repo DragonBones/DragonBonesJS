@@ -248,7 +248,7 @@ namespace dragonBones {
         private _boneLengths: Array<number> = [];
 
         private _pathGlobalVertices: Array<number> = [];
-        private _segments : Array<number> = [10];
+        private _segments: Array<number> = [10];
 
         public static toString(): string {
             return "[class dragonBones.PathConstraint]";
@@ -347,16 +347,17 @@ namespace dragonBones {
                 this._pathGlobalVertices[iW++] = yG;
             }
         }
-        //TODO优化
+        
         protected _computeVertices(start: number, count: number, offset: number, out: Array<number>): void {
+            //TODO优化
             for (let i = offset, iW = start; i < count; i += 2) {
                 out[i] = this._pathGlobalVertices[iW++];
                 out[i + 1] = this._pathGlobalVertices[iW++];
             }
         }
 
-        //计算当前的骨骼在曲线上的位置
         protected _computeBezierCurve(pathDisplayDta: PathDisplayData, spaceCount: number, tangents: boolean, percentPosition: boolean, percentSpacing: boolean): void {
+            //计算当前的骨骼在曲线上的位置
             const armature = this._armature;
             const intArray = armature.armatureData.parent.intArray;
             const vertexCount = intArray[pathDisplayDta.vertices.offset + BinaryOffset.PathVertexCount];
@@ -754,8 +755,8 @@ namespace dragonBones {
                     rotateOffset *= matrix.a * matrix.d - matrix.b * matrix.c > 0 ? Transform.DEG_RAD : - Transform.DEG_RAD;
                 }
             }
-            
-             //
+
+            //
             const rotateMix = this.rotateMix;
             const translateMix = this.translateMix;
             for (let i = 0, p = 3; i < boneCount; i++ , p += 3) {

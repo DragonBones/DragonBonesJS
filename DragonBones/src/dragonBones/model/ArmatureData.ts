@@ -154,9 +154,7 @@ namespace dragonBones {
          * @private
          */
         public parent: DragonBonesData;
-        /**
-         * @inheritDoc
-         */
+
         protected _onClear(): void {
             for (const action of this.defaultActions) {
                 action.returnToPool();
@@ -561,11 +559,8 @@ namespace dragonBones {
          * @language zh_CN
          */
         public parent: BoneData | null;
-        /**
-         * @inheritDoc
-         */
-        protected _onClear(): void {
 
+        protected _onClear(): void {
             if (this.userData !== null) {
                 this.userData.returnToPool();
             }
@@ -593,9 +588,7 @@ namespace dragonBones {
         public segmentX: number;
         public segmentY: number;
         public readonly vertices: Array<number> = [];
-        /**
-         * @inheritDoc
-         */
+
         protected _onClear(): void {
             super._onClear();
 
@@ -674,9 +667,7 @@ namespace dragonBones {
          * @language zh_CN
          */
         public parent: BoneData;
-        /**
-         * @inheritDoc
-         */
+
         protected _onClear(): void {
             if (this.userData !== null) {
                 this.userData.returnToPool();

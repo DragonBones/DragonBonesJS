@@ -82,9 +82,7 @@ namespace dragonBones {
 
             this._dragonBones = EgretFactory._dragonBonesInstance;
         }
-        /**
-         * @inheritDoc
-         */
+
         protected _isSupportMesh(): boolean {
             if (egret.Capabilities.renderMode === "webgl" || egret.Capabilities.runtimeType === egret.RuntimeType.NATIVE) {
                 return true;
@@ -94,9 +92,7 @@ namespace dragonBones {
 
             return false;
         }
-        /**
-         * @inheritDoc
-         */
+
         protected _buildTextureAtlasData(textureAtlasData: EgretTextureAtlasData | null, textureAtlas: egret.Texture | HTMLImageElement | null): EgretTextureAtlasData {
             if (textureAtlasData !== null) {
                 if (textureAtlas instanceof egret.Texture) {
@@ -115,9 +111,7 @@ namespace dragonBones {
 
             return textureAtlasData;
         }
-        /**
-         * @inheritDoc
-         */
+
         protected _buildArmature(dataPackage: BuildArmaturePackage): Armature {
             const armature = BaseObject.borrowObject(Armature);
             const armatureDisplay = new EgretArmatureDisplay();
@@ -129,9 +123,7 @@ namespace dragonBones {
 
             return armature;
         }
-        /**
-         * @inheritDoc
-         */
+
         protected _buildSlot(dataPackage: BuildArmaturePackage, slotData: SlotData, displays: Array<DisplayData | null> | null, armature: Armature): Slot {
             // tslint:disable-next-line:no-unused-expression
             dataPackage;

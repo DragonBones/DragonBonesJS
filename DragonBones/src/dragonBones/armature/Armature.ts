@@ -110,9 +110,7 @@ namespace dragonBones {
          * @private
          */
         public _parent: Slot | null;
-        /**
-         * @private
-         */
+        
         protected _onClear(): void {
             if (this._clock !== null) { // Remove clock first.
                 this._clock.remove(this);

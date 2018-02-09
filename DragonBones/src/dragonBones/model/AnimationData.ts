@@ -160,9 +160,7 @@ namespace dragonBones {
          * @private
          */
         public parent: ArmatureData;
-        /**
-         * @inheritDoc
-         */
+
         protected _onClear(): void {
             for (let k in this.boneTimelines) {
                 for (const timeline of this.boneTimelines[k]) {

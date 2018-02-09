@@ -69,9 +69,7 @@ namespace dragonBones {
                 this._identityTransform = this._identityTransformV4;
             }
         }
-        /**
-         * @inheritDoc
-         */
+
         protected _onClear(): void {
             super._onClear();
 
@@ -79,27 +77,21 @@ namespace dragonBones {
             this._renderDisplay = null as any; //
             this._colorFilter = null;
         }
-        /**
-         * @inheritDoc
-         */
+
         protected _initDisplay(value: any, isRetain: boolean): void {
             // tslint:disable-next-line:no-unused-expression
             value;
             // tslint:disable-next-line:no-unused-expression
             isRetain;
         }
-        /**
-         * @inheritDoc
-         */
+
         protected _disposeDisplay(value: any, isRelease: boolean): void {
             // tslint:disable-next-line:no-unused-expression
             value;
             // tslint:disable-next-line:no-unused-expression
             isRelease;
         }
-        /**
-         * @inheritDoc
-         */
+
         protected _onUpdateDisplay(): void {
             this._armatureDisplay = this._armature.display;
             this._renderDisplay = (this._display !== null ? this._display : this._rawDisplay) as egret.DisplayObject;
@@ -122,9 +114,7 @@ namespace dragonBones {
                 }
             }
         }
-        /**
-         * @inheritDoc
-         */
+
         protected _addDisplay(): void {
             if (this._armatureDisplay._batchEnabled) {
                 (this._armatureDisplay.$renderNode as egret.sys.GroupNode).addNode(this._renderDisplay.$renderNode);
@@ -133,9 +123,7 @@ namespace dragonBones {
                 this._armatureDisplay.addChild(this._renderDisplay);
             }
         }
-        /**
-         * @inheritDoc
-         */
+
         protected _replaceDisplay(value: any): void {
             const prevDisplay = value as egret.DisplayObject;
 
@@ -149,9 +137,7 @@ namespace dragonBones {
                 this._armatureDisplay.removeChild(prevDisplay);
             }
         }
-        /**
-         * @inheritDoc
-         */
+
         protected _removeDisplay(): void {
             if (this._armatureDisplay._batchEnabled) {
                 const nodes = (this._armatureDisplay.$renderNode as egret.sys.GroupNode).drawData;
@@ -161,9 +147,7 @@ namespace dragonBones {
                 this._renderDisplay.parent.removeChild(this._renderDisplay);
             }
         }
-        /**
-         * @inheritDoc
-         */
+
         protected _updateZOrder(): void {
             if (this._armatureDisplay._batchEnabled) {
                 const nodes = (this._armatureDisplay.$renderNode as egret.sys.GroupNode).drawData;
@@ -179,7 +163,7 @@ namespace dragonBones {
             }
         }
         /**
-         * @inheritDoc
+         * @internal
          */
         public _updateVisible(): void {
             const visible = this._parent.visible && this._visible;
@@ -192,9 +176,7 @@ namespace dragonBones {
                 this._renderDisplay.visible = visible;
             }
         }
-        /**
-         * @inheritDoc
-         */
+
         protected _updateBlendMode(): void {
             switch (this._blendMode) {
                 case BlendMode.Normal:
@@ -218,9 +200,7 @@ namespace dragonBones {
                 node.blendMode = egret.sys.blendModeToNumber(this._renderDisplay.blendMode);
             }
         }
-        /**
-         * @inheritDoc
-         */
+
         protected _updateColor(): void {
             if (
                 this._colorTransform.redMultiplier !== 1.0 ||
@@ -275,9 +255,7 @@ namespace dragonBones {
                 this._renderDisplay.$setAlpha(this._colorTransform.alphaMultiplier);
             }
         }
-        /**
-         * @inheritDoc
-         */
+
         protected _updateFrame(): void {
             const currentVerticesData = (this._deformVertices !== null && this._display === this._meshDisplay) ? this._deformVertices.verticesData : null;
             let currentTextureData = this._textureData as (EgretTextureData | null);
@@ -444,9 +422,7 @@ namespace dragonBones {
             normalDisplay.y = 0.0;
             normalDisplay.visible = false;
         }
-        /**
-         * @inheritDoc
-         */
+
         protected _updateMesh(): void {
             const scale = this._armature._armatureData.scale;
             const deformVertices = (this._deformVertices as DeformVertices).vertices;
@@ -470,7 +446,7 @@ namespace dragonBones {
                 }
 
                 for (
-                    let i = 0, iD = 0, iB = weightData.offset + BinaryOffset.WeigthBoneIndices + weightData.bones.length, iV = weightFloatOffset, iF = 0;
+                    let i = 0, iD = 0, iB = weightData.offset + BinaryOffset.WeigthBoneIndices + bones.length, iV = weightFloatOffset, iF = 0;
                     i < vertexCount;
                     ++i
                 ) {
@@ -546,19 +522,15 @@ namespace dragonBones {
             }
         }
         /**
-         * @inheritDoc
+         * @internal
          */
         public _updateGlueMesh(): void {
         }
-        /**
-         * @inheritDoc
-         */
+
         protected _updateTransform(): void {
             throw new Error();
         }
-        /**
-         * @inheritDoc
-         */
+
         protected _identityTransform(): void {
             throw new Error();
         }

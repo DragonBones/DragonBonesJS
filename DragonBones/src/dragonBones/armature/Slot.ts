@@ -65,55 +65,25 @@ namespace dragonBones {
          * @language zh_CN
          */
         public displayController: string | null;
-        /**
-         * @private
-         */
         protected _displayDirty: boolean;
-        /**
-         * @private
-         */
         protected _zOrderDirty: boolean;
-        /**
-         * @private
-         */
         protected _visibleDirty: boolean;
-        /**
-         * @private
-         */
         protected _blendModeDirty: boolean;
         /**
          * @internal
          * @private
          */
         public _colorDirty: boolean;
-        /**
-         * @private
-         */
         protected _transformDirty: boolean;
-        /**
-         * @private
-         */
         protected _visible: boolean;
-        /**
-         * @private
-         */
         protected _blendMode: BlendMode;
-        /**
-         * @private
-         */
         protected _displayIndex: number;
-        /**
-         * @private
-         */
         protected _animationDisplayIndex: number;
         /**
          * @internal
          * @private
          */
         public _zOrder: number;
-        /**
-         * @private
-         */
         protected _cachedFrameIndex: number;
         /**
          * @internal
@@ -125,9 +95,6 @@ namespace dragonBones {
          * @private
          */
         public _pivotY: number;
-        /**
-         * @private
-         */
         protected readonly _localMatrix: Matrix = new Matrix();
         /**
          * @internal
@@ -135,63 +102,37 @@ namespace dragonBones {
          */
         public readonly _colorTransform: ColorTransform = new ColorTransform();
         /**
-         * @private
+         * @internal
          */
         public readonly _displayDatas: Array<DisplayData | null> = [];
-        /**
-         * @private
-         */
         protected readonly _displayList: Array<any | Armature> = [];
         /**
          * @internal
          * @private
          */
         public _slotData: SlotData;
-        /**
-         * @private
-         */
         protected _rawDisplayDatas: Array<DisplayData | null> | null;
         /**
          * @internal
          * @private
          */
         public _displayData: DisplayData | null;
-        /**
-         * @private
-         */
         protected _boundingBoxData: BoundingBoxData | null;
-        /**
-         * @private
-         */
         protected _textureData: TextureData | null;
         /**
          * @internal
          */
         public _deformVertices: DeformVertices | null = null;
-        /**
-         * @private
-         */
         protected _rawDisplay: any = null; // Initial value.
-        /**
-         * @private
-         */
         protected _meshDisplay: any = null; // Initial value.
-        /**
-         * @private
-         */
         protected _display: any;
-        /**
-         * @private
-         */
         protected _childArmature: Armature | null;
         /**
          * @internal
          * @private
          */
         public _cachedFrameIndices: Array<number> | null;
-        /**
-         * @inheritDoc
-         */
+
         protected _onClear(): void {
             super._onClear();
 
@@ -257,70 +198,30 @@ namespace dragonBones {
             this._childArmature = null;
             this._cachedFrameIndices = null;
         }
-        /**
-         * @private
-         */
+
         protected abstract _initDisplay(value: any, isRetain: boolean): void;
-        /**
-         * @private
-         */
         protected abstract _disposeDisplay(value: any, isRelease: boolean): void;
-        /**
-         * @private
-         */
         protected abstract _onUpdateDisplay(): void;
-        /**
-         * @private
-         */
         protected abstract _addDisplay(): void;
-        /**
-         * @private
-         */
         protected abstract _replaceDisplay(value: any): void;
-        /**
-         * @private
-         */
         protected abstract _removeDisplay(): void;
-        /**
-         * @private
-         */
         protected abstract _updateZOrder(): void;
         /**
-         * @private
+         * @internal
          */
         public abstract _updateVisible(): void;
-        /**
-         * @private
-         */
         protected abstract _updateBlendMode(): void;
-        /**
-         * @private
-         */
         protected abstract _updateColor(): void;
-        /**
-         * @private
-         */
         protected abstract _updateFrame(): void;
-        /**
-         * @private
-         */
         protected abstract _updateMesh(): void;
         /**
          * @internal
-         * @private
          */
         public abstract _updateGlueMesh(): void;
-        /**
-         * @private
-         */
         protected abstract _updateTransform(): void;
-        /**
-         * @private
-         */
         protected abstract _identityTransform(): void;
         /**
          * Support default skin data.
-         * @private
          */
         protected _getDefaultRawDisplayData(displayIndex: number): DisplayData | null {
             const defaultSkin = this._armature._armatureData.defaultSkin;
@@ -333,9 +234,7 @@ namespace dragonBones {
 
             return null;
         }
-        /**
-         * @private
-         */
+
         protected _updateDisplayData(): void {
             const prevDisplayData = this._displayData;
             const prevVerticesData = this._deformVertices !== null ? this._deformVertices.verticesData : null;
@@ -472,9 +371,7 @@ namespace dragonBones {
                 this._transformDirty = true;
             }
         }
-        /**
-         * @private
-         */
+
         protected _updateDisplay(): void {
             const prevDisplay = this._display !== null ? this._display : this._rawDisplay;
             const prevChildArmature = this._childArmature;
@@ -562,9 +459,7 @@ namespace dragonBones {
                 }
             }
         }
-        /**
-         * @private
-         */
+        
         protected _updateGlobalTransformMatrix(isCache: boolean): void {
             const parentMatrix = this._parent._boneData.type === BoneType.Bone ? this._parent.globalTransformMatrix : (this._parent as Surface)._getGlobalTransformMatrix(this.global.x, this.global.y);
             this.globalTransformMatrix.copyFrom(this._localMatrix);

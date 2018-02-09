@@ -54,9 +54,7 @@ namespace dragonBones {
          * @private
          */
         public parent: ArmatureData;
-        /**
-         * @inheritDoc
-         */
+
         protected _onClear(): void {
             for (let k in this.displays) {
                 const slotDisplays = this.displays[k];

@@ -34,17 +34,8 @@ namespace dragonBones {
      * @language zh_CN
      */
     export abstract class TransformObject extends BaseObject {
-        /**
-         * @private
-         */
         protected static readonly _helpMatrix: Matrix = new Matrix();
-        /**
-         * @private
-         */
         protected static readonly _helpTransform: Transform = new Transform();
-        /**
-         * @private
-         */
         protected static readonly _helpPoint: Point = new Point();
         /**
          * - A matrix relative to the armature coordinate system.
@@ -91,9 +82,6 @@ namespace dragonBones {
          * @private
          */
         public userData: any;
-        /**
-         * @private
-         */
         protected _globalDirty: boolean;
         /**
          * @internal
@@ -105,9 +93,7 @@ namespace dragonBones {
          * @private
          */
         public _parent: Bone;
-        /**
-         * @private
-         */
+        
         protected _onClear(): void {
             this.globalTransformMatrix.identity();
             this.global.identity();

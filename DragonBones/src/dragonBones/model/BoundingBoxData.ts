@@ -61,9 +61,7 @@ namespace dragonBones {
          * @private
          */
         public height: number;
-        /**
-         * @private
-         */
+
         protected _onClear(): void {
             this.color = 0x000000;
             this.width = 0.0;
@@ -296,10 +294,7 @@ namespace dragonBones {
 
             return intersectionCount;
         }
-        /**
-         * @inheritDoc
-         * @private
-         */
+
         protected _onClear(): void {
             super._onClear();
 
@@ -459,10 +454,7 @@ namespace dragonBones {
 
             return intersectionCount;
         }
-        /**
-         * @inheritDoc
-         * @private
-         */
+
         protected _onClear(): void {
             super._onClear();
 
@@ -681,10 +673,7 @@ namespace dragonBones {
          * @language zh_CN
          */
         public readonly vertices: Array<number> = [];
-        /**
-         * @inheritDoc
-         * @private
-         */
+
         protected _onClear(): void {
             super._onClear();
 

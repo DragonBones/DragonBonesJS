@@ -74,9 +74,7 @@ namespace dragonBones {
          * @private
          */
         public readonly textures: Map<TextureData> = {};
-        /**
-         * @inheritDoc
-         */
+
         protected _onClear(): void {
             for (let k in this.textures) {
                 this.textures[k].returnToPool();

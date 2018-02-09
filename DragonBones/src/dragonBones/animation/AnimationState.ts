@@ -255,9 +255,7 @@ namespace dragonBones {
          * @private
          */
         public _parent: AnimationState = null as any; // Initial value.
-        /**
-         * @private
-         */
+
         protected _onClear(): void {
             for (const timeline of this._boneTimelines) {
                 timeline.returnToPool();

@@ -166,9 +166,7 @@ namespace dragonBones {
          */
         public readonly hashCode: number = BaseObject._hashCode++;
         private _isInPool: boolean = false;
-        /**
-         * @private
-         */
+
         protected abstract _onClear(): void;
         /**
          * - Clear the object and return it back to object pool。

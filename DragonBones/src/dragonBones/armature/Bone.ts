@@ -95,9 +95,7 @@ namespace dragonBones {
          * @private
          */
         public _cachedFrameIndices: Array<number> | null;
-        /**
-         * @inheritDoc
-         */
+
         protected _onClear(): void {
             super._onClear();
 
@@ -114,9 +112,7 @@ namespace dragonBones {
             this._boneData = null as any; //
             this._cachedFrameIndices = null;
         }
-        /**
-         * @private
-         */
+        
         protected _updateGlobalTransformMatrix(isCache: boolean): void {
             const boneData = this._boneData;
             const parent = this._parent;

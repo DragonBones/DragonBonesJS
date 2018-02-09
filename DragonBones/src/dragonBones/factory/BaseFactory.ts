@@ -44,33 +44,16 @@ namespace dragonBones {
      * @language zh_CN
      */
     export abstract class BaseFactory {
-        /**
-         * @private
-         */
         protected static _objectParser: ObjectDataParser = null as any;
-        /**
-         * @private
-         */
         protected static _binaryParser: BinaryDataParser = null as any;
         /**
          * @private
          */
         public autoSearch: boolean = false;
-        /**
-         * @private
-         */
+
         protected readonly _dragonBonesDataMap: Map<DragonBonesData> = {};
-        /**
-         * @private
-         */
         protected readonly _textureAtlasDataMap: Map<Array<TextureAtlasData>> = {};
-        /**
-         * @private
-         */
         protected _dragonBones: DragonBones = null as any;
-        /**
-         * @private
-         */
         protected _dataParser: DataParser = null as any;
         /**
          * - Create a factory instance. (typically only one global factory instance is required)
@@ -93,15 +76,11 @@ namespace dragonBones {
 
             this._dataParser = dataParser !== null ? dataParser : BaseFactory._objectParser;
         }
-        /**
-         * @private
-         */
+
         protected _isSupportMesh(): boolean {
             return true;
         }
-        /**
-         * @private
-         */
+
         protected _getTextureData(textureAtlasName: string, textureName: string): TextureData | null {
             if (textureAtlasName in this._textureAtlasDataMap) {
                 for (const textureAtlasData of this._textureAtlasDataMap[textureAtlasName]) {
@@ -127,9 +106,7 @@ namespace dragonBones {
 
             return null;
         }
-        /**
-         * @private
-         */
+
         protected _fillBuildArmaturePackage(
             dataPackage: BuildArmaturePackage,
             dragonBonesName: string, armatureName: string, skinName: string, textureAtlasName: string
@@ -187,9 +164,7 @@ namespace dragonBones {
 
             return false;
         }
-        /**
-         * @private
-         */
+
         protected _buildBones(dataPackage: BuildArmaturePackage, armature: Armature): void {
             for (const boneData of dataPackage.armature.sortedBones) {
                 const bone = BaseObject.borrowObject(boneData.type === BoneType.Bone ? Bone : Surface);
@@ -205,9 +180,7 @@ namespace dragonBones {
 
 
         }
-        /**
-         * @private
-         */
+
         protected _buildSlots(dataPackage: BuildArmaturePackage, armature: Armature): void {
             const currentSkin = dataPackage.skin;
             const defaultSkin = dataPackage.armature.defaultSkin;
@@ -254,9 +227,7 @@ namespace dragonBones {
                 slot._setDisplayIndex(slotData.displayIndex, true);
             }
         }
-        /**
-         * @private
-         */
+
         protected _buildConstraints(dataPackage: BuildArmaturePackage, armature: Armature): void {
             const constraints = dataPackage.armature.constraints;
             for (let k in constraints) {
@@ -284,17 +255,13 @@ namespace dragonBones {
 
             }
         }
-        /**
-         * @private
-         */
+
         protected _buildChildArmature(dataPackage: BuildArmaturePackage | null, slot: Slot, displayData: DisplayData): Armature | null {
             // tslint:disable-next-line:no-unused-expression
             slot;
             return this.buildArmature(displayData.path, dataPackage !== null ? dataPackage.dataName : "", "", dataPackage !== null ? dataPackage.textureAtlasName : "");
         }
-        /**
-         * @private
-         */
+
         protected _getSlotDisplay(dataPackage: BuildArmaturePackage | null, displayData: DisplayData, rawDisplayData: DisplayData | null, slot: Slot): any {
             const dataName = dataPackage !== null ? dataPackage.dataName : displayData.parent.parent.parent.name;
             let display: any = null;
@@ -368,17 +335,9 @@ namespace dragonBones {
 
             return display;
         }
-        /**
-         * @private
-         */
+
         protected abstract _buildTextureAtlasData(textureAtlasData: TextureAtlasData | null, textureAtlas: any): TextureAtlasData;
-        /**
-         * @private
-         */
         protected abstract _buildArmature(dataPackage: BuildArmaturePackage): Armature;
-        /**
-         * @private
-         */
         protected abstract _buildSlot(dataPackage: BuildArmaturePackage, slotData: SlotData, displays: Array<DisplayData | null> | null, armature: Armature): Slot;
         /**
          * - Parse the raw data to a DragonBonesData instance and cache it to the factory.

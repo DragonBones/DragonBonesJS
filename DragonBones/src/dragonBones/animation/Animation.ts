@@ -62,9 +62,7 @@ namespace dragonBones {
         private _armature: Armature;
         private _animationConfig: AnimationConfig = null as any; // Initial value.
         private _lastAnimationState: AnimationState | null;
-        /**
-         * @private
-         */
+        
         protected _onClear(): void {
             for (const animationState of this._animationStates) {
                 animationState.returnToPool();

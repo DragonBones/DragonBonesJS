@@ -55,9 +55,7 @@ namespace dragonBones {
          * Inside [flag, a, b, c, d, tx, ty], Outside [flag, a, b, c, d, tx, ty]
          */
         private readonly _matrixCahce: Array<number> = [];
-        /**
-         * @inheritDoc
-         */
+
         protected _onClear(): void {
             super._onClear();
 
@@ -132,9 +130,7 @@ namespace dragonBones {
                 }
             }
         }
-        /**
-         * @private
-         */
+
         protected _updateGlobalTransformMatrix(isCache: boolean): void {
             // tslint:disable-next-line:no-unused-expression
             isCache;

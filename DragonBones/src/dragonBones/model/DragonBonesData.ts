@@ -146,9 +146,7 @@ namespace dragonBones {
          * @private
          */
         public userData: UserData | null = null; // Initial value.
-        /**
-         * @inheritDoc
-         */
+
         protected _onClear(): void {
             for (let k in this.armatures) {
                 this.armatures[k].returnToPool();
