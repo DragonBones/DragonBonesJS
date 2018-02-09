@@ -37,15 +37,16 @@ namespace dragonBones {
      * @language zh_CN
      */
     export class EgretFactory extends BaseFactory {
+        private static _time: number = 0.0;
         private static _dragonBonesInstance: DragonBones = null as any;
         private static _factory: EgretFactory | null = null;
 
         private static _clockHandler(time: number): boolean {
             time *= 0.001;
-            const clock = EgretFactory._dragonBonesInstance.clock;
-            const passedTime = time - clock.time;
+
+            const passedTime = time - this._time;
             EgretFactory._dragonBonesInstance.advanceTime(passedTime);
-            clock.time = time;
+            this._time = time;
 
             return false;
         }
@@ -76,7 +77,7 @@ namespace dragonBones {
                 //
                 const eventManager = new EgretArmatureDisplay();
                 EgretFactory._dragonBonesInstance = new DragonBones(eventManager);
-                EgretFactory._dragonBonesInstance.clock.time = egret.getTimer() * 0.001;
+                EgretFactory._time = egret.getTimer() * 0.001;
                 egret.startTick(EgretFactory._clockHandler, EgretFactory);
             }
 
@@ -124,14 +125,13 @@ namespace dragonBones {
             return armature;
         }
 
-        protected _buildSlot(dataPackage: BuildArmaturePackage, slotData: SlotData, displays: Array<DisplayData | null> | null, armature: Armature): Slot {
+        protected _buildSlot(dataPackage: BuildArmaturePackage, slotData: SlotData, armature: Armature): Slot {
             // tslint:disable-next-line:no-unused-expression
             dataPackage;
-            // tslint:disable-next-line:no-unused-expression
-            armature;
+
             const slot = BaseObject.borrowObject(EgretSlot);
             slot.init(
-                slotData, displays,
+                slotData, armature,
                 new egret.Bitmap(), new egret.Mesh()
             );
 

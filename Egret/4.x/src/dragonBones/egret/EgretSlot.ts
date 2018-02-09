@@ -58,16 +58,14 @@ namespace dragonBones {
         /**
          * @inheritDoc
          */
-        public init(slotData: SlotData, displayDatas: Array<DisplayData | null> | null, rawDisplay: any, meshDisplay: any): void {
-            super.init(slotData, displayDatas, rawDisplay, meshDisplay);
+        public init(slotData: SlotData, armatureValue: Armature, rawDisplay: any, meshDisplay: any): void {
+            super.init(slotData, armatureValue, rawDisplay, meshDisplay);
 
             if (isV5) {
                 this._updateTransform = this._updateTransformV5;
-                this._identityTransform = this._identityTransformV5;
             }
             else {
                 this._updateTransform = this._updateTransformV4;
-                this._identityTransform = this._identityTransformV4;
             }
         }
 
@@ -243,7 +241,7 @@ namespace dragonBones {
                 }
 
                 this._renderDisplay.filters = filters;
-                this._renderDisplay.$setAlpha(1.0);
+                this._renderDisplay.alpha = 1.0;
             }
             else {
                 if (this._armatureDisplay._batchEnabled) {
@@ -253,7 +251,7 @@ namespace dragonBones {
                 }
 
                 this._renderDisplay.filters = null as any;
-                this._renderDisplay.$setAlpha(this._colorTransform.alphaMultiplier);
+                this._renderDisplay.alpha = this._colorTransform.alphaMultiplier;
             }
         }
 
@@ -344,8 +342,8 @@ namespace dragonBones {
                         }
 
                         meshDisplay.texture = currentTextureData.renderTexture;
-                        meshDisplay.$setAnchorOffsetX(this._pivotX);
-                        meshDisplay.$setAnchorOffsetY(this._pivotY);
+                        meshDisplay.anchorOffsetX = this._pivotX;
+                        meshDisplay.anchorOffsetY = this._pivotY;
                         meshDisplay.$updateVertices();
 
                         if (!isV5) {
@@ -403,8 +401,8 @@ namespace dragonBones {
                             normalDisplay.height = textureHeight;
                         }
 
-                        normalDisplay.$setAnchorOffsetX(this._pivotX);
-                        normalDisplay.$setAnchorOffsetY(this._pivotY);
+                        normalDisplay.anchorOffsetX = this._pivotX;
+                        normalDisplay.anchorOffsetY = this._pivotY;
                     }
 
                     this._visibleDirty = true;
@@ -533,10 +531,6 @@ namespace dragonBones {
         }
 
         protected _identityTransform(): void {
-            throw new Error();
-        }
-
-        private _identityTransformV4(): void {
             if (this._armatureDisplay._batchEnabled) {
                 this._armatureDisplay._childDirty = true;
                 let displayMatrix = (this._renderDisplay.$renderNode as (egret.sys.BitmapNode | egret.sys.MeshNode)).matrix;
@@ -551,11 +545,6 @@ namespace dragonBones {
                 egret.$TempMatrix.identity();
                 this._renderDisplay.$setMatrix(egret.$TempMatrix, this.transformUpdateEnabled);
             }
-        }
-
-        private _identityTransformV5(): void {
-            egret.$TempMatrix.identity();
-            this._renderDisplay.$setMatrix(egret.$TempMatrix, this.transformUpdateEnabled);
         }
 
         private _updateTransformV4(): void {

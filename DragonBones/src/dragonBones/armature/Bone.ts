@@ -74,7 +74,7 @@ namespace dragonBones {
          * @internal
          */
         public _hasConstraint: boolean;
-        private _visible: boolean;
+        protected _visible: boolean;
         protected _cachedFrameIndex: number;
         /**
          * @internal
@@ -84,6 +84,10 @@ namespace dragonBones {
          * @internal
          */
         public _boneData: BoneData;
+        /**
+         * @private
+         */
+        protected _parent: Bone | null;
         /**
          * @internal
          */
@@ -103,44 +107,50 @@ namespace dragonBones {
             this._cachedFrameIndex = -1;
             this._blendState.clear();
             this._boneData = null as any; //
+            this._parent = null as any; //
             this._cachedFrameIndices = null;
         }
         
         protected _updateGlobalTransformMatrix(isCache: boolean): void {
+            // For typescript.
             const boneData = this._boneData;
-            const parent = this._parent;
+            const global = this.global;
+            const globalTransformMatrix = this.globalTransformMatrix;
+            const origin = this.origin;
+            const offset = this.offset;
+            const animationPose = this.animationPose;
+            const parent = this._parent as Bone; //
+
             const flipX = this._armature.flipX;
             const flipY = this._armature.flipY === DragonBones.yDown;
             let inherit = parent !== null;
             let rotation = 0.0;
-            const global = this.global;
-            const globalTransformMatrix = this.globalTransformMatrix;
 
             if (this.offsetMode === OffsetMode.Additive) {
-                if (this.origin !== null) {
+                if (origin !== null) {
                     // global.copyFrom(this.origin).add(this.offset).add(this.animationPose);
-                    global.x = this.origin.x + this.offset.x + this.animationPose.x;
-                    global.y = this.origin.y + this.offset.y + this.animationPose.y;
-                    global.skew = this.origin.skew + this.offset.skew + this.animationPose.skew;
-                    global.rotation = this.origin.rotation + this.offset.rotation + this.animationPose.rotation;
-                    global.scaleX = this.origin.scaleX * this.offset.scaleX * this.animationPose.scaleX;
-                    global.scaleY = this.origin.scaleY * this.offset.scaleY * this.animationPose.scaleY;
+                    global.x = origin.x + offset.x + animationPose.x;
+                    global.y = origin.y + offset.y + animationPose.y;
+                    global.skew = origin.skew + offset.skew + animationPose.skew;
+                    global.rotation = origin.rotation + offset.rotation + animationPose.rotation;
+                    global.scaleX = origin.scaleX * offset.scaleX * animationPose.scaleX;
+                    global.scaleY = origin.scaleY * offset.scaleY * animationPose.scaleY;
                 }
                 else {
-                    global.copyFrom(this.offset).add(this.animationPose);
+                    global.copyFrom(offset).add(animationPose);
                 }
             }
             else if (this.offsetMode === OffsetMode.None) {
-                if (this.origin !== null) {
-                    global.copyFrom(this.origin).add(this.animationPose);
+                if (origin !== null) {
+                    global.copyFrom(origin).add(animationPose);
                 }
                 else {
-                    global.copyFrom(this.animationPose);
+                    global.copyFrom(animationPose);
                 }
             }
             else {
                 inherit = false;
-                global.copyFrom(this.offset);
+                global.copyFrom(offset);
             }
 
             if (inherit) {
@@ -274,53 +284,21 @@ namespace dragonBones {
             }
         }
         /**
-         * @inheritDoc
-         */
-        public _setArmature(value: Armature | null): void {
-            if (this._armature === value) {
-                return;
-            }
-
-            let oldSlots: Array<Slot> | null = null;
-            let oldBones: Array<Bone> | null = null;
-
-            if (this._armature !== null) {
-                oldSlots = this.getSlots();
-                oldBones = this.getBones();
-                this._armature._removeBoneFromBoneList(this);
-            }
-
-            this._armature = value as any; //
-
-            if (this._armature !== null) {
-                this._armature._addBoneToBoneList(this);
-            }
-
-            if (oldSlots !== null) {
-                for (const slot of oldSlots) {
-                    if (slot.parent === this) {
-                        slot._setArmature(this._armature);
-                    }
-                }
-            }
-
-            if (oldBones !== null) {
-                for (const bone of oldBones) {
-                    if (bone.parent === this) {
-                        bone._setArmature(this._armature);
-                    }
-                }
-            }
-        }
-        /**
          * @internal
          */
-        public init(boneData: BoneData): void {
+        public init(boneData: BoneData, armatureValue: Armature): void {
             if (this._boneData !== null) {
                 return;
             }
 
             this._boneData = boneData;
+            this._armature = armatureValue;
+
+            if (this._boneData.parent !== null) {
+                this._parent = this._armature.getBone(this._boneData.parent.name);
+            }
+
+            this._armature._addBone(this);
             //
             this.origin = this._boneData.transform;
         }
@@ -449,25 +427,23 @@ namespace dragonBones {
             this._transformDirty = true;
         }
         /**
-         * - Check whether the bone contains a specific bone or slot.
+         * - Check whether the bone contains a specific bone.
          * @see dragonBones.Bone
-         * @see dragonBones.Slot
          * @version DragonBones 3.0
          * @language en_US
          */
         /**
-         * - 检查该骨骼是否包含特定的骨骼或插槽。
+         * - 检查该骨骼是否包含特定的骨骼。
          * @see dragonBones.Bone
-         * @see dragonBones.Slot
          * @version DragonBones 3.0
          * @language zh_CN
          */
-        public contains(value: TransformObject): boolean {
+        public contains(value: Bone): boolean {
             if (value === this) {
                 return false;
             }
 
-            let ancestor: TransformObject | null = value;
+            let ancestor: Bone | null = value;
             while (ancestor !== this && ancestor !== null) {
                 ancestor = ancestor.parent;
             }
@@ -512,7 +488,7 @@ namespace dragonBones {
             this._visible = value;
 
             for (const slot of this._armature.getSlots()) {
-                if (slot._parent === this) {
+                if (slot.parent === this) {
                     slot._updateVisible();
                 }
             }
@@ -530,6 +506,19 @@ namespace dragonBones {
         public get name(): string {
             return this._boneData.name;
         }
+        /**
+         * - The parent bone to which it belongs.
+         * @version DragonBones 3.0
+         * @language en_US
+         */
+        /**
+         * - 所属的父骨骼。
+         * @version DragonBones 3.0
+         * @language zh_CN
+         */
+        public get parent(): Bone | null {
+            return this._parent;
+        }
 
         /**
          * - Deprecated, please refer to {@link dragonBones.Armature#getBones()}.
@@ -542,6 +531,7 @@ namespace dragonBones {
          * @language zh_CN
          */
         public getBones(): Array<Bone> {
+            console.warn("Deprecated.");
             const bones = new Array<Bone>();
 
             for (const bone of this._armature.getBones()) {
@@ -563,6 +553,7 @@ namespace dragonBones {
          * @language zh_CN
          */
         public getSlots(): Array<Slot> {
+            console.warn("Deprecated.");
             const slots = new Array<Slot>();
 
             for (const slot of this._armature.getSlots()) {
@@ -584,6 +575,7 @@ namespace dragonBones {
          * @language zh_CN
          */
         public get slot(): Slot | null {
+            console.warn("Deprecated.");
             for (const slot of this._armature.getSlots()) {
                 if (slot.parent === this) {
                     return slot;

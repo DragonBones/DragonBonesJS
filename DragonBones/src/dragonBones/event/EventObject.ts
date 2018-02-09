@@ -132,6 +132,31 @@ namespace dragonBones {
          * @language zh_CN
          */
         public static readonly SOUND_EVENT: string = "soundEvent";
+        /**
+         * @internal
+         * @private
+         */
+        public static actionDataToInstance(data: ActionData, instance: EventObject, armature: Armature): void {
+            if (data.type === ActionType.Play) {
+                instance.type = EventObject.FRAME_EVENT;
+            }
+            else {
+                instance.type = data.type === ActionType.Frame ? EventObject.FRAME_EVENT : EventObject.SOUND_EVENT;
+            }
+
+            instance.name = data.name;
+            instance.armature = armature;
+            instance.actionData = data;
+            instance.data = data.data;
+
+            if (data.bone !== null) {
+                instance.bone = armature.getBone(data.bone.name);
+            }
+
+            if (data.slot !== null) {
+                instance.slot = armature.getSlot(data.slot.name);
+            }
+        }
 
         public static toString(): string {
             return "[class dragonBones.EventObject]";
@@ -222,6 +247,13 @@ namespace dragonBones {
          */
         public animationState: AnimationState;
         /**
+         * @private
+         */
+        public actionData: ActionData | null;
+        /**
+         * @private
+         */
+        /**
          * - The custom data.
          * @see dragonBones.CustomData
          * @version DragonBones 5.0
@@ -243,6 +275,7 @@ namespace dragonBones {
             this.bone = null;
             this.slot = null;
             this.animationState = null as any;
+            this.actionData = null;
             this.data = null;
         }
     }

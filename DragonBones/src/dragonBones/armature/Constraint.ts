@@ -147,8 +147,9 @@ namespace dragonBones {
                 const rY = dX * r;
 
                 let isPPR = false;
-                if (parent._parent !== null) {
-                    const parentParentMatrix = parent._parent.globalTransformMatrix;
+                const parentParent = parent.parent;
+                if (parentParent !== null) {
+                    const parentParentMatrix = parentParent.globalTransformMatrix;
                     isPPR = parentParentMatrix.a * parentParentMatrix.d - parentParentMatrix.b * parentParentMatrix.c < 0.0;
                 }
 
@@ -344,7 +345,7 @@ namespace dragonBones {
                 this._pathGlobalVertices[iW++] = yG;
             }
         }
-        
+
         protected _computeVertices(start: number, count: number, offset: number, out: Array<number>): void {
             //TODO优化
             for (let i = offset, iW = start; i < count; i += 2) {
@@ -667,13 +668,20 @@ namespace dragonBones {
         }
 
         public update(): void {
-            //
-            const constraintData = this._constraintData as PathConstraintData;
             const pathSlot = this._pathSlot;
-            const pathDisplayData = pathSlot._displayData as PathDisplayData;
-            if (pathDisplayData === null || pathDisplayData.vertices.offset !== this.pathOffset) {
+
+            if (
+                pathSlot._deformVertices === null ||
+                pathSlot._deformVertices.verticesData === null ||
+                pathSlot._deformVertices.verticesData.offset !== this.pathOffset
+            ) {
                 return;
             }
+
+            const constraintData = this._constraintData as PathConstraintData;
+            const pathDisplayData = pathSlot._displayData as PathDisplayData; // TODO
+
+            //
 
             //曲线节点数据改变:父亲bone改变，权重bones改变，变形顶点改变
             let isPathVerticeDirty = false;

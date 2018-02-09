@@ -104,7 +104,7 @@ namespace dragonBones {
             return armature;
         }
 
-        protected _buildSlot(dataPackage: BuildArmaturePackage, slotData: SlotData, displays: Array<DisplayData | null> | null, armature: Armature): Slot {
+        protected _buildSlot(dataPackage: BuildArmaturePackage, slotData: SlotData, armature: Armature): Slot {
             // tslint:disable-next-line:no-unused-expression
             dataPackage;
             // tslint:disable-next-line:no-unused-expression
@@ -114,7 +114,7 @@ namespace dragonBones {
             const rawDisplay = new Hilo.Bitmap(null as any);
 
             slot.init(
-                slotData, displays,
+                slotData, armature,
                 rawDisplay, rawDisplay
             );
 

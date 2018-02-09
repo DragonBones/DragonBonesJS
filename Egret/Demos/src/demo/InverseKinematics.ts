@@ -90,14 +90,14 @@ class InverseKinematics extends BaseDemo {
         }
 
         // Calculate progress.
-        const progress = Math.abs((this._aimRadian + Math.PI / 2) / Math.PI);
+        const progress = Math.abs((this._aimRadian + Math.PI / 2.0) / Math.PI);
         // Set currentTime.
-        this._aimState.currentTime = progress * (this._aimState.totalTime);
+        this._aimState.currentTime = progress * this._aimState.totalTime;
     }
 
     private _updateFoot(): void {
         // Set floor board bone offset.
-        const minRadian = -25 * dragonBones.Transform.DEG_RAD;
+        const minRadian = -25.0 * dragonBones.Transform.DEG_RAD;
         const maxRadian = 25.0 * dragonBones.Transform.DEG_RAD;
         let circleRadian = Math.atan2(this._circleBone.global.y, this._circleBone.global.x);
 

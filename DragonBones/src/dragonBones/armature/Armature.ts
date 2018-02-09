@@ -67,7 +67,6 @@ namespace dragonBones {
         public userData: any;
 
         private _lockUpdate: boolean;
-        private _bonesDirty: boolean;
         private _slotsDirty: boolean;
         private _zOrderDirty: boolean;
         private _flipX: boolean;
@@ -82,7 +81,7 @@ namespace dragonBones {
          * @internal
          */
         public readonly _constraints: Array<Constraint> = [];
-        private readonly _actions: Array<ActionData> = [];
+        private readonly _actions: Array<EventObject> = [];
         /**
          * @internal
          */
@@ -122,6 +121,10 @@ namespace dragonBones {
                 constraint.returnToPool();
             }
 
+            for (const action of this._actions) {
+                action.returnToPool();
+            }
+
             if (this._animation !== null) {
                 this._animation.returnToPool();
             }
@@ -138,8 +141,7 @@ namespace dragonBones {
             this.userData = null;
 
             this._lockUpdate = false;
-            this._bonesDirty = false;
-            this._slotsDirty = false;
+            this._slotsDirty = true;
             this._zOrderDirty = false;
             this._flipX = false;
             this._flipY = false;
@@ -157,54 +159,6 @@ namespace dragonBones {
             this._dragonBones = null as any; //
             this._clock = null;
             this._parent = null;
-        }
-
-        private _sortBones(): void {
-            const total = this._bones.length;
-            if (total <= 0) {
-                return;
-            }
-
-            const sortHelper = this._bones.concat();
-            let index = 0;
-            let count = 0;
-
-            this._bones.length = 0;
-            while (count < total) {
-                const bone = sortHelper[index++];
-                if (index >= total) {
-                    index = 0;
-                }
-
-                if (this._bones.indexOf(bone) >= 0) {
-                    continue;
-                }
-
-                if (bone._hasConstraint) { // Wait constraint.
-                    let flag = false;
-                    for (const constraint of this._constraints) {
-                        if (constraint._root === bone && this._bones.indexOf(constraint._target) < 0) {
-                            flag = true;
-                            break;
-                        }
-                    }
-
-                    if (flag) {
-                        continue;
-                    }
-                }
-
-                if (bone.parent !== null && this._bones.indexOf(bone.parent) < 0) { // Wait parent.
-                    continue;
-                }
-
-                this._bones.push(bone);
-                count++;
-            }
-        }
-
-        private _sortSlots(): void {
-            this._slots.sort(Armature._onSortSlots);
         }
         /**
          * @internal
@@ -234,43 +188,31 @@ namespace dragonBones {
         /**
          * @internal
          */
-        public _addBoneToBoneList(value: Bone): void {
+        public _addBone(value: Bone): void {
             if (this._bones.indexOf(value) < 0) {
-                this._bonesDirty = true;
                 this._bones.push(value);
             }
         }
         /**
          * @internal
          */
-        public _removeBoneFromBoneList(value: Bone): void {
-            const index = this._bones.indexOf(value);
-            if (index >= 0) {
-                this._bones.splice(index, 1);
-            }
-        }
-        /**
-         * @internal
-         */
-        public _addSlotToSlotList(value: Slot): void {
+        public _addSlot(value: Slot): void {
             if (this._slots.indexOf(value) < 0) {
-                this._slotsDirty = true;
                 this._slots.push(value);
             }
         }
         /**
          * @internal
          */
-        public _removeSlotFromSlotList(value: Slot): void {
-            const index = this._slots.indexOf(value);
-            if (index >= 0) {
-                this._slots.splice(index, 1);
+        public _addConstraint(value: Constraint): void {
+            if (this._constraints.indexOf(value) < 0) {
+                this._constraints.push(value);
             }
         }
         /**
          * @internal
          */
-        public _bufferAction(action: ActionData, append: boolean): void {
+        public _bufferAction(action: EventObject, append: boolean): void {
             if (this._actions.indexOf(action) < 0) {
                 if (append) {
                     this._actions.push(action);
@@ -349,15 +291,10 @@ namespace dragonBones {
             // Update animation.
             this._animation.advanceTime(passedTime);
 
-            // Sort bones and slots.
-            if (this._bonesDirty) {
-                this._bonesDirty = false;
-                this._sortBones();
-            }
-
+            // Sort slots.
             if (this._slotsDirty) {
                 this._slotsDirty = false;
-                this._sortSlots();
+                this._slots.sort(Armature._onSortSlots);
             }
 
             // Update bones and slots.
@@ -377,9 +314,32 @@ namespace dragonBones {
                 this._lockUpdate = true;
 
                 for (const action of this._actions) {
-                    if (action.type === ActionType.Play) {
-                        this._animation.fadeIn(action.name);
+                    const actionData = action.actionData;
+                    if (actionData !== null) {
+                        if (actionData.type === ActionType.Play) {
+                            if (action.slot !== null) {
+                                const childArmature = action.slot.childArmature;
+                                if (childArmature !== null) {
+                                    childArmature.animation.fadeIn(actionData.name);
                     }
+                }
+                            else if (action.bone !== null) {
+                                for (const slot of this.getSlots()) {
+                                    if (slot.parent === action.bone) {
+                                        const childArmature = slot.childArmature;
+                                        if (childArmature !== null) {
+                                            childArmature.animation.fadeIn(actionData.name);
+                                        }
+                                    }
+                                }
+                            }
+                            else {
+                                this._animation.fadeIn(actionData.name);
+                            }
+                        }
+                    }
+
+                    action.returnToPool();
                 }
 
                 this._actions.length = 0;
@@ -666,52 +626,6 @@ namespace dragonBones {
             return null;
         }
         /**
-         * @deprecated
-         */
-        public addBone(value: Bone, parentName: string): void {
-            console.assert(value !== null);
-
-            value._setArmature(this);
-            value._setParent(parentName.length > 0 ? this.getBone(parentName) : null);
-        }
-        /**
-         * @deprecated
-         */
-        public addSlot(value: Slot, parentName: string): void {
-            const bone = this.getBone(parentName);
-
-            console.assert(value !== null && bone !== null);
-
-            value._setArmature(this);
-            value._setParent(bone);
-        }
-        /**
-         * @private
-         */
-        public addConstraint(value: Constraint): void {
-            if (this._constraints.indexOf(value) < 0) {
-                this._constraints.push(value);
-            }
-        }
-        /**
-         * @deprecated
-         */
-        public removeBone(value: Bone): void {
-            console.assert(value !== null && value.armature === this);
-
-            value._setParent(null);
-            value._setArmature(null);
-        }
-        /**
-         * @deprecated
-         */
-        public removeSlot(value: Slot): void {
-            console.assert(value !== null && value.armature === this);
-
-            value._setParent(null);
-            value._setArmature(null);
-        }
-        /**
          * - Get all bones.
          * @see dragonBones.Bone
          * @version DragonBones 3.0
@@ -992,6 +906,7 @@ namespace dragonBones {
          * @language zh_CN
          */
         public hasEventListener(type: EventStringType): boolean {
+            console.warn("Deprecated.");
             return this._proxy.hasDBEventListener(type);
         }
         /**
@@ -1005,6 +920,7 @@ namespace dragonBones {
          * @language zh_CN
          */
         public addEventListener(type: EventStringType, listener: Function, target: any): void {
+            console.warn("Deprecated.");
             this._proxy.addDBEventListener(type, listener, target);
         }
         /**
@@ -1018,6 +934,7 @@ namespace dragonBones {
          * @language zh_CN
          */
         public removeEventListener(type: EventStringType, listener: Function, target: any): void {
+            console.warn("Deprecated.");
             this._proxy.removeDBEventListener(type, listener, target);
         }
         /**
@@ -1031,6 +948,7 @@ namespace dragonBones {
          * @language zh_CN
          */
         public enableAnimationCache(frameRate: number): void {
+            console.warn("Deprecated.");
             this.cacheFrameRate = frameRate;
         }
         /**

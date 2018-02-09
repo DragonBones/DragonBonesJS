@@ -103,7 +103,10 @@ namespace dragonBones {
          */
         public _slotData: SlotData;
         protected _rawDisplayDatas: Array<DisplayData | null> | null;
-        protected _displayData: DisplayData | null;
+        /**
+         * @internal
+         */
+        public _displayData: DisplayData | null;
         protected _boundingBoxData: BoundingBoxData | null;
         protected _textureData: TextureData | null;
         /**
@@ -114,6 +117,10 @@ namespace dragonBones {
         protected _meshDisplay: any = null; // Initial value.
         protected _display: any;
         protected _childArmature: Armature | null;
+        /**
+         * @private
+         */
+        protected _parent: Bone;
         /**
          * @internal
          */
@@ -182,6 +189,7 @@ namespace dragonBones {
             this._meshDisplay = null;
             this._display = null;
             this._childArmature = null;
+            this._parent = null as any; //
             this._cachedFrameIndices = null;
         }
 
@@ -435,7 +443,10 @@ namespace dragonBones {
 
                         if (actions !== null && actions.length > 0) {
                             for (const action of actions) {
-                                this._childArmature._bufferAction(action, false); // Make sure default action at the beginning.
+                                const eventObject = BaseObject.borrowObject(EventObject);
+                                EventObject.actionDataToInstance(action, eventObject, this._armature);
+                                eventObject.slot = this;
+                                this._armature._bufferAction(eventObject, false);
                             }
                         }
                         else {
@@ -456,28 +467,6 @@ namespace dragonBones {
             }
             else {
                 this._globalDirty = true;
-            }
-        }
-
-        public _setArmature(value: Armature | null): void {
-            if (this._armature === value) {
-                return;
-            }
-
-            if (this._armature !== null) {
-                this._armature._removeSlotFromSlotList(this);
-            }
-
-            this._armature = value as any; //
-
-            this._onUpdateDisplay();
-
-            if (this._armature !== null) {
-                this._armature._addSlotToSlotList(this);
-                this._addDisplay();
-            }
-            else {
-                this._removeDisplay();
             }
         }
         /**
@@ -564,7 +553,7 @@ namespace dragonBones {
         /**
          * @internal
          */
-        public init(slotData: SlotData, displayDatas: Array<DisplayData | null> | null, rawDisplay: any, meshDisplay: any): void {
+        public init(slotData: SlotData, armatureValue: Armature, rawDisplay: any, meshDisplay: any): void {
             if (this._slotData !== null) {
                 return;
             }
@@ -580,12 +569,25 @@ namespace dragonBones {
             this._rawDisplay = rawDisplay;
             this._meshDisplay = meshDisplay;
             //
-            this.rawDisplayDatas = displayDatas; //
+            this._armature = armatureValue;
+            //
+            const slotParent = this._armature.getBone(this._slotData.parent.name);
+            if (slotParent !== null) {
+                this._parent = slotParent;
+            }
+            else {
+                // Never;
+            }
+
+            this._armature._addSlot(this);
             //
             this._initDisplay(this._rawDisplay, false);
             if (this._rawDisplay !== this._meshDisplay) {
                 this._initDisplay(this._meshDisplay, false);
             }
+
+            this._onUpdateDisplay();
+            this._addDisplay();
         }
         /**
          * @internal
@@ -1106,7 +1108,7 @@ namespace dragonBones {
          */
         /**
          * - 插槽此时显示的子骨架。
-         * 注意，被替换的对象并不会被回收，根据语言和引擎的不同，需要额外处理。
+         * 注意，被替换的对象或子骨架并不会被回收，根据语言和引擎的不同，需要额外处理。
          * @example
          * <pre>
          *     let slot = armature.getSlot("weapon");
@@ -1129,6 +1131,19 @@ namespace dragonBones {
 
             this.display = value;
         }
+        /**
+         * - The parent bone to which it belongs.
+         * @version DragonBones 3.0
+         * @language en_US
+         */
+        /**
+         * - 所属的父骨骼。
+         * @version DragonBones 3.0
+         * @language zh_CN
+         */
+        public get parent(): Bone {
+            return this._parent;
+        }
 
         /**
          * - Deprecated, please refer to {@link #display}.
@@ -1141,7 +1156,7 @@ namespace dragonBones {
          * @language zh_CN
          */
         public getDisplay(): any {
-            return this.display;
+            return this._display;
         }
         /**
          * - Deprecated, please refer to {@link #display}.

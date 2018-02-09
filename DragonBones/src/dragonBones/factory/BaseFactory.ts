@@ -168,17 +168,12 @@ namespace dragonBones {
         protected _buildBones(dataPackage: BuildArmaturePackage, armature: Armature): void {
             for (const boneData of dataPackage.armature.sortedBones) {
                 const bone = BaseObject.borrowObject(boneData.type === BoneType.Bone ? Bone : Surface);
-                bone.init(boneData);
-
-                if (boneData.parent !== null) {
-                    armature.addBone(bone, boneData.parent.name);
+                bone.init(boneData, armature);
                 }
-                else {
-                    armature.addBone(bone, "");
                 }
-            }
-        }
-
+        /**
+         * @private
+         */
         protected _buildSlots(dataPackage: BuildArmaturePackage, armature: Armature): void {
             const currentSkin = dataPackage.skin;
             const defaultSkin = dataPackage.armature.defaultSkin;
@@ -200,16 +195,16 @@ namespace dragonBones {
             }
 
             for (const slotData of dataPackage.armature.sortedSlots) {
-                const displays = slotData.name in skinSlots ? skinSlots[slotData.name] : null;
-                const slot = this._buildSlot(dataPackage, slotData, displays, armature);
-                armature.addSlot(slot, slotData.parent.name);
+                const displayDatas = slotData.name in skinSlots ? skinSlots[slotData.name] : null;
+                const slot = this._buildSlot(dataPackage, slotData, armature);
+                slot.rawDisplayDatas = displayDatas;
 
-                if (displays !== null) {
+                if (displayDatas !== null) {
                     const displayList = new Array<any>();
 
                     // for (const displayData of displays) 
-                    for (let i = 0, l = DragonBones.webAssembly ? (displays as any).size() : displays.length; i < l; ++i) {
-                        const displayData = DragonBones.webAssembly ? (displays as any).get(i) : displays[i];
+                    for (let i = 0, l = DragonBones.webAssembly ? (displayDatas as any).size() : displayDatas.length; i < l; ++i) {
+                        const displayData = DragonBones.webAssembly ? (displayDatas as any).get(i) : displayDatas[i];
 
                         if (displayData !== null) {
                             displayList.push(this._getSlotDisplay(dataPackage, displayData, null, slot));
@@ -235,19 +230,19 @@ namespace dragonBones {
                     case ConstraintType.IK:
                         const ikConstraint = BaseObject.borrowObject(IKConstraint);
                         ikConstraint.init(constraintData, armature);
-                        armature.addConstraint(ikConstraint);
+                        armature._addConstraint(ikConstraint);
                         break;
 
                     case ConstraintType.Path:
                         const pathConstraint = BaseObject.borrowObject(PathConstraint);
                         pathConstraint.init(constraintData, armature);
-                        armature.addConstraint(pathConstraint);
+                        armature._addConstraint(pathConstraint);
                         break;
 
                     default:
                         const constraint = BaseObject.borrowObject(IKConstraint);
                         constraint.init(constraintData, armature);
-                        armature.addConstraint(constraint);
+                        armature._addConstraint(constraint);
                         break;
                 }
 
@@ -309,7 +304,10 @@ namespace dragonBones {
                             const actions = armatureDisplayData.actions.length > 0 ? armatureDisplayData.actions : childArmature.armatureData.defaultActions;
                             if (actions.length > 0) {
                                 for (const action of actions) {
-                                    childArmature._bufferAction(action, true);
+                                    const eventObject = BaseObject.borrowObject(EventObject);
+                                    EventObject.actionDataToInstance(action, eventObject, slot.armature);
+                                    eventObject.slot = slot;
+                                    slot.armature._bufferAction(eventObject, false);
                                 }
                             }
                             else {
@@ -336,7 +334,7 @@ namespace dragonBones {
 
         protected abstract _buildTextureAtlasData(textureAtlasData: TextureAtlasData | null, textureAtlas: any): TextureAtlasData;
         protected abstract _buildArmature(dataPackage: BuildArmaturePackage): Armature;
-        protected abstract _buildSlot(dataPackage: BuildArmaturePackage, slotData: SlotData, displays: Array<DisplayData | null> | null, armature: Armature): Slot;
+        protected abstract _buildSlot(dataPackage: BuildArmaturePackage, slotData: SlotData, armature: Armature): Slot;
         /**
          * - Parse the raw data to a DragonBonesData instance and cache it to the factory.
          * @param rawData - The raw data.
