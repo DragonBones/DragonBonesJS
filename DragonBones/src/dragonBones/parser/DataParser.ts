@@ -346,7 +346,6 @@ namespace dragonBones {
         }
 
         public abstract parseDragonBonesData(rawData: any, scale: number): DragonBonesData | null;
-
         public abstract parseTextureAtlasData(rawData: any, textureAtlasData: TextureAtlasData, scale: number): boolean;
 
         /**

@@ -33,7 +33,10 @@ namespace dragonBones {
      * @internal
      */
     export abstract class TimelineState extends BaseObject {
-        public playState: number; // -1: start, 0: play, 1: complete;
+        /**
+         * -1: start, 0: play, 1: complete;
+         */
+        public playState: number;
         public currentPlayTimes: number;
         public currentTime: number;
 

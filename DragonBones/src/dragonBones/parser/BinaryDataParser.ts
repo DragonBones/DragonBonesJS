@@ -453,7 +453,7 @@ namespace dragonBones {
             return super.parseDragonBonesData(header, scale);
         }
 
-        private static _binaryDataParserInstance: BinaryDataParser = null as any;
+        private static _binaryDataParserInstance: BinaryDataParser | null = null;
         /**
          * - Deprecated, please refer to {@link dragonBones.BaseFactory#parseDragonBonesData()}.
          * @deprecated

@@ -314,10 +314,6 @@ namespace dragonBones {
                         this._pivotY += frame.y * scale;
                     }
 
-                    if (!DragonBones.yDown) {
-                        this._pivotY = (this._textureData.rotated ? this._textureData.region.width : this._textureData.region.height) * scale - this._pivotY;
-                    }
-
                     // Update replace pivot. TODO
                     if (this._displayData !== null && rawDisplayData !== null && this._displayData !== rawDisplayData) {
                         rawDisplayData.transform.toMatrix(Slot._helpMatrix);
@@ -331,6 +327,10 @@ namespace dragonBones {
                         Slot._helpMatrix.transformPoint(0.0, 0.0, Slot._helpPoint);
                         this._pivotX += Slot._helpPoint.x;
                         this._pivotY += Slot._helpPoint.y;
+                    }
+
+                    if (!DragonBones.yDown) {
+                        this._pivotY = (this._textureData.rotated ? this._textureData.region.width : this._textureData.region.height) * scale - this._pivotY;
                     }
                 }
                 else {
