@@ -51,11 +51,7 @@ namespace dragonBones {
         DeformCount = 1,
         DeformValueCount = 2,
         DeformValueOffset = 3,
-        DeformFloatOffset = 4,
-
-        PathVertexCount = 0,
-        PathFloatOffset = 2,
-        PathWeightOffset = 3,
+        DeformFloatOffset = 4
     }
     /**
      * @internal

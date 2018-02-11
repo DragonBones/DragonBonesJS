@@ -736,7 +736,7 @@ namespace dragonBones {
             super._onArriveAtFrame();
 
             if (this._timelineData !== null) {
-                const intArray = this._dragonBonesData.intArray;
+                const colorArray = this._dragonBonesData.colorArray;
                 const frameIntArray = this._frameIntArray;
                 const valueOffset = this._animationData.frameIntOffset + this._frameValueOffset + this._frameIndex * 1; // ...(timeline value offset)|x|x|(Value offset)|(Next offset)|x|x|...
                 let colorOffset = frameIntArray[valueOffset];
@@ -745,14 +745,14 @@ namespace dragonBones {
                     colorOffset += 65536; // Fixed out of bouds bug. 
                 }
 
-                this._current[0] = intArray[colorOffset++];
-                this._current[1] = intArray[colorOffset++];
-                this._current[2] = intArray[colorOffset++];
-                this._current[3] = intArray[colorOffset++];
-                this._current[4] = intArray[colorOffset++];
-                this._current[5] = intArray[colorOffset++];
-                this._current[6] = intArray[colorOffset++];
-                this._current[7] = intArray[colorOffset++];
+                this._current[0] = colorArray[colorOffset++];
+                this._current[1] = colorArray[colorOffset++];
+                this._current[2] = colorArray[colorOffset++];
+                this._current[3] = colorArray[colorOffset++];
+                this._current[4] = colorArray[colorOffset++];
+                this._current[5] = colorArray[colorOffset++];
+                this._current[6] = colorArray[colorOffset++];
+                this._current[7] = colorArray[colorOffset++];
 
                 if (this._tweenState === TweenState.Always) {
                     if (this._frameIndex === this._frameCount - 1) {
@@ -766,14 +766,14 @@ namespace dragonBones {
                         colorOffset += 65536; // Fixed out of bouds bug. 
                     }
 
-                    this._delta[0] = intArray[colorOffset++] - this._current[0];
-                    this._delta[1] = intArray[colorOffset++] - this._current[1];
-                    this._delta[2] = intArray[colorOffset++] - this._current[2];
-                    this._delta[3] = intArray[colorOffset++] - this._current[3];
-                    this._delta[4] = intArray[colorOffset++] - this._current[4];
-                    this._delta[5] = intArray[colorOffset++] - this._current[5];
-                    this._delta[6] = intArray[colorOffset++] - this._current[6];
-                    this._delta[7] = intArray[colorOffset++] - this._current[7];
+                    this._delta[0] = colorArray[colorOffset++] - this._current[0];
+                    this._delta[1] = colorArray[colorOffset++] - this._current[1];
+                    this._delta[2] = colorArray[colorOffset++] - this._current[2];
+                    this._delta[3] = colorArray[colorOffset++] - this._current[3];
+                    this._delta[4] = colorArray[colorOffset++] - this._current[4];
+                    this._delta[5] = colorArray[colorOffset++] - this._current[5];
+                    this._delta[6] = colorArray[colorOffset++] - this._current[6];
+                    this._delta[7] = colorArray[colorOffset++] - this._current[7];
                 }
             }
             else { // Pose.
@@ -989,7 +989,11 @@ namespace dragonBones {
 
         public update(passedTime: number): void {
             const deformVertices = this.slot._deformVertices;
+
             if (deformVertices === null || deformVertices.verticesData === null || deformVertices.verticesData.offset !== this.vertexOffset) {
+                return;
+            }
+            else if (this._timelineData !== null && this._dragonBonesData !== deformVertices.verticesData.data) {
                 return;
             }
 
@@ -1002,15 +1006,24 @@ namespace dragonBones {
                 if (this._animationState._fadeState !== 0 || this._animationState._subFadeState !== 0) {
                     const fadeProgress = Math.pow(this._animationState._fadeProgress, 2);
 
-                    for (let i = 0; i < this._deformCount; ++i) {
-                        if (i < this._valueOffset) {
-                            result[i] += (this._frameFloatArray[this._frameFloatOffset + i] - result[i]) * fadeProgress;
+                    if (this._timelineData !== null) {
+                        for (let i = 0; i < this._deformCount; ++i) {
+                            if (i < this._valueOffset) {
+                                result[i] += (this._frameFloatArray[this._frameFloatOffset + i] - result[i]) * fadeProgress;
+                            }
+                            else if (i < this._valueOffset + this._valueCount) {
+                                result[i] += (this._result[i - this._valueOffset] - result[i]) * fadeProgress;
+                            }
+                            else {
+                                result[i] += (this._frameFloatArray[this._frameFloatOffset + i - this._valueCount] - result[i]) * fadeProgress;
+                            }
                         }
-                        else if (i < this._valueOffset + this._valueCount) {
-                            result[i] += (this._result[i - this._valueOffset] - result[i]) * fadeProgress;
-                        }
-                        else {
-                            result[i] += (this._frameFloatArray[this._frameFloatOffset + i - this._valueCount] - result[i]) * fadeProgress;
+                    }
+                    else {
+                        this._deformCount = result.length;
+
+                        for (let i = 0; i < this._deformCount; ++i) {
+                            result[i] += (0.0 - result[i]) * fadeProgress;
                         }
                     }
 
@@ -1019,15 +1032,24 @@ namespace dragonBones {
                 else if (this._dirty) {
                     this._dirty = false;
 
-                    for (let i = 0; i < this._deformCount; ++i) {
-                        if (i < this._valueOffset) {
-                            result[i] = this._frameFloatArray[this._frameFloatOffset + i];
+                    if (this._timelineData !== null) {
+                        for (let i = 0; i < this._deformCount; ++i) {
+                            if (i < this._valueOffset) {
+                                result[i] = this._frameFloatArray[this._frameFloatOffset + i];
+                            }
+                            else if (i < this._valueOffset + this._valueCount) {
+                                result[i] = this._result[i - this._valueOffset];
+                            }
+                            else {
+                                result[i] = this._frameFloatArray[this._frameFloatOffset + i - this._valueCount];
+                            }
                         }
-                        else if (i < this._valueOffset + this._valueCount) {
-                            result[i] = this._result[i - this._valueOffset];
-                        }
-                        else {
-                            result[i] = this._frameFloatArray[this._frameFloatOffset + i - this._valueCount];
+                    }
+                    else {
+                        this._deformCount = result.length;
+
+                        for (let i = 0; i < this._deformCount; ++i) {
+                            result[i] = 0.0;
                         }
                     }
 

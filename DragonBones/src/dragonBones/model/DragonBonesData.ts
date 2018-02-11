@@ -134,6 +134,10 @@ namespace dragonBones {
          */
         public timelineArray: Uint16Array;
         /**
+         * @internal
+         */
+        public colorArray: Uint16Array;
+        /**
          * @private
          */
         public userData: UserData | null = null; // Initial value.
@@ -164,6 +168,7 @@ namespace dragonBones {
             this.frameFloatArray = null as any; //
             this.frameArray = null as any; //
             this.timelineArray = null as any; //
+            this.colorArray = null as any; //
             this.userData = null;
         }
         /**

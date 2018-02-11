@@ -28,9 +28,6 @@ namespace dragonBones {
         private _binaryOffset: number;
         private _binary: ArrayBuffer;
         private _intArrayBuffer: Int16Array;
-        private _floatArrayBuffer: Float32Array;
-        private _frameIntArrayBuffer: Int16Array;
-        private _frameFloatArrayBuffer: Float32Array;
         private _frameArrayBuffer: Int16Array;
         private _timelineArrayBuffer: Uint16Array;
 
@@ -209,7 +206,7 @@ namespace dragonBones {
             return timeline;
         }
 
-        private _parseVertices(rawData: any, vertices: VerticesData): void {
+        protected _parseVertices(rawData: any, vertices: VerticesData): void {
             vertices.offset = rawData[DataParser.OFFSET];
 
             const weightOffset = this._intArrayBuffer[vertices.offset + BinaryOffset.MeshWeightOffset];
@@ -239,10 +236,6 @@ namespace dragonBones {
 
         protected _parseMesh(rawData: any, mesh: MeshDisplayData): void {
             this._parseVertices(rawData, mesh.vertices);
-        }
-
-        protected _parsePath(rawData: any, path: PathDisplayData): void {
-            this._parseVertices(rawData, path.vertices);
         }
 
         protected _parseAnimation(rawData: any): AnimationData {
@@ -391,40 +384,41 @@ namespace dragonBones {
             const l4 = offsets[7];
             const l5 = offsets[9];
             const l6 = offsets[11];
+            const l7 = offsets.length > 12 ? offsets[13] : 0; // Color.
             const intArray = new Int16Array(this._binary, this._binaryOffset + offsets[0], l1 / Int16Array.BYTES_PER_ELEMENT);
             const floatArray = new Float32Array(this._binary, this._binaryOffset + offsets[2], l2 / Float32Array.BYTES_PER_ELEMENT);
             const frameIntArray = new Int16Array(this._binary, this._binaryOffset + offsets[4], l3 / Int16Array.BYTES_PER_ELEMENT);
             const frameFloatArray = new Float32Array(this._binary, this._binaryOffset + offsets[6], l4 / Float32Array.BYTES_PER_ELEMENT);
             const frameArray = new Int16Array(this._binary, this._binaryOffset + offsets[8], l5 / Int16Array.BYTES_PER_ELEMENT);
             const timelineArray = new Uint16Array(this._binary, this._binaryOffset + offsets[10], l6 / Uint16Array.BYTES_PER_ELEMENT);
+            const colorArray = l7 > 0 ? new Int16Array(this._binary, this._binaryOffset + offsets[12], l7 / Int16Array.BYTES_PER_ELEMENT) : intArray; // Color.
 
             if (DragonBones.webAssembly) {
-                const lTotal = l1 + l2 + l3 + l4 + l5 + l6;
-                const bufferPointer = webAssemblyModule._malloc(lTotal);
-                const rawArray = new Uint8Array(this._binary, this._binaryOffset, lTotal / Uint8Array.BYTES_PER_ELEMENT);
-                const copyArray = new Uint8Array(webAssemblyModule.HEAP16.buffer, bufferPointer, rawArray.length);
+                // TODO
+                // const lTotal = l1 + l2 + l3 + l4 + l5 + l6;
+                // const bufferPointer = webAssemblyModule._malloc(lTotal);
+                // const rawArray = new Uint8Array(this._binary, this._binaryOffset, lTotal / Uint8Array.BYTES_PER_ELEMENT);
+                // const copyArray = new Uint8Array(webAssemblyModule.HEAP16.buffer, bufferPointer, rawArray.length);
 
-                for (let i = 0, l = rawArray.length; i < l; ++i) {
-                    copyArray[i] = rawArray[i];
-                }
+                // for (let i = 0, l = rawArray.length; i < l; ++i) {
+                //     copyArray[i] = rawArray[i];
+                // }
 
-                webAssemblyModule.setDataBinary(this._data, bufferPointer, l1, l2, l3, l4, l5, l6);
+                // webAssemblyModule.setDataBinary(this._data, bufferPointer, l1, l2, l3, l4, l5, l6);
 
-                this._intArrayBuffer = intArray;
-                this._floatArrayBuffer = floatArray;
-                this._frameIntArrayBuffer = frameIntArray;
-                this._frameFloatArrayBuffer = frameFloatArray;
-                this._frameArrayBuffer = frameArray;
-                this._timelineArrayBuffer = timelineArray;
+                // this._intArrayBuffer = intArray;
+                // this._frameArrayBuffer = frameArray;
+                // this._timelineArrayBuffer = timelineArray;
             }
             else {
                 this._data.binary = this._binary;
                 this._data.intArray = this._intArrayBuffer = intArray;
-                this._data.floatArray = this._floatArrayBuffer = floatArray;
-                this._data.frameIntArray = this._frameIntArrayBuffer = frameIntArray;
-                this._data.frameFloatArray = this._frameFloatArrayBuffer = frameFloatArray;
+                this._data.floatArray = floatArray;
+                this._data.frameIntArray = frameIntArray;
+                this._data.frameFloatArray = frameFloatArray;
                 this._data.frameArray = this._frameArrayBuffer = frameArray;
                 this._data.timelineArray = this._timelineArrayBuffer = timelineArray;
+                this._data.colorArray = colorArray;
             }
         }
 
