@@ -5,6 +5,7 @@ bin/
 libs/
 node_modules/
 modules/
+.vs/
 
 pids
 logs
@@ -18,3 +19,4 @@ lib-cov
 *.out
 *.pid
 *.gz
+package-lock.json
