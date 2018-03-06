@@ -111,12 +111,12 @@ namespace dragonBones {
         }
 
         protected _updateFrame(): void {
-            const currentVerticesData = (this._deformVertices !== null && this._display === this._meshDisplay) ? this._deformVertices.verticesData : null;
             let currentTextureData = this._textureData as (HiloTextureData | null);
 
             if (this._displayIndex >= 0 && this._display !== null && currentTextureData !== null) {
                 let currentTextureAtlasData = currentTextureData.parent as HiloTextureAtlasData;
-                if (this._armature.replacedTexture !== null && this._rawDisplayDatas !== null && this._rawDisplayDatas.indexOf(this._displayData) >= 0) { // Update replaced texture atlas.
+                
+                if (this._armature.replacedTexture !== null) { // Update replaced texture atlas.
                     if (this._armature._replaceTextureAtlasData === null) {
                         currentTextureAtlasData = BaseObject.borrowObject(HiloTextureAtlasData);
                         currentTextureAtlasData.copyFrom(currentTextureData.parent);
@@ -132,7 +132,7 @@ namespace dragonBones {
 
                 const renderTexture = currentTextureAtlasData.renderTexture;
                 if (renderTexture !== null) {
-                    if (currentVerticesData !== null) { // Mesh.
+                    if (this._verticesData !== null) { // Mesh.
                         // TODO
                     }
                     else { // Normal texture.
@@ -146,7 +146,7 @@ namespace dragonBones {
                 }
             }
 
-            if (currentVerticesData !== null) {
+            if (this._verticesData !== null) {
                 // TODO
             }
             else {

@@ -312,7 +312,7 @@ namespace dragonBones {
             }
 
             //有骨骼约束我,那我的节点受骨骼权重控制
-            const bones = (this._pathSlot._deformVertices as DeformVertices).bones;
+            const bones = this._pathSlot._verticesBones;
             const weightBoneCount = weightData.bones.length;
 
             const weightOffset = weightData.offset;
@@ -671,28 +671,25 @@ namespace dragonBones {
             const pathSlot = this._pathSlot;
 
             if (
-                pathSlot._deformVertices === null ||
-                pathSlot._deformVertices.verticesData === null ||
-                pathSlot._deformVertices.verticesData.offset !== this.pathOffset
+                pathSlot._verticesData === null ||
+                pathSlot._verticesData.offset !== this.pathOffset
             ) {
                 return;
             }
 
             const constraintData = this._constraintData as PathConstraintData;
-            const pathDisplayData = pathSlot._displayData as PathDisplayData; // TODO
 
             //
 
             //曲线节点数据改变:父亲bone改变，权重bones改变，变形顶点改变
             let isPathVerticeDirty = false;
-            let deformVertices = pathSlot._deformVertices;
             if (this._root._childrenTransformDirty) {
-                this._updatePathVertices(pathDisplayData.vertices);
+                this._updatePathVertices(pathSlot._verticesData);
                 isPathVerticeDirty = true;
             }
-            else if (deformVertices !== null && (deformVertices.verticesDirty || deformVertices.isBonesUpdate())) {
-                this._updatePathVertices(pathDisplayData.vertices);
-                deformVertices.verticesDirty = false;
+            else if (pathSlot._verticesDirty || pathSlot._isBonesUpdate()) {
+                this._updatePathVertices(pathSlot._verticesData);
+                pathSlot._verticesDirty = false;
                 isPathVerticeDirty = true;
             }
 
@@ -741,8 +738,9 @@ namespace dragonBones {
                     spaces[i] = spacing;
                 }
             }
+
             //
-            this._computeBezierCurve(pathDisplayData, spacesCount, isTangentMode, positionMode === PositionMode.Percent, spacingMode === SpacingMode.Percent);
+            this._computeBezierCurve(((pathSlot._displayFrame as DisplayFrame).rawDisplayData as PathDisplayData), spacesCount, isTangentMode, positionMode === PositionMode.Percent, spacingMode === SpacingMode.Percent);
 
             //根据新的节点数据重新采样
             const positions = this._positions;

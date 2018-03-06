@@ -62,7 +62,7 @@ namespace dragonBones {
         private _armature: Armature;
         private _animationConfig: AnimationConfig = null as any; // Initial value.
         private _lastAnimationState: AnimationState | null;
-        
+
         protected _onClear(): void {
             for (const animationState of this._animationStates) {
                 animationState.returnToPool();
@@ -194,14 +194,14 @@ namespace dragonBones {
                         }
 
                         for (const slot of this._armature.getSlots()) {
-                            const rawDisplayDatas = slot.rawDisplayDatas;
-                            if (rawDisplayDatas !== null && rawDisplayDatas.length > 0) {
-                                const rawDsplayData = rawDisplayDatas[0];
-                                if (rawDsplayData !== null) {
-                                    if (rawDsplayData.parent === this._armature.armatureData.defaultSkin) {
-                                        slot._cachedFrameIndices = animationData.getSlotCachedFrameIndices(slot.name);
-                                        continue;
-                                    }
+                            if (slot.displayFrameCount > 0) {
+                                const rawDisplayData = slot.getDisplayFrameAt(0).rawDisplayData;
+                                if (
+                                    rawDisplayData !== null &&
+                                    rawDisplayData.parent === this._armature.armatureData.defaultSkin
+                                ) {
+                                    slot._cachedFrameIndices = animationData.getSlotCachedFrameIndices(slot.name);
+                                    continue;
                                 }
                             }
 

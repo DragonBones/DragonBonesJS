@@ -547,8 +547,14 @@ namespace dragonBones {
                                         const timeline = BaseObject.borrowObject(DeformTimelineState);
                                         timeline.slot = slot;
                                         timeline.init(this._armature, this, timelineData);
-                                        this._slotTimelines.push(timeline);
-                                        ffdFlags.push(timeline.vertexOffset);
+
+                                        if (timeline.slot !== null) {
+                                            this._slotTimelines.push(timeline);
+                                            ffdFlags.push(timeline.verticesOffset);
+                                        }
+                                        else {
+                                            timeline.returnToPool();
+                                        }
                                         break;
                                     }
 
@@ -575,19 +581,21 @@ namespace dragonBones {
                                 this._poseTimelines.push(timeline);
                             }
 
-                            if (slot.rawDisplayDatas !== null) {
-                                for (const displayData of slot.rawDisplayDatas) {
-                                    if (displayData !== null && displayData.type === DisplayType.Mesh) {
-                                        const meshOffset = (displayData as MeshDisplayData).vertices.offset;
-                                        if (ffdFlags.indexOf(meshOffset) < 0) {
-                                            const timeline = BaseObject.borrowObject(DeformTimelineState);
-                                            timeline.vertexOffset = meshOffset; //
-                                            timeline.slot = slot;
-                                            timeline.init(this._armature, this, null);
-                                            this._slotTimelines.push(timeline);
-                                            this._poseTimelines.push(timeline);
-                                        }
-                                    }
+                            for (let i = 0, l = slot.displayFrameCount; i < l; ++i) {
+                                const displayFrame = slot.getDisplayFrameAt(i);
+                                if (displayFrame.deformVertices.length === 0) {
+                                    continue;
+                                }
+
+                                const verticesData = displayFrame.getVerticesData();
+                                if (verticesData !== null && ffdFlags.indexOf(verticesData.offset) < 0) {
+                                    const timeline = BaseObject.borrowObject(DeformTimelineState);
+                                    timeline.verticesOffset = verticesData.offset; //
+                                    timeline.displayFrame = displayFrame; //
+                                    timeline.slot = slot;
+                                    timeline.init(this._armature, this, null);
+                                    this._slotTimelines.push(timeline);
+                                    this._poseTimelines.push(timeline);
                                 }
                             }
                         }

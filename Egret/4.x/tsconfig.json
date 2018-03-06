@@ -48,8 +48,6 @@
 		"../../DragonBones/src/dragonBones/model/AnimationConfig.ts",
 		"../../DragonBones/src/dragonBones/model/TextureAtlasData.ts",
 
-		"../../DragonBones/src/dragonBones/armature/DeformVertices.ts",
-
 		"../../DragonBones/src/dragonBones/armature/IArmatureProxy.ts",
 		"../../DragonBones/src/dragonBones/armature/Armature.ts",
 		"../../DragonBones/src/dragonBones/armature/TransformObject.ts",

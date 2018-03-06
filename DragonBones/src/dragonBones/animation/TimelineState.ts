@@ -742,7 +742,7 @@ namespace dragonBones {
                 let colorOffset = frameIntArray[valueOffset];
 
                 if (colorOffset < 0) {
-                    colorOffset += 65536; // Fixed out of bouds bug. 
+                    colorOffset += 65536; // Fixed out of bounds bug. 
                 }
 
                 this._current[0] = intArray[colorOffset++];
@@ -763,7 +763,7 @@ namespace dragonBones {
                     }
 
                     if (colorOffset < 0) {
-                        colorOffset += 65536; // Fixed out of bouds bug. 
+                        colorOffset += 65536; // Fixed out of bounds bug. 
                     }
 
                     this._delta[0] = intArray[colorOffset++] - this._current[0];
@@ -879,7 +879,8 @@ namespace dragonBones {
             return "[class dragonBones.DeformTimelineState]";
         }
 
-        public vertexOffset: number;
+        public verticesOffset: number;
+        public displayFrame: DisplayFrame;
 
         private _dirty: boolean;
         private _frameFloatOffset: number;
@@ -893,7 +894,8 @@ namespace dragonBones {
         protected _onClear(): void {
             super._onClear();
 
-            this.vertexOffset = 0;
+            this.verticesOffset = 0;
+            this.displayFrame = null as any;
 
             this._dirty = false;
             this._frameFloatOffset = 0;
@@ -954,10 +956,29 @@ namespace dragonBones {
 
             if (this._timelineData !== null) {
                 const frameIntOffset = this._animationData.frameIntOffset + this._timelineArray[this._timelineData.offset + BinaryOffset.TimelineFrameValueCount];
-                this.vertexOffset = this._frameIntArray[frameIntOffset + BinaryOffset.DeformVertexOffset];
+                this.verticesOffset = this._frameIntArray[frameIntOffset + BinaryOffset.DeformVertexOffset];
 
-                if (this.vertexOffset < 0) {
-                    this.vertexOffset += 65536; // Fixed out of bouds bug. 
+                if (this.verticesOffset < 0) {
+                    this.verticesOffset += 65536; // Fixed out of bounds bug. 
+                }
+
+                for (let i = 0, l = this.slot.displayFrameCount; i < l; ++i) {
+                    const displayFrame = this.slot.getDisplayFrameAt(i);
+                    const verticesData = displayFrame.getVerticesData();
+                    if (verticesData === null) {
+                        continue;
+                    }
+
+                    if (verticesData.offset === this.verticesOffset) {
+                        this.displayFrame = displayFrame;
+                        this.displayFrame.updateDeformVertices();
+                        break;
+                    }
+                }
+
+                if (this.displayFrame === null) {
+                    this.returnToPool(); //
+                    return;
                 }
 
                 this._deformCount = this._frameIntArray[frameIntOffset + BinaryOffset.DeformCount];
@@ -966,8 +987,9 @@ namespace dragonBones {
                 this._frameFloatOffset = this._frameIntArray[frameIntOffset + BinaryOffset.DeformFloatOffset] + this._animationData.frameFloatOffset;
             }
             else {
-                const deformVertices = this.slot._deformVertices;
-                this._deformCount = deformVertices !== null ? deformVertices.vertices.length : 0;
+                // verticesOffset;
+                // displayFrame;
+                this._deformCount = this.displayFrame.deformVertices.length;
                 this._valueCount = this._deformCount;
                 this._valueOffset = 0;
                 this._frameFloatOffset = 0;
@@ -988,16 +1010,11 @@ namespace dragonBones {
         }
 
         public update(passedTime: number): void {
-            const deformVertices = this.slot._deformVertices;
-            if (deformVertices === null || deformVertices.verticesData === null || deformVertices.verticesData.offset !== this.vertexOffset) {
-                return;
-            }
-
             super.update(passedTime);
 
             // Fade animation.
             if (this._tweenState !== TweenState.None || this._dirty) {
-                const result = deformVertices.vertices;
+                const result = this.displayFrame.deformVertices;
 
                 if (this._animationState._fadeState !== 0 || this._animationState._subFadeState !== 0) {
                     const fadeProgress = Math.pow(this._animationState._fadeProgress, 2);
@@ -1014,7 +1031,9 @@ namespace dragonBones {
                         }
                     }
 
-                    deformVertices.verticesDirty = true;
+                    if (this.slot._verticesData === this.displayFrame.getVerticesData()) {
+                        this.slot._verticesDirty = true;
+                    }
                 }
                 else if (this._dirty) {
                     this._dirty = false;
@@ -1031,7 +1050,9 @@ namespace dragonBones {
                         }
                     }
 
-                    deformVertices.verticesDirty = true;
+                    if (this.slot._verticesData === this.displayFrame.getVerticesData()) {
+                        this.slot._verticesDirty = true;
+                    }
                 }
             }
         }

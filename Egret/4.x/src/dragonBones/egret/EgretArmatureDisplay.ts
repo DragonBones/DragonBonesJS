@@ -536,7 +536,7 @@ namespace dragonBones {
 
             for (const slot of this._armature.getSlots()) {
                 // (slot as EgretSlot).transformUpdateEnabled = true;
-                let display = ((slot._deformVertices && slot._deformVertices.verticesData) ? slot.meshDisplay : slot.rawDisplay) as (egret.Mesh | egret.Bitmap);
+                let display = (slot._verticesData ? slot.meshDisplay : slot.rawDisplay) as (egret.Mesh | egret.Bitmap);
                 if (!slot.display && display === slot.meshDisplay) {
                     display = slot.rawDisplay;
                 }
@@ -609,14 +609,14 @@ namespace dragonBones {
                                 continue;
                             }
                         }
-                        else {
-                            const displayData = slot.displayData;
-                            if (displayData && displayData instanceof ImageDisplayData && displayData.texture) {
-                                const scale = displayData.texture.parent.scale;
+                        else if (slot._displayFrame) {
+                            const textureData = slot._displayFrame.getTextureData();
+                            if (textureData) {
+                                const scale = textureData.parent.scale;
                                 helpRectangle.x = 0;
                                 helpRectangle.y = 0;
-                                helpRectangle.width = displayData.texture.region.width * scale;
-                                helpRectangle.height = displayData.texture.region.height * scale;
+                                helpRectangle.width = textureData.region.width * scale;
+                                helpRectangle.height = textureData.region.height * scale;
                             }
                             else {
                                 continue;

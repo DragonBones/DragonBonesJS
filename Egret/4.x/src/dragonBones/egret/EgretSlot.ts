@@ -256,12 +256,12 @@ namespace dragonBones {
         }
 
         protected _updateFrame(): void {
-            const currentVerticesData = (this._deformVertices !== null && this._display === this._meshDisplay) ? this._deformVertices.verticesData : null;
             let currentTextureData = this._textureData as (EgretTextureData | null);
 
-            if (this._displayIndex >= 0 && this._display !== null && currentTextureData !== null) {
-                if (this._armature.replacedTexture !== null && this._rawDisplayDatas !== null && this._rawDisplayDatas.indexOf(this._displayData) >= 0) { // Update replaced texture atlas.
-                    let currentTextureAtlasData = currentTextureData.parent as EgretTextureAtlasData;
+            if (this._displayFrame !== null && this._display !== null && currentTextureData !== null) {
+                let currentTextureAtlasData = currentTextureData.parent as EgretTextureAtlasData;
+
+                if (this._armature.replacedTexture !== null) { // Update replaced texture atlas.
                     if (this._armature._replaceTextureAtlasData === null) {
                         currentTextureAtlasData = BaseObject.borrowObject(EgretTextureAtlasData);
                         currentTextureAtlasData.copyFrom(currentTextureData.parent);
@@ -276,16 +276,16 @@ namespace dragonBones {
                 }
 
                 if (currentTextureData.renderTexture !== null) {
-                    if (currentVerticesData !== null) { // Mesh.
-                        const data = currentVerticesData.data;
+                    if (this._verticesData !== null) { // Mesh.
+                        const data = this._verticesData.data;
                         const intArray = data.intArray;
                         const floatArray = data.floatArray;
-                        const vertexCount = intArray[currentVerticesData.offset + BinaryOffset.MeshVertexCount];
-                        const triangleCount = intArray[currentVerticesData.offset + BinaryOffset.MeshTriangleCount];
-                        let vertexOffset = intArray[currentVerticesData.offset + BinaryOffset.MeshFloatOffset];
+                        const vertexCount = intArray[this._verticesData.offset + BinaryOffset.MeshVertexCount];
+                        const triangleCount = intArray[this._verticesData.offset + BinaryOffset.MeshTriangleCount];
+                        let vertexOffset = intArray[this._verticesData.offset + BinaryOffset.MeshFloatOffset];
 
                         if (vertexOffset < 0) {
-                            vertexOffset += 65536; // Fixed out of bouds bug. 
+                            vertexOffset += 65536; // Fixed out of bounds bug. 
                         }
 
                         const uvOffset = vertexOffset + vertexCount * 2;
@@ -304,7 +304,7 @@ namespace dragonBones {
                         }
 
                         for (let i = 0; i < triangleCount * 3; ++i) {
-                            meshNode.indices[i] = intArray[currentVerticesData.offset + BinaryOffset.MeshVertexIndices + i];
+                            meshNode.indices[i] = intArray[this._verticesData.offset + BinaryOffset.MeshVertexIndices + i];
                         }
 
                         if (this._armatureDisplay._batchEnabled) {
@@ -350,7 +350,7 @@ namespace dragonBones {
                             meshDisplay.$invalidateTransform();
                         }
 
-                        const isSkinned = currentVerticesData.weight !== null;
+                        const isSkinned = this._verticesData.weight !== null;
                         const isSurface = this._parent._boneData.type !== BoneType.Bone;
                         if (isSkinned || isSurface) {
                             this._identityTransform();
@@ -424,9 +424,9 @@ namespace dragonBones {
 
         protected _updateMesh(): void {
             const scale = this._armature._armatureData.scale;
-            const deformVertices = (this._deformVertices as DeformVertices).vertices;
-            const bones = (this._deformVertices as DeformVertices).bones;
-            const verticesData = (this._deformVertices as DeformVertices).verticesData as VerticesData;
+            const deformVertices = (this._displayFrame as DisplayFrame).deformVertices;
+            const bones = this._verticesBones;
+            const verticesData = this._verticesData as VerticesData;
             const weightData = verticesData.weight;
 
             const hasDeform = deformVertices.length > 0 && verticesData.inheritDeform;
@@ -441,7 +441,7 @@ namespace dragonBones {
                 let weightFloatOffset = intArray[weightData.offset + BinaryOffset.WeigthFloatOffset];
 
                 if (weightFloatOffset < 0) {
-                    weightFloatOffset += 65536; // Fixed out of bouds bug. 
+                    weightFloatOffset += 65536; // Fixed out of bounds bug. 
                 }
 
                 for (
@@ -491,7 +491,7 @@ namespace dragonBones {
                 let vertexOffset = intArray[verticesData.offset + BinaryOffset.MeshFloatOffset];
 
                 if (vertexOffset < 0) {
-                    vertexOffset += 65536; // Fixed out of bouds bug. 
+                    vertexOffset += 65536; // Fixed out of bounds bug. 
                 }
 
                 for (let i = 0, l = vertexCount * 2; i < l; i += 2) {
