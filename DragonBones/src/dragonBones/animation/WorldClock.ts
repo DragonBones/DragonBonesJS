@@ -9,10 +9,10 @@
  * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
  * the Software, and to permit persons to whom the Software is furnished to do so,
  * subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
  * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
@@ -98,21 +98,21 @@ namespace dragonBones {
          * @language zh_CN
          */
         public advanceTime(passedTime: number): void {
-            if (passedTime !== passedTime) { // isNaN
+            if (passedTime !== passedTime) {
                 passedTime = 0.0;
             }
-
-            let currentTime = new Date().getTime();
             if (passedTime < 0.0) {
-                passedTime = currentTime * 0.001 - this.time;
+                passedTime = new Date().getTime() * 0.001 - this.time;
             }
-
             if (this.timeScale !== 1.0) {
                 passedTime *= this.timeScale;
             }
-
-            this.time = currentTime;
-
+            if (passedTime < 0.0) {
+                this.time -= passedTime;
+            }
+            else {
+                this.time += passedTime;
+            }
             if (passedTime === 0.0) {
                 return;
             }
