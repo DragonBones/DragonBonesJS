@@ -59,7 +59,7 @@ namespace dragonBones {
         protected _actionTimeline: TimelineState;
         protected _frameArray: Array<number> | Int16Array;
         protected _frameIntArray: Array<number> | Int16Array;
-        protected _frameFloatArray: Array<number> | Int16Array;
+        protected _frameFloatArray: Array<number> | Float32Array;
         protected _timelineArray: Array<number> | Uint16Array;
         protected _frameIndices: Array<number>;
 
