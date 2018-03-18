@@ -209,13 +209,13 @@ namespace dragonBones {
             return timeline;
         }
 
-        private _parseVertices(rawData: any, vertices: VerticesData): void {
-            vertices.offset = rawData[DataParser.OFFSET];
+        private _parseGeometry(rawData: any, geometry: GeometryData): void {
+            geometry.offset = rawData[DataParser.OFFSET];
 
-            const weightOffset = this._intArrayBuffer[vertices.offset + BinaryOffset.MeshWeightOffset];
+            const weightOffset = this._intArrayBuffer[geometry.offset + BinaryOffset.MeshWeightOffset];
             if (weightOffset >= 0) {
                 const weight = BaseObject.borrowObject(WeightData);
-                const vertexCount = this._intArrayBuffer[vertices.offset + BinaryOffset.MeshVertexCount];
+                const vertexCount = this._intArrayBuffer[geometry.offset + BinaryOffset.MeshVertexCount];
                 const boneCount = this._intArrayBuffer[weightOffset + BinaryOffset.WeigthBoneCount];
                 weight.offset = weightOffset;
 
@@ -233,16 +233,16 @@ namespace dragonBones {
                 }
 
                 weight.count = weightCount;
-                vertices.weight = weight;
+                geometry.weight = weight;
             }
         }
 
         protected _parseMesh(rawData: any, mesh: MeshDisplayData): void {
-            this._parseVertices(rawData, mesh.vertices);
+            this._parseGeometry(rawData, mesh.geometry);
         }
 
         protected _parsePath(rawData: any, path: PathDisplayData): void {
-            this._parseVertices(rawData, path.vertices);
+            this._parseGeometry(rawData, path.geometry);
         }
 
         protected _parseAnimation(rawData: any): AnimationData {

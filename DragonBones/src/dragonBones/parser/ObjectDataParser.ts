@@ -379,7 +379,7 @@ namespace dragonBones {
                 }
 
                 const mesh = this._cacheMeshes[i];
-                mesh.vertices.shareFrom(shareMesh.vertices);
+                mesh.geometry.shareFrom(shareMesh.geometry);
             }
 
             if (DataParser.ANIMATION in rawData) {
@@ -684,10 +684,10 @@ namespace dragonBones {
 
                 case DisplayType.Mesh:
                     const meshDisplay = display = BaseObject.borrowObject(MeshDisplayData);
-                    meshDisplay.vertices.inheritDeform = ObjectDataParser._getBoolean(rawData, DataParser.INHERIT_DEFORM, true);
+                    meshDisplay.geometry.inheritDeform = ObjectDataParser._getBoolean(rawData, DataParser.INHERIT_DEFORM, true);
                     meshDisplay.name = name;
                     meshDisplay.path = path.length > 0 ? path : name;
-                    meshDisplay.vertices.data = this._data;
+                    meshDisplay.geometry.data = this._data;
 
                     if (DataParser.SHARE in rawData) {
                         this._cacheRawMeshes.push(rawData);
@@ -719,7 +719,7 @@ namespace dragonBones {
                     pathDisplay.constantSpeed = ObjectDataParser._getBoolean(rawData, DataParser.CONSTANT_SPEED, false);
                     pathDisplay.name = name;
                     pathDisplay.path = path.length > 0 ? path : name;
-                    pathDisplay.vertices.data = this._data;
+                    pathDisplay.geometry.data = this._data;
 
                     pathDisplay.curveLengths.length = rawCurveLengths.length;
                     for (let i = 0, l = rawCurveLengths.length; i < l; ++i) {
@@ -743,7 +743,7 @@ namespace dragonBones {
             const vertexOffset = this._floatArray.length;
 
             const pathOffset = this._intArray.length;
-            display.vertices.offset = pathOffset;
+            display.geometry.offset = pathOffset;
 
             this._intArray.length += 1 + 1;
             this._intArray[pathOffset + BinaryOffset.PathVertexCount] = vertexCount;
@@ -797,7 +797,7 @@ namespace dragonBones {
                     }
                 }
 
-                display.vertices.weight = weight;
+                display.geometry.weight = weight;
             }
         }
 
@@ -824,7 +824,7 @@ namespace dragonBones {
             const meshOffset = this._intArray.length;
             const meshName = this._skin.name + "_" + this._slot.name + "_" + mesh.name; // Cache pose data.
 
-            mesh.vertices.offset = meshOffset;
+            mesh.geometry.offset = meshOffset;
             this._intArray.length += 1 + 1 + 1 + 1 + triangleCount * 3;
             this._intArray[meshOffset + BinaryOffset.MeshVertexCount] = vertexCount;
             this._intArray[meshOffset + BinaryOffset.MeshTriangleCount] = triangleCount;
@@ -895,7 +895,7 @@ namespace dragonBones {
                     }
                 }
 
-                mesh.vertices.weight = weight;
+                mesh.geometry.weight = weight;
                 this._weightSlotPose[meshName] = rawSlotPose;
                 this._weightBonePoses[meshName] = rawBonePoses;
             }
@@ -1752,9 +1752,9 @@ namespace dragonBones {
             const frameOffset = this._parseTweenFrame(rawData, frameStart, frameCount);
             const rawVertices = DataParser.VERTICES in rawData ? rawData[DataParser.VERTICES] as Array<number> : null;
             const offset = ObjectDataParser._getNumber(rawData, DataParser.OFFSET, 0); // uint
-            const vertexCount = this._intArray[this._mesh.vertices.offset + BinaryOffset.MeshVertexCount];
+            const vertexCount = this._intArray[this._mesh.geometry.offset + BinaryOffset.MeshVertexCount];
             const meshName = this._mesh.parent.name + "_" + this._slot.name + "_" + this._mesh.name;
-            const weight = this._mesh.vertices.weight;
+            const weight = this._mesh.geometry.weight;
 
             let x = 0.0;
             let y = 0.0;
@@ -1822,7 +1822,7 @@ namespace dragonBones {
             if (frameStart === 0) {
                 const frameIntOffset = this._frameIntArray.length;
                 this._frameIntArray.length += 1 + 1 + 1 + 1 + 1;
-                this._frameIntArray[frameIntOffset + BinaryOffset.DeformVertexOffset] = this._mesh.vertices.offset;
+                this._frameIntArray[frameIntOffset + BinaryOffset.DeformVertexOffset] = this._mesh.geometry.offset;
                 this._frameIntArray[frameIntOffset + BinaryOffset.DeformCount] = this._frameFloatArray.length - frameFloatOffset;
                 this._frameIntArray[frameIntOffset + BinaryOffset.DeformValueCount] = this._frameFloatArray.length - frameFloatOffset;
                 this._frameIntArray[frameIntOffset + BinaryOffset.DeformValueOffset] = 0;

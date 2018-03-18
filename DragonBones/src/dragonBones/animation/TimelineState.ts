@@ -879,7 +879,7 @@ namespace dragonBones {
             return "[class dragonBones.DeformTimelineState]";
         }
 
-        public verticesOffset: number;
+        public geometryOffset: number;
         public displayFrame: DisplayFrame;
 
         private _dirty: boolean;
@@ -894,7 +894,7 @@ namespace dragonBones {
         protected _onClear(): void {
             super._onClear();
 
-            this.verticesOffset = 0;
+            this.geometryOffset = 0;
             this.displayFrame = null as any;
 
             this._dirty = false;
@@ -956,20 +956,20 @@ namespace dragonBones {
 
             if (this._timelineData !== null) {
                 const frameIntOffset = this._animationData.frameIntOffset + this._timelineArray[this._timelineData.offset + BinaryOffset.TimelineFrameValueCount];
-                this.verticesOffset = this._frameIntArray[frameIntOffset + BinaryOffset.DeformVertexOffset];
+                this.geometryOffset = this._frameIntArray[frameIntOffset + BinaryOffset.DeformVertexOffset];
 
-                if (this.verticesOffset < 0) {
-                    this.verticesOffset += 65536; // Fixed out of bounds bug. 
+                if (this.geometryOffset < 0) {
+                    this.geometryOffset += 65536; // Fixed out of bounds bug. 
                 }
 
                 for (let i = 0, l = this.slot.displayFrameCount; i < l; ++i) {
                     const displayFrame = this.slot.getDisplayFrameAt(i);
-                    const verticesData = displayFrame.getVerticesData();
-                    if (verticesData === null) {
+                    const geometryData = displayFrame.getGeometryData();
+                    if (geometryData === null) {
                         continue;
                     }
 
-                    if (verticesData.offset === this.verticesOffset) {
+                    if (geometryData.offset === this.geometryOffset) {
                         this.displayFrame = displayFrame;
                         this.displayFrame.updateDeformVertices();
                         break;
@@ -1031,7 +1031,7 @@ namespace dragonBones {
                         }
                     }
 
-                    if (this.slot._verticesData === this.displayFrame.getVerticesData()) {
+                    if (this.slot._geometryData === this.displayFrame.getGeometryData()) {
                         this.slot._verticesDirty = true;
                     }
                 }
@@ -1050,7 +1050,7 @@ namespace dragonBones {
                         }
                     }
 
-                    if (this.slot._verticesData === this.displayFrame.getVerticesData()) {
+                    if (this.slot._geometryData === this.displayFrame.getGeometryData()) {
                         this.slot._verticesDirty = true;
                     }
                 }

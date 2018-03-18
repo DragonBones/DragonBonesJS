@@ -874,7 +874,7 @@ namespace dragonBones {
                 slot.displayFrameCount = DragonBones.webAssembly ? (displayDatas as any).size() : displayDatas.length;
                 for (let i = 0, l = slot.displayFrameCount; i < l; ++i) {
                     const displayData = DragonBones.webAssembly ? (displayDatas as any).get(i) : displayDatas[i];
-                    slot.replaceRawDisplayData(displayData, displayData);
+                    slot.replaceRawDisplayData(displayData, i);
 
                     if (displayData !== null) {
                         slot.replaceDisplay(this._getSlotDisplay(null, displayData, slot), i);

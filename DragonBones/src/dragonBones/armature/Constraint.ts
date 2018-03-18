@@ -275,7 +275,7 @@ namespace dragonBones {
             this._pathGlobalVertices.length = 0;
         }
 
-        protected _updatePathVertices(verticesData: VerticesData): void {
+        protected _updatePathVertices(verticesData: GeometryData): void {
             //计算曲线的节点数据
             const armature = this._armature;
             const dragonBonesData = armature.armatureData.parent;
@@ -312,7 +312,7 @@ namespace dragonBones {
             }
 
             //有骨骼约束我,那我的节点受骨骼权重控制
-            const bones = this._pathSlot._verticesBones;
+            const bones = this._pathSlot._geometryBones;
             const weightBoneCount = weightData.bones.length;
 
             const weightOffset = weightData.offset;
@@ -358,7 +358,7 @@ namespace dragonBones {
             //计算当前的骨骼在曲线上的位置
             const armature = this._armature;
             const intArray = armature.armatureData.parent.intArray;
-            const vertexCount = intArray[pathDisplayDta.vertices.offset + BinaryOffset.PathVertexCount];
+            const vertexCount = intArray[pathDisplayDta.geometry.offset + BinaryOffset.PathVertexCount];
 
             const positions = this._positions;
             const spaces = this._spaces;
@@ -639,7 +639,7 @@ namespace dragonBones {
 
             let data = constraintData as PathConstraintData;
 
-            this.pathOffset = data.pathDisplayData.vertices.offset;
+            this.pathOffset = data.pathDisplayData.geometry.offset;
 
             //
             this.position = data.position;
@@ -671,8 +671,8 @@ namespace dragonBones {
             const pathSlot = this._pathSlot;
 
             if (
-                pathSlot._verticesData === null ||
-                pathSlot._verticesData.offset !== this.pathOffset
+                pathSlot._geometryData === null ||
+                pathSlot._geometryData.offset !== this.pathOffset
             ) {
                 return;
             }
@@ -684,11 +684,11 @@ namespace dragonBones {
             //曲线节点数据改变:父亲bone改变，权重bones改变，变形顶点改变
             let isPathVerticeDirty = false;
             if (this._root._childrenTransformDirty) {
-                this._updatePathVertices(pathSlot._verticesData);
+                this._updatePathVertices(pathSlot._geometryData);
                 isPathVerticeDirty = true;
             }
             else if (pathSlot._verticesDirty || pathSlot._isBonesUpdate()) {
-                this._updatePathVertices(pathSlot._verticesData);
+                this._updatePathVertices(pathSlot._geometryData);
                 pathSlot._verticesDirty = false;
                 isPathVerticeDirty = true;
             }

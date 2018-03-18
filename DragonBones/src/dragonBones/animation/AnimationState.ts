@@ -550,7 +550,7 @@ namespace dragonBones {
 
                                         if (timeline.slot !== null) {
                                             this._slotTimelines.push(timeline);
-                                            ffdFlags.push(timeline.verticesOffset);
+                                            ffdFlags.push(timeline.geometryOffset);
                                         }
                                         else {
                                             timeline.returnToPool();
@@ -587,10 +587,10 @@ namespace dragonBones {
                                     continue;
                                 }
 
-                                const verticesData = displayFrame.getVerticesData();
-                                if (verticesData !== null && ffdFlags.indexOf(verticesData.offset) < 0) {
+                                const geometryData = displayFrame.getGeometryData();
+                                if (geometryData !== null && ffdFlags.indexOf(geometryData.offset) < 0) {
                                     const timeline = BaseObject.borrowObject(DeformTimelineState);
-                                    timeline.verticesOffset = verticesData.offset; //
+                                    timeline.geometryOffset = geometryData.offset; //
                                     timeline.displayFrame = displayFrame; //
                                     timeline.slot = slot;
                                     timeline.init(this._armature, this, null);
