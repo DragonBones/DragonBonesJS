@@ -745,7 +745,7 @@ namespace dragonBones {
                         const height = this._groupConfig.rectangleArray[regionIndex + 3];
 
                         slot.displayConfig.texture = new egret.Texture();
-                        slot.displayConfig.texture.bitmapData = textureAtlasTexture._bitmapData;
+                        slot.displayConfig.texture.bitmapData = textureAtlasTexture.bitmapData;
                         slot.displayConfig.texture.$initData(
                             x, y,
                             Math.min(width, textureAtlasTexture.textureWidth - x), Math.min(height, textureAtlasTexture.textureHeight - y),
