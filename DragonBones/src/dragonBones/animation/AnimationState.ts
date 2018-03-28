@@ -138,6 +138,22 @@ namespace dragonBones {
          */
         public weight: number;
         /**
+         * @private
+         */
+        public parameterX: number;
+        /**
+         * @private
+         */
+        public parameterY: number;
+        /**
+         * @private
+         */
+        public positionX: number;
+        /**
+         * @private
+         */
+        public positionY: number;
+        /**
          * - The auto fade out time when the animation state play completed.
          * [-1: Do not fade out automatically, [0~N]: The fade out time] (In seconds)
          * @default -1.0
@@ -218,10 +234,6 @@ namespace dragonBones {
          * @internal
          */
         public _weightResult: number;
-        /**
-         * @internal
-         */
-        public readonly _blendState: BlendState = new BlendState();
         private readonly _boneMask: Array<string> = [];
         private readonly _boneTimelines: Array<BoneTimelineState> = [];
         private readonly _surfaceTimelines: Array<SurfaceTimelineState> = [];
@@ -287,6 +299,10 @@ namespace dragonBones {
             this.layer = 0;
             this.timeScale = 1.0;
             this.weight = 1.0;
+            this.parameterX = 0.0;
+            this.parameterY = 0.0;
+            this.positionX = 0.0;
+            this.positionY = 0.0;
             this.autoFadeOutTime = 0.0;
             this.fadeTotalTime = 0.0;
             this.name = "";
@@ -302,7 +318,6 @@ namespace dragonBones {
             this._time = 0.0;
             this._fadeProgress = 0.0;
             this._weightResult = 0.0;
-            this._blendState.clear();
             this._boneMask.length = 0;
             this._boneTimelines.length = 0;
             this._surfaceTimelines.length = 0;
@@ -744,8 +759,6 @@ namespace dragonBones {
          * @internal
          */
         public advanceTime(passedTime: number, cacheFrameRate: number): void {
-            this._blendState.dirty = false;
-
             // Update fade time.
             if (this._fadeState !== 0 || this._subFadeState !== 0) {
                 this._advanceFadeTime(passedTime);
@@ -781,7 +794,7 @@ namespace dragonBones {
             this._weightResult = this.weight * this._fadeProgress;
 
             if (this._parent !== null) {
-                this._weightResult *= this._parent._weightResult / this._parent._fadeProgress;
+                this._weightResult *= this._parent._weightResult;
             }
 
             if (this._actionTimeline.playState <= 0) {
@@ -871,14 +884,8 @@ namespace dragonBones {
 
                 for (let i = 0, l = this._animationTimelines.length; i < l; ++i) {
                     const timeline = this._animationTimelines[i];
-                    const state = timeline.animationState._blendState.update(this._weightResult, this.layer);
-
                     if (timeline.playState <= 0) {
                         timeline.update(time);
-                    }
-
-                    if (state !== 0) {
-                        timeline.blend(state);
                     }
                 }
             }

@@ -65,8 +65,10 @@ namespace dragonBones {
          * @private
          */
         public userData: any;
-
-        private _lockUpdate: boolean;
+        /**
+         * @internal
+         */
+        public _lockUpdate: boolean;
         private _slotsDirty: boolean;
         private _zOrderDirty: boolean;
         private _flipX: boolean;
@@ -103,7 +105,7 @@ namespace dragonBones {
          * @internal
          */
         public _parent: Slot | null;
-        
+
         protected _onClear(): void {
             if (this._clock !== null) { // Remove clock first.
                 this._clock.remove(this);
@@ -277,6 +279,8 @@ namespace dragonBones {
                 return;
             }
 
+            this._lockUpdate = true;
+
             if (this._armatureData === null) {
                 console.warn("The armature has been disposed.");
                 return;
@@ -311,8 +315,6 @@ namespace dragonBones {
 
             // Do actions.
             if (this._actions.length > 0) {
-                this._lockUpdate = true;
-
                 for (const action of this._actions) {
                     const actionData = action.actionData;
                     if (actionData !== null) {
@@ -321,8 +323,8 @@ namespace dragonBones {
                                 const childArmature = action.slot.childArmature;
                                 if (childArmature !== null) {
                                     childArmature.animation.fadeIn(actionData.name);
-                    }
-                }
+                                }
+                            }
                             else if (action.bone !== null) {
                                 for (const slot of this.getSlots()) {
                                     if (slot.parent === action.bone) {
@@ -343,9 +345,9 @@ namespace dragonBones {
                 }
 
                 this._actions.length = 0;
-                this._lockUpdate = false;
             }
 
+            this._lockUpdate = false;
             this._proxy.dbUpdate();
         }
         /**

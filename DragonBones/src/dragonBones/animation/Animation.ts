@@ -53,7 +53,6 @@ namespace dragonBones {
          */
         public timeScale: number;
 
-        private _lockUpdate: boolean;
         private _animationDirty: boolean; // Update bones and slots cachedFrameIndices.
         private _inheritTimeScale: number;
         private readonly _animationNames: Array<string> = [];
@@ -78,7 +77,6 @@ namespace dragonBones {
 
             this.timeScale = 1.0;
 
-            this._lockUpdate = false;
             this._animationDirty = false;
             this._inheritTimeScale = 1.0;
             this._animationNames.length = 0;
@@ -426,32 +424,20 @@ namespace dragonBones {
                 }
             }
 
-            let isLocked = false;
             for (let k in animationData.animationTimelines) {
-                if (!this._lockUpdate) {
-                    isLocked = true;
-                    this._lockUpdate = true;
-                }
-
-                const childAnimatiionState = this.fadeIn(k, animationConfig.fadeInTime, 1, animationState.layer, null, AnimationFadeOutMode.None);
-                if (childAnimatiionState !== null) {
-                    childAnimatiionState.resetToPose = false;
-                    childAnimatiionState._parent = animationState;
-                    childAnimatiionState.stop();
+                const childAnimationState = this.fadeIn(k, animationConfig.fadeInTime, 1, animationState.layer, null, AnimationFadeOutMode.Single);
+                if (childAnimationState !== null) {
+                    childAnimationState.resetToPose = false;
+                    childAnimationState.stop();
+                    childAnimationState._parent = animationState;
                 }
             }
 
-            if (isLocked) {
-                this._lockUpdate = false;
-            }
+            // if (!this._armature._lockUpdate && animationConfig.fadeInTime <= 0.0) { // Blend animation state, update armature.
+            //     this._armature.advanceTime(0.0);
+            // }
 
-            if (!this._lockUpdate) {
-                if (animationConfig.fadeInTime <= 0.0) { // Blend animation state, update armature.
-                    this._armature.advanceTime(0.0);
-                }
-
-                this._lastAnimationState = animationState;
-            }
+            this._lastAnimationState = animationState;
 
             return animationState;
         }

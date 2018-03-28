@@ -1133,7 +1133,12 @@ namespace dragonBones {
 
         public animationState: AnimationState;
 
-        private readonly _floats: Array<number> = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0];
+        private readonly _cdr: Array<number> = [ // Int 4 0.01
+            0.0, 0.0, 0.0, // Play progress. [-100 ~ 100]
+            0.0, 0.0, 0.0, // Weight. [-100 ~ 100]
+            0.0, 0.0, 0.0, // ParameterX. [-100 ~ 100]
+            0.0, 0.0, 0.0, // ParameterY. [-100 ~ 100]
+        ];
 
         protected _onClear(): void {
             super._onClear();
@@ -1148,24 +1153,29 @@ namespace dragonBones {
                 return;
             }
 
-            let valueOffset = this._animationData.frameIntOffset + this._frameValueOffset + this._frameIndex * 2;
-            const frameRateR = 1.0 / this.animationState._animationData.parent.frameRate;
+            let valueOffset = this._animationData.frameIntOffset + this._frameValueOffset + this._frameIndex * 4;
             const frameIntArray = this._frameIntArray;
 
-            this._floats[0] = frameIntArray[valueOffset++] * frameRateR;
-            this._floats[3] = frameIntArray[valueOffset++] * 0.01;
+            this._cdr[0] = frameIntArray[valueOffset++] * 0.01;
+            this._cdr[3] = frameIntArray[valueOffset++] * 0.01;
+            this._cdr[6] = frameIntArray[valueOffset++] * 0.01;
+            this._cdr[9] = frameIntArray[valueOffset++] * 0.01;
 
             if (this._tweenState === TweenState.Always) {
                 if (this._frameIndex === this._frameCount - 1) {
-                    valueOffset = this._animationData.frameIntOffset + this._frameValueOffset; // + 0 * 2
+                    valueOffset = this._animationData.frameIntOffset + this._frameValueOffset; // 0 * 4.
                 }
 
-                this._floats[1] = frameIntArray[valueOffset++] * frameRateR - this._floats[0];
-                this._floats[4] = frameIntArray[valueOffset++] * 0.01 - this._floats[3];
+                this._cdr[1] = frameIntArray[valueOffset++] * 0.01 - this._cdr[0];
+                this._cdr[4] = frameIntArray[valueOffset++] * 0.01 - this._cdr[3];
+                this._cdr[7] = frameIntArray[valueOffset++] * 0.01 - this._cdr[6];
+                this._cdr[10] = frameIntArray[valueOffset++] * 0.01 - this._cdr[9];
             }
             else {
-                this._floats[1] = 0.0;
-                this._floats[4] = 0.0;
+                this._cdr[1] = 0.0;
+                this._cdr[4] = 0.0;
+                this._cdr[7] = 0.0;
+                this._cdr[10] = 0.0;
             }
         }
 
@@ -1176,25 +1186,15 @@ namespace dragonBones {
                 this._tweenState = TweenState.None;
             }
 
-            if (this._floats[0] >= 0.0) {
-                this._floats[2] = this._floats[0] + this._floats[1] * this._tweenProgress;
-            }
-
-            this._floats[5] = this._floats[3] + this._floats[4] * this._tweenProgress;
-        }
-
-        public blend(state: number): void {
-            const animationState = this.animationState;
-            const blendWeight = animationState._blendState.blendWeight;
-
-            if (state === 2) {
-                animationState.weight += this._floats[5] * blendWeight;
-                animationState.currentTime += this._floats[2] * blendWeight;
-            }
-            else {
-                animationState.weight = this._floats[5] * blendWeight;
-                animationState.currentTime = this._floats[2] * blendWeight;
-            }
+            this._cdr[2] = this._cdr[0] + this._cdr[1] * this._tweenProgress;
+            this._cdr[5] = this._cdr[3] + this._cdr[4] * this._tweenProgress;
+            this._cdr[8] = this._cdr[6] + this._cdr[7] * this._tweenProgress;
+            this._cdr[11] = this._cdr[9] + this._cdr[10] * this._tweenProgress;
+            //
+            this.animationState.currentTime = this._cdr[2] * this.animationState.totalTime;
+            this.animationState.weight = this._cdr[5];
+            this.animationState.parameterX = this._cdr[8];
+            this.animationState.parameterY = this._cdr[11];
         }
     }
 }
