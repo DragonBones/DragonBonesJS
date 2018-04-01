@@ -574,9 +574,10 @@ namespace dragonBones {
         public static toString(): string {
             return "[class dragonBones.SurfaceData]";
         }
+
         public segmentX: number;
         public segmentY: number;
-        public readonly vertices: Array<number> = [];
+        public readonly geometry: GeometryData = new GeometryData();
 
         protected _onClear(): void {
             super._onClear();
@@ -584,7 +585,7 @@ namespace dragonBones {
             this.type = BoneType.Surface;
             this.segmentX = 0;
             this.segmentY = 0;
-            this.vertices.length = 0;
+            this.geometry.clear();
         }
     }
     /**

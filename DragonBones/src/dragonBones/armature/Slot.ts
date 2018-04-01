@@ -64,7 +64,7 @@ namespace dragonBones {
                 vertexCount = rawGeometryData.weight.count * 2;
             }
             else {
-                vertexCount = rawGeometryData.data.intArray[rawGeometryData.offset + BinaryOffset.MeshVertexCount] * 2;
+                vertexCount = rawGeometryData.data.intArray[rawGeometryData.offset + BinaryOffset.GeometryVertexCount] * 2;
             }
 
             this.deformVertices.length = vertexCount;
@@ -188,6 +188,7 @@ namespace dragonBones {
         protected _visibleDirty: boolean;
         protected _blendModeDirty: boolean;
         /**
+         * xx: update color, 1x: display dirty, x1: color dirty.
          * @internal
          */
         public _colorDirty: boolean;
@@ -668,13 +669,13 @@ namespace dragonBones {
          */
         public update(cacheFrameIndex: number): void {
             if (this._displayDataDirty) {
-                this._displayDataDirty = false;
                 this._updateDisplayData();
+                this._displayDataDirty = false;
             }
 
             if (this._displayDirty) {
-                this._displayDirty = false;
                 this._updateDisplay();
+                this._displayDirty = false;
             }
 
             if (this._display === null) {
@@ -691,23 +692,23 @@ namespace dragonBones {
             }
 
             if (this._visibleDirty) {
-                this._visibleDirty = false;
                 this._updateVisible();
+                this._visibleDirty = false;
             }
 
             if (this._blendModeDirty) {
-                this._blendModeDirty = false;
                 this._updateBlendMode();
+                this._blendModeDirty = false;
             }
 
             if (this._colorDirty) {
-                this._colorDirty = false;
                 this._updateColor();
+                this._colorDirty = false;
             }
 
             if (this._zOrderDirty) {
-                this._zOrderDirty = false;
                 this._updateZOrder();
+                this._zOrderDirty = false;
             }
 
             if (this._geometryData !== null && this._display === this._meshDisplay) {
@@ -719,8 +720,8 @@ namespace dragonBones {
                     (isSkinned && this._isBonesUpdate()) ||
                     (isSurface && this._parent._childrenTransformDirty)
                 ) {
-                    this._verticesDirty = false;
                     this._updateMesh();
+                    this._verticesDirty = false;
                 }
 
                 if (isSkinned || isSurface) { // Compatible.
@@ -757,8 +758,6 @@ namespace dragonBones {
             }
 
             if (this._transformDirty) {
-                this._transformDirty = false;
-
                 if (this._cachedFrameIndex < 0) {
                     const isCache = cacheFrameIndex >= 0;
                     this._updateGlobalTransformMatrix(isCache);
@@ -772,6 +771,7 @@ namespace dragonBones {
                 }
 
                 this._updateTransform();
+                this._transformDirty = false;
             }
         }
         /**
@@ -795,8 +795,8 @@ namespace dragonBones {
          */
         public updateTransformAndMatrix(): void {
             if (this._transformDirty) {
-                this._transformDirty = false;
                 this._updateGlobalTransformMatrix(false);
+                this._transformDirty = false;
             }
         }
         /**

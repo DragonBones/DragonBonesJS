@@ -98,8 +98,7 @@ namespace dragonBones {
          * @inheritDoc
          */
         public addDBEventListener(type: EventStringType, listener: (event: EventObject) => void, target: any): void {
-            // tslint:disable-next-line:no-unused-expression
-            target;
+            listener.bind(target);
             this.addEventListener(type, listener as any);
         }
         /**

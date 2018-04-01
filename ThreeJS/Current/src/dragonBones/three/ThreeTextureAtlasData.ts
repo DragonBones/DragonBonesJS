@@ -38,7 +38,7 @@ namespace dragonBones {
         /**
          * @private
          */
-        public material: THREE.Material = null as any; // Initial value.
+        public material: THREE.MeshBasicMaterial = null as any; // Initial value.
         private _renderTexture: THREE.Texture | null = null; // Initial value.
 
         protected _onClear(): void {
@@ -89,18 +89,6 @@ namespace dragonBones {
     export class ThreeTextureData extends TextureData {
         public static toString(): string {
             return "[class dragonBones.ThreeTextureData]";
-        }
-
-        public material: THREE.Material | null = null; // Initial value.
-
-        protected _onClear(): void {
-            super._onClear();
-
-            if (this.material !== null) {
-                this.material.dispose();
-            }
-
-            this.material = null;
         }
     }
 }

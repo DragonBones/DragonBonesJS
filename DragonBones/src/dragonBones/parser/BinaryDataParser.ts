@@ -209,42 +209,6 @@ namespace dragonBones {
             return timeline;
         }
 
-        private _parseGeometry(rawData: any, geometry: GeometryData): void {
-            geometry.offset = rawData[DataParser.OFFSET];
-
-            const weightOffset = this._intArrayBuffer[geometry.offset + BinaryOffset.MeshWeightOffset];
-            if (weightOffset >= 0) {
-                const weight = BaseObject.borrowObject(WeightData);
-                const vertexCount = this._intArrayBuffer[geometry.offset + BinaryOffset.MeshVertexCount];
-                const boneCount = this._intArrayBuffer[weightOffset + BinaryOffset.WeigthBoneCount];
-                weight.offset = weightOffset;
-
-                for (let i = 0; i < boneCount; ++i) {
-                    const boneIndex = this._intArrayBuffer[weightOffset + BinaryOffset.WeigthBoneIndices + i];
-                    weight.addBone(this._rawBones[boneIndex]);
-                }
-
-                let boneIndicesOffset = weightOffset + BinaryOffset.WeigthBoneIndices + boneCount;
-                let weightCount = 0;
-                for (let i = 0, l = vertexCount; i < l; ++i) {
-                    const vertexBoneCount = this._intArrayBuffer[boneIndicesOffset++];
-                    weightCount += vertexBoneCount;
-                    boneIndicesOffset += vertexBoneCount;
-                }
-
-                weight.count = weightCount;
-                geometry.weight = weight;
-            }
-        }
-
-        protected _parseMesh(rawData: any, mesh: MeshDisplayData): void {
-            this._parseGeometry(rawData, mesh.geometry);
-        }
-
-        protected _parsePath(rawData: any, path: PathDisplayData): void {
-            this._parseGeometry(rawData, path.geometry);
-        }
-
         protected _parseAnimation(rawData: any): AnimationData {
             const animation = BaseObject.borrowObject(AnimationData);
             animation.frameCount = Math.max(ObjectDataParser._getNumber(rawData, DataParser.DURATION, 1), 1);
@@ -369,18 +333,51 @@ namespace dragonBones {
                         k = this._getUTF16Key(k);
                     }
 
-                    for (let i = 0, l = rawTimelines.length; i < l; i += 2) {
-                        const timelineType = rawTimelines[i];
-                        const timelineOffset = rawTimelines[i + 1];
-                        const timeline = this._parseBinaryTimeline(timelineType, timelineOffset);
-                        this._animation.addAnimationTimeline(k, timeline);
+                    const timelineType = rawTimelines[0];
+                    const timelineOffset = rawTimelines[1];
+                    const timeline = BaseObject.borrowObject(AnimationTimelineData);
+                    this._parseBinaryTimeline(timelineType, timelineOffset, timeline);
+
+                    if (rawTimelines.length === 4) {
+                        timeline.x = rawTimelines[2];
+                        timeline.y = rawTimelines[3];
                     }
+
+                    this._animation.addAnimationTimeline(k, timeline);
                 }
             }
 
             this._animation = null as any;
 
             return animation;
+        }
+
+        protected _parseGeometry(rawData: any, geometry: GeometryData): void {
+            geometry.offset = rawData[DataParser.OFFSET];
+
+            const weightOffset = this._intArrayBuffer[geometry.offset + BinaryOffset.GeometryWeightOffset];
+            if (weightOffset >= 0) {
+                const weight = BaseObject.borrowObject(WeightData);
+                const vertexCount = this._intArrayBuffer[geometry.offset + BinaryOffset.GeometryVertexCount];
+                const boneCount = this._intArrayBuffer[weightOffset + BinaryOffset.WeigthBoneCount];
+                weight.offset = weightOffset;
+
+                for (let i = 0; i < boneCount; ++i) {
+                    const boneIndex = this._intArrayBuffer[weightOffset + BinaryOffset.WeigthBoneIndices + i];
+                    weight.addBone(this._rawBones[boneIndex]);
+                }
+
+                let boneIndicesOffset = weightOffset + BinaryOffset.WeigthBoneIndices + boneCount;
+                let weightCount = 0;
+                for (let i = 0, l = vertexCount; i < l; ++i) {
+                    const vertexBoneCount = this._intArrayBuffer[boneIndicesOffset++];
+                    weightCount += vertexBoneCount;
+                    boneIndicesOffset += vertexBoneCount;
+                }
+
+                weight.count = weightCount;
+                geometry.weight = weight;
+            }
         }
 
         protected _parseArray(rawData: any): void {

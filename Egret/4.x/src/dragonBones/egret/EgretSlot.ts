@@ -276,13 +276,13 @@ namespace dragonBones {
                 }
 
                 if (currentTextureData.renderTexture !== null) {
-                    if (this._verticesData !== null) { // Mesh.
-                        const data = this._verticesData.data;
+                    if (this._geometryData !== null) { // Mesh.
+                        const data = this._geometryData.data;
                         const intArray = data.intArray;
                         const floatArray = data.floatArray;
-                        const vertexCount = intArray[this._verticesData.offset + BinaryOffset.MeshVertexCount];
-                        const triangleCount = intArray[this._verticesData.offset + BinaryOffset.MeshTriangleCount];
-                        let vertexOffset = intArray[this._verticesData.offset + BinaryOffset.MeshFloatOffset];
+                        const vertexCount = intArray[this._geometryData.offset + BinaryOffset.GeometryVertexCount];
+                        const triangleCount = intArray[this._geometryData.offset + BinaryOffset.GeometryTriangleCount];
+                        let vertexOffset = intArray[this._geometryData.offset + BinaryOffset.GeometryFloatOffset];
 
                         if (vertexOffset < 0) {
                             vertexOffset += 65536; // Fixed out of bounds bug. 
@@ -304,7 +304,7 @@ namespace dragonBones {
                         }
 
                         for (let i = 0; i < triangleCount * 3; ++i) {
-                            meshNode.indices[i] = intArray[this._verticesData.offset + BinaryOffset.MeshVertexIndices + i];
+                            meshNode.indices[i] = intArray[this._geometryData.offset + BinaryOffset.GeometryVertexIndices + i];
                         }
 
                         if (this._armatureDisplay._batchEnabled) {
@@ -350,7 +350,7 @@ namespace dragonBones {
                             meshDisplay.$invalidateTransform();
                         }
 
-                        const isSkinned = this._verticesData.weight !== null;
+                        const isSkinned = this._geometryData.weight !== null;
                         const isSurface = this._parent._boneData.type !== BoneType.Bone;
                         if (isSkinned || isSurface) {
                             this._identityTransform();
@@ -425,19 +425,19 @@ namespace dragonBones {
         protected _updateMesh(): void {
             const scale = this._armature._armatureData.scale;
             const deformVertices = (this._displayFrame as DisplayFrame).deformVertices;
-            const bones = this._verticesBones;
-            const verticesData = this._verticesData as VerticesData;
-            const weightData = verticesData.weight;
+            const bones = this._geometryBones;
+            const geometryData = this._geometryData as GeometryData;
+            const weightData = geometryData.weight;
 
-            const hasDeform = deformVertices.length > 0 && verticesData.inheritDeform;
+            const hasDeform = deformVertices.length > 0 && geometryData.inheritDeform;
             const meshDisplay = this._renderDisplay as egret.Mesh;
             const meshNode = meshDisplay.$renderNode as egret.sys.MeshNode;
 
             if (weightData !== null) {
-                const data = verticesData.data;
+                const data = geometryData.data;
                 const intArray = data.intArray;
                 const floatArray = data.floatArray;
-                const vertexCount = intArray[verticesData.offset + BinaryOffset.MeshVertexCount];
+                const vertexCount = intArray[geometryData.offset + BinaryOffset.GeometryVertexCount];
                 let weightFloatOffset = intArray[weightData.offset + BinaryOffset.WeigthFloatOffset];
 
                 if (weightFloatOffset < 0) {
@@ -484,11 +484,11 @@ namespace dragonBones {
             }
             else if (hasDeform) {
                 const isSurface = this._parent._boneData.type !== BoneType.Bone;
-                const data = verticesData.data;
+                const data = geometryData.data;
                 const intArray = data.intArray;
                 const floatArray = data.floatArray;
-                const vertexCount = intArray[verticesData.offset + BinaryOffset.MeshVertexCount];
-                let vertexOffset = intArray[verticesData.offset + BinaryOffset.MeshFloatOffset];
+                const vertexCount = intArray[geometryData.offset + BinaryOffset.GeometryVertexCount];
+                let vertexOffset = intArray[geometryData.offset + BinaryOffset.GeometryFloatOffset];
 
                 if (vertexOffset < 0) {
                     vertexOffset += 65536; // Fixed out of bounds bug. 

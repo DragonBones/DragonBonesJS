@@ -34,7 +34,7 @@ namespace dragonBones {
         private _k: number;
         private _kX: number;
         private _kY: number;
-        
+
         public readonly _vertices: Array<number> = [];
         public readonly _deformVertices: Array<number> = [];
         /**
@@ -86,15 +86,20 @@ namespace dragonBones {
         }
 
         private _updateVertices(): void {
-            const originalVertices = (this._boneData as SurfaceData).vertices;
+            const data = this._armature.armatureData.parent;
+            const geometry = (this._boneData as SurfaceData).geometry;
+            const intArray = data.intArray;
+            const floatArray = data.floatArray;
+            const vertexCount = intArray[geometry.offset + BinaryOffset.GeometryVertexCount];
+            const verticesOffset = intArray[geometry.offset + BinaryOffset.GeometryFloatOffset];
             const vertices = this._vertices;
             const animationVertices = this._deformVertices;
 
             if (this._parent !== null) {
                 if (this._parent._boneData.type === BoneType.Surface) {
-                    for (let i = 0, l = originalVertices.length; i < l; i += 2) {
-                        const x = originalVertices[i] + animationVertices[i];
-                        const y = originalVertices[i + 1] + animationVertices[i];
+                    for (let i = 0, l = vertexCount; i < l; i += 2) {
+                        const x = floatArray[verticesOffset + i] + animationVertices[i];
+                        const y = floatArray[verticesOffset + i + 1] + animationVertices[i];
                         const matrix = (this._parent as Surface)._getGlobalTransformMatrix(x, y);
                         //
                         vertices[i] = matrix.a * x + matrix.c * y + matrix.tx;
@@ -104,9 +109,9 @@ namespace dragonBones {
                 else {
                     const parentMatrix = this._parent.globalTransformMatrix;
 
-                    for (let i = 0, l = originalVertices.length; i < l; i += 2) {
-                        const x = originalVertices[i] + animationVertices[i];
-                        const y = originalVertices[i + 1] + animationVertices[i + 1];
+                    for (let i = 0, l = vertexCount; i < l; i += 2) {
+                        const x = floatArray[verticesOffset + i] + animationVertices[i];
+                        const y = floatArray[verticesOffset + i + 1] + animationVertices[i + 1];
                         //
                         vertices[i] = parentMatrix.a * x + parentMatrix.c * y + parentMatrix.tx;
                         vertices[i + 1] = parentMatrix.b * x + parentMatrix.d * y + parentMatrix.ty;
@@ -114,9 +119,9 @@ namespace dragonBones {
                 }
             }
             else {
-                for (let i = 0, l = originalVertices.length; i < l; i += 2) {
-                    vertices[i] = originalVertices[i] + animationVertices[i];
-                    vertices[i + 1] = originalVertices[i + 1] + animationVertices[i + 1];
+                for (let i = 0, l = vertexCount; i < l; i += 2) {
+                    vertices[i] = floatArray[verticesOffset + i] + animationVertices[i];
+                    vertices[i + 1] = floatArray[verticesOffset + i + 1] + animationVertices[i + 1];
                 }
             }
         }
@@ -438,7 +443,7 @@ namespace dragonBones {
 
             const segmentX = surfaceData.segmentX;
             const segmentY = surfaceData.segmentY;
-            const vertexCount = surfaceData.vertices.length;
+            const vertexCount = this._armature.armatureData.parent.intArray[surfaceData.geometry.offset + BinaryOffset.GeometryVertexCount];
             const lB = 1000.0;
             const lA = 200.0;
             //

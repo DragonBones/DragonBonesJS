@@ -40,11 +40,18 @@ namespace dragonBones {
         public static readonly RAW_INDICES: Array<number> = [0, 1, 2, 3, 2, 1];
 
         private _renderDisplay: THREE.Object3D;
+        private _material: THREE.MeshBasicMaterial | null = null; // Initial value.
+
 
         protected _onClear(): void {
             super._onClear();
 
+            if (this._material !== null) {
+                this._material.dispose();
+            }
+
             this._renderDisplay = null as any;
+            this._material = null;
         }
 
         private _clearGeometry(geometry: THREE.Geometry): void {
@@ -81,8 +88,10 @@ namespace dragonBones {
         protected _disposeDisplay(value: any, isRelease: boolean): void {
             // tslint:disable-next-line:no-unused-expression
             value;
-            // tslint:disable-next-line:no-unused-expression
-            isRelease;
+
+            if (!isRelease) {
+                (value as THREE.Mesh).geometry.dispose(); //
+            }
         }
 
         protected _onUpdateDisplay(): void {
@@ -107,7 +116,7 @@ namespace dragonBones {
         }
 
         protected _updateZOrder(): void {
-            // this._renderDisplay.position.setZ(this._zOrder);
+            this._renderDisplay.position.setZ(this._zOrder);
         }
         /**
          * @internal
@@ -117,43 +126,107 @@ namespace dragonBones {
         }
 
         protected _updateBlendMode(): void {
-            switch (this._blendMode) {
-                case BlendMode.Normal:
-                    break;
+            // switch (this._blendMode) {
+            //     case BlendMode.Normal:
+            //         break;
 
-                case BlendMode.Add:
-                    break;
+            //     case BlendMode.Add:
+            //         break;
 
-                case BlendMode.Darken:
-                    break;
+            //     case BlendMode.Darken:
+            //         break;
 
-                case BlendMode.Difference:
-                    break;
+            //     case BlendMode.Difference:
+            //         break;
 
-                case BlendMode.HardLight:
-                    break;
+            //     case BlendMode.HardLight:
+            //         break;
 
-                case BlendMode.Lighten:
-                    break;
+            //     case BlendMode.Lighten:
+            //         break;
 
-                case BlendMode.Multiply:
-                    break;
+            //     case BlendMode.Multiply:
+            //         break;
 
-                case BlendMode.Overlay:
-                    break;
+            //     case BlendMode.Overlay:
+            //         break;
 
-                case BlendMode.Screen:
-                    break;
+            //     case BlendMode.Screen:
+            //         break;
 
-                default:
-                    break;
+            //     default:
+            //         break;
+            // }
+
+            if (this._renderDisplay === this._rawDisplay) {
+                const textureData = this._textureData as (ThreeTextureData | null);
+                if (textureData === null) {
+                    return;
+                }
+
+                const textureAtlasData = textureData.parent as ThreeTextureAtlasData;
+                if (textureAtlasData.renderTexture === null) {
+                    return;
+                }
+
+                const meshDisplay = this._renderDisplay as THREE.Mesh;
+
+                if (this._blendMode !== BlendMode.Normal) {
+                    if (this._material === null) {
+                        this._material = new THREE.MeshBasicMaterial();
+                        this._material.copy(textureAtlasData.material);
+                    }
+
+                    this._material.blending = THREE.AdditiveBlending;
+                    meshDisplay.material = this._material;
+                }
+                else {
+                    meshDisplay.material = textureAtlasData.material;
+                }
             }
 
             // TODO child armature.
         }
 
         protected _updateColor(): void {
+            if (this._renderDisplay === this._rawDisplay) {
+                const textureData = this._textureData as (ThreeTextureData | null);
+                if (textureData === null) {
+                    return;
+                }
 
+                const textureAtlasData = textureData.parent as ThreeTextureAtlasData;
+                if (textureAtlasData.renderTexture === null) {
+                    return;
+                }
+
+                const meshDisplay = this._renderDisplay as THREE.Mesh;
+
+                if (
+                    this._colorTransform.alphaMultiplier !== 1.0 ||
+                    this._colorTransform.redMultiplier !== 1.0 ||
+                    this._colorTransform.greenMultiplier !== 1.0 ||
+                    this._colorTransform.blueMultiplier !== 1.0
+                ) {
+                    if (this._material === null) {
+                        this._material = new THREE.MeshBasicMaterial();
+                        this._material.copy(textureAtlasData.material);
+                    }
+
+                    this._material.opacity = this._colorTransform.alphaMultiplier;
+                    this._material.color.setRGB(
+                        this._colorTransform.redMultiplier,
+                        this._colorTransform.greenMultiplier,
+                        this._colorTransform.blueMultiplier
+                    );
+                    meshDisplay.material = this._material;
+                }
+                else {
+                    meshDisplay.material = textureAtlasData.material;
+                }
+            }
+
+            // TODO child armature.
         }
 
         protected _updateFrame(): void {
@@ -182,16 +255,16 @@ namespace dragonBones {
                         const data = this._geometryData.data;
                         const intArray = data.intArray;
                         const floatArray = data.floatArray;
-                        const vertexCount = intArray[this._geometryData.offset + BinaryOffset.MeshVertexCount];
-                        const triangleCount = intArray[this._geometryData.offset + BinaryOffset.MeshTriangleCount];
-                        let vertexOffset = intArray[this._geometryData.offset + BinaryOffset.MeshFloatOffset];
+                        const vertexCount = intArray[this._geometryData.offset + BinaryOffset.GeometryVertexCount];
+                        const triangleCount = intArray[this._geometryData.offset + BinaryOffset.GeometryTriangleCount];
+                        let vertexOffset = intArray[this._geometryData.offset + BinaryOffset.GeometryFloatOffset];
 
                         if (vertexOffset < 0) {
                             vertexOffset += 65536; // Fixed out of bouds bug. 
                         }
 
                         const uvOffset = vertexOffset + vertexCount * 2;
-                        const indexOffset = this._geometryData.offset + BinaryOffset.MeshVertexIndices;
+                        const indexOffset = this._geometryData.offset + BinaryOffset.GeometryVertexIndices;
                         const scale = this._armature._armatureData.scale;
                         const uvs = new Array<THREE.Vector2>();
 
@@ -208,7 +281,7 @@ namespace dragonBones {
                             vertex.set(
                                 floatArray[vertexOffset + i] * scale,
                                 floatArray[vertexOffset + i + 1] * scale,
-                                this._zOrder
+                                0.0
                             );
 
                             if (textureData.rotated) {
@@ -265,7 +338,7 @@ namespace dragonBones {
                             vertex.set(
                                 (uv.x * textureWidth * scale) - this._pivotX,
                                 (uv.y * textureHeight * scale) - this._pivotY,
-                                this._zOrder
+                                0.0
                             );
 
                             if (textureData.rotated) {
@@ -300,8 +373,7 @@ namespace dragonBones {
                         }
                     }
 
-                    meshDisplay.material = textureData.material !== null ? textureData.material : textureAtlasData.material;
-
+                    meshDisplay.material = textureAtlasData.material;
                     this._visibleDirty = true;
 
                     return;
@@ -328,7 +400,7 @@ namespace dragonBones {
                 const data = geometryData.data;
                 const intArray = data.intArray;
                 const floatArray = data.floatArray;
-                const vertexCount = intArray[geometryData.offset + BinaryOffset.MeshVertexCount];
+                const vertexCount = intArray[geometryData.offset + BinaryOffset.GeometryVertexCount];
                 let weightFloatOffset = intArray[weightData.offset + BinaryOffset.WeigthFloatOffset];
 
                 if (weightFloatOffset < 0) {
@@ -367,7 +439,7 @@ namespace dragonBones {
                     vertex.set(
                         xG,
                         yG,
-                        this._zOrder
+                        0.0
                     );
                 }
             }
@@ -376,8 +448,8 @@ namespace dragonBones {
                 const data = geometryData.data;
                 const intArray = data.intArray;
                 const floatArray = data.floatArray;
-                const vertexCount = intArray[geometryData.offset + BinaryOffset.MeshVertexCount];
-                let vertexOffset = intArray[geometryData.offset + BinaryOffset.MeshFloatOffset];
+                const vertexCount = intArray[geometryData.offset + BinaryOffset.GeometryVertexCount];
+                let vertexOffset = intArray[geometryData.offset + BinaryOffset.GeometryFloatOffset];
 
                 if (vertexOffset < 0) {
                     vertexOffset += 65536; // Fixed out of bounds bug. 
@@ -393,14 +465,14 @@ namespace dragonBones {
                         vertex.set(
                             matrix.a * x + matrix.c * y + matrix.tx,
                             matrix.b * x + matrix.d * y + matrix.ty,
-                            this._zOrder
+                            0.0
                         );
                     }
                     else {
                         vertex.set(
                             x,
                             y,
-                            this._zOrder
+                            0.0
                         );
                     }
                 }

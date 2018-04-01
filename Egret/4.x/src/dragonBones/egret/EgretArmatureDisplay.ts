@@ -536,7 +536,7 @@ namespace dragonBones {
 
             for (const slot of this._armature.getSlots()) {
                 // (slot as EgretSlot).transformUpdateEnabled = true;
-                let display = (slot._verticesData ? slot.meshDisplay : slot.rawDisplay) as (egret.Mesh | egret.Bitmap);
+                let display = (slot._geometryData ? slot.meshDisplay : slot.rawDisplay) as (egret.Mesh | egret.Bitmap);
                 if (!slot.display && display === slot.meshDisplay) {
                     display = slot.rawDisplay;
                 }

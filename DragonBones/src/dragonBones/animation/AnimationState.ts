@@ -80,6 +80,10 @@ namespace dragonBones {
          */
         public resetToPose: boolean;
         /**
+         * @private
+         */
+        public childBlendMode: AnimationBlendType;
+        /**
          * - The play times. [0: Loop play, [1~N]: Play N times]
          * @version DragonBones 3.0
          * @language en_US
@@ -295,6 +299,7 @@ namespace dragonBones {
             this.additiveBlending = false;
             this.displayControl = false;
             this.resetToPose = false;
+            this.childBlendMode = AnimationBlendType.None;
             this.playTimes = 1;
             this.layer = 0;
             this.timeScale = 1.0;
@@ -370,24 +375,22 @@ namespace dragonBones {
                         continue;
                     }
 
-                    const timelineDatas = this._animationData.getAnimationTimelines(animationState.name);
-                    if (timelineDatas === null) {
+                    const timelineData = this._animationData.getAnimationTimelines(animationState.name);
+                    if (timelineData === null) {
                         continue;
                     }
 
-                    for (const timelineData of timelineDatas) {
-                        switch (timelineData.type) {
-                            case TimelineType.AnimationTime: {
-                                const timeline = BaseObject.borrowObject(AnimationTimelineState);
-                                timeline.animationState = animationState;
-                                timeline.init(this._armature, this, timelineData);
-                                this._animationTimelines.push(timeline);
-                                break;
-                            }
-
-                            default:
-                                break;
+                    switch (timelineData.type) {
+                        case TimelineType.Animation: {
+                            const timeline = BaseObject.borrowObject(AnimationTimelineState);
+                            timeline.animationState = animationState;
+                            timeline.init(this._armature, this, timelineData);
+                            this._animationTimelines.push(timeline);
+                            break;
                         }
+
+                        default:
+                            break;
                     }
                 }
             }
@@ -882,10 +885,39 @@ namespace dragonBones {
                     }
                 }
 
+                let dL = 999999.0;
+                let dR = 999999.0;
+                let leftState: AnimationState | null = null;
+                let rightState: AnimationState | null = null;
                 for (let i = 0, l = this._animationTimelines.length; i < l; ++i) {
                     const timeline = this._animationTimelines[i];
                     if (timeline.playState <= 0) {
                         timeline.update(time);
+                    }
+
+                    if (this.childBlendMode === AnimationBlendType.E1D) {
+                        const d = this.parameterX - timeline.animationState.positionX;
+                        timeline.animationState.weight = 0.0;
+
+                        if (d >= 0.0) {
+                            if (d < dL) {
+                                dL = d;
+                                leftState = timeline.animationState;
+                            }
+                        }
+                        else {
+                            if (-d < dR) {
+                                dR = -d;
+                                rightState = timeline.animationState;
+                            }
+                        }
+
+                        if (i === l - 1) {
+                            if (leftState !== null && rightState !== null) {
+                                leftState.weight = dL / (dL + dR); // 
+                                rightState.weight = dR / (dL + dR); //
+                            }
+                        }
                     }
                 }
             }

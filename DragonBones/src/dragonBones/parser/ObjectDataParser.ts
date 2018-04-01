@@ -94,7 +94,7 @@ namespace dragonBones {
         protected _data: DragonBonesData = null as any; //
         protected _armature: ArmatureData = null as any; //
         protected _bone: BoneData = null as any; //
-        protected _surface: SurfaceData = null as any; //
+        protected _geometry: GeometryData = null as any; //
         protected _slot: SlotData = null as any; //
         protected _skin: SkinData = null as any; //
         protected _mesh: MeshDisplayData = null as any; //
@@ -352,14 +352,14 @@ namespace dragonBones {
                 }
             }
 
-            for (let i = 0, l = this._cacheRawMeshes.length; i < l; ++i) { // Link glue mesh.
-                const rawMeshData = this._cacheRawMeshes[i];
-                if (!(DataParser.GLUE_WEIGHTS in rawMeshData) || !(DataParser.GLUE_MESHES in rawMeshData)) {
-                    continue;
-                }
+            // for (let i = 0, l = this._cacheRawMeshes.length; i < l; ++i) { // Link glue mesh.
+            //     const rawMeshData = this._cacheRawMeshes[i];
+            //     if (!(DataParser.GLUE_WEIGHTS in rawMeshData) || !(DataParser.GLUE_MESHES in rawMeshData)) {
+            //         continue;
+            //     }
 
-                this._parseMeshGlue(rawMeshData, this._cacheMeshes[i]);
-            }
+            //     this._parseMeshGlue(rawMeshData, this._cacheMeshes[i]);
+            // }
 
             for (let i = 0, l = this._cacheRawMeshes.length; i < l; ++i) { // Link mesh.
                 const rawData = this._cacheRawMeshes[i];
@@ -436,7 +436,6 @@ namespace dragonBones {
 
         protected _parseBone(rawData: any): BoneData {
             let type: BoneType = BoneType.Bone;
-            const scale = this._armature.scale;
 
             if (DataParser.TYPE in rawData && typeof rawData[DataParser.TYPE] === "string") {
                 type = DataParser._getBoneType(rawData[DataParser.TYPE]);
@@ -446,6 +445,7 @@ namespace dragonBones {
             }
 
             if (type === BoneType.Bone) {
+                const scale = this._armature.scale;
                 const bone = BaseObject.borrowObject(BoneData);
                 bone.inheritTranslation = ObjectDataParser._getBoolean(rawData, DataParser.INHERIT_TRANSLATION, true);
                 bone.inheritRotation = ObjectDataParser._getBoolean(rawData, DataParser.INHERIT_ROTATION, true);
@@ -465,20 +465,7 @@ namespace dragonBones {
             surface.name = ObjectDataParser._getString(rawData, DataParser.NAME, "");
             surface.segmentX = ObjectDataParser._getNumber(rawData, DataParser.SEGMENT_X, 0);
             surface.segmentY = ObjectDataParser._getNumber(rawData, DataParser.SEGMENT_Y, 0);
-            surface.vertices.length = (surface.segmentX + 1) * (surface.segmentY + 1) * 2;
-
-            if (DataParser.VERTICES in rawData) {
-                const rawVertices = rawData[DataParser.VERTICES] as Array<number>;
-
-                for (let i = 0, l = surface.vertices.length; i < l; ++i) {
-                    if (i < rawVertices.length) {
-                        surface.vertices[i] = rawVertices[i] * scale;
-                    }
-                    else {
-                        surface.vertices[i] = 0.0;
-                    }
-                }
-            }
+            this._parseGeometry(rawData, surface.geometry);
 
             return surface;
         }
@@ -650,14 +637,15 @@ namespace dragonBones {
             }
 
             switch (type) {
-                case DisplayType.Image:
+                case DisplayType.Image: {
                     const imageDisplay = display = BaseObject.borrowObject(ImageDisplayData);
                     imageDisplay.name = name;
                     imageDisplay.path = path.length > 0 ? path : name;
                     this._parsePivot(rawData, imageDisplay);
                     break;
+                }
 
-                case DisplayType.Armature:
+                case DisplayType.Armature: {
                     const armatureDisplay = display = BaseObject.borrowObject(ArmatureDisplayData);
                     armatureDisplay.name = name;
                     armatureDisplay.path = path.length > 0 ? path : name;
@@ -680,16 +668,18 @@ namespace dragonBones {
                             delete this._slotChildActions[this._slot.name];
                         }
                     }
-                    break;
 
-                case DisplayType.Mesh:
+                    break;
+                }
+
+                case DisplayType.Mesh: {
                     const meshDisplay = display = BaseObject.borrowObject(MeshDisplayData);
                     meshDisplay.geometry.inheritDeform = ObjectDataParser._getBoolean(rawData, DataParser.INHERIT_DEFORM, true);
                     meshDisplay.name = name;
                     meshDisplay.path = path.length > 0 ? path : name;
-                    meshDisplay.geometry.data = this._data;
 
                     if (DataParser.SHARE in rawData) {
+                        meshDisplay.geometry.data = this._data;
                         this._cacheRawMeshes.push(rawData);
                         this._cacheMeshes.push(meshDisplay);
                     }
@@ -697,13 +687,14 @@ namespace dragonBones {
                         this._parseMesh(rawData, meshDisplay);
                     }
 
-                    if ((DataParser.GLUE_WEIGHTS in rawData) && (DataParser.GLUE_MESHES in rawData)) {
-                        this._cacheRawMeshes.push(rawData);
-                        this._cacheMeshes.push(meshDisplay);
-                    }
+                    // if ((DataParser.GLUE_WEIGHTS in rawData) && (DataParser.GLUE_MESHES in rawData)) {
+                    //     this._cacheRawMeshes.push(rawData);
+                    //     this._cacheMeshes.push(meshDisplay);
+                    // }
                     break;
+                }
 
-                case DisplayType.BoundingBox:
+                case DisplayType.BoundingBox: {
                     const boundingBox = this._parseBoundingBox(rawData);
                     if (boundingBox !== null) {
                         const boundingBoxDisplay = display = BaseObject.borrowObject(BoundingBoxDisplayData);
@@ -712,22 +703,24 @@ namespace dragonBones {
                         boundingBoxDisplay.boundingBox = boundingBox;
                     }
                     break;
-                case DisplayType.Path:
+                }
+
+                case DisplayType.Path: {
                     const rawCurveLengths = rawData[DataParser.LENGTHS] as Array<number>;
                     const pathDisplay = display = BaseObject.borrowObject(PathDisplayData);
                     pathDisplay.closed = ObjectDataParser._getBoolean(rawData, DataParser.CLOSED, false);
                     pathDisplay.constantSpeed = ObjectDataParser._getBoolean(rawData, DataParser.CONSTANT_SPEED, false);
                     pathDisplay.name = name;
                     pathDisplay.path = path.length > 0 ? path : name;
-                    pathDisplay.geometry.data = this._data;
-
                     pathDisplay.curveLengths.length = rawCurveLengths.length;
+
                     for (let i = 0, l = rawCurveLengths.length; i < l; ++i) {
                         pathDisplay.curveLengths[i] = rawCurveLengths[i];
                     }
 
                     this._parsePath(rawData, pathDisplay);
                     break;
+                }
             }
 
             if (display !== null && DataParser.TRANSFORM in rawData) {
@@ -738,67 +731,7 @@ namespace dragonBones {
         }
 
         protected _parsePath(rawData: any, display: PathDisplayData) {
-            const rawVertices = rawData[DataParser.VERTICES] as Array<number>;
-            const vertexCount = ObjectDataParser._getNumber(rawData, DataParser.VERTEX_COUNT, 0); // uint
-            const vertexOffset = this._floatArray.length;
-
-            const pathOffset = this._intArray.length;
-            display.geometry.offset = pathOffset;
-
-            this._intArray.length += 1 + 1;
-            this._intArray[pathOffset + BinaryOffset.PathVertexCount] = vertexCount;
-            this._intArray[pathOffset + BinaryOffset.PathFloatOffset] = vertexOffset;
-
-            if (!(DataParser.WEIGHTS in rawData)) {
-                this._floatArray.length += rawVertices.length;
-                for (let i = 0, l = rawVertices.length; i < l; ++i) {
-                    this._floatArray[vertexOffset + i] = rawVertices[i];
-                }
-            }
-            else {
-                const rawWeights = rawData[DataParser.WEIGHTS] as Array<number>;
-                const rawBones = rawData[DataParser.BONES] as Array<number>;
-                const weightBoneCount = rawBones.length;
-                const weightCount = Math.floor(rawWeights.length - vertexCount) / 2; // uint
-                const weightOffset = this._intArray.length;
-                const floatOffset = this._floatArray.length;
-
-                const sortedBones = this._armature.sortedBones;
-                const weight = BaseObject.borrowObject(WeightData);
-                weight.count = weightCount;
-                weight.offset = weightOffset;
-
-                this._intArray.length += 1 + 1 + weightBoneCount + vertexCount + weightCount;
-                //
-                this._intArray[weightOffset + BinaryOffset.WeigthBoneCount] = weightBoneCount;
-                this._intArray[weightOffset + BinaryOffset.WeigthFloatOffset] = floatOffset;
-                for (let i = 0; i < weightBoneCount; i++) {
-                    const rawBoneIndex = rawBones[i];
-                    const bone = this._rawBones[rawBoneIndex];
-                    weight.addBone(bone);
-                    this._intArray[weightOffset + BinaryOffset.WeigthBoneIndices + i] = sortedBones.indexOf(bone);
-                }
-
-                this._floatArray.length += weightCount * 3;
-                for (let i = 0, iW = 0, iV = 0, iB = weightOffset + BinaryOffset.WeigthBoneIndices + weightBoneCount, iF = floatOffset; i < weightCount; i++) {
-                    const boneCount = rawWeights[iW++];
-                    this._intArray[iB++] = boneCount;
-
-                    for (let j = 0; j < boneCount; j++) {
-                        const boneIndex = rawWeights[iW++];
-                        const boneWeight = rawWeights[iW++];
-                        const x = rawVertices[iV++];
-                        const y = rawVertices[iV++];
-
-                        this._intArray[iB++] = rawBones.indexOf(boneIndex);
-                        this._floatArray[iF++] = boneWeight;
-                        this._floatArray[iF++] = x;
-                        this._floatArray[iF++] = y;
-                    }
-                }
-
-                display.geometry.weight = weight;
-            }
+            this._parseGeometry(rawData, display.geometry);
         }
 
         protected _parsePivot(rawData: any, display: ImageDisplayData): void {
@@ -814,88 +747,12 @@ namespace dragonBones {
         }
 
         protected _parseMesh(rawData: any, mesh: MeshDisplayData): void {
-            const rawVertices = rawData[DataParser.VERTICES] as Array<number>;
-            const rawUVs = rawData[DataParser.UVS] as Array<number>;
-            const rawTriangles = rawData[DataParser.TRIANGLES] as Array<number>;
-            const vertexCount = Math.floor(rawVertices.length / 2); // uint
-            const triangleCount = Math.floor(rawTriangles.length / 3); // uint
-            const vertexOffset = this._floatArray.length;
-            const uvOffset = vertexOffset + vertexCount * 2;
-            const meshOffset = this._intArray.length;
-            const meshName = this._skin.name + "_" + this._slot.name + "_" + mesh.name; // Cache pose data.
+            this._parseGeometry(rawData, mesh.geometry);
 
-            mesh.geometry.offset = meshOffset;
-            this._intArray.length += 1 + 1 + 1 + 1 + triangleCount * 3;
-            this._intArray[meshOffset + BinaryOffset.MeshVertexCount] = vertexCount;
-            this._intArray[meshOffset + BinaryOffset.MeshTriangleCount] = triangleCount;
-            this._intArray[meshOffset + BinaryOffset.MeshFloatOffset] = vertexOffset;
-            for (let i = 0, l = triangleCount * 3; i < l; ++i) {
-                this._intArray[meshOffset + BinaryOffset.MeshVertexIndices + i] = rawTriangles[i];
-            }
-
-            this._floatArray.length += vertexCount * 2 + vertexCount * 2;
-            for (let i = 0, l = vertexCount * 2; i < l; ++i) {
-                this._floatArray[vertexOffset + i] = rawVertices[i];
-                this._floatArray[uvOffset + i] = rawUVs[i];
-            }
-
-            if (DataParser.WEIGHTS in rawData) {
-                const rawWeights = rawData[DataParser.WEIGHTS] as Array<number>;
+            if (DataParser.WEIGHTS in rawData) { // Cache pose data.
                 const rawSlotPose = rawData[DataParser.SLOT_POSE] as Array<number>;
                 const rawBonePoses = rawData[DataParser.BONE_POSE] as Array<number>;
-                const sortedBones = this._armature.sortedBones;
-                const weightBoneIndices = new Array<number>();
-                const weightBoneCount = Math.floor(rawBonePoses.length / 7); // uint
-                const floatOffset = this._floatArray.length;
-                const weightCount = Math.floor(rawWeights.length - vertexCount) / 2; // uint
-                const weightOffset = this._intArray.length;
-                const weight = BaseObject.borrowObject(WeightData);
-
-                weight.count = weightCount;
-                weight.offset = weightOffset;
-                weightBoneIndices.length = weightBoneCount;
-                this._intArray.length += 1 + 1 + weightBoneCount + vertexCount + weightCount;
-                this._intArray[weightOffset + BinaryOffset.WeigthFloatOffset] = floatOffset;
-
-                for (let i = 0; i < weightBoneCount; ++i) {
-                    const rawBoneIndex = rawBonePoses[i * 7]; // uint
-                    const bone = this._rawBones[rawBoneIndex];
-                    weight.addBone(bone);
-                    weightBoneIndices[i] = rawBoneIndex;
-                    this._intArray[weightOffset + BinaryOffset.WeigthBoneIndices + i] = sortedBones.indexOf(bone);
-                }
-
-                this._floatArray.length += weightCount * 3;
-                this._helpMatrixA.copyFromArray(rawSlotPose, 0);
-
-                for (
-                    let i = 0, iW = 0, iB = weightOffset + BinaryOffset.WeigthBoneIndices + weightBoneCount, iV = floatOffset;
-                    i < vertexCount;
-                    ++i
-                ) {
-                    const iD = i * 2;
-                    const vertexBoneCount = this._intArray[iB++] = rawWeights[iW++]; // uint
-
-                    let x = this._floatArray[vertexOffset + iD];
-                    let y = this._floatArray[vertexOffset + iD + 1];
-                    this._helpMatrixA.transformPoint(x, y, this._helpPoint);
-                    x = this._helpPoint.x;
-                    y = this._helpPoint.y;
-
-                    for (let j = 0; j < vertexBoneCount; ++j) {
-                        const rawBoneIndex = rawWeights[iW++]; // uint
-                        const boneIndex = weightBoneIndices.indexOf(rawBoneIndex);
-                        this._helpMatrixB.copyFromArray(rawBonePoses, boneIndex * 7 + 1);
-                        this._helpMatrixB.invert();
-                        this._helpMatrixB.transformPoint(x, y, this._helpPoint);
-                        this._intArray[iB++] = boneIndex;
-                        this._floatArray[iV++] = rawWeights[iW++];
-                        this._floatArray[iV++] = this._helpPoint.x;
-                        this._floatArray[iV++] = this._helpPoint.y;
-                    }
-                }
-
-                mesh.geometry.weight = weight;
+                const meshName = this._skin.name + "_" + this._slot.name + "_" + mesh.name;
                 this._weightSlotPose[meshName] = rawSlotPose;
                 this._weightBonePoses[meshName] = rawBonePoses;
             }
@@ -1069,22 +926,24 @@ namespace dragonBones {
                 const rawTimelines = rawData[DataParser.SURFACE] as Array<any>;
                 for (const rawTimeline of rawTimelines) {
                     const surfaceName = ObjectDataParser._getString(rawTimeline, DataParser.NAME, "");
-                    this._surface = this._armature.getBone(surfaceName) as SurfaceData;
-                    if (this._surface === null) {
+                    const surface = this._armature.getBone(surfaceName) as SurfaceData;
+                    if (surface === null) {
                         continue;
                     }
+
+                    this._geometry = surface.geometry;
 
                     const timeline = this._parseTimeline(
                         rawTimeline, null, DataParser.FRAME, TimelineType.Surface,
                         false, true, 0,
-                        this._parseSurfaceFrame
+                        this._parseDeformFrame
                     );
 
                     if (timeline !== null) {
-                        this._animation.addSurfaceTimeline(this._surface, timeline);
+                        this._animation.addSurfaceTimeline(surface, timeline);
                     }
 
-                    this._surface = null as any; //
+                    this._geometry = null as any; //
                 }
             }
 
@@ -1154,12 +1013,17 @@ namespace dragonBones {
                     const animationName = ObjectDataParser._getString(rawTimeline, DataParser.NAME, "");
 
                     const timeline = this._parseTimeline(
-                        rawTimeline, null, DataParser.FRAME, TimelineType.AnimationTime,
+                        rawTimeline, null, DataParser.FRAME, TimelineType.Animation,
                         true, false, 2,
                         this._parseAnimationFrame
-                    );
+                    ) as AnimationTimelineData;
 
                     if (timeline !== null) {
+                        if (DataParser.X in rawTimeline) {
+                            timeline.x = rawTimeline[DataParser.X];
+                            timeline.y = rawTimeline[DataParser.Y];
+                        }
+
                         this._animation.addAnimationTimeline(animationName, timeline);
                     }
                 }
@@ -1199,8 +1063,12 @@ namespace dragonBones {
 
             const frameIntArrayLength = this._frameIntArray.length;
             const frameFloatArrayLength = this._frameFloatArray.length;
-            const timeline = BaseObject.borrowObject(TimelineData);
             const timelineOffset = this._timelineArray.length;
+            const timeline = type === TimelineType.Animation ? BaseObject.borrowObject(AnimationTimelineData) : BaseObject.borrowObject(TimelineData);
+
+            timeline.type = type;
+            timeline.offset = timelineOffset;
+            this._timeline = timeline;
             this._timelineArray.length += 1 + 1 + 1 + 1 + 1 + keyFrameCount;
 
             if (rawData !== null) {
@@ -1224,10 +1092,6 @@ namespace dragonBones {
             else {
                 this._timelineArray[timelineOffset + BinaryOffset.TimelineFrameValueOffset] = 0;
             }
-
-            this._timeline = timeline;
-            timeline.type = type;
-            timeline.offset = timelineOffset;
 
             if (keyFrameCount === 1) { // Only one frame.
                 timeline.frameIndicesOffset = -1;
@@ -1634,53 +1498,6 @@ namespace dragonBones {
             return frameOffset;
         }
 
-        protected _parseSurfaceFrame(rawData: any, frameStart: number, frameCount: number): number {
-            const frameFloatOffset = this._frameFloatArray.length;
-            const frameOffset = this._parseTweenFrame(rawData, frameStart, frameCount);
-            const rawVertices = rawData[DataParser.VERTICES] as Array<number>;
-            const offset = ObjectDataParser._getNumber(rawData, DataParser.OFFSET, 0); // uint
-            const vertexCount = this._surface.vertices.length / 2; // uint
-            let x = 0.0;
-            let y = 0.0;
-            this._frameFloatArray.length += vertexCount * 2;
-
-            for (
-                let i = 0;
-                i < vertexCount * 2;
-                i += 2
-            ) {
-                if (i < offset || i - offset >= rawVertices.length) {
-                    x = 0.0;
-                }
-                else {
-                    x = rawVertices[i - offset];
-                }
-
-                if (i + 1 < offset || i + 1 - offset >= rawVertices.length) {
-                    y = 0.0;
-                }
-                else {
-                    y = rawVertices[i + 1 - offset];
-                }
-
-                this._frameFloatArray[frameFloatOffset + i] = x;
-                this._frameFloatArray[frameFloatOffset + i + 1] = y;
-            }
-
-            if (frameStart === 0) {
-                const frameIntOffset = this._frameIntArray.length;
-                this._frameIntArray.length += 1 + 1 + 1 + 1 + 1;
-                this._frameIntArray[frameIntOffset + BinaryOffset.DeformVertexOffset] = 0; // 
-                this._frameIntArray[frameIntOffset + BinaryOffset.DeformCount] = this._frameFloatArray.length - frameFloatOffset;
-                this._frameIntArray[frameIntOffset + BinaryOffset.DeformValueCount] = this._frameFloatArray.length - frameFloatOffset;
-                this._frameIntArray[frameIntOffset + BinaryOffset.DeformValueOffset] = 0;
-                this._frameIntArray[frameIntOffset + BinaryOffset.DeformFloatOffset] = frameFloatOffset - this._animation.frameFloatOffset;
-                this._timelineArray[this._timeline.offset + BinaryOffset.TimelineFrameValueCount] = frameIntOffset - this._animation.frameIntOffset;
-            }
-
-            return frameOffset;
-        }
-
         protected _parseSlotDisplayFrame(rawData: any, frameStart: number, frameCount: number): number {
             const frameOffset = this._parseFrame(rawData, frameStart, frameCount);
 
@@ -1752,7 +1569,7 @@ namespace dragonBones {
             const frameOffset = this._parseTweenFrame(rawData, frameStart, frameCount);
             const rawVertices = DataParser.VERTICES in rawData ? rawData[DataParser.VERTICES] as Array<number> : null;
             const offset = ObjectDataParser._getNumber(rawData, DataParser.OFFSET, 0); // uint
-            const vertexCount = this._intArray[this._mesh.geometry.offset + BinaryOffset.MeshVertexCount];
+            const vertexCount = this._intArray[this._mesh.geometry.offset + BinaryOffset.GeometryVertexCount];
             const meshName = this._mesh.parent.name + "_" + this._slot.name + "_" + this._mesh.name;
             const weight = this._mesh.geometry.weight;
 
@@ -1944,6 +1761,60 @@ namespace dragonBones {
             return actions;
         }
 
+        protected _parseDeformFrame(rawData: any, frameStart: number, frameCount: number): number {
+            const frameFloatOffset = this._frameFloatArray.length;
+            const frameOffset = this._parseTweenFrame(rawData, frameStart, frameCount);
+            const rawVertices = rawData[DataParser.VERTICES] as Array<number>;
+            const offset = ObjectDataParser._getNumber(rawData, DataParser.OFFSET, 0); // uint
+            const vertexCount = this._intArray[this._geometry.offset + BinaryOffset.GeometryVertexCount];
+            const weight = this._mesh.geometry.weight;
+            let x = 0.0;
+            let y = 0.0;
+
+            if (weight !== null) {
+                // TODO
+            }
+            else {
+                this._frameFloatArray.length += vertexCount * 2;
+
+                for (
+                    let i = 0;
+                    i < vertexCount * 2;
+                    i += 2
+                ) {
+                    if (i < offset || i - offset >= rawVertices.length) {
+                        x = 0.0;
+                    }
+                    else {
+                        x = rawVertices[i - offset];
+                    }
+
+                    if (i + 1 < offset || i + 1 - offset >= rawVertices.length) {
+                        y = 0.0;
+                    }
+                    else {
+                        y = rawVertices[i + 1 - offset];
+                    }
+
+                    this._frameFloatArray[frameFloatOffset + i] = x;
+                    this._frameFloatArray[frameFloatOffset + i + 1] = y;
+                }
+            }
+
+            if (frameStart === 0) {
+                const frameIntOffset = this._frameIntArray.length;
+                this._frameIntArray.length += 1 + 1 + 1 + 1 + 1;
+                this._frameIntArray[frameIntOffset + BinaryOffset.DeformVertexOffset] = this._geometry.offset;
+                this._frameIntArray[frameIntOffset + BinaryOffset.DeformCount] = this._frameFloatArray.length - frameFloatOffset;
+                this._frameIntArray[frameIntOffset + BinaryOffset.DeformValueCount] = this._frameFloatArray.length - frameFloatOffset;
+                this._frameIntArray[frameIntOffset + BinaryOffset.DeformValueOffset] = 0;
+                this._frameIntArray[frameIntOffset + BinaryOffset.DeformFloatOffset] = frameFloatOffset - this._animation.frameFloatOffset;
+                this._timelineArray[this._timeline.offset + BinaryOffset.TimelineFrameValueCount] = frameIntOffset - this._animation.frameIntOffset;
+            }
+
+            return frameOffset;
+        }
+
         protected _parseTransform(rawData: any, transform: Transform, scale: number): void {
             transform.x = ObjectDataParser._getNumber(rawData, DataParser.X, 0.0) * scale;
             transform.y = ObjectDataParser._getNumber(rawData, DataParser.Y, 0.0) * scale;
@@ -1970,6 +1841,144 @@ namespace dragonBones {
             color.redOffset = ObjectDataParser._getNumber(rawData, DataParser.RED_OFFSET, 0);
             color.greenOffset = ObjectDataParser._getNumber(rawData, DataParser.GREEN_OFFSET, 0);
             color.blueOffset = ObjectDataParser._getNumber(rawData, DataParser.BLUE_OFFSET, 0);
+        }
+
+        protected _parseGeometry(rawData: any, geometry: GeometryData): void {
+            const rawVertices = rawData[DataParser.VERTICES] as Array<number>;
+            const vertexCount = Math.floor(rawVertices.length / 2); // uint
+            let triangleCount = 0;
+            const geometryOffset = this._intArray.length;
+            const verticesOffset = this._floatArray.length;
+            //
+            geometry.offset = geometryOffset;
+            geometry.data = this._data;
+            //
+            this._intArray.length += 1 + 1 + 1 + 1;
+            this._intArray[geometryOffset + BinaryOffset.GeometryVertexCount] = vertexCount;
+            this._intArray[geometryOffset + BinaryOffset.GeometryFloatOffset] = verticesOffset;
+            this._intArray[geometryOffset + BinaryOffset.GeometryWeightOffset] = -1; //
+            // 
+            this._floatArray.length += vertexCount * 2;
+            for (let i = 0, l = vertexCount * 2; i < l; ++i) {
+                this._floatArray[verticesOffset + i] = rawVertices[i];
+            }
+
+            if (DataParser.TRIANGLES in rawData) {
+                const rawTriangles = rawData[DataParser.TRIANGLES] as Array<number>;
+                triangleCount = Math.floor(rawTriangles.length / 3); // uint
+                //
+                this._intArray.length += triangleCount * 3;
+                for (let i = 0, l = triangleCount * 3; i < l; ++i) {
+                    this._intArray[geometryOffset + BinaryOffset.GeometryVertexIndices + i] = rawTriangles[i];
+                }
+            }
+            // Fill triangle count.
+            this._intArray[geometryOffset + BinaryOffset.GeometryTriangleCount] = triangleCount;
+
+            if (DataParser.UVS in rawData) {
+                const rawUVs = rawData[DataParser.UVS] as Array<number>;
+                const uvOffset = verticesOffset + vertexCount * 2;
+                this._floatArray.length += vertexCount * 2;
+                for (let i = 0, l = vertexCount * 2; i < l; ++i) {
+                    this._floatArray[uvOffset + i] = rawUVs[i];
+                }
+            }
+
+            if (DataParser.WEIGHTS in rawData) {
+                const rawWeights = rawData[DataParser.WEIGHTS] as Array<number>;
+                const weightCount = Math.floor(rawWeights.length - vertexCount) / 2; // uint
+                const weightOffset = this._intArray.length;
+                const floatOffset = this._floatArray.length;
+                let weightBoneCount = 0;
+                const sortedBones = this._armature.sortedBones;
+                const weight = BaseObject.borrowObject(WeightData);
+                weight.count = weightCount;
+                weight.offset = weightOffset;
+
+                this._intArray.length += 1 + 1 + weightBoneCount + vertexCount + weightCount;
+                this._intArray[weightOffset + BinaryOffset.WeigthFloatOffset] = floatOffset;
+
+                if (DataParser.BONE_POSE in rawData) {
+                    const rawSlotPose = rawData[DataParser.SLOT_POSE] as Array<number>;
+                    const rawBonePoses = rawData[DataParser.BONE_POSE] as Array<number>;
+                    const weightBoneIndices = new Array<number>();
+
+                    weightBoneCount = Math.floor(rawBonePoses.length / 7); // uint
+                    weightBoneIndices.length = weightBoneCount;
+
+                    for (let i = 0; i < weightBoneCount; ++i) {
+                        const rawBoneIndex = rawBonePoses[i * 7]; // uint
+                        const bone = this._rawBones[rawBoneIndex];
+                        weight.addBone(bone);
+                        weightBoneIndices[i] = rawBoneIndex;
+                        this._intArray[weightOffset + BinaryOffset.WeigthBoneIndices + i] = sortedBones.indexOf(bone);
+                    }
+
+                    this._floatArray.length += weightCount * 3;
+                    this._helpMatrixA.copyFromArray(rawSlotPose, 0);
+
+                    for (
+                        let i = 0, iW = 0, iB = weightOffset + BinaryOffset.WeigthBoneIndices + weightBoneCount, iV = floatOffset;
+                        i < vertexCount;
+                        ++i
+                    ) {
+                        const iD = i * 2;
+                        const vertexBoneCount = this._intArray[iB++] = rawWeights[iW++]; // uint
+
+                        let x = this._floatArray[verticesOffset + iD];
+                        let y = this._floatArray[verticesOffset + iD + 1];
+                        this._helpMatrixA.transformPoint(x, y, this._helpPoint);
+                        x = this._helpPoint.x;
+                        y = this._helpPoint.y;
+
+                        for (let j = 0; j < vertexBoneCount; ++j) {
+                            const rawBoneIndex = rawWeights[iW++]; // uint
+                            const boneIndex = weightBoneIndices.indexOf(rawBoneIndex);
+                            this._helpMatrixB.copyFromArray(rawBonePoses, boneIndex * 7 + 1);
+                            this._helpMatrixB.invert();
+                            this._helpMatrixB.transformPoint(x, y, this._helpPoint);
+                            this._intArray[iB++] = boneIndex;
+                            this._floatArray[iV++] = rawWeights[iW++];
+                            this._floatArray[iV++] = this._helpPoint.x;
+                            this._floatArray[iV++] = this._helpPoint.y;
+                        }
+                    }
+                }
+                else {
+                    const rawBones = rawData[DataParser.BONES] as Array<number>;
+                    weightBoneCount = rawBones.length;
+
+                    for (let i = 0; i < weightBoneCount; i++) {
+                        const rawBoneIndex = rawBones[i];
+                        const bone = this._rawBones[rawBoneIndex];
+                        weight.addBone(bone);
+                        this._intArray[weightOffset + BinaryOffset.WeigthBoneIndices + i] = sortedBones.indexOf(bone);
+                    }
+
+                    this._floatArray.length += weightCount * 3;
+                    for (let i = 0, iW = 0, iV = 0, iB = weightOffset + BinaryOffset.WeigthBoneIndices + weightBoneCount, iF = floatOffset;
+                        i < weightCount;
+                        i++
+                    ) {
+                        const vertexBoneCount = rawWeights[iW++];
+                        this._intArray[iB++] = vertexBoneCount;
+
+                        for (let j = 0; j < vertexBoneCount; j++) {
+                            const boneIndex = rawWeights[iW++];
+                            const boneWeight = rawWeights[iW++];
+                            const x = rawVertices[iV++];
+                            const y = rawVertices[iV++];
+
+                            this._intArray[iB++] = rawBones.indexOf(boneIndex);
+                            this._floatArray[iF++] = boneWeight;
+                            this._floatArray[iF++] = x;
+                            this._floatArray[iF++] = y;
+                        }
+                    }
+                }
+
+                geometry.weight = weight;
+            }
         }
 
         protected _parseArray(rawData: any): void {

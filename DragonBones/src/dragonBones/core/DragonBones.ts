@@ -29,11 +29,11 @@ namespace dragonBones {
         WeigthFloatOffset = 1,
         WeigthBoneIndices = 2,
 
-        MeshVertexCount = 0,
-        MeshTriangleCount = 1,
-        MeshFloatOffset = 2,
-        MeshWeightOffset = 3,
-        MeshVertexIndices = 4,
+        GeometryVertexCount = 0,
+        GeometryTriangleCount = 1,
+        GeometryFloatOffset = 2,
+        GeometryWeightOffset = 3,
+        GeometryVertexIndices = 4,
 
         TimelineScale = 0,
         TimelineOffset = 1,
@@ -155,8 +155,7 @@ namespace dragonBones {
 
         IKConstraint = 30,
 
-        AnimationTime = 40,
-        AnimationWeight = 41
+        Animation = 40,
     }
     /**
      * - Offset mode.
@@ -239,29 +238,50 @@ namespace dragonBones {
          */
         Single = 5
     }
-
+    /**
+     * @private
+     */
+    export enum AnimationBlendType {
+        None,
+        E1D,
+    }
+    /**
+     * @private
+     */
+    export enum AnimationBlendMode {
+        Additive,
+        Override,
+    }
+    /**
+     * @private
+     */
     export const enum ConstraintType {
         IK,
         Path
     }
-
+    /**
+     * @private
+     */
     export const enum PositionMode {
         Fixed,
         Percent
     }
-
+    /**
+     * @private
+     */
     export const enum SpacingMode {
         Length,
         Fixed,
         Percent
     }
-
+    /**
+     * @private
+     */
     export const enum RotateMode {
         Tangent,
         Chain,
         ChainScale
     }
-
     /**
      * @private
      */

@@ -45,7 +45,6 @@ namespace dragonBones {
          */
         public static readonly POOL_TYPE_FACE3: string = "POOL_TYPE_FACE3";
 
-        private static readonly _emptyGeometry: THREE.Geometry = new THREE.Geometry();
         private static readonly _emptyMaterial: THREE.Material = new THREE.MeshBasicMaterial();
         private static readonly _pools: Map<Array<any>> = {};
         private static _dragonBonesInstance: DragonBones = null as any;
@@ -175,7 +174,6 @@ namespace dragonBones {
 
             const slot = BaseObject.borrowObject(ThreeSlot);
             const geometry = new THREE.Geometry();
-            // ThreeFactory._emptyGeometry
             const rawDisplay = new THREE.Mesh(geometry, ThreeFactory._emptyMaterial);
 
             slot.init(

@@ -354,7 +354,6 @@ namespace dragonBones {
             const delta = this.bonePose.delta;
             const result = this.bonePose.result;
 
-            this.bone._transformDirty = true;
             if (this._tweenState !== TweenState.Always) {
                 this._tweenState = TweenState.None;
             }
@@ -365,6 +364,7 @@ namespace dragonBones {
             result.skew = current.skew + delta.skew * this._tweenProgress;
             result.scaleX = current.scaleX + delta.scaleX * this._tweenProgress;
             result.scaleY = current.scaleY + delta.scaleY * this._tweenProgress;
+            this.bone._transformDirty = true;
         }
 
         public fadeOut(): void {
@@ -390,7 +390,6 @@ namespace dragonBones {
                 const frameFloatArray = this._frameFloatArray;
                 const current = this.bonePose.current;
                 const delta = this.bonePose.delta;
-
                 current.x = frameFloatArray[valueOffset++] * scale;
                 current.y = frameFloatArray[valueOffset++] * scale;
 
@@ -424,13 +423,13 @@ namespace dragonBones {
             const delta = this.bonePose.delta;
             const result = this.bonePose.result;
 
-            this.bone._transformDirty = true;
             if (this._tweenState !== TweenState.Always) {
                 this._tweenState = TweenState.None;
             }
 
             result.x = (current.x + delta.x * this._tweenProgress);
             result.y = (current.y + delta.y * this._tweenProgress);
+            this.bone._transformDirty = true;
         }
     }
     /**
@@ -449,7 +448,6 @@ namespace dragonBones {
                 const frameFloatArray = this._frameFloatArray;
                 const current = this.bonePose.current;
                 const delta = this.bonePose.delta;
-
                 current.rotation = frameFloatArray[valueOffset++];
                 current.skew = frameFloatArray[valueOffset++];
 
@@ -486,13 +484,13 @@ namespace dragonBones {
             const delta = this.bonePose.delta;
             const result = this.bonePose.result;
 
-            this.bone._transformDirty = true;
             if (this._tweenState !== TweenState.Always) {
                 this._tweenState = TweenState.None;
             }
 
             result.rotation = current.rotation + delta.rotation * this._tweenProgress;
             result.skew = current.skew + delta.skew * this._tweenProgress;
+            this.bone._transformDirty = true;
         }
 
         public fadeOut(): void {
@@ -517,7 +515,6 @@ namespace dragonBones {
                 const frameFloatArray = this._frameFloatArray;
                 const current = this.bonePose.current;
                 const delta = this.bonePose.delta;
-
                 current.scaleX = frameFloatArray[valueOffset++];
                 current.scaleY = frameFloatArray[valueOffset++];
 
@@ -551,13 +548,13 @@ namespace dragonBones {
             const delta = this.bonePose.delta;
             const result = this.bonePose.result;
 
-            this.bone._transformDirty = true;
             if (this._tweenState !== TweenState.Always) {
                 this._tweenState = TweenState.None;
             }
 
             result.scaleX = current.scaleX + delta.scaleX * this._tweenProgress;
             result.scaleY = current.scaleY + delta.scaleY * this._tweenProgress;
+            this.bone._transformDirty = true;
         }
     }
     /**
@@ -793,6 +790,7 @@ namespace dragonBones {
             super._onUpdateFrame();
 
             this._dirty = true;
+
             if (this._tweenState !== TweenState.Always) {
                 this._tweenState = TweenState.None;
             }
@@ -814,7 +812,6 @@ namespace dragonBones {
 
         public update(passedTime: number): void {
             super.update(passedTime);
-
             // Fade animation.
             if (this._tweenState !== TweenState.None || this._dirty) {
                 const result = this.slot._colorTransform;
@@ -831,7 +828,6 @@ namespace dragonBones {
                         result.blueOffset !== this._result[7]
                     ) {
                         const fadeProgress = Math.pow(this._animationState._fadeProgress, 4);
-
                         result.alphaMultiplier += (this._result[0] - result.alphaMultiplier) * fadeProgress;
                         result.redMultiplier += (this._result[1] - result.redMultiplier) * fadeProgress;
                         result.greenMultiplier += (this._result[2] - result.greenMultiplier) * fadeProgress;
@@ -840,12 +836,10 @@ namespace dragonBones {
                         result.redOffset += (this._result[5] - result.redOffset) * fadeProgress;
                         result.greenOffset += (this._result[6] - result.greenOffset) * fadeProgress;
                         result.blueOffset += (this._result[7] - result.blueOffset) * fadeProgress;
-
                         this.slot._colorDirty = true;
                     }
                 }
                 else if (this._dirty) {
-                    this._dirty = false;
                     if (
                         result.alphaMultiplier !== this._result[0] ||
                         result.redMultiplier !== this._result[1] ||
@@ -864,9 +858,10 @@ namespace dragonBones {
                         result.redOffset = this._result[5];
                         result.greenOffset = this._result[6];
                         result.blueOffset = this._result[7];
-
                         this.slot._colorDirty = true;
                     }
+
+                    this._dirty = false;
                 }
             }
         }
@@ -942,6 +937,7 @@ namespace dragonBones {
             super._onUpdateFrame();
 
             this._dirty = true;
+
             if (this._tweenState !== TweenState.Always) {
                 this._tweenState = TweenState.None;
             }
@@ -1036,8 +1032,6 @@ namespace dragonBones {
                     }
                 }
                 else if (this._dirty) {
-                    this._dirty = false;
-
                     for (let i = 0; i < this._deformCount; ++i) {
                         if (i < this._valueOffset) {
                             result[i] = this._frameFloatArray[this._frameFloatOffset + i];
@@ -1053,6 +1047,8 @@ namespace dragonBones {
                     if (this.slot._geometryData === this.displayFrame.getGeometryData()) {
                         this.slot._verticesDirty = true;
                     }
+
+                    this._dirty = false;
                 }
             }
         }

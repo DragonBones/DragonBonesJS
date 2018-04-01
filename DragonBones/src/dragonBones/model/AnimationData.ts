@@ -136,7 +136,7 @@ namespace dragonBones {
         /**
          * @private
          */
-        public readonly animationTimelines: Map<Array<TimelineData>> = {};
+        public readonly animationTimelines: Map<AnimationTimelineData> = {};
         /**
          * @private
          */
@@ -192,10 +192,7 @@ namespace dragonBones {
             }
 
             for (let k in this.animationTimelines) {
-                for (const timeline of this.animationTimelines[k]) {
-                    timeline.returnToPool();
-                }
-
+                this.animationTimelines[k].returnToPool();
                 delete this.animationTimelines[k];
             }
 
@@ -310,11 +307,8 @@ namespace dragonBones {
         /**
          * @private
          */
-        public addAnimationTimeline(timelineName: string, timeline: TimelineData): void {
-            const timelines = timelineName in this.animationTimelines ? this.animationTimelines[timelineName] : (this.animationTimelines[timelineName] = []);
-            if (timelines.indexOf(timeline) < 0) {
-                timelines.push(timeline);
-            }
+        public addAnimationTimeline(timelineName: string, timeline: AnimationTimelineData): void {
+            this.animationTimelines[timelineName] = timeline;
         }
         /**
          * @private
@@ -343,7 +337,7 @@ namespace dragonBones {
         /**
          * @private
          */
-        public getAnimationTimelines(timelineName: string): Array<TimelineData> | null {
+        public getAnimationTimelines(timelineName: string): AnimationTimelineData | null {
             return timelineName in this.animationTimelines ? this.animationTimelines[timelineName] : null;
         }
         /**
@@ -375,6 +369,24 @@ namespace dragonBones {
             this.type = TimelineType.BoneAll;
             this.offset = 0;
             this.frameIndicesOffset = -1;
+        }
+    }
+    /**
+     * @internal
+     */
+    export class AnimationTimelineData extends TimelineData {
+        public static toString(): string {
+            return "[class dragonBones.AnimationTimelineData]";
+        }
+
+        public x: number;
+        public y: number;
+
+        protected _onClear(): void {
+            super._onClear();
+
+            this.x = 0.0;
+            this.y = 0.0;
         }
     }
 }
