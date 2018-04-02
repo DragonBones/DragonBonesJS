@@ -299,6 +299,8 @@ namespace dragonBones {
                 this._objects.length = 0;
             }
 
+            this._clock.advanceTime(passedTime);
+
             if (this._events.length > 0) {
                 for (let i = 0; i < this._events.length; ++i) {
                     const eventObject = this._events[i];
@@ -315,8 +317,6 @@ namespace dragonBones {
 
                 this._events.length = 0;
             }
-
-            this._clock.advanceTime(passedTime);
         }
 
         public bufferEvent(value: EventObject): void {
