@@ -276,7 +276,7 @@ namespace dragonBones {
                         const timelineType = rawTimelines[i];
                         const timelineOffset = rawTimelines[i + 1];
                         const timeline = this._parseBinaryTimeline(timelineType, timelineOffset);
-                        this._animation.addSurfaceTimeline(surface, timeline);
+                        this._animation.addBoneTimeline(surface, timeline);
                     }
                 }
             }

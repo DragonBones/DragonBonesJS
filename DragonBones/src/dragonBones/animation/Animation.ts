@@ -91,7 +91,7 @@ namespace dragonBones {
             switch (animationConfig.fadeOutMode) {
                 case AnimationFadeOutMode.SameLayer:
                     for (const animationState of this._animationStates) {
-                        if (animationState._parent !== null) {
+                        if (animationState._parents.length > 0) {
                             continue;
                         }
 
@@ -103,7 +103,7 @@ namespace dragonBones {
 
                 case AnimationFadeOutMode.SameGroup:
                     for (const animationState of this._animationStates) {
-                        if (animationState._parent !== null) {
+                        if (animationState._parents.length > 0) {
                             continue;
                         }
 
@@ -115,7 +115,7 @@ namespace dragonBones {
 
                 case AnimationFadeOutMode.SameLayerAndGroup:
                     for (const animationState of this._animationStates) {
-                        if (animationState._parent !== null) {
+                        if (animationState._parents.length > 0) {
                             continue;
                         }
 
@@ -130,7 +130,7 @@ namespace dragonBones {
 
                 case AnimationFadeOutMode.All:
                     for (const animationState of this._animationStates) {
-                        if (animationState._parent !== null) {
+                        if (animationState._parents.length > 0) {
                             continue;
                         }
 
@@ -183,7 +183,7 @@ namespace dragonBones {
                     this._lastAnimationState = null;
                 }
                 else {
-                    const animationData = animationState._animationData;
+                    const animationData = animationState.animationData;
                     const cacheFrameRate = animationData.cacheFrameRate;
                     if (this._animationDirty && cacheFrameRate > 0.0) { // Update cachedFrameIndices.
                         this._animationDirty = false;
@@ -329,7 +329,10 @@ namespace dragonBones {
 
             if (animationConfig.fadeOutMode === AnimationFadeOutMode.Single) {
                 for (const animationState of this._animationStates) {
-                    if (animationState._animationData === animationData) {
+                    if (
+                        animationState._fadeState < 1 &&
+                        animationState.animationData === animationData
+                    ) {
                         return animationState;
                     }
                 }
@@ -425,15 +428,24 @@ namespace dragonBones {
             }
 
             for (let k in animationData.animationTimelines) {
-                const timelineData = animationData.animationTimelines[k];
+                const timelineDatas = animationData.animationTimelines[k];
                 const childAnimationState = this.fadeIn(k, animationConfig.fadeInTime, 1, animationState.layer, null, AnimationFadeOutMode.Single);
-                if (childAnimationState !== null) {
-                    childAnimationState.positionX = timelineData.x;
-                    childAnimationState.positionY = timelineData.y;
-                    childAnimationState.resetToPose = false;
-                    childAnimationState.stop();
-                    childAnimationState._parent = animationState;
+                if (childAnimationState === null) {
+                    continue;
                 }
+
+                for (const timelineData of timelineDatas) {
+                    if (timelineData.type === TimelineType.AnimationProgress) {
+                        animationState.blendType = AnimationBlendType.E1D; //
+                        childAnimationState.positionX = (timelineData as AnimationTimelineData).x;
+                        childAnimationState.positionY = (timelineData as AnimationTimelineData).y;
+                        childAnimationState.resetToPose = false;
+                        childAnimationState.stop();
+                        childAnimationState._parents.push(animationState);
+                        break;
+                    }
+                }
+
             }
 
             // if (!this._armature._lockUpdate && animationConfig.fadeInTime <= 0.0) { // Blend animation state, update armature.

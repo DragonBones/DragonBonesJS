@@ -384,7 +384,7 @@ namespace dragonBones {
                             const segmentX = surfaceData.segmentX;
                             const segmentY = surfaceData.segmentY;
                             const vertices = surface._vertices;
-                            graphics.lineStyle(2.0, 0xFFFF00, 0.7);
+                            graphics.lineStyle(2.0, 0xFFFF00, 0.3);
 
                             for (let iY = 0; iY < segmentY; ++iY) {
                                 for (let iX = 0; iX < segmentX; ++iX) {

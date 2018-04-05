@@ -124,10 +124,6 @@ namespace dragonBones {
         /**
          * @private
          */
-        public readonly surfaceTimelines: Map<Array<TimelineData>> = {};
-        /**
-         * @private
-         */
         public readonly slotTimelines: Map<Array<TimelineData>> = {};
         /**
          * @private
@@ -136,7 +132,7 @@ namespace dragonBones {
         /**
          * @private
          */
-        public readonly animationTimelines: Map<AnimationTimelineData> = {};
+        public readonly animationTimelines: Map<Array<TimelineData>> = {};
         /**
          * @private
          */
@@ -167,14 +163,6 @@ namespace dragonBones {
                 delete this.boneTimelines[k];
             }
 
-            for (let k in this.surfaceTimelines) {
-                for (const timeline of this.surfaceTimelines[k]) {
-                    timeline.returnToPool();
-                }
-
-                delete this.surfaceTimelines[k];
-            }
-
             for (let k in this.slotTimelines) {
                 for (const timeline of this.slotTimelines[k]) {
                     timeline.returnToPool();
@@ -192,7 +180,10 @@ namespace dragonBones {
             }
 
             for (let k in this.animationTimelines) {
-                this.animationTimelines[k].returnToPool();
+                for (const timeline of this.animationTimelines[k]) {
+                    timeline.returnToPool();
+                }
+
                 delete this.animationTimelines[k];
             }
 
@@ -224,7 +215,6 @@ namespace dragonBones {
             this.name = "";
             this.cachedFrames.length = 0;
             // this.boneTimelines.clear();
-            // this.surfaceTimelines.clear();
             // this.slotTimelines.clear();
             // this.constraintTimelines.clear();
             // this.animationTimelines.clear();
@@ -280,15 +270,6 @@ namespace dragonBones {
         /**
          * @private
          */
-        public addSurfaceTimeline(surface: SurfaceData, timeline: TimelineData): void {
-            const timelines = surface.name in this.surfaceTimelines ? this.surfaceTimelines[surface.name] : (this.surfaceTimelines[surface.name] = []);
-            if (timelines.indexOf(timeline) < 0) {
-                timelines.push(timeline);
-            }
-        }
-        /**
-         * @private
-         */
         public addSlotTimeline(slot: SlotData, timeline: TimelineData): void {
             const timelines = slot.name in this.slotTimelines ? this.slotTimelines[slot.name] : (this.slotTimelines[slot.name] = []);
             if (timelines.indexOf(timeline) < 0) {
@@ -307,20 +288,17 @@ namespace dragonBones {
         /**
          * @private
          */
-        public addAnimationTimeline(timelineName: string, timeline: AnimationTimelineData): void {
-            this.animationTimelines[timelineName] = timeline;
+        public addAnimationTimeline(timelineName: string, timeline: TimelineData): void {
+            const timelines = timelineName in this.animationTimelines ? this.animationTimelines[timelineName] : (this.animationTimelines[timelineName] = []);
+            if (timelines.indexOf(timeline) < 0) {
+                timelines.push(timeline);
+            }
         }
         /**
          * @private
          */
         public getBoneTimelines(timelineName: string): Array<TimelineData> | null {
             return timelineName in this.boneTimelines ? this.boneTimelines[timelineName] : null;
-        }
-        /**
-         * @private
-         */
-        public getSurfaceTimelines(timelineName: string): Array<TimelineData> | null {
-            return timelineName in this.surfaceTimelines ? this.surfaceTimelines[timelineName] : null;
         }
         /**
          * @private
@@ -337,7 +315,7 @@ namespace dragonBones {
         /**
          * @private
          */
-        public getAnimationTimelines(timelineName: string): AnimationTimelineData | null {
+        public getAnimationTimelines(timelineName: string): Array<TimelineData> | null {
             return timelineName in this.animationTimelines ? this.animationTimelines[timelineName] : null;
         }
         /**

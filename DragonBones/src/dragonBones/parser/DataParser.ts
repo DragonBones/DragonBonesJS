@@ -73,6 +73,9 @@ namespace dragonBones {
         protected static readonly SCALE_FRAME: string = "scaleFrame";
         protected static readonly DISPLAY_FRAME: string = "displayFrame";
         protected static readonly COLOR_FRAME: string = "colorFrame";
+        protected static readonly PROGRESS_FRAME: string = "progressFrame";
+        protected static readonly WEIGHT_FRAME: string = "weightFrame";
+        protected static readonly PARAMETER_FRAME: string = "parameterFrame";
         protected static readonly DEFAULT_ACTIONS: string = "defaultActions";
         protected static readonly ACTIONS: string = "actions";
         protected static readonly EVENTS: string = "events";

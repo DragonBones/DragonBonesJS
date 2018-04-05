@@ -940,7 +940,7 @@ namespace dragonBones {
                     );
 
                     if (timeline !== null) {
-                        this._animation.addSurfaceTimeline(surface, timeline);
+                        this._animation.addBoneTimeline(surface, timeline);
                     }
 
                     this._geometry = null as any; //
@@ -1012,19 +1012,39 @@ namespace dragonBones {
                 for (const rawTimeline of rawTimelines) {
                     const animationName = ObjectDataParser._getString(rawTimeline, DataParser.NAME, "");
 
-                    const timeline = this._parseTimeline(
-                        rawTimeline, null, DataParser.FRAME, TimelineType.Animation,
-                        true, false, 2,
-                        this._parseAnimationFrame
+                    const progressTimeline = this._parseTimeline(
+                        rawTimeline, null, DataParser.PROGRESS_FRAME, TimelineType.AnimationProgress,
+                        true, false, 1,
+                        this._parseAnimationProgressAndWeightFrame
                     ) as AnimationTimelineData;
 
-                    if (timeline !== null) {
+                    if (progressTimeline !== null) {
                         if (DataParser.X in rawTimeline) {
-                            timeline.x = rawTimeline[DataParser.X];
-                            timeline.y = rawTimeline[DataParser.Y];
+                            progressTimeline.x = ObjectDataParser._getNumber(rawTimeline, DataParser.X, 0.0);
+                            progressTimeline.y = ObjectDataParser._getNumber(rawTimeline, DataParser.Y, 0.0);
                         }
 
-                        this._animation.addAnimationTimeline(animationName, timeline);
+                        this._animation.addAnimationTimeline(animationName, progressTimeline);
+                    }
+
+                    const weightTimeline = this._parseTimeline(
+                        rawTimeline, null, DataParser.WEIGHT_FRAME, TimelineType.AnimationWeight,
+                        true, false, 1,
+                        this._parseAnimationProgressAndWeightFrame
+                    );
+
+                    if (weightTimeline !== null) {
+                        this._animation.addAnimationTimeline(animationName, weightTimeline);
+                    }
+
+                    const parameterTimeline = this._parseTimeline(
+                        rawTimeline, null, DataParser.PARAMETER_FRAME, TimelineType.AnimationParameter,
+                        true, false, 2,
+                        this._parseAnimationParameterFrame
+                    );
+
+                    if (parameterTimeline !== null) {
+                        this._animation.addAnimationTimeline(animationName, parameterTimeline);
                     }
                 }
             }
@@ -1064,7 +1084,7 @@ namespace dragonBones {
             const frameIntArrayLength = this._frameIntArray.length;
             const frameFloatArrayLength = this._frameFloatArray.length;
             const timelineOffset = this._timelineArray.length;
-            const timeline = type === TimelineType.Animation ? BaseObject.borrowObject(AnimationTimelineData) : BaseObject.borrowObject(TimelineData);
+            const timeline = type === TimelineType.AnimationProgress ? BaseObject.borrowObject(AnimationTimelineData) : BaseObject.borrowObject(TimelineData);
 
             timeline.type = type;
             timeline.offset = timelineOffset;
@@ -1661,13 +1681,23 @@ namespace dragonBones {
             return frameOffset;
         }
 
-        protected _parseAnimationFrame(rawData: any, frameStart: number, frameCount: number): number {
+        protected _parseAnimationProgressAndWeightFrame(rawData: any, frameStart: number, frameCount: number): number {
+            const frameOffset = this._parseTweenFrame(rawData, frameStart, frameCount);
+
+            let frameIntOffset = this._frameIntArray.length;
+            this._frameIntArray.length += 1;
+            this._frameIntArray[frameIntOffset++] = Math.round(ObjectDataParser._getNumber(rawData, DataParser.VALUE, 0.0) * 100.0);
+
+            return frameOffset;
+        }
+
+        protected _parseAnimationParameterFrame(rawData: any, frameStart: number, frameCount: number): number {
             const frameOffset = this._parseTweenFrame(rawData, frameStart, frameCount);
 
             let frameIntOffset = this._frameIntArray.length;
             this._frameIntArray.length += 2;
-            this._frameIntArray[frameIntOffset++] = ObjectDataParser._getNumber(rawData, DataParser.VALUE, 0);
-            this._frameIntArray[frameIntOffset++] = Math.round(ObjectDataParser._getNumber(rawData, DataParser.WEIGHT, 1.0) * 100.0);
+            this._frameIntArray[frameIntOffset++] = Math.round(ObjectDataParser._getNumber(rawData, DataParser.X, 0.0) * 100.0);
+            this._frameIntArray[frameIntOffset++] = Math.round(ObjectDataParser._getNumber(rawData, DataParser.Y, 0.0) * 100.0);
 
             return frameOffset;
         }
@@ -1767,7 +1797,7 @@ namespace dragonBones {
             const rawVertices = rawData[DataParser.VERTICES] as Array<number>;
             const offset = ObjectDataParser._getNumber(rawData, DataParser.OFFSET, 0); // uint
             const vertexCount = this._intArray[this._geometry.offset + BinaryOffset.GeometryVertexCount];
-            const weight = this._mesh.geometry.weight;
+            const weight = this._geometry.weight;
             let x = 0.0;
             let y = 0.0;
 

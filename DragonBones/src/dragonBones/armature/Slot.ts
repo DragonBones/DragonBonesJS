@@ -223,6 +223,10 @@ namespace dragonBones {
         /**
          * @internal
          */
+        public readonly _blendState: BlendState = new BlendState();
+        /**
+         * @internal
+         */
         public readonly _displayFrames: Array<DisplayFrame> = [];
         /**
          * @internal
@@ -310,6 +314,7 @@ namespace dragonBones {
             this._pivotY = 0.0;
             this._localMatrix.identity();
             this._colorTransform.identity();
+            this._blendState.clear();
             this._displayFrames.length = 0;
             this._geometryBones.length = 0;
             this._slotData = null as any; //
@@ -714,6 +719,7 @@ namespace dragonBones {
             if (this._geometryData !== null && this._display === this._meshDisplay) {
                 const isSkinned = this._geometryData.weight !== null;
                 const isSurface = this._parent._boneData.type !== BoneType.Bone;
+                this._blendState.dirty = false;
 
                 if (
                     this._verticesDirty ||

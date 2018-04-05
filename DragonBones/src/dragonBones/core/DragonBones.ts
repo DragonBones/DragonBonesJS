@@ -155,7 +155,9 @@ namespace dragonBones {
 
         IKConstraint = 30,
 
-        Animation = 40,
+        AnimationProgress = 40,
+        AnimationWeight = 41,
+        AnimationParameter = 42,
     }
     /**
      * - Offset mode.

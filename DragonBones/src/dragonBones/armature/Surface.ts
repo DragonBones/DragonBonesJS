@@ -97,31 +97,33 @@ namespace dragonBones {
 
             if (this._parent !== null) {
                 if (this._parent._boneData.type === BoneType.Surface) {
-                    for (let i = 0, l = vertexCount; i < l; i += 2) {
-                        const x = floatArray[verticesOffset + i] + animationVertices[i];
-                        const y = floatArray[verticesOffset + i + 1] + animationVertices[i];
+                    for (let i = 0, l = vertexCount; i < l; ++i) {
+                        const iD = i * 2;
+                        const x = floatArray[verticesOffset + iD] + animationVertices[iD];
+                        const y = floatArray[verticesOffset + iD + 1] + animationVertices[iD + 1];
                         const matrix = (this._parent as Surface)._getGlobalTransformMatrix(x, y);
                         //
-                        vertices[i] = matrix.a * x + matrix.c * y + matrix.tx;
-                        vertices[i + 1] = matrix.b * x + matrix.d * y + matrix.ty;
+                        vertices[iD] = matrix.a * x + matrix.c * y + matrix.tx;
+                        vertices[iD + 1] = matrix.b * x + matrix.d * y + matrix.ty;
                     }
                 }
                 else {
                     const parentMatrix = this._parent.globalTransformMatrix;
-
-                    for (let i = 0, l = vertexCount; i < l; i += 2) {
-                        const x = floatArray[verticesOffset + i] + animationVertices[i];
-                        const y = floatArray[verticesOffset + i + 1] + animationVertices[i + 1];
+                    for (let i = 0, l = vertexCount; i < l; ++i) {
+                        const iD = i * 2;
+                        const x = floatArray[verticesOffset + iD] + animationVertices[iD];
+                        const y = floatArray[verticesOffset + iD + 1] + animationVertices[iD + 1];
                         //
-                        vertices[i] = parentMatrix.a * x + parentMatrix.c * y + parentMatrix.tx;
-                        vertices[i + 1] = parentMatrix.b * x + parentMatrix.d * y + parentMatrix.ty;
+                        vertices[iD] = parentMatrix.a * x + parentMatrix.c * y + parentMatrix.tx;
+                        vertices[iD + 1] = parentMatrix.b * x + parentMatrix.d * y + parentMatrix.ty;
                     }
                 }
             }
             else {
-                for (let i = 0, l = vertexCount; i < l; i += 2) {
-                    vertices[i] = floatArray[verticesOffset + i] + animationVertices[i];
-                    vertices[i + 1] = floatArray[verticesOffset + i + 1] + animationVertices[i + 1];
+                for (let i = 0, l = vertexCount; i < l; ++i) {
+                    const iD = i * 2;
+                    vertices[iD] = floatArray[verticesOffset + iD] + animationVertices[iD];
+                    vertices[iD + 1] = floatArray[verticesOffset + iD + 1] + animationVertices[iD + 1];
                 }
             }
         }
@@ -452,12 +454,12 @@ namespace dragonBones {
             this._k = -this._dY / this._dX;
             this._kX = -this._dY / (lB - lA);
             this._kY = -(lB - lA) / this._dX;
-            this._vertices.length = vertexCount;
-            this._deformVertices.length = vertexCount;
+            this._vertices.length = vertexCount * 2;
+            this._deformVertices.length = vertexCount * 2;
             this._matrixCahce.length = (segmentX * segmentY + segmentX * 2 + segmentY * 2) * 2 * 7;
             this._hullCache.length = 10;
 
-            for (let i = 0; i < vertexCount; ++i) {
+            for (let i = 0; i < vertexCount * 2; ++i) {
                 this._deformVertices[i] = 0.0;
             }
         }
