@@ -436,16 +436,15 @@ namespace dragonBones {
 
                 for (const timelineData of timelineDatas) {
                     if (timelineData.type === TimelineType.AnimationProgress) {
-                        animationState.blendType = AnimationBlendType.E1D; //
                         childAnimationState.positionX = (timelineData as AnimationTimelineData).x;
                         childAnimationState.positionY = (timelineData as AnimationTimelineData).y;
-                        childAnimationState.resetToPose = false;
-                        childAnimationState.stop();
-                        childAnimationState._parents.push(animationState);
                         break;
                     }
                 }
 
+                childAnimationState.resetToPose = false;
+                childAnimationState.stop();
+                childAnimationState._parents.push(animationState);
             }
 
             // if (!this._armature._lockUpdate && animationConfig.fadeInTime <= 0.0) { // Blend animation state, update armature.

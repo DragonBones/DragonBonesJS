@@ -745,6 +745,7 @@ namespace dragonBones {
             this.additiveBlending = animationConfig.additiveBlending;
             this.displayControl = animationConfig.displayControl;
             this.actionEnabled = animationConfig.actionEnabled;
+            this.blendType = animationData.blendType;
             this.layer = animationConfig.layer;
             this.playTimes = animationConfig.playTimes;
             this.timeScale = animationConfig.timeScale;
@@ -992,8 +993,10 @@ namespace dragonBones {
 
                         if (i === l - 1) {
                             if (leftState !== null && rightState !== null) {
-                                leftState.weight = dL / (dL + dR); // 
-                                rightState.weight = dR / (dL + dR); //
+                                leftState.weight = dR / (dL + dR);
+                                rightState.weight = 1.0 - leftState.weight;
+                                leftState.currentTime += 0.0000001; //
+                                rightState.currentTime += 0.0000001; //
                             }
                         }
                     }

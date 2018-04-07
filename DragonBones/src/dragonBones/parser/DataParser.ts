@@ -115,6 +115,7 @@ namespace dragonBones {
         protected static readonly CHAIN: string = "chain";
         protected static readonly WEIGHT: string = "weight";
 
+        protected static readonly BLEND_TYPE: string = "blendType";
         protected static readonly FADE_IN_TIME: string = "fadeInTime";
         protected static readonly PLAY_TIMES: string = "playTimes";
         protected static readonly SCALE: string = "scale";
@@ -244,22 +245,6 @@ namespace dragonBones {
             }
         }
 
-        protected static _getActionType(value: string): ActionType {
-            switch (value.toLowerCase()) {
-                case "play":
-                    return ActionType.Play;
-
-                case "frame":
-                    return ActionType.Frame;
-
-                case "sound":
-                    return ActionType.Sound;
-
-                default:
-                    return ActionType.Play;
-            }
-        }
-
         protected static _getBlendMode(value: string): BlendMode {
             switch (value.toLowerCase()) {
                 case "normal":
@@ -345,6 +330,35 @@ namespace dragonBones {
                     return RotateMode.ChainScale;
                 default:
                     return RotateMode.Tangent;
+            }
+        }
+
+        protected static _getAnimationBlendType(value: string): AnimationBlendType {
+            switch (value.toLowerCase()) {
+                case "none":
+                    return AnimationBlendType.None;
+
+                case "1d":
+                    return AnimationBlendType.E1D;
+
+                default:
+                    return AnimationBlendType.None;
+            }
+        }
+
+        protected static _getActionType(value: string): ActionType {
+            switch (value.toLowerCase()) {
+                case "play":
+                    return ActionType.Play;
+
+                case "frame":
+                    return ActionType.Frame;
+
+                case "sound":
+                    return ActionType.Sound;
+
+                default:
+                    return ActionType.Play;
             }
         }
 

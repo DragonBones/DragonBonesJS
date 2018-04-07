@@ -51,6 +51,10 @@ namespace dragonBones {
          */
         public frameOffset: number;
         /**
+         * @private
+         */
+        public blendType: AnimationBlendType;
+        /**
          * - The frame count of the animation.
          * @version DragonBones 3.0
          * @language en_US
@@ -206,6 +210,7 @@ namespace dragonBones {
             this.frameIntOffset = 0;
             this.frameFloatOffset = 0;
             this.frameOffset = 0;
+            this.blendType = AnimationBlendType.None;
             this.frameCount = 0;
             this.playTimes = 0;
             this.duration = 0.0;
