@@ -1795,7 +1795,7 @@ namespace dragonBones {
         protected _parseDeformFrame(rawData: any, frameStart: number, frameCount: number): number {
             const frameFloatOffset = this._frameFloatArray.length;
             const frameOffset = this._parseTweenFrame(rawData, frameStart, frameCount);
-            const rawVertices = rawData[DataParser.VERTICES] as Array<number>;
+            const rawVertices = DataParser.VERTICES in rawData ? rawData[DataParser.VERTICES] as Array<number> : null;
             const offset = ObjectDataParser._getNumber(rawData, DataParser.OFFSET, 0); // uint
             const vertexCount = this._intArray[this._geometry.offset + BinaryOffset.GeometryVertexCount];
             const weight = this._geometry.weight;
@@ -1813,18 +1813,24 @@ namespace dragonBones {
                     i < vertexCount * 2;
                     i += 2
                 ) {
-                    if (i < offset || i - offset >= rawVertices.length) {
-                        x = 0.0;
-                    }
-                    else {
-                        x = rawVertices[i - offset];
-                    }
+                    if (rawVertices !== null) {
+                        if (i < offset || i - offset >= rawVertices.length) {
+                            x = 0.0;
+                        }
+                        else {
+                            x = rawVertices[i - offset];
+                        }
 
-                    if (i + 1 < offset || i + 1 - offset >= rawVertices.length) {
-                        y = 0.0;
+                        if (i + 1 < offset || i + 1 - offset >= rawVertices.length) {
+                            y = 0.0;
+                        }
+                        else {
+                            y = rawVertices[i + 1 - offset];
+                        }
                     }
                     else {
-                        y = rawVertices[i + 1 - offset];
+                        x = 0.0;
+                        y = 0.0;
                     }
 
                     this._frameFloatArray[frameFloatOffset + i] = x;
