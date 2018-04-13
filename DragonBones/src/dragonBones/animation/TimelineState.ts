@@ -350,7 +350,6 @@ namespace dragonBones {
         protected _onUpdateFrame(): void {
             super._onUpdateFrame();
 
-            const bone = this.target as Bone;
             const current = this.bonePose.current;
             const delta = this.bonePose.delta;
             const result = this.bonePose.result;
@@ -365,7 +364,6 @@ namespace dragonBones {
             result.skew = current.skew + delta.skew * this._tweenProgress;
             result.scaleX = current.scaleX + delta.scaleX * this._tweenProgress;
             result.scaleY = current.scaleY + delta.scaleY * this._tweenProgress;
-            bone._transformDirty = true;
         }
 
         public fadeOut(): void {
@@ -420,7 +418,6 @@ namespace dragonBones {
         protected _onUpdateFrame(): void {
             super._onUpdateFrame();
 
-            const bone = this.target as Bone;
             const current = this.bonePose.current;
             const delta = this.bonePose.delta;
             const result = this.bonePose.result;
@@ -431,7 +428,6 @@ namespace dragonBones {
 
             result.x = (current.x + delta.x * this._tweenProgress);
             result.y = (current.y + delta.y * this._tweenProgress);
-            bone._transformDirty = true;
         }
     }
     /**
@@ -482,7 +478,6 @@ namespace dragonBones {
         protected _onUpdateFrame(): void {
             super._onUpdateFrame();
 
-            const bone = this.target as Bone;
             const current = this.bonePose.current;
             const delta = this.bonePose.delta;
             const result = this.bonePose.result;
@@ -493,7 +488,6 @@ namespace dragonBones {
 
             result.rotation = current.rotation + delta.rotation * this._tweenProgress;
             result.skew = current.skew + delta.skew * this._tweenProgress;
-            bone._transformDirty = true;
         }
 
         public fadeOut(): void {
@@ -547,7 +541,6 @@ namespace dragonBones {
         protected _onUpdateFrame(): void {
             super._onUpdateFrame();
 
-            const bone = this.target as Bone;
             const current = this.bonePose.current;
             const delta = this.bonePose.delta;
             const result = this.bonePose.result;
@@ -558,7 +551,6 @@ namespace dragonBones {
 
             result.scaleX = current.scaleX + delta.scaleX * this._tweenProgress;
             result.scaleY = current.scaleY + delta.scaleY * this._tweenProgress;
-            bone._transformDirty = true;
         }
     }/**
      * @internal
@@ -599,14 +591,7 @@ namespace dragonBones {
             }
         }
 
-        protected _onUpdateFrame(): void {
-            super._onUpdateFrame();
-
-            const surface = this.target as Surface;
-            surface._transformDirty = true;
-        }
-
-        public blend(state: number): void {
+        public blend(state: number, isDirty: boolean): void {
             const surface = this.target as Surface;
             const blendWeight = surface._blendState.blendWeight;
             const result = surface._deformVertices;
@@ -642,7 +627,8 @@ namespace dragonBones {
                 }
             }
 
-            if (this._animationState._fadeState !== 0 || this._animationState._subFadeState !== 0) {
+            if (isDirty || this.dirty) {
+                this.dirty = false;
                 surface._transformDirty = true;
             }
         }
@@ -671,20 +657,9 @@ namespace dragonBones {
     /**
      * @internal
      */
-    export class SlotColorTimelineState extends TweenTimelineState {
+    export class SlotColorTimelineState extends IntValueTimelineState {
         public static toString(): string {
             return "[class dragonBones.SlotColorTimelineState]";
-        }
-
-        private _dirty: boolean;
-        private readonly _current: Array<number> = [0, 0, 0, 0, 0, 0, 0, 0];
-        private readonly _delta: Array<number> = [0, 0, 0, 0, 0, 0, 0, 0];
-        private readonly _result: Array<number> = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0];
-
-        protected _onClear(): void {
-            super._onClear();
-
-            this._dirty = false;
         }
 
         protected _onArriveAtFrame(): void {
@@ -748,8 +723,6 @@ namespace dragonBones {
         protected _onUpdateFrame(): void {
             super._onUpdateFrame();
 
-            this._dirty = true;
-
             if (this._tweenState !== TweenState.Always) {
                 this._tweenState = TweenState.None;
             }
@@ -764,15 +737,22 @@ namespace dragonBones {
             this._result[7] = this._current[7] + this._delta[7] * this._tweenProgress;
         }
 
+        public init(armature: Armature, animationState: AnimationState, timelineData: TimelineData | null): void {
+            super.init(armature, animationState, timelineData);
+
+            this.valueCount = 6;
+            this.valueScale = 1.0;
+            this._cdr.length = this.valueCount * 2;
+        }
+
         public fadeOut(): void {
             this._tweenState = TweenState.None;
-            this._dirty = false;
         }
 
         public update(passedTime: number): void {
             super.update(passedTime);
             // Fade animation.
-            if (this._tweenState !== TweenState.None || this._dirty) {
+            if (this._tweenState !== TweenState.None || this.dirty) {
                 const slot = this.target as Slot;
                 const result = slot._colorTransform;
 
@@ -796,10 +776,12 @@ namespace dragonBones {
                         result.redOffset += (this._result[5] - result.redOffset) * fadeProgress;
                         result.greenOffset += (this._result[6] - result.greenOffset) * fadeProgress;
                         result.blueOffset += (this._result[7] - result.blueOffset) * fadeProgress;
-                        slot._colorDirty = true;
+                        slot._colorBlendState.dirty = true;
                     }
                 }
-                else if (this._dirty) {
+                else if (this.dirty) {
+                    this.dirty = false;
+
                     if (
                         result.alphaMultiplier !== this._result[0] ||
                         result.redMultiplier !== this._result[1] ||
@@ -820,8 +802,6 @@ namespace dragonBones {
                         result.blueOffset = this._result[7];
                         slot._colorDirty = true;
                     }
-
-                    this._dirty = false;
                 }
             }
         }
@@ -837,6 +817,7 @@ namespace dragonBones {
         public geometryOffset: number;
         public displayFrame: DisplayFrame;
 
+        private _enabled: boolean;
         private _deformCount: number;
         private _deformOffset: number;
         private _sameValueOffset: number;
@@ -847,6 +828,7 @@ namespace dragonBones {
             this.geometryOffset = 0;
             this.displayFrame = null as any;
 
+            this._enabled = false;
             this._deformCount = 0;
             this._deformOffset = 0;
             this._sameValueOffset = 0;
@@ -856,9 +838,7 @@ namespace dragonBones {
             super._onUpdateFrame();
 
             const slot = this.target as Slot;
-            if (slot._geometryData === this.displayFrame.getGeometryData()) {
-                slot._verticesDirty = true;
-            }
+            this._enabled = slot._geometryData === this.displayFrame.getGeometryData();
         }
 
         public init(armature: Armature, animationState: AnimationState, timelineData: TimelineData | null): void {
@@ -904,9 +884,9 @@ namespace dragonBones {
             }
         }
 
-        public blend(state: number): void {
+        public blend(state: number, isDirty: boolean): void {
             const slot = this.target as Slot;
-            const blendWeight = slot._blendState.blendWeight;
+            const blendWeight = slot._deformBlendState.blendWeight;
             const result = this.displayFrame.deformVertices;
 
             if (this._timelineData !== null) {
@@ -940,8 +920,12 @@ namespace dragonBones {
                 }
             }
 
-            if (this._animationState._fadeState !== 0 || this._animationState._subFadeState !== 0) {
-                slot._verticesDirty = true;
+            if (isDirty || this.dirty) {
+                this.dirty = false;
+
+                if (this._enabled) {
+                    slot._verticesDirty = true;
+                }
             }
         }
     }

@@ -129,19 +129,6 @@ namespace dragonBones {
          */
         public timeScale: number;
         /**
-         * - The blend weight.
-         * @default 1.0
-         * @version DragonBones 5.0
-         * @language en_US
-         */
-        /**
-         * - 混合权重。
-         * @default 1.0
-         * @version DragonBones 5.0
-         * @language zh_CN
-         */
-        public weight: number;
-        /**
          * @private
          */
         public parameterX: number;
@@ -228,6 +215,7 @@ namespace dragonBones {
          * @internal
          */
         public _duration: number;
+        private _weight: number;
         private _fadeTime: number;
         private _time: number;
         /**
@@ -305,7 +293,7 @@ namespace dragonBones {
             this.playTimes = 1;
             this.layer = 0;
             this.timeScale = 1.0;
-            this.weight = 1.0;
+            this._weight = 1.0;
             this.parameterX = 0.0;
             this.parameterY = 0.0;
             this.positionX = 0.0;
@@ -751,9 +739,10 @@ namespace dragonBones {
             this.timeScale = animationConfig.timeScale;
             this.fadeTotalTime = animationConfig.fadeInTime;
             this.autoFadeOutTime = animationConfig.autoFadeOutTime;
-            this.weight = animationConfig.weight;
             this.name = animationConfig.name.length > 0 ? animationConfig.name : animationConfig.animation;
             this.group = animationConfig.group;
+            //
+            this._weight = animationConfig.weight;
 
             if (animationConfig.pauseFadeIn) {
                 this._playheadState = 2; // 10
@@ -839,15 +828,16 @@ namespace dragonBones {
                 this._updateBoneAndSlotTimelines();
             }
 
-            if (this.weight === 0.0) {
+            if (this._weight === 0.0) {
                 return;
             }
 
+            const isBlendDirty = this._fadeState !== 0 || this._subFadeState !== 0;
             const isCacheEnabled = this._fadeState === 0 && cacheFrameRate > 0.0;
             let isUpdateTimeline = true;
             let isUpdateBoneTimeline = true;
             let time = this._time;
-            this._weightResult = this.weight * this._fadeProgress;
+            this._weightResult = this._weight * this._fadeProgress;
 
             if (this._parents.length > 0) {
                 for (const parent of this._parents) {
@@ -896,7 +886,7 @@ namespace dragonBones {
                         if (i === l - 1 || timeline.target !== this._boneTimelines[i + 1].target) {
                             const state = (timeline.target as Bone)._blendState.update(this._weightResult, this.layer);
                             if (state !== 0) {
-                                (timeline as BoneTimelineState).blend(state);
+                                (timeline as BoneTimelineState).blend(state, isBlendDirty);
                             }
                         }
                     }
@@ -912,7 +902,7 @@ namespace dragonBones {
 
                     const state = surface._blendState.update(this._weightResult, this.layer);
                     if (state !== 0) {
-                        (timeline as SurfaceTimelineState).blend(state);
+                        (timeline as SurfaceTimelineState).blend(state, isBlendDirty);
                     }
 
                 }
@@ -948,9 +938,9 @@ namespace dragonBones {
                                 timeline.update(time);
                             }
 
-                            const state = slot._blendState.update(this._weightResult, this.layer);
+                            const state = slot._deformBlendState.update(this._weightResult, this.layer);
                             if (state !== 0) {
-                                (timeline as DeformTimelineState).blend(state);
+                                (timeline as DeformTimelineState).blend(state, isBlendDirty);
                             }
                         }
                     }
@@ -976,7 +966,7 @@ namespace dragonBones {
                     if (this.blendType === AnimationBlendType.E1D) {
                         const animationState = timeline.target as AnimationState;
                         const d = this.parameterX - animationState.positionX;
-                        animationState.weight = 0.0;
+                        animationState._weight = 0.0; // TODO
 
                         if (d >= 0.0) {
                             if (d < dL) {
@@ -995,8 +985,6 @@ namespace dragonBones {
                             if (leftState !== null && rightState !== null) {
                                 leftState.weight = dR / (dL + dR);
                                 rightState.weight = 1.0 - leftState.weight;
-                                leftState.currentTime += 0.0000001; //
-                                rightState.currentTime += 0.0000001; //
                             }
                         }
                     }
@@ -1400,11 +1388,45 @@ namespace dragonBones {
             }
         }
         /**
+         * - The blend weight.
+         * @default 1.0
+         * @version DragonBones 5.0
+         * @language en_US
+         */
+        /**
+         * - 混合权重。
+         * @default 1.0
+         * @version DragonBones 5.0
+         * @language zh_CN
+         */
+        /**
          * - The animation data.
          * @see dragonBones.AnimationData
          * @version DragonBones 3.0
          * @language en_US
          */
+        public get weight(): number {
+            return this._weight;
+        }
+        public set weight(value: number) {
+            if (this._weight === value) {
+                return;
+            }
+
+            this._weight = value;
+
+            for (const timeline of this._boneTimelines) {
+                timeline.dirty = true;
+            }
+
+            for (const timeline of this._surfaceTimelines) {
+                timeline.dirty = true;
+            }
+
+            for (const timeline of this._deformTimelines) {
+                timeline.dirty = true;
+            }
+        }
         /**
          * - 动画数据。
          * @see dragonBones.AnimationData

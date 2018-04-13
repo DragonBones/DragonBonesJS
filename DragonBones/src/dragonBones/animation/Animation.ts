@@ -428,18 +428,9 @@ namespace dragonBones {
             }
 
             for (let k in animationData.animationTimelines) {
-                const timelineDatas = animationData.animationTimelines[k];
                 const childAnimationState = this.fadeIn(k, animationConfig.fadeInTime, 1, animationState.layer, null, AnimationFadeOutMode.Single);
                 if (childAnimationState === null) {
                     continue;
-                }
-
-                for (const timelineData of timelineDatas) {
-                    if (timelineData.type === TimelineType.AnimationProgress) {
-                        childAnimationState.positionX = (timelineData as AnimationTimelineData).x;
-                        childAnimationState.positionY = (timelineData as AnimationTimelineData).y;
-                        break;
-                    }
                 }
 
                 childAnimationState.resetToPose = false;

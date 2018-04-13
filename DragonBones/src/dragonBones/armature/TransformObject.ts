@@ -141,5 +141,5 @@ namespace dragonBones {
         public get armature(): Armature {
             return this._armature;
         }
-        }
+    }
 }

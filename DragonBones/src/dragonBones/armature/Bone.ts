@@ -110,7 +110,7 @@ namespace dragonBones {
             this._parent = null as any; //
             this._cachedFrameIndices = null;
         }
-        
+
         protected _updateGlobalTransformMatrix(isCache: boolean): void {
             // For typescript.
             const boneData = this._boneData;
@@ -154,45 +154,69 @@ namespace dragonBones {
             }
 
             if (inherit) {
-                const parentMatrix = parent._boneData.type === BoneType.Bone ? parent.globalTransformMatrix : (parent as Surface)._getGlobalTransformMatrix(global.x, global.y);
+                const isSurface = parent._boneData.type === BoneType.Surface;
+                const surfaceBone = isSurface ? (parent as Surface)._bone : null;
+                const parentMatrix = isSurface ? (parent as Surface)._getGlobalTransformMatrix(global.x, global.y) : parent.globalTransformMatrix;
 
-                if (boneData.inheritScale) {
-                    if (!boneData.inheritRotation) {
-                        parent.updateGlobalTransform();
+                if (boneData.inheritScale && (!isSurface || surfaceBone !== null)) {
+                    if (isSurface) {
+                        if (boneData.inheritRotation) {
+                            global.rotation += parent.global.rotation;
+                        }
 
-                        if (flipX && flipY) {
-                            rotation = global.rotation - (parent.global.rotation + Math.PI);
-                        }
-                        else if (flipX) {
-                            rotation = global.rotation + parent.global.rotation + Math.PI;
-                        }
-                        else if (flipY) {
-                            rotation = global.rotation + parent.global.rotation;
+                        (surfaceBone as Bone).updateGlobalTransform();
+                        global.scaleX *= (surfaceBone as Bone).global.scaleX;
+                        global.scaleY *= (surfaceBone as Bone).global.scaleY;
+                        parentMatrix.transformPoint(global.x, global.y, global);
+                        global.toMatrix(globalTransformMatrix);
+
+                        if (boneData.inheritTranslation) {
+                            global.x = globalTransformMatrix.tx;
+                            global.y = globalTransformMatrix.ty;
                         }
                         else {
-                            rotation = global.rotation - parent.global.rotation;
+                            globalTransformMatrix.tx = global.x;
+                            globalTransformMatrix.ty = global.y;
+                        }
+                    }
+                    else {
+                        if (!boneData.inheritRotation) {
+                            parent.updateGlobalTransform();
+
+                            if (flipX && flipY) {
+                                rotation = global.rotation - (parent.global.rotation + Math.PI);
+                            }
+                            else if (flipX) {
+                                rotation = global.rotation + parent.global.rotation + Math.PI;
+                            }
+                            else if (flipY) {
+                                rotation = global.rotation + parent.global.rotation;
+                            }
+                            else {
+                                rotation = global.rotation - parent.global.rotation;
+                            }
+
+                            global.rotation = rotation;
                         }
 
-                        global.rotation = rotation;
-                    }
+                        global.toMatrix(globalTransformMatrix);
+                        globalTransformMatrix.concat(parentMatrix);
 
-                    global.toMatrix(globalTransformMatrix);
-                    globalTransformMatrix.concat(parentMatrix);
+                        if (boneData.inheritTranslation) {
+                            global.x = globalTransformMatrix.tx;
+                            global.y = globalTransformMatrix.ty;
+                        }
+                        else {
+                            globalTransformMatrix.tx = global.x;
+                            globalTransformMatrix.ty = global.y;
+                        }
 
-                    if (boneData.inheritTranslation) {
-                        global.x = globalTransformMatrix.tx;
-                        global.y = globalTransformMatrix.ty;
-                    }
-                    else {
-                        globalTransformMatrix.tx = global.x;
-                        globalTransformMatrix.ty = global.y;
-                    }
-
-                    if (isCache) {
-                        global.fromMatrix(globalTransformMatrix);
-                    }
-                    else {
-                        this._globalDirty = true;
+                        if (isCache) {
+                            global.fromMatrix(globalTransformMatrix);
+                        }
+                        else {
+                            this._globalDirty = true;
+                        }
                     }
                 }
                 else {

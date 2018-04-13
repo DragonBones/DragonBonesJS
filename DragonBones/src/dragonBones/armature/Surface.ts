@@ -46,6 +46,8 @@ namespace dragonBones {
          */
         private readonly _matrixCahce: Array<number> = [];
 
+        public _bone: Bone | null;
+
         protected _onClear(): void {
             super._onClear();
 
@@ -58,6 +60,7 @@ namespace dragonBones {
             this._deformVertices.length = 0;
             this._matrixCahce.length = 0;
             this._hullCache.length = 0;
+            this._bone = null;
         }
 
         private _getAffineTransform(
@@ -461,6 +464,15 @@ namespace dragonBones {
 
             for (let i = 0; i < vertexCount * 2; ++i) {
                 this._deformVertices[i] = 0.0;
+            }
+
+            if (this._parent !== null) {
+                if (this._parent.boneData.type === BoneType.Bone) {
+                    this._bone = this._parent;
+                }
+                else {
+                    this._bone = (this._parent as Surface)._bone;
+                }
             }
         }
         /**

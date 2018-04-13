@@ -187,11 +187,6 @@ namespace dragonBones {
         protected _textureDirty: boolean;
         protected _visibleDirty: boolean;
         protected _blendModeDirty: boolean;
-        /**
-         * xx: update color, 1x: display dirty, x1: color dirty.
-         * @internal
-         */
-        public _colorDirty: boolean;
         protected _zOrderDirty: boolean;
         /**
          * @internal
@@ -223,7 +218,11 @@ namespace dragonBones {
         /**
          * @internal
          */
-        public readonly _blendState: BlendState = new BlendState();
+        public readonly _colorBlendState: BlendState = new BlendState();
+        /**
+         * @internal
+         */
+        public readonly _deformBlendState: BlendState = new BlendState();
         /**
          * @internal
          */
@@ -300,7 +299,6 @@ namespace dragonBones {
             this._textureDirty = false;
             this._visibleDirty = false;
             this._blendModeDirty = false;
-            this._colorDirty = false;
             this._zOrderDirty = false;
             this._verticesDirty = false;
             this._transformDirty = false;
@@ -314,7 +312,8 @@ namespace dragonBones {
             this._pivotY = 0.0;
             this._localMatrix.identity();
             this._colorTransform.identity();
-            this._blendState.clear();
+            this._colorBlendState.clear();
+            this._deformBlendState.clear();
             this._displayFrames.length = 0;
             this._geometryBones.length = 0;
             this._slotData = null as any; //
@@ -519,7 +518,7 @@ namespace dragonBones {
                 this._textureDirty = true;
                 this._visibleDirty = true;
                 this._blendModeDirty = true;
-                this._colorDirty = true;
+                this._colorBlendState.dirty = true;
                 this._zOrderDirty = true;
                 this._transformDirty = true;
 
@@ -633,9 +632,9 @@ namespace dragonBones {
          */
         public _setColor(value: ColorTransform): boolean {
             this._colorTransform.copyFrom(value);
-            this._colorDirty = true;
+            this._colorBlendState.dirty = true;
 
-            return this._colorDirty;
+            return this._colorBlendState.dirty;
         }
         /**
          * @internal
@@ -706,9 +705,9 @@ namespace dragonBones {
                 this._blendModeDirty = false;
             }
 
-            if (this._colorDirty) {
+            if (this._colorBlendState.dirty) {
                 this._updateColor();
-                this._colorDirty = false;
+                this._colorBlendState.dirty = false;
             }
 
             if (this._zOrderDirty) {
@@ -719,7 +718,7 @@ namespace dragonBones {
             if (this._geometryData !== null && this._display === this._meshDisplay) {
                 const isSkinned = this._geometryData.weight !== null;
                 const isSurface = this._parent._boneData.type !== BoneType.Bone;
-                this._blendState.dirty = false;
+                this._deformBlendState.dirty = false;
 
                 if (
                     this._verticesDirty ||
