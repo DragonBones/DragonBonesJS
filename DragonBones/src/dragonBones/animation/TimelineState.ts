@@ -206,7 +206,7 @@ namespace dragonBones {
 
                                     if (
                                         this._position <= framePosition &&
-                                        framePosition <= this._position + this._duration
+                                        framePosition <= this._position + this._duration //
                                     ) { // Support interval play.
                                         this._onCrossFrame(crossedFrameIndex);
                                     }
@@ -287,7 +287,7 @@ namespace dragonBones {
     /**
      * @internal
      */
-    export class BoneAllTimelineState extends BoneTimelineState {
+    export class BoneAllTimelineState extends ValuesTimelineState {
         public static toString(): string {
             return "[class dragonBones.BoneAllTimelineState]";
         }
@@ -295,145 +295,113 @@ namespace dragonBones {
         protected _onArriveAtFrame(): void {
             super._onArriveAtFrame();
 
-            if (this._timelineData !== null) {
-                let valueOffset = this._animationData.frameFloatOffset + this._frameValueOffset + this._frameIndex * 6; // ...(timeline value offset)|xxxxxx|xxxxxx|(Value offset)xxxxx|(Next offset)xxxxx|xxxxxx|xxxxxx|...
-                const scale = this._armature._armatureData.scale;
-                const frameFloatArray = this._frameFloatArray;
-                const current = this.bonePose.current;
-                const delta = this.bonePose.delta;
-                current.x = frameFloatArray[valueOffset++] * scale;
-                current.y = frameFloatArray[valueOffset++] * scale;
-                current.rotation = frameFloatArray[valueOffset++];
-                current.skew = frameFloatArray[valueOffset++];
-                current.scaleX = frameFloatArray[valueOffset++];
-                current.scaleY = frameFloatArray[valueOffset++];
-
-                if (this._tweenState === TweenState.Always) {
-                    if (this._frameIndex === this._frameCount - 1) {
-                        valueOffset = this._animationData.frameFloatOffset + this._frameValueOffset; // + 0 * 6
-                    }
-
-                    delta.x = frameFloatArray[valueOffset++] * scale - current.x;
-                    delta.y = frameFloatArray[valueOffset++] * scale - current.y;
-                    delta.rotation = frameFloatArray[valueOffset++] - current.rotation;
-                    delta.skew = frameFloatArray[valueOffset++] - current.skew;
-                    delta.scaleX = frameFloatArray[valueOffset++] - current.scaleX;
-                    delta.scaleY = frameFloatArray[valueOffset++] - current.scaleY;
-                }
-                else {
-                    delta.x = 0.0;
-                    delta.y = 0.0;
-                    delta.rotation = 0.0;
-                    delta.skew = 0.0;
-                    delta.scaleX = 0.0;
-                    delta.scaleY = 0.0;
-                }
+            if (this._isTween && this._frameIndex === this._frameCount - 1) {
+                this._rd[2] = Transform.normalizeRadian(this._rd[2]);
+                this._rd[3] = Transform.normalizeRadian(this._rd[3]);
             }
-            else { // Pose.
-                const current = this.bonePose.current;
-                const delta = this.bonePose.delta;
-                current.x = 0.0;
-                current.y = 0.0;
-                current.rotation = 0.0;
-                current.skew = 0.0;
-                current.scaleX = 1.0;
-                current.scaleY = 1.0;
-                delta.x = 0.0;
-                delta.y = 0.0;
-                delta.rotation = 0.0;
-                delta.skew = 0.0;
-                delta.scaleX = 0.0;
-                delta.scaleY = 0.0;
+
+            if (this._timelineData === null) { // Pose.
+                this._rd[4] = 1.0;
+                this._rd[5] = 1.0;
             }
         }
 
-        protected _onUpdateFrame(): void {
-            super._onUpdateFrame();
+        public init(armature: Armature, animationState: AnimationState, timelineData: TimelineData | null): void {
+            super.init(armature, animationState, timelineData);
 
-            const current = this.bonePose.current;
-            const delta = this.bonePose.delta;
-            const result = this.bonePose.result;
-
-            if (this._tweenState !== TweenState.Always) {
-                this._tweenState = TweenState.None;
-            }
-
-            result.x = current.x + delta.x * this._tweenProgress;
-            result.y = current.y + delta.y * this._tweenProgress;
-            result.rotation = current.rotation + delta.rotation * this._tweenProgress;
-            result.skew = current.skew + delta.skew * this._tweenProgress;
-            result.scaleX = current.scaleX + delta.scaleX * this._tweenProgress;
-            result.scaleY = current.scaleY + delta.scaleY * this._tweenProgress;
+            this._valueOffset = this._animationData.frameFloatOffset;
+            this._valueCount = 6;
+            this._valueArray = this._animationData.parent.parent.frameFloatArray;
         }
 
         public fadeOut(): void {
-            const result = this.bonePose.result;
-            result.rotation = Transform.normalizeRadian(result.rotation);
-            result.skew = Transform.normalizeRadian(result.skew);
+            this._rd[2] = Transform.normalizeRadian(this._rd[2]);
+            this._rd[3] = Transform.normalizeRadian(this._rd[3]);
+        }
+
+        public blend(state: number, isDirty: boolean): void {
+            const valueScale = this._armature.armatureData.scale;
+            const rd = this._rd;
+            //
+            const bone = this.target as Bone;
+            const blendWeight = bone._blendState.blendWeight;
+            const result = bone.animationPose;
+
+            if (state === 2) {
+                result.x += rd[0] * blendWeight * valueScale;
+                result.y += rd[1] * blendWeight * valueScale;
+                result.rotation += rd[2] * blendWeight;
+                result.skew += rd[3] * blendWeight;
+                result.scaleX += (rd[4] - 1.0) * blendWeight;
+                result.scaleY += (rd[5] - 1.0) * blendWeight;
+            }
+            else if (blendWeight !== 1.0) {
+                result.x = rd[0] * blendWeight * valueScale;
+                result.y = rd[1] * blendWeight * valueScale;
+                result.rotation = rd[2] * blendWeight;
+                result.skew = rd[3] * blendWeight;
+                result.scaleX = (rd[4] - 1.0) * blendWeight + 1.0; // 
+                result.scaleY = (rd[5] - 1.0) * blendWeight + 1.0; //
+            }
+            else {
+                result.x = rd[0] * valueScale;
+                result.y = rd[1] * valueScale;
+                result.rotation = rd[2];
+                result.skew = rd[3];
+                result.scaleX = rd[4];
+                result.scaleY = rd[5];
+            }
+
+            if (isDirty || this.dirty) {
+                this.dirty = false;
+                bone._transformDirty = true;
+            }
         }
     }
     /**
      * @internal
      */
-    export class BoneTranslateTimelineState extends BoneTimelineState {
+    export class BoneTranslateTimelineState extends DoubleValueTimelineState {
         public static toString(): string {
             return "[class dragonBones.BoneTranslateTimelineState]";
         }
 
-        protected _onArriveAtFrame(): void {
-            super._onArriveAtFrame();
+        public init(armature: Armature, animationState: AnimationState, timelineData: TimelineData | null): void {
+            super.init(armature, animationState, timelineData);
 
-            if (this._timelineData !== null) {
-                let valueOffset = this._animationData.frameFloatOffset + this._frameValueOffset + this._frameIndex * 2;
-                const scale = this._armature._armatureData.scale;
-                const frameFloatArray = this._frameFloatArray;
-                const current = this.bonePose.current;
-                const delta = this.bonePose.delta;
-                current.x = frameFloatArray[valueOffset++] * scale;
-                current.y = frameFloatArray[valueOffset++] * scale;
-
-                if (this._tweenState === TweenState.Always) {
-                    if (this._frameIndex === this._frameCount - 1) {
-                        valueOffset = this._animationData.frameFloatOffset + this._frameValueOffset; // + 0 * 2
-                    }
-
-                    delta.x = frameFloatArray[valueOffset++] * scale - current.x;
-                    delta.y = frameFloatArray[valueOffset++] * scale - current.y;
-                }
-                else {
-                    delta.x = 0.0;
-                    delta.y = 0.0;
-                }
-            }
-            else { // Pose.
-                const current = this.bonePose.current;
-                const delta = this.bonePose.delta;
-                current.x = 0.0;
-                current.y = 0.0;
-                delta.x = 0.0;
-                delta.y = 0.0;
-            }
+            this._valueOffset = this._animationData.frameFloatOffset;
+            this._valueScale = this._armature.armatureData.scale;
+            this._valueArray = this._animationData.parent.parent.frameFloatArray;
         }
 
-        protected _onUpdateFrame(): void {
-            super._onUpdateFrame();
+        public blend(state: number, isDirty: boolean): void {
+            const bone = this.target as Bone;
+            const blendWeight = bone._blendState.blendWeight;
+            const result = bone.animationPose;
 
-            const current = this.bonePose.current;
-            const delta = this.bonePose.delta;
-            const result = this.bonePose.result;
-
-            if (this._tweenState !== TweenState.Always) {
-                this._tweenState = TweenState.None;
+            if (state === 2) {
+                result.x += this._resultA * blendWeight;
+                result.y += this._resultB * blendWeight;
+            }
+            else if (blendWeight !== 1.0) {
+                result.x = this._resultA * blendWeight;
+                result.y = this._resultB * blendWeight;
+            }
+            else {
+                result.x = this._resultA;
+                result.y = this._resultB;
             }
 
-            result.x = (current.x + delta.x * this._tweenProgress);
-            result.y = (current.y + delta.y * this._tweenProgress);
+            if (isDirty || this.dirty) {
+                this.dirty = false;
+                bone._transformDirty = true;
+            }
         }
     }
     /**
      * @internal
      */
-    export class BoneRotateTimelineState extends BoneTimelineState {
+    export class BoneRotateTimelineState extends DoubleValueTimelineState {
         public static toString(): string {
             return "[class dragonBones.BoneRotateTimelineState]";
         }
@@ -441,65 +409,52 @@ namespace dragonBones {
         protected _onArriveAtFrame(): void {
             super._onArriveAtFrame();
 
-            if (this._timelineData !== null) {
-                let valueOffset = this._animationData.frameFloatOffset + this._frameValueOffset + this._frameIndex * 2;
-                const frameFloatArray = this._frameFloatArray;
-                const current = this.bonePose.current;
-                const delta = this.bonePose.delta;
-                current.rotation = frameFloatArray[valueOffset++];
-                current.skew = frameFloatArray[valueOffset++];
-
-                if (this._tweenState === TweenState.Always) {
-                    if (this._frameIndex === this._frameCount - 1) {
-                        valueOffset = this._animationData.frameFloatOffset + this._frameValueOffset; // + 0 * 2
-                        delta.rotation = Transform.normalizeRadian(frameFloatArray[valueOffset++] - current.rotation);
-                    }
-                    else {
-                        delta.rotation = frameFloatArray[valueOffset++] - current.rotation;
-                    }
-
-                    delta.skew = frameFloatArray[valueOffset++] - current.skew;
-                }
-                else {
-                    delta.rotation = 0.0;
-                    delta.skew = 0.0;
-                }
-            }
-            else { // Pose.
-                const current = this.bonePose.current;
-                const delta = this.bonePose.delta;
-                current.rotation = 0.0;
-                current.skew = 0.0;
-                delta.rotation = 0.0;
-                delta.skew = 0.0;
+            if (this._isTween && this._frameIndex === this._frameCount - 1) {
+                this._differenceA = Transform.normalizeRadian(this._differenceA);
+                this._differenceB = Transform.normalizeRadian(this._differenceB);
             }
         }
 
-        protected _onUpdateFrame(): void {
-            super._onUpdateFrame();
+        public init(armature: Armature, animationState: AnimationState, timelineData: TimelineData | null): void {
+            super.init(armature, animationState, timelineData);
 
-            const current = this.bonePose.current;
-            const delta = this.bonePose.delta;
-            const result = this.bonePose.result;
-
-            if (this._tweenState !== TweenState.Always) {
-                this._tweenState = TweenState.None;
-            }
-
-            result.rotation = current.rotation + delta.rotation * this._tweenProgress;
-            result.skew = current.skew + delta.skew * this._tweenProgress;
+            this._valueOffset = this._animationData.frameFloatOffset;
+            this._valueArray = this._animationData.parent.parent.frameFloatArray;
         }
 
         public fadeOut(): void {
-            const result = this.bonePose.result;
-            result.rotation = Transform.normalizeRadian(result.rotation);
-            result.skew = Transform.normalizeRadian(result.skew);
+            this._resultA = Transform.normalizeRadian(this._resultA);
+            this._resultB = Transform.normalizeRadian(this._resultB);
+        }
+
+        public blend(state: number, isDirty: boolean): void {
+            const bone = this.target as Bone;
+            const blendWeight = bone._blendState.blendWeight;
+            const result = bone.animationPose;
+
+            if (state === 2) {
+                result.rotation += this._resultA * blendWeight;
+                result.skew += this._resultB * blendWeight;
+            }
+            else if (blendWeight !== 1.0) {
+                result.rotation = this._resultA * blendWeight;
+                result.skew = this._resultB * blendWeight;
+            }
+            else {
+                result.rotation = this._resultA;
+                result.skew = this._resultB;
+            }
+
+            if (isDirty || this.dirty) {
+                this.dirty = false;
+                bone._transformDirty = true;
+            }
         }
     }
     /**
      * @internal
      */
-    export class BoneScaleTimelineState extends BoneTimelineState {
+    export class BoneScaleTimelineState extends DoubleValueTimelineState {
         public static toString(): string {
             return "[class dragonBones.BoneScaleTimelineState]";
         }
@@ -507,55 +462,46 @@ namespace dragonBones {
         protected _onArriveAtFrame(): void {
             super._onArriveAtFrame();
 
-            if (this._timelineData !== null) {
-                let valueOffset = this._animationData.frameFloatOffset + this._frameValueOffset + this._frameIndex * 2;
-                const frameFloatArray = this._frameFloatArray;
-                const current = this.bonePose.current;
-                const delta = this.bonePose.delta;
-                current.scaleX = frameFloatArray[valueOffset++];
-                current.scaleY = frameFloatArray[valueOffset++];
-
-                if (this._tweenState === TweenState.Always) {
-                    if (this._frameIndex === this._frameCount - 1) {
-                        valueOffset = this._animationData.frameFloatOffset + this._frameValueOffset; // + 0 * 2
-                    }
-
-                    delta.scaleX = frameFloatArray[valueOffset++] - current.scaleX;
-                    delta.scaleY = frameFloatArray[valueOffset++] - current.scaleY;
-                }
-                else {
-                    delta.scaleX = 0.0;
-                    delta.scaleY = 0.0;
-                }
-            }
-            else { // Pose.
-                const current = this.bonePose.current;
-                const delta = this.bonePose.delta;
-                current.scaleX = 1.0;
-                current.scaleY = 1.0;
-                delta.scaleX = 0.0;
-                delta.scaleY = 0.0;
+            if (this._timelineData === null) { // Pose.
+                this._resultA = 1.0;
+                this._resultB = 1.0;
             }
         }
 
-        protected _onUpdateFrame(): void {
-            super._onUpdateFrame();
+        public init(armature: Armature, animationState: AnimationState, timelineData: TimelineData | null): void {
+            super.init(armature, animationState, timelineData);
 
-            const current = this.bonePose.current;
-            const delta = this.bonePose.delta;
-            const result = this.bonePose.result;
+            this._valueOffset = this._animationData.frameFloatOffset;
+            this._valueArray = this._animationData.parent.parent.frameFloatArray;
+        }
 
-            if (this._tweenState !== TweenState.Always) {
-                this._tweenState = TweenState.None;
+        public blend(state: number, isDirty: boolean): void {
+            const bone = this.target as Bone;
+            const blendWeight = bone._blendState.blendWeight;
+            const result = bone.animationPose;
+
+            if (state === 2) {
+                result.scaleX += (this._resultA - 1.0) * blendWeight;
+                result.scaleY += (this._resultB - 1.0) * blendWeight;
+            }
+            else if (blendWeight !== 1.0) {
+                result.scaleX = (this._resultA - 1.0) * blendWeight + 1.0;
+                result.scaleY = (this._resultB - 1.0) * blendWeight + 1.0;
+            }
+            else {
+                result.scaleX = this._resultA;
+                result.scaleY = this._resultB;
             }
 
-            result.scaleX = current.scaleX + delta.scaleX * this._tweenProgress;
-            result.scaleY = current.scaleY + delta.scaleY * this._tweenProgress;
+            if (isDirty || this.dirty) {
+                this.dirty = false;
+                bone._transformDirty = true;
+            }
         }
     }/**
      * @internal
      */
-    export class SurfaceTimelineState extends FloatValueTimelineState {
+    export class SurfaceTimelineState extends ValuesTimelineState {
         public static toString(): string {
             return "[class dragonBones.SurfaceTimelineState]";
         }
@@ -575,19 +521,21 @@ namespace dragonBones {
         public init(armature: Armature, animationState: AnimationState, timelineData: TimelineData | null): void {
             super.init(armature, animationState, timelineData);
 
-            const surface = this.target as Surface;
-
             if (this._timelineData !== null) {
+                const dragonBonesData = this._animationData.parent.parent;
+                const frameIntArray = dragonBonesData.frameIntArray;
                 const frameIntOffset = this._animationData.frameIntOffset + this._timelineArray[this._timelineData.offset + BinaryOffset.TimelineFrameValueCount];
-                this.valueCount = this._frameIntArray[frameIntOffset + BinaryOffset.DeformValueCount];
-                this.valueScale = this._armature.armatureData.scale;
-                this._deformCount = this._frameIntArray[frameIntOffset + BinaryOffset.DeformCount];
-                this._deformOffset = this._frameIntArray[frameIntOffset + BinaryOffset.DeformValueOffset];
-                this._sameValueOffset = this._frameIntArray[frameIntOffset + BinaryOffset.DeformFloatOffset] + this._animationData.frameFloatOffset;
-                this._cdr.length = this.valueCount * 2;
+                this._valueOffset = this._animationData.frameFloatOffset;
+                this._valueCount = frameIntArray[frameIntOffset + BinaryOffset.DeformValueCount];
+                this._deformCount = frameIntArray[frameIntOffset + BinaryOffset.DeformCount];
+                this._deformOffset = frameIntArray[frameIntOffset + BinaryOffset.DeformValueOffset];
+                this._sameValueOffset = frameIntArray[frameIntOffset + BinaryOffset.DeformFloatOffset] + this._animationData.frameFloatOffset;
+                this._valueScale = this._armature.armatureData.scale;
+                this._valueArray = dragonBonesData.frameFloatArray;
+                this._rd.length = this._valueCount * 2;
             }
             else {
-                this._deformCount = surface._deformVertices.length;
+                this._deformCount = (this.target as Surface)._deformVertices.length;
             }
         }
 
@@ -596,18 +544,24 @@ namespace dragonBones {
             const blendWeight = surface._blendState.blendWeight;
             const result = surface._deformVertices;
 
-            if (this._timelineData !== null) {
+            if (this._isTween) {
+                const valueCount = this._valueCount;
+                const deformOffset = this._deformOffset;
+                const sameValueOffset = this._sameValueOffset;
+                const valueArray = this._valueArray;
+                const rd = this._rd;
+
                 for (let i = 0; i < this._deformCount; ++i) {
                     let value = 0.0;
 
-                    if (i < this._deformOffset) {
-                        value = this._frameFloatArray[this._sameValueOffset + i];
+                    if (i < deformOffset) {
+                        value = valueArray[sameValueOffset + i];
                     }
-                    else if (i < this._deformOffset + this.valueCount) {
-                        value = this._cdr[this.valueCount + i - this._deformOffset];
+                    else if (i < deformOffset + valueCount) {
+                        value = rd[i - deformOffset];
                     }
                     else {
-                        value = this._frameFloatArray[this._sameValueOffset + i - this.valueCount];
+                        value = valueArray[sameValueOffset + i - valueCount];
                     }
 
                     if (state === 2) {
@@ -645,30 +599,35 @@ namespace dragonBones {
             if (this.playState >= 0) {
                 const slot = this.target as Slot;
                 const displayIndex = this._timelineData !== null ? this._frameArray[this._frameOffset + 1] : slot._slotData.displayIndex;
+
                 if (slot.displayIndex !== displayIndex) {
                     slot._setDisplayIndex(displayIndex, true);
                 }
             }
         }
 
-        protected _onUpdateFrame(): void {
-        }
+        protected _onUpdateFrame(): void { }
     }
     /**
      * @internal
      */
-    export class SlotColorTimelineState extends IntValueTimelineState {
+    export class SlotColorTimelineState extends TweenTimelineState {
         public static toString(): string {
             return "[class dragonBones.SlotColorTimelineState]";
         }
+
+        private readonly _current: Array<number> = [0, 0, 0, 0, 0, 0, 0, 0];
+        private readonly _difference: Array<number> = [0, 0, 0, 0, 0, 0, 0, 0];
+        private readonly _result: Array<number> = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0];
 
         protected _onArriveAtFrame(): void {
             super._onArriveAtFrame();
 
             if (this._timelineData !== null) {
-                const intArray = this._dragonBonesData.intArray;
-                const frameIntArray = this._frameIntArray;
-                const valueOffset = this._animationData.frameIntOffset + this._frameValueOffset + this._frameIndex * 1; // ...(timeline value offset)|x|x|(Value offset)|(Next offset)|x|x|...
+                const dragonBonesData = this._animationData.parent.parent;
+                const intArray = dragonBonesData.intArray;
+                const frameIntArray = dragonBonesData.frameIntArray;
+                const valueOffset = this._animationData.frameIntOffset + this._frameValueOffset + this._frameIndex * 1;
                 let colorOffset = frameIntArray[valueOffset];
 
                 if (colorOffset < 0) {
@@ -684,31 +643,31 @@ namespace dragonBones {
                 this._current[6] = intArray[colorOffset++];
                 this._current[7] = intArray[colorOffset++];
 
-                if (this._tweenState === TweenState.Always) {
+                if (this._isTween) {
                     if (this._frameIndex === this._frameCount - 1) {
                         colorOffset = frameIntArray[this._animationData.frameIntOffset + this._frameValueOffset];
                     }
                     else {
-                        colorOffset = frameIntArray[valueOffset + 1 * 1];
+                        colorOffset = frameIntArray[valueOffset + 1];
                     }
 
                     if (colorOffset < 0) {
                         colorOffset += 65536; // Fixed out of bounds bug. 
                     }
 
-                    this._delta[0] = intArray[colorOffset++] - this._current[0];
-                    this._delta[1] = intArray[colorOffset++] - this._current[1];
-                    this._delta[2] = intArray[colorOffset++] - this._current[2];
-                    this._delta[3] = intArray[colorOffset++] - this._current[3];
-                    this._delta[4] = intArray[colorOffset++] - this._current[4];
-                    this._delta[5] = intArray[colorOffset++] - this._current[5];
-                    this._delta[6] = intArray[colorOffset++] - this._current[6];
-                    this._delta[7] = intArray[colorOffset++] - this._current[7];
+                    this._difference[0] = intArray[colorOffset++] - this._current[0];
+                    this._difference[1] = intArray[colorOffset++] - this._current[1];
+                    this._difference[2] = intArray[colorOffset++] - this._current[2];
+                    this._difference[3] = intArray[colorOffset++] - this._current[3];
+                    this._difference[4] = intArray[colorOffset++] - this._current[4];
+                    this._difference[5] = intArray[colorOffset++] - this._current[5];
+                    this._difference[6] = intArray[colorOffset++] - this._current[6];
+                    this._difference[7] = intArray[colorOffset++] - this._current[7];
                 }
             }
             else { // Pose.
                 const slot = this.target as Slot;
-                const color = slot._slotData.color;
+                const color = slot.slotData.color;
                 this._current[0] = color.alphaMultiplier * 100.0;
                 this._current[1] = color.redMultiplier * 100.0;
                 this._current[2] = color.greenMultiplier * 100.0;
@@ -723,36 +682,24 @@ namespace dragonBones {
         protected _onUpdateFrame(): void {
             super._onUpdateFrame();
 
-            if (this._tweenState !== TweenState.Always) {
-                this._tweenState = TweenState.None;
-            }
-
-            this._result[0] = (this._current[0] + this._delta[0] * this._tweenProgress) * 0.01;
-            this._result[1] = (this._current[1] + this._delta[1] * this._tweenProgress) * 0.01;
-            this._result[2] = (this._current[2] + this._delta[2] * this._tweenProgress) * 0.01;
-            this._result[3] = (this._current[3] + this._delta[3] * this._tweenProgress) * 0.01;
-            this._result[4] = this._current[4] + this._delta[4] * this._tweenProgress;
-            this._result[5] = this._current[5] + this._delta[5] * this._tweenProgress;
-            this._result[6] = this._current[6] + this._delta[6] * this._tweenProgress;
-            this._result[7] = this._current[7] + this._delta[7] * this._tweenProgress;
-        }
-
-        public init(armature: Armature, animationState: AnimationState, timelineData: TimelineData | null): void {
-            super.init(armature, animationState, timelineData);
-
-            this.valueCount = 6;
-            this.valueScale = 1.0;
-            this._cdr.length = this.valueCount * 2;
+            this._result[0] = (this._current[0] + this._difference[0] * this._tweenProgress) * 0.01;
+            this._result[1] = (this._current[1] + this._difference[1] * this._tweenProgress) * 0.01;
+            this._result[2] = (this._current[2] + this._difference[2] * this._tweenProgress) * 0.01;
+            this._result[3] = (this._current[3] + this._difference[3] * this._tweenProgress) * 0.01;
+            this._result[4] = this._current[4] + this._difference[4] * this._tweenProgress;
+            this._result[5] = this._current[5] + this._difference[5] * this._tweenProgress;
+            this._result[6] = this._current[6] + this._difference[6] * this._tweenProgress;
+            this._result[7] = this._current[7] + this._difference[7] * this._tweenProgress;
         }
 
         public fadeOut(): void {
-            this._tweenState = TweenState.None;
+            this._isTween = false;
         }
 
         public update(passedTime: number): void {
             super.update(passedTime);
             // Fade animation.
-            if (this._tweenState !== TweenState.None || this.dirty) {
+            if (this._isTween || this.dirty) {
                 const slot = this.target as Slot;
                 const result = slot._colorTransform;
 
@@ -800,7 +747,7 @@ namespace dragonBones {
                         result.redOffset = this._result[5];
                         result.greenOffset = this._result[6];
                         result.blueOffset = this._result[7];
-                        slot._colorDirty = true;
+                        slot._colorBlendState.dirty = true;
                     }
                 }
             }
@@ -809,7 +756,7 @@ namespace dragonBones {
     /**
      * @internal
      */
-    export class DeformTimelineState extends FloatValueTimelineState {
+    export class DeformTimelineState extends ValuesTimelineState {
         public static toString(): string {
             return "[class dragonBones.DeformTimelineState]";
         }
@@ -837,17 +784,18 @@ namespace dragonBones {
         protected _onUpdateFrame(): void {
             super._onUpdateFrame();
 
-            const slot = this.target as Slot;
-            this._enabled = slot._geometryData === this.displayFrame.getGeometryData();
+            this._enabled = (this.target as Slot)._geometryData === this.displayFrame.getGeometryData();
         }
 
         public init(armature: Armature, animationState: AnimationState, timelineData: TimelineData | null): void {
             super.init(armature, animationState, timelineData);
 
             if (this._timelineData !== null) {
-                const slot = this.target as Slot;
                 const frameIntOffset = this._animationData.frameIntOffset + this._timelineArray[this._timelineData.offset + BinaryOffset.TimelineFrameValueCount];
-                this.geometryOffset = this._frameIntArray[frameIntOffset + BinaryOffset.DeformVertexOffset];
+                const dragonBonesData = this._animationData.parent.parent;
+                const frameIntArray = dragonBonesData.frameIntArray;
+                const slot = this.target as Slot;
+                this.geometryOffset = frameIntArray[frameIntOffset + BinaryOffset.DeformVertexOffset];
 
                 if (this.geometryOffset < 0) {
                     this.geometryOffset += 65536; // Fixed out of bounds bug. 
@@ -856,6 +804,7 @@ namespace dragonBones {
                 for (let i = 0, l = slot.displayFrameCount; i < l; ++i) {
                     const displayFrame = slot.getDisplayFrameAt(i);
                     const geometryData = displayFrame.getGeometryData();
+
                     if (geometryData === null) {
                         continue;
                     }
@@ -872,12 +821,14 @@ namespace dragonBones {
                     return;
                 }
 
-                this.valueCount = this._frameIntArray[frameIntOffset + BinaryOffset.DeformValueCount];
-                this.valueScale = this._armature.armatureData.scale;
-                this._deformCount = this._frameIntArray[frameIntOffset + BinaryOffset.DeformCount];
-                this._deformOffset = this._frameIntArray[frameIntOffset + BinaryOffset.DeformValueOffset];
-                this._sameValueOffset = this._frameIntArray[frameIntOffset + BinaryOffset.DeformFloatOffset] + this._animationData.frameFloatOffset;
-                this._cdr.length = this.valueCount * 2;
+                this._valueOffset = this._animationData.frameFloatOffset;
+                this._valueCount = frameIntArray[frameIntOffset + BinaryOffset.DeformValueCount];
+                this._deformCount = frameIntArray[frameIntOffset + BinaryOffset.DeformCount];
+                this._deformOffset = frameIntArray[frameIntOffset + BinaryOffset.DeformValueOffset];
+                this._sameValueOffset = frameIntArray[frameIntOffset + BinaryOffset.DeformFloatOffset] + this._animationData.frameFloatOffset;
+                this._valueScale = this._armature.armatureData.scale;
+                this._valueArray = dragonBonesData.frameFloatArray;
+                this._rd.length = this._valueCount * 2;
             }
             else {
                 this._deformCount = this.displayFrame.deformVertices.length;
@@ -889,18 +840,24 @@ namespace dragonBones {
             const blendWeight = slot._deformBlendState.blendWeight;
             const result = this.displayFrame.deformVertices;
 
-            if (this._timelineData !== null) {
+            if (this._isTween) {
+                const valueCount = this._valueCount;
+                const deformOffset = this._deformOffset;
+                const sameValueOffset = this._sameValueOffset;
+                const valueArray = this._valueArray;
+                const rd = this._rd;
+
                 for (let i = 0; i < this._deformCount; ++i) {
                     let value = 0.0;
 
-                    if (i < this._deformOffset) {
-                        value = this._frameFloatArray[this._sameValueOffset + i];
+                    if (i < deformOffset) {
+                        value = valueArray[sameValueOffset + i];
                     }
-                    else if (i < this._deformOffset + this.valueCount) {
-                        value = this._cdr[this.valueCount + i - this._deformOffset];
+                    else if (i < deformOffset + valueCount) {
+                        value = rd[i - deformOffset];
                     }
                     else {
-                        value = this._frameFloatArray[this._sameValueOffset + i - this.valueCount];
+                        value = valueArray[sameValueOffset + i - valueCount];
                     }
 
                     if (state === 2) {
@@ -932,73 +889,42 @@ namespace dragonBones {
     /**
      * @internal
      */
-    export class IKConstraintTimelineState extends TweenTimelineState {
+    export class IKConstraintTimelineState extends DoubleValueTimelineState {
         public static toString(): string {
             return "[class dragonBones.IKConstraintTimelineState]";
-        }
-
-        private _current: number;
-        private _delta: number;
-
-        protected _onClear(): void {
-            super._onClear();
-
-            this._current = 0.0;
-            this._delta = 0.0;
-        }
-
-        protected _onArriveAtFrame(): void {
-            super._onArriveAtFrame();
-
-            const ikConstraint = this.target as IKConstraint;
-
-            if (this._timelineData !== null) {
-                let valueOffset = this._animationData.frameIntOffset + this._frameValueOffset + this._frameIndex * 2;
-                const frameIntArray = this._frameIntArray;
-                const bendPositive = frameIntArray[valueOffset++] !== 0;
-                this._current = frameIntArray[valueOffset++] * 0.01;
-
-                if (this._tweenState === TweenState.Always) {
-                    if (this._frameIndex === this._frameCount - 1) {
-                        valueOffset = this._animationData.frameIntOffset + this._frameValueOffset; // + 0 * 2
-                    }
-
-                    this._delta = frameIntArray[valueOffset + 1] * 0.01 - this._current;
-                }
-                else {
-                    this._delta = 0.0;
-                }
-
-                ikConstraint._bendPositive = bendPositive;
-            }
-            else {
-                const ikConstraintData = ikConstraint._constraintData as IKConstraintData;
-                this._current = ikConstraintData.weight;
-                this._delta = 0.0;
-                ikConstraint._bendPositive = ikConstraintData.bendPositive;
-            }
-
-            ikConstraint.invalidUpdate();
         }
 
         protected _onUpdateFrame(): void {
             super._onUpdateFrame();
 
-            if (this._tweenState !== TweenState.Always) {
-                this._tweenState = TweenState.None;
+            const ikConstraint = this.target as IKConstraint;
+
+            if (this._timelineData !== null) {
+                ikConstraint._bendPositive = this._currentA !== 0.0;
+                ikConstraint._weight = this._currentB;
+            }
+            else {
+                const ikConstraintData = ikConstraint._constraintData as IKConstraintData;
+                ikConstraint._bendPositive = ikConstraintData.bendPositive;
+                ikConstraint._weight = ikConstraintData.weight;
             }
 
-            const ikConstraint = this.target as IKConstraint;
-            ikConstraint._weight = this._current + this._delta * this._tweenProgress;
             ikConstraint.invalidUpdate();
+            this.dirty = false;
+        }
 
-            // TODO fade update.
+        public init(armature: Armature, animationState: AnimationState, timelineData: TimelineData | null): void {
+            super.init(armature, animationState, timelineData);
+
+            this._valueOffset = this._animationData.frameIntOffset;
+            this._valueScale = 0.01;
+            this._valueArray = this._animationData.parent.parent.frameIntArray;
         }
     }
     /**
      * @internal
      */
-    export class AnimationProgressTimelineState extends IntValueTimelineState {
+    export class AnimationProgressTimelineState extends SingleValueTimelineState {
         public static toString(): string {
             return "[class dragonBones.AnimationProgressTimelineState]";
         }
@@ -1007,21 +933,22 @@ namespace dragonBones {
             super._onUpdateFrame();
 
             const animationState = this.target as AnimationState;
-            animationState.currentTime = this._cdr[this.valueCount] * animationState.totalTime;
+            animationState.currentTime = this._result * animationState.totalTime;
+            this.dirty = false;
         }
 
         public init(armature: Armature, animationState: AnimationState, timelineData: TimelineData | null): void {
             super.init(armature, animationState, timelineData);
 
-            this.valueCount = 1;
-            this.valueScale = 0.01;
-            this._cdr.length = this.valueCount * 2;
+            this._valueOffset = this._animationData.frameIntOffset;
+            this._valueScale = 0.0001;
+            this._valueArray = this._animationData.parent.parent.frameIntArray;
         }
     }
     /**
      * @internal
      */
-    export class AnimationWeightTimelineState extends IntValueTimelineState {
+    export class AnimationWeightTimelineState extends SingleValueTimelineState {
         public static toString(): string {
             return "[class dragonBones.AnimationWeightTimelineState]";
         }
@@ -1030,21 +957,22 @@ namespace dragonBones {
             super._onUpdateFrame();
 
             const animationState = this.target as AnimationState;
-            animationState.weight = this._cdr[this.valueCount];
+            animationState.weight = this._result;
+            this.dirty = false;
         }
 
         public init(armature: Armature, animationState: AnimationState, timelineData: TimelineData | null): void {
             super.init(armature, animationState, timelineData);
 
-            this.valueCount = 1;
-            this.valueScale = 0.01;
-            this._cdr.length = this.valueCount * 2;
+            this._valueOffset = this._animationData.frameIntOffset;
+            this._valueScale = 0.0001;
+            this._valueArray = this._animationData.parent.parent.frameIntArray;
         }
     }
     /**
      * @internal
      */
-    export class AnimationParametersTimelineState extends IntValueTimelineState {
+    export class AnimationParametersTimelineState extends DoubleValueTimelineState {
         public static toString(): string {
             return "[class dragonBones.AnimationParametersTimelineState]";
         }
@@ -1053,16 +981,17 @@ namespace dragonBones {
             super._onUpdateFrame();
 
             const animationState = this.target as AnimationState;
-            animationState.parameterX = this._cdr[this.valueCount];
-            animationState.parameterY = this._cdr[this.valueCount + 1];
+            animationState.parameterX = this._resultA;
+            animationState.parameterY = this._resultB;
+            this.dirty = false;
         }
 
         public init(armature: Armature, animationState: AnimationState, timelineData: TimelineData | null): void {
             super.init(armature, animationState, timelineData);
 
-            this.valueCount = 2;
-            this.valueScale = 0.01;
-            this._cdr.length = this.valueCount * 2;
+            this._valueOffset = this._animationData.frameIntOffset;
+            this._valueScale = 0.0001;
+            this._valueArray = this._animationData.parent.parent.frameIntArray;
         }
     }
 }

@@ -52,8 +52,10 @@ namespace dragonBones {
          * @language zh_CN
          */
         public timeScale: number;
-
-        private _animationDirty: boolean; // Update bones and slots cachedFrameIndices.
+        /**
+         * Update bones and slots cachedFrameIndices.
+         */
+        private _animationDirty: boolean; // 
         private _inheritTimeScale: number;
         private readonly _animationNames: Array<string> = [];
         private readonly _animationStates: Array<AnimationState> = [];
@@ -185,8 +187,10 @@ namespace dragonBones {
                 else {
                     const animationData = animationState.animationData;
                     const cacheFrameRate = animationData.cacheFrameRate;
+
                     if (this._animationDirty && cacheFrameRate > 0.0) { // Update cachedFrameIndices.
                         this._animationDirty = false;
+
                         for (const bone of this._armature.getBones()) {
                             bone._cachedFrameIndices = animationData.getBoneCachedFrameIndices(bone.name);
                         }
@@ -217,6 +221,7 @@ namespace dragonBones {
                         r++;
                         this._armature._dragonBones.bufferObject(animationState);
                         this._animationDirty = true;
+
                         if (this._lastAnimationState === animationState) { // Update last animation state.
                             this._lastAnimationState = null;
                         }
@@ -231,6 +236,7 @@ namespace dragonBones {
 
                     if (i === animationStateCount - 1 && r > 0) { // Modify animation states size.
                         this._animationStates.length -= r;
+
                         if (this._lastAnimationState === null && this._animationStates.length > 0) {
                             this._lastAnimationState = this._animationStates[this._animationStates.length - 1];
                         }
@@ -353,7 +359,7 @@ namespace dragonBones {
                 animationConfig.timeScale = 1.0 / animationData.scale;
             }
 
-            if (animationData.frameCount > 1) {
+            if (animationData.frameCount > 0) {
                 if (animationConfig.position < 0.0) {
                     animationConfig.position %= animationData.duration;
                     animationConfig.position = animationData.duration - animationConfig.position;
@@ -376,6 +382,7 @@ namespace dragonBones {
             else {
                 animationConfig.playTimes = 1;
                 animationConfig.position = 0.0;
+
                 if (animationConfig.duration > 0.0) {
                     animationConfig.duration = 0.0;
                 }
@@ -386,14 +393,15 @@ namespace dragonBones {
             }
 
             this._fadeOut(animationConfig);
-
+            //
             const animationState = BaseObject.borrowObject(AnimationState);
             animationState.init(this._armature, animationData, animationConfig);
             this._animationDirty = true;
             this._armature._cacheFrameIndex = -1;
 
-            if (this._animationStates.length > 0) {
+            if (this._animationStates.length > 0) { // Sort animation state.
                 let added = false;
+
                 for (let i = 0, l = this._animationStates.length; i < l; ++i) {
                     if (animationState.layer > this._animationStates[i].layer) {
                         added = true;
@@ -415,8 +423,7 @@ namespace dragonBones {
                 this._animationStates.push(animationState);
             }
 
-            // Child armature play same name animation.
-            for (const slot of this._armature.getSlots()) {
+            for (const slot of this._armature.getSlots()) { // Child armature play same name animation.
                 const childArmature = slot.childArmature;
                 if (
                     childArmature !== null && childArmature.inheritAnimation &&
@@ -427,7 +434,7 @@ namespace dragonBones {
                 }
             }
 
-            for (let k in animationData.animationTimelines) {
+            for (let k in animationData.animationTimelines) { // Blend animation node.
                 const childAnimationState = this.fadeIn(k, animationConfig.fadeInTime, 1, animationState.layer, null, AnimationFadeOutMode.Single);
                 if (childAnimationState === null) {
                     continue;
@@ -600,7 +607,7 @@ namespace dragonBones {
 
             const animationData = animationName in this._animations ? this._animations[animationName] : null;
             if (animationData !== null) {
-                this._animationConfig.position = animationData.duration * frame / animationData.frameCount;
+                this._animationConfig.position = animationData.frameCount > 0 ? animationData.duration * frame / animationData.frameCount : 0.0;
             }
 
             return this.playConfig(this._animationConfig);
@@ -771,7 +778,7 @@ namespace dragonBones {
          * @version DragonBones 5.1
          * @language zh_CN
          */
-        public getStates(): Array<AnimationState> {
+        public getStates(): ReadonlyArray<AnimationState> {
             return this._animationStates;
         }
         /**
@@ -841,7 +848,7 @@ namespace dragonBones {
          * @version DragonBones 4.5
          * @language zh_CN
          */
-        public get animationNames(): Array<string> {
+        public get animationNames(): ReadonlyArray<string> {
             return this._animationNames;
         }
         /**
@@ -941,53 +948,6 @@ namespace dragonBones {
             }
 
             return this.playConfig(this._animationConfig);
-        }
-        /**
-         * - Deprecated, please refer to {@link #gotoAndStopByTime()}.
-         * @deprecated
-         * @language en_US
-         */
-        /**
-         * - 已废弃，请参考 {@link #gotoAndStopByTime()}。
-         * @deprecated
-         * @language zh_CN
-         */
-        public gotoAndStop(animationName: string, time: number = 0): AnimationState | null {
-            console.warn("Deprecated.");
-            return this.gotoAndStopByTime(animationName, time);
-        }
-        /**
-         * - Deprecated, please refer to {@link #animationNames}.
-         * @deprecated
-         * @language en_US
-         */
-        /**
-         * - 已废弃，请参考 {@link #animationNames}。
-         * @deprecated
-         * @language zh_CN
-         */
-        public get animationList(): Array<string> {
-            console.warn("Deprecated.");
-            return this._animationNames;
-        }
-        /**
-         * - Deprecated, please refer to {@link #animationNames}.
-         * @deprecated
-         * @language en_US
-         */
-        /**
-         * - 已废弃，请参考 {@link #animationNames}。
-         * @deprecated
-         * @language zh_CN
-         */
-        public get animationDataList(): Array<AnimationData> {
-            console.warn("Deprecated.");
-            const list: AnimationData[] = [];
-            for (let i = 0, l = this._animationNames.length; i < l; ++i) {
-                list.push(this._animations[this._animationNames[i]]);
-            }
-
-            return list;
         }
     }
 }

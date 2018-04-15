@@ -24,14 +24,6 @@ namespace dragonBones {
     /**
      * @internal
      */
-    export const enum TweenState {
-        None,
-        Once,
-        Always
-    }
-    /**
-     * @internal
-     */
     export abstract class TimelineState extends BaseObject {
         public dirty: boolean;
         /**
@@ -42,27 +34,26 @@ namespace dragonBones {
         public currentTime: number;
         public target: BaseObject;
 
-        protected _tweenState: TweenState;
-        protected _frameRate: number;
+        protected _isTween: boolean;
+        protected _valueOffset: number;
         protected _frameValueOffset: number;
-        protected _frameCount: number;
         protected _frameOffset: number;
+        protected _frameRate: number;
+        protected _frameCount: number;
         protected _frameIndex: number;
         protected _frameRateR: number;
         protected _position: number;
         protected _duration: number;
         protected _timeScale: number;
         protected _timeOffset: number;
-        protected _dragonBonesData: DragonBonesData;
         protected _animationData: AnimationData;
         protected _timelineData: TimelineData | null;
         protected _armature: Armature;
         protected _animationState: AnimationState;
         protected _actionTimeline: TimelineState;
-        protected _frameArray: Array<number> | Int16Array;
-        protected _frameIntArray: Array<number> | Int16Array;
-        protected _frameFloatArray: Array<number> | Float32Array;
         protected _timelineArray: Array<number> | Uint16Array;
+        protected _frameArray: Array<number> | Int16Array;
+        protected _valueArray: Array<number> | Int16Array | Float32Array;
         protected _frameIndices: Array<number>;
 
         protected _onClear(): void {
@@ -72,26 +63,25 @@ namespace dragonBones {
             this.currentTime = -1.0;
             this.target = null as any;
 
-            this._tweenState = TweenState.None;
-            this._frameRate = 0;
+            this._isTween = false;
+            this._valueOffset = 0;
             this._frameValueOffset = 0;
-            this._frameCount = 0;
             this._frameOffset = 0;
+            this._frameRate = 0;
+            this._frameCount = 0;
             this._frameIndex = -1;
             this._frameRateR = 0.0;
             this._position = 0.0;
             this._duration = 0.0;
             this._timeScale = 1.0;
             this._timeOffset = 0.0;
-            this._dragonBonesData = null as any; //
             this._animationData = null as any; //
             this._timelineData = null as any; //
             this._armature = null as any; //
             this._animationState = null as any; //
             this._actionTimeline = null as any; //
             this._frameArray = null as any; //
-            this._frameIntArray = null as any; //
-            this._frameFloatArray = null as any; //
+            this._valueArray = null as any; //
             this._timelineArray = null as any; //
             this._frameIndices = null as any; //
         }
@@ -181,20 +171,18 @@ namespace dragonBones {
             }
 
             this._animationData = this._animationState.animationData;
-
+            //
             this._frameRate = this._animationData.parent.frameRate;
             this._frameRateR = 1.0 / this._frameRate;
             this._position = this._animationState._position;
             this._duration = this._animationState._duration;
-            this._dragonBonesData = this._animationData.parent.parent; // May by the animation data is not belone to this armature data.
 
             if (this._timelineData !== null) {
-                this._frameIntArray = this._dragonBonesData.frameIntArray;
-                this._frameFloatArray = this._dragonBonesData.frameFloatArray;
-                this._frameArray = this._dragonBonesData.frameArray;
-                this._timelineArray = this._dragonBonesData.timelineArray;
-                this._frameIndices = this._dragonBonesData.frameIndices;
-
+                const dragonBonesData = this._animationData.parent.parent; // May by the animation data is not belone to this armature data.
+                this._frameArray = dragonBonesData.frameArray;
+                this._timelineArray = dragonBonesData.timelineArray;
+                this._frameIndices = dragonBonesData.frameIndices;
+                //
                 this._frameCount = this._timelineArray[this._timelineData.offset + BinaryOffset.TimelineKeyFrameCount];
                 this._frameValueOffset = this._timelineArray[this._timelineData.offset + BinaryOffset.TimelineFrameValueOffset];
                 this._timeScale = 100.0 / this._timelineArray[this._timelineData.offset + BinaryOffset.TimelineScale];
@@ -209,27 +197,26 @@ namespace dragonBones {
                 if (this._frameCount > 1) {
                     const timelineFrameIndex = Math.floor(this.currentTime * this._frameRate); // uint
                     const frameIndex = this._frameIndices[(this._timelineData as TimelineData).frameIndicesOffset + timelineFrameIndex];
+
                     if (this._frameIndex !== frameIndex) {
                         this._frameIndex = frameIndex;
                         this._frameOffset = this._animationData.frameOffset + this._timelineArray[(this._timelineData as TimelineData).offset + BinaryOffset.TimelineFrameOffset + this._frameIndex];
 
                         this._onArriveAtFrame();
-                        this.dirty = true;
                     }
                 }
                 else if (this._frameIndex < 0) {
                     this._frameIndex = 0;
+
                     if (this._timelineData !== null) { // May be pose timeline.
                         this._frameOffset = this._animationData.frameOffset + this._timelineArray[this._timelineData.offset + BinaryOffset.TimelineFrameOffset];
                     }
 
                     this._onArriveAtFrame();
-                    this.dirty = true;
                 }
 
-                if (this._tweenState !== TweenState.None) {
+                if (this._isTween || this.dirty) {
                     this._onUpdateFrame();
-                    this.dirty = true;
                 }
             }
         }
@@ -278,8 +265,9 @@ namespace dragonBones {
         protected _curveCount: number;
         protected _framePosition: number;
         protected _frameDurationR: number;
-        protected _tweenProgress: number;
         protected _tweenEasing: number;
+        protected _tweenProgress: number;
+        protected _valueScale: number;
 
         protected _onClear(): void {
             super._onClear();
@@ -288,8 +276,9 @@ namespace dragonBones {
             this._curveCount = 0;
             this._framePosition = 0.0;
             this._frameDurationR = 0.0;
-            this._tweenProgress = 0.0;
             this._tweenEasing = 0.0;
+            this._tweenProgress = 0.0;
+            this._valueScale = 1.0;
         }
 
         protected _onArriveAtFrame(): void {
@@ -302,15 +291,22 @@ namespace dragonBones {
                 )
             ) {
                 this._tweenType = this._frameArray[this._frameOffset + BinaryOffset.FrameTweenType]; // TODO recode ture tween type.
-                this._tweenState = this._tweenType === TweenType.None ? TweenState.Once : TweenState.Always;
-                if (this._tweenType === TweenType.Curve) {
-                    this._curveCount = this._frameArray[this._frameOffset + BinaryOffset.FrameTweenEasingOrCurveSampleCount];
+                this._isTween = this._tweenType !== TweenType.None;
+
+                if (this._isTween) {
+                    if (this._tweenType === TweenType.Curve) {
+                        this._curveCount = this._frameArray[this._frameOffset + BinaryOffset.FrameTweenEasingOrCurveSampleCount];
+                    }
+                    else if (this._tweenType !== TweenType.None && this._tweenType !== TweenType.Line) {
+                        this._tweenEasing = this._frameArray[this._frameOffset + BinaryOffset.FrameTweenEasingOrCurveSampleCount] * 0.01;
+                    }
                 }
-                else if (this._tweenType !== TweenType.None && this._tweenType !== TweenType.Line) {
-                    this._tweenEasing = this._frameArray[this._frameOffset + BinaryOffset.FrameTweenEasingOrCurveSampleCount] * 0.01;
+                else {
+                    this.dirty = true;
                 }
 
                 this._framePosition = this._frameArray[this._frameOffset] * this._frameRateR;
+
                 if (this._frameIndex === this._frameCount - 1) {
                     this._frameDurationR = 1.0 / (this._animationData.duration - this._framePosition);
                 }
@@ -327,13 +323,16 @@ namespace dragonBones {
                 }
             }
             else {
-                this._tweenState = TweenState.Once;
+                this.dirty = true;
+                this._isTween = false;
             }
         }
 
         protected _onUpdateFrame(): void {
-            if (this._tweenState === TweenState.Always) {
+            if (this._isTween) {
+                this.dirty = true;
                 this._tweenProgress = (this.currentTime - this._framePosition) * this._frameDurationR;
+
                 if (this._tweenType === TweenType.Curve) {
                     this._tweenProgress = TweenTimelineState._getEasingCurveValue(this._tweenProgress, this._frameArray, this._curveCount, this._frameOffset + BinaryOffset.FrameCurveSamples);
                 }
@@ -341,206 +340,221 @@ namespace dragonBones {
                     this._tweenProgress = TweenTimelineState._getEasingValue(this._tweenType, this._tweenProgress, this._tweenEasing);
                 }
             }
-            else {
-                this._tweenProgress = 0.0;
-            }
-        }
-    }
-    /**
-     * @internal
-     */
-    export abstract class IntValueTimelineState extends TweenTimelineState {
-        public valueCount: number;
-        public valueScale: number;
-
-        protected readonly _cdr: Array<number> = [];
-
-        protected _onClear(): void {
-            super._onClear();
-
-            this.valueCount = 0;
-            this.valueScale = 1.0;
-
-            this._cdr.length = 0;
-        }
-
-        protected _onArriveAtFrame(): void {
-            super._onArriveAtFrame();
-
-            if (this._tweenState === TweenState.Always) {
-                const frameViewOffset = this._animationData.frameIntOffset;
-                const valueOffset = frameViewOffset + this._frameValueOffset + this._frameIndex * this.valueCount;
-                let nextValueOffset = valueOffset + this.valueCount;
-                const valueArray = this._frameIntArray;
-
-                if (this._frameIndex === this._frameCount - 1) {
-                    nextValueOffset = frameViewOffset + this._frameValueOffset; // 0 * this.valueCount.
-                }
-
-                if (this.valueScale === 1.0) {
-                    for (let i = 0; i < this.valueCount; ++i) {
-                        this._cdr[i] = valueArray[nextValueOffset + i] - valueArray[valueOffset + i];
-                    }
-                }
-                else {
-                    for (let i = 0; i < this.valueCount; ++i) {
-                        this._cdr[i] = (valueArray[nextValueOffset + i] - valueArray[valueOffset + i]) * this.valueScale;
-                    }
-                }
-            }
-            else {
-                for (let i = 0; i < this.valueCount; ++i) {
-                    this._cdr[i] = 0.0;
-                }
-            }
-        }
-
-        protected _onUpdateFrame(): void {
-            super._onUpdateFrame();
-
-            if (this._tweenState !== TweenState.Always) {
-                this._tweenState = TweenState.None;
-            }
-
-            if (this._timelineData !== null) {
-                const valueOffset = this._animationData.frameIntOffset + this._frameValueOffset + this._frameIndex * this.valueCount;
-                const valueArray = this._frameIntArray;
-
-                if (this.valueScale === 1.0) {
-                    for (let i = 0; i < this.valueCount; ++i) {
-                        this._cdr[this.valueCount + i] = valueArray[valueOffset + i] + this._cdr[i] * this._tweenProgress;
-                    }
-                }
-                else {
-                    for (let i = 0; i < this.valueCount; ++i) {
-                        this._cdr[this.valueCount + i] = valueArray[valueOffset + i] * this.valueScale + this._cdr[i] * this._tweenProgress;
-                    }
-                }
-            }
-            else {
-                for (let i = 0; i < this.valueCount; ++i) {
-                    this._cdr[this.valueCount + i] = 0.0;
-                }
-            }
-        }
-    }
-    /**
-     * @internal
-     */
-    export abstract class FloatValueTimelineState extends TweenTimelineState {
-        public valueCount: number;
-        public valueScale: number;
-
-        protected readonly _cdr: Array<number> = [];
-
-        protected _onClear(): void {
-            super._onClear();
-
-            this.valueCount = 0;
-            this.valueScale = 1.0;
-
-            this._cdr.length = 0;
-        }
-
-        protected _onArriveAtFrame(): void {
-            super._onArriveAtFrame();
-
-            if (this._tweenState === TweenState.Always) {
-                const frameViewOffset = this._animationData.frameFloatOffset;
-                const valueOffset = frameViewOffset + this._frameValueOffset + this._frameIndex * this.valueCount;
-                let nextValueOffset = valueOffset + this.valueCount;
-                const valueArray = this._frameFloatArray;
-
-                if (this._frameIndex === this._frameCount - 1) {
-                    nextValueOffset = frameViewOffset + this._frameValueOffset; // 0 * this.valueCount.
-                }
-
-                if (this.valueScale === 1.0) {
-                    for (let i = 0; i < this.valueCount; ++i) {
-                        this._cdr[i] = valueArray[nextValueOffset + i] - valueArray[valueOffset + i];
-                    }
-                }
-                else {
-                    for (let i = 0; i < this.valueCount; ++i) {
-                        this._cdr[i] = (valueArray[nextValueOffset + i] - valueArray[valueOffset + i]) * this.valueScale;
-                    }
-                }
-            }
-            else {
-                for (let i = 0; i < this.valueCount; ++i) {
-                    this._cdr[i] = 0.0;
-                }
-            }
-        }
-
-        protected _onUpdateFrame(): void {
-            super._onUpdateFrame();
-
-            if (this._tweenState !== TweenState.Always) {
-                this._tweenState = TweenState.None;
-            }
-
-            const valueOffset = this._animationData.frameFloatOffset + this._frameValueOffset + this._frameIndex * this.valueCount;
-            const valueArray = this._frameFloatArray;
-
-            if (this.valueScale === 1.0) {
-                for (let i = 0; i < this.valueCount; ++i) {
-                    this._cdr[this.valueCount + i] = valueArray[valueOffset + i] + this._cdr[i] * this._tweenProgress;
-                }
-            }
-            else {
-                for (let i = 0; i < this.valueCount; ++i) {
-                    this._cdr[this.valueCount + i] = valueArray[valueOffset + i] * this.valueScale + this._cdr[i] * this._tweenProgress;
-                }
-            }
-        }
-    }
-    /**
-     * @internal
-     */
-    export abstract class BoneTimelineState extends TweenTimelineState {
-        public bonePose: BonePose;
-
-        protected _onClear(): void {
-            super._onClear();
-
-            this.bonePose = null as any; //
         }
 
         public blend(state: number, isDirty: boolean): void {
-            const bone = this.target as Bone;
-            const blendWeight = bone._blendState.blendWeight;
-            const animationPose = bone.animationPose;
-            const result = this.bonePose.result;
+            // tslint:disable-next-line:no-unused-expression
+            state;
+            // tslint:disable-next-line:no-unused-expression
+            isDirty;
+        }
+    }
+    /**
+     * @internal
+     */
+    export abstract class SingleValueTimelineState extends TweenTimelineState {
+        protected _current: number;
+        protected _difference: number;
+        protected _result: number;
 
-            if (state === 2) {
-                animationPose.x += result.x * blendWeight;
-                animationPose.y += result.y * blendWeight;
-                animationPose.rotation += result.rotation * blendWeight;
-                animationPose.skew += result.skew * blendWeight;
-                animationPose.scaleX *= (result.scaleX - 1.0) * blendWeight + 1.0;
-                animationPose.scaleY *= (result.scaleY - 1.0) * blendWeight + 1.0;
-            }
-            else if (blendWeight !== 1.0) {
-                animationPose.x = result.x * blendWeight;
-                animationPose.y = result.y * blendWeight;
-                animationPose.rotation = result.rotation * blendWeight;
-                animationPose.skew = result.skew * blendWeight;
-                animationPose.scaleX = (result.scaleX - 1.0) * blendWeight + 1.0;
-                animationPose.scaleY = (result.scaleY - 1.0) * blendWeight + 1.0;
+        protected _onClear(): void {
+            super._onClear();
+
+            this._current = 0.0;
+            this._difference = 0.0;
+            this._result = 0.0;
+        }
+
+        protected _onArriveAtFrame(): void {
+            super._onArriveAtFrame();
+
+            if (this._timelineData !== null) {
+                const valueScale = this._valueScale;
+                const valueArray = this._valueArray;
+                //
+                const valueOffset = this._valueOffset + this._frameValueOffset + this._frameIndex;
+
+                if (this._isTween) {
+                    const nextValueOffset = this._frameIndex === this._frameCount - 1 ?
+                        this._valueOffset + this._frameValueOffset :
+                        valueOffset + 1;
+
+                    if (valueScale === 1.0) {
+                        this._current = valueArray[valueOffset];
+                        this._difference = valueArray[nextValueOffset] - this._current;
+                    }
+                    else {
+                        this._current = valueArray[valueOffset] * valueScale;
+                        this._difference = valueArray[nextValueOffset] * valueScale - this._current;
+                    }
+                }
+                else {
+                    this._result = valueArray[valueOffset] * valueScale;
+                }
             }
             else {
-                animationPose.x = result.x;
-                animationPose.y = result.y;
-                animationPose.rotation = result.rotation;
-                animationPose.skew = result.skew;
-                animationPose.scaleX = result.scaleX;
-                animationPose.scaleY = result.scaleY;
+                this._result = 0.0;
             }
+        }
 
-            if (isDirty || this.dirty) {
-                this.dirty = false;
-                bone._transformDirty = true;
+        protected _onUpdateFrame(): void {
+            super._onUpdateFrame();
+
+            if (this._isTween) {
+                this._result = this._current + this._difference * this._tweenProgress;
+            }
+        }
+    }
+    /**
+     * @internal
+     */
+    export abstract class DoubleValueTimelineState extends TweenTimelineState {
+        protected _currentA: number;
+        protected _currentB: number;
+        protected _differenceA: number;
+        protected _differenceB: number;
+        protected _resultA: number;
+        protected _resultB: number;
+
+        protected _onClear(): void {
+            super._onClear();
+
+            this._currentA = 0.0;
+            this._currentB = 0.0;
+            this._differenceA = 0.0;
+            this._differenceB = 0.0;
+            this._resultA = 0.0;
+            this._resultB = 0.0;
+        }
+
+        protected _onArriveAtFrame(): void {
+            super._onArriveAtFrame();
+
+            if (this._timelineData !== null) {
+                const valueScale = this._valueScale;
+                const valueArray = this._valueArray;
+                //
+                const valueOffset = this._valueOffset + this._frameValueOffset + this._frameIndex * 2;
+
+                if (this._isTween) {
+                    const nextValueOffset = this._frameIndex === this._frameCount - 1 ?
+                        this._valueOffset + this._frameValueOffset :
+                        valueOffset + 2;
+
+                    if (valueScale === 1.0) {
+                        this._currentA = valueArray[valueOffset];
+                        this._currentB = valueArray[valueOffset + 1];
+                        this._differenceA = valueArray[nextValueOffset] - this._currentA;
+                        this._differenceB = valueArray[nextValueOffset + 1] - this._currentB;
+                    }
+                    else {
+                        this._currentA = valueArray[valueOffset] * valueScale;
+                        this._currentB = valueArray[valueOffset + 1] * valueScale;
+                        this._differenceA = valueArray[nextValueOffset] * valueScale - this._currentA;
+                        this._differenceB = valueArray[nextValueOffset + 1] * valueScale - this._currentB;
+                    }
+                }
+                else {
+                    this._resultA = valueArray[valueOffset] * valueScale;
+                    this._resultB = valueArray[valueOffset + 1] * valueScale;
+                }
+            }
+            else {
+                this._resultA = 0.0;
+                this._resultB = 0.0;
+            }
+        }
+
+        protected _onUpdateFrame(): void {
+            super._onUpdateFrame();
+
+            if (this._isTween) {
+                this._resultA = this._currentA + this._differenceA * this._tweenProgress;
+                this._resultB = this._currentB + this._differenceB * this._tweenProgress;
+            }
+        }
+    }
+    /**
+     * @internal
+     */
+    export abstract class ValuesTimelineState extends TweenTimelineState {
+        protected _valueCount: number;
+        protected readonly _rd: Array<number> = [];
+
+        protected _onClear(): void {
+            super._onClear();
+
+            this._valueCount = 0;
+            this._rd.length = 0;
+        }
+
+        protected _onArriveAtFrame(): void {
+            super._onArriveAtFrame();
+
+            const valueCount = this._valueCount;
+            const rd = this._rd;
+
+            if (this._timelineData !== null) {
+                const valueScale = this._valueScale;
+                const valueArray = this._valueArray;
+                //
+                const valueOffset = this._valueOffset + this._frameValueOffset + this._frameIndex * valueCount;
+
+                if (this._isTween) {
+                    const nextValueOffset = this._frameIndex === this._frameCount - 1 ?
+                        this._valueOffset + this._frameValueOffset :
+                        valueOffset + valueCount;
+
+                    if (valueScale === 1.0) {
+                        for (let i = 0; i < valueCount; ++i) {
+                            rd[valueCount + i] = valueArray[nextValueOffset + i] - valueArray[valueOffset + i];
+                        }
+                    }
+                    else {
+                        for (let i = 0; i < valueCount; ++i) {
+                            rd[valueCount + i] = (valueArray[nextValueOffset + i] - valueArray[valueOffset + i]) * valueScale;
+                        }
+                    }
+                }
+                else if (valueScale === 1.0) {
+                    for (let i = 0; i < valueCount; ++i) {
+                        rd[i] = valueArray[valueOffset + i];
+                    }
+                } else {
+                    for (let i = 0; i < valueCount; ++i) {
+                        rd[i] = valueArray[valueOffset + i] * valueScale;
+                    }
+                }
+            }
+            else {
+                for (let i = 0; i < valueCount; ++i) {
+                    rd[i] = 0.0;
+                }
+            }
+        }
+
+        protected _onUpdateFrame(): void {
+            super._onUpdateFrame();
+
+            if (this._isTween) {
+                const valueCount = this._valueCount;
+                const valueScale = this._valueScale;
+                const tweenProgress = this._tweenProgress;
+                const valueArray = this._valueArray;
+                const rd = this._rd;
+                //
+                const valueOffset = this._valueOffset + this._frameValueOffset + this._frameIndex * valueCount;
+
+                if (valueScale === 1.0) {
+                    for (let i = 0; i < valueCount; ++i) {
+                        rd[i] = valueArray[valueOffset + i] + rd[valueCount + i] * tweenProgress;
+                    }
+                }
+                else {
+                    for (let i = 0; i < valueCount; ++i) {
+                        rd[i] = valueArray[valueOffset + i] * valueScale + rd[valueCount + i] * tweenProgress;
+                    }
+                }
             }
         }
     }

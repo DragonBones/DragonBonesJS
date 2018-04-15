@@ -238,7 +238,6 @@ namespace dragonBones {
          * @internal
          */
         public readonly _parents: AnimationState[] = [];
-        private readonly _bonePoses: Map<BonePose> = {};
         private _animationData: AnimationData;
         private _armature: Armature;
         /**
@@ -270,11 +269,6 @@ namespace dragonBones {
 
             for (const timeline of this._animationTimelines) {
                 timeline.returnToPool();
-            }
-
-            for (let k in this._bonePoses) {
-                this._bonePoses[k].returnToPool();
-                delete this._bonePoses[k];
             }
 
             if (this._actionTimeline !== null) {
@@ -374,10 +368,7 @@ namespace dragonBones {
                     for (const timelineData of timelineDatas) {
                         switch (timelineData.type) {
                             case TimelineType.AnimationProgress: {
-                                const animaitonTimelineData = timelineData as AnimationTimelineData;
                                 const timeline = BaseObject.borrowObject(AnimationProgressTimelineState);
-                                animationState.positionX = animaitonTimelineData.x;
-                                animationState.positionY = animaitonTimelineData.y;
                                 timeline.target = animationState;
                                 timeline.init(this._armature, this, timelineData);
                                 this._animationTimelines.push(timeline);
@@ -393,6 +384,10 @@ namespace dragonBones {
                             }
 
                             case TimelineType.AnimationParameter: {
+                                const animaitonTimelineData = timelineData as AnimationTimelineData;
+                                animationState.positionX = animaitonTimelineData.x;
+                                animationState.positionY = animaitonTimelineData.y;
+                                //
                                 const timeline = BaseObject.borrowObject(AnimationParametersTimelineState);
                                 timeline.target = animationState;
                                 timeline.init(this._armature, this, timelineData);
@@ -429,7 +424,7 @@ namespace dragonBones {
 
                     boneTimelines[timelineName].push(timeline);
                 }
-
+                //
                 for (const bone of this._armature.getBones()) {
                     const timelineName = bone.name;
                     if (!this.containsBoneMask(timelineName)) {
@@ -441,15 +436,12 @@ namespace dragonBones {
                     }
                     else { // Create new bone timeline.
                         const timelineDatas = this._animationData.getBoneTimelines(timelineName);
-                        const bonePose = timelineName in this._bonePoses ? this._bonePoses[timelineName] : (this._bonePoses[timelineName] = BaseObject.borrowObject(BonePose));
-
                         if (timelineDatas !== null) {
                             for (const timelineData of timelineDatas) {
                                 switch (timelineData.type) {
                                     case TimelineType.BoneAll: {
                                         const timeline = BaseObject.borrowObject(BoneAllTimelineState);
                                         timeline.target = bone;
-                                        timeline.bonePose = bonePose;
                                         timeline.init(this._armature, this, timelineData);
                                         this._boneTimelines.push(timeline);
                                         break;
@@ -458,7 +450,6 @@ namespace dragonBones {
                                     case TimelineType.BoneTranslate: {
                                         const timeline = BaseObject.borrowObject(BoneTranslateTimelineState);
                                         timeline.target = bone;
-                                        timeline.bonePose = bonePose;
                                         timeline.init(this._armature, this, timelineData);
                                         this._boneTimelines.push(timeline);
                                         break;
@@ -467,7 +458,6 @@ namespace dragonBones {
                                     case TimelineType.BoneRotate: {
                                         const timeline = BaseObject.borrowObject(BoneRotateTimelineState);
                                         timeline.target = bone;
-                                        timeline.bonePose = bonePose;
                                         timeline.init(this._armature, this, timelineData);
                                         this._boneTimelines.push(timeline);
                                         break;
@@ -476,7 +466,6 @@ namespace dragonBones {
                                     case TimelineType.BoneScale: {
                                         const timeline = BaseObject.borrowObject(BoneScaleTimelineState);
                                         timeline.target = bone;
-                                        timeline.bonePose = bonePose;
                                         timeline.init(this._armature, this, timelineData);
                                         this._boneTimelines.push(timeline);
                                         break;
@@ -499,7 +488,6 @@ namespace dragonBones {
                             if (bone._boneData.type === BoneType.Bone) {
                                 const timeline = BaseObject.borrowObject(BoneAllTimelineState);
                                 timeline.target = bone;
-                                timeline.bonePose = bonePose;
                                 timeline.init(this._armature, this, null);
                                 this._boneTimelines.push(timeline);
                                 this._poseTimelines.push(timeline);
@@ -553,7 +541,7 @@ namespace dragonBones {
 
                     slotTimelines[timelineName].push(timeline);
                 }
-
+                //
                 for (const slot of this._armature.getSlots()) {
                     const boneName = slot.parent.name;
                     if (!this.containsBoneMask(boneName)) {
@@ -561,8 +549,6 @@ namespace dragonBones {
                     }
 
                     const timelineName = slot.name;
-                    const timelineDatas = this._animationData.getSlotTimelines(timelineName);
-
                     if (timelineName in slotTimelines) { // Remove slot timeline from map.
                         delete slotTimelines[timelineName];
                     }
@@ -571,6 +557,7 @@ namespace dragonBones {
                         let colorFlag = false;
                         ffdFlags.length = 0;
 
+                        const timelineDatas = this._animationData.getSlotTimelines(timelineName);
                         if (timelineDatas !== null) {
                             for (const timelineData of timelineDatas) {
                                 switch (timelineData.type) {
@@ -674,7 +661,7 @@ namespace dragonBones {
 
             if (this._subFadeState < 0) { // Fade start event.
                 this._subFadeState = 0;
-
+                //
                 const eventType = isFadeOut ? EventObject.FADE_OUT : EventObject.FADE_IN;
                 if (this._armature.eventDispatcher.hasDBEventListener(eventType)) {
                     const eventObject = BaseObject.borrowObject(EventObject);
@@ -791,6 +778,7 @@ namespace dragonBones {
             this._actionTimeline = BaseObject.borrowObject(ActionTimelineState);
             this._actionTimeline.init(this._armature, this, this._animationData.actionTimeline);
             this._actionTimeline.currentTime = this._time;
+
             if (this._actionTimeline.currentTime < 0.0) {
                 this._actionTimeline.currentTime = this._duration - this._actionTimeline.currentTime;
             }
@@ -808,7 +796,6 @@ namespace dragonBones {
             if (this._fadeState !== 0 || this._subFadeState !== 0) {
                 this._advanceFadeTime(passedTime);
             }
-
             // Update time.
             if (this._playheadState === 3) { // 11
                 if (this.timeScale !== 1.0) {
@@ -817,7 +804,6 @@ namespace dragonBones {
 
                 this._time += passedTime;
             }
-
             // Update timeline.
             if (this._timelineDirty !== 0) {
                 if (this._timelineDirty === 2) {
@@ -845,8 +831,8 @@ namespace dragonBones {
                 }
             }
 
-            if (this._actionTimeline.playState <= 0) {
-                this._actionTimeline.update(time); // Update main timeline.
+            if (this._actionTimeline.playState <= 0) { // Update main timeline.
+                this._actionTimeline.update(time);
             }
 
             if (isCacheEnabled) { // Cache time internval.
@@ -866,6 +852,7 @@ namespace dragonBones {
                 }
                 else {
                     this._armature._cacheFrameIndex = cacheFrameIndex;
+
                     if (this._animationData.cachedFrames[cacheFrameIndex]) { // Cached.
                         isUpdateBoneTimeline = false;
                     }
@@ -877,17 +864,34 @@ namespace dragonBones {
 
             if (isUpdateTimeline) {
                 if (isUpdateBoneTimeline) {
+                    let state = 0;
+                    let prevTarget: BaseObject | null = null;
+
                     for (let i = 0, l = this._boneTimelines.length; i < l; ++i) {
                         const timeline = this._boneTimelines[i];
+
                         if (timeline.playState <= 0) {
                             timeline.update(time);
                         }
 
-                        if (i === l - 1 || timeline.target !== this._boneTimelines[i + 1].target) {
-                            const state = (timeline.target as Bone)._blendState.update(this._weightResult, this.layer);
-                            if (state !== 0) {
-                                (timeline as BoneTimelineState).blend(state, isBlendDirty);
+                        if (timeline.target !== prevTarget) {
+                            const bone = (timeline.target as Bone);
+                            state = bone._blendState.update(this._weightResult, this.layer);
+                            prevTarget = timeline.target;
+
+                            if (state === 1) {
+                                const pose = bone.animationPose;
+                                pose.x = 0.0;
+                                pose.y = 0.0;
+                                pose.rotation = 0.0;
+                                pose.skew = 0.0;
+                                pose.scaleX = 1.0;
+                                pose.scaleY = 1.0;
                             }
+                        }
+
+                        if (state !== 0) {
+                            (timeline as TweenTimelineState).blend(state, isBlendDirty);
                         }
                     }
                 }
@@ -957,6 +961,7 @@ namespace dragonBones {
                 let dR = 999999.0;
                 let leftState: AnimationState | null = null;
                 let rightState: AnimationState | null = null;
+
                 for (let i = 0, l = this._animationTimelines.length; i < l; ++i) {
                     const timeline = this._animationTimelines[i];
                     if (timeline.playState <= 0) {
@@ -966,7 +971,7 @@ namespace dragonBones {
                     if (this.blendType === AnimationBlendType.E1D) {
                         const animationState = timeline.target as AnimationState;
                         const d = this.parameterX - animationState.positionX;
-                        animationState._weight = 0.0; // TODO
+                        animationState.weight = 0.0;
 
                         if (d >= 0.0) {
                             if (d < dL) {
@@ -1365,7 +1370,7 @@ namespace dragonBones {
             }
 
             if (this.playTimes > 0 && currentPlayTimes === this.playTimes - 1 && value === this._duration) {
-                value = this._duration - 0.000001;
+                value = this._duration - 0.000001; // 
             }
 
             if (this._time === value) {
@@ -1440,31 +1445,12 @@ namespace dragonBones {
     /**
      * @internal
      */
-    export class BonePose extends BaseObject {
-        public static toString(): string {
-            return "[class dragonBones.BonePose]";
-        }
-
-        public readonly current: Transform = new Transform();
-        public readonly delta: Transform = new Transform();
-        public readonly result: Transform = new Transform();
-
-        protected _onClear(): void {
-            this.current.identity();
-            this.delta.identity();
-            this.result.identity();
-        }
-    }
-    /**
-     * @internal
-     */
     export class BlendState {
         public dirty: boolean;
         public layer: number;
         public leftWeight: number;
         public layerWeight: number;
         public blendWeight: number;
-
         /**
          * -1: First blending, 0: No blending, 1: Blending.
          */

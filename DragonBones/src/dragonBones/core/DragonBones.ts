@@ -51,11 +51,7 @@ namespace dragonBones {
         DeformCount = 1,
         DeformValueCount = 2,
         DeformValueOffset = 3,
-        DeformFloatOffset = 4,
-
-        PathVertexCount = 0,
-        PathFloatOffset = 2,
-        PathWeightOffset = 3,
+        DeformFloatOffset = 4
     }
     /**
      * @internal
@@ -299,7 +295,6 @@ namespace dragonBones {
         public static yDown: boolean = true;
         public static debug: boolean = false;
         public static debugDraw: boolean = false;
-        public static webAssembly: boolean = false;
 
         private readonly _clock: WorldClock = new WorldClock();
         private readonly _events: Array<EventObject> = [];
@@ -325,6 +320,7 @@ namespace dragonBones {
                 for (let i = 0; i < this._events.length; ++i) {
                     const eventObject = this._events[i];
                     const armature = eventObject.armature;
+
                     if (armature._armatureData !== null) { // May be armature disposed before advanceTime.
                         armature.eventDispatcher.dispatchDBEvent(eventObject.type, eventObject);
                         if (eventObject.type === EventObject.SOUND_EVENT) {

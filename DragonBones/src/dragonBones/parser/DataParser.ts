@@ -168,7 +168,7 @@ namespace dragonBones {
         protected static readonly ROTATE_MIX: string = "rotateMix";
         protected static readonly TRANSLATE_MIX: string = "translateMix";
 
-        protected static readonly TARGET_DISPLAY : string = "targetDisplay";
+        protected static readonly TARGET_DISPLAY: string = "targetDisplay";
         protected static readonly CLOSED: string = "closed";
         protected static readonly CONSTANT_SPEED: string = "constantSpeed";
         protected static readonly VERTEX_COUNT: string = "vertexCount";
@@ -204,6 +204,51 @@ namespace dragonBones {
 
                 default:
                     return BoneType.Bone;
+            }
+        }
+
+        protected static _getPositionMode(value: string): PositionMode {
+            switch (value.toLocaleLowerCase()) {
+                case "percent":
+                    return PositionMode.Percent;
+
+                case "fixed":
+                    return PositionMode.Fixed;
+
+                default:
+                    return PositionMode.Percent;
+            }
+        }
+
+        protected static _getSpacingMode(value: string): SpacingMode {
+            switch (value.toLocaleLowerCase()) {
+                case "length":
+                    return SpacingMode.Length;
+
+                case "percent":
+                    return SpacingMode.Percent;
+
+                case "fixed":
+                    return SpacingMode.Fixed;
+
+                default:
+                    return SpacingMode.Length;
+            }
+        }
+
+        protected static _getRotateMode(value: string): RotateMode {
+            switch (value.toLocaleLowerCase()) {
+                case "tangent":
+                    return RotateMode.Tangent;
+
+                case "chain":
+                    return RotateMode.Chain;
+
+                case "chainscale":
+                    return RotateMode.ChainScale;
+
+                default:
+                    return RotateMode.Tangent;
             }
         }
 
@@ -294,45 +339,6 @@ namespace dragonBones {
             }
         }
 
-        protected static _getPositionMode(value: string): PositionMode {
-            switch (value.toLocaleLowerCase()) {
-                case "percent":
-                    return PositionMode.Percent;
-
-                case "fixed":
-                    return PositionMode.Fixed;
-
-                default:
-                    return PositionMode.Percent;
-            }
-        }
-
-        protected static _getSpacingMode(value: string): SpacingMode {
-            switch (value.toLocaleLowerCase()) {
-                case "length":
-                    return SpacingMode.Length;
-                case "percent":
-                    return SpacingMode.Percent;
-                case "fixed":
-                    return SpacingMode.Fixed;
-                default:
-                    return SpacingMode.Length;
-            }
-        }
-
-        protected static _getRotateMode(value: string): RotateMode {
-            switch (value.toLocaleLowerCase()) {
-                case "tangent":
-                    return RotateMode.Tangent;
-                case "chain":
-                    return RotateMode.Chain;
-                case "chainscale":
-                    return RotateMode.ChainScale;
-                default:
-                    return RotateMode.Tangent;
-            }
-        }
-
         protected static _getAnimationBlendType(value: string): AnimationBlendType {
             switch (value.toLowerCase()) {
                 case "none":
@@ -364,65 +370,5 @@ namespace dragonBones {
 
         public abstract parseDragonBonesData(rawData: any, scale: number): DragonBonesData | null;
         public abstract parseTextureAtlasData(rawData: any, textureAtlasData: TextureAtlasData, scale: number): boolean;
-
-        /**
-         * - Deprecated, please refer to {@link dragonBones.BaseFactory#parsetTextureAtlasData()}.
-         * @deprecated
-         * @language en_US
-         */
-        /**
-         * - 已废弃，请参考 {@link dragonBones.BaseFactory#parsetTextureAtlasData()}。
-         * @deprecated
-         * @language zh_CN
-         */
-        public static parseDragonBonesData(rawData: any): DragonBonesData | null {
-            console.warn("Deprecated.");
-            if (rawData instanceof ArrayBuffer) {
-                return BinaryDataParser.getInstance().parseDragonBonesData(rawData);
-            }
-            else {
-                return ObjectDataParser.getInstance().parseDragonBonesData(rawData);
-            }
-        }
-        /**
-         * - Deprecated, please refer to {@link dragonBones.BaseFactory#parsetTextureAtlasData()}.
-         * @deprecated
-         * @language en_US
-         */
-        /**
-         * - 已废弃，请参考 {@link dragonBones.BaseFactory#parsetTextureAtlasData()}。
-         * @deprecated
-         * @language zh_CN
-         */
-        public static parseTextureAtlasData(rawData: any, scale: number = 1): any {
-            console.warn("已废弃");
-
-            const textureAtlasData = {} as any;
-
-            const subTextureList = rawData[DataParser.SUB_TEXTURE];
-            for (let i = 0, len = subTextureList.length; i < len; i++) {
-                const subTextureObject = subTextureList[i];
-                const subTextureName = subTextureObject[DataParser.NAME];
-                const subTextureRegion = new Rectangle();
-                let subTextureFrame: Rectangle | null = null;
-
-                subTextureRegion.x = subTextureObject[DataParser.X] / scale;
-                subTextureRegion.y = subTextureObject[DataParser.Y] / scale;
-                subTextureRegion.width = subTextureObject[DataParser.WIDTH] / scale;
-                subTextureRegion.height = subTextureObject[DataParser.HEIGHT] / scale;
-
-                if (DataParser.FRAME_WIDTH in subTextureObject) {
-                    subTextureFrame = new Rectangle();
-                    subTextureFrame.x = subTextureObject[DataParser.FRAME_X] / scale;
-                    subTextureFrame.y = subTextureObject[DataParser.FRAME_Y] / scale;
-                    subTextureFrame.width = subTextureObject[DataParser.FRAME_WIDTH] / scale;
-                    subTextureFrame.height = subTextureObject[DataParser.FRAME_HEIGHT] / scale;
-                }
-
-                textureAtlasData[subTextureName] = { region: subTextureRegion, frame: subTextureFrame, rotated: false };
-            }
-
-            return textureAtlasData;
-        }
     }
 }
