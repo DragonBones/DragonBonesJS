@@ -284,8 +284,8 @@ namespace dragonBones {
             const floatArray = dragonBonesData.floatArray;
 
             const pathOffset = verticesData.offset;
-            const pathVertexCount = intArray[pathOffset + BinaryOffset.PathVertexCount];
-            const pathVertexOffset = intArray[pathOffset + BinaryOffset.PathFloatOffset];
+            const pathVertexCount = intArray[pathOffset + BinaryOffset.GeometryVertexCount];
+            const pathVertexOffset = intArray[pathOffset + BinaryOffset.GeometryFloatOffset];
 
             this._pathGlobalVertices.length = pathVertexCount * 2;
 
@@ -358,7 +358,7 @@ namespace dragonBones {
             //计算当前的骨骼在曲线上的位置
             const armature = this._armature;
             const intArray = armature.armatureData.parent.intArray;
-            const vertexCount = intArray[pathDisplayDta.geometry.offset + BinaryOffset.PathVertexCount];
+            const vertexCount = intArray[pathDisplayDta.geometry.offset + BinaryOffset.GeometryVertexCount];
 
             const positions = this._positions;
             const spaces = this._spaces;

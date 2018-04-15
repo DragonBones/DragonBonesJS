@@ -627,23 +627,23 @@ namespace dragonBones {
                 const dragonBonesData = this._animationData.parent.parent;
                 const intArray = dragonBonesData.intArray;
                 const frameIntArray = dragonBonesData.frameIntArray;
-                const valueOffset = this._animationData.frameIntOffset + this._frameValueOffset + this._frameIndex * 1;
+                const valueOffset = this._animationData.frameIntOffset + this._frameValueOffset + this._frameIndex;
                 let colorOffset = frameIntArray[valueOffset];
 
                 if (colorOffset < 0) {
                     colorOffset += 65536; // Fixed out of bounds bug. 
                 }
 
-                this._current[0] = intArray[colorOffset++];
-                this._current[1] = intArray[colorOffset++];
-                this._current[2] = intArray[colorOffset++];
-                this._current[3] = intArray[colorOffset++];
-                this._current[4] = intArray[colorOffset++];
-                this._current[5] = intArray[colorOffset++];
-                this._current[6] = intArray[colorOffset++];
-                this._current[7] = intArray[colorOffset++];
-
                 if (this._isTween) {
+                    this._current[0] = intArray[colorOffset++];
+                    this._current[1] = intArray[colorOffset++];
+                    this._current[2] = intArray[colorOffset++];
+                    this._current[3] = intArray[colorOffset++];
+                    this._current[4] = intArray[colorOffset++];
+                    this._current[5] = intArray[colorOffset++];
+                    this._current[6] = intArray[colorOffset++];
+                    this._current[7] = intArray[colorOffset++];
+
                     if (this._frameIndex === this._frameCount - 1) {
                         colorOffset = frameIntArray[this._animationData.frameIntOffset + this._frameValueOffset];
                     }
@@ -664,32 +664,44 @@ namespace dragonBones {
                     this._difference[6] = intArray[colorOffset++] - this._current[6];
                     this._difference[7] = intArray[colorOffset++] - this._current[7];
                 }
+                else {
+                    this._result[0] = intArray[colorOffset++] * 0.01;
+                    this._result[1] = intArray[colorOffset++] * 0.01;
+                    this._result[2] = intArray[colorOffset++] * 0.01;
+                    this._result[3] = intArray[colorOffset++] * 0.01;
+                    this._result[4] = intArray[colorOffset++];
+                    this._result[5] = intArray[colorOffset++];
+                    this._result[6] = intArray[colorOffset++];
+                    this._result[7] = intArray[colorOffset++];
+                }
             }
             else { // Pose.
                 const slot = this.target as Slot;
                 const color = slot.slotData.color;
-                this._current[0] = color.alphaMultiplier * 100.0;
-                this._current[1] = color.redMultiplier * 100.0;
-                this._current[2] = color.greenMultiplier * 100.0;
-                this._current[3] = color.blueMultiplier * 100.0;
-                this._current[4] = color.alphaOffset;
-                this._current[5] = color.redOffset;
-                this._current[6] = color.greenOffset;
-                this._current[7] = color.blueOffset;
+                this._result[0] = color.alphaMultiplier;
+                this._result[1] = color.redMultiplier;
+                this._result[2] = color.greenMultiplier;
+                this._result[3] = color.blueMultiplier;
+                this._result[4] = color.alphaOffset;
+                this._result[5] = color.redOffset;
+                this._result[6] = color.greenOffset;
+                this._result[7] = color.blueOffset;
             }
         }
 
         protected _onUpdateFrame(): void {
             super._onUpdateFrame();
 
-            this._result[0] = (this._current[0] + this._difference[0] * this._tweenProgress) * 0.01;
-            this._result[1] = (this._current[1] + this._difference[1] * this._tweenProgress) * 0.01;
-            this._result[2] = (this._current[2] + this._difference[2] * this._tweenProgress) * 0.01;
-            this._result[3] = (this._current[3] + this._difference[3] * this._tweenProgress) * 0.01;
-            this._result[4] = this._current[4] + this._difference[4] * this._tweenProgress;
-            this._result[5] = this._current[5] + this._difference[5] * this._tweenProgress;
-            this._result[6] = this._current[6] + this._difference[6] * this._tweenProgress;
-            this._result[7] = this._current[7] + this._difference[7] * this._tweenProgress;
+            if (this._isTween) {
+                this._result[0] = (this._current[0] + this._difference[0] * this._tweenProgress) * 0.01;
+                this._result[1] = (this._current[1] + this._difference[1] * this._tweenProgress) * 0.01;
+                this._result[2] = (this._current[2] + this._difference[2] * this._tweenProgress) * 0.01;
+                this._result[3] = (this._current[3] + this._difference[3] * this._tweenProgress) * 0.01;
+                this._result[4] = this._current[4] + this._difference[4] * this._tweenProgress;
+                this._result[5] = this._current[5] + this._difference[5] * this._tweenProgress;
+                this._result[6] = this._current[6] + this._difference[6] * this._tweenProgress;
+                this._result[7] = this._current[7] + this._difference[7] * this._tweenProgress;
+            }
         }
 
         public fadeOut(): void {

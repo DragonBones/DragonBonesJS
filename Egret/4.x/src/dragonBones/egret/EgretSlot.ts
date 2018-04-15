@@ -338,7 +338,7 @@ namespace dragonBones {
                             }
 
                             this._blendModeDirty = true;
-                            this._colorDirty = true;
+                            this._colorBlendState.dirty = true;
                         }
 
                         meshDisplay.texture = currentTextureData.renderTexture;
@@ -394,7 +394,7 @@ namespace dragonBones {
                             }
 
                             this._blendModeDirty = true;
-                            this._colorDirty = true;
+                            this._colorBlendState.dirty = true;
                         }
                         else {
                             normalDisplay.width = textureWidth;

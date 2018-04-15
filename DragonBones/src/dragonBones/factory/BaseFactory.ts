@@ -199,17 +199,17 @@ namespace dragonBones {
                 const slot = this._buildSlot(dataPackage, slotData, armature);
 
                 if (displayDatas !== null) {
-                    slot.displayFrameCount = DragonBones.webAssembly ? (displayDatas as any).size() : displayDatas.length;
+                    slot.displayFrameCount = displayDatas.length;
                     for (let i = 0, l = slot.displayFrameCount; i < l; ++i) {
-                        const displayData = DragonBones.webAssembly ? (displayDatas as any).get(i) : displayDatas[i];
+                        const displayData = displayDatas[i];
                         slot.replaceRawDisplayData(displayData, i);
 
-                        if (dataPackage.textureAtlasName.length > 0) {
-                            const textureData = this._getTextureData(dataPackage.textureAtlasName, displayData.path);
-                            slot.replaceTextureData(textureData, i);
-                        }
-
                         if (displayData !== null) {
+                            if (dataPackage.textureAtlasName.length > 0) {
+                                const textureData = this._getTextureData(dataPackage.textureAtlasName, displayData.path);
+                                slot.replaceTextureData(textureData, i);
+                            }
+
                             const display = this._getSlotDisplay(dataPackage, displayData, slot);
                             slot.replaceDisplay(display, i);
                         }
@@ -802,9 +802,9 @@ namespace dragonBones {
                 return false;
             }
 
-            slot.displayFrameCount = DragonBones.webAssembly ? (displayDatas as any).size() : displayDatas.length;
+            slot.displayFrameCount = displayDatas.length;
             for (let i = 0, l = slot.displayFrameCount; i < l; ++i) {
-                const displayData = DragonBones.webAssembly ? (displayDatas as any).get(i) : displayDatas[i];
+                const displayData = displayDatas[i];
                 this.replaceDisplay(slot, displayData, i);
             }
 
@@ -871,9 +871,9 @@ namespace dragonBones {
                     }
                 }
 
-                slot.displayFrameCount = DragonBones.webAssembly ? (displayDatas as any).size() : displayDatas.length;
+                slot.displayFrameCount = displayDatas.length;
                 for (let i = 0, l = slot.displayFrameCount; i < l; ++i) {
-                    const displayData = DragonBones.webAssembly ? (displayDatas as any).get(i) : displayDatas[i];
+                    const displayData = displayDatas[i];
                     slot.replaceRawDisplayData(displayData, i);
 
                     if (displayData !== null) {
@@ -956,8 +956,8 @@ namespace dragonBones {
                 for (const display of slot.displayList) {
                     if (display instanceof Armature) {
                         const displayDatas = skinData.getDisplays(slot.name);
-                        if (displayDatas !== null && index < (DragonBones.webAssembly ? (displayDatas as any).size() : displayDatas.length)) {
-                            const displayData = DragonBones.webAssembly ? (displayDatas as any).get(index) : displayDatas[index];
+                        if (displayDatas !== null && index < displayDatas.length) {
+                            const displayData = displayDatas[index];
                             if (displayData !== null && displayData.type === DisplayType.Armature) {
                                 const childArmatureData = this.getArmatureData(displayData.path, displayData.parent.parent.parent.name);
                                 if (childArmatureData) {

@@ -24,7 +24,6 @@
 		"out"
 	],
 	"files": [
-		"./src/dragonBones/modules.ts",
 		"./src/dragonBones/core/DragonBones.ts",
 		"./src/dragonBones/core/BaseObject.ts",
 
