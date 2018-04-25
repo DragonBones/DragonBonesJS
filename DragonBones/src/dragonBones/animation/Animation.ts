@@ -60,6 +60,7 @@ namespace dragonBones {
         private readonly _animationNames: Array<string> = [];
         private readonly _animationStates: Array<AnimationState> = [];
         private readonly _animations: Map<AnimationData> = {};
+        private readonly _blendStates: Map<Map<BlendState>> = {};
         private _armature: Armature;
         private _animationConfig: AnimationConfig = null as any; // Initial value.
         private _lastAnimationState: AnimationState | null;
@@ -71,6 +72,15 @@ namespace dragonBones {
 
             for (let k in this._animations) {
                 delete this._animations[k];
+            }
+
+            for (let k in this._blendStates) {
+                const blendStates = this._blendStates[k];
+                for (let kB in blendStates) {
+                    blendStates[kB].returnToPool();
+                }
+
+                delete this._blendStates[k];
             }
 
             if (this._animationConfig !== null) {
@@ -174,6 +184,13 @@ namespace dragonBones {
 
             if (this._inheritTimeScale !== 1.0) {
                 passedTime *= this._inheritTimeScale;
+            }
+
+            for (let k in this._blendStates) {
+                const blendStates = this._blendStates[k];
+                for (let kB in blendStates) {
+                    blendStates[kB].reset();
+                }
             }
 
             const animationStateCount = this._animationStates.length;
@@ -715,6 +732,22 @@ namespace dragonBones {
             }
 
             return animationState;
+        }
+        /**
+         * @internal
+         */
+        public getBlendState(type: string, name: string, target: BaseObject): BlendState {
+            if (!(type in this._blendStates)) {
+                this._blendStates[type] = {};
+            }
+
+            const blendStates = this._blendStates[type];
+            if (!(name in blendStates)) {
+                const blendState = blendStates[name] = BaseObject.borrowObject(BlendState);
+                blendState.target = target;
+            }
+
+            return blendStates[name];
         }
         /**
          * - Get a specific animation state.

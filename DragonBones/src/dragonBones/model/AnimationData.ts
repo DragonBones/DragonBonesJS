@@ -266,8 +266,8 @@ namespace dragonBones {
         /**
          * @private
          */
-        public addBoneTimeline(bone: BoneData, timeline: TimelineData): void {
-            const timelines = bone.name in this.boneTimelines ? this.boneTimelines[bone.name] : (this.boneTimelines[bone.name] = []);
+        public addBoneTimeline(timelineName: string, timeline: TimelineData): void {
+            const timelines = timelineName in this.boneTimelines ? this.boneTimelines[timelineName] : (this.boneTimelines[timelineName] = []);
             if (timelines.indexOf(timeline) < 0) {
                 timelines.push(timeline);
             }
@@ -275,8 +275,8 @@ namespace dragonBones {
         /**
          * @private
          */
-        public addSlotTimeline(slot: SlotData, timeline: TimelineData): void {
-            const timelines = slot.name in this.slotTimelines ? this.slotTimelines[slot.name] : (this.slotTimelines[slot.name] = []);
+        public addSlotTimeline(timelineName: string, timeline: TimelineData): void {
+            const timelines = timelineName in this.slotTimelines ? this.slotTimelines[timelineName] : (this.slotTimelines[timelineName] = []);
             if (timelines.indexOf(timeline) < 0) {
                 timelines.push(timeline);
             }
@@ -284,8 +284,8 @@ namespace dragonBones {
         /**
          * @private
          */
-        public addConstraintTimeline(constraint: ConstraintData, timeline: TimelineData): void {
-            const timelines = constraint.name in this.constraintTimelines ? this.constraintTimelines[constraint.name] : (this.constraintTimelines[constraint.name] = []);
+        public addConstraintTimeline(timelineName: string, timeline: TimelineData): void {
+            const timelines = timelineName in this.constraintTimelines ? this.constraintTimelines[timelineName] : (this.constraintTimelines[timelineName] = []);
             if (timelines.indexOf(timeline) < 0) {
                 timelines.push(timeline);
             }

@@ -191,17 +191,25 @@ namespace dragonBones {
         /**
          * @internal
          */
+        public _colorDirty: boolean;
+        /**
+         * @internal
+         */
         public _verticesDirty: boolean;
         protected _transformDirty: boolean;
         protected _visible: boolean;
         protected _blendMode: BlendMode;
         protected _displayIndex: number;
         protected _animationDisplayIndex: number;
+        protected _cachedFrameIndex: number;
         /**
          * @internal
          */
         public _zOrder: number;
-        protected _cachedFrameIndex: number;
+        /**
+         * @internal
+         */
+        public _zIndex: number;
         /**
          * @internal
          */
@@ -215,14 +223,6 @@ namespace dragonBones {
          * @internal
          */
         public readonly _colorTransform: ColorTransform = new ColorTransform();
-        /**
-         * @internal
-         */
-        public readonly _colorBlendState: BlendState = new BlendState();
-        /**
-         * @internal
-         */
-        public readonly _deformBlendState: BlendState = new BlendState();
         /**
          * @internal
          */
@@ -300,6 +300,7 @@ namespace dragonBones {
             this._visibleDirty = false;
             this._blendModeDirty = false;
             this._zOrderDirty = false;
+            this._colorDirty = false;
             this._verticesDirty = false;
             this._transformDirty = false;
             this._visible = true;
@@ -307,13 +308,12 @@ namespace dragonBones {
             this._displayIndex = -1;
             this._animationDisplayIndex = -1;
             this._zOrder = 0;
+            this._zIndex = 0;
             this._cachedFrameIndex = -1;
             this._pivotX = 0.0;
             this._pivotY = 0.0;
             this._localMatrix.identity();
             this._colorTransform.identity();
-            this._colorBlendState.clear();
-            this._deformBlendState.clear();
             this._displayFrames.length = 0;
             this._geometryBones.length = 0;
             this._slotData = null as any; //
@@ -371,6 +371,17 @@ namespace dragonBones {
             }
 
             return false;
+        }
+        /**
+         * @internal
+         */
+        public _updateAlpha() {
+            const globalAlpha = this._alpha * this._parent._globalAlpha;
+
+            if (this._globalAlpha !== globalAlpha) {
+                this._globalAlpha = globalAlpha;
+                this._colorDirty = true;
+            }
         }
 
         protected _updateDisplayData(): void {
@@ -518,8 +529,8 @@ namespace dragonBones {
                 this._textureDirty = true;
                 this._visibleDirty = true;
                 this._blendModeDirty = true;
-                this._colorBlendState.dirty = true;
                 this._zOrderDirty = true;
+                this._colorDirty = true;
                 this._transformDirty = true;
 
                 if (this._display !== null && prevDisplay !== null) {
@@ -617,7 +628,7 @@ namespace dragonBones {
         /**
          * @internal
          */
-        public _setZorder(value: number): boolean {
+        public _setZOrder(value: number): boolean {
             if (this._zOrder === value) {
                 // return false;
             }
@@ -632,9 +643,8 @@ namespace dragonBones {
          */
         public _setColor(value: ColorTransform): boolean {
             this._colorTransform.copyFrom(value);
-            this._colorBlendState.dirty = true;
 
-            return this._colorBlendState.dirty;
+            return this._colorDirty = true;
         }
         /**
          * @internal
@@ -705,9 +715,9 @@ namespace dragonBones {
                 this._blendModeDirty = false;
             }
 
-            if (this._colorBlendState.dirty) {
+            if (this._colorDirty) {
                 this._updateColor();
-                this._colorBlendState.dirty = false;
+                this._colorDirty = false;
             }
 
             if (this._zOrderDirty) {
@@ -718,7 +728,6 @@ namespace dragonBones {
             if (this._geometryData !== null && this._display === this._meshDisplay) {
                 const isSkinned = this._geometryData.weight !== null;
                 const isSurface = this._parent._boneData.type !== BoneType.Bone;
-                this._deformBlendState.dirty = false;
 
                 if (
                     this._verticesDirty ||

@@ -290,7 +290,7 @@ namespace dragonBones {
                     this._animationState.currentPlayTimes < this._animationState.playTimes - 1
                 )
             ) {
-                this._tweenType = this._frameArray[this._frameOffset + BinaryOffset.FrameTweenType]; // TODO recode ture tween type.
+                this._tweenType = this._frameArray[this._frameOffset + BinaryOffset.FrameTweenType];
                 this._isTween = this._tweenType !== TweenType.None;
 
                 if (this._isTween) {
@@ -342,9 +342,7 @@ namespace dragonBones {
             }
         }
 
-        public blend(state: number, isDirty: boolean): void {
-            // tslint:disable-next-line:no-unused-expression
-            state;
+        public blend(isDirty: boolean): void {
             // tslint:disable-next-line:no-unused-expression
             isDirty;
         }
@@ -477,7 +475,7 @@ namespace dragonBones {
     /**
      * @internal
      */
-    export abstract class ValuesTimelineState extends TweenTimelineState {
+    export abstract class MutilpleValueTimelineState extends TweenTimelineState {
         protected _valueCount: number;
         protected readonly _rd: Array<number> = [];
 
@@ -520,7 +518,8 @@ namespace dragonBones {
                     for (let i = 0; i < valueCount; ++i) {
                         rd[i] = valueArray[valueOffset + i];
                     }
-                } else {
+                }
+                else {
                     for (let i = 0; i < valueCount; ++i) {
                         rd[i] = valueArray[valueOffset + i] * valueScale;
                     }

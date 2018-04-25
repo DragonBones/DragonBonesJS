@@ -79,10 +79,6 @@ namespace dragonBones {
         /**
          * @internal
          */
-        public readonly _blendState: BlendState = new BlendState();
-        /**
-         * @internal
-         */
         public _boneData: BoneData;
         /**
          * @private
@@ -105,7 +101,6 @@ namespace dragonBones {
             this._hasConstraint = false;
             this._visible = true;
             this._cachedFrameIndex = -1;
-            this._blendState.clear();
             this._boneData = null as any; //
             this._parent = null as any; //
             this._cachedFrameIndices = null;
@@ -310,6 +305,17 @@ namespace dragonBones {
         /**
          * @internal
          */
+        public _updateAlpha() {
+            if (this._parent !== null) {
+                this._globalAlpha = this._alpha * this._parent._globalAlpha;
+            }
+            else {
+                this._globalAlpha = this._alpha * this._armature._globalAlpha;
+            }
+        }
+        /**
+         * @internal
+         */
         public init(boneData: BoneData, armatureValue: Armature): void {
             if (this._boneData !== null) {
                 return;
@@ -330,8 +336,6 @@ namespace dragonBones {
          * @internal
          */
         public update(cacheFrameIndex: number): void {
-            this._blendState.dirty = false;
-
             if (cacheFrameIndex >= 0 && this._cachedFrameIndices !== null) {
                 const cachedFrameIndex = this._cachedFrameIndices[cacheFrameIndex];
                 if (cachedFrameIndex >= 0 && this._cachedFrameIndex === cachedFrameIndex) { // Same cache.

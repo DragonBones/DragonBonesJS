@@ -479,8 +479,6 @@ namespace dragonBones {
          * @internal
          */
         public update(cacheFrameIndex: number): void {
-            this._blendState.dirty = false;
-
             if (cacheFrameIndex >= 0 && this._cachedFrameIndices !== null) {
                 const cachedFrameIndex = this._cachedFrameIndices[cacheFrameIndex];
                 if (cachedFrameIndex >= 0 && this._cachedFrameIndex === cachedFrameIndex) { // Same cache.

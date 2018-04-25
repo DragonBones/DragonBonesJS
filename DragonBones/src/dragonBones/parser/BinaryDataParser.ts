@@ -214,97 +214,97 @@ namespace dragonBones {
                 animation.zOrderTimeline = this._parseBinaryTimeline(TimelineType.ZOrder, rawData[DataParser.Z_ORDER]);
             }
 
-            if (DataParser.BONE in rawData) {
-                const rawTimeliness = rawData[DataParser.BONE];
-                for (let k in rawTimeliness) {
-                    const rawTimelines = rawTimeliness[k] as Array<number>;
-                    const bone = this._armature.getBone(k);
-                    if (bone === null) {
-                        continue;
-                    }
+            // if (DataParser.BONE in rawData) {
+            //     const rawTimeliness = rawData[DataParser.BONE];
+            //     for (let k in rawTimeliness) {
+            //         const rawTimelines = rawTimeliness[k] as Array<number>;
+            //         const bone = this._armature.getBone(k);
+            //         if (bone === null) {
+            //             continue;
+            //         }
 
-                    for (let i = 0, l = rawTimelines.length; i < l; i += 2) {
-                        const timelineType = rawTimelines[i];
-                        const timelineOffset = rawTimelines[i + 1];
-                        const timeline = this._parseBinaryTimeline(timelineType, timelineOffset);
-                        this._animation.addBoneTimeline(bone, timeline);
-                    }
-                }
-            }
+            //         for (let i = 0, l = rawTimelines.length; i < l; i += 2) {
+            //             const timelineType = rawTimelines[i];
+            //             const timelineOffset = rawTimelines[i + 1];
+            //             const timeline = this._parseBinaryTimeline(timelineType, timelineOffset);
+            //             this._animation.addBoneTimeline(bone, timeline);
+            //         }
+            //     }
+            // }
 
-            if (DataParser.SURFACE in rawData) {
-                const rawTimeliness = rawData[DataParser.SURFACE];
-                for (let k in rawTimeliness) {
-                    const rawTimelines = rawTimeliness[k] as Array<number>;
-                    const surface = this._armature.getBone(k) as SurfaceData;
-                    if (surface === null) {
-                        continue;
-                    }
+            // if (DataParser.SURFACE in rawData) {
+            //     const rawTimeliness = rawData[DataParser.SURFACE];
+            //     for (let k in rawTimeliness) {
+            //         const rawTimelines = rawTimeliness[k] as Array<number>;
+            //         const surface = this._armature.getBone(k) as SurfaceData;
+            //         if (surface === null) {
+            //             continue;
+            //         }
 
-                    for (let i = 0, l = rawTimelines.length; i < l; i += 2) {
-                        const timelineType = rawTimelines[i];
-                        const timelineOffset = rawTimelines[i + 1];
-                        const timeline = this._parseBinaryTimeline(timelineType, timelineOffset);
-                        this._animation.addBoneTimeline(surface, timeline);
-                    }
-                }
-            }
+            //         for (let i = 0, l = rawTimelines.length; i < l; i += 2) {
+            //             const timelineType = rawTimelines[i];
+            //             const timelineOffset = rawTimelines[i + 1];
+            //             const timeline = this._parseBinaryTimeline(timelineType, timelineOffset);
+            //             this._animation.addBoneTimeline(surface, timeline);
+            //         }
+            //     }
+            // }
 
-            if (DataParser.SLOT in rawData) {
-                const rawTimeliness = rawData[DataParser.SLOT];
-                for (let k in rawTimeliness) {
-                    const rawTimelines = rawTimeliness[k] as Array<number>;
-                    const slot = this._armature.getSlot(k);
-                    if (slot === null) {
-                        continue;
-                    }
+            // if (DataParser.SLOT in rawData) {
+            //     const rawTimeliness = rawData[DataParser.SLOT];
+            //     for (let k in rawTimeliness) {
+            //         const rawTimelines = rawTimeliness[k] as Array<number>;
+            //         const slot = this._armature.getSlot(k);
+            //         if (slot === null) {
+            //             continue;
+            //         }
 
-                    for (let i = 0, l = rawTimelines.length; i < l; i += 2) {
-                        const timelineType = rawTimelines[i];
-                        const timelineOffset = rawTimelines[i + 1];
-                        const timeline = this._parseBinaryTimeline(timelineType, timelineOffset);
-                        this._animation.addSlotTimeline(slot, timeline);
-                    }
-                }
-            }
+            //         for (let i = 0, l = rawTimelines.length; i < l; i += 2) {
+            //             const timelineType = rawTimelines[i];
+            //             const timelineOffset = rawTimelines[i + 1];
+            //             const timeline = this._parseBinaryTimeline(timelineType, timelineOffset);
+            //             this._animation.addSlotTimeline(slot, timeline);
+            //         }
+            //     }
+            // }
 
-            if (DataParser.CONSTRAINT in rawData) {
-                const rawTimeliness = rawData[DataParser.CONSTRAINT];
-                for (let k in rawTimeliness) {
-                    const rawTimelines = rawTimeliness[k] as Array<number>;
-                    const constraint = this._armature.getConstraint(k);
-                    if (constraint === null) {
-                        continue;
-                    }
+            // if (DataParser.CONSTRAINT in rawData) {
+            //     const rawTimeliness = rawData[DataParser.CONSTRAINT];
+            //     for (let k in rawTimeliness) {
+            //         const rawTimelines = rawTimeliness[k] as Array<number>;
+            //         const constraint = this._armature.getConstraint(k);
+            //         if (constraint === null) {
+            //             continue;
+            //         }
 
-                    for (let i = 0, l = rawTimelines.length; i < l; i += 2) {
-                        const timelineType = rawTimelines[i];
-                        const timelineOffset = rawTimelines[i + 1];
-                        const timeline = this._parseBinaryTimeline(timelineType, timelineOffset);
-                        this._animation.addConstraintTimeline(constraint, timeline);
-                    }
-                }
-            }
+            //         for (let i = 0, l = rawTimelines.length; i < l; i += 2) {
+            //             const timelineType = rawTimelines[i];
+            //             const timelineOffset = rawTimelines[i + 1];
+            //             const timeline = this._parseBinaryTimeline(timelineType, timelineOffset);
+            //             this._animation.addConstraintTimeline(constraint, timeline);
+            //         }
+            //     }
+            // }
 
-            if (DataParser.ANIMATION in rawData) {
-                const rawTimeliness = rawData[DataParser.ANIMATION];
-                for (let k in rawTimeliness) {
-                    const rawTimelines = rawTimeliness[k] as Array<any>;
-                    for (const rawTimeline of rawTimelines) {
-                        const timelineType = ObjectDataParser._getNumber(rawTimeline, DataParser.TYPE, TimelineType.AnimationProgress);
-                        const timelineOffset = ObjectDataParser._getNumber(rawTimeline, DataParser.OFFSET, 0);
-                        const timeline = timelineType === TimelineType.AnimationParameter ? BaseObject.borrowObject(AnimationTimelineData) : BaseObject.borrowObject(TimelineData);
-                        this._parseBinaryTimeline(timelineType, timelineOffset, timeline);
+            // if (DataParser.ANIMATION in rawData) {
+            //     const rawTimeliness = rawData[DataParser.ANIMATION];
+            //     for (let k in rawTimeliness) {
+            //         const rawTimelines = rawTimeliness[k] as Array<any>;
+            //         for (const rawTimeline of rawTimelines) {
+            //             const timelineType = ObjectDataParser._getNumber(rawTimeline, DataParser.TYPE, TimelineType.AnimationProgress);
+            //             const timelineOffset = ObjectDataParser._getNumber(rawTimeline, DataParser.OFFSET, 0);
+            //             const timeline = timelineType === TimelineType.AnimationParameter ? BaseObject.borrowObject(AnimationTimelineData) : BaseObject.borrowObject(TimelineData);
+            //             this._parseBinaryTimeline(timelineType, timelineOffset, timeline);
 
-                        if (timelineType === TimelineType.AnimationParameter) {
-                            (timeline as AnimationTimelineData).x = ObjectDataParser._getNumber(rawTimeline, DataParser.X, 0.0);
-                            (timeline as AnimationTimelineData).y = ObjectDataParser._getNumber(rawTimeline, DataParser.Y, 0.0);
-                        }
+            //             if (timelineType === TimelineType.AnimationParameter) {
+            //                 (timeline as AnimationTimelineData).x = ObjectDataParser._getNumber(rawTimeline, DataParser.X, 0.0);
+            //                 (timeline as AnimationTimelineData).y = ObjectDataParser._getNumber(rawTimeline, DataParser.Y, 0.0);
+            //             }
 
-                        this._animation.addAnimationTimeline(k, timeline);
-                    }
-                }
-            }
+            //             this._animation.addAnimationTimeline(k, timeline);
+            //         }
+            //     }
+            // }
 
             this._animation = null as any;
 

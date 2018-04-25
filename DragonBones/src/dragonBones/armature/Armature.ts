@@ -44,7 +44,7 @@ namespace dragonBones {
             return "[class dragonBones.Armature]";
         }
         private static _onSortSlots(a: Slot, b: Slot): number {
-            return a._zOrder > b._zOrder ? 1 : -1;
+            return a._zIndex * 100 + a._zOrder > a._zIndex * 100 + b._zOrder ? 1 : -1;
         }
         /**
          * - Whether to inherit the animation control of the parent armature.
@@ -71,12 +71,21 @@ namespace dragonBones {
         public _lockUpdate: boolean;
         private _slotsDirty: boolean;
         private _zOrderDirty: boolean;
+        /**
+         * @internal
+         */
+        public _alphaDirty: boolean;
         private _flipX: boolean;
         private _flipY: boolean;
         /**
          * @internal
          */
         public _cacheFrameIndex: number;
+        private _alpha: number;
+        /**
+         * @internal
+         */
+        public _globalAlpha: number;
         private readonly _bones: Array<Bone> = [];
         private readonly _slots: Array<Slot> = [];
         /**
@@ -145,9 +154,12 @@ namespace dragonBones {
             this._lockUpdate = false;
             this._slotsDirty = true;
             this._zOrderDirty = false;
+            this._alphaDirty = false;
             this._flipX = false;
             this._flipY = false;
             this._cacheFrameIndex = -1;
+            this._alpha = 1.0;
+            this._globalAlpha = 1.0;
             this._bones.length = 0;
             this._slots.length = 0;
             this._constraints.length = 0;
@@ -178,8 +190,9 @@ namespace dragonBones {
 
                     const slotData = slotDatas[slotIndex];
                     const slot = this.getSlot(slotData.name);
+
                     if (slot !== null) {
-                        slot._setZorder(i);
+                        slot._setZOrder(i);
                     }
                 }
 
@@ -299,6 +312,19 @@ namespace dragonBones {
             if (this._slotsDirty) {
                 this._slotsDirty = false;
                 this._slots.sort(Armature._onSortSlots);
+            }
+
+            if (this._alphaDirty) {
+                this._alphaDirty = false;
+                this._globalAlpha = this._alpha * (this._parent !== null ? this._parent._globalAlpha : 1.0);
+
+                for (const bone of this._bones) {
+                    bone._updateAlpha();
+                }
+
+                for (const slot of this._slots) {
+                    slot._updateAlpha();
+                }
             }
 
             // Update bones and slots.

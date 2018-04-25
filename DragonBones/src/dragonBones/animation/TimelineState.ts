@@ -287,7 +287,7 @@ namespace dragonBones {
     /**
      * @internal
      */
-    export class BoneAllTimelineState extends ValuesTimelineState {
+    export class BoneAllTimelineState extends MutilpleValueTimelineState {
         public static toString(): string {
             return "[class dragonBones.BoneAllTimelineState]";
         }
@@ -319,15 +319,16 @@ namespace dragonBones {
             this._rd[3] = Transform.normalizeRadian(this._rd[3]);
         }
 
-        public blend(state: number, isDirty: boolean): void {
+        public blend(isDirty: boolean): void {
             const valueScale = this._armature.armatureData.scale;
             const rd = this._rd;
             //
-            const bone = this.target as Bone;
-            const blendWeight = bone._blendState.blendWeight;
+            const blendState = this.target as BlendState;
+            const bone = blendState.target as Bone;
+            const blendWeight = blendState.blendWeight;
             const result = bone.animationPose;
 
-            if (state === 2) {
+            if (blendState.dirty > 1) {
                 result.x += rd[0] * blendWeight * valueScale;
                 result.y += rd[1] * blendWeight * valueScale;
                 result.rotation += rd[2] * blendWeight;
@@ -335,21 +336,23 @@ namespace dragonBones {
                 result.scaleX += (rd[4] - 1.0) * blendWeight;
                 result.scaleY += (rd[5] - 1.0) * blendWeight;
             }
-            else if (blendWeight !== 1.0) {
-                result.x = rd[0] * blendWeight * valueScale;
-                result.y = rd[1] * blendWeight * valueScale;
-                result.rotation = rd[2] * blendWeight;
-                result.skew = rd[3] * blendWeight;
-                result.scaleX = (rd[4] - 1.0) * blendWeight + 1.0; // 
-                result.scaleY = (rd[5] - 1.0) * blendWeight + 1.0; //
-            }
             else {
-                result.x = rd[0] * valueScale;
-                result.y = rd[1] * valueScale;
-                result.rotation = rd[2];
-                result.skew = rd[3];
-                result.scaleX = rd[4];
-                result.scaleY = rd[5];
+                if (blendWeight !== 1.0) {
+                    result.x = rd[0] * blendWeight * valueScale;
+                    result.y = rd[1] * blendWeight * valueScale;
+                    result.rotation = rd[2] * blendWeight;
+                    result.skew = rd[3] * blendWeight;
+                    result.scaleX = (rd[4] - 1.0) * blendWeight + 1.0; // 
+                    result.scaleY = (rd[5] - 1.0) * blendWeight + 1.0; //
+                }
+                else {
+                    result.x = rd[0] * valueScale;
+                    result.y = rd[1] * valueScale;
+                    result.rotation = rd[2];
+                    result.skew = rd[3];
+                    result.scaleX = rd[4];
+                    result.scaleY = rd[5];
+                }
             }
 
             if (isDirty || this.dirty) {
@@ -374,22 +377,25 @@ namespace dragonBones {
             this._valueArray = this._animationData.parent.parent.frameFloatArray;
         }
 
-        public blend(state: number, isDirty: boolean): void {
-            const bone = this.target as Bone;
-            const blendWeight = bone._blendState.blendWeight;
+        public blend(isDirty: boolean): void {
+            const blendState = this.target as BlendState;
+            const bone = blendState.target as Bone;
+            const blendWeight = blendState.blendWeight;
             const result = bone.animationPose;
 
-            if (state === 2) {
+            if (blendState.dirty > 1) {
                 result.x += this._resultA * blendWeight;
                 result.y += this._resultB * blendWeight;
             }
-            else if (blendWeight !== 1.0) {
-                result.x = this._resultA * blendWeight;
-                result.y = this._resultB * blendWeight;
-            }
             else {
-                result.x = this._resultA;
-                result.y = this._resultB;
+                if (blendWeight !== 1.0) {
+                    result.x = this._resultA * blendWeight;
+                    result.y = this._resultB * blendWeight;
+                }
+                else {
+                    result.x = this._resultA;
+                    result.y = this._resultB;
+                }
             }
 
             if (isDirty || this.dirty) {
@@ -427,22 +433,25 @@ namespace dragonBones {
             this._resultB = Transform.normalizeRadian(this._resultB);
         }
 
-        public blend(state: number, isDirty: boolean): void {
-            const bone = this.target as Bone;
-            const blendWeight = bone._blendState.blendWeight;
+        public blend(isDirty: boolean): void {
+            const blendState = this.target as BlendState;
+            const bone = blendState.target as Bone;
+            const blendWeight = blendState.blendWeight;
             const result = bone.animationPose;
 
-            if (state === 2) {
+            if (blendState.dirty > 1) {
                 result.rotation += this._resultA * blendWeight;
                 result.skew += this._resultB * blendWeight;
             }
-            else if (blendWeight !== 1.0) {
-                result.rotation = this._resultA * blendWeight;
-                result.skew = this._resultB * blendWeight;
-            }
             else {
-                result.rotation = this._resultA;
-                result.skew = this._resultB;
+                if (blendWeight !== 1.0) {
+                    result.rotation = this._resultA * blendWeight;
+                    result.skew = this._resultB * blendWeight;
+                }
+                else {
+                    result.rotation = this._resultA;
+                    result.skew = this._resultB;
+                }
             }
 
             if (isDirty || this.dirty) {
@@ -475,22 +484,25 @@ namespace dragonBones {
             this._valueArray = this._animationData.parent.parent.frameFloatArray;
         }
 
-        public blend(state: number, isDirty: boolean): void {
-            const bone = this.target as Bone;
-            const blendWeight = bone._blendState.blendWeight;
+        public blend(isDirty: boolean): void {
+            const blendState = this.target as BlendState;
+            const bone = blendState.target as Bone;
+            const blendWeight = blendState.blendWeight;
             const result = bone.animationPose;
 
-            if (state === 2) {
+            if (blendState.dirty > 1) {
                 result.scaleX += (this._resultA - 1.0) * blendWeight;
                 result.scaleY += (this._resultB - 1.0) * blendWeight;
             }
-            else if (blendWeight !== 1.0) {
-                result.scaleX = (this._resultA - 1.0) * blendWeight + 1.0;
-                result.scaleY = (this._resultB - 1.0) * blendWeight + 1.0;
-            }
             else {
-                result.scaleX = this._resultA;
-                result.scaleY = this._resultB;
+                if (blendWeight !== 1.0) {
+                    result.scaleX = (this._resultA - 1.0) * blendWeight + 1.0;
+                    result.scaleY = (this._resultB - 1.0) * blendWeight + 1.0;
+                }
+                else {
+                    result.scaleX = this._resultA;
+                    result.scaleY = this._resultB;
+                }
             }
 
             if (isDirty || this.dirty) {
@@ -498,10 +510,11 @@ namespace dragonBones {
                 bone._transformDirty = true;
             }
         }
-    }/**
+    }
+    /**
      * @internal
      */
-    export class SurfaceTimelineState extends ValuesTimelineState {
+    export class SurfaceTimelineState extends MutilpleValueTimelineState {
         public static toString(): string {
             return "[class dragonBones.SurfaceTimelineState]";
         }
@@ -535,13 +548,14 @@ namespace dragonBones {
                 this._rd.length = this._valueCount * 2;
             }
             else {
-                this._deformCount = (this.target as Surface)._deformVertices.length;
+                this._deformCount = ((this.target as BlendState).target as Surface)._deformVertices.length;
             }
         }
 
-        public blend(state: number, isDirty: boolean): void {
-            const surface = this.target as Surface;
-            const blendWeight = surface._blendState.blendWeight;
+        public blend(isDirty: boolean): void {
+            const blendState = this.target as BlendState;
+            const surface = blendState.target as Surface;
+            const blendWeight = blendState.blendWeight;
             const result = surface._deformVertices;
 
             if (this._isTween) {
@@ -564,7 +578,7 @@ namespace dragonBones {
                         value = valueArray[sameValueOffset + i - valueCount];
                     }
 
-                    if (state === 2) {
+                    if (blendState.dirty > 1) {
                         result[i] += value * blendWeight;
                     }
                     else if (blendWeight !== 1.0) {
@@ -575,7 +589,7 @@ namespace dragonBones {
                     }
                 }
             }
-            else if (state !== 2) {
+            else if (blendState.dirty === 1) {
                 for (let i = 0; i < this._deformCount; ++i) {
                     result[i] = 0.0;
                 }
@@ -584,6 +598,53 @@ namespace dragonBones {
             if (isDirty || this.dirty) {
                 this.dirty = false;
                 surface._transformDirty = true;
+            }
+        }
+    }
+    /**
+     * @internal
+     */
+    export class AlphaTimelineState extends SingleValueTimelineState {
+        public static toString(): string {
+            return "[class dragonBones.AlphaTimelineState]";
+        }
+
+        protected _onArriveAtFrame(): void {
+            super._onArriveAtFrame();
+
+            if (this._timelineData === null) { // Pose.
+                this._result = 1.0;
+            }
+        }
+
+        public init(armature: Armature, animationState: AnimationState, timelineData: TimelineData | null): void {
+            super.init(armature, animationState, timelineData);
+
+            this._valueOffset = this._animationData.frameIntOffset;
+            this._valueScale = 0.01;
+            this._valueArray = this._animationData.parent.parent.frameIntArray;
+        }
+
+        public blend(isDirty: boolean): void {
+            const blendState = this.target as BlendState;
+            const alphaTarget = blendState.target as TransformObject;
+            const blendWeight = blendState.blendWeight;
+
+            if (blendState.dirty > 1) {
+                alphaTarget._alpha += (this._result - 1.0) * blendWeight;
+            }
+            else {
+                if (blendWeight !== 1.0) {
+                    alphaTarget._alpha = (this._result - 1.0) * blendWeight + 1.0;
+                }
+                else {
+                    alphaTarget._alpha = this._result;
+                }
+            }
+
+            if (isDirty || this.dirty) {
+                this.dirty = false;
+                this._armature._alphaDirty = true;
             }
         }
     }
@@ -735,7 +796,7 @@ namespace dragonBones {
                         result.redOffset += (this._result[5] - result.redOffset) * fadeProgress;
                         result.greenOffset += (this._result[6] - result.greenOffset) * fadeProgress;
                         result.blueOffset += (this._result[7] - result.blueOffset) * fadeProgress;
-                        slot._colorBlendState.dirty = true;
+                        slot._colorDirty = true;
                     }
                 }
                 else if (this.dirty) {
@@ -759,7 +820,7 @@ namespace dragonBones {
                         result.redOffset = this._result[5];
                         result.greenOffset = this._result[6];
                         result.blueOffset = this._result[7];
-                        slot._colorBlendState.dirty = true;
+                        slot._colorDirty = true;
                     }
                 }
             }
@@ -768,7 +829,7 @@ namespace dragonBones {
     /**
      * @internal
      */
-    export class DeformTimelineState extends ValuesTimelineState {
+    export class DeformTimelineState extends MutilpleValueTimelineState {
         public static toString(): string {
             return "[class dragonBones.DeformTimelineState]";
         }
@@ -776,7 +837,6 @@ namespace dragonBones {
         public geometryOffset: number;
         public displayFrame: DisplayFrame;
 
-        private _enabled: boolean;
         private _deformCount: number;
         private _deformOffset: number;
         private _sameValueOffset: number;
@@ -787,16 +847,9 @@ namespace dragonBones {
             this.geometryOffset = 0;
             this.displayFrame = null as any;
 
-            this._enabled = false;
             this._deformCount = 0;
             this._deformOffset = 0;
             this._sameValueOffset = 0;
-        }
-
-        protected _onUpdateFrame(): void {
-            super._onUpdateFrame();
-
-            this._enabled = (this.target as Slot)._geometryData === this.displayFrame.getGeometryData();
         }
 
         public init(armature: Armature, animationState: AnimationState, timelineData: TimelineData | null): void {
@@ -806,7 +859,7 @@ namespace dragonBones {
                 const frameIntOffset = this._animationData.frameIntOffset + this._timelineArray[this._timelineData.offset + BinaryOffset.TimelineFrameValueCount];
                 const dragonBonesData = this._animationData.parent.parent;
                 const frameIntArray = dragonBonesData.frameIntArray;
-                const slot = this.target as Slot;
+                const slot = (this.target as BlendState).target as Slot;
                 this.geometryOffset = frameIntArray[frameIntOffset + BinaryOffset.DeformVertexOffset];
 
                 if (this.geometryOffset < 0) {
@@ -847,9 +900,10 @@ namespace dragonBones {
             }
         }
 
-        public blend(state: number, isDirty: boolean): void {
-            const slot = this.target as Slot;
-            const blendWeight = slot._deformBlendState.blendWeight;
+        public blend(isDirty: boolean): void {
+            const blendState = this.target as BlendState;
+            const slot = blendState.target as Slot;
+            const blendWeight = blendState.blendWeight;
             const result = this.displayFrame.deformVertices;
 
             if (this._isTween) {
@@ -872,7 +926,7 @@ namespace dragonBones {
                         value = valueArray[sameValueOffset + i - valueCount];
                     }
 
-                    if (state === 2) {
+                    if (blendState.dirty > 1) {
                         result[i] += value * blendWeight;
                     }
                     else if (blendWeight !== 1.0) {
@@ -883,7 +937,7 @@ namespace dragonBones {
                     }
                 }
             }
-            else if (state !== 2) {
+            else if (blendState.dirty === 1) {
                 for (let i = 0; i < this._deformCount; ++i) {
                     result[i] = 0.0;
                 }
@@ -892,7 +946,7 @@ namespace dragonBones {
             if (isDirty || this.dirty) {
                 this.dirty = false;
 
-                if (this._enabled) {
+                if (slot._geometryData === this.displayFrame.getGeometryData()) {
                     slot._verticesDirty = true;
                 }
             }
@@ -912,7 +966,7 @@ namespace dragonBones {
             const ikConstraint = this.target as IKConstraint;
 
             if (this._timelineData !== null) {
-                ikConstraint._bendPositive = this._currentA !== 0.0;
+                ikConstraint._bendPositive = this._currentA > 0.0;
                 ikConstraint._weight = this._currentB;
             }
             else {

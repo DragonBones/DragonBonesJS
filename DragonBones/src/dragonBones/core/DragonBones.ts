@@ -142,12 +142,15 @@ namespace dragonBones {
         BoneTranslate = 11,
         BoneRotate = 12,
         BoneScale = 13,
+        BoneAlpha = 19,
 
         Surface = 50,
 
         SlotDisplay = 20,
         SlotColor = 21,
         SlotDeform = 22,
+        SlotZIndex = 23,
+        SlotAlpha = 24,
 
         IKConstraint = 30,
 

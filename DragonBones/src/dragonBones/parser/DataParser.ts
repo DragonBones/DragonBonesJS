@@ -55,34 +55,33 @@ namespace dragonBones {
         protected static readonly DRADON_BONES: string = "dragonBones";
         protected static readonly USER_DATA: string = "userData";
         protected static readonly ARMATURE: string = "armature";
+        protected static readonly CANVAS: string = "canvas";
         protected static readonly BONE: string = "bone";
         protected static readonly SURFACE: string = "surface";
         protected static readonly SLOT: string = "slot";
         protected static readonly CONSTRAINT: string = "constraint";
+        protected static readonly SKIN: string = "skin";
+        protected static readonly DISPLAY: string = "display";
+        protected static readonly FRAME: string = "frame";
         protected static readonly IK: string = "ik";
         protected static readonly PATH_CONSTRAINT: string = "path";
 
-        protected static readonly SKIN: string = "skin";
-        protected static readonly DISPLAY: string = "display";
         protected static readonly ANIMATION: string = "animation";
+        protected static readonly TIMELINE: string = "timeline";
         protected static readonly Z_ORDER: string = "zOrder";
         protected static readonly FFD: string = "ffd";
-        protected static readonly FRAME: string = "frame";
         protected static readonly TRANSLATE_FRAME: string = "translateFrame";
         protected static readonly ROTATE_FRAME: string = "rotateFrame";
         protected static readonly SCALE_FRAME: string = "scaleFrame";
         protected static readonly DISPLAY_FRAME: string = "displayFrame";
         protected static readonly COLOR_FRAME: string = "colorFrame";
-        protected static readonly PROGRESS_FRAME: string = "progressFrame";
-        protected static readonly WEIGHT_FRAME: string = "weightFrame";
-        protected static readonly PARAMETER_FRAME: string = "parameterFrame";
         protected static readonly DEFAULT_ACTIONS: string = "defaultActions";
         protected static readonly ACTIONS: string = "actions";
         protected static readonly EVENTS: string = "events";
+        
         protected static readonly INTS: string = "ints";
         protected static readonly FLOATS: string = "floats";
         protected static readonly STRINGS: string = "strings";
-        protected static readonly CANVAS: string = "canvas";
 
         protected static readonly TRANSFORM: string = "transform";
         protected static readonly PIVOT: string = "pivot";
@@ -156,8 +155,6 @@ namespace dragonBones {
         protected static readonly WEIGHTS: string = "weights";
         protected static readonly SLOT_POSE: string = "slotPose";
         protected static readonly BONE_POSE: string = "bonePose";
-        protected static readonly GLUE_WEIGHTS: string = "glueWeights";
-        protected static readonly GLUE_MESHES: string = "glueMeshes";
 
         protected static readonly BONES: string = "bones";
         protected static readonly POSITION_MODE: string = "positionMode";

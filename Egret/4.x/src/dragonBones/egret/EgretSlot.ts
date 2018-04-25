@@ -201,6 +201,8 @@ namespace dragonBones {
         }
 
         protected _updateColor(): void {
+            const alpha = this._colorTransform.alphaMultiplier * this._globalAlpha;
+
             if (
                 this._colorTransform.redMultiplier !== 1.0 ||
                 this._colorTransform.greenMultiplier !== 1.0 ||
@@ -218,7 +220,7 @@ namespace dragonBones {
                 colorMatrix[0] = this._colorTransform.redMultiplier;
                 colorMatrix[6] = this._colorTransform.greenMultiplier;
                 colorMatrix[12] = this._colorTransform.blueMultiplier;
-                colorMatrix[18] = this._colorTransform.alphaMultiplier;
+                colorMatrix[18] = alpha;
                 colorMatrix[4] = this._colorTransform.redOffset;
                 colorMatrix[9] = this._colorTransform.greenOffset;
                 colorMatrix[14] = this._colorTransform.blueOffset;
@@ -247,11 +249,11 @@ namespace dragonBones {
                 if (this._armatureDisplay._batchEnabled) {
                     const node = this._renderDisplay.$renderNode as (egret.sys.BitmapNode);
                     node.filter = null as any;
-                    node.alpha = this._colorTransform.alphaMultiplier;
+                    node.alpha = alpha;
                 }
 
                 this._renderDisplay.filters = null as any;
-                this._renderDisplay.alpha = this._colorTransform.alphaMultiplier;
+                this._renderDisplay.alpha = alpha;
             }
         }
 
@@ -338,7 +340,7 @@ namespace dragonBones {
                             }
 
                             this._blendModeDirty = true;
-                            this._colorBlendState.dirty = true;
+                            this._colorDirty = true;
                         }
 
                         meshDisplay.texture = currentTextureData.renderTexture;
@@ -394,7 +396,7 @@ namespace dragonBones {
                             }
 
                             this._blendModeDirty = true;
-                            this._colorBlendState.dirty = true;
+                            this._colorDirty = true;
                         }
                         else {
                             normalDisplay.width = textureWidth;
