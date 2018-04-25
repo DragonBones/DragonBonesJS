@@ -177,8 +177,8 @@ namespace dragonBones {
             const segmentXD = surfaceData.segmentX * 2;
             const dX = this._dX;
             const dY = this._dY;
-            const indexX = Math.floor((x + lA) / dX);
-            const indexY = Math.floor((y + lA) / dY);
+            const indexX = Math.floor((x + lA) / dX); // -1 ~ segmentX - 1
+            const indexY = Math.floor((y + lA) / dY); // -1 ~ segmentY - 1
             let matrixIndex = 0;
             let pX = indexX * dX - lA;
             let pY = indexY * dY - lA;
@@ -186,10 +186,10 @@ namespace dragonBones {
             const helpMatrix = Surface._helpMatrix;
 
             if (x < -lA) {
-                if (y < -lA || y > lA) {
+                if (y < -lA || y >= lA) { // Out.
                     return this.globalTransformMatrix;
                 }
-
+                // Left.
                 isDown = y > this._kX * (x + lA) + pY;
                 matrixIndex = ((segmentX * (segmentY + 1) + segmentX * 2 + segmentY + indexY) * 2 + (isDown ? 1 : 0)) * 7;
 
@@ -236,11 +236,11 @@ namespace dragonBones {
                     matrices[matrixIndex + 6] = helpMatrix.ty;
                 }
             }
-            else if (x > lA) {
-                if (y < -lA || y > lA) {
+            else if (x >= lA) {
+                if (y < -lA || y >= lA) { // Out.
                     return this.globalTransformMatrix;
                 }
-
+                // Right.
                 isDown = y > this._kX * (x - lB) + pY;
                 matrixIndex = ((segmentX * (segmentY + 1) + segmentX + indexY) * 2 + (isDown ? 1 : 0)) * 7;
 
@@ -288,10 +288,10 @@ namespace dragonBones {
                 }
             }
             else if (y < -lA) {
-                if (x < -lA || x > lA) {
+                if (x < -lA || x >= lA) { // Out.
                     return this.globalTransformMatrix;
                 }
-
+                // Up.
                 isDown = y > this._kY * (x - pX - dX) - lB;
                 matrixIndex = (segmentX * (segmentY + 1) + indexX * 2 + (isDown ? 1 : 0)) * 7;
 
@@ -338,11 +338,11 @@ namespace dragonBones {
                     matrices[matrixIndex + 6] = helpMatrix.ty;
                 }
             }
-            else if (y > lA) {
-                if (x < -lA || x > lA) {
+            else if (y >= lA) {
+                if (x < -lA || x >= lA) { //  Out.
                     return this.globalTransformMatrix;
                 }
-
+                // Down
                 isDown = y > this._kY * (x - pX - dX) + lA;
                 matrixIndex = ((segmentX * (segmentY + 1) + segmentX + segmentY + indexY) * 2 + (isDown ? 1 : 0)) * 7;
 
@@ -389,7 +389,7 @@ namespace dragonBones {
                     matrices[matrixIndex + 6] = helpMatrix.ty;
                 }
             }
-            else {
+            else { // Center.
                 isDown = y > this._k * (x - pX - dX) + pY;
                 matrixIndex = ((segmentX * indexY + indexX) * 2 + (isDown ? 1 : 0)) * 7;
 
