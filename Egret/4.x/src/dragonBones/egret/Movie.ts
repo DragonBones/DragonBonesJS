@@ -20,7 +20,7 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-
+declare const _super: any;
 namespace dragonBones {
     /**
      * @private
@@ -505,7 +505,7 @@ namespace dragonBones {
         private _clipNames: string[] = [];
         private _slots: MovieSlot[] = [];
         private _childMovies: Movie[] = [];
-        
+
         public constructor(createMovieHelper: any) {
             super();
 
@@ -775,15 +775,16 @@ namespace dragonBones {
                             bitmapNode.imageHeight = (texture as any)._sourceHeight;
                         }
                         else {
+                            const textureV4 = texture as any;
                             bitmapNode.drawImage(
-                                texture._bitmapX, texture._bitmapY,
-                                texture._bitmapWidth, texture._bitmapHeight,
-                                texture._offsetX, texture._offsetY,
+                                textureV4._bitmapX, textureV4._bitmapY,
+                                textureV4._bitmapWidth, textureV4._bitmapHeight,
+                                textureV4._offsetX, textureV4._offsetY,
                                 texture.textureWidth, texture.textureHeight
                             );
 
-                            bitmapNode.imageWidth = texture._sourceWidth;
-                            bitmapNode.imageHeight = texture._sourceHeight;
+                            bitmapNode.imageWidth = textureV4._sourceWidth;
+                            bitmapNode.imageHeight = textureV4._sourceHeight;
                         }
                     }
                     else {
@@ -847,6 +848,18 @@ namespace dragonBones {
             else {
                 // Classic display.
                 super.$render();
+            }
+        }
+        /**
+         * @inheritDoc
+         */
+        $updateRenderNode(): void {
+            if (this._batchEnabled) {
+                // RenderNode display.
+            }
+            else {
+                // Classic display.
+                super.$updateRenderNode();
             }
         }
         /**
@@ -1105,7 +1118,7 @@ namespace dragonBones {
                         }
 
                         if (!isV5) {
-                            this.$invalidateContentBounds();
+                            (this as any).$invalidateContentBounds();
                         }
                     }
                 }
