@@ -657,6 +657,7 @@ namespace dragonBones {
             this._slotData = slotData;
             this._blendMode = this._slotData.blendMode;
             this._zOrder = this._slotData.zOrder;
+            this._alpha = this._slotData.alpha;
             this._colorTransform.copyFrom(this._slotData.color);
             this._rawDisplay = rawDisplay;
             this._meshDisplay = meshDisplay;

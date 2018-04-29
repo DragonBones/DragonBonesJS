@@ -323,6 +323,7 @@ namespace dragonBones {
 
             this._boneData = boneData;
             this._armature = armatureValue;
+            this._alpha = this._boneData.alpha;
 
             if (this._boneData.parent !== null) {
                 this._parent = this._armature.getBone(this._boneData.parent.name);

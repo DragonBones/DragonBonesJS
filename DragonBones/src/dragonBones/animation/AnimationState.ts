@@ -372,6 +372,12 @@ namespace dragonBones {
                                 timeline.target = animationState;
                                 timeline.init(this._armature, this, timelineData);
                                 this._animationTimelines.push(timeline);
+
+                                if (this.blendType !== AnimationBlendType.None) {
+                                    const animaitonTimelineData = timelineData as AnimationTimelineData;
+                                    animationState.positionX = animaitonTimelineData.x;
+                                    animationState.positionY = animaitonTimelineData.y;
+                                }
                                 break;
                             }
 
@@ -384,10 +390,6 @@ namespace dragonBones {
                             }
 
                             case TimelineType.AnimationParameter: {
-                                const animaitonTimelineData = timelineData as AnimationTimelineData;
-                                animationState.positionX = animaitonTimelineData.x;
-                                animationState.positionY = animaitonTimelineData.y;
-                                //
                                 const timeline = BaseObject.borrowObject(AnimationParametersTimelineState);
                                 timeline.target = animationState;
                                 timeline.init(this._armature, this, timelineData);

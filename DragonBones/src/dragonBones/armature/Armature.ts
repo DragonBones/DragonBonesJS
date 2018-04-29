@@ -154,7 +154,7 @@ namespace dragonBones {
             this._lockUpdate = false;
             this._slotsDirty = true;
             this._zOrderDirty = false;
-            this._alphaDirty = false;
+            this._alphaDirty = true;
             this._flipX = false;
             this._flipY = false;
             this._cacheFrameIndex = -1;

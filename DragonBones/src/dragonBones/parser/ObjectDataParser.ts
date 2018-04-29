@@ -447,6 +447,7 @@ namespace dragonBones {
                 bone.inheritScale = ObjectDataParser._getBoolean(rawData, DataParser.INHERIT_SCALE, true);
                 bone.inheritReflection = ObjectDataParser._getBoolean(rawData, DataParser.INHERIT_REFLECTION, true);
                 bone.length = ObjectDataParser._getNumber(rawData, DataParser.LENGTH, 0) * scale;
+                bone.alpha = ObjectDataParser._getNumber(rawData, DataParser.ALPHA, 1.0);
                 bone.name = ObjectDataParser._getString(rawData, DataParser.NAME, "");
 
                 if (DataParser.TRANSFORM in rawData) {
@@ -457,6 +458,7 @@ namespace dragonBones {
             }
 
             const surface = BaseObject.borrowObject(SurfaceData);
+            surface.alpha = ObjectDataParser._getNumber(rawData, DataParser.ALPHA, 1.0);
             surface.name = ObjectDataParser._getString(rawData, DataParser.NAME, "");
             surface.segmentX = ObjectDataParser._getNumber(rawData, DataParser.SEGMENT_X, 0);
             surface.segmentY = ObjectDataParser._getNumber(rawData, DataParser.SEGMENT_Y, 0);
@@ -551,6 +553,7 @@ namespace dragonBones {
             const slot = BaseObject.borrowObject(SlotData);
             slot.displayIndex = ObjectDataParser._getNumber(rawData, DataParser.DISPLAY_INDEX, 0);
             slot.zOrder = zOrder;
+            slot.alpha = ObjectDataParser._getNumber(rawData, DataParser.ALPHA, 1.0);
             slot.name = ObjectDataParser._getString(rawData, DataParser.NAME, "");
             slot.parent = this._armature.getBone(ObjectDataParser._getString(rawData, DataParser.PARENT, "")) as any; //
 
@@ -995,10 +998,17 @@ namespace dragonBones {
                                 this._frameDefaultValue = 0.0;
                             }
 
+                            if (timelineType === TimelineType.AnimationProgress && animation.blendType !== AnimationBlendType.None) {
+                                timeline = BaseObject.borrowObject(AnimationTimelineData);
+                                const animaitonTimeline = timeline as AnimationTimelineData;
+                                animaitonTimeline.x = ObjectDataParser._getNumber(rawTimeline, DataParser.X, 0.0);
+                                animaitonTimeline.y = ObjectDataParser._getNumber(rawTimeline, DataParser.Y, 0.0);
+                            }
+
                             timeline = this._parseTimeline(
                                 rawTimeline, null, DataParser.FRAME, timelineType,
                                 this._frameValueType, 1,
-                                this._parseSingleValueFrame
+                                this._parseSingleValueFrame, timeline
                             );
                             break;
 
@@ -1046,12 +1056,6 @@ namespace dragonBones {
                                 this._frameValueType, 2,
                                 this._parseDoubleValueFrame
                             );
-
-                            if (timeline !== null && timelineType === TimelineType.AnimationParameter) {
-                                const animaitonTimeline = timeline as AnimationTimelineData;
-                                animaitonTimeline.x = ObjectDataParser._getNumber(rawTimeline, DataParser.X, 0.0);
-                                animaitonTimeline.y = ObjectDataParser._getNumber(rawTimeline, DataParser.Y, 0.0);
-                            }
                             break;
 
                         case TimelineType.ZOrder:
@@ -1153,7 +1157,7 @@ namespace dragonBones {
         protected _parseTimeline(
             rawData: any, rawFrames: Array<any> | null, framesKey: string,
             timelineType: TimelineType, frameValueType: FrameValueType, frameValueCount: number,
-            frameParser: (rawData: any, frameStart: number, frameCount: number) => number
+            frameParser: (rawData: any, frameStart: number, frameCount: number) => number, timeline: TimelineData | null = null
         ): TimelineData | null {
             if (rawData !== null && framesKey.length > 0 && framesKey in rawData) {
                 rawFrames = rawData[framesKey];
@@ -1171,7 +1175,9 @@ namespace dragonBones {
             const frameIntArrayLength = this._frameIntArray.length;
             const frameFloatArrayLength = this._frameFloatArray.length;
             const timelineOffset = this._timelineArray.length;
-            const timeline = timelineType === TimelineType.AnimationParameter ? BaseObject.borrowObject(AnimationTimelineData) : BaseObject.borrowObject(TimelineData);
+            if (timeline === null) {
+                timeline = BaseObject.borrowObject(TimelineData);
+            }
 
             timeline.type = timelineType;
             timeline.offset = timelineOffset;

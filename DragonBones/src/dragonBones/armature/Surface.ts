@@ -182,6 +182,7 @@ namespace dragonBones {
             let matrixIndex = 0;
             let pX = indexX * dX - lA;
             let pY = indexY * dY - lA;
+            //
             const matrices = this._matrixCahce;
             const helpMatrix = Surface._helpMatrix;
 
@@ -193,7 +194,7 @@ namespace dragonBones {
                 isDown = y > this._kX * (x + lA) + pY;
                 matrixIndex = ((segmentX * (segmentY + 1) + segmentX * 2 + segmentY + indexY) * 2 + (isDown ? 1 : 0)) * 7;
 
-                if (this._matrixCahce[matrixIndex] > 0.0) {
+                if (matrices[matrixIndex] > 0.0) {
                     helpMatrix.copyFromArray(matrices, matrixIndex + 1);
                 }
                 else {
@@ -244,7 +245,7 @@ namespace dragonBones {
                 isDown = y > this._kX * (x - lB) + pY;
                 matrixIndex = ((segmentX * (segmentY + 1) + segmentX + indexY) * 2 + (isDown ? 1 : 0)) * 7;
 
-                if (this._matrixCahce[matrixIndex] > 0.0) {
+                if (matrices[matrixIndex] > 0.0) {
                     helpMatrix.copyFromArray(matrices, matrixIndex + 1);
                 }
                 else {
@@ -293,9 +294,9 @@ namespace dragonBones {
                 }
                 // Up.
                 isDown = y > this._kY * (x - pX - dX) - lB;
-                matrixIndex = (segmentX * (segmentY + 1) + indexX * 2 + (isDown ? 1 : 0)) * 7;
+                matrixIndex = ((segmentX * (segmentY + 1) + indexX) * 2 + (isDown ? 1 : 0)) * 7;
 
-                if (this._matrixCahce[matrixIndex] > 0.0) {
+                if (matrices[matrixIndex] > 0.0) {
                     helpMatrix.copyFromArray(matrices, matrixIndex + 1);
                 }
                 else {
@@ -346,7 +347,7 @@ namespace dragonBones {
                 isDown = y > this._kY * (x - pX - dX) + lA;
                 matrixIndex = ((segmentX * (segmentY + 1) + segmentX + segmentY + indexY) * 2 + (isDown ? 1 : 0)) * 7;
 
-                if (this._matrixCahce[matrixIndex] > 0.0) {
+                if (matrices[matrixIndex] > 0.0) {
                     helpMatrix.copyFromArray(matrices, matrixIndex + 1);
                 }
                 else {
@@ -393,7 +394,7 @@ namespace dragonBones {
                 isDown = y > this._k * (x - pX - dX) + pY;
                 matrixIndex = ((segmentX * indexY + indexX) * 2 + (isDown ? 1 : 0)) * 7;
 
-                if (this._matrixCahce[matrixIndex] > 0.0) {
+                if (matrices[matrixIndex] > 0.0) {
                     helpMatrix.copyFromArray(matrices, matrixIndex + 1);
                 }
                 else {

@@ -520,6 +520,10 @@ namespace dragonBones {
          */
         public length: number;
         /**
+         * @private
+         */
+        public alpha: number;
+        /**
          * - The bone name.
          * @version DragonBones 3.0
          * @language en_US
@@ -561,6 +565,7 @@ namespace dragonBones {
             this.inheritReflection = false;
             this.type = BoneType.Bone;
             this.length = 0.0;
+            this.alpha = 1.0;
             this.name = "";
             this.transform.identity();
             this.userData = null;
@@ -626,6 +631,10 @@ namespace dragonBones {
          */
         public zOrder: number;
         /**
+         * @private
+         */
+        public alpha: number;
+        /**
          * - The slot name.
          * @version DragonBones 3.0
          * @language en_US
@@ -664,6 +673,7 @@ namespace dragonBones {
             this.blendMode = BlendMode.Normal;
             this.displayIndex = 0;
             this.zOrder = 0;
+            this.alpha = 1.0;
             this.name = "";
             this.color = null as any; //
             this.userData = null;

@@ -631,11 +631,14 @@ namespace dragonBones {
             const blendWeight = blendState.blendWeight;
 
             if (blendState.dirty > 1) {
-                alphaTarget._alpha += (this._result - 1.0) * blendWeight;
+                alphaTarget._alpha += this._result * blendWeight;
+                if (alphaTarget._alpha > 1.0) {
+                    alphaTarget._alpha = 1.0;
+                }
             }
             else {
                 if (blendWeight !== 1.0) {
-                    alphaTarget._alpha = (this._result - 1.0) * blendWeight + 1.0;
+                    alphaTarget._alpha = this._result * blendWeight;
                 }
                 else {
                     alphaTarget._alpha = this._result;

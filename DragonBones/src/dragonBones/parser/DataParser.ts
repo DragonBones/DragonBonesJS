@@ -139,6 +139,7 @@ namespace dragonBones {
         protected static readonly VALUE: string = "value";
         protected static readonly ROTATE: string = "rotate";
         protected static readonly SKEW: string = "skew";
+        protected static readonly ALPHA: string = "alpha";
 
         protected static readonly ALPHA_OFFSET: string = "aO";
         protected static readonly RED_OFFSET: string = "rO";
