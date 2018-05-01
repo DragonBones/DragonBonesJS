@@ -633,6 +633,10 @@ namespace dragonBones {
         /**
          * @private
          */
+        public zIndex: number;
+        /**
+         * @private
+         */
         public alpha: number;
         /**
          * - The slot name.
@@ -673,6 +677,7 @@ namespace dragonBones {
             this.blendMode = BlendMode.Normal;
             this.displayIndex = 0;
             this.zOrder = 0;
+            this.zIndex = 0;
             this.alpha = 1.0;
             this.name = "";
             this.color = null as any; //

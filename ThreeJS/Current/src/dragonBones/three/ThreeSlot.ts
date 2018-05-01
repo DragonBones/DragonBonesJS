@@ -200,10 +200,11 @@ namespace dragonBones {
                     return;
                 }
 
+                const alpha = this._colorTransform.alphaMultiplier * this._globalAlpha;
                 const meshDisplay = this._renderDisplay as THREE.Mesh;
 
                 if (
-                    this._colorTransform.alphaMultiplier !== 1.0 ||
+                    alpha !== 1.0 ||
                     this._colorTransform.redMultiplier !== 1.0 ||
                     this._colorTransform.greenMultiplier !== 1.0 ||
                     this._colorTransform.blueMultiplier !== 1.0
@@ -213,7 +214,7 @@ namespace dragonBones {
                         this._material.copy(textureAtlasData.material);
                     }
 
-                    this._material.opacity = this._colorTransform.alphaMultiplier;
+                    this._material.opacity = alpha;
                     this._material.color.setRGB(
                         this._colorTransform.redMultiplier,
                         this._colorTransform.greenMultiplier,
@@ -372,6 +373,10 @@ namespace dragonBones {
                             faceUVs[2] = uvs[face3.c];
                         }
                     }
+                    
+                    if (this._material !== null) {
+                        this._material.copy(textureAtlasData.material);
+                    }
 
                     meshDisplay.material = textureAtlasData.material;
                     this._visibleDirty = true;
@@ -477,12 +482,6 @@ namespace dragonBones {
                     }
                 }
             }
-        }
-        /**
-         * @internal
-         */
-        public _updateGlueMesh(): void {
-            // TODO
         }
 
         protected _updateTransform(): void {

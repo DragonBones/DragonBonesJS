@@ -189,19 +189,5 @@ namespace dragonBones {
         public get soundEventManager(): PixiArmatureDisplay {
             return this._dragonBones.eventManager as PixiArmatureDisplay;
         }
-
-        /**
-         * - Deprecated, please refer to {@link #clock}.
-         * @deprecated
-         * @language en_US
-         */
-        /**
-         * - 已废弃，请参考 {@link #clock}。
-         * @deprecated
-         * @language zh_CN
-         */
-        public static get clock(): WorldClock {
-            return PixiFactory.factory.clock;
-        }
     }
 }

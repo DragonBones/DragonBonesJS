@@ -12,7 +12,7 @@ abstract class BaseDemo extends THREE.Group {
         super();
 
         this._scene.add(this);
-        this._renderer.setClearColor(0x666666, 1.0);
+        this._renderer.setClearColor(0x666666);
         this._renderer.setSize(1136, 640);
         const wH = this.stageWidth * 0.5;
         const hH = this.stageHeight * 0.5;
@@ -63,7 +63,12 @@ abstract class BaseDemo extends THREE.Group {
         }
 
         THREE.DefaultLoadingManager.onLoad = () => {
-            this._background.material = new THREE.SpriteMaterial({ map: this._loadedResources[BaseDemo.BACKGROUND_URL] });
+            const backgroundTexture = this._loadedResources[BaseDemo.BACKGROUND_URL] as THREE.Texture;
+            backgroundTexture.wrapS = THREE.RepeatWrapping;
+            backgroundTexture.wrapT = THREE.RepeatWrapping;
+            this._background.material = new THREE.SpriteMaterial({ map: backgroundTexture });
+            this._background.scale.set(backgroundTexture.image.width, backgroundTexture.image.height, 1.0);
+            this._background.position.z = -10;
             this.add(this._background);
             //
             this._startTick();

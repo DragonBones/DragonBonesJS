@@ -68,7 +68,6 @@ namespace dragonBones {
 
         protected static readonly ANIMATION: string = "animation";
         protected static readonly TIMELINE: string = "timeline";
-        protected static readonly Z_ORDER: string = "zOrder";
         protected static readonly FFD: string = "ffd";
         protected static readonly TRANSLATE_FRAME: string = "translateFrame";
         protected static readonly ROTATE_FRAME: string = "rotateFrame";
@@ -78,7 +77,7 @@ namespace dragonBones {
         protected static readonly DEFAULT_ACTIONS: string = "defaultActions";
         protected static readonly ACTIONS: string = "actions";
         protected static readonly EVENTS: string = "events";
-        
+
         protected static readonly INTS: string = "ints";
         protected static readonly FLOATS: string = "floats";
         protected static readonly STRINGS: string = "strings";
@@ -101,6 +100,8 @@ namespace dragonBones {
         protected static readonly PATH: string = "path";
         protected static readonly LENGTH: string = "length";
         protected static readonly DISPLAY_INDEX: string = "displayIndex";
+        protected static readonly Z_ORDER: string = "zOrder";
+        protected static readonly Z_INDEX: string = "zIndex";
         protected static readonly BLEND_MODE: string = "blendMode";
         protected static readonly INHERIT_TRANSLATION: string = "inheritTranslation";
         protected static readonly INHERIT_ROTATION: string = "inheritRotation";

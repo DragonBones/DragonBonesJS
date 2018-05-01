@@ -104,9 +104,9 @@ namespace dragonBones {
         }
 
         protected _updateColor(): void {
+            const alpha = this._colorTransform.alphaMultiplier * this._globalAlpha;
             const color = (Math.round(this._colorTransform.redMultiplier * 0xFF) << 16) + (Math.round(this._colorTransform.greenMultiplier * 0xFF) << 8) + Math.round(this._colorTransform.blueMultiplier * 0xFF);
-
-            this._renderDisplay.alpha = this._colorTransform.alphaMultiplier;
+            this._renderDisplay.alpha = alpha;
             this._renderDisplay.tint = color;
         }
 
@@ -132,7 +132,7 @@ namespace dragonBones {
 
                 const renderTexture = currentTextureAtlasData.renderTexture;
                 if (renderTexture !== null) {
-                    if (this._verticesData !== null) { // Mesh.
+                    if (this._geometryData !== null) { // Mesh.
                         // TODO
                     }
                     else { // Normal texture.
@@ -146,7 +146,7 @@ namespace dragonBones {
                 }
             }
 
-            if (this._verticesData !== null) {
+            if (this._geometryData !== null) {
                 // TODO
             }
             else {
@@ -159,12 +159,6 @@ namespace dragonBones {
         }
 
         protected _updateMesh(): void {
-            // TODO
-        }
-        /**
-         * @internal
-         */
-        public _updateGlueMesh(): void {
             // TODO
         }
 

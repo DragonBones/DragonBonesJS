@@ -105,39 +105,5 @@ namespace dragonBones {
          * @language zh_CN
          */
         removeDBEventListener(type: EventStringType, listener: Function, thisObject: any): void;
-        
-        /**
-         * - Deprecated, please refer to {@link #hasDBEventListener()}.
-         * @deprecated
-         * @language en_US
-         */
-        /**
-         * - 已废弃，请参考 {@link #hasDBEventListener()}。
-         * @deprecated
-         * @language zh_CN
-         */
-        hasEvent(type: EventStringType): boolean;
-        /**
-         * - Deprecated, please refer to {@link #addDBEventListener()}.
-         * @deprecated
-         * @language en_US
-         */
-        /**
-         * - 已废弃，请参考 {@link #addDBEventListener()}。
-         * @deprecated
-         * @language zh_CN
-         */
-        addEvent(type: EventStringType, listener: Function, thisObject: any): void;
-        /**
-         * - Deprecated, please refer to {@link #removeDBEventListener()}.
-         * @deprecated
-         * @language en_US
-         */
-        /**
-         * - 已废弃，请参考 {@link #removeDBEventListener()}。
-         * @deprecated
-         * @language zh_CN
-         */
-        removeEvent(type: EventStringType, listener: Function, thisObject: any): void;
     }
 }

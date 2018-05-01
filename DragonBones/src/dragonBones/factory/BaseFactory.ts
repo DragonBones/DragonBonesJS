@@ -1004,45 +1004,6 @@ namespace dragonBones {
         public get dragonBones(): DragonBones {
             return this._dragonBones;
         }
-
-        /**
-         * - Deprecated, please refer to {@link #replaceSkin}.
-         * @deprecated
-         * @language en_US
-         */
-        /**
-         * - 已废弃，请参考 {@link #replaceSkin}。
-         * @deprecated
-         * @language zh_CN
-         */
-        public changeSkin(armature: Armature, skin: SkinData, exclude: Array<string> | null = null): boolean {
-            return this.replaceSkin(armature, skin, false, exclude);
-        }
-        /**
-         * - Deprecated, please refer to {@link #replaceAnimation}.
-         * @deprecated
-         * @language en_US
-         */
-        /**
-         * - 已废弃，请参考 {@link #replaceAnimation}。
-         * @deprecated
-         * @language zh_CN
-         */
-        public copyAnimationsToArmature(
-            toArmature: Armature,
-            fromArmatreName: string, fromSkinName: string = "", fromDragonBonesDataName: string = "",
-            replaceOriginalAnimation: boolean = true
-        ): boolean {
-            // tslint:disable-next-line:no-unused-expression
-            fromSkinName;
-
-            const armatureData = this.getArmatureData(fromArmatreName, fromDragonBonesDataName);
-            if (!armatureData) {
-                return false;
-            }
-
-            return this.replaceAnimation(toArmature, armatureData, replaceOriginalAnimation);
-        }
     }
     /**
      * @internal

@@ -79,7 +79,7 @@ namespace dragonBones {
         /**
          * @private
          */
-        public additiveBlending: boolean;
+        public additive: boolean;
         /**
          * - Whether the animation state has control over the display property of the slots.
          * Sometimes blend a animation state does not want it to control the display properties of the slots,
@@ -255,21 +255,6 @@ namespace dragonBones {
          */
         public animation: string;
         /**
-         * - The blend group name of the animation state.
-         * This property is typically used to specify the substitution of multiple animation states blend.
-         * @readonly
-         * @version DragonBones 5.0
-         * @language en_US
-         */
-        /**
-         * - 混合组名称。
-         * 该属性通常用来指定多个动画状态混合时的相互替换关系。
-         * @readonly
-         * @version DragonBones 5.0
-         * @language zh_CN
-         */
-        public group: string;
-        /**
          * @private
          */
         public readonly boneMask: Array<string> = [];
@@ -281,7 +266,7 @@ namespace dragonBones {
             this.fadeOutTime = -1.0;
 
             this.actionEnabled = true;
-            this.additiveBlending = false;
+            this.additive = false;
             this.displayControl = true;
             this.pauseFadeIn = true;
             this.resetToPose = true;
@@ -296,7 +281,6 @@ namespace dragonBones {
             this.autoFadeOutTime = -1.0;
             this.name = "";
             this.animation = "";
-            this.group = "";
             this.boneMask.length = 0;
         }
         /**
@@ -315,7 +299,7 @@ namespace dragonBones {
             this.fadeOutTweenType = value.fadeOutTweenType;
 
             this.actionEnabled = value.actionEnabled;
-            this.additiveBlending = value.additiveBlending;
+            this.additive = value.additive;
             this.displayControl = value.displayControl;
             this.pauseFadeIn = value.pauseFadeIn;
             this.resetToPose = value.resetToPose;
@@ -330,7 +314,6 @@ namespace dragonBones {
             this.weight = value.weight;
             this.name = value.name;
             this.animation = value.animation;
-            this.group = value.group;
 
             this.boneMask.length = value.boneMask.length;
             for (let i = 0, l = this.boneMask.length; i < l; ++i) {

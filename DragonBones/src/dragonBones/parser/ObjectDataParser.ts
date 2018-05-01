@@ -553,6 +553,7 @@ namespace dragonBones {
             const slot = BaseObject.borrowObject(SlotData);
             slot.displayIndex = ObjectDataParser._getNumber(rawData, DataParser.DISPLAY_INDEX, 0);
             slot.zOrder = zOrder;
+            slot.zIndex = ObjectDataParser._getNumber(rawData, DataParser.Z_INDEX, 0);
             slot.alpha = ObjectDataParser._getNumber(rawData, DataParser.ALPHA, 1.0);
             slot.name = ObjectDataParser._getString(rawData, DataParser.NAME, "");
             slot.parent = this._armature.getBone(ObjectDataParser._getString(rawData, DataParser.PARENT, "")) as any; //
@@ -958,10 +959,11 @@ namespace dragonBones {
 
                     switch (timelineType) {
                         case TimelineType.Action:
+                            // TODO
                             break;
 
                         case TimelineType.SlotDisplay:
-                        case TimelineType.SlotZIndex:
+                        case TimelineType.SlotZIndex:  // TODO
                         case TimelineType.BoneAlpha:
                         case TimelineType.SlotAlpha:
                         case TimelineType.AnimationProgress:
@@ -1059,6 +1061,7 @@ namespace dragonBones {
                             break;
 
                         case TimelineType.ZOrder:
+                            // TODO
                             break;
 
                         case TimelineType.Surface: {
@@ -1108,15 +1111,18 @@ namespace dragonBones {
                         }
 
                         case TimelineType.SlotColor:
+                            // TODO
                             break;
                     }
 
                     if (timeline !== null) {
                         switch (timelineType) {
                             case TimelineType.Action:
+                                // TODO
                                 break;
 
                             case TimelineType.ZOrder:
+                                // TODO
                                 break;
 
                             case TimelineType.BoneTranslate:

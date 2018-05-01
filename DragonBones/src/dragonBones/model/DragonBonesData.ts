@@ -194,20 +194,5 @@ namespace dragonBones {
         public getArmature(armatureName: string): ArmatureData | null {
             return armatureName in this.armatures ? this.armatures[armatureName] : null;
         }
-
-        /**
-         * - Deprecated, please refer to {@link #dragonBones.BaseFactory#removeDragonBonesData()}.
-         * @deprecated
-         * @language en_US
-         */
-        /**
-         * - 已废弃，请参考 {@link #dragonBones.BaseFactory#removeDragonBonesData()}。
-         * @deprecated
-         * @language zh_CN
-         */
-        public dispose(): void {
-            console.warn("已废弃");
-            this.returnToPool();
-        }
     }
 }

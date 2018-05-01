@@ -214,24 +214,5 @@ namespace dragonBones {
         public get animation(): Animation {
             return this._armature.animation;
         }
-
-        /**
-         * @inheritDoc
-         */
-        public hasEvent(type: EventStringType): boolean {
-            return this.hasDBEventListener(type);
-        }
-        /**
-         * @inheritDoc
-         */
-        public addEvent(type: EventStringType, listener: (event: EventObject) => void, target: any): void {
-            this.addDBEventListener(type, listener, target);
-        }
-        /**
-         * @inheritDoc
-         */
-        public removeEvent(type: EventStringType, listener: (event: EventObject) => void, target: any): void {
-            this.removeDBEventListener(type, listener, target);
-        }
     }
 }

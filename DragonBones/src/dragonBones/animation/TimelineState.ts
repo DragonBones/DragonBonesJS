@@ -72,6 +72,7 @@ namespace dragonBones {
             let prevTime = this.currentTime;
 
             if (this._setCurrentTime(passedTime)) {
+                const eventActive = this._animationState._parents.length === 0;
                 const eventDispatcher = this._armature.eventDispatcher;
                 if (prevState < 0) {
                     if (this.playState !== prevState) {
@@ -81,7 +82,7 @@ namespace dragonBones {
 
                         prevPlayTimes = this.currentPlayTimes;
 
-                        if (eventDispatcher.hasDBEventListener(EventObject.START)) {
+                        if (eventActive && eventDispatcher.hasDBEventListener(EventObject.START)) {
                             const eventObject = BaseObject.borrowObject(EventObject);
                             eventObject.type = EventObject.START;
                             eventObject.armature = this._armature;
@@ -98,7 +99,7 @@ namespace dragonBones {
                 let loopCompleteEvent: EventObject | null = null;
                 let completeEvent: EventObject | null = null;
 
-                if (this.currentPlayTimes !== prevPlayTimes) {
+                if (eventActive && this.currentPlayTimes !== prevPlayTimes) {
                     if (eventDispatcher.hasDBEventListener(EventObject.LOOP_COMPLETE)) {
                         loopCompleteEvent = BaseObject.borrowObject(EventObject);
                         loopCompleteEvent.type = EventObject.LOOP_COMPLETE;
@@ -336,23 +337,21 @@ namespace dragonBones {
                 result.scaleX += (rd[4] - 1.0) * blendWeight;
                 result.scaleY += (rd[5] - 1.0) * blendWeight;
             }
+            else if (blendWeight !== 1.0) {
+                result.x = rd[0] * blendWeight * valueScale;
+                result.y = rd[1] * blendWeight * valueScale;
+                result.rotation = rd[2] * blendWeight;
+                result.skew = rd[3] * blendWeight;
+                result.scaleX = (rd[4] - 1.0) * blendWeight + 1.0; // 
+                result.scaleY = (rd[5] - 1.0) * blendWeight + 1.0; //
+            }
             else {
-                if (blendWeight !== 1.0) {
-                    result.x = rd[0] * blendWeight * valueScale;
-                    result.y = rd[1] * blendWeight * valueScale;
-                    result.rotation = rd[2] * blendWeight;
-                    result.skew = rd[3] * blendWeight;
-                    result.scaleX = (rd[4] - 1.0) * blendWeight + 1.0; // 
-                    result.scaleY = (rd[5] - 1.0) * blendWeight + 1.0; //
-                }
-                else {
-                    result.x = rd[0] * valueScale;
-                    result.y = rd[1] * valueScale;
-                    result.rotation = rd[2];
-                    result.skew = rd[3];
-                    result.scaleX = rd[4];
-                    result.scaleY = rd[5];
-                }
+                result.x = rd[0] * valueScale;
+                result.y = rd[1] * valueScale;
+                result.rotation = rd[2];
+                result.skew = rd[3];
+                result.scaleX = rd[4];
+                result.scaleY = rd[5];
             }
 
             if (isDirty || this.dirty) {
@@ -387,15 +386,13 @@ namespace dragonBones {
                 result.x += this._resultA * blendWeight;
                 result.y += this._resultB * blendWeight;
             }
+            else if (blendWeight !== 1.0) {
+                result.x = this._resultA * blendWeight;
+                result.y = this._resultB * blendWeight;
+            }
             else {
-                if (blendWeight !== 1.0) {
-                    result.x = this._resultA * blendWeight;
-                    result.y = this._resultB * blendWeight;
-                }
-                else {
-                    result.x = this._resultA;
-                    result.y = this._resultB;
-                }
+                result.x = this._resultA;
+                result.y = this._resultB;
             }
 
             if (isDirty || this.dirty) {
@@ -443,15 +440,13 @@ namespace dragonBones {
                 result.rotation += this._resultA * blendWeight;
                 result.skew += this._resultB * blendWeight;
             }
+            else if (blendWeight !== 1.0) {
+                result.rotation = this._resultA * blendWeight;
+                result.skew = this._resultB * blendWeight;
+            }
             else {
-                if (blendWeight !== 1.0) {
-                    result.rotation = this._resultA * blendWeight;
-                    result.skew = this._resultB * blendWeight;
-                }
-                else {
-                    result.rotation = this._resultA;
-                    result.skew = this._resultB;
-                }
+                result.rotation = this._resultA;
+                result.skew = this._resultB;
             }
 
             if (isDirty || this.dirty) {
@@ -494,15 +489,13 @@ namespace dragonBones {
                 result.scaleX += (this._resultA - 1.0) * blendWeight;
                 result.scaleY += (this._resultB - 1.0) * blendWeight;
             }
+            else if (blendWeight !== 1.0) {
+                result.scaleX = (this._resultA - 1.0) * blendWeight + 1.0;
+                result.scaleY = (this._resultB - 1.0) * blendWeight + 1.0;
+            }
             else {
-                if (blendWeight !== 1.0) {
-                    result.scaleX = (this._resultA - 1.0) * blendWeight + 1.0;
-                    result.scaleY = (this._resultB - 1.0) * blendWeight + 1.0;
-                }
-                else {
-                    result.scaleX = this._resultA;
-                    result.scaleY = this._resultB;
-                }
+                result.scaleX = this._resultA;
+                result.scaleY = this._resultB;
             }
 
             if (isDirty || this.dirty) {
@@ -671,6 +664,52 @@ namespace dragonBones {
         }
 
         protected _onUpdateFrame(): void { }
+    }
+    /**
+     * @internal
+     */
+    export class SlotZIndexTimelineState extends SingleValueTimelineState {
+        public static toString(): string {
+            return "[class dragonBones.SlotZIndexTimelineState]";
+        }
+
+        protected _onArriveAtFrame(): void {
+            super._onArriveAtFrame();
+
+            this._isTween = false;
+
+            if (this._timelineData === null) { // Pose.
+                this._result = 0;
+            }
+        }
+
+        public init(armature: Armature, animationState: AnimationState, timelineData: TimelineData | null): void {
+            super.init(armature, animationState, timelineData);
+
+            this._valueOffset = this._animationData.frameIntOffset;
+            this._valueArray = this._animationData.parent.parent.frameIntArray;
+        }
+
+        public blend(isDirty: boolean): void {
+            const blendState = this.target as BlendState;
+            const alphaTarget = blendState.target as Slot;
+            const blendWeight = blendState.blendWeight;
+
+            if (blendState.dirty > 1) {
+                alphaTarget._zIndex += this._result * blendWeight;
+            }
+            else if (blendWeight !== 1.0) {
+                alphaTarget._zIndex = this._result * blendWeight;
+            }
+            else {
+                alphaTarget._zIndex = this._result;
+            }
+
+            if (isDirty || this.dirty) {
+                this.dirty = false;
+                this._armature._zIndexDirty = true;
+            }
+        }
     }
     /**
      * @internal

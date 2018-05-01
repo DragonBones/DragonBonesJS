@@ -83,7 +83,6 @@ namespace dragonBones {
             transform.scaleX = Math.sqrt(dabX * dabX + dabY * dabY) / lX;
             transform.scaleY = Math.sqrt(dacX * dacX + dacY * dacY) / lY;
             transform.toMatrix(matrix);
-
             transform.x = matrix.tx = aX - (matrix.a * x + matrix.c * y);
             transform.y = matrix.ty = aY - (matrix.b * x + matrix.d * y);
         }
@@ -158,9 +157,9 @@ namespace dragonBones {
             const bY = rbY + (rcY - rbY) * 0.5;
             const cX = rdX + (rcX - rdX) * 0.5;
             const cY = rdY + (rcY - rdY) * 0.5;
-            //
-            this._globalDirty = false;
+            // TODO interpolation
             this._getAffineTransform(0.0, 0.0, lA, lA, aX, aY, bX, bY, cX, cY, this.global, this.globalTransformMatrix, false);
+            this._globalDirty = false;
         }
 
         public _getGlobalTransformMatrix(x: number, y: number): Matrix {

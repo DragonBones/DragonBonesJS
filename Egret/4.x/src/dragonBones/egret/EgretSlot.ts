@@ -202,7 +202,7 @@ namespace dragonBones {
 
         protected _updateColor(): void {
             const alpha = this._colorTransform.alphaMultiplier * this._globalAlpha;
-
+            
             if (
                 this._colorTransform.redMultiplier !== 1.0 ||
                 this._colorTransform.greenMultiplier !== 1.0 ||
@@ -526,11 +526,6 @@ namespace dragonBones {
             if (this._armatureDisplay._batchEnabled) {
                 this._armatureDisplay._childDirty = true;
             }
-        }
-        /**
-         * @internal
-         */
-        public _updateGlueMesh(): void {
         }
 
         protected _updateTransform(): void {

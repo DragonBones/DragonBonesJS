@@ -185,15 +185,6 @@ namespace dragonBones {
      */
     export const enum AnimationFadeOutMode {
         /**
-         * - Do not fade out of any animation states.
-         * @language en_US
-         */
-        /**
-         * - 不淡出任何的动画状态。
-         * @language zh_CN
-         */
-        None = 0,
-        /**
          * - Fade out the animation states of the same layer.
          * @language en_US
          */
@@ -202,24 +193,6 @@ namespace dragonBones {
          * @language zh_CN
          */
         SameLayer = 1,
-        /**
-         * - Fade out the animation states of the same group.
-         * @language en_US
-         */
-        /**
-         * - 淡出同组的动画状态。
-         * @language zh_CN
-         */
-        SameGroup = 2,
-        /**
-         * - Fade out the animation states of the same layer and group.
-         * @language en_US
-         */
-        /**
-         * - 淡出同层并且同组的动画状态。
-         * @language zh_CN
-         */
-        SameLayerAndGroup = 3,
         /**
          * - Fade out of all animation states.
          * @language en_US
@@ -242,14 +215,14 @@ namespace dragonBones {
     /**
      * @private
      */
-    export enum AnimationBlendType {
+    export const enum AnimationBlendType {
         None,
         E1D,
     }
     /**
      * @private
      */
-    export enum AnimationBlendMode {
+    export const enum AnimationBlendMode {
         Additive,
         Override,
     }

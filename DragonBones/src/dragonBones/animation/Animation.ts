@@ -113,33 +113,6 @@ namespace dragonBones {
                     }
                     break;
 
-                case AnimationFadeOutMode.SameGroup:
-                    for (const animationState of this._animationStates) {
-                        if (animationState._parents.length > 0) {
-                            continue;
-                        }
-
-                        if (animationState.group === animationConfig.group) {
-                            animationState.fadeOut(animationConfig.fadeOutTime, animationConfig.pauseFadeOut);
-                        }
-                    }
-                    break;
-
-                case AnimationFadeOutMode.SameLayerAndGroup:
-                    for (const animationState of this._animationStates) {
-                        if (animationState._parents.length > 0) {
-                            continue;
-                        }
-
-                        if (
-                            animationState.layer === animationConfig.layer &&
-                            animationState.group === animationConfig.group
-                        ) {
-                            animationState.fadeOut(animationConfig.fadeOutTime, animationConfig.pauseFadeOut);
-                        }
-                    }
-                    break;
-
                 case AnimationFadeOutMode.All:
                     for (const animationState of this._animationStates) {
                         if (animationState._parents.length > 0) {
@@ -150,8 +123,7 @@ namespace dragonBones {
                     }
                     break;
 
-                case AnimationFadeOutMode.None:
-                case AnimationFadeOutMode.Single:
+                case AnimationFadeOutMode.Single: // TODO
                 default:
                     break;
             }
@@ -354,6 +326,7 @@ namespace dragonBones {
                 for (const animationState of this._animationStates) {
                     if (
                         animationState._fadeState < 1 &&
+                        animationState.layer === animationConfig.layer &&
                         animationState.animationData === animationData
                     ) {
                         return animationState;
@@ -452,7 +425,7 @@ namespace dragonBones {
             }
 
             for (let k in animationData.animationTimelines) { // Blend animation node.
-                const childAnimationState = this.fadeIn(k, animationConfig.fadeInTime, 1, animationState.layer, null, AnimationFadeOutMode.Single);
+                const childAnimationState = this.fadeIn(k, animationConfig.fadeInTime, 1, animationState.layer, animationState.additive, AnimationFadeOutMode.Single);
                 if (childAnimationState === null) {
                     continue;
                 }
@@ -527,13 +500,13 @@ namespace dragonBones {
          * @param fadeInTime - The fade in time. [-1: Use the default value of animation data, [0~N]: The fade in time (In seconds)] (Default: -1)
          * @param playTimes - playing repeat times. [-1: Use the default value of animation data, 0: No end loop playing, [1~N]: Repeat N times] (Default: -1)
          * @param layer - The blending layer, the animation states in high level layer will get the blending weights with high priority, when the total blending weights are more than 1.0, there will be no more weights can be allocated to the other animation states. (Default: 0)
-         * @param group - The blending group name, it is typically used to specify the substitution of multiple animation states blending. (Default: null)
-         * @param fadeOutMode - The fade out mode, which is typically used to specify alternate mode of multiple animation states blending. (Default: AnimationFadeOutMode.SameLayerAndGroup)
+         * @param additive - Additve. (Default: false)
+         * @param fadeOutMode - The fade out mode, which is typically used to specify alternate mode of multiple animation states blending. (Default: AnimationFadeOutMode.SameLayer)
          * @returns The playing animation state.
          * @example
          * <pre>
-         *     armature.animation.fadeIn("walk", 0.3, 0, 0, "normalGroup").resetToPose = false;
-         *     armature.animation.fadeIn("attack", 0.3, 1, 0, "attackGroup").resetToPose = false;
+         *     armature.animation.fadeIn("walk", 0.3, 0, 0).resetToPose = false;
+         *     armature.animation.fadeIn("attack", 0.3, 1, 1, true).resetToPose = false;
          * </pre>
          * @version DragonBones 4.5
          * @language en_US
@@ -544,28 +517,28 @@ namespace dragonBones {
          * @param fadeInTime - 淡入时间。 [-1: 使用动画数据默认值, [0~N]: 淡入时间 (以秒为单位)] （默认: -1）
          * @param playTimes - 播放次数。 [-1: 使用动画数据默认值, 0: 无限循环播放, [1~N]: 循环播放 N 次] （默认: -1）
          * @param layer - 混合图层，图层高的动画状态会优先获取混合权重，当混合权重分配总和超过 1.0 时，剩余的动画状态将不能再获得权重分配。 （默认: 0）
-         * @param group - 混合组名称，该属性通常用来指定多个动画状态混合时的相互替换关系。 （默认: null）
-         * @param fadeOutMode - 淡出模式，该属性通常用来指定多个动画状态混合时的相互替换模式。 （默认: AnimationFadeOutMode.SameLayerAndGroup）
+         * @param additive - Additive。 （默认: false）
+         * @param fadeOutMode - 淡出模式，该属性通常用来指定多个动画状态混合时的相互替换模式。 （默认: AnimationFadeOutMode.SameLayer）
          * @returns 播放的动画状态。
          * @example
          * <pre>
-         *     armature.animation.fadeIn("walk", 0.3, 0, 0, "normalGroup").resetToPose = false;
-         *     armature.animation.fadeIn("attack", 0.3, 1, 0, "attackGroup").resetToPose = false;
+         *     armature.animation.fadeIn("walk", 0.3, 0, 0).resetToPose = false;
+         *     armature.animation.fadeIn("attack", 0.3, 1, 1, true).resetToPose = false;
          * </pre>
          * @version DragonBones 4.5
          * @language zh_CN
          */
         public fadeIn(
             animationName: string, fadeInTime: number = -1.0, playTimes: number = -1,
-            layer: number = 0, group: string | null = null, fadeOutMode: AnimationFadeOutMode = AnimationFadeOutMode.SameLayerAndGroup
+            layer: number = 0, additive: boolean = false, fadeOutMode: AnimationFadeOutMode = AnimationFadeOutMode.SameLayer
         ): AnimationState | null {
             this._animationConfig.clear();
+            this._animationConfig.additive = additive;
             this._animationConfig.fadeOutMode = fadeOutMode;
             this._animationConfig.playTimes = playTimes;
             this._animationConfig.layer = layer;
             this._animationConfig.fadeInTime = fadeInTime;
             this._animationConfig.animation = animationName;
-            this._animationConfig.group = group !== null ? group : "";
 
             return this.playConfig(this._animationConfig);
         }
@@ -943,44 +916,6 @@ namespace dragonBones {
          */
         public get lastAnimationState(): AnimationState | null {
             return this._lastAnimationState;
-        }
-
-        /**
-         * - Deprecated, please refer to {@link #play()} {@link #fadeIn()}.
-         * @deprecated
-         * @language en_US
-         */
-        /**
-         * - 已废弃，请参考 {@link #play()} {@link #fadeIn()}。
-         * @deprecated
-         * @language zh_CN
-         */
-        public gotoAndPlay(
-            animationName: string, fadeInTime: number = -1, duration: number = -1, playTimes: number = -1,
-            layer: number = 0, group: string | null = null, fadeOutMode: AnimationFadeOutMode = AnimationFadeOutMode.SameLayerAndGroup,
-            pauseFadeOut: boolean = true, pauseFadeIn: boolean = true
-        ): AnimationState | null {
-            console.warn("Deprecated.");
-            // tslint:disable-next-line:no-unused-expression
-            pauseFadeOut;
-            // tslint:disable-next-line:no-unused-expression
-            pauseFadeIn;
-
-            this._animationConfig.clear();
-            this._animationConfig.resetToPose = true;
-            this._animationConfig.fadeOutMode = fadeOutMode;
-            this._animationConfig.playTimes = playTimes;
-            this._animationConfig.layer = layer;
-            this._animationConfig.fadeInTime = fadeInTime;
-            this._animationConfig.animation = animationName;
-            this._animationConfig.group = group !== null ? group : "";
-
-            const animationData = this._animations[animationName];
-            if (animationData && duration > 0.0) {
-                this._animationConfig.timeScale = animationData.duration / duration;
-            }
-
-            return this.playConfig(this._animationConfig);
         }
     }
 }

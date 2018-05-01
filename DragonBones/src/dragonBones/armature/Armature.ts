@@ -74,6 +74,10 @@ namespace dragonBones {
         /**
          * @internal
          */
+        public _zIndexDirty: boolean;
+        /**
+         * @internal
+         */
         public _alphaDirty: boolean;
         private _flipX: boolean;
         private _flipY: boolean;
@@ -154,6 +158,7 @@ namespace dragonBones {
             this._lockUpdate = false;
             this._slotsDirty = true;
             this._zOrderDirty = false;
+            this._zIndexDirty = false;
             this._alphaDirty = true;
             this._flipX = false;
             this._flipY = false;
@@ -304,16 +309,22 @@ namespace dragonBones {
             }
 
             const prevCacheFrameIndex = this._cacheFrameIndex;
-
             // Update animation.
             this._animation.advanceTime(passedTime);
-
             // Sort slots.
-            if (this._slotsDirty) {
-                this._slotsDirty = false;
+            if (this._slotsDirty || this._zIndexDirty) {
                 this._slots.sort(Armature._onSortSlots);
-            }
 
+                if (this._zIndexDirty) {
+                    for (let i = 0, l = this._slots.length; i < l; ++i) {
+                        this._slots[i]._setZOrder(i); // 
+                    }
+                }
+
+                this._slotsDirty = false;
+                this._zIndexDirty = false;
+            }
+            // Update alpha.
             if (this._alphaDirty) {
                 this._alphaDirty = false;
                 this._globalAlpha = this._alpha * (this._parent !== null ? this._parent._globalAlpha : 1.0);
@@ -326,7 +337,6 @@ namespace dragonBones {
                     slot._updateAlpha();
                 }
             }
-
             // Update bones and slots.
             if (this._cacheFrameIndex < 0 || this._cacheFrameIndex !== prevCacheFrameIndex) {
                 let i = 0, l = 0;
@@ -338,7 +348,6 @@ namespace dragonBones {
                     this._slots[i].update(this._cacheFrameIndex);
                 }
             }
-
             // Do actions.
             if (this._actions.length > 0) {
                 for (const action of this._actions) {
@@ -914,70 +923,6 @@ namespace dragonBones {
          */
         public get parent(): Slot | null {
             return this._parent;
-        }
-
-        /**
-         * @deprecated
-         * @private
-         */
-        public replaceTexture(texture: any): void {
-            this.replacedTexture = texture;
-        }
-        /**
-         * - Deprecated, please refer to {@link #eventDispatcher}.
-         * @deprecated
-         * @language en_US
-         */
-        /**
-         * - 已废弃，请参考 {@link #eventDispatcher}。
-         * @deprecated
-         * @language zh_CN
-         */
-        public hasEventListener(type: EventStringType): boolean {
-            console.warn("Deprecated.");
-            return this._proxy.hasDBEventListener(type);
-        }
-        /**
-         * - Deprecated, please refer to {@link #eventDispatcher}.
-         * @deprecated
-         * @language en_US
-         */
-        /**
-         * - 已废弃，请参考 {@link #eventDispatcher}。
-         * @deprecated
-         * @language zh_CN
-         */
-        public addEventListener(type: EventStringType, listener: Function, target: any): void {
-            console.warn("Deprecated.");
-            this._proxy.addDBEventListener(type, listener, target);
-        }
-        /**
-         * - Deprecated, please refer to {@link #eventDispatcher}.
-         * @deprecated
-         * @language en_US
-         */
-        /**
-         * - 已废弃，请参考 {@link #eventDispatcher}。
-         * @deprecated
-         * @language zh_CN
-         */
-        public removeEventListener(type: EventStringType, listener: Function, target: any): void {
-            console.warn("Deprecated.");
-            this._proxy.removeDBEventListener(type, listener, target);
-        }
-        /**
-         * - Deprecated, please refer to {@link #cacheFrameRate}.
-         * @deprecated
-         * @language en_US
-         */
-        /**
-         * - 已废弃，请参考 {@link #cacheFrameRate}。
-         * @deprecated
-         * @language zh_CN
-         */
-        public enableAnimationCache(frameRate: number): void {
-            console.warn("Deprecated.");
-            this.cacheFrameRate = frameRate;
         }
         /**
          * - Deprecated, please refer to {@link #display}.
