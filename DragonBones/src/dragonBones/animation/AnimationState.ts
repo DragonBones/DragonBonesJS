@@ -674,7 +674,7 @@ namespace dragonBones {
         }
 
         private _advanceFadeTime(passedTime: number): void {
-            const eventActive = this._parent !== null;
+            const eventActive = this._parent === null;
             const isFadeOut = this._fadeState > 0;
 
             if (this._subFadeState < 0) { // Fade start event.

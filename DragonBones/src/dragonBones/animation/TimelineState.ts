@@ -72,7 +72,7 @@ namespace dragonBones {
             let prevTime = this.currentTime;
 
             if (this._setCurrentTime(passedTime)) {
-                const eventActive = this._animationState._parent !== null;
+                const eventActive = this._animationState._parent === null;
                 const eventDispatcher = this._armature.eventDispatcher;
                 if (prevState < 0) {
                     if (this.playState !== prevState) {
