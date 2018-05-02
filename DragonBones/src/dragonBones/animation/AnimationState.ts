@@ -230,6 +230,10 @@ namespace dragonBones {
          */
         public _actionTimeline: ActionTimelineState = null as any; // Initial value.
         private _zOrderTimeline: ZOrderTimelineState | null = null; // Initial value.
+        /**
+         * @internal
+         */
+        public _parent: AnimationState | null;
 
         protected _onClear(): void {
             for (const timeline of this._boneTimelines) {
@@ -305,6 +309,7 @@ namespace dragonBones {
             this._armature = null as any; //
             this._actionTimeline = null as any; //
             this._zOrderTimeline = null;
+            this._parent = null;
         }
 
         private _updateTimelines(): void {
@@ -669,7 +674,7 @@ namespace dragonBones {
         }
 
         private _advanceFadeTime(passedTime: number): void {
-            const eventActive = this._parents.length === 0;
+            const eventActive = this._parent !== null;
             const isFadeOut = this._fadeState > 0;
 
             if (this._subFadeState < 0) { // Fade start event.
@@ -708,6 +713,22 @@ namespace dragonBones {
                 if (!isFadeOut) {
                     this._playheadState |= 1; // x1
                     this._fadeState = 0;
+                }
+                else {
+                    for (const timeline of this._animationTimelines) {
+                        const animationState = timeline.target as AnimationState;
+                        const index = animationState._parents.indexOf(this);
+
+                        if (index >= 0) {
+                            if (animationState._parents.length === 1) {
+                                animationState._parents.length = 0;
+                                animationState.fadeOut(0.0, true);
+                            }
+                            else {
+                                animationState._parents.splice(index, 1);
+                            }
+                        }
+                    }
                 }
 
                 if (eventActive) {
@@ -841,10 +862,8 @@ namespace dragonBones {
             let time = this._time;
             this._weightResult = this._weight * this._fadeProgress;
 
-            if (this._parents.length > 0) {
-                for (const parent of this._parents) {
-                    this._weightResult *= parent._weightResult;
-                }
+            if (this._parent !== null) {
+                this._weightResult *= this._parent._weightResult;
             }
 
             if (this._actionTimeline.playState <= 0) { // Update main timeline.
@@ -1127,7 +1146,15 @@ namespace dragonBones {
                     timeline.fadeOut();
                 }
 
+                for (const timeline of this._boneBlendTimelines) {
+                    timeline.fadeOut();
+                }
+
                 for (const timeline of this._slotTimelines) {
+                    timeline.fadeOut();
+                }
+
+                for (const timeline of this._slotBlendTimelines) {
                     timeline.fadeOut();
                 }
 
@@ -1137,19 +1164,6 @@ namespace dragonBones {
 
                 for (const timeline of this._animationTimelines) {
                     timeline.fadeOut();
-
-                    const animationState = timeline.target as AnimationState;
-                    const index = animationState._parents.indexOf(this);
-
-                    if (index >= 0) {
-                        if (animationState._parents.length === 1) {
-                            animationState._parents.length = 0;
-                            animationState.fadeOut(fadeOutTime, pausePlayhead);
-                        }
-                        else {
-                            animationState._parents.splice(index, 1);
-                        }
-                    }
                 }
             }
 

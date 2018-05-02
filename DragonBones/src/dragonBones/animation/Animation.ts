@@ -425,14 +425,28 @@ namespace dragonBones {
             }
 
             for (let k in animationData.animationTimelines) { // Blend animation node.
-                const childAnimationState = this.fadeIn(k, animationConfig.fadeInTime, 1, animationState.layer, animationState.additive, AnimationFadeOutMode.Single);
+                const childAnimationState = this.fadeIn(k, 0.0, 1, animationState.layer, animationState.additive, AnimationFadeOutMode.Single);
                 if (childAnimationState === null) {
                     continue;
+                }
+
+                let isMainTimeline = false;
+                const timelines = animationData.animationTimelines[k];
+
+                for (const timeline of timelines) {
+                    if (timeline.type === TimelineType.AnimationProgress) {
+                        isMainTimeline = true;
+                        break;
+                    }
                 }
 
                 childAnimationState.resetToPose = false;
                 childAnimationState.stop();
                 childAnimationState._parents.push(animationState);
+
+                if (isMainTimeline) {
+                    childAnimationState._parent = animationState;
+                }
             }
 
             // if (!this._armature._lockUpdate && animationConfig.fadeInTime <= 0.0) { // Blend animation state, update armature.
