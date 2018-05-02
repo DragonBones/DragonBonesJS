@@ -20,7 +20,6 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-
 namespace dragonBones {
     /**
      * - The egret slot.
@@ -318,25 +317,26 @@ namespace dragonBones {
 
                             if (isV5) {
                                 node.drawMesh(
-                                    (texture as any).$bitmapX, (texture as any).$bitmapY,
-                                    (texture as any).$bitmapWidth, (texture as any).$bitmapHeight,
-                                    (texture as any).$offsetX, (texture as any).$offsetY,
+                                    texture.$bitmapX, texture.$bitmapY,
+                                    texture.$bitmapWidth, texture.$bitmapHeight,
+                                    texture.$offsetX, texture.$offsetY,
                                     texture.textureWidth, texture.textureHeight
                                 );
 
-                                node.imageWidth = (texture as any).$sourceWidth;
-                                node.imageHeight = (texture as any).$sourceHeight;
+                                node.imageWidth = texture.$sourceWidth;
+                                node.imageHeight = texture.$sourceHeight;
                             }
                             else {
+                                const textureV4 = texture as any;
                                 node.drawMesh(
-                                    texture._bitmapX, texture._bitmapY,
-                                    texture._bitmapWidth, texture._bitmapHeight,
-                                    texture._offsetX, texture._offsetY,
-                                    texture.textureWidth, texture.textureHeight
+                                    textureV4._bitmapX, textureV4._bitmapY,
+                                    textureV4._bitmapWidth, textureV4._bitmapHeight,
+                                    textureV4._offsetX, textureV4._offsetY,
+                                    textureV4.textureWidth, textureV4.textureHeight
                                 );
 
-                                node.imageWidth = texture._sourceWidth;
-                                node.imageHeight = texture._sourceHeight;
+                                node.imageWidth = textureV4._sourceWidth;
+                                node.imageHeight = textureV4._sourceHeight;
                             }
 
                             this._blendModeDirty = true;
@@ -349,7 +349,7 @@ namespace dragonBones {
                         meshDisplay.$updateVertices();
 
                         if (!isV5) {
-                            meshDisplay.$invalidateTransform();
+                            (meshDisplay as any).$invalidateTransform();
                         }
 
                         const isSkinned = this._geometryData.weight !== null;
@@ -374,25 +374,26 @@ namespace dragonBones {
 
                             if (isV5) {
                                 node.drawImage(
-                                    (texture as any).$bitmapX, (texture as any).$bitmapY,
-                                    (texture as any).$bitmapWidth, (texture as any).$bitmapHeight,
-                                    (texture as any).$offsetX, (texture as any).$offsetY,
+                                    texture.$bitmapX, texture.$bitmapY,
+                                    texture.$bitmapWidth, texture.$bitmapHeight,
+                                    texture.$offsetX, texture.$offsetY,
                                     textureWidth, textureHeight
                                 );
 
-                                node.imageWidth = (texture as any).$sourceWidth;
-                                node.imageHeight = (texture as any).$sourceHeight;
+                                node.imageWidth = texture.$sourceWidth;
+                                node.imageHeight = texture.$sourceHeight;
                             }
                             else {
+                                const textureV4 = texture as any;
                                 node.drawImage(
-                                    texture._bitmapX, texture._bitmapY,
-                                    texture._bitmapWidth, texture._bitmapHeight,
-                                    texture._offsetX, texture._offsetY,
+                                    textureV4._bitmapX, textureV4._bitmapY,
+                                    textureV4._bitmapWidth, textureV4._bitmapHeight,
+                                    textureV4._offsetX, textureV4._offsetY,
                                     textureWidth, textureHeight
                                 );
 
-                                node.imageWidth = texture._sourceWidth;
-                                node.imageHeight = texture._sourceHeight;
+                                node.imageWidth = textureV4._sourceWidth;
+                                node.imageHeight = textureV4._sourceHeight;
                             }
 
                             this._blendModeDirty = true;
@@ -481,7 +482,7 @@ namespace dragonBones {
                 meshDisplay.$updateVertices();
 
                 if (!isV5) {
-                    meshDisplay.$invalidateTransform();
+                    (meshDisplay as any).$invalidateTransform();
                 }
             }
             else {
@@ -519,7 +520,7 @@ namespace dragonBones {
                 meshDisplay.$updateVertices();
 
                 if (!isV5) {
-                    meshDisplay.$invalidateTransform();
+                    (meshDisplay as any).$invalidateTransform();
                 }
             }
 
@@ -565,7 +566,7 @@ namespace dragonBones {
                 this._renderDisplay.$setMatrix((globalTransformMatrix as any) as egret.Matrix, true);
             }
             else {
-                const values = this._renderDisplay.$DisplayObject as any;
+                const values = (this._renderDisplay as any).$DisplayObject as any;
                 const displayMatrix = values[6];
 
                 displayMatrix.a = this.globalTransformMatrix.a;
@@ -575,8 +576,8 @@ namespace dragonBones {
                 displayMatrix.tx = this.globalTransformMatrix.tx;
                 displayMatrix.ty = this.globalTransformMatrix.ty;
 
-                this._renderDisplay.$removeFlags(8);
-                this._renderDisplay.$invalidatePosition();
+                (this._renderDisplay as any).$removeFlags(8);
+                (this._renderDisplay as any).$invalidatePosition();
             }
         }
 

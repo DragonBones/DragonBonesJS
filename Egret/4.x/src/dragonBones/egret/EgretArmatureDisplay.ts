@@ -223,7 +223,7 @@ namespace dragonBones {
             }
 
             if (!isV5 && this._batchEnabled && this._childDirty) {
-                this.$invalidateContentBounds();
+                (this as any).$invalidateContentBounds();
             }
         }
         /**
