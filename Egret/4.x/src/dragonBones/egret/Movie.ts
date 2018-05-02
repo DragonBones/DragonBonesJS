@@ -765,14 +765,14 @@ namespace dragonBones {
 
                         if (isV5) {
                             bitmapNode.drawImage(
-                                (texture as any).$bitmapX, (texture as any).$bitmapY,
-                                (texture as any).$bitmapWidth, (texture as any).$bitmapHeight,
-                                (texture as any).$offsetX, (texture as any).$offsetY,
+                                texture.$bitmapX, texture.$bitmapY,
+                                texture.$bitmapWidth, texture.$bitmapHeight,
+                                texture.$offsetX, texture.$offsetY,
                                 texture.textureWidth, texture.textureHeight
                             );
 
-                            bitmapNode.imageWidth = (texture as any)._sourceWidth;
-                            bitmapNode.imageHeight = (texture as any)._sourceHeight;
+                            bitmapNode.imageWidth = texture.$sourceWidth;
+                            bitmapNode.imageHeight = texture.$sourceHeight;
                         }
                         else {
                             const textureV4 = texture as any;
