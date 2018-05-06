@@ -99,7 +99,7 @@ namespace dragonBones {
                 if (textureAtlas instanceof egret.Texture) {
                     textureAtlasData.renderTexture = textureAtlas;
                 }
-                else {
+                else if (textureAtlas) {
                     const egretTexture = new egret.Texture();
                     egretTexture.bitmapData = new egret.BitmapData(textureAtlas);
                     textureAtlasData.disposeEnabled = true;

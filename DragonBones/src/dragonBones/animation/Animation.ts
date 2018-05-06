@@ -760,11 +760,11 @@ namespace dragonBones {
          * @version DragonBones 3.0
          * @language zh_CN
          */
-        public getState(animationName: string): AnimationState | null {
+        public getState(animationName: string, layer: number = 0): AnimationState | null {
             let i = this._animationStates.length;
             while (i--) {
                 const animationState = this._animationStates[i];
-                if (animationState.name === animationName) {
+                if (animationState.name === animationName && animationState.layer === layer) {
                     return animationState;
                 }
             }

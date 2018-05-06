@@ -674,7 +674,7 @@ namespace dragonBones {
         }
 
         private _advanceFadeTime(passedTime: number): void {
-            const eventActive = this._parent === null;
+            const eventActive = this._parents.length === 0;
             const isFadeOut = this._fadeState > 0;
 
             if (this._subFadeState < 0) { // Fade start event.
@@ -722,13 +722,20 @@ namespace dragonBones {
                         if (index >= 0) {
                             if (animationState._parents.length === 1) {
                                 animationState._parents.length = 0;
+                                animationState.weight = 0.0;
                                 animationState.fadeOut(0.0, true);
                             }
                             else {
                                 animationState._parents.splice(index, 1);
                             }
+
+                            if (animationState._parent === this) {
+                                animationState._parent = null;
+                            }
                         }
                     }
+
+                    this._animationTimelines.length = 0;
                 }
 
                 if (eventActive) {
@@ -958,23 +965,16 @@ namespace dragonBones {
                             }
                         }
                     }
+                }
 
-                    for (let i = 0, l = this._slotBlendTimelines.length; i < l; ++i) {
-                        const timeline = this._slotBlendTimelines[i];
-                        if (timeline.playState <= 0) {
-                            const blendState = timeline.target as BlendState;
-                            const displayController = (blendState.target as Slot).displayController;
+                for (let i = 0, l = this._slotBlendTimelines.length; i < l; ++i) {
+                    const timeline = this._slotBlendTimelines[i];
+                    if (timeline.playState <= 0) {
+                        const blendState = timeline.target as BlendState;
+                        timeline.update(time);
 
-                            if (
-                                displayController === null ||
-                                displayController === this.name
-                            ) {
-                                timeline.update(time);
-
-                                if (blendState.update(this)) {
-                                    (timeline as TweenTimelineState).blend(isBlendDirty);
-                                }
-                            }
+                        if (blendState.update(this)) {
+                            (timeline as TweenTimelineState).blend(isBlendDirty);
                         }
                     }
                 }
@@ -1164,6 +1164,9 @@ namespace dragonBones {
 
                 for (const timeline of this._animationTimelines) {
                     timeline.fadeOut();
+                    //
+                    const animaitonState = timeline.target as AnimationState;
+                    animaitonState.fadeOut(999999.0, true);
                 }
             }
 

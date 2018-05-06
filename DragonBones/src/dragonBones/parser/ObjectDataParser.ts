@@ -1111,7 +1111,11 @@ namespace dragonBones {
                         }
 
                         case TimelineType.SlotColor:
-                            // TODO
+                            timeline = this._parseTimeline(
+                                rawTimeline, null, DataParser.FRAME, timelineType,
+                                FrameValueType.Int, 1,
+                                this._parseSlotColorFrame
+                            );
                             break;
                     }
 

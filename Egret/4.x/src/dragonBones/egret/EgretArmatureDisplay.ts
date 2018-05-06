@@ -299,6 +299,10 @@ namespace dragonBones {
                     display.$setMatrix(slot.globalTransformMatrix as any, false);
                 }
 
+                // Color.
+                node.alpha =1.0;
+                node.filter = null as any;
+
                 // ZOrder.
                 this.addChild(display);
             }
