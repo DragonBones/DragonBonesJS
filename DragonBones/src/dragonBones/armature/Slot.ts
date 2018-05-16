@@ -44,7 +44,7 @@ namespace dragonBones {
         }
 
         public updateDeformVertices(): void {
-            if (this.rawDisplayData === null) {
+            if (this.rawDisplayData === null || this.deformVertices.length !== 0) {
                 return;
             }
 
@@ -163,7 +163,7 @@ namespace dragonBones {
      */
     export abstract class Slot extends TransformObject {
         /**
-         * - Displays the animated state controlled by the object, set to null to be controlled by all animation states.
+         * - Displays the animated state or mixed group name controlled by the object, set to null to be controlled by all animation states.
          * @default null
          * @see dragonBones.AnimationState#displayControl
          * @see dragonBones.AnimationState#name
@@ -172,7 +172,7 @@ namespace dragonBones {
          * @language en_US
          */
         /**
-         * - 显示对象受到控制的动画状态，设置为 null 则表示受所有的动画状态控制。
+         * - 显示对象受到控制的动画状态或混合组名称，设置为 null 则表示受所有的动画状态控制。
          * @default null
          * @see dragonBones.AnimationState#displayControl
          * @see dragonBones.AnimationState#name

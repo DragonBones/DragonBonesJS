@@ -171,7 +171,7 @@ namespace dragonBones {
     export const enum OffsetMode {
         None,
         Additive,
-        Override
+        Override,
     }
     /**
      * - Animation fade out mode.
@@ -194,6 +194,24 @@ namespace dragonBones {
          */
         SameLayer = 1,
         /**
+         * - Fade out the animation states of the same group.
+         * @language en_US
+         */
+        /**
+         * - 淡出同组的动画状态。
+         * @language zh_CN
+         */
+        SameGroup = 2,
+        /**
+         * - Fade out the animation states of the same layer and group.
+         * @language en_US
+         */
+        /**
+         * - 淡出同层并且同组的动画状态。
+         * @language zh_CN
+         */
+        SameLayerAndGroup = 3,
+        /**
          * - Fade out of all animation states.
          * @language en_US
          */
@@ -210,7 +228,7 @@ namespace dragonBones {
          * - 不替换同名的动画状态。
          * @language zh_CN
          */
-        Single = 5
+        Single = 5,
     }
     /**
      * @private

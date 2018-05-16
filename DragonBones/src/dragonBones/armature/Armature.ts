@@ -44,7 +44,7 @@ namespace dragonBones {
             return "[class dragonBones.Armature]";
         }
         private static _onSortSlots(a: Slot, b: Slot): number {
-            return a._zIndex * 1000 + a._zOrder > a._zIndex * 1000 + b._zOrder ? 1 : -1;
+            return a._zIndex * 1000 + a._zOrder > b._zIndex * 1000 + b._zOrder ? 1 : -1;
         }
         /**
          * - Whether to inherit the animation control of the parent armature.

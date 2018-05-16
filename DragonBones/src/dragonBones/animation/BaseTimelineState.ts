@@ -190,7 +190,9 @@ namespace dragonBones {
             }
         }
 
-        public fadeOut(): void { }
+        public fadeOut(): void {
+            this.dirty = false;
+        }
 
         public update(passedTime: number): void {
             if (this._setCurrentTime(passedTime)) {
@@ -219,6 +221,9 @@ namespace dragonBones {
                     this._onUpdateFrame();
                 }
             }
+        }
+
+        public blend(_isDirty: boolean): void {
         }
     }
     /**
@@ -340,11 +345,6 @@ namespace dragonBones {
                     this._tweenProgress = TweenTimelineState._getEasingValue(this._tweenType, this._tweenProgress, this._tweenEasing);
                 }
             }
-        }
-
-        public blend(isDirty: boolean): void {
-            // tslint:disable-next-line:no-unused-expression
-            isDirty;
         }
     }
     /**

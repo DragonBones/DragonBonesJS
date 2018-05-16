@@ -72,7 +72,7 @@ namespace dragonBones {
             let prevTime = this.currentTime;
 
             if (this._setCurrentTime(passedTime)) {
-                const eventActive = this._animationState._parents.length === 0;
+                const eventActive = this._animationState._parent === null && this._animationState.actionEnabled;
                 const eventDispatcher = this._armature.eventDispatcher;
                 if (prevState < 0) {
                     if (this.playState !== prevState) {
@@ -316,6 +316,7 @@ namespace dragonBones {
         }
 
         public fadeOut(): void {
+            this.dirty = false;
             this._rd[2] = Transform.normalizeRadian(this._rd[2]);
             this._rd[3] = Transform.normalizeRadian(this._rd[3]);
         }
@@ -426,6 +427,7 @@ namespace dragonBones {
         }
 
         public fadeOut(): void {
+            this.dirty = false;
             this._resultA = Transform.normalizeRadian(this._resultA);
             this._resultB = Transform.normalizeRadian(this._resultB);
         }
@@ -668,41 +670,40 @@ namespace dragonBones {
     /**
      * @internal
      */
-    export class SlotZIndexTimelineState extends SingleValueTimelineState {
+    export class SlotZIndexTimelineState extends TimelineState {
         public static toString(): string {
             return "[class dragonBones.SlotZIndexTimelineState]";
         }
 
+        protected _zIndex: number;
+
+        protected _onClear(): void {
+            super._onClear();
+
+            this._zIndex = 0;
+        }
+
         protected _onArriveAtFrame(): void {
-            super._onArriveAtFrame();
-
-            this._isTween = false;
-
-            if (this._timelineData === null) { // Pose.
-                this._result = 0;
-            }
+            const blendState = this.target as BlendState;
+            const slot = blendState.target as Slot;
+            this._zIndex = this._timelineData !== null ? this._frameArray[this._frameOffset + 1] : slot._slotData.zIndex;
         }
 
-        public init(armature: Armature, animationState: AnimationState, timelineData: TimelineData | null): void {
-            super.init(armature, animationState, timelineData);
-
-            this._valueOffset = this._animationData.frameIntOffset;
-            this._valueArray = this._animationData.parent.parent.frameIntArray;
-        }
+        protected _onUpdateFrame(): void { }
 
         public blend(isDirty: boolean): void {
             const blendState = this.target as BlendState;
-            const alphaTarget = blendState.target as Slot;
+            const slot = blendState.target as Slot;
             const blendWeight = blendState.blendWeight;
 
             if (blendState.dirty > 1) {
-                alphaTarget._zIndex += this._result * blendWeight;
+                slot._zIndex += this._zIndex * blendWeight;
             }
             else if (blendWeight !== 1.0) {
-                alphaTarget._zIndex = this._result * blendWeight;
+                slot._zIndex = this._zIndex * blendWeight;
             }
             else {
-                alphaTarget._zIndex = this._result;
+                slot._zIndex = this._zIndex;
             }
 
             if (isDirty || this.dirty) {
@@ -1041,7 +1042,10 @@ namespace dragonBones {
             super._onUpdateFrame();
 
             const animationState = this.target as AnimationState;
-            animationState.currentTime = this._result * animationState.totalTime;
+            if (animationState._parent !== null) {
+                animationState.currentTime = this._result * animationState.totalTime;
+            }
+
             this.dirty = false;
         }
 
@@ -1065,7 +1069,10 @@ namespace dragonBones {
             super._onUpdateFrame();
 
             const animationState = this.target as AnimationState;
-            animationState.weight = this._result;
+            if (animationState._parent !== null) {
+                animationState.weight = this._result;
+            }
+
             this.dirty = false;
         }
 
@@ -1089,8 +1096,11 @@ namespace dragonBones {
             super._onUpdateFrame();
 
             const animationState = this.target as AnimationState;
-            animationState.parameterX = this._resultA;
-            animationState.parameterY = this._resultB;
+            if (animationState._parent !== null) {
+                animationState.parameterX = this._resultA;
+                animationState.parameterY = this._resultB;
+            }
+
             this.dirty = false;
         }
 
