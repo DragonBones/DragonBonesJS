@@ -31,13 +31,15 @@ namespace dragonBones {
         protected static readonly DATA_VERSION_4_5: string = "4.5";
         protected static readonly DATA_VERSION_5_0: string = "5.0";
         protected static readonly DATA_VERSION_5_5: string = "5.5";
-        protected static readonly DATA_VERSION: string = DataParser.DATA_VERSION_5_5;
+        protected static readonly DATA_VERSION_5_6: string = "5.6";
+        protected static readonly DATA_VERSION: string = DataParser.DATA_VERSION_5_6;
 
         protected static readonly DATA_VERSIONS: Array<string> = [
             DataParser.DATA_VERSION_4_0,
             DataParser.DATA_VERSION_4_5,
             DataParser.DATA_VERSION_5_0,
-            DataParser.DATA_VERSION_5_5
+            DataParser.DATA_VERSION_5_5,
+            DataParser.DATA_VERSION_5_6
         ];
 
         protected static readonly TEXTURE_ATLAS: string = "textureAtlas";

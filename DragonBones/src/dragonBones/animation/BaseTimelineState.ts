@@ -258,10 +258,20 @@ namespace dragonBones {
                 return 1.0;
             }
 
+            const isOmited = count > 0;
             const segmentCount = count + 1; // + 2 - 1
             const valueIndex = Math.floor(progress * segmentCount);
-            const fromValue = valueIndex === 0 ? 0.0 : samples[offset + valueIndex - 1];
-            const toValue = (valueIndex === segmentCount - 1) ? 10000.0 : samples[offset + valueIndex];
+            let fromValue = 0.0;
+            let toValue = 0.0;
+
+            if (isOmited) {
+                fromValue = valueIndex === 0 ? 0.0 : samples[offset + valueIndex - 1];
+                toValue = (valueIndex === segmentCount - 1) ? 10000.0 : samples[offset + valueIndex];
+            }
+            else {
+                fromValue = samples[offset + valueIndex - 1];
+                toValue = samples[offset + valueIndex];
+            }
 
             return (fromValue + (toValue - fromValue) * (progress * segmentCount - valueIndex)) * 0.0001;
         }

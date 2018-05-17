@@ -122,6 +122,7 @@ namespace dragonBones {
         private readonly _frameFloatArray: Array<number> = [];
         private readonly _frameArray: Array<number> = [];
         private readonly _timelineArray: Array<number> = [];
+        private readonly _colorArray: Array<number> = [];
         private readonly _cacheRawMeshes: Array<any> = [];
         private readonly _cacheMeshes: Array<MeshDisplayData> = [];
         private readonly _actionFrames: Array<ActionFrame> = [];
@@ -143,39 +144,79 @@ namespace dragonBones {
             result.y = kA * y1 + kB * y2 + kC * y3 + kD * y4;
         }
 
-        private _samplingEasingCurve(curve: Array<number>, samples: Array<number>): void {
+        private _samplingEasingCurve(curve: Array<number>, samples: Array<number>): boolean {
             const curveCount = curve.length;
-            let stepIndex = -2;
-            for (let i = 0, l = samples.length; i < l; ++i) {
-                let t = (i + 1) / (l + 1); // float
-                while ((stepIndex + 6 < curveCount ? curve[stepIndex + 6] : 1) < t) { // stepIndex + 3 * 2
-                    stepIndex += 6;
+
+            if (curveCount % 3 === 1) {
+                let stepIndex = -2;
+                for (let i = 0, l = samples.length; i < l; ++i) {
+                    let t = (i + 1) / (l + 1); // float
+                    while ((stepIndex + 6 < curveCount ? curve[stepIndex + 6] : 1) < t) { // stepIndex + 3 * 2
+                        stepIndex += 6;
+                    }
+
+                    const isInCurve = stepIndex >= 0 && stepIndex + 6 < curveCount;
+                    const x1 = isInCurve ? curve[stepIndex] : 0.0;
+                    const y1 = isInCurve ? curve[stepIndex + 1] : 0.0;
+                    const x2 = curve[stepIndex + 2];
+                    const y2 = curve[stepIndex + 3];
+                    const x3 = curve[stepIndex + 4];
+                    const y3 = curve[stepIndex + 5];
+                    const x4 = isInCurve ? curve[stepIndex + 6] : 1.0;
+                    const y4 = isInCurve ? curve[stepIndex + 7] : 1.0;
+
+                    let lower = 0.0;
+                    let higher = 1.0;
+                    while (higher - lower > 0.0001) {
+                        const percentage = (higher + lower) * 0.5;
+                        this._getCurvePoint(x1, y1, x2, y2, x3, y3, x4, y4, percentage, this._helpPoint);
+                        if (t - this._helpPoint.x > 0.0) {
+                            lower = percentage;
+                        }
+                        else {
+                            higher = percentage;
+                        }
+                    }
+
+                    samples[i] = this._helpPoint.y;
                 }
 
-                const isInCurve = stepIndex >= 0 && stepIndex + 6 < curveCount;
-                const x1 = isInCurve ? curve[stepIndex] : 0.0;
-                const y1 = isInCurve ? curve[stepIndex + 1] : 0.0;
-                const x2 = curve[stepIndex + 2];
-                const y2 = curve[stepIndex + 3];
-                const x3 = curve[stepIndex + 4];
-                const y3 = curve[stepIndex + 5];
-                const x4 = isInCurve ? curve[stepIndex + 6] : 1.0;
-                const y4 = isInCurve ? curve[stepIndex + 7] : 1.0;
+                return true;
+            }
+            else {
+                let stepIndex = 0;
+                for (let i = 0, l = samples.length; i < l; ++i) {
+                    let t = (i + 1) / (l + 1); // float
+                    while (curve[stepIndex + 6] < t) { // stepIndex + 3 * 2
+                        stepIndex += 6;
+                    }
 
-                let lower = 0.0;
-                let higher = 1.0;
-                while (higher - lower > 0.0001) {
-                    const percentage = (higher + lower) * 0.5;
-                    this._getCurvePoint(x1, y1, x2, y2, x3, y3, x4, y4, percentage, this._helpPoint);
-                    if (t - this._helpPoint.x > 0.0) {
-                        lower = percentage;
+                    const x1 = curve[stepIndex];
+                    const y1 = curve[stepIndex + 1];
+                    const x2 = curve[stepIndex + 2];
+                    const y2 = curve[stepIndex + 3];
+                    const x3 = curve[stepIndex + 4];
+                    const y3 = curve[stepIndex + 5];
+                    const x4 = curve[stepIndex + 6];
+                    const y4 = curve[stepIndex + 7];
+
+                    let lower = 0.0;
+                    let higher = 1.0;
+                    while (higher - lower > 0.0001) {
+                        const percentage = (higher + lower) * 0.5;
+                        this._getCurvePoint(x1, y1, x2, y2, x3, y3, x4, y4, percentage, this._helpPoint);
+                        if (t - this._helpPoint.x > 0.0) {
+                            lower = percentage;
+                        }
+                        else {
+                            higher = percentage;
+                        }
                     }
-                    else {
-                        higher = percentage;
-                    }
+
+                    samples[i] = this._helpPoint.y;
                 }
 
-                samples[i] = this._helpPoint.y;
+                return false;
             }
         }
 
@@ -1404,11 +1445,11 @@ namespace dragonBones {
                 if (DataParser.CURVE in rawData) {
                     const sampleCount = frameCount + 1;
                     this._helpArray.length = sampleCount;
-                    this._samplingEasingCurve(rawData[DataParser.CURVE], this._helpArray);
+                    const isOmited = this._samplingEasingCurve(rawData[DataParser.CURVE], this._helpArray);
 
                     this._frameArray.length += 1 + 1 + this._helpArray.length;
                     this._frameArray[frameOffset + BinaryOffset.FrameTweenType] = TweenType.Curve;
-                    this._frameArray[frameOffset + BinaryOffset.FrameTweenEasingOrCurveSampleCount] = sampleCount;
+                    this._frameArray[frameOffset + BinaryOffset.FrameTweenEasingOrCurveSampleCount] = isOmited ? sampleCount : -sampleCount;
                     for (let i = 0; i < sampleCount; ++i) {
                         this._frameArray[frameOffset + BinaryOffset.FrameCurveSamples + i] = Math.round(this._helpArray[i] * 10000.0);
                     }
@@ -1705,16 +1746,16 @@ namespace dragonBones {
                     // tslint:disable-next-line:no-unused-expression
                     k;
                     this._parseColorTransform(rawColor, this._helpColorTransform);
-                    colorOffset = this._intArray.length;
-                    this._intArray.length += 8;
-                    this._intArray[colorOffset++] = Math.round(this._helpColorTransform.alphaMultiplier * 100);
-                    this._intArray[colorOffset++] = Math.round(this._helpColorTransform.redMultiplier * 100);
-                    this._intArray[colorOffset++] = Math.round(this._helpColorTransform.greenMultiplier * 100);
-                    this._intArray[colorOffset++] = Math.round(this._helpColorTransform.blueMultiplier * 100);
-                    this._intArray[colorOffset++] = Math.round(this._helpColorTransform.alphaOffset);
-                    this._intArray[colorOffset++] = Math.round(this._helpColorTransform.redOffset);
-                    this._intArray[colorOffset++] = Math.round(this._helpColorTransform.greenOffset);
-                    this._intArray[colorOffset++] = Math.round(this._helpColorTransform.blueOffset);
+                    colorOffset = this._colorArray.length;
+                    this._colorArray.length += 8;
+                    this._colorArray[colorOffset++] = Math.round(this._helpColorTransform.alphaMultiplier * 100);
+                    this._colorArray[colorOffset++] = Math.round(this._helpColorTransform.redMultiplier * 100);
+                    this._colorArray[colorOffset++] = Math.round(this._helpColorTransform.greenMultiplier * 100);
+                    this._colorArray[colorOffset++] = Math.round(this._helpColorTransform.blueMultiplier * 100);
+                    this._colorArray[colorOffset++] = Math.round(this._helpColorTransform.alphaOffset);
+                    this._colorArray[colorOffset++] = Math.round(this._helpColorTransform.redOffset);
+                    this._colorArray[colorOffset++] = Math.round(this._helpColorTransform.greenOffset);
+                    this._colorArray[colorOffset++] = Math.round(this._helpColorTransform.blueOffset);
                     colorOffset -= 8;
                     break;
                 }
@@ -1722,16 +1763,16 @@ namespace dragonBones {
 
             if (colorOffset < 0) {
                 if (this._defaultColorOffset < 0) {
-                    this._defaultColorOffset = colorOffset = this._intArray.length;
-                    this._intArray.length += 8;
-                    this._intArray[colorOffset++] = 100;
-                    this._intArray[colorOffset++] = 100;
-                    this._intArray[colorOffset++] = 100;
-                    this._intArray[colorOffset++] = 100;
-                    this._intArray[colorOffset++] = 0;
-                    this._intArray[colorOffset++] = 0;
-                    this._intArray[colorOffset++] = 0;
-                    this._intArray[colorOffset++] = 0;
+                    this._defaultColorOffset = colorOffset = this._colorArray.length;
+                    this._colorArray.length += 8;
+                    this._colorArray[colorOffset++] = 100;
+                    this._colorArray[colorOffset++] = 100;
+                    this._colorArray[colorOffset++] = 100;
+                    this._colorArray[colorOffset++] = 100;
+                    this._colorArray[colorOffset++] = 0;
+                    this._colorArray[colorOffset++] = 0;
+                    this._colorArray[colorOffset++] = 0;
+                    this._colorArray[colorOffset++] = 0;
                 }
 
                 colorOffset = this._defaultColorOffset;
@@ -2166,6 +2207,7 @@ namespace dragonBones {
             this._frameFloatArray.length = 0;
             this._frameArray.length = 0;
             this._timelineArray.length = 0;
+            this._colorArray.length = 0;
         }
 
         protected _modifyArray(): void {
@@ -2186,6 +2228,10 @@ namespace dragonBones {
                 this._timelineArray.push(0);
             }
 
+            if ((this._timelineArray.length % Int16Array.BYTES_PER_ELEMENT) !== 0) {
+                this._colorArray.push(0);
+            }
+
             const l1 = this._intArray.length * Int16Array.BYTES_PER_ELEMENT;
             const l2 = this._floatArray.length * Float32Array.BYTES_PER_ELEMENT;
             const l3 = this._frameIntArray.length * Int16Array.BYTES_PER_ELEMENT;
@@ -2201,6 +2247,7 @@ namespace dragonBones {
             const frameFloatArray = new Float32Array(binary, l1 + l2 + l3, this._frameFloatArray.length);
             const frameArray = new Int16Array(binary, l1 + l2 + l3 + l4, this._frameArray.length);
             const timelineArray = new Uint16Array(binary, l1 + l2 + l3 + l4 + l5, this._timelineArray.length);
+            const colorArray = new Int16Array(binary, l1 + l2 + l3 + l4 + l5 + l6, this._colorArray.length);
 
             for (let i = 0, l = this._intArray.length; i < l; ++i) {
                 intArray[i] = this._intArray[i];
@@ -2226,6 +2273,10 @@ namespace dragonBones {
                 timelineArray[i] = this._timelineArray[i];
             }
 
+            for (let i = 0, l = this._colorArray.length; i < l; ++i) {
+                colorArray[i] = this._colorArray[i];
+            }
+
             this._data.binary = binary;
             this._data.intArray = intArray;
             this._data.floatArray = floatArray;
@@ -2233,6 +2284,7 @@ namespace dragonBones {
             this._data.frameFloatArray = frameFloatArray;
             this._data.frameArray = frameArray;
             this._data.timelineArray = timelineArray;
+            this._data.colorArray = colorArray;
             this._defaultColorOffset = -1;
         }
 

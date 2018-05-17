@@ -729,7 +729,7 @@ namespace dragonBones {
 
             if (this._timelineData !== null) {
                 const dragonBonesData = this._animationData.parent.parent;
-                const intArray = dragonBonesData.intArray;
+                const colorArray = dragonBonesData.colorArray;
                 const frameIntArray = dragonBonesData.frameIntArray;
                 const valueOffset = this._animationData.frameIntOffset + this._frameValueOffset + this._frameIndex;
                 let colorOffset = frameIntArray[valueOffset];
@@ -739,14 +739,14 @@ namespace dragonBones {
                 }
 
                 if (this._isTween) {
-                    this._current[0] = intArray[colorOffset++];
-                    this._current[1] = intArray[colorOffset++];
-                    this._current[2] = intArray[colorOffset++];
-                    this._current[3] = intArray[colorOffset++];
-                    this._current[4] = intArray[colorOffset++];
-                    this._current[5] = intArray[colorOffset++];
-                    this._current[6] = intArray[colorOffset++];
-                    this._current[7] = intArray[colorOffset++];
+                    this._current[0] = colorArray[colorOffset++];
+                    this._current[1] = colorArray[colorOffset++];
+                    this._current[2] = colorArray[colorOffset++];
+                    this._current[3] = colorArray[colorOffset++];
+                    this._current[4] = colorArray[colorOffset++];
+                    this._current[5] = colorArray[colorOffset++];
+                    this._current[6] = colorArray[colorOffset++];
+                    this._current[7] = colorArray[colorOffset++];
 
                     if (this._frameIndex === this._frameCount - 1) {
                         colorOffset = frameIntArray[this._animationData.frameIntOffset + this._frameValueOffset];
@@ -759,24 +759,24 @@ namespace dragonBones {
                         colorOffset += 65536; // Fixed out of bounds bug. 
                     }
 
-                    this._difference[0] = intArray[colorOffset++] - this._current[0];
-                    this._difference[1] = intArray[colorOffset++] - this._current[1];
-                    this._difference[2] = intArray[colorOffset++] - this._current[2];
-                    this._difference[3] = intArray[colorOffset++] - this._current[3];
-                    this._difference[4] = intArray[colorOffset++] - this._current[4];
-                    this._difference[5] = intArray[colorOffset++] - this._current[5];
-                    this._difference[6] = intArray[colorOffset++] - this._current[6];
-                    this._difference[7] = intArray[colorOffset++] - this._current[7];
+                    this._difference[0] = colorArray[colorOffset++] - this._current[0];
+                    this._difference[1] = colorArray[colorOffset++] - this._current[1];
+                    this._difference[2] = colorArray[colorOffset++] - this._current[2];
+                    this._difference[3] = colorArray[colorOffset++] - this._current[3];
+                    this._difference[4] = colorArray[colorOffset++] - this._current[4];
+                    this._difference[5] = colorArray[colorOffset++] - this._current[5];
+                    this._difference[6] = colorArray[colorOffset++] - this._current[6];
+                    this._difference[7] = colorArray[colorOffset++] - this._current[7];
                 }
                 else {
-                    this._result[0] = intArray[colorOffset++] * 0.01;
-                    this._result[1] = intArray[colorOffset++] * 0.01;
-                    this._result[2] = intArray[colorOffset++] * 0.01;
-                    this._result[3] = intArray[colorOffset++] * 0.01;
-                    this._result[4] = intArray[colorOffset++];
-                    this._result[5] = intArray[colorOffset++];
-                    this._result[6] = intArray[colorOffset++];
-                    this._result[7] = intArray[colorOffset++];
+                    this._result[0] = colorArray[colorOffset++] * 0.01;
+                    this._result[1] = colorArray[colorOffset++] * 0.01;
+                    this._result[2] = colorArray[colorOffset++] * 0.01;
+                    this._result[3] = colorArray[colorOffset++] * 0.01;
+                    this._result[4] = colorArray[colorOffset++];
+                    this._result[5] = colorArray[colorOffset++];
+                    this._result[6] = colorArray[colorOffset++];
+                    this._result[7] = colorArray[colorOffset++];
                 }
             }
             else { // Pose.
