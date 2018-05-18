@@ -86,6 +86,14 @@ namespace dragonBones {
         /**
          * @internal
          */
+        public _alpha: number;
+        /**
+         * @internal
+         */
+        public _globalAlpha: number;
+        /**
+         * @internal
+         */
         public _armature: Armature;
         /**
          */
@@ -97,6 +105,8 @@ namespace dragonBones {
             this.userData = null;
 
             this._globalDirty = false;
+            this._alpha = 1.0;
+            this._globalAlpha = 1.0;
             this._armature = null as any; //
         }
         /**
@@ -141,5 +151,5 @@ namespace dragonBones {
         public get armature(): Armature {
             return this._armature;
         }
-        }
+    }
 }

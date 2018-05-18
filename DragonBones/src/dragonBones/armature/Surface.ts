@@ -46,6 +46,8 @@ namespace dragonBones {
          */
         private readonly _matrixCahce: Array<number> = [];
 
+        public _bone: Bone | null;
+
         protected _onClear(): void {
             super._onClear();
 
@@ -58,6 +60,7 @@ namespace dragonBones {
             this._deformVertices.length = 0;
             this._matrixCahce.length = 0;
             this._hullCache.length = 0;
+            this._bone = null;
         }
 
         private _getAffineTransform(
@@ -80,43 +83,49 @@ namespace dragonBones {
             transform.scaleX = Math.sqrt(dabX * dabX + dabY * dabY) / lX;
             transform.scaleY = Math.sqrt(dacX * dacX + dacY * dacY) / lY;
             transform.toMatrix(matrix);
-
             transform.x = matrix.tx = aX - (matrix.a * x + matrix.c * y);
             transform.y = matrix.ty = aY - (matrix.b * x + matrix.d * y);
         }
 
         private _updateVertices(): void {
-            const originalVertices = (this._boneData as SurfaceData).vertices;
+            const data = this._armature.armatureData.parent;
+            const geometry = (this._boneData as SurfaceData).geometry;
+            const intArray = data.intArray;
+            const floatArray = data.floatArray;
+            const vertexCount = intArray[geometry.offset + BinaryOffset.GeometryVertexCount];
+            const verticesOffset = intArray[geometry.offset + BinaryOffset.GeometryFloatOffset];
             const vertices = this._vertices;
             const animationVertices = this._deformVertices;
 
             if (this._parent !== null) {
                 if (this._parent._boneData.type === BoneType.Surface) {
-                    for (let i = 0, l = originalVertices.length; i < l; i += 2) {
-                        const x = originalVertices[i] + animationVertices[i];
-                        const y = originalVertices[i + 1] + animationVertices[i];
+                    for (let i = 0, l = vertexCount; i < l; ++i) {
+                        const iD = i * 2;
+                        const x = floatArray[verticesOffset + iD] + animationVertices[iD];
+                        const y = floatArray[verticesOffset + iD + 1] + animationVertices[iD + 1];
                         const matrix = (this._parent as Surface)._getGlobalTransformMatrix(x, y);
                         //
-                        vertices[i] = matrix.a * x + matrix.c * y + matrix.tx;
-                        vertices[i + 1] = matrix.b * x + matrix.d * y + matrix.ty;
+                        vertices[iD] = matrix.a * x + matrix.c * y + matrix.tx;
+                        vertices[iD + 1] = matrix.b * x + matrix.d * y + matrix.ty;
                     }
                 }
                 else {
                     const parentMatrix = this._parent.globalTransformMatrix;
-
-                    for (let i = 0, l = originalVertices.length; i < l; i += 2) {
-                        const x = originalVertices[i] + animationVertices[i];
-                        const y = originalVertices[i + 1] + animationVertices[i + 1];
+                    for (let i = 0, l = vertexCount; i < l; ++i) {
+                        const iD = i * 2;
+                        const x = floatArray[verticesOffset + iD] + animationVertices[iD];
+                        const y = floatArray[verticesOffset + iD + 1] + animationVertices[iD + 1];
                         //
-                        vertices[i] = parentMatrix.a * x + parentMatrix.c * y + parentMatrix.tx;
-                        vertices[i + 1] = parentMatrix.b * x + parentMatrix.d * y + parentMatrix.ty;
+                        vertices[iD] = parentMatrix.a * x + parentMatrix.c * y + parentMatrix.tx;
+                        vertices[iD + 1] = parentMatrix.b * x + parentMatrix.d * y + parentMatrix.ty;
                     }
                 }
             }
             else {
-                for (let i = 0, l = originalVertices.length; i < l; i += 2) {
-                    vertices[i] = originalVertices[i] + animationVertices[i];
-                    vertices[i + 1] = originalVertices[i + 1] + animationVertices[i + 1];
+                for (let i = 0, l = vertexCount; i < l; ++i) {
+                    const iD = i * 2;
+                    vertices[iD] = floatArray[verticesOffset + iD] + animationVertices[iD];
+                    vertices[iD + 1] = floatArray[verticesOffset + iD + 1] + animationVertices[iD + 1];
                 }
             }
         }
@@ -148,9 +157,9 @@ namespace dragonBones {
             const bY = rbY + (rcY - rbY) * 0.5;
             const cX = rdX + (rcX - rdX) * 0.5;
             const cY = rdY + (rcY - rdY) * 0.5;
-            //
-            this._globalDirty = false;
+            // TODO interpolation
             this._getAffineTransform(0.0, 0.0, lA, lA, aX, aY, bX, bY, cX, cY, this.global, this.globalTransformMatrix, false);
+            this._globalDirty = false;
         }
 
         public _getGlobalTransformMatrix(x: number, y: number): Matrix {
@@ -172,6 +181,7 @@ namespace dragonBones {
             let matrixIndex = 0;
             let pX = indexX * dX - lA;
             let pY = indexY * dY - lA;
+            //
             const matrices = this._matrixCahce;
             const helpMatrix = Surface._helpMatrix;
 
@@ -183,7 +193,7 @@ namespace dragonBones {
                 isDown = y > this._kX * (x + lA) + pY;
                 matrixIndex = ((segmentX * (segmentY + 1) + segmentX * 2 + segmentY + indexY) * 2 + (isDown ? 1 : 0)) * 7;
 
-                if (this._matrixCahce[matrixIndex] > 0.0) {
+                if (matrices[matrixIndex] > 0.0) {
                     helpMatrix.copyFromArray(matrices, matrixIndex + 1);
                 }
                 else {
@@ -234,7 +244,7 @@ namespace dragonBones {
                 isDown = y > this._kX * (x - lB) + pY;
                 matrixIndex = ((segmentX * (segmentY + 1) + segmentX + indexY) * 2 + (isDown ? 1 : 0)) * 7;
 
-                if (this._matrixCahce[matrixIndex] > 0.0) {
+                if (matrices[matrixIndex] > 0.0) {
                     helpMatrix.copyFromArray(matrices, matrixIndex + 1);
                 }
                 else {
@@ -283,9 +293,9 @@ namespace dragonBones {
                 }
                 // Up.
                 isDown = y > this._kY * (x - pX - dX) - lB;
-                matrixIndex = (segmentX * (segmentY + 1) + indexX * 2 + (isDown ? 1 : 0)) * 7;
+                matrixIndex = ((segmentX * (segmentY + 1) + indexX) * 2 + (isDown ? 1 : 0)) * 7;
 
-                if (this._matrixCahce[matrixIndex] > 0.0) {
+                if (matrices[matrixIndex] > 0.0) {
                     helpMatrix.copyFromArray(matrices, matrixIndex + 1);
                 }
                 else {
@@ -336,7 +346,7 @@ namespace dragonBones {
                 isDown = y > this._kY * (x - pX - dX) + lA;
                 matrixIndex = ((segmentX * (segmentY + 1) + segmentX + segmentY + indexY) * 2 + (isDown ? 1 : 0)) * 7;
 
-                if (this._matrixCahce[matrixIndex] > 0.0) {
+                if (matrices[matrixIndex] > 0.0) {
                     helpMatrix.copyFromArray(matrices, matrixIndex + 1);
                 }
                 else {
@@ -383,7 +393,7 @@ namespace dragonBones {
                 isDown = y > this._k * (x - pX - dX) + pY;
                 matrixIndex = ((segmentX * indexY + indexX) * 2 + (isDown ? 1 : 0)) * 7;
 
-                if (this._matrixCahce[matrixIndex] > 0.0) {
+                if (matrices[matrixIndex] > 0.0) {
                     helpMatrix.copyFromArray(matrices, matrixIndex + 1);
                 }
                 else {
@@ -438,7 +448,7 @@ namespace dragonBones {
 
             const segmentX = surfaceData.segmentX;
             const segmentY = surfaceData.segmentY;
-            const vertexCount = surfaceData.vertices.length;
+            const vertexCount = this._armature.armatureData.parent.intArray[surfaceData.geometry.offset + BinaryOffset.GeometryVertexCount];
             const lB = 1000.0;
             const lA = 200.0;
             //
@@ -447,21 +457,28 @@ namespace dragonBones {
             this._k = -this._dY / this._dX;
             this._kX = -this._dY / (lB - lA);
             this._kY = -(lB - lA) / this._dX;
-            this._vertices.length = vertexCount;
-            this._deformVertices.length = vertexCount;
+            this._vertices.length = vertexCount * 2;
+            this._deformVertices.length = vertexCount * 2;
             this._matrixCahce.length = (segmentX * segmentY + segmentX * 2 + segmentY * 2) * 2 * 7;
             this._hullCache.length = 10;
 
-            for (let i = 0; i < vertexCount; ++i) {
+            for (let i = 0; i < vertexCount * 2; ++i) {
                 this._deformVertices[i] = 0.0;
+            }
+
+            if (this._parent !== null) {
+                if (this._parent.boneData.type === BoneType.Bone) {
+                    this._bone = this._parent;
+                }
+                else {
+                    this._bone = (this._parent as Surface)._bone;
+                }
             }
         }
         /**
          * @internal
          */
         public update(cacheFrameIndex: number): void {
-            this._blendState.dirty = false;
-
             if (cacheFrameIndex >= 0 && this._cachedFrameIndices !== null) {
                 const cachedFrameIndex = this._cachedFrameIndices[cacheFrameIndex];
                 if (cachedFrameIndex >= 0 && this._cachedFrameIndex === cachedFrameIndex) { // Same cache.

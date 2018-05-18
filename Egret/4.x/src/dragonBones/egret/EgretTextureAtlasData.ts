@@ -124,35 +124,6 @@ namespace dragonBones {
                 }
             }
         }
-
-        /**
-         * - Deprecated, please refer to {@link dragonBones.BaseFactory#removeTextureAtlasData()}.
-         * @deprecated
-         * @language en_US
-         */
-        /**
-         * - 已废弃，请参考 {@link dragonBones.BaseFactory#removeTextureAtlasData()}。
-         * @deprecated
-         * @language zh_CN
-         */
-        public dispose(): void {
-            console.warn("已废弃。");
-            this.returnToPool();
-        }
-        /**
-         * - Deprecated, please refer to {@link #renderTexture}.
-         * @deprecated
-         * @language en_US
-         */
-        /**
-         * - 已废弃，请参考 {@link #renderTexture}。
-         * @deprecated
-         * @language zh_CN
-         */
-        public get texture() {
-            console.warn("已废弃。");
-            return this.renderTexture;
-        }
     }
     /**
      * @internal

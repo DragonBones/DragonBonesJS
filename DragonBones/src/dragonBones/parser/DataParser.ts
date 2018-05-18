@@ -31,13 +31,15 @@ namespace dragonBones {
         protected static readonly DATA_VERSION_4_5: string = "4.5";
         protected static readonly DATA_VERSION_5_0: string = "5.0";
         protected static readonly DATA_VERSION_5_5: string = "5.5";
-        protected static readonly DATA_VERSION: string = DataParser.DATA_VERSION_5_5;
+        protected static readonly DATA_VERSION_5_6: string = "5.6";
+        protected static readonly DATA_VERSION: string = DataParser.DATA_VERSION_5_6;
 
         protected static readonly DATA_VERSIONS: Array<string> = [
             DataParser.DATA_VERSION_4_0,
             DataParser.DATA_VERSION_4_5,
             DataParser.DATA_VERSION_5_0,
-            DataParser.DATA_VERSION_5_5
+            DataParser.DATA_VERSION_5_5,
+            DataParser.DATA_VERSION_5_6
         ];
 
         protected static readonly TEXTURE_ATLAS: string = "textureAtlas";
@@ -55,19 +57,20 @@ namespace dragonBones {
         protected static readonly DRADON_BONES: string = "dragonBones";
         protected static readonly USER_DATA: string = "userData";
         protected static readonly ARMATURE: string = "armature";
+        protected static readonly CANVAS: string = "canvas";
         protected static readonly BONE: string = "bone";
         protected static readonly SURFACE: string = "surface";
         protected static readonly SLOT: string = "slot";
         protected static readonly CONSTRAINT: string = "constraint";
+        protected static readonly SKIN: string = "skin";
+        protected static readonly DISPLAY: string = "display";
+        protected static readonly FRAME: string = "frame";
         protected static readonly IK: string = "ik";
         protected static readonly PATH_CONSTRAINT: string = "path";
 
-        protected static readonly SKIN: string = "skin";
-        protected static readonly DISPLAY: string = "display";
         protected static readonly ANIMATION: string = "animation";
-        protected static readonly Z_ORDER: string = "zOrder";
+        protected static readonly TIMELINE: string = "timeline";
         protected static readonly FFD: string = "ffd";
-        protected static readonly FRAME: string = "frame";
         protected static readonly TRANSLATE_FRAME: string = "translateFrame";
         protected static readonly ROTATE_FRAME: string = "rotateFrame";
         protected static readonly SCALE_FRAME: string = "scaleFrame";
@@ -76,10 +79,10 @@ namespace dragonBones {
         protected static readonly DEFAULT_ACTIONS: string = "defaultActions";
         protected static readonly ACTIONS: string = "actions";
         protected static readonly EVENTS: string = "events";
+
         protected static readonly INTS: string = "ints";
         protected static readonly FLOATS: string = "floats";
         protected static readonly STRINGS: string = "strings";
-        protected static readonly CANVAS: string = "canvas";
 
         protected static readonly TRANSFORM: string = "transform";
         protected static readonly PIVOT: string = "pivot";
@@ -99,6 +102,8 @@ namespace dragonBones {
         protected static readonly PATH: string = "path";
         protected static readonly LENGTH: string = "length";
         protected static readonly DISPLAY_INDEX: string = "displayIndex";
+        protected static readonly Z_ORDER: string = "zOrder";
+        protected static readonly Z_INDEX: string = "zIndex";
         protected static readonly BLEND_MODE: string = "blendMode";
         protected static readonly INHERIT_TRANSLATION: string = "inheritTranslation";
         protected static readonly INHERIT_ROTATION: string = "inheritRotation";
@@ -112,6 +117,7 @@ namespace dragonBones {
         protected static readonly CHAIN: string = "chain";
         protected static readonly WEIGHT: string = "weight";
 
+        protected static readonly BLEND_TYPE: string = "blendType";
         protected static readonly FADE_IN_TIME: string = "fadeInTime";
         protected static readonly PLAY_TIMES: string = "playTimes";
         protected static readonly SCALE: string = "scale";
@@ -136,6 +142,7 @@ namespace dragonBones {
         protected static readonly VALUE: string = "value";
         protected static readonly ROTATE: string = "rotate";
         protected static readonly SKEW: string = "skew";
+        protected static readonly ALPHA: string = "alpha";
 
         protected static readonly ALPHA_OFFSET: string = "aO";
         protected static readonly RED_OFFSET: string = "rO";
@@ -152,8 +159,6 @@ namespace dragonBones {
         protected static readonly WEIGHTS: string = "weights";
         protected static readonly SLOT_POSE: string = "slotPose";
         protected static readonly BONE_POSE: string = "bonePose";
-        protected static readonly GLUE_WEIGHTS: string = "glueWeights";
-        protected static readonly GLUE_MESHES: string = "glueMeshes";
 
         protected static readonly BONES: string = "bones";
         protected static readonly POSITION_MODE: string = "positionMode";
@@ -164,7 +169,7 @@ namespace dragonBones {
         protected static readonly ROTATE_MIX: string = "rotateMix";
         protected static readonly TRANSLATE_MIX: string = "translateMix";
 
-        protected static readonly TARGET_DISPLAY : string = "targetDisplay";
+        protected static readonly TARGET_DISPLAY: string = "targetDisplay";
         protected static readonly CLOSED: string = "closed";
         protected static readonly CONSTANT_SPEED: string = "constantSpeed";
         protected static readonly VERTEX_COUNT: string = "vertexCount";
@@ -203,6 +208,51 @@ namespace dragonBones {
             }
         }
 
+        protected static _getPositionMode(value: string): PositionMode {
+            switch (value.toLocaleLowerCase()) {
+                case "percent":
+                    return PositionMode.Percent;
+
+                case "fixed":
+                    return PositionMode.Fixed;
+
+                default:
+                    return PositionMode.Percent;
+            }
+        }
+
+        protected static _getSpacingMode(value: string): SpacingMode {
+            switch (value.toLocaleLowerCase()) {
+                case "length":
+                    return SpacingMode.Length;
+
+                case "percent":
+                    return SpacingMode.Percent;
+
+                case "fixed":
+                    return SpacingMode.Fixed;
+
+                default:
+                    return SpacingMode.Length;
+            }
+        }
+
+        protected static _getRotateMode(value: string): RotateMode {
+            switch (value.toLocaleLowerCase()) {
+                case "tangent":
+                    return RotateMode.Tangent;
+
+                case "chain":
+                    return RotateMode.Chain;
+
+                case "chainscale":
+                    return RotateMode.ChainScale;
+
+                default:
+                    return RotateMode.Tangent;
+            }
+        }
+
         protected static _getDisplayType(value: string): DisplayType {
             switch (value.toLowerCase()) {
                 case "image":
@@ -238,22 +288,6 @@ namespace dragonBones {
 
                 default:
                     return BoundingBoxType.Rectangle;
-            }
-        }
-
-        protected static _getActionType(value: string): ActionType {
-            switch (value.toLowerCase()) {
-                case "play":
-                    return ActionType.Play;
-
-                case "frame":
-                    return ActionType.Frame;
-
-                case "sound":
-                    return ActionType.Sound;
-
-                default:
-                    return ActionType.Play;
             }
         }
 
@@ -306,106 +340,36 @@ namespace dragonBones {
             }
         }
 
-        protected static _getPositionMode(value: string): PositionMode {
-            switch (value.toLocaleLowerCase()) {
-                case "percent":
-                    return PositionMode.Percent;
+        protected static _getAnimationBlendType(value: string): AnimationBlendType {
+            switch (value.toLowerCase()) {
+                case "none":
+                    return AnimationBlendType.None;
 
-                case "fixed":
-                    return PositionMode.Fixed;
+                case "1d":
+                    return AnimationBlendType.E1D;
 
                 default:
-                    return PositionMode.Percent;
+                    return AnimationBlendType.None;
             }
         }
 
-        protected static _getSpacingMode(value: string): SpacingMode {
-            switch (value.toLocaleLowerCase()) {
-                case "length":
-                    return SpacingMode.Length;
-                case "percent":
-                    return SpacingMode.Percent;
-                case "fixed":
-                    return SpacingMode.Fixed;
-                default:
-                    return SpacingMode.Length;
-            }
-        }
+        protected static _getActionType(value: string): ActionType {
+            switch (value.toLowerCase()) {
+                case "play":
+                    return ActionType.Play;
 
-        protected static _getRotateMode(value: string): RotateMode {
-            switch (value.toLocaleLowerCase()) {
-                case "tangent":
-                    return RotateMode.Tangent;
-                case "chain":
-                    return RotateMode.Chain;
-                case "chainscale":
-                    return RotateMode.ChainScale;
+                case "frame":
+                    return ActionType.Frame;
+
+                case "sound":
+                    return ActionType.Sound;
+
                 default:
-                    return RotateMode.Tangent;
+                    return ActionType.Play;
             }
         }
 
         public abstract parseDragonBonesData(rawData: any, scale: number): DragonBonesData | null;
         public abstract parseTextureAtlasData(rawData: any, textureAtlasData: TextureAtlasData, scale: number): boolean;
-
-        /**
-         * - Deprecated, please refer to {@link dragonBones.BaseFactory#parsetTextureAtlasData()}.
-         * @deprecated
-         * @language en_US
-         */
-        /**
-         * - 已废弃，请参考 {@link dragonBones.BaseFactory#parsetTextureAtlasData()}。
-         * @deprecated
-         * @language zh_CN
-         */
-        public static parseDragonBonesData(rawData: any): DragonBonesData | null {
-            console.warn("Deprecated.");
-            if (rawData instanceof ArrayBuffer) {
-                return BinaryDataParser.getInstance().parseDragonBonesData(rawData);
-            }
-            else {
-                return ObjectDataParser.getInstance().parseDragonBonesData(rawData);
-            }
-        }
-        /**
-         * - Deprecated, please refer to {@link dragonBones.BaseFactory#parsetTextureAtlasData()}.
-         * @deprecated
-         * @language en_US
-         */
-        /**
-         * - 已废弃，请参考 {@link dragonBones.BaseFactory#parsetTextureAtlasData()}。
-         * @deprecated
-         * @language zh_CN
-         */
-        public static parseTextureAtlasData(rawData: any, scale: number = 1): any {
-            console.warn("已废弃");
-
-            const textureAtlasData = {} as any;
-
-            const subTextureList = rawData[DataParser.SUB_TEXTURE];
-            for (let i = 0, len = subTextureList.length; i < len; i++) {
-                const subTextureObject = subTextureList[i];
-                const subTextureName = subTextureObject[DataParser.NAME];
-                const subTextureRegion = new Rectangle();
-                let subTextureFrame: Rectangle | null = null;
-
-                subTextureRegion.x = subTextureObject[DataParser.X] / scale;
-                subTextureRegion.y = subTextureObject[DataParser.Y] / scale;
-                subTextureRegion.width = subTextureObject[DataParser.WIDTH] / scale;
-                subTextureRegion.height = subTextureObject[DataParser.HEIGHT] / scale;
-
-                if (DataParser.FRAME_WIDTH in subTextureObject) {
-                    subTextureFrame = new Rectangle();
-                    subTextureFrame.x = subTextureObject[DataParser.FRAME_X] / scale;
-                    subTextureFrame.y = subTextureObject[DataParser.FRAME_Y] / scale;
-                    subTextureFrame.width = subTextureObject[DataParser.FRAME_WIDTH] / scale;
-                    subTextureFrame.height = subTextureObject[DataParser.FRAME_HEIGHT] / scale;
-                }
-
-                textureAtlasData[subTextureName] = { region: subTextureRegion, frame: subTextureFrame, rotated: false };
-            }
-
-            return textureAtlasData;
-        }
     }
 }

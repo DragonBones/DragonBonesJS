@@ -22,6 +22,122 @@
  */
 namespace dragonBones {
     /**
+     * @internal
+     */
+    export class DisplayFrame extends BaseObject {
+        public static toString(): string {
+            return "[class dragonBones.DisplayFrame]";
+        }
+
+        public rawDisplayData: DisplayData | null;
+        public displayData: DisplayData | null;
+        public textureData: TextureData | null;
+        public display: any | Armature | null;
+        public readonly deformVertices: Array<number> = [];
+
+        protected _onClear(): void {
+            this.rawDisplayData = null;
+            this.displayData = null;
+            this.textureData = null;
+            this.display = null;
+            this.deformVertices.length = 0;
+        }
+
+        public updateDeformVertices(): void {
+            if (this.rawDisplayData === null || this.deformVertices.length !== 0) {
+                return;
+            }
+
+            let rawGeometryData: GeometryData;
+            if (this.rawDisplayData.type === DisplayType.Mesh) {
+                rawGeometryData = (this.rawDisplayData as MeshDisplayData).geometry;
+            }
+            else if (this.rawDisplayData.type === DisplayType.Path) {
+                rawGeometryData = (this.rawDisplayData as PathDisplayData).geometry;
+            }
+            else {
+                return;
+            }
+
+            let vertexCount = 0;
+            if (rawGeometryData.weight !== null) {
+                vertexCount = rawGeometryData.weight.count * 2;
+            }
+            else {
+                vertexCount = rawGeometryData.data.intArray[rawGeometryData.offset + BinaryOffset.GeometryVertexCount] * 2;
+            }
+
+            this.deformVertices.length = vertexCount;
+            for (let i = 0, l = this.deformVertices.length; i < l; ++i) {
+                this.deformVertices[i] = 0.0;
+            }
+        }
+
+        public getGeometryData(): GeometryData | null {
+            if (this.displayData !== null) {
+                if (this.displayData.type === DisplayType.Mesh) {
+                    return (this.displayData as MeshDisplayData).geometry;
+                }
+
+                if (this.displayData.type === DisplayType.Path) {
+                    return (this.displayData as PathDisplayData).geometry;
+                }
+            }
+
+            if (this.rawDisplayData !== null) {
+                if (this.rawDisplayData.type === DisplayType.Mesh) {
+                    return (this.rawDisplayData as MeshDisplayData).geometry;
+                }
+
+                if (this.rawDisplayData.type === DisplayType.Path) {
+                    return (this.rawDisplayData as PathDisplayData).geometry;
+                }
+            }
+
+            return null;
+        }
+
+        public getBoundingBox(): BoundingBoxData | null {
+            if (this.displayData !== null && this.displayData.type === DisplayType.BoundingBox) {
+                return (this.displayData as BoundingBoxDisplayData).boundingBox;
+            }
+
+            if (this.rawDisplayData !== null && this.rawDisplayData.type === DisplayType.BoundingBox) {
+                return (this.rawDisplayData as BoundingBoxDisplayData).boundingBox;
+            }
+
+            return null;
+        }
+
+        public getTextureData(): TextureData | null {
+            if (this.displayData !== null) {
+                if (this.displayData.type === DisplayType.Image) {
+                    return (this.displayData as ImageDisplayData).texture;
+                }
+
+                if (this.displayData.type === DisplayType.Mesh) {
+                    return (this.displayData as MeshDisplayData).texture;
+                }
+            }
+
+            if (this.textureData !== null) {
+                return this.textureData;
+            }
+
+            if (this.rawDisplayData !== null) {
+                if (this.rawDisplayData.type === DisplayType.Image) {
+                    return (this.rawDisplayData as ImageDisplayData).texture;
+                }
+
+                if (this.rawDisplayData.type === DisplayType.Mesh) {
+                    return (this.rawDisplayData as MeshDisplayData).texture;
+                }
+            }
+
+            return null;
+        }
+    }
+    /**
      * - The slot attached to the armature, controls the display status and properties of the display object.
      * A bone can contain multiple slots.
      * A slot can contain multiple display objects, displaying only one of the display objects at a time,
@@ -65,24 +181,35 @@ namespace dragonBones {
          * @language zh_CN
          */
         public displayController: string | null;
+        protected _displayDataDirty: boolean;
         protected _displayDirty: boolean;
-        protected _zOrderDirty: boolean;
+        protected _geometryDirty: boolean;
+        protected _textureDirty: boolean;
         protected _visibleDirty: boolean;
         protected _blendModeDirty: boolean;
+        protected _zOrderDirty: boolean;
         /**
          * @internal
          */
         public _colorDirty: boolean;
+        /**
+         * @internal
+         */
+        public _verticesDirty: boolean;
         protected _transformDirty: boolean;
         protected _visible: boolean;
         protected _blendMode: BlendMode;
         protected _displayIndex: number;
         protected _animationDisplayIndex: number;
+        protected _cachedFrameIndex: number;
         /**
          * @internal
          */
         public _zOrder: number;
-        protected _cachedFrameIndex: number;
+        /**
+         * @internal
+         */
+        public _zIndex: number;
         /**
          * @internal
          */
@@ -96,26 +223,31 @@ namespace dragonBones {
          * @internal
          */
         public readonly _colorTransform: ColorTransform = new ColorTransform();
-        protected readonly _displayDatas: Array<DisplayData | null> = [];
-        protected readonly _displayList: Array<any | Armature> = [];
+        /**
+         * @internal
+         */
+        public readonly _displayFrames: Array<DisplayFrame> = [];
+        /**
+         * @internal
+         */
+        public readonly _geometryBones: Array<Bone | null> = [];
         /**
          * @internal
          */
         public _slotData: SlotData;
-        protected _rawDisplayDatas: Array<DisplayData | null> | null;
         /**
          * @internal
          */
-        public _displayData: DisplayData | null;
+        public _displayFrame: DisplayFrame | null;
+        /**
+         * @internal
+         */
+        public _geometryData: GeometryData | null;
         protected _boundingBoxData: BoundingBoxData | null;
         protected _textureData: TextureData | null;
-        /**
-         * @internal
-         */
-        public _deformVertices: DeformVertices | null = null;
         protected _rawDisplay: any = null; // Initial value.
         protected _meshDisplay: any = null; // Initial value.
-        protected _display: any;
+        protected _display: any | null = null;
         protected _childArmature: Armature | null;
         /**
          * @private
@@ -130,13 +262,16 @@ namespace dragonBones {
             super._onClear();
 
             const disposeDisplayList: Array<any> = [];
-            for (const eachDisplay of this._displayList) {
+            for (const dispayFrame of this._displayFrames) {
+                const display = dispayFrame.display;
                 if (
-                    eachDisplay !== null && eachDisplay !== this._rawDisplay && eachDisplay !== this._meshDisplay &&
-                    disposeDisplayList.indexOf(eachDisplay) < 0
+                    display !== this._rawDisplay && display !== this._meshDisplay &&
+                    disposeDisplayList.indexOf(display) < 0
                 ) {
-                    disposeDisplayList.push(eachDisplay);
+                    disposeDisplayList.push(display);
                 }
+
+                dispayFrame.returnToPool();
             }
 
             for (const eachDisplay of disposeDisplayList) {
@@ -146,10 +281,6 @@ namespace dragonBones {
                 else {
                     this._disposeDisplay(eachDisplay, true);
                 }
-            }
-
-            if (this._deformVertices !== null) {
-                this._deformVertices.returnToPool();
             }
 
             if (this._meshDisplay !== null && this._meshDisplay !== this._rawDisplay) { // May be _meshDisplay and _rawDisplay is the same one.
@@ -162,29 +293,34 @@ namespace dragonBones {
 
             this.displayController = null;
 
+            this._displayDataDirty = false;
             this._displayDirty = false;
-            this._zOrderDirty = false;
+            this._geometryDirty = false;
+            this._textureDirty = false;
+            this._visibleDirty = false;
             this._blendModeDirty = false;
+            this._zOrderDirty = false;
             this._colorDirty = false;
+            this._verticesDirty = false;
             this._transformDirty = false;
             this._visible = true;
             this._blendMode = BlendMode.Normal;
             this._displayIndex = -1;
             this._animationDisplayIndex = -1;
             this._zOrder = 0;
+            this._zIndex = 0;
             this._cachedFrameIndex = -1;
             this._pivotX = 0.0;
             this._pivotY = 0.0;
             this._localMatrix.identity();
             this._colorTransform.identity();
-            this._displayList.length = 0;
-            this._displayDatas.length = 0;
+            this._displayFrames.length = 0;
+            this._geometryBones.length = 0;
             this._slotData = null as any; //
-            this._rawDisplayDatas = null;
-            this._displayData = null;
+            this._displayFrame = null;
+            this._geometryData = null;
             this._boundingBoxData = null;
             this._textureData = null;
-            this._deformVertices = null;
             this._rawDisplay = null;
             this._meshDisplay = null;
             this._display = null;
@@ -208,89 +344,71 @@ namespace dragonBones {
         protected abstract _updateColor(): void;
         protected abstract _updateFrame(): void;
         protected abstract _updateMesh(): void;
+        protected abstract _updateTransform(): void;
+        protected abstract _identityTransform(): void;
+
+        protected _hasDisplay(display: any): boolean {
+            for (const displayFrame of this._displayFrames) {
+                if (displayFrame.display === display) {
+                    return true;
+                }
+            }
+
+            return false;
+        }
         /**
          * @internal
          */
-        public abstract _updateGlueMesh(): void;
-        protected abstract _updateTransform(): void;
-        protected abstract _identityTransform(): void;
-        /**
-         * - Support default skin data.
-         */
-        protected _getDefaultRawDisplayData(displayIndex: number): DisplayData | null {
-            const defaultSkin = this._armature._armatureData.defaultSkin;
-            if (defaultSkin !== null) {
-                const defaultRawDisplayDatas = defaultSkin.getDisplays(this._slotData.name);
-                if (defaultRawDisplayDatas !== null) {
-                    return displayIndex < defaultRawDisplayDatas.length ? defaultRawDisplayDatas[displayIndex] : null;
+        public _isBonesUpdate(): boolean {
+            for (const bone of this._geometryBones) {
+                if (bone !== null && bone._childrenTransformDirty) {
+                    return true;
                 }
             }
 
-            return null;
+            return false;
+        }
+        /**
+         * @internal
+         */
+        public _updateAlpha() {
+            const globalAlpha = this._alpha * this._parent._globalAlpha;
+
+            if (this._globalAlpha !== globalAlpha) {
+                this._globalAlpha = globalAlpha;
+                this._colorDirty = true;
+            }
         }
 
         protected _updateDisplayData(): void {
-            const prevDisplayData = this._displayData;
-            const prevVerticesData = this._deformVertices !== null ? this._deformVertices.verticesData : null;
+            const prevDisplayFrame = this._displayFrame;
+            const prevGeometryData = this._geometryData;
             const prevTextureData = this._textureData;
             let rawDisplayData: DisplayData | null = null;
-            let currentVerticesData: VerticesData | null = null;
+            let displayData: DisplayData | null = null;
 
-            this._displayData = null;
+            this._displayFrame = null;
+            this._geometryData = null;
             this._boundingBoxData = null;
             this._textureData = null;
 
-            if (this._displayIndex >= 0) {
-                if (this._rawDisplayDatas !== null) {
-                    rawDisplayData = this._displayIndex < this._rawDisplayDatas.length ? this._rawDisplayDatas[this._displayIndex] : null;
-                }
+            if (this._displayIndex >= 0 && this._displayIndex < this._displayFrames.length) {
+                this._displayFrame = this._displayFrames[this._displayIndex];
+                rawDisplayData = this._displayFrame.rawDisplayData;
+                displayData = this._displayFrame.displayData;
 
-                if (rawDisplayData === null) {
-                    rawDisplayData = this._getDefaultRawDisplayData(this._displayIndex);
-                }
-
-                if (this._displayIndex < this._displayDatas.length) {
-                    this._displayData = this._displayDatas[this._displayIndex];
-                }
+                this._geometryData = this._displayFrame.getGeometryData();
+                this._boundingBoxData = this._displayFrame.getBoundingBox();
+                this._textureData = this._displayFrame.getTextureData();
             }
 
-            if (this._displayData !== null) {
-                if (this._displayData.type === DisplayType.Mesh) {
-                    currentVerticesData = (this._displayData as MeshDisplayData).vertices;
-                }
-                else if (this._displayData.type === DisplayType.Path) {
-                    currentVerticesData = (this._displayData as PathDisplayData).vertices;
-                }
-                else if (rawDisplayData !== null) {
-                    if (rawDisplayData.type === DisplayType.Mesh) {
-                        currentVerticesData = (rawDisplayData as MeshDisplayData).vertices;
-                    }
-                    else if (rawDisplayData.type === DisplayType.Path) {
-                        currentVerticesData = (rawDisplayData as PathDisplayData).vertices;
-                    }
-                }
-
-                if (this._displayData.type === DisplayType.BoundingBox) {
-                    this._boundingBoxData = (this._displayData as BoundingBoxDisplayData).boundingBox;
-                }
-                else if (rawDisplayData !== null) {
-                    if (rawDisplayData.type === DisplayType.BoundingBox) {
-                        this._boundingBoxData = (rawDisplayData as BoundingBoxDisplayData).boundingBox;
-                    }
-                }
-
-                if (this._displayData.type === DisplayType.Image) {
-                    this._textureData = (this._displayData as ImageDisplayData).texture;
-                }
-                else if (this._displayData.type === DisplayType.Mesh) {
-                    this._textureData = (this._displayData as MeshDisplayData).texture;
-                }
-            }
-
-            if (this._displayData !== prevDisplayData || currentVerticesData !== prevVerticesData || this._textureData !== prevTextureData) {
+            if (
+                this._displayFrame !== prevDisplayFrame ||
+                this._geometryData !== prevGeometryData || this._textureData !== prevTextureData
+            ) {
                 // Update pivot offset.
-                if (currentVerticesData === null && this._textureData !== null) { // TODO
-                    const imageDisplayData = this._displayData as ImageDisplayData;
+                if (this._geometryData === null && this._textureData !== null) {
+                    const imageDisplayData = ((displayData !== null && displayData.type === DisplayType.Image) ? displayData : rawDisplayData) as ImageDisplayData; //
                     const scale = this._textureData.parent.scale * this._armature._armatureData.scale;
                     const frame = this._textureData.frame;
 
@@ -315,14 +433,14 @@ namespace dragonBones {
                     }
 
                     // Update replace pivot. TODO
-                    if (this._displayData !== null && rawDisplayData !== null && this._displayData !== rawDisplayData) {
+                    if (rawDisplayData !== null && imageDisplayData !== rawDisplayData) {
                         rawDisplayData.transform.toMatrix(Slot._helpMatrix);
                         Slot._helpMatrix.invert();
                         Slot._helpMatrix.transformPoint(0.0, 0.0, Slot._helpPoint);
                         this._pivotX -= Slot._helpPoint.x;
                         this._pivotY -= Slot._helpPoint.y;
 
-                        this._displayData.transform.toMatrix(Slot._helpMatrix);
+                        imageDisplayData.transform.toMatrix(Slot._helpMatrix);
                         Slot._helpMatrix.invert();
                         Slot._helpMatrix.transformPoint(0.0, 0.0, Slot._helpPoint);
                         this._pivotX += Slot._helpPoint.x;
@@ -342,37 +460,53 @@ namespace dragonBones {
                 if (rawDisplayData !== null) { // Compatible.
                     this.origin = rawDisplayData.transform;
                 }
-                else if (this._displayData !== null) { // Compatible.
-                    this.origin = this._displayData.transform;
+                else if (displayData !== null) { // Compatible.
+                    this.origin = displayData.transform;
                 }
                 else {
                     this.origin = null;
                 }
 
-                // Update vertices.
-                if (currentVerticesData !== prevVerticesData) {
-                    if (this._deformVertices === null) {
-                        this._deformVertices = BaseObject.borrowObject(DeformVertices);
+                // TODO remove slot offset.
+                if (this.origin !== null) {
+                    this.global.copyFrom(this.origin).add(this.offset).toMatrix(this._localMatrix);
+                }
+                else {
+                    this.global.copyFrom(this.offset).toMatrix(this._localMatrix);
+                }
+
+                // Update geometry.
+                if (this._geometryData !== prevGeometryData) {
+                    this._geometryDirty = true;
+                    this._verticesDirty = true;
+
+                    if (this._geometryData !== null) {
+                        this._geometryBones.length = 0;
+                        if (this._geometryData.weight !== null) {
+                            for (let i = 0, l = this._geometryData.weight.bones.length; i < l; ++i) {
+                                const bone = this._armature.getBone(this._geometryData.weight.bones[i].name);
+                                this._geometryBones.push(bone);
+                            }
+                        }
                     }
-
-                    this._deformVertices.init(currentVerticesData, this._armature);
+                    else {
+                        this._geometryBones.length = 0;
+                        this._geometryData = null;
+                    }
                 }
-                else if (this._deformVertices !== null && this._textureData !== prevTextureData) { // Update mesh after update frame.
-                    this._deformVertices.verticesDirty = true;
-                }
 
-                this._displayDirty = true;
+                this._textureDirty = this._textureData !== prevTextureData;
                 this._transformDirty = true;
             }
         }
 
         protected _updateDisplay(): void {
-            const prevDisplay = this._display !== null ? this._display : this._rawDisplay;
+            const prevDisplay = this._display;
             const prevChildArmature = this._childArmature;
 
             // Update display and child armature.
-            if (this._displayIndex >= 0 && this._displayIndex < this._displayList.length) {
-                this._display = this._displayList[this._displayIndex];
+            if (this._displayFrame !== null) {
+                this._display = this._displayFrame.display;
                 if (this._display !== null && this._display instanceof Armature) {
                     this._childArmature = this._display as Armature;
                     this._display = this._childArmature.display;
@@ -387,20 +521,26 @@ namespace dragonBones {
             }
 
             // Update display.
-            const currentDisplay = this._display !== null ? this._display : this._rawDisplay;
-            if (currentDisplay !== prevDisplay) {
-                this._onUpdateDisplay();
-                this._replaceDisplay(prevDisplay);
-
-                this._transformDirty = true;
+            if (this._display !== prevDisplay) {
+                this._textureDirty = true;
                 this._visibleDirty = true;
                 this._blendModeDirty = true;
+                this._zOrderDirty = true;
                 this._colorDirty = true;
-            }
+                this._transformDirty = true;
 
-            // Update frame.
-            if (currentDisplay === this._rawDisplay || currentDisplay === this._meshDisplay) {
-                this._updateFrame();
+                if (this._display !== null && prevDisplay !== null) {
+                    this._onUpdateDisplay();
+                    this._replaceDisplay(prevDisplay);
+                }
+                else if (this._display !== null) {
+                    this._onUpdateDisplay();
+                    this._addDisplay();
+                }
+                else {
+                    this._removeDisplay();
+                    this._onUpdateDisplay();
+                }
             }
 
             // Update child armature.
@@ -425,32 +565,24 @@ namespace dragonBones {
                         }
 
                         // Child armature action.
-                        let actions: Array<ActionData> | null = null;
-                        if (this._displayData !== null && this._displayData.type === DisplayType.Armature) {
-                            actions = (this._displayData as ArmatureDisplayData).actions;
-                        }
-                        else if (this._displayIndex >= 0 && this._rawDisplayDatas !== null) {
-                            let rawDisplayData = this._displayIndex < this._rawDisplayDatas.length ? this._rawDisplayDatas[this._displayIndex] : null;
-
-                            if (rawDisplayData === null) {
-                                rawDisplayData = this._getDefaultRawDisplayData(this._displayIndex);
+                        if (this._displayFrame !== null) {
+                            let actions: Array<ActionData> | null = null;
+                            let displayData = this._displayFrame.displayData !== null ? this._displayFrame.displayData : this._displayFrame.rawDisplayData;
+                            if (displayData !== null && displayData.type === DisplayType.Armature) {
+                                actions = (displayData as ArmatureDisplayData).actions;
                             }
 
-                            if (rawDisplayData !== null && rawDisplayData.type === DisplayType.Armature) {
-                                actions = (rawDisplayData as ArmatureDisplayData).actions;
+                            if (actions !== null && actions.length > 0) {
+                                for (const action of actions) {
+                                    const eventObject = BaseObject.borrowObject(EventObject);
+                                    EventObject.actionDataToInstance(action, eventObject, this._armature);
+                                    eventObject.slot = this;
+                                    this._armature._bufferAction(eventObject, false);
+                                }
                             }
-                        }
-
-                        if (actions !== null && actions.length > 0) {
-                            for (const action of actions) {
-                                const eventObject = BaseObject.borrowObject(EventObject);
-                                EventObject.actionDataToInstance(action, eventObject, this._armature);
-                                eventObject.slot = this;
-                                this._armature._bufferAction(eventObject, false);
+                            else {
+                                this._childArmature.animation.play();
                             }
-                        }
-                        else {
-                            this._childArmature.animation.play();
                         }
                     }
                 }
@@ -472,32 +604,29 @@ namespace dragonBones {
         /**
          * @internal
          */
-        public _setDisplayIndex(value: number, isAnimation: boolean = false): boolean {
+        public _setDisplayIndex(value: number, isAnimation: boolean = false): void {
             if (isAnimation) {
                 if (this._animationDisplayIndex === value) {
-                    return false;
+                    return;
                 }
 
                 this._animationDisplayIndex = value;
             }
 
             if (this._displayIndex === value) {
-                return false;
+                return;
             }
 
-            this._displayIndex = value;
-            this._displayDirty = true;
-
-            this._updateDisplayData();
-
-            return this._displayDirty;
+            this._displayIndex = value < this._displayFrames.length ? value : this._displayFrames.length - 1;
+            this._displayDataDirty = true;
+            this._displayDirty = this._displayIndex < 0 || this._display !== this._displayFrames[this._displayIndex].display;
         }
         /**
          * @internal
          */
-        public _setZorder(value: number): boolean {
+        public _setZOrder(value: number): boolean {
             if (this._zOrder === value) {
-                //return false;
+                // return false;
             }
 
             this._zOrder = value;
@@ -510,45 +639,8 @@ namespace dragonBones {
          */
         public _setColor(value: ColorTransform): boolean {
             this._colorTransform.copyFrom(value);
-            this._colorDirty = true;
 
-            return this._colorDirty;
-        }
-        /**
-         * @internal
-         */
-        public _setDisplayList(value: Array<any> | null): boolean {
-            if (value !== null && value.length > 0) {
-                if (this._displayList.length !== value.length) {
-                    this._displayList.length = value.length;
-                }
-
-                for (let i = 0, l = value.length; i < l; ++i) { // Retain input render displays.
-                    const eachDisplay = value[i];
-                    if (
-                        eachDisplay !== null && eachDisplay !== this._rawDisplay && eachDisplay !== this._meshDisplay &&
-                        !(eachDisplay instanceof Armature) && this._displayList.indexOf(eachDisplay) < 0
-                    ) {
-                        this._initDisplay(eachDisplay, true);
-                    }
-
-                    this._displayList[i] = eachDisplay;
-                }
-            }
-            else if (this._displayList.length > 0) {
-                this._displayList.length = 0;
-            }
-
-            if (this._displayIndex >= 0 && this._displayIndex < this._displayList.length) {
-                this._displayDirty = this._display !== this._displayList[this._displayIndex];
-            }
-            else {
-                this._displayDirty = this._display !== null;
-            }
-
-            this._updateDisplayData();
-
-            return this._displayDirty;
+            return this._colorDirty = true;
         }
         /**
          * @internal
@@ -559,19 +651,17 @@ namespace dragonBones {
             }
 
             this._slotData = slotData;
-            //
-            this._visibleDirty = true;
-            this._blendModeDirty = true;
-            this._colorDirty = true;
             this._blendMode = this._slotData.blendMode;
             this._zOrder = this._slotData.zOrder;
+            this._zIndex = this._slotData.zIndex;
+            this._alpha = this._slotData.alpha;
             this._colorTransform.copyFrom(this._slotData.color);
             this._rawDisplay = rawDisplay;
             this._meshDisplay = meshDisplay;
             //
             this._armature = armatureValue;
-            //
             const slotParent = this._armature.getBone(this._slotData.parent.name);
+
             if (slotParent !== null) {
                 this._parent = slotParent;
             }
@@ -585,32 +675,70 @@ namespace dragonBones {
             if (this._rawDisplay !== this._meshDisplay) {
                 this._initDisplay(this._meshDisplay, false);
             }
-
-            this._onUpdateDisplay();
-            this._addDisplay();
         }
         /**
          * @internal
          */
         public update(cacheFrameIndex: number): void {
-            if (this._displayDirty) {
-                this._displayDirty = false;
-                this._updateDisplay();
+            if (this._displayDataDirty) {
+                this._updateDisplayData();
+                this._displayDataDirty = false;
+            }
 
-                // TODO remove slot offset.
-                if (this._transformDirty) { // Update local matrix. (Only updated when both display and transform are dirty.)
-                    if (this.origin !== null) {
-                        this.global.copyFrom(this.origin).add(this.offset).toMatrix(this._localMatrix);
-                    }
-                    else {
-                        this.global.copyFrom(this.offset).toMatrix(this._localMatrix);
-                    }
+            if (this._displayDirty) {
+                this._updateDisplay();
+                this._displayDirty = false;
+            }
+
+            if (this._display === null) {
+                return;
+            }
+
+            if (this._geometryDirty || this._textureDirty) {
+                if (this._display === this._rawDisplay || this._display === this._meshDisplay) {
+                    this._updateFrame();
                 }
+
+                this._geometryDirty = false;
+                this._textureDirty = false;
+            }
+
+            if (this._visibleDirty) {
+                this._updateVisible();
+                this._visibleDirty = false;
+            }
+
+            if (this._blendModeDirty) {
+                this._updateBlendMode();
+                this._blendModeDirty = false;
+            }
+
+            if (this._colorDirty) {
+                this._updateColor();
+                this._colorDirty = false;
             }
 
             if (this._zOrderDirty) {
-                this._zOrderDirty = false;
                 this._updateZOrder();
+                this._zOrderDirty = false;
+            }
+
+            if (this._geometryData !== null && this._display === this._meshDisplay) {
+                const isSkinned = this._geometryData.weight !== null;
+                const isSurface = this._parent._boneData.type !== BoneType.Bone;
+
+                if (
+                    this._verticesDirty ||
+                    (isSkinned && this._isBonesUpdate()) ||
+                    (isSurface && this._parent._childrenTransformDirty)
+                ) {
+                    this._updateMesh();
+                    this._verticesDirty = false;
+                }
+
+                if (isSkinned || isSurface) { // Compatible.
+                    return;
+                }
             }
 
             if (cacheFrameIndex >= 0 && this._cachedFrameIndices !== null) {
@@ -641,46 +769,7 @@ namespace dragonBones {
                 this._cachedFrameIndex = -1;
             }
 
-            if (this._display === null) {
-                return;
-            }
-
-            if (this._visibleDirty) {
-                this._visibleDirty = false;
-                this._updateVisible();
-            }
-
-            if (this._blendModeDirty) {
-                this._blendModeDirty = false;
-                this._updateBlendMode();
-            }
-
-            if (this._colorDirty) {
-                this._colorDirty = false;
-                this._updateColor();
-            }
-
-            if (this._deformVertices !== null && this._deformVertices.verticesData !== null && this._display === this._meshDisplay) {
-                const isSkinned = this._deformVertices.verticesData.weight !== null;
-                const isSurface = this._parent._boneData.type !== BoneType.Bone;
-
-                if (
-                    this._deformVertices.verticesDirty ||
-                    (isSkinned && this._deformVertices.isBonesUpdate()) ||
-                    (isSurface && this._parent._childrenTransformDirty)
-                ) {
-                    this._deformVertices.verticesDirty = false;
-                    this._updateMesh();
-                }
-
-                if (isSkinned || isSurface) { // Compatible.
-                    return;
-                }
-            }
-
             if (this._transformDirty) {
-                this._transformDirty = false;
-
                 if (this._cachedFrameIndex < 0) {
                     const isCache = cacheFrameIndex >= 0;
                     this._updateGlobalTransformMatrix(isCache);
@@ -694,41 +783,146 @@ namespace dragonBones {
                 }
 
                 this._updateTransform();
+                this._transformDirty = false;
             }
+        }
+        /**
+         * - Forces the slot to update the state of the display object in the next frame.
+         * @version DragonBones 4.5
+         * @language en_US
+         */
+        /**
+         * - 强制插槽在下一帧更新显示对象的状态。
+         * @version DragonBones 4.5
+         * @language zh_CN
+         */
+        public invalidUpdate(): void {
+            this._displayDataDirty = true;
+            this._displayDirty = true;
+            //
+            this._transformDirty = true;
         }
         /**
          * @private
          */
         public updateTransformAndMatrix(): void {
             if (this._transformDirty) {
-                this._transformDirty = false;
                 this._updateGlobalTransformMatrix(false);
+                this._transformDirty = false;
             }
         }
         /**
          * @private
          */
-        public replaceDisplayData(value: DisplayData | null, displayIndex: number = -1): void {
-            if (displayIndex < 0) {
-                if (this._displayIndex < 0) {
-                    displayIndex = 0;
-                }
-                else {
-                    displayIndex = this._displayIndex;
-                }
+        public replaceRawDisplayData(displayData: DisplayData | null, index: number = -1): void {
+            if (index < 0) {
+                index = this._displayIndex < 0 ? 0 : this._displayIndex;
+            }
+            else if (index >= this._displayFrames.length) {
+                return;
             }
 
-            if (this._displayDatas.length <= displayIndex) {
-                this._displayDatas.length = displayIndex + 1;
-
-                for (let i = 0, l = this._displayDatas.length; i < l; ++i) { // Clean undefined.
-                    if (!this._displayDatas[i]) {
-                        this._displayDatas[i] = null;
+            const displayFrame = this._displayFrames[index];
+            if (displayFrame.rawDisplayData !== displayData) {
+                displayFrame.deformVertices.length = 0;
+                displayFrame.rawDisplayData = displayData;
+                if (displayFrame.rawDisplayData === null) {
+                    const defaultSkin = this._armature._armatureData.defaultSkin;
+                    if (defaultSkin !== null) {
+                        const defaultRawDisplayDatas = defaultSkin.getDisplays(this._slotData.name);
+                        if (defaultRawDisplayDatas !== null && index < defaultRawDisplayDatas.length) {
+                            displayFrame.rawDisplayData = defaultRawDisplayDatas[index];
+                        }
                     }
                 }
+
+                if (index === this._displayIndex) {
+                    this._displayDataDirty = true;
+                }
+            }
+        }
+        /**
+         * @private
+         */
+        public replaceDisplayData(displayData: DisplayData | null, index: number = -1): void {
+            if (index < 0) {
+                index = this._displayIndex < 0 ? 0 : this._displayIndex;
+            }
+            else if (index >= this._displayFrames.length) {
+                return;
             }
 
-            this._displayDatas[displayIndex] = value;
+            const displayFrame = this._displayFrames[index];
+            if (displayFrame.displayData !== displayData && displayFrame.rawDisplayData !== displayData) {
+                displayFrame.displayData = displayData;
+
+                if (index === this._displayIndex) {
+                    this._displayDataDirty = true;
+                }
+            }
+        }
+        /**
+         * @private
+         */
+        public replaceTextureData(textureData: TextureData | null, index: number = -1): void {
+            if (index < 0) {
+                index = this._displayIndex < 0 ? 0 : this._displayIndex;
+            }
+            else if (index >= this._displayFrames.length) {
+                return;
+            }
+
+            const displayFrame = this._displayFrames[index];
+            if (displayFrame.textureData !== textureData) {
+                displayFrame.textureData = textureData;
+
+                if (index === this._displayIndex) {
+                    this._displayDataDirty = true;
+                }
+            }
+        }
+        /**
+         * @private
+         */
+        public replaceDisplay(value: any | Armature | null, index: number = -1): void {
+            if (index < 0) {
+                index = this._displayIndex < 0 ? 0 : this._displayIndex;
+            }
+            else if (index >= this._displayFrames.length) {
+                return;
+            }
+
+            const displayFrame = this._displayFrames[index];
+            if (displayFrame.display !== value) {
+                const prevDisplay = displayFrame.display;
+                displayFrame.display = value;
+
+                if (
+                    prevDisplay !== null &&
+                    prevDisplay !== this._rawDisplay && prevDisplay !== this._meshDisplay &&
+                    !this._hasDisplay(prevDisplay)
+                ) {
+                    if (prevDisplay instanceof Armature) {
+                        // (eachDisplay as Armature).dispose();
+                    }
+                    else {
+                        this._disposeDisplay(prevDisplay, true);
+                    }
+                }
+
+                if (
+                    value !== null &&
+                    value !== this._rawDisplay && value !== this._meshDisplay &&
+                    !this._hasDisplay(prevDisplay) &&
+                    !(value instanceof Armature)
+                ) {
+                    this._initDisplay(value, true);
+                }
+
+                if (index === this._displayIndex) {
+                    this._displayDirty = true;
+                }
+            }
         }
         /**
          * - Check whether a specific point is inside a custom bounding box in the slot.
@@ -847,18 +1041,10 @@ namespace dragonBones {
             return intersectionCount;
         }
         /**
-         * - Forces the slot to update the state of the display object in the next frame.
-         * @version DragonBones 4.5
-         * @language en_US
+         * @private
          */
-        /**
-         * - 强制插槽在下一帧更新显示对象的状态。
-         * @version DragonBones 4.5
-         * @language zh_CN
-         */
-        public invalidUpdate(): void {
-            this._displayDirty = true;
-            this._transformDirty = true;
+        public getDisplayFrameAt(index: number): DisplayFrame {
+            return this._displayFrames[index];
         }
         /**
          * - The visible of slot's display object.
@@ -882,6 +1068,30 @@ namespace dragonBones {
 
             this._visible = value;
             this._updateVisible();
+        }
+        /**
+         * @private
+         */
+        public get displayFrameCount(): number {
+            return this._displayFrames.length;
+        }
+        public set displayFrameCount(value: number) {
+            const prevCount = this._displayFrames.length;
+            if (prevCount < value) {
+                this._displayFrames.length = value;
+
+                for (let i = prevCount; i < value; ++i) {
+                    this._displayFrames[i] = BaseObject.borrowObject(DisplayFrame);
+                }
+            }
+            else if (prevCount > value) {
+                for (let i = prevCount - 1; i < value; --i) {
+                    this.replaceDisplay(null, i);
+                    this._displayFrames[i].returnToPool();
+                }
+
+                this._displayFrames.length = value;
+            }
         }
         /**
          * - The index of the display object displayed in the display list.
@@ -909,9 +1119,8 @@ namespace dragonBones {
             return this._displayIndex;
         }
         public set displayIndex(value: number) {
-            if (this._setDisplayIndex(value)) {
-                this.update(-1);
-            }
+            this._setDisplayIndex(value);
+            this.update(-1);
         }
         /**
          * - The slot name.
@@ -939,34 +1148,18 @@ namespace dragonBones {
          * @language zh_CN
          */
         public get displayList(): Array<any> {
-            return this._displayList.concat();
+            const displays = new Array<any>();
+            for (const displayFrame of this._displayFrames) {
+                displays.push(displayFrame.display);
+            }
+
+            return displays;
         }
         public set displayList(value: Array<any>) {
-            const backupDisplayList = this._displayList.concat(); // Copy.
-            const disposeDisplayList = new Array<any>();
-
-            if (this._setDisplayList(value)) {
-                this.update(-1);
-            }
-
-            // Release replaced displays.
-            for (const eachDisplay of backupDisplayList) {
-                if (
-                    eachDisplay !== null && eachDisplay !== this._rawDisplay && eachDisplay !== this._meshDisplay &&
-                    this._displayList.indexOf(eachDisplay) < 0 &&
-                    disposeDisplayList.indexOf(eachDisplay) < 0
-                ) {
-                    disposeDisplayList.push(eachDisplay);
-                }
-            }
-
-            for (const eachDisplay of disposeDisplayList) {
-                if (eachDisplay instanceof Armature) {
-                    // (eachDisplay as Armature).dispose();
-                }
-                else {
-                    this._disposeDisplay(eachDisplay, true);
-                }
+            this.displayFrameCount = value.length;
+            let index = 0;
+            for (const eachDisplay of value) {
+                this.replaceDisplay(eachDisplay, index++);
             }
         }
         /**
@@ -983,43 +1176,6 @@ namespace dragonBones {
          */
         public get slotData(): SlotData {
             return this._slotData;
-        }
-        /**
-         * @private
-         */
-        public get rawDisplayDatas(): Array<DisplayData | null> | null {
-            return this._rawDisplayDatas;
-        }
-        public set rawDisplayDatas(value: Array<DisplayData | null> | null) {
-            if (this._rawDisplayDatas === value) {
-                return;
-            }
-
-            this._displayDirty = true;
-            this._rawDisplayDatas = value;
-
-            if (this._rawDisplayDatas !== null) {
-                this._displayDatas.length = this._rawDisplayDatas.length;
-
-                for (let i = 0, l = this._displayDatas.length; i < l; ++i) {
-                    let rawDisplayData = this._rawDisplayDatas[i];
-
-                    if (rawDisplayData === null) {
-                        rawDisplayData = this._getDefaultRawDisplayData(i);
-                    }
-
-                    this._displayDatas[i] = rawDisplayData;
-                }
-            }
-            else {
-                this._displayDatas.length = 0;
-            }
-        }
-        /**
-         * @private
-         */
-        public get displayData(): DisplayData | null {
-            return this._displayData;
         }
         /**
          * - The custom bounding box data for the slot at current time.
@@ -1074,32 +1230,21 @@ namespace dragonBones {
                 return;
             }
 
-            const displayListLength = this._displayList.length;
-            if (this._displayIndex < 0 && displayListLength === 0) {  // Emprty.
+            if (this._displayFrames.length === 0) {
+                this.displayFrameCount = 1;
                 this._displayIndex = 0;
             }
 
-            if (this._displayIndex < 0) {
-                return;
-            }
-            else {
-                const replaceDisplayList = this.displayList; // Copy.
-                if (displayListLength <= this._displayIndex) {
-                    replaceDisplayList.length = this._displayIndex + 1;
-                }
-
-                replaceDisplayList[this._displayIndex] = value;
-                this.displayList = replaceDisplayList;
-            }
+            this.replaceDisplay(value, this._displayIndex);
         }
         /**
          * - The child armature that the slot displayed at current time.
          * @example
          * <pre>
          *     let slot = armature.getSlot("weapon");
-         * let prevChildArmature = slot.childArmature;
-         * if (prevChildArmature) {
-         * prevChildArmature.dispose();
+         *     let prevChildArmature = slot.childArmature;
+         *     if (prevChildArmature) {
+         *         prevChildArmature.dispose();
          *     }
          *     slot.childArmature = factory.buildArmature("weapon_blabla", "weapon_blabla_project");
          * </pre>
@@ -1112,9 +1257,9 @@ namespace dragonBones {
          * @example
          * <pre>
          *     let slot = armature.getSlot("weapon");
-         * let prevChildArmature = slot.childArmature;
-         * if (prevChildArmature) {
-         * prevChildArmature.dispose();
+         *     let prevChildArmature = slot.childArmature;
+         *     if (prevChildArmature) {
+         *         prevChildArmature.dispose();
          *     }
          *     slot.childArmature = factory.buildArmature("weapon_blabla", "weapon_blabla_project");
          * </pre>

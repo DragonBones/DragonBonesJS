@@ -200,6 +200,8 @@ namespace dragonBones {
         }
 
         protected _updateColor(): void {
+            const alpha = this._colorTransform.alphaMultiplier * this._globalAlpha;
+            
             if (
                 this._colorTransform.redMultiplier !== 1.0 ||
                 this._colorTransform.greenMultiplier !== 1.0 ||
@@ -217,7 +219,7 @@ namespace dragonBones {
                 colorMatrix[0] = this._colorTransform.redMultiplier;
                 colorMatrix[6] = this._colorTransform.greenMultiplier;
                 colorMatrix[12] = this._colorTransform.blueMultiplier;
-                colorMatrix[18] = this._colorTransform.alphaMultiplier;
+                colorMatrix[18] = alpha;
                 colorMatrix[4] = this._colorTransform.redOffset;
                 colorMatrix[9] = this._colorTransform.greenOffset;
                 colorMatrix[14] = this._colorTransform.blueOffset;
@@ -246,21 +248,21 @@ namespace dragonBones {
                 if (this._armatureDisplay._batchEnabled) {
                     const node = this._renderDisplay.$renderNode as (egret.sys.BitmapNode);
                     node.filter = null as any;
-                    node.alpha = this._colorTransform.alphaMultiplier;
+                    node.alpha = alpha;
                 }
 
                 this._renderDisplay.filters = null as any;
-                this._renderDisplay.alpha = this._colorTransform.alphaMultiplier;
+                this._renderDisplay.alpha = alpha;
             }
         }
 
         protected _updateFrame(): void {
-            const currentVerticesData = (this._deformVertices !== null && this._display === this._meshDisplay) ? this._deformVertices.verticesData : null;
             let currentTextureData = this._textureData as (EgretTextureData | null);
 
-            if (this._displayIndex >= 0 && this._display !== null && currentTextureData !== null) {
-                if (this._armature.replacedTexture !== null && this._rawDisplayDatas !== null && this._rawDisplayDatas.indexOf(this._displayData) >= 0) { // Update replaced texture atlas.
-                    let currentTextureAtlasData = currentTextureData.parent as EgretTextureAtlasData;
+            if (this._displayFrame !== null && this._display !== null && currentTextureData !== null) {
+                let currentTextureAtlasData = currentTextureData.parent as EgretTextureAtlasData;
+
+                if (this._armature.replacedTexture !== null) { // Update replaced texture atlas.
                     if (this._armature._replaceTextureAtlasData === null) {
                         currentTextureAtlasData = BaseObject.borrowObject(EgretTextureAtlasData);
                         currentTextureAtlasData.copyFrom(currentTextureData.parent);
@@ -275,16 +277,16 @@ namespace dragonBones {
                 }
 
                 if (currentTextureData.renderTexture !== null) {
-                    if (currentVerticesData !== null) { // Mesh.
-                        const data = currentVerticesData.data;
+                    if (this._geometryData !== null) { // Mesh.
+                        const data = this._geometryData.data;
                         const intArray = data.intArray;
                         const floatArray = data.floatArray;
-                        const vertexCount = intArray[currentVerticesData.offset + BinaryOffset.MeshVertexCount];
-                        const triangleCount = intArray[currentVerticesData.offset + BinaryOffset.MeshTriangleCount];
-                        let vertexOffset = intArray[currentVerticesData.offset + BinaryOffset.MeshFloatOffset];
+                        const vertexCount = intArray[this._geometryData.offset + BinaryOffset.GeometryVertexCount];
+                        const triangleCount = intArray[this._geometryData.offset + BinaryOffset.GeometryTriangleCount];
+                        let vertexOffset = intArray[this._geometryData.offset + BinaryOffset.GeometryFloatOffset];
 
                         if (vertexOffset < 0) {
-                            vertexOffset += 65536; // Fixed out of bouds bug. 
+                            vertexOffset += 65536; // Fixed out of bounds bug. 
                         }
 
                         const uvOffset = vertexOffset + vertexCount * 2;
@@ -303,7 +305,7 @@ namespace dragonBones {
                         }
 
                         for (let i = 0; i < triangleCount * 3; ++i) {
-                            meshNode.indices[i] = intArray[currentVerticesData.offset + BinaryOffset.MeshVertexIndices + i];
+                            meshNode.indices[i] = intArray[this._geometryData.offset + BinaryOffset.GeometryVertexIndices + i];
                         }
 
                         if (this._armatureDisplay._batchEnabled) {
@@ -350,7 +352,7 @@ namespace dragonBones {
                             (meshDisplay as any).$invalidateTransform();
                         }
 
-                        const isSkinned = currentVerticesData.weight !== null;
+                        const isSkinned = this._geometryData.weight !== null;
                         const isSurface = this._parent._boneData.type !== BoneType.Bone;
                         if (isSkinned || isSurface) {
                             this._identityTransform();
@@ -425,24 +427,24 @@ namespace dragonBones {
 
         protected _updateMesh(): void {
             const scale = this._armature._armatureData.scale;
-            const deformVertices = (this._deformVertices as DeformVertices).vertices;
-            const bones = (this._deformVertices as DeformVertices).bones;
-            const verticesData = (this._deformVertices as DeformVertices).verticesData as VerticesData;
-            const weightData = verticesData.weight;
+            const deformVertices = (this._displayFrame as DisplayFrame).deformVertices;
+            const bones = this._geometryBones;
+            const geometryData = this._geometryData as GeometryData;
+            const weightData = geometryData.weight;
 
-            const hasDeform = deformVertices.length > 0 && verticesData.inheritDeform;
+            const hasDeform = deformVertices.length > 0 && geometryData.inheritDeform;
             const meshDisplay = this._renderDisplay as egret.Mesh;
             const meshNode = meshDisplay.$renderNode as egret.sys.MeshNode;
 
             if (weightData !== null) {
-                const data = verticesData.data;
+                const data = geometryData.data;
                 const intArray = data.intArray;
                 const floatArray = data.floatArray;
-                const vertexCount = intArray[verticesData.offset + BinaryOffset.MeshVertexCount];
+                const vertexCount = intArray[geometryData.offset + BinaryOffset.GeometryVertexCount];
                 let weightFloatOffset = intArray[weightData.offset + BinaryOffset.WeigthFloatOffset];
 
                 if (weightFloatOffset < 0) {
-                    weightFloatOffset += 65536; // Fixed out of bouds bug. 
+                    weightFloatOffset += 65536; // Fixed out of bounds bug. 
                 }
 
                 for (
@@ -483,21 +485,26 @@ namespace dragonBones {
                     (meshDisplay as any).$invalidateTransform();
                 }
             }
-            else if (hasDeform) {
+            else {
                 const isSurface = this._parent._boneData.type !== BoneType.Bone;
-                const data = verticesData.data;
+                const data = geometryData.data;
                 const intArray = data.intArray;
                 const floatArray = data.floatArray;
-                const vertexCount = intArray[verticesData.offset + BinaryOffset.MeshVertexCount];
-                let vertexOffset = intArray[verticesData.offset + BinaryOffset.MeshFloatOffset];
+                const vertexCount = intArray[geometryData.offset + BinaryOffset.GeometryVertexCount];
+                let vertexOffset = intArray[geometryData.offset + BinaryOffset.GeometryFloatOffset];
 
                 if (vertexOffset < 0) {
-                    vertexOffset += 65536; // Fixed out of bouds bug. 
+                    vertexOffset += 65536; // Fixed out of bounds bug. 
                 }
 
                 for (let i = 0, l = vertexCount * 2; i < l; i += 2) {
-                    const x = floatArray[vertexOffset + i] * scale + deformVertices[i];
-                    const y = floatArray[vertexOffset + i + 1] * scale + deformVertices[i + 1];
+                    let x = floatArray[vertexOffset + i] * scale;
+                    let y = floatArray[vertexOffset + i + 1] * scale;
+
+                    if (hasDeform) {
+                        x += deformVertices[i];
+                        y += deformVertices[i + 1];
+                    }
 
                     if (isSurface) {
                         const matrix = (this._parent as Surface)._getGlobalTransformMatrix(x, y);
@@ -520,11 +527,6 @@ namespace dragonBones {
             if (this._armatureDisplay._batchEnabled) {
                 this._armatureDisplay._childDirty = true;
             }
-        }
-        /**
-         * @internal
-         */
-        public _updateGlueMesh(): void {
         }
 
         protected _updateTransform(): void {

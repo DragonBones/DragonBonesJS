@@ -147,7 +147,9 @@ namespace dragonBones {
         }
 
         protected _updateColor(): void {
-            this._renderDisplay.alpha = this._colorTransform.alphaMultiplier;
+            const alpha = this._colorTransform.alphaMultiplier * this._globalAlpha;
+            this._renderDisplay.alpha = alpha;
+
             if (this._renderDisplay instanceof PIXI.Sprite) { // || this._renderDisplay instanceof PIXI.mesh.Mesh
                 const color = (Math.round(this._colorTransform.redMultiplier * 0xFF) << 16) + (Math.round(this._colorTransform.greenMultiplier * 0xFF) << 8) + Math.round(this._colorTransform.blueMultiplier * 0xFF);
                 this._renderDisplay.tint = color;
@@ -156,12 +158,12 @@ namespace dragonBones {
         }
 
         protected _updateFrame(): void {
-            const currentVerticesData = (this._deformVertices !== null && this._display === this._meshDisplay) ? this._deformVertices.verticesData : null;
             let currentTextureData = this._textureData as (PhaserTextureData | null);
 
             if (this._displayIndex >= 0 && this._display !== null && currentTextureData !== null) {
                 let currentTextureAtlasData = currentTextureData.parent as PhaserTextureAtlasData;
-                if (this._armature.replacedTexture !== null && this._rawDisplayDatas !== null && this._rawDisplayDatas.indexOf(this._displayData) >= 0) { // Update replaced texture atlas.
+                
+                if (this._armature.replacedTexture !== null) { // Update replaced texture atlas.
                     if (this._armature._replaceTextureAtlasData === null) {
                         currentTextureAtlasData = BaseObject.borrowObject(PhaserTextureAtlasData);
                         currentTextureAtlasData.copyFrom(currentTextureData.parent);
@@ -177,7 +179,7 @@ namespace dragonBones {
 
                 const renderTexture = currentTextureData.renderTexture;
                 if (renderTexture !== null) {
-                    if (currentVerticesData !== null) { // Mesh.
+                    if (this._geometryData !== null) { // Mesh.
                         // TODO
                     }
                     else { // Normal texture.
@@ -191,7 +193,7 @@ namespace dragonBones {
                 }
             }
 
-            if (currentVerticesData !== null) {
+            if (this._geometryData !== null) {
                 // TODO
             }
             else {
@@ -204,12 +206,6 @@ namespace dragonBones {
         }
 
         protected _updateMesh(): void {
-            // TODO
-        }
-        /**
-         * @internal
-         */
-        public _updateGlueMesh(): void {
             // TODO
         }
 

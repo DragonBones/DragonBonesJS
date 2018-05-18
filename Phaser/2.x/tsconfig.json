@@ -55,7 +55,6 @@
 		"../../DragonBones/src/dragonBones/armature/Surface.ts",
 		"../../DragonBones/src/dragonBones/armature/Slot.ts",
 		"../../DragonBones/src/dragonBones/armature/Constraint.ts",
-		"../../DragonBones/src/dragonBones/armature/DeformVertices.ts",
 
 		"../../DragonBones/src/dragonBones/animation/IAnimatable.ts",
 		"../../DragonBones/src/dragonBones/animation/WorldClock.ts",

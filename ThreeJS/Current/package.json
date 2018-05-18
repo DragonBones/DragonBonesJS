@@ -1,0 +1,13 @@
+{
+  "name": "dragonbones-threejs",
+  "version": "5.6.3",
+  "main": "",
+  "scripts": {
+    "build": "tsc & uglifyjs ./out/dragonBones.js -o ./out/dragonBones.min.js -m"
+  },
+  "devDependencies": {
+    "@types/three": "^0.89.12",
+    "typescript": "^2.4.2",
+    "uglify-js": "^3.3.15"
+  }
+}

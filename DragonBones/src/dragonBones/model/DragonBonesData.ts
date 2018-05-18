@@ -134,6 +134,10 @@ namespace dragonBones {
          */
         public timelineArray: Uint16Array;
         /**
+         * @internal
+         */
+        public colorArray: Uint16Array;
+        /**
          * @private
          */
         public userData: UserData | null = null; // Initial value.
@@ -164,6 +168,7 @@ namespace dragonBones {
             this.frameFloatArray = null as any; //
             this.frameArray = null as any; //
             this.timelineArray = null as any; //
+            this.colorArray = null as any; //
             this.userData = null;
         }
         /**
@@ -193,21 +198,6 @@ namespace dragonBones {
          */
         public getArmature(armatureName: string): ArmatureData | null {
             return armatureName in this.armatures ? this.armatures[armatureName] : null;
-        }
-
-        /**
-         * - Deprecated, please refer to {@link #dragonBones.BaseFactory#removeDragonBonesData()}.
-         * @deprecated
-         * @language en_US
-         */
-        /**
-         * - 已废弃，请参考 {@link #dragonBones.BaseFactory#removeDragonBonesData()}。
-         * @deprecated
-         * @language zh_CN
-         */
-        public dispose(): void {
-            console.warn("已废弃");
-            this.returnToPool();
         }
     }
 }

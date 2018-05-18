@@ -24,7 +24,7 @@ namespace dragonBones {
     /**
      * @internal
      */
-    export class VerticesData {
+    export class GeometryData {
         public isShared: boolean;
         public inheritDeform: boolean;
         public offset: number;
@@ -43,7 +43,7 @@ namespace dragonBones {
             this.weight = null;
         }
 
-        public shareFrom(value: VerticesData): void {
+        public shareFrom(value: GeometryData): void {
             this.isShared = true;
             this.offset = value.offset;
             this.weight = value.weight;
@@ -124,14 +124,14 @@ namespace dragonBones {
             return "[class dragonBones.MeshDisplayData]";
         }
 
-        public readonly vertices: VerticesData = new VerticesData();
+        public readonly geometry: GeometryData = new GeometryData();
         public texture: TextureData | null;
 
         protected _onClear(): void {
             super._onClear();
 
             this.type = DisplayType.Mesh;
-            this.vertices.clear();
+            this.geometry.clear();
             this.texture = null;
         }
     }
@@ -165,7 +165,7 @@ namespace dragonBones {
         }
         public closed: boolean;
         public constantSpeed: boolean;
-        public readonly vertices: VerticesData = new VerticesData();
+        public readonly geometry: GeometryData = new GeometryData();
         public readonly curveLengths: Array<number> = [];
 
         protected _onClear(): void {
@@ -174,7 +174,7 @@ namespace dragonBones {
             this.type = DisplayType.Path;
             this.closed = false;
             this.constantSpeed = false;
-            this.vertices.clear();
+            this.geometry.clear();
             this.curveLengths.length = 0;
         }
     }

@@ -44,7 +44,7 @@ namespace dragonBones {
             return "[class dragonBones.Armature]";
         }
         private static _onSortSlots(a: Slot, b: Slot): number {
-            return a._zOrder > b._zOrder ? 1 : -1;
+            return a._zIndex * 1000 + a._zOrder > b._zIndex * 1000 + b._zOrder ? 1 : -1;
         }
         /**
          * - Whether to inherit the animation control of the parent armature.
@@ -65,16 +65,31 @@ namespace dragonBones {
          * @private
          */
         public userData: any;
-
-        private _lockUpdate: boolean;
+        /**
+         * @internal
+         */
+        public _lockUpdate: boolean;
         private _slotsDirty: boolean;
         private _zOrderDirty: boolean;
+        /**
+         * @internal
+         */
+        public _zIndexDirty: boolean;
+        /**
+         * @internal
+         */
+        public _alphaDirty: boolean;
         private _flipX: boolean;
         private _flipY: boolean;
         /**
          * @internal
          */
         public _cacheFrameIndex: number;
+        private _alpha: number;
+        /**
+         * @internal
+         */
+        public _globalAlpha: number;
         private readonly _bones: Array<Bone> = [];
         private readonly _slots: Array<Slot> = [];
         /**
@@ -103,7 +118,7 @@ namespace dragonBones {
          * @internal
          */
         public _parent: Slot | null;
-        
+
         protected _onClear(): void {
             if (this._clock !== null) { // Remove clock first.
                 this._clock.remove(this);
@@ -143,9 +158,13 @@ namespace dragonBones {
             this._lockUpdate = false;
             this._slotsDirty = true;
             this._zOrderDirty = false;
+            this._zIndexDirty = false;
+            this._alphaDirty = true;
             this._flipX = false;
             this._flipY = false;
             this._cacheFrameIndex = -1;
+            this._alpha = 1.0;
+            this._globalAlpha = 1.0;
             this._bones.length = 0;
             this._slots.length = 0;
             this._constraints.length = 0;
@@ -176,8 +195,9 @@ namespace dragonBones {
 
                     const slotData = slotDatas[slotIndex];
                     const slot = this.getSlot(slotData.name);
+
                     if (slot !== null) {
-                        slot._setZorder(i);
+                        slot._setZOrder(i);
                     }
                 }
 
@@ -277,6 +297,8 @@ namespace dragonBones {
                 return;
             }
 
+            this._lockUpdate = true;
+
             if (this._armatureData === null) {
                 console.warn("The armature has been disposed.");
                 return;
@@ -287,16 +309,34 @@ namespace dragonBones {
             }
 
             const prevCacheFrameIndex = this._cacheFrameIndex;
-
             // Update animation.
             this._animation.advanceTime(passedTime);
-
             // Sort slots.
-            if (this._slotsDirty) {
-                this._slotsDirty = false;
+            if (this._slotsDirty || this._zIndexDirty) {
                 this._slots.sort(Armature._onSortSlots);
-            }
 
+                if (this._zIndexDirty) {
+                    for (let i = 0, l = this._slots.length; i < l; ++i) {
+                        this._slots[i]._setZOrder(i); // 
+                    }
+                }
+
+                this._slotsDirty = false;
+                this._zIndexDirty = false;
+            }
+            // Update alpha.
+            if (this._alphaDirty) {
+                this._alphaDirty = false;
+                this._globalAlpha = this._alpha * (this._parent !== null ? this._parent._globalAlpha : 1.0);
+
+                for (const bone of this._bones) {
+                    bone._updateAlpha();
+                }
+
+                for (const slot of this._slots) {
+                    slot._updateAlpha();
+                }
+            }
             // Update bones and slots.
             if (this._cacheFrameIndex < 0 || this._cacheFrameIndex !== prevCacheFrameIndex) {
                 let i = 0, l = 0;
@@ -308,11 +348,8 @@ namespace dragonBones {
                     this._slots[i].update(this._cacheFrameIndex);
                 }
             }
-
             // Do actions.
             if (this._actions.length > 0) {
-                this._lockUpdate = true;
-
                 for (const action of this._actions) {
                     const actionData = action.actionData;
                     if (actionData !== null) {
@@ -321,8 +358,8 @@ namespace dragonBones {
                                 const childArmature = action.slot.childArmature;
                                 if (childArmature !== null) {
                                     childArmature.animation.fadeIn(actionData.name);
-                    }
-                }
+                                }
+                            }
                             else if (action.bone !== null) {
                                 for (const slot of this.getSlots()) {
                                     if (slot.parent === action.bone) {
@@ -343,9 +380,9 @@ namespace dragonBones {
                 }
 
                 this._actions.length = 0;
-                this._lockUpdate = false;
             }
 
+            this._lockUpdate = false;
             this._proxy.dbUpdate();
         }
         /**
@@ -886,70 +923,6 @@ namespace dragonBones {
          */
         public get parent(): Slot | null {
             return this._parent;
-        }
-
-        /**
-         * @deprecated
-         * @private
-         */
-        public replaceTexture(texture: any): void {
-            this.replacedTexture = texture;
-        }
-        /**
-         * - Deprecated, please refer to {@link #eventDispatcher}.
-         * @deprecated
-         * @language en_US
-         */
-        /**
-         * - 已废弃，请参考 {@link #eventDispatcher}。
-         * @deprecated
-         * @language zh_CN
-         */
-        public hasEventListener(type: EventStringType): boolean {
-            console.warn("Deprecated.");
-            return this._proxy.hasDBEventListener(type);
-        }
-        /**
-         * - Deprecated, please refer to {@link #eventDispatcher}.
-         * @deprecated
-         * @language en_US
-         */
-        /**
-         * - 已废弃，请参考 {@link #eventDispatcher}。
-         * @deprecated
-         * @language zh_CN
-         */
-        public addEventListener(type: EventStringType, listener: Function, target: any): void {
-            console.warn("Deprecated.");
-            this._proxy.addDBEventListener(type, listener, target);
-        }
-        /**
-         * - Deprecated, please refer to {@link #eventDispatcher}.
-         * @deprecated
-         * @language en_US
-         */
-        /**
-         * - 已废弃，请参考 {@link #eventDispatcher}。
-         * @deprecated
-         * @language zh_CN
-         */
-        public removeEventListener(type: EventStringType, listener: Function, target: any): void {
-            console.warn("Deprecated.");
-            this._proxy.removeDBEventListener(type, listener, target);
-        }
-        /**
-         * - Deprecated, please refer to {@link #cacheFrameRate}.
-         * @deprecated
-         * @language en_US
-         */
-        /**
-         * - 已废弃，请参考 {@link #cacheFrameRate}。
-         * @deprecated
-         * @language zh_CN
-         */
-        public enableAnimationCache(frameRate: number): void {
-            console.warn("Deprecated.");
-            this.cacheFrameRate = frameRate;
         }
         /**
          * - Deprecated, please refer to {@link #display}.

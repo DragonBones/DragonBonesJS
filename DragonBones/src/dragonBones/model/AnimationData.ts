@@ -51,6 +51,10 @@ namespace dragonBones {
          */
         public frameOffset: number;
         /**
+         * @private
+         */
+        public blendType: AnimationBlendType;
+        /**
          * - The frame count of the animation.
          * @version DragonBones 3.0
          * @language en_US
@@ -124,10 +128,6 @@ namespace dragonBones {
         /**
          * @private
          */
-        public readonly surfaceTimelines: Map<Array<TimelineData>> = {};
-        /**
-         * @private
-         */
         public readonly slotTimelines: Map<Array<TimelineData>> = {};
         /**
          * @private
@@ -165,14 +165,6 @@ namespace dragonBones {
                 }
 
                 delete this.boneTimelines[k];
-            }
-
-            for (let k in this.surfaceTimelines) {
-                for (const timeline of this.surfaceTimelines[k]) {
-                    timeline.returnToPool();
-                }
-
-                delete this.surfaceTimelines[k];
             }
 
             for (let k in this.slotTimelines) {
@@ -218,6 +210,7 @@ namespace dragonBones {
             this.frameIntOffset = 0;
             this.frameFloatOffset = 0;
             this.frameOffset = 0;
+            this.blendType = AnimationBlendType.None;
             this.frameCount = 0;
             this.playTimes = 0;
             this.duration = 0.0;
@@ -227,7 +220,6 @@ namespace dragonBones {
             this.name = "";
             this.cachedFrames.length = 0;
             // this.boneTimelines.clear();
-            // this.surfaceTimelines.clear();
             // this.slotTimelines.clear();
             // this.constraintTimelines.clear();
             // this.animationTimelines.clear();
@@ -274,8 +266,8 @@ namespace dragonBones {
         /**
          * @private
          */
-        public addBoneTimeline(bone: BoneData, timeline: TimelineData): void {
-            const timelines = bone.name in this.boneTimelines ? this.boneTimelines[bone.name] : (this.boneTimelines[bone.name] = []);
+        public addBoneTimeline(timelineName: string, timeline: TimelineData): void {
+            const timelines = timelineName in this.boneTimelines ? this.boneTimelines[timelineName] : (this.boneTimelines[timelineName] = []);
             if (timelines.indexOf(timeline) < 0) {
                 timelines.push(timeline);
             }
@@ -283,8 +275,8 @@ namespace dragonBones {
         /**
          * @private
          */
-        public addSurfaceTimeline(surface: SurfaceData, timeline: TimelineData): void {
-            const timelines = surface.name in this.surfaceTimelines ? this.surfaceTimelines[surface.name] : (this.surfaceTimelines[surface.name] = []);
+        public addSlotTimeline(timelineName: string, timeline: TimelineData): void {
+            const timelines = timelineName in this.slotTimelines ? this.slotTimelines[timelineName] : (this.slotTimelines[timelineName] = []);
             if (timelines.indexOf(timeline) < 0) {
                 timelines.push(timeline);
             }
@@ -292,17 +284,8 @@ namespace dragonBones {
         /**
          * @private
          */
-        public addSlotTimeline(slot: SlotData, timeline: TimelineData): void {
-            const timelines = slot.name in this.slotTimelines ? this.slotTimelines[slot.name] : (this.slotTimelines[slot.name] = []);
-            if (timelines.indexOf(timeline) < 0) {
-                timelines.push(timeline);
-            }
-        }
-        /**
-         * @private
-         */
-        public addConstraintTimeline(constraint: ConstraintData, timeline: TimelineData): void {
-            const timelines = constraint.name in this.constraintTimelines ? this.constraintTimelines[constraint.name] : (this.constraintTimelines[constraint.name] = []);
+        public addConstraintTimeline(timelineName: string, timeline: TimelineData): void {
+            const timelines = timelineName in this.constraintTimelines ? this.constraintTimelines[timelineName] : (this.constraintTimelines[timelineName] = []);
             if (timelines.indexOf(timeline) < 0) {
                 timelines.push(timeline);
             }
@@ -321,12 +304,6 @@ namespace dragonBones {
          */
         public getBoneTimelines(timelineName: string): Array<TimelineData> | null {
             return timelineName in this.boneTimelines ? this.boneTimelines[timelineName] : null;
-        }
-        /**
-         * @private
-         */
-        public getSurfaceTimelines(timelineName: string): Array<TimelineData> | null {
-            return timelineName in this.surfaceTimelines ? this.surfaceTimelines[timelineName] : null;
         }
         /**
          * @private
@@ -375,6 +352,24 @@ namespace dragonBones {
             this.type = TimelineType.BoneAll;
             this.offset = 0;
             this.frameIndicesOffset = -1;
+        }
+    }
+    /**
+     * @internal
+     */
+    export class AnimationTimelineData extends TimelineData {
+        public static toString(): string {
+            return "[class dragonBones.AnimationTimelineData]";
+        }
+
+        public x: number;
+        public y: number;
+
+        protected _onClear(): void {
+            super._onClear();
+
+            this.x = 0.0;
+            this.y = 0.0;
         }
     }
 }

@@ -29,11 +29,11 @@ namespace dragonBones {
         WeigthFloatOffset = 1,
         WeigthBoneIndices = 2,
 
-        MeshVertexCount = 0,
-        MeshTriangleCount = 1,
-        MeshFloatOffset = 2,
-        MeshWeightOffset = 3,
-        MeshVertexIndices = 4,
+        GeometryVertexCount = 0,
+        GeometryTriangleCount = 1,
+        GeometryFloatOffset = 2,
+        GeometryWeightOffset = 3,
+        GeometryVertexIndices = 4,
 
         TimelineScale = 0,
         TimelineOffset = 1,
@@ -51,11 +51,7 @@ namespace dragonBones {
         DeformCount = 1,
         DeformValueCount = 2,
         DeformValueOffset = 3,
-        DeformFloatOffset = 4,
-
-        PathVertexCount = 0,
-        PathFloatOffset = 2,
-        PathWeightOffset = 3,
+        DeformFloatOffset = 4
     }
     /**
      * @internal
@@ -146,17 +142,21 @@ namespace dragonBones {
         BoneTranslate = 11,
         BoneRotate = 12,
         BoneScale = 13,
+        BoneAlpha = 19,
 
         Surface = 50,
 
         SlotDisplay = 20,
         SlotColor = 21,
         SlotDeform = 22,
+        SlotZIndex = 23,
+        SlotAlpha = 24,
 
         IKConstraint = 30,
 
-        AnimationTime = 40,
-        AnimationWeight = 41
+        AnimationProgress = 40,
+        AnimationWeight = 41,
+        AnimationParameter = 42,
     }
     /**
      * - Offset mode.
@@ -171,7 +171,7 @@ namespace dragonBones {
     export const enum OffsetMode {
         None,
         Additive,
-        Override
+        Override,
     }
     /**
      * - Animation fade out mode.
@@ -184,15 +184,6 @@ namespace dragonBones {
      * @language zh_CN
      */
     export const enum AnimationFadeOutMode {
-        /**
-         * - Do not fade out of any animation states.
-         * @language en_US
-         */
-        /**
-         * - 不淡出任何的动画状态。
-         * @language zh_CN
-         */
-        None = 0,
         /**
          * - Fade out the animation states of the same layer.
          * @language en_US
@@ -237,31 +228,52 @@ namespace dragonBones {
          * - 不替换同名的动画状态。
          * @language zh_CN
          */
-        Single = 5
+        Single = 5,
     }
-
+    /**
+     * @private
+     */
+    export const enum AnimationBlendType {
+        None,
+        E1D,
+    }
+    /**
+     * @private
+     */
+    export const enum AnimationBlendMode {
+        Additive,
+        Override,
+    }
+    /**
+     * @private
+     */
     export const enum ConstraintType {
         IK,
         Path
     }
-
+    /**
+     * @private
+     */
     export const enum PositionMode {
         Fixed,
         Percent
     }
-
+    /**
+     * @private
+     */
     export const enum SpacingMode {
         Length,
         Fixed,
         Percent
     }
-
+    /**
+     * @private
+     */
     export const enum RotateMode {
         Tangent,
         Chain,
         ChainScale
     }
-
     /**
      * @private
      */
@@ -272,12 +284,11 @@ namespace dragonBones {
      * @private
      */
     export class DragonBones {
-        public static readonly VERSION: string = "5.6.300";
+        public static readonly VERSION: string = "5.6.500";
 
         public static yDown: boolean = true;
         public static debug: boolean = false;
         public static debugDraw: boolean = false;
-        public static webAssembly: boolean = false;
 
         private readonly _clock: WorldClock = new WorldClock();
         private readonly _events: Array<EventObject> = [];
@@ -305,6 +316,7 @@ namespace dragonBones {
                 for (let i = 0; i < this._events.length; ++i) {
                     const eventObject = this._events[i];
                     const armature = eventObject.armature;
+
                     if (armature._armatureData !== null) { // May be armature disposed before advanceTime.
                         armature.eventDispatcher.dispatchDBEvent(eventObject.type, eventObject);
                         if (eventObject.type === EventObject.SOUND_EVENT) {

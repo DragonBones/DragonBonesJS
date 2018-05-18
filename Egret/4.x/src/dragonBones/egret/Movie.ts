@@ -1434,20 +1434,6 @@ namespace dragonBones {
             }
         }
 
-        /**
-         * 已废弃，请参考 {@link dragonBones.Movie#clock} {@link dragonBones.Movie#clock} {@link dragonBones.EgretFactory#clock}。
-         * @deprecated
-         * @language zh_CN
-         */
-        public advanceTimeBySelf(on: boolean): void {
-            if (on) {
-                this.clock = EgretFactory.clock;
-            }
-            else {
-                this.clock = null;
-            }
-        }
-
         //========================================= // 兼容旧数据
         /**
          * @private

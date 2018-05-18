@@ -25,7 +25,6 @@
 	],
 	"files": [
 		"./libs/egret.d.ts",
-		"../../DragonBones/src/dragonBones/modules.ts",
 		
 		"../../DragonBones/src/dragonBones/core/DragonBones.ts",
 		"../../DragonBones/src/dragonBones/core/BaseObject.ts",
@@ -47,8 +46,6 @@
 		"../../DragonBones/src/dragonBones/model/AnimationData.ts",
 		"../../DragonBones/src/dragonBones/model/AnimationConfig.ts",
 		"../../DragonBones/src/dragonBones/model/TextureAtlasData.ts",
-
-		"../../DragonBones/src/dragonBones/armature/DeformVertices.ts",
 
 		"../../DragonBones/src/dragonBones/armature/IArmatureProxy.ts",
 		"../../DragonBones/src/dragonBones/armature/Armature.ts",

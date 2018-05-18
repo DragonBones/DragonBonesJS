@@ -520,6 +520,10 @@ namespace dragonBones {
          */
         public length: number;
         /**
+         * @private
+         */
+        public alpha: number;
+        /**
          * - The bone name.
          * @version DragonBones 3.0
          * @language en_US
@@ -561,6 +565,7 @@ namespace dragonBones {
             this.inheritReflection = false;
             this.type = BoneType.Bone;
             this.length = 0.0;
+            this.alpha = 1.0;
             this.name = "";
             this.transform.identity();
             this.userData = null;
@@ -574,9 +579,10 @@ namespace dragonBones {
         public static toString(): string {
             return "[class dragonBones.SurfaceData]";
         }
+
         public segmentX: number;
         public segmentY: number;
-        public readonly vertices: Array<number> = [];
+        public readonly geometry: GeometryData = new GeometryData();
 
         protected _onClear(): void {
             super._onClear();
@@ -584,7 +590,7 @@ namespace dragonBones {
             this.type = BoneType.Surface;
             this.segmentX = 0;
             this.segmentY = 0;
-            this.vertices.length = 0;
+            this.geometry.clear();
         }
     }
     /**
@@ -625,6 +631,14 @@ namespace dragonBones {
          */
         public zOrder: number;
         /**
+         * @private
+         */
+        public zIndex: number;
+        /**
+         * @private
+         */
+        public alpha: number;
+        /**
          * - The slot name.
          * @version DragonBones 3.0
          * @language en_US
@@ -663,6 +677,8 @@ namespace dragonBones {
             this.blendMode = BlendMode.Normal;
             this.displayIndex = 0;
             this.zOrder = 0;
+            this.zIndex = 0;
+            this.alpha = 1.0;
             this.name = "";
             this.color = null as any; //
             this.userData = null;

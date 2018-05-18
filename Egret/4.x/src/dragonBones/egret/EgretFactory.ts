@@ -99,7 +99,7 @@ namespace dragonBones {
                 if (textureAtlas instanceof egret.Texture) {
                     textureAtlasData.renderTexture = textureAtlas;
                 }
-                else {
+                else if (textureAtlas) {
                     const egretTexture = new egret.Texture();
                     egretTexture.bitmapData = new egret.BitmapData(textureAtlas);
                     textureAtlasData.disposeEnabled = true;
@@ -222,132 +222,6 @@ namespace dragonBones {
          */
         public get soundEventManager(): EgretArmatureDisplay {
             return this._dragonBones.eventManager as EgretArmatureDisplay;
-        }
-
-        /**
-         * - Deprecated, please refer to {@link #clock}.
-         * @deprecated
-         * @language en_US
-         */
-        /**
-         * - 已废弃，请参考 {@link #clock}。
-         * @deprecated
-         * @language zh_CN
-         */
-        public static get clock(): WorldClock {
-            return EgretFactory.factory.clock;
-        }
-        /**
-         * - Deprecated, please refer to {@link #addDragonBonesData()}.
-         * @deprecated
-         * @language en_US
-         */
-        /**
-         * - 已废弃，请参考 {@link #addDragonBonesData()}。
-         * @deprecated
-         * @language zh_CN
-         */
-        public addSkeletonData(dragonBonesData: DragonBonesData, dragonBonesName: string | null = null): void {
-            console.warn("已废弃");
-            this.addDragonBonesData(dragonBonesData, dragonBonesName);
-        }
-        /**
-         * - Deprecated, please refer to {@link #getDragonBonesData()}.
-         * @deprecated
-         * @language en_US
-         */
-        /**
-         * - 已废弃，请参考 {@link #getDragonBonesData()}。
-         * @deprecated
-         * @language zh_CN
-         */
-        public getSkeletonData(dragonBonesName: string) {
-            console.warn("已废弃");
-            return this.getDragonBonesData(dragonBonesName);
-        }
-        /**
-         * - Deprecated, please refer to {@link #removeDragonBonesData()}.
-         * @deprecated
-         * @language en_US
-         */
-        /**
-         * - 已废弃，请参考 {@link #removeDragonBonesData()}。
-         * @deprecated
-         * @language zh_CN
-         */
-        public removeSkeletonData(dragonBonesName: string): void {
-            console.warn("已废弃");
-            this.removeDragonBonesData(dragonBonesName);
-        }
-        /**
-         * - Deprecated, please refer to {@link #addTextureAtlasData()}.
-         * @deprecated
-         * @language en_US
-         */
-        /**
-         * - 已废弃，请参考 {@link #addTextureAtlasData()}。
-         * @deprecated
-         * @language zh_CN
-         */
-        public addTextureAtlas(textureAtlasData: TextureAtlasData, dragonBonesName: string | null = null): void {
-            console.warn("已废弃");
-            this.addTextureAtlasData(textureAtlasData, dragonBonesName);
-        }
-        /**
-         * - Deprecated, please refer to {@link #getTextureAtlas()}.
-         * @deprecated
-         * @language en_US
-         */
-        /**
-         * - 已废弃，请参考 {@link #getTextureAtlas()}。
-         * @deprecated
-         * @language zh_CN
-         */
-        public getTextureAtlas(dragonBonesName: string) {
-            console.warn("已废弃");
-            return this.getTextureAtlasData(dragonBonesName);
-        }
-        /**
-         * - Deprecated, please refer to {@link #removeTextureAtlasData()}.
-         * @deprecated
-         * @language en_US
-         */
-        /**
-         * - 已废弃，请参考 {@link #removeTextureAtlasData()}。
-         * @deprecated
-         * @language zh_CN
-         */
-        public removeTextureAtlas(dragonBonesName: string): void {
-            console.warn("已废弃");
-            this.removeTextureAtlasData(dragonBonesName);
-        }
-        /**
-         * - Deprecated, please refer to {@link #buildArmature()}.
-         * @deprecated
-         * @language en_US
-         */
-        /**
-         * - 已废弃，请参考 {@link #buildArmature()}。
-         * @deprecated
-         * @language zh_CN
-         */
-        public buildFastArmature(armatureName: string, dragonBonesName: string = "", skinName: string = ""): FastArmature | null {
-            console.warn("已废弃");
-            return this.buildArmature(armatureName, dragonBonesName || "", skinName || "");
-        }
-        /**
-         * - Deprecated, please refer to {@link #clear()}.
-         * @deprecated
-         * @language en_US
-         */
-        /**
-         * - 已废弃，请参考 {@link #clear()}。
-         * @deprecated
-         * @language zh_CN
-         */
-        public dispose(): void {
-            console.warn("已废弃");
-            this.clear();
         }
     }
 }
