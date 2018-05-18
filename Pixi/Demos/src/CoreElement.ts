@@ -3,7 +3,7 @@ namespace coreElement {
     type ArmatureDisplayType = dragonBones.PixiArmatureDisplay;
     type EventType = dragonBones.EventObject;
 
-    export class Game extends BaseTest {
+    export class Game extends BaseDemo {
         public static GROUND: number;
         public static G: number = 0.6;
         public static instance: Game;
@@ -17,20 +17,20 @@ namespace coreElement {
             super();
 
             this._resources.push(
-                "resource/assets/core_element/mecha_1502b_ske.json",
-                "resource/assets/core_element/mecha_1502b_tex.json",
-                "resource/assets/core_element/mecha_1502b_tex.png",
-                "resource/assets/core_element/skin_1502b_ske.json",
-                "resource/assets/core_element/skin_1502b_tex.json",
-                "resource/assets/core_element/skin_1502b_tex.png",
-                "resource/assets/core_element/weapon_1000_ske.json",
-                "resource/assets/core_element/weapon_1000_tex.json",
-                "resource/assets/core_element/weapon_1000_tex.png"
+                "resource/mecha_1502b/mecha_1502b_ske.json",
+                "resource/mecha_1502b/mecha_1502b_tex.json",
+                "resource/mecha_1502b/mecha_1502b_tex.png",
+                "resource/skin_1502b/skin_1502b_ske.json",
+                "resource/skin_1502b/skin_1502b_tex.json",
+                "resource/skin_1502b/skin_1502b_tex.png",
+                "resource/weapon_1000/weapon_1000_ske.json",
+                "resource/weapon_1000/weapon_1000_tex.json",
+                "resource/weapon_1000/weapon_1000_tex.png"
             );
         }
 
         protected _onStart(): void {
-            Game.GROUND = this.stageHeight - 150;
+            Game.GROUND = this.stageHeight * 0.5 - 150.0;
             Game.instance = this;
             //
             this.interactive = true;
@@ -44,21 +44,21 @@ namespace coreElement {
             document.addEventListener("keydown", this._keyHandler);
             document.addEventListener("keyup", this._keyHandler);
             //
-            this.createText("Press W/A/S/D to move. Press Q/E to switch weapons. Press SPACE to switch skin.\nMouse Move to aim. Click to fire.");
+            this.createText("Press W/A/S/D to move. Press Q/E/SPACE to switch weapons and skin. Touch to aim and fire.");
             //
             const factory = dragonBones.PixiFactory.factory;
-            factory.parseDragonBonesData(this._pixiResources["resource/assets/core_element/mecha_1502b_ske.json"].data);
-            factory.parseTextureAtlasData(this._pixiResources["resource/assets/core_element/mecha_1502b_tex.json"].data, this._pixiResources["resource/assets/core_element/mecha_1502b_tex.png"].texture);
-            factory.parseDragonBonesData(this._pixiResources["resource/assets/core_element/skin_1502b_ske.json"].data);
-            factory.parseTextureAtlasData(this._pixiResources["resource/assets/core_element/skin_1502b_tex.json"].data, this._pixiResources["resource/assets/core_element/skin_1502b_tex.png"].texture);
-            factory.parseDragonBonesData(this._pixiResources["resource/assets/core_element/weapon_1000_ske.json"].data);
-            factory.parseTextureAtlasData(this._pixiResources["resource/assets/core_element/weapon_1000_tex.json"].data, this._pixiResources["resource/assets/core_element/weapon_1000_tex.png"].texture);
+            factory.parseDragonBonesData(this._pixiResources["resource/mecha_1502b/mecha_1502b_ske.json"].data);
+            factory.parseTextureAtlasData(this._pixiResources["resource/mecha_1502b/mecha_1502b_tex.json"].data, this._pixiResources["resource/mecha_1502b/mecha_1502b_tex.png"].texture);
+            factory.parseDragonBonesData(this._pixiResources["resource/skin_1502b/skin_1502b_ske.json"].data);
+            factory.parseTextureAtlasData(this._pixiResources["resource/skin_1502b/skin_1502b_tex.json"].data, this._pixiResources["resource/skin_1502b/skin_1502b_tex.png"].texture);
+            factory.parseDragonBonesData(this._pixiResources["resource/weapon_1000/weapon_1000_ske.json"].data);
+            factory.parseTextureAtlasData(this._pixiResources["resource/weapon_1000/weapon_1000_tex.json"].data, this._pixiResources["resource/weapon_1000/weapon_1000_tex.png"].texture);
             //
             this._player = new Mecha();
         }
 
         private _touchHandler(event: PIXI.interaction.InteractionEvent): void {
-            this._player.aim(event.data.global.x, event.data.global.y);
+            this._player.aim(event.data.global.x - this.x, event.data.global.y - this.y);
 
             if (event.type === 'touchstart' || event.type === 'mousedown') {
                 this._player.attack(true);
@@ -162,7 +162,6 @@ namespace coreElement {
         private static readonly SKINS: Array<string> = ["mecha_1502b", "skin_a", "skin_b", "skin_c"];
 
         private _isJumpingA: boolean = false;
-        private _isJumpingB: boolean = false;
         private _isSquating: boolean = false;
         private _isAttackingA: boolean = false;
         private _isAttackingB: boolean = false;
@@ -187,7 +186,7 @@ namespace coreElement {
 
         public constructor() {
             this._armatureDisplay = dragonBones.PixiFactory.factory.buildArmatureDisplay("mecha_1502b");
-            this._armatureDisplay.x = Game.instance.stageWidth * 0.5;
+            this._armatureDisplay.x = 0.0;
             this._armatureDisplay.y = Game.GROUND;
             this._armature = this._armatureDisplay.armature;
             this._armature.eventDispatcher.addEvent(dragonBones.EventObject.FADE_IN_COMPLETE, this._animationEventHandler, this);
@@ -271,7 +270,7 @@ namespace coreElement {
             this._skinIndex %= Mecha.SKINS.length;
             const skinName = Mecha.SKINS[this._skinIndex];
             const skinData = dragonBones.PixiFactory.factory.getArmatureData(skinName).defaultSkin;
-            dragonBones.PixiFactory.factory.changeSkin(this._armature, skinData, ["weapon_l", "weapon_r"]);
+            dragonBones.PixiFactory.factory.replaceSkin(this._armature, skinData, false, ["weapon_l", "weapon_r"]);
         }
 
         public aim(x: number, y: number): void {
@@ -289,7 +288,6 @@ namespace coreElement {
             switch (event.type) {
                 case dragonBones.EventObject.FADE_IN_COMPLETE:
                     if (event.animationState.name === "jump_1") {
-                        this._isJumpingB = true;
                         this._speedY = -Mecha.JUMP_SPEED;
 
                         if (this._moveDir !== 0) {
@@ -318,7 +316,6 @@ namespace coreElement {
                 case dragonBones.EventObject.COMPLETE:
                     if (event.animationState.name === "jump_4") {
                         this._isJumpingA = false;
-                        this._isJumpingB = false;
                         this._updateAnimation();
                     }
                     break;
@@ -329,8 +326,9 @@ namespace coreElement {
             if (event.name === "fire") {
                 this._helpPoint.x = event.bone.global.x;
                 this._helpPoint.y = event.bone.global.y;
-                this._helpPoint.copy((event.armature.display as ArmatureDisplayType).toGlobal(this._helpPoint));
-
+                (event.armature.display as ArmatureDisplayType).toGlobal(this._helpPoint, this._helpPoint);
+                this._helpPoint.x -= Game.instance.x;
+                this._helpPoint.y -= Game.instance.y;
                 this._fire(this._helpPoint);
             }
         }
@@ -395,11 +393,11 @@ namespace coreElement {
         private _updatePosition(): void {
             if (this._speedX !== 0.0) {
                 this._armatureDisplay.x += this._speedX;
-                if (this._armatureDisplay.x < 0) {
-                    this._armatureDisplay.x = 0;
+                if (this._armatureDisplay.x < -Game.instance.stageWidth * 0.5) {
+                    this._armatureDisplay.x = -Game.instance.stageWidth * 0.5;
                 }
-                else if (this._armatureDisplay.x > Game.instance.stageWidth) {
-                    this._armatureDisplay.x = Game.instance.stageWidth;
+                else if (this._armatureDisplay.x > Game.instance.stageWidth * 0.5) {
+                    this._armatureDisplay.x = Game.instance.stageWidth * 0.5;
                 }
             }
 
@@ -490,7 +488,7 @@ namespace coreElement {
             );
 
             this._attackState.resetToPose = false;
-            this._attackState.autoFadeOutTime = this._attackState.fadeTotalTime;
+            this._attackState.autoFadeOutTime = 0.1;
         }
     }
 
@@ -535,8 +533,8 @@ namespace coreElement {
             this._armatureDisplay.y += this._speedY;
 
             if (
-                this._armatureDisplay.x < -100.0 || this._armatureDisplay.x >= Game.instance.stageWidth + 100.0 ||
-                this._armatureDisplay.y < -100.0 || this._armatureDisplay.y >= Game.instance.stageHeight + 100.0
+                this._armatureDisplay.x < -Game.instance.stageWidth * 0.5 - 100.0 || this._armatureDisplay.x > Game.instance.stageWidth * 0.5 + 100.0 ||
+                this._armatureDisplay.y < -Game.instance.stageHeight * 0.5 - 100.0 || this._armatureDisplay.y > Game.instance.stageHeight * 0.5 + 100.0
             ) {
                 Game.instance.removeChild(this._armatureDisplay);
                 this._armatureDisplay.dispose();

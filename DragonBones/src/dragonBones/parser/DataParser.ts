@@ -1,6 +1,28 @@
+/**
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2012-2018 DragonBones team and other contributors
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of
+ * this software and associated documentation files (the "Software"), to deal in
+ * the Software without restriction, including without limitation the rights to
+ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+ * the Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+ * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+ * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+ * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
 namespace dragonBones {
     /**
-     * @private
+     * @internal
      */
     export abstract class DataParser {
         protected static readonly DATA_VERSION_2_3: string = "2.3";
@@ -34,8 +56,12 @@ namespace dragonBones {
         protected static readonly USER_DATA: string = "userData";
         protected static readonly ARMATURE: string = "armature";
         protected static readonly BONE: string = "bone";
-        protected static readonly IK: string = "ik";
+        protected static readonly SURFACE: string = "surface";
         protected static readonly SLOT: string = "slot";
+        protected static readonly CONSTRAINT: string = "constraint";
+        protected static readonly IK: string = "ik";
+        protected static readonly PATH_CONSTRAINT: string = "path";
+
         protected static readonly SKIN: string = "skin";
         protected static readonly DISPLAY: string = "display";
         protected static readonly ANIMATION: string = "animation";
@@ -79,7 +105,9 @@ namespace dragonBones {
         protected static readonly INHERIT_SCALE: string = "inheritScale";
         protected static readonly INHERIT_REFLECTION: string = "inheritReflection";
         protected static readonly INHERIT_ANIMATION: string = "inheritAnimation";
-        protected static readonly INHERIT_FFD: string = "inheritFFD";
+        protected static readonly INHERIT_DEFORM: string = "inheritDeform";
+        protected static readonly SEGMENT_X: string = "segmentX";
+        protected static readonly SEGMENT_Y: string = "segmentY";
         protected static readonly BEND_POSITIVE: string = "bendPositive";
         protected static readonly CHAIN: string = "chain";
         protected static readonly WEIGHT: string = "weight";
@@ -90,7 +118,6 @@ namespace dragonBones {
         protected static readonly OFFSET: string = "offset";
         protected static readonly POSITION: string = "position";
         protected static readonly DURATION: string = "duration";
-        protected static readonly TWEEN_TYPE: string = "tweenType";
         protected static readonly TWEEN_EASING: string = "tweenEasing";
         protected static readonly TWEEN_ROTATE: string = "tweenRotate";
         protected static readonly TWEEN_SCALE: string = "tweenScale";
@@ -125,6 +152,23 @@ namespace dragonBones {
         protected static readonly WEIGHTS: string = "weights";
         protected static readonly SLOT_POSE: string = "slotPose";
         protected static readonly BONE_POSE: string = "bonePose";
+        protected static readonly GLUE_WEIGHTS: string = "glueWeights";
+        protected static readonly GLUE_MESHES: string = "glueMeshes";
+
+        protected static readonly BONES: string = "bones";
+        protected static readonly POSITION_MODE: string = "positionMode";
+        protected static readonly SPACING_MODE: string = "spacingMode";
+        protected static readonly ROTATE_MODE: string = "rotateMode";
+        protected static readonly SPACING: string = "spacing";
+        protected static readonly ROTATE_OFFSET: string = "rotateOffset";
+        protected static readonly ROTATE_MIX: string = "rotateMix";
+        protected static readonly TRANSLATE_MIX: string = "translateMix";
+
+        protected static readonly TARGET_DISPLAY : string = "targetDisplay";
+        protected static readonly CLOSED: string = "closed";
+        protected static readonly CONSTANT_SPEED: string = "constantSpeed";
+        protected static readonly VERTEX_COUNT: string = "vertexCount";
+        protected static readonly LENGTHS: string = "lengths";
 
         protected static readonly GOTO_AND_PLAY: string = "gotoAndPlay";
 
@@ -146,6 +190,19 @@ namespace dragonBones {
             }
         }
 
+        protected static _getBoneType(value: string): BoneType {
+            switch (value.toLowerCase()) {
+                case "bone":
+                    return BoneType.Bone;
+
+                case "surface":
+                    return BoneType.Surface;
+
+                default:
+                    return BoneType.Bone;
+            }
+        }
+
         protected static _getDisplayType(value: string): DisplayType {
             switch (value.toLowerCase()) {
                 case "image":
@@ -159,6 +216,9 @@ namespace dragonBones {
 
                 case "boundingbox":
                     return DisplayType.BoundingBox;
+
+                case "path":
+                    return DisplayType.Path;
 
                 default:
                     return DisplayType.Image;
@@ -245,21 +305,61 @@ namespace dragonBones {
                     return BlendMode.Normal;
             }
         }
-        /**
-         * @private
-         */
+
+        protected static _getPositionMode(value: string): PositionMode {
+            switch (value.toLocaleLowerCase()) {
+                case "percent":
+                    return PositionMode.Percent;
+
+                case "fixed":
+                    return PositionMode.Fixed;
+
+                default:
+                    return PositionMode.Percent;
+            }
+        }
+
+        protected static _getSpacingMode(value: string): SpacingMode {
+            switch (value.toLocaleLowerCase()) {
+                case "length":
+                    return SpacingMode.Length;
+                case "percent":
+                    return SpacingMode.Percent;
+                case "fixed":
+                    return SpacingMode.Fixed;
+                default:
+                    return SpacingMode.Length;
+            }
+        }
+
+        protected static _getRotateMode(value: string): RotateMode {
+            switch (value.toLocaleLowerCase()) {
+                case "tangent":
+                    return RotateMode.Tangent;
+                case "chain":
+                    return RotateMode.Chain;
+                case "chainscale":
+                    return RotateMode.ChainScale;
+                default:
+                    return RotateMode.Tangent;
+            }
+        }
+
         public abstract parseDragonBonesData(rawData: any, scale: number): DragonBonesData | null;
-        /**
-         * @private
-         */
         public abstract parseTextureAtlasData(rawData: any, textureAtlasData: TextureAtlasData, scale: number): boolean;
 
         /**
+         * - Deprecated, please refer to {@link dragonBones.BaseFactory#parsetTextureAtlasData()}.
          * @deprecated
-         * 已废弃，请参考 @see
-         * @see dragonBones.BaseFactory#parseDragonBonesData()
+         * @language en_US
+         */
+        /**
+         * - 已废弃，请参考 {@link dragonBones.BaseFactory#parsetTextureAtlasData()}。
+         * @deprecated
+         * @language zh_CN
          */
         public static parseDragonBonesData(rawData: any): DragonBonesData | null {
+            console.warn("Deprecated.");
             if (rawData instanceof ArrayBuffer) {
                 return BinaryDataParser.getInstance().parseDragonBonesData(rawData);
             }
@@ -268,13 +368,18 @@ namespace dragonBones {
             }
         }
         /**
+         * - Deprecated, please refer to {@link dragonBones.BaseFactory#parsetTextureAtlasData()}.
          * @deprecated
-         * 已废弃，请参考 @see
-         * @see dragonBones.BaseFactory#parsetTextureAtlasData()
+         * @language en_US
+         */
+        /**
+         * - 已废弃，请参考 {@link dragonBones.BaseFactory#parsetTextureAtlasData()}。
+         * @deprecated
+         * @language zh_CN
          */
         public static parseTextureAtlasData(rawData: any, scale: number = 1): any {
-            console.warn("已废弃，请参考 @see，WebAssembly 不支持该废弃 API。");
-            
+            console.warn("已废弃");
+
             const textureAtlasData = {} as any;
 
             const subTextureList = rawData[DataParser.SUB_TEXTURE];

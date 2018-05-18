@@ -1,21 +1,39 @@
 # DragonBones JavaScript / TypeScript Runtime
-* [DragonBones common library](./DragonBones/)
-* Highly suggest use [DragonBones Pro](http://www.dragonbones.com/) to create aniamtion.
+[中文 README](./README-zh_CN.md)
+## [DragonBones common library](./DragonBones/)
+## Highly suggest use [DragonBones Pro](http://www.dragonbones.com/) to create aniamtion.
 
 ## Supported engines
 * [Egret](http://www.egret.com/) - [How to use DragonBones in Egret](./Egret/)
-* [Pixi](http://www.pixijs.com/) - [How to use DragonBones in Pixi](./Pixi/)
+* [PixiJS](http://www.pixijs.com/) - [How to use DragonBones in PixiJS](./Pixi/)
+* [Phaser](https://phaser.io/) - [How to use DragonBones in Phaser](./Phaser/)
+* [Hilo](http://hiloteam.github.io/) - [How to use DragonBones in Hilo](./Hilo/)
+
+## Generate the files which are dependent by the engines
+run `npm install -g dragonbones-runtime` to install the `dragonbones-runtime` in global.
+
+Then you can get the dependent files in folder names `dragonbones-out` by run `dbr <engine-name>@<version>`, ex:  
+Egret: `dbr egret@4.1.0`  
+PixiJS: `dbr pixijs@4.6.2`  
+Phaser: `dbr phaser@2.6.2` or `dbr phaser-ce@2.7.0`  
+Hilo: `dbr hilo@1.1.6`
+
+using `-o` to specify the output folder(default: `dragonbones-out`), ex:  
+`dbr egret@4.1.0 -o ./egret-db-out`  
+
+because the `phaser` is downloaded from `npm register`, so you can use `-r` to specify the `register`, ex: 
+`dbr phaser@2.6.2 -r taobao` (default: npm)  
+valid `register`:
+```
+npm - https://registry.npmjs.org/
+taobao - https://registry.npm.taobao.org/
+cnpm - http://r.cnpmjs.org/
+``` 
 
 ## To learn more about
-* [DragonBones WebSite](http://www.dragonbones.com/)
-* [DragonBones Pro WebSite](http://www.egret.com/products/dragonbones.html)
-* [Demos](http://www.dragonbones.com/demo/index.html)
+* [DragonBones offical website](http://www.dragonbones.com/)
 
-## Release Notes
-* [DragonBones 4.7 release notes](https://github.com/DragonBones/DragonBonesJS/blob/master/docs/DragonBones_4.7_release_notes_zh.md)
+## Online demos
+[![PerformanceTest](https://dragonbones.github.io/demo/demos.jpg)](https://github.com/DragonBones/Demos)
 
-## DragonBones data format
-* [DragonBones 5.0 data format](https://github.com/DragonBones/DragonBonesJS/blob/master/docs/DragonBones_5.0_data_format_zh.md)
-* [DragonBones 4.5 data format](https://github.com/DragonBones/DragonBonesJS/blob/master/docs/DragonBones_4.5_data_format_zh.md)
-
-Copyright 2012-2017 The DragonBones Team.
+Copyright (c) 2012-2018 The DragonBones team and other contributors.

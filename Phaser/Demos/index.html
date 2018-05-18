@@ -1,0 +1,53 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <title>DragonBones Demo</title>
+
+    <script src="//cdn.jsdelivr.net/npm/phaser-ce@2.9.2/build/phaser.js"></script>
+    <script src="./libs/dragonBones/dragonBones.js"></script>
+
+    <script src="./out/DragHelper.js"></script>
+    <script src="./out/BaseDemo.js"></script>
+    <script src="./out/HelloDragonBones.js"></script>
+    <script src="./out/AnimationBase.js"></script>
+    <script src="./out/DragonBonesEvent.js"></script>
+    <script src="./out/AnimationLayer.js"></script>
+    <script src="./out/BoneOffset.js"></script>
+    <script src="./out/InverseKinematics.js"></script>
+    <script src="./out/BoundingBox.js"></script>
+    <script src="./out/ReplaceSlotDisplay.js"></script>
+    <!-- <script src="./out/ReplaceSkin.js"></script> -->
+    <script src="./out/ReplaceAnimation.js"></script>
+    <script src="./out/CoreElement.js"></script>
+    <script src="./out/PerformanceTest.js"></script>
+</head>
+
+<body>
+    <script>
+        var game = new Phaser.Game(1136, 640, Phaser.AUTO, null, {
+            create: function () {
+                dragonBones.PhaserFactory.init(this.game); // Static factory init.
+                //
+                this.world.add(new HelloDragonBones(this.game));
+                // this.world.add(new AnimationBase(this.game));
+                // this.world.add(new DragonBonesEvent(this.game));
+                // this.world.add(new AnimationLayer(this.game));
+                // this.world.add(new BoneOffset(this.game));
+                // this.world.add(new InverseKinematics(this.game));
+                // this.world.add(new BoundingBox(this.game));
+                // this.world.add(new ReplaceSlotDisplay(this.game));
+                // this.world.add(new ReplaceSkin(this.game)); TODO
+                // this.world.add(new ReplaceAnimation(this.game));
+                // this.world.add(new coreElement.Game(this.game));
+                // this.world.add(new PerformanceTest(this.game));
+            },
+            render: function () {
+                dragonBones.PhaserFactory.factory.dragonBones.advanceTime(-1.0); // update.
+            }
+        });
+    </script>
+</body>
+
+</html>

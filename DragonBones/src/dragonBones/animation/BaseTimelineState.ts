@@ -1,7 +1,28 @@
+/**
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2012-2018 DragonBones team and other contributors
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of
+ * this software and associated documentation files (the "Software"), to deal in
+ * the Software without restriction, including without limitation the rights to
+ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+ * the Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+ * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+ * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+ * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
 namespace dragonBones {
     /**
      * @internal
-     * @private
      */
     export const enum TweenState {
         None,
@@ -10,10 +31,12 @@ namespace dragonBones {
     }
     /**
      * @internal
-     * @private
      */
     export abstract class TimelineState extends BaseObject {
-        public playState: number; // -1: start, 0: play, 1: complete;
+        /**
+         * -1: start, 0: play, 1: complete;
+         */
+        public playState: number;
         public currentPlayTimes: number;
         public currentTime: number;
 
@@ -101,7 +124,7 @@ namespace dragonBones {
                         this.currentTime = 0.0;
                     }
                     else {
-                        this.currentTime = this._duration;
+                        this.currentTime = this._duration + 0.000001; // Precision problem
                     }
                 }
                 else {
@@ -153,7 +176,7 @@ namespace dragonBones {
                 this._actionTimeline = null as any; //
             }
 
-            this._animationData = this._animationState.animationData;
+            this._animationData = this._animationState._animationData;
 
             this._frameRate = this._animationData.parent.frameRate;
             this._frameRateR = 1.0 / this._frameRate;
@@ -178,7 +201,7 @@ namespace dragonBones {
         public fadeOut(): void { }
 
         public update(passedTime: number): void {
-            if (this.playState <= 0 && this._setCurrentTime(passedTime)) {
+            if (this._setCurrentTime(passedTime)) {
                 if (this._frameCount > 1) {
                     const timelineFrameIndex = Math.floor(this.currentTime * this._frameRate); // uint
                     const frameIndex = this._frameIndices[(this._timelineData as TimelineData).frameIndicesOffset + timelineFrameIndex];
@@ -206,7 +229,6 @@ namespace dragonBones {
     }
     /**
      * @internal
-     * @private
      */
     export abstract class TweenTimelineState extends TimelineState {
         private static _getEasingValue(tweenType: TweenType, progress: number, easing: number): number {
@@ -319,7 +341,6 @@ namespace dragonBones {
     }
     /**
      * @internal
-     * @private
      */
     export abstract class BoneTimelineState extends TweenTimelineState {
         public bone: Bone;
@@ -331,10 +352,44 @@ namespace dragonBones {
             this.bone = null as any; //
             this.bonePose = null as any; //
         }
+
+        public blend(state: number): void {
+            const blendWeight = this.bone._blendState.blendWeight;
+            const animationPose = this.bone.animationPose;
+            const result = this.bonePose.result;
+
+            if (state === 2) {
+                animationPose.x += result.x * blendWeight;
+                animationPose.y += result.y * blendWeight;
+                animationPose.rotation += result.rotation * blendWeight;
+                animationPose.skew += result.skew * blendWeight;
+                animationPose.scaleX += (result.scaleX - 1.0) * blendWeight;
+                animationPose.scaleY += (result.scaleY - 1.0) * blendWeight;
+            }
+            else if (blendWeight !== 1.0) {
+                animationPose.x = result.x * blendWeight;
+                animationPose.y = result.y * blendWeight;
+                animationPose.rotation = result.rotation * blendWeight;
+                animationPose.skew = result.skew * blendWeight;
+                animationPose.scaleX = (result.scaleX - 1.0) * blendWeight + 1.0;
+                animationPose.scaleY = (result.scaleY - 1.0) * blendWeight + 1.0;
+            }
+            else {
+                animationPose.x = result.x;
+                animationPose.y = result.y;
+                animationPose.rotation = result.rotation;
+                animationPose.skew = result.skew;
+                animationPose.scaleX = result.scaleX;
+                animationPose.scaleY = result.scaleY;
+            }
+
+            if (this._animationState._fadeState !== 0 || this._animationState._subFadeState !== 0) {
+                this.bone._transformDirty = true;
+            }
+        }
     }
     /**
      * @internal
-     * @private
      */
     export abstract class SlotTimelineState extends TweenTimelineState {
         public slot: Slot;
@@ -343,6 +398,18 @@ namespace dragonBones {
             super._onClear();
 
             this.slot = null as any; //
+        }
+    }
+    /**
+     * @internal
+     */
+    export abstract class ConstraintTimelineState extends TweenTimelineState {
+        public constraint: Constraint;
+
+        protected _onClear(): void {
+            super._onClear();
+
+            this.constraint = null as any; //
         }
     }
 }

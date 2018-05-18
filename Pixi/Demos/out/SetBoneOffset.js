@@ -22,7 +22,7 @@ var SetBoneOffset = (function (_super) {
         factory.parseTextureAtlasData(this._pixiResources["resource/assets/effect_tex.json"].data, this._pixiResources["resource/assets/effect_tex.png"].texture);
         for (var i = 0; i < 100; ++i) {
             var armatureDisplay = factory.buildArmatureDisplay("effect");
-            armatureDisplay.addListener(dragonBones.EventObject.COMPLETE, this._animationHandler, this);
+            armatureDisplay.on(dragonBones.EventObject.COMPLETE, this._animationHandler, this);
             this._moveTo(armatureDisplay);
             this.addChild(armatureDisplay);
         }

@@ -1,6 +1,6 @@
 {
   "name": "dragonbones-pixi",
-  "version": "5.1.0",
+  "version": "5.6.2",
   "main": "",
   "scripts": {
     "build": "tsc & uglifyjs ./out/dragonBones.js -o ./out/dragonBones.min.js -m"

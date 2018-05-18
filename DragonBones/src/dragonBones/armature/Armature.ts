@@ -1,6 +1,37 @@
+/**
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2012-2018 DragonBones team and other contributors
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of
+ * this software and associated documentation files (the "Software"), to deal in
+ * the Software without restriction, including without limitation the rights to
+ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+ * the Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+ * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+ * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+ * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
 namespace dragonBones {
     /**
-     * 骨架，是骨骼动画系统的核心，由显示容器、骨骼、插槽、动画、事件系统构成。
+     * - Armature is the core of the skeleton animation system.
+     * @see dragonBones.ArmatureData
+     * @see dragonBones.Bone
+     * @see dragonBones.Slot
+     * @see dragonBones.Animation
+     * @version DragonBones 3.0
+     * @language en_US
+     */
+    /**
+     * - 骨架是骨骼动画系统的核心。
      * @see dragonBones.ArmatureData
      * @see dragonBones.Bone
      * @see dragonBones.Slot
@@ -16,63 +47,63 @@ namespace dragonBones {
             return a._zOrder > b._zOrder ? 1 : -1;
         }
         /**
-         * 是否继承父骨架的动画状态。
+         * - Whether to inherit the animation control of the parent armature.
+         * True to try to have the child armature play an animation with the same name when the parent armature play the animation.
+         * @default true
+         * @version DragonBones 4.5
+         * @language en_US
+         */
+        /**
+         * - 是否继承父骨架的动画控制。
+         * 如果该值为 true，当父骨架播放动画时，会尝试让子骨架播放同名动画。
          * @default true
          * @version DragonBones 4.5
          * @language zh_CN
          */
         public inheritAnimation: boolean;
         /**
-         * 获取骨架数据。
-         * @see dragonBones.ArmatureData
-         * @version DragonBones 4.5
-         * @readonly
-         * @language zh_CN
-         */
-        public armatureData: ArmatureData;
-        /**
-         * 用于存储临时数据。
-         * @version DragonBones 3.0
-         * @language zh_CN
+         * @private
          */
         public userData: any;
 
         private _lockUpdate: boolean;
-        private _bonesDirty: boolean;
         private _slotsDirty: boolean;
         private _zOrderDirty: boolean;
         private _flipX: boolean;
         private _flipY: boolean;
         /**
          * @internal
-         * @private
          */
         public _cacheFrameIndex: number;
         private readonly _bones: Array<Bone> = [];
         private readonly _slots: Array<Slot> = [];
-        private readonly _actions: Array<ActionData> = [];
+        /**
+         * @internal
+         */
+        public readonly _constraints: Array<Constraint> = [];
+        private readonly _actions: Array<EventObject> = [];
+        /**
+         * @internal
+         */
+        public _armatureData: ArmatureData;
         private _animation: Animation = null as any; // Initial value.
         private _proxy: IArmatureProxy = null as any; // Initial value.
         private _display: any;
         /**
-         * @private
+         * @internal
          */
         public _replaceTextureAtlasData: TextureAtlasData | null = null; // Initial value.
         private _replacedTexture: any;
         /**
          * @internal
-         * @private
          */
         public _dragonBones: DragonBones;
         private _clock: WorldClock | null = null; // Initial value.
         /**
          * @internal
-         * @private
          */
         public _parent: Slot | null;
-        /**
-         * @private
-         */
+        
         protected _onClear(): void {
             if (this._clock !== null) { // Remove clock first.
                 this._clock.remove(this);
@@ -84,6 +115,14 @@ namespace dragonBones {
 
             for (const slot of this._slots) {
                 slot.returnToPool();
+            }
+
+            for (const constraint of this._constraints) {
+                constraint.returnToPool();
+            }
+
+            for (const action of this._actions) {
+                action.returnToPool();
             }
 
             if (this._animation !== null) {
@@ -99,19 +138,19 @@ namespace dragonBones {
             }
 
             this.inheritAnimation = true;
-            this.armatureData = null as any; //
             this.userData = null;
 
             this._lockUpdate = false;
-            this._bonesDirty = false;
-            this._slotsDirty = false;
+            this._slotsDirty = true;
             this._zOrderDirty = false;
             this._flipX = false;
             this._flipY = false;
             this._cacheFrameIndex = -1;
             this._bones.length = 0;
             this._slots.length = 0;
+            this._constraints.length = 0;
             this._actions.length = 0;
+            this._armatureData = null as any; //
             this._animation = null as any; //
             this._proxy = null as any; //
             this._display = null;
@@ -121,60 +160,11 @@ namespace dragonBones {
             this._clock = null;
             this._parent = null;
         }
-
-        private _sortBones(): void {
-            const total = this._bones.length;
-            if (total <= 0) {
-                return;
-            }
-
-            const sortHelper = this._bones.concat();
-            let index = 0;
-            let count = 0;
-
-            this._bones.length = 0;
-            while (count < total) {
-                const bone = sortHelper[index++];
-                if (index >= total) {
-                    index = 0;
-                }
-
-                if (this._bones.indexOf(bone) >= 0) {
-                    continue;
-                }
-
-                if (bone.constraints.length > 0) { // Wait constraint.
-                    let flag = false;
-                    for (const constraint of bone.constraints) {
-                        if (this._bones.indexOf(constraint.target) < 0) {
-                            flag = true;
-                            break;
-                        }
-                    }
-
-                    if (flag) {
-                        continue;
-                    }
-                }
-
-                if (bone.parent !== null && this._bones.indexOf(bone.parent) < 0) { // Wait parent.
-                    continue;
-                }
-
-                this._bones.push(bone);
-                count++;
-            }
-        }
-
-        private _sortSlots(): void {
-            this._slots.sort(Armature._onSortSlots);
-        }
         /**
          * @internal
-         * @private
          */
         public _sortZOrder(slotIndices: Array<number> | Int16Array | null, offset: number): void {
-            const slotDatas = this.armatureData.sortedSlots;
+            const slotDatas = this._armatureData.sortedSlots;
             const isOriginal = slotIndices === null;
 
             if (this._zOrderDirty || !isOriginal) {
@@ -197,53 +187,32 @@ namespace dragonBones {
         }
         /**
          * @internal
-         * @private
          */
-        public _addBoneToBoneList(value: Bone): void {
+        public _addBone(value: Bone): void {
             if (this._bones.indexOf(value) < 0) {
-                this._bonesDirty = true;
                 this._bones.push(value);
-                this._animation._timelineDirty = true;
             }
         }
         /**
          * @internal
-         * @private
          */
-        public _removeBoneFromBoneList(value: Bone): void {
-            const index = this._bones.indexOf(value);
-            if (index >= 0) {
-                this._bones.splice(index, 1);
-                this._animation._timelineDirty = true;
-            }
-        }
-        /**
-         * @internal
-         * @private
-         */
-        public _addSlotToSlotList(value: Slot): void {
+        public _addSlot(value: Slot): void {
             if (this._slots.indexOf(value) < 0) {
-                this._slotsDirty = true;
                 this._slots.push(value);
-                this._animation._timelineDirty = true;
             }
         }
         /**
          * @internal
-         * @private
          */
-        public _removeSlotFromSlotList(value: Slot): void {
-            const index = this._slots.indexOf(value);
-            if (index >= 0) {
-                this._slots.splice(index, 1);
-                this._animation._timelineDirty = true;
+        public _addConstraint(value: Constraint): void {
+            if (this._constraints.indexOf(value) < 0) {
+                this._constraints.push(value);
             }
         }
         /**
          * @internal
-         * @private
          */
-        public _bufferAction(action: ActionData, append: boolean): void {
+        public _bufferAction(action: EventObject, append: boolean): void {
             if (this._actions.indexOf(action) < 0) {
                 if (append) {
                     this._actions.push(action);
@@ -254,28 +223,43 @@ namespace dragonBones {
             }
         }
         /**
-         * 释放骨架。 (回收到对象池)
+         * - Dispose the armature. (Return to the object pool)
+         * @example
+         * <pre>
+         *     removeChild(armature.display);
+         *     armature.dispose();
+         * </pre>
+         * @version DragonBones 3.0
+         * @language en_US
+         */
+        /**
+         * - 释放骨架。 （回收到对象池）
+         * @example
+         * <pre>
+         *     removeChild(armature.display);
+         *     armature.dispose();
+         * </pre>
          * @version DragonBones 3.0
          * @language zh_CN
          */
         public dispose(): void {
-            if (this.armatureData !== null) {
+            if (this._armatureData !== null) {
                 this._lockUpdate = true;
                 this._dragonBones.bufferObject(this);
             }
         }
         /**
-         * @private
+         * @internal
          */
         public init(
             armatureData: ArmatureData,
             proxy: IArmatureProxy, display: any, dragonBones: DragonBones
         ): void {
-            if (this.armatureData !== null) {
+            if (this._armatureData !== null) {
                 return;
             }
 
-            this.armatureData = armatureData;
+            this._armatureData = armatureData;
             this._animation = BaseObject.borrowObject(Animation);
             this._proxy = proxy;
             this._display = display;
@@ -283,44 +267,34 @@ namespace dragonBones {
 
             this._proxy.dbInit(this);
             this._animation.init(this);
-            this._animation.animations = this.armatureData.animations;
+            this._animation.animations = this._armatureData.animations;
         }
         /**
-         * 更新骨架和动画。
-         * @param passedTime 两帧之间的时间间隔。 (以秒为单位)
-         * @see dragonBones.IAnimateble
-         * @see dragonBones.WorldClock
-         * @version DragonBones 3.0
-         * @language zh_CN
+         * @inheritDoc
          */
         public advanceTime(passedTime: number): void {
             if (this._lockUpdate) {
                 return;
             }
 
-            if (this.armatureData === null) {
-                console.assert(false, "The armature has been disposed.");
+            if (this._armatureData === null) {
+                console.warn("The armature has been disposed.");
                 return;
             }
-            else if (this.armatureData.parent === null) {
-                console.assert(false, "The armature data has been disposed.\nPlease make sure dispose armature before call factory.clear().");
+            else if (this._armatureData.parent === null) {
+                console.warn("The armature data has been disposed.\nPlease make sure dispose armature before call factory.clear().");
                 return;
             }
 
             const prevCacheFrameIndex = this._cacheFrameIndex;
 
-            // Update nimation.
+            // Update animation.
             this._animation.advanceTime(passedTime);
 
-            // Sort bones and slots.
-            if (this._bonesDirty) {
-                this._bonesDirty = false;
-                this._sortBones();
-            }
-
+            // Sort slots.
             if (this._slotsDirty) {
                 this._slotsDirty = false;
-                this._sortSlots();
+                this._slots.sort(Armature._onSortSlots);
             }
 
             // Update bones and slots.
@@ -335,12 +309,37 @@ namespace dragonBones {
                 }
             }
 
+            // Do actions.
             if (this._actions.length > 0) {
                 this._lockUpdate = true;
+
                 for (const action of this._actions) {
-                    if (action.type === ActionType.Play) {
-                        this._animation.fadeIn(action.name);
+                    const actionData = action.actionData;
+                    if (actionData !== null) {
+                        if (actionData.type === ActionType.Play) {
+                            if (action.slot !== null) {
+                                const childArmature = action.slot.childArmature;
+                                if (childArmature !== null) {
+                                    childArmature.animation.fadeIn(actionData.name);
                     }
+                }
+                            else if (action.bone !== null) {
+                                for (const slot of this.getSlots()) {
+                                    if (slot.parent === action.bone) {
+                                        const childArmature = slot.childArmature;
+                                        if (childArmature !== null) {
+                                            childArmature.animation.fadeIn(actionData.name);
+                                        }
+                                    }
+                                }
+                            }
+                            else {
+                                this._animation.fadeIn(actionData.name);
+                            }
+                        }
+                    }
+
+                    action.returnToPool();
                 }
 
                 this._actions.length = 0;
@@ -350,21 +349,30 @@ namespace dragonBones {
             this._proxy.dbUpdate();
         }
         /**
-         * 更新骨骼和插槽。 (当骨骼没有动画状态或动画状态播放完成时，骨骼将不在更新)
-         * @param boneName 指定的骨骼名称，如果未设置，将更新所有骨骼。
-         * @param updateSlotDisplay 是否更新插槽的显示对象。
-         * @see dragonBones.Bone
-         * @see dragonBones.Slot
+         * - Forces a specific bone or its owning slot to update the transform or display property in the next frame.
+         * @param boneName - The bone name. (If not set, all bones will be update)
+         * @param updateSlot - Whether to update the bone's slots. (Default: false)
+         * @see dragonBones.Bone#invalidUpdate()
+         * @see dragonBones.Slot#invalidUpdate()
+         * @version DragonBones 3.0
+         * @language en_US
+         */
+        /**
+         * - 强制特定骨骼或其拥有的插槽在下一帧更新变换或显示属性。
+         * @param boneName - 骨骼名称。 （如果未设置，将更新所有骨骼）
+         * @param updateSlot - 是否更新骨骼的插槽。 （默认: false）
+         * @see dragonBones.Bone#invalidUpdate()
+         * @see dragonBones.Slot#invalidUpdate()
          * @version DragonBones 3.0
          * @language zh_CN
          */
-        public invalidUpdate(boneName: string | null = null, updateSlotDisplay: boolean = false): void {
+        public invalidUpdate(boneName: string | null = null, updateSlot: boolean = false): void {
             if (boneName !== null && boneName.length > 0) {
                 const bone = this.getBone(boneName);
                 if (bone !== null) {
                     bone.invalidUpdate();
 
-                    if (updateSlotDisplay) {
+                    if (updateSlot) {
                         for (const slot of this._slots) {
                             if (slot.parent === bone) {
                                 slot.invalidUpdate();
@@ -378,7 +386,7 @@ namespace dragonBones {
                     bone.invalidUpdate();
                 }
 
-                if (updateSlotDisplay) {
+                if (updateSlot) {
                     for (const slot of this._slots) {
                         slot.invalidUpdate();
                     }
@@ -386,9 +394,20 @@ namespace dragonBones {
             }
         }
         /**
-         * 判断点是否在所有插槽的自定义包围盒内。
-         * @param x 点的水平坐标。（骨架内坐标系）
-         * @param y 点的垂直坐标。（骨架内坐标系）
+         * - Check whether a specific point is inside a custom bounding box in a slot.
+         * The coordinate system of the point is the inner coordinate system of the armature.
+         * Custom bounding boxes need to be customized in Dragonbones Pro.
+         * @param x - The horizontal coordinate of the point.
+         * @param y - The vertical coordinate of the point.
+         * @version DragonBones 5.0
+         * @language en_US
+         */
+        /**
+         * - 检查特定点是否在某个插槽的自定义边界框内。
+         * 点的坐标系为骨架内坐标系。
+         * 自定义边界框需要在 DragonBones Pro 中自定义。
+         * @param x - 点的水平坐标。
+         * @param y - 点的垂直坐标。
          * @version DragonBones 5.0
          * @language zh_CN
          */
@@ -402,15 +421,32 @@ namespace dragonBones {
             return null;
         }
         /**
-         * 判断线段是否与骨架的所有插槽的自定义包围盒相交。
-         * @param xA 线段起点的水平坐标。（骨架内坐标系）
-         * @param yA 线段起点的垂直坐标。（骨架内坐标系）
-         * @param xB 线段终点的水平坐标。（骨架内坐标系）
-         * @param yB 线段终点的垂直坐标。（骨架内坐标系）
-         * @param intersectionPointA 线段从起点到终点与包围盒相交的第一个交点。（骨架内坐标系）
-         * @param intersectionPointB 线段从终点到起点与包围盒相交的第一个交点。（骨架内坐标系）
-         * @param normalRadians 碰撞点处包围盒切线的法线弧度。 [x: 第一个碰撞点处切线的法线弧度, y: 第二个碰撞点处切线的法线弧度]
-         * @returns 线段从起点到终点相交的第一个自定义包围盒的插槽。
+         * - Check whether a specific segment intersects a custom bounding box for a slot in the armature.
+         * The coordinate system of the segment and intersection is the inner coordinate system of the armature.
+         * Custom bounding boxes need to be customized in Dragonbones Pro.
+         * @param xA - The horizontal coordinate of the beginning of the segment.
+         * @param yA - The vertical coordinate of the beginning of the segment.
+         * @param xB - The horizontal coordinate of the end point of the segment.
+         * @param yB - The vertical coordinate of the end point of the segment.
+         * @param intersectionPointA - The first intersection at which a line segment intersects the bounding box from the beginning to the end. (If not set, the intersection point will not calculated)
+         * @param intersectionPointB - The first intersection at which a line segment intersects the bounding box from the end to the beginning. (If not set, the intersection point will not calculated)
+         * @param normalRadians - The normal radians of the tangent of the intersection boundary box. [x: Normal radian of the first intersection tangent, y: Normal radian of the second intersection tangent] (If not set, the normal will not calculated)
+         * @returns The slot of the first custom bounding box where the segment intersects from the start point to the end point.
+         * @version DragonBones 5.0
+         * @language en_US
+         */
+        /**
+         * - 检查特定线段是否与骨架的某个插槽的自定义边界框相交。
+         * 线段和交点的坐标系均为骨架内坐标系。
+         * 自定义边界框需要在 DragonBones Pro 中自定义。
+         * @param xA - 线段起点的水平坐标。
+         * @param yA - 线段起点的垂直坐标。
+         * @param xB - 线段终点的水平坐标。
+         * @param yB - 线段终点的垂直坐标。
+         * @param intersectionPointA - 线段从起点到终点与边界框相交的第一个交点。 （如果未设置，则不计算交点）
+         * @param intersectionPointB - 线段从终点到起点与边界框相交的第一个交点。 （如果未设置，则不计算交点）
+         * @param normalRadians - 交点边界框切线的法线弧度。 [x: 第一个交点切线的法线弧度, y: 第二个交点切线的法线弧度] （如果未设置，则不计算法线）
+         * @returns 线段从起点到终点相交的第一个自定义边界框的插槽。
          * @version DragonBones 5.0
          * @language zh_CN
          */
@@ -500,9 +536,15 @@ namespace dragonBones {
             return intSlotA;
         }
         /**
-         * 获取指定名称的骨骼。
-         * @param name 骨骼的名称。
-         * @returns 骨骼。
+         * - Get a specific bone.
+         * @param name - The bone name.
+         * @see dragonBones.Bone
+         * @version DragonBones 3.0
+         * @language en_US
+         */
+        /**
+         * - 获取特定的骨骼。
+         * @param name - 骨骼名称。
          * @see dragonBones.Bone
          * @version DragonBones 3.0
          * @language zh_CN
@@ -517,9 +559,15 @@ namespace dragonBones {
             return null;
         }
         /**
-         * 通过显示对象获取骨骼。
-         * @param display 显示对象。
-         * @returns 包含这个显示对象的骨骼。
+         * - Get a specific bone by the display.
+         * @param display - The display object.
+         * @see dragonBones.Bone
+         * @version DragonBones 3.0
+         * @language en_US
+         */
+        /**
+         * - 通过显示对象获取特定的骨骼。
+         * @param display - 显示对象。
          * @see dragonBones.Bone
          * @version DragonBones 3.0
          * @language zh_CN
@@ -530,9 +578,15 @@ namespace dragonBones {
             return slot !== null ? slot.parent : null;
         }
         /**
-         * 获取插槽。
-         * @param name 插槽的名称。
-         * @returns 插槽。
+         * - Get a specific slot.
+         * @param name - The slot name.
+         * @see dragonBones.Slot
+         * @version DragonBones 3.0
+         * @language en_US
+         */
+        /**
+         * - 获取特定的插槽。
+         * @param name - 插槽名称。
          * @see dragonBones.Slot
          * @version DragonBones 3.0
          * @language zh_CN
@@ -547,9 +601,15 @@ namespace dragonBones {
             return null;
         }
         /**
-         * 通过显示对象获取插槽。
-         * @param display 显示对象。
-         * @returns 包含这个显示对象的插槽。
+         * - Get a specific slot by the display.
+         * @param display - The display object.
+         * @see dragonBones.Slot
+         * @version DragonBones 3.0
+         * @language en_US
+         */
+        /**
+         * - 通过显示对象获取特定的插槽。
+         * @param display - 显示对象。
          * @see dragonBones.Slot
          * @version DragonBones 3.0
          * @language zh_CN
@@ -566,45 +626,13 @@ namespace dragonBones {
             return null;
         }
         /**
-         * @deprecated
+         * - Get all bones.
+         * @see dragonBones.Bone
+         * @version DragonBones 3.0
+         * @language en_US
          */
-        public addBone(value: Bone, parentName: string): void {
-            console.assert(value !== null);
-
-            value._setArmature(this);
-            value._setParent(parentName.length > 0 ? this.getBone(parentName) : null);
-        }
         /**
-         * @deprecated
-         */
-        public removeBone(value: Bone): void {
-            console.assert(value !== null && value.armature === this);
-
-            value._setParent(null);
-            value._setArmature(null);
-        }
-        /**
-         * @deprecated
-         */
-        public addSlot(value: Slot, parentName: string): void {
-            const bone = this.getBone(parentName);
-
-            console.assert(value !== null && bone !== null);
-
-            value._setArmature(this);
-            value._setParent(bone);
-        }
-        /**
-         * @deprecated
-         */
-        public removeSlot(value: Slot): void {
-            console.assert(value !== null && value.armature === this);
-
-            value._setParent(null);
-            value._setArmature(null);
-        }
-        /**
-         * 获取所有骨骼。
+         * - 获取所有的骨骼。
          * @see dragonBones.Bone
          * @version DragonBones 3.0
          * @language zh_CN
@@ -613,7 +641,13 @@ namespace dragonBones {
             return this._bones;
         }
         /**
-         * 获取所有插槽。
+         * - Get all slots.
+         * @see dragonBones.Slot
+         * @version DragonBones 3.0
+         * @language en_US
+         */
+        /**
+         * - 获取所有的插槽。
          * @see dragonBones.Slot
          * @version DragonBones 3.0
          * @language zh_CN
@@ -621,7 +655,16 @@ namespace dragonBones {
         public getSlots(): Array<Slot> {
             return this._slots;
         }
-
+        /**
+         * - Whether to flip the armature horizontally.
+         * @version DragonBones 5.5
+         * @language en_US
+         */
+        /**
+         * - 是否将骨架水平翻转。
+         * @version DragonBones 5.5
+         * @language zh_CN
+         */
         public get flipX(): boolean {
             return this._flipX;
         }
@@ -633,7 +676,16 @@ namespace dragonBones {
             this._flipX = value;
             this.invalidUpdate();
         }
-
+        /**
+         * - Whether to flip the armature vertically.
+         * @version DragonBones 5.5
+         * @language en_US
+         */
+        /**
+         * - 是否将骨架垂直翻转。
+         * @version DragonBones 5.5
+         * @language zh_CN
+         */
         public get flipY(): boolean {
             return this._flipY;
         }
@@ -646,21 +698,39 @@ namespace dragonBones {
             this.invalidUpdate();
         }
         /**
-         * 动画缓存帧率，当设置的值大于 0 的时，将会开启动画缓存。
+         * - The animation cache frame rate, which turns on the animation cache when the set value is greater than 0.
+         * There is a certain amount of memory overhead to improve performance by caching animation data in memory.
+         * The frame rate should not be set too high, usually with the frame rate of the animation is similar and lower than the program running frame rate.
+         * When the animation cache is turned on, some features will fail, such as the offset property of bone.
+         * @example
+         * <pre>
+         *     armature.cacheFrameRate = 24;
+         * </pre>
+         * @see dragonBones.DragonBonesData#frameRate
+         * @see dragonBones.ArmatureData#frameRate
+         * @version DragonBones 4.5
+         * @language en_US
+         */
+        /**
+         * - 动画缓存帧率，当设置的值大于 0 的时，将会开启动画缓存。
          * 通过将动画数据缓存在内存中来提高运行性能，会有一定的内存开销。
          * 帧率不宜设置的过高，通常跟动画的帧率相当且低于程序运行的帧率。
-         * 开启动画缓存后，某些功能将会失效，比如 Bone 和 Slot 的 offset 属性等。
+         * 开启动画缓存后，某些功能将会失效，比如骨骼的 offset 属性等。
+         * @example
+         * <pre>
+         *     armature.cacheFrameRate = 24;
+         * </pre>
          * @see dragonBones.DragonBonesData#frameRate
          * @see dragonBones.ArmatureData#frameRate
          * @version DragonBones 4.5
          * @language zh_CN
          */
         public get cacheFrameRate(): number {
-            return this.armatureData.cacheFrameRate;
+            return this._armatureData.cacheFrameRate;
         }
         public set cacheFrameRate(value: number) {
-            if (this.armatureData.cacheFrameRate !== value) {
-                this.armatureData.cacheFrames(value);
+            if (this._armatureData.cacheFrameRate !== value) {
+                this._armatureData.cacheFrames(value);
 
                 // Set child armature frameRate.
                 for (const slot of this._slots) {
@@ -672,16 +742,41 @@ namespace dragonBones {
             }
         }
         /**
-         * 骨架名称。
-         * @see dragonBones.ArmatureData#name
+         * - The armature name.
+         * @version DragonBones 3.0
+         * @language en_US
+         */
+        /**
+         * - 骨架名称。
          * @version DragonBones 3.0
          * @language zh_CN
          */
         public get name(): string {
-            return this.armatureData.name;
+            return this._armatureData.name;
         }
         /**
-         * 获得动画控制器。
+         * - The armature data.
+         * @see dragonBones.ArmatureData
+         * @version DragonBones 4.5
+         * @language en_US
+         */
+        /**
+         * - 骨架数据。
+         * @see dragonBones.ArmatureData
+         * @version DragonBones 4.5
+         * @language zh_CN
+         */
+        public get armatureData(): ArmatureData {
+            return this._armatureData;
+        }
+        /**
+         * - The animation player.
+         * @see dragonBones.Animation
+         * @version DragonBones 3.0
+         * @language en_US
+         */
+        /**
+         * - 动画播放器。
          * @see dragonBones.Animation
          * @version DragonBones 3.0
          * @language zh_CN
@@ -696,13 +791,29 @@ namespace dragonBones {
             return this._proxy;
         }
         /**
-         * @pivate
+         * - The EventDispatcher instance of the armature.
+         * @version DragonBones 4.5
+         * @language en_US
+         */
+        /**
+         * - 该骨架的 EventDispatcher 实例。
+         * @version DragonBones 4.5
+         * @language zh_CN
          */
         public get eventDispatcher(): IEventDispatcher {
             return this._proxy;
         }
         /**
-         * 获取显示容器，插槽的显示对象都会以此显示容器为父级，根据渲染平台的不同，类型会不同，通常是 DisplayObjectContainer 类型。
+         * - The display container.
+         * The display of the slot is displayed as the parent.
+         * Depending on the rendering engine, the type will be different, usually the DisplayObjectContainer type.
+         * @version DragonBones 3.0
+         * @language en_US
+         */
+        /**
+         * - 显示容器实例。
+         * 插槽的显示对象都会以此显示容器为父级。
+         * 根据渲染引擎的不同，类型会不同，通常是 DisplayObjectContainer 类型。
          * @version DragonBones 3.0
          * @language zh_CN
          */
@@ -710,9 +821,7 @@ namespace dragonBones {
             return this._display;
         }
         /**
-         * @language zh_CN
-         * 替换骨架的主贴图，根据渲染引擎的不同，提供不同的贴图数据。
-         * @version DragonBones 4.5
+         * @private
          */
         public get replacedTexture(): any {
             return this._replacedTexture;
@@ -764,7 +873,13 @@ namespace dragonBones {
             }
         }
         /**
-         * 获取父插槽。 (当此骨架是某个骨架的子骨架时，可以通过此属性向上查找从属关系)
+         * - Get the parent slot which the armature belongs to.
+         * @see dragonBones.Slot
+         * @version DragonBones 4.5
+         * @language en_US
+         */
+        /**
+         * - 该骨架所属的父插槽。
          * @see dragonBones.Slot
          * @version DragonBones 4.5
          * @language zh_CN
@@ -775,48 +890,76 @@ namespace dragonBones {
 
         /**
          * @deprecated
-         * 已废弃，请参考 @see
-         * @see dragonBones.Armature#replacedTexture
+         * @private
          */
         public replaceTexture(texture: any): void {
             this.replacedTexture = texture;
         }
         /**
+         * - Deprecated, please refer to {@link #eventDispatcher}.
          * @deprecated
-         * 已废弃，请参考 @see
-         * @see dragonBones.Armature#eventDispatcher
+         * @language en_US
+         */
+        /**
+         * - 已废弃，请参考 {@link #eventDispatcher}。
+         * @deprecated
+         * @language zh_CN
          */
         public hasEventListener(type: EventStringType): boolean {
-            return this._proxy.hasEvent(type);
+            console.warn("Deprecated.");
+            return this._proxy.hasDBEventListener(type);
         }
         /**
+         * - Deprecated, please refer to {@link #eventDispatcher}.
          * @deprecated
-         * 已废弃，请参考 @see
-         * @see dragonBones.Armature#eventDispatcher
+         * @language en_US
+         */
+        /**
+         * - 已废弃，请参考 {@link #eventDispatcher}。
+         * @deprecated
+         * @language zh_CN
          */
         public addEventListener(type: EventStringType, listener: Function, target: any): void {
-            this._proxy.addEvent(type, listener, target);
+            console.warn("Deprecated.");
+            this._proxy.addDBEventListener(type, listener, target);
         }
         /**
+         * - Deprecated, please refer to {@link #eventDispatcher}.
          * @deprecated
-         * 已废弃，请参考 @see
-         * @see dragonBones.Armature#eventDispatcher
+         * @language en_US
+         */
+        /**
+         * - 已废弃，请参考 {@link #eventDispatcher}。
+         * @deprecated
+         * @language zh_CN
          */
         public removeEventListener(type: EventStringType, listener: Function, target: any): void {
-            this._proxy.removeEvent(type, listener, target);
+            console.warn("Deprecated.");
+            this._proxy.removeDBEventListener(type, listener, target);
         }
         /**
+         * - Deprecated, please refer to {@link #cacheFrameRate}.
          * @deprecated
-         * 已废弃，请参考 @see
-         * @see #cacheFrameRate
+         * @language en_US
+         */
+        /**
+         * - 已废弃，请参考 {@link #cacheFrameRate}。
+         * @deprecated
+         * @language zh_CN
          */
         public enableAnimationCache(frameRate: number): void {
+            console.warn("Deprecated.");
             this.cacheFrameRate = frameRate;
         }
         /**
+         * - Deprecated, please refer to {@link #display}.
          * @deprecated
-         * 已废弃，请参考 @see
-         * @see #display
+         * @language en_US
+         */
+        /**
+         * - 已废弃，请参考 {@link #display}。
+         * @deprecated
+         * @language zh_CN
          */
         public getDisplay(): any {
             return this._display;

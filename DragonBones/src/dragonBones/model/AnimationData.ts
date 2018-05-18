@@ -1,42 +1,84 @@
+/**
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2012-2018 DragonBones team and other contributors
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of
+ * this software and associated documentation files (the "Software"), to deal in
+ * the Software without restriction, including without limitation the rights to
+ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+ * the Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+ * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+ * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+ * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
 namespace dragonBones {
     /**
-     * 动画数据。
+     * - The animation data.
+     * @version DragonBones 3.0
+     * @language en_US
+     */
+    /**
+     * - 动画数据。
      * @version DragonBones 3.0
      * @language zh_CN
      */
     export class AnimationData extends BaseObject {
-        /**
-         * @private
-         */
         public static toString(): string {
             return "[class dragonBones.AnimationData]";
         }
         /**
-         * @private
+         * - FrameIntArray.
+         * @internal
          */
-        public frameIntOffset: number; // FrameIntArray.
+        public frameIntOffset: number;
         /**
-         * @private
+         * - FrameFloatArray.
+         * @internal
          */
-        public frameFloatOffset: number; // FrameFloatArray.
+        public frameFloatOffset: number;
         /**
-         * @private
+         * - FrameArray.
+         * @internal
          */
-        public frameOffset: number; // FrameArray.
+        public frameOffset: number;
         /**
-         * 持续的帧数。 ([1~N])
+         * - The frame count of the animation.
+         * @version DragonBones 3.0
+         * @language en_US
+         */
+        /**
+         * - 动画的帧数。
          * @version DragonBones 3.0
          * @language zh_CN
          */
         public frameCount: number;
         /**
-         * 播放次数。 [0: 无限循环播放, [1~N]: 循环播放 N 次]
+         * - The play times of the animation. [0: Loop play, [1~N]: Play N times]
+         * @version DragonBones 3.0
+         * @language en_US
+         */
+        /**
+         * - 动画的播放次数。 [0: 无限循环播放, [1~N]: 循环播放 N 次]
          * @version DragonBones 3.0
          * @language zh_CN
          */
         public playTimes: number;
         /**
-         * 持续时间。 (以秒为单位)
+         * - The duration of the animation. (In seconds)
+         * @version DragonBones 3.0
+         * @language en_US
+         */
+        /**
+         * - 动画的持续时间。 （以秒为单位）
          * @version DragonBones 3.0
          * @language zh_CN
          */
@@ -46,7 +88,12 @@ namespace dragonBones {
          */
         public scale: number;
         /**
-         * 淡入时间。 (以秒为单位)
+         * - The fade in time of the animation. (In seconds)
+         * @version DragonBones 3.0
+         * @language en_US
+         */
+        /**
+         * - 动画的淡入时间。 （以秒为单位）
          * @version DragonBones 3.0
          * @language zh_CN
          */
@@ -56,7 +103,12 @@ namespace dragonBones {
          */
         public cacheFrameRate: number;
         /**
-         * 数据名称。
+         * - The animation name.
+         * @version DragonBones 3.0
+         * @language en_US
+         */
+        /**
+         * - 动画名称。
          * @version DragonBones 3.0
          * @language zh_CN
          */
@@ -72,7 +124,19 @@ namespace dragonBones {
         /**
          * @private
          */
+        public readonly surfaceTimelines: Map<Array<TimelineData>> = {};
+        /**
+         * @private
+         */
         public readonly slotTimelines: Map<Array<TimelineData>> = {};
+        /**
+         * @private
+         */
+        public readonly constraintTimelines: Map<Array<TimelineData>> = {};
+        /**
+         * @private
+         */
+        public readonly animationTimelines: Map<Array<TimelineData>> = {};
         /**
          * @private
          */
@@ -93,9 +157,7 @@ namespace dragonBones {
          * @private
          */
         public parent: ArmatureData;
-        /**
-         * @private
-         */
+
         protected _onClear(): void {
             for (let k in this.boneTimelines) {
                 for (const timeline of this.boneTimelines[k]) {
@@ -105,12 +167,36 @@ namespace dragonBones {
                 delete this.boneTimelines[k];
             }
 
+            for (let k in this.surfaceTimelines) {
+                for (const timeline of this.surfaceTimelines[k]) {
+                    timeline.returnToPool();
+                }
+
+                delete this.surfaceTimelines[k];
+            }
+
             for (let k in this.slotTimelines) {
                 for (const timeline of this.slotTimelines[k]) {
                     timeline.returnToPool();
                 }
 
                 delete this.slotTimelines[k];
+            }
+
+            for (let k in this.constraintTimelines) {
+                for (const timeline of this.constraintTimelines[k]) {
+                    timeline.returnToPool();
+                }
+
+                delete this.constraintTimelines[k];
+            }
+
+            for (let k in this.animationTimelines) {
+                for (const timeline of this.animationTimelines[k]) {
+                    timeline.returnToPool();
+                }
+
+                delete this.animationTimelines[k];
             }
 
             for (let k in this.boneCachedFrameIndices) {
@@ -140,16 +226,19 @@ namespace dragonBones {
             this.cacheFrameRate = 0.0;
             this.name = "";
             this.cachedFrames.length = 0;
-            //this.boneTimelines.clear();
-            //this.slotTimelines.clear();
-            //this.boneCachedFrameIndices.clear();
-            //this.slotCachedFrameIndices.clear();
+            // this.boneTimelines.clear();
+            // this.surfaceTimelines.clear();
+            // this.slotTimelines.clear();
+            // this.constraintTimelines.clear();
+            // this.animationTimelines.clear();
+            // this.boneCachedFrameIndices.clear();
+            // this.slotCachedFrameIndices.clear();
             this.actionTimeline = null;
             this.zOrderTimeline = null;
             this.parent = null as any; //
         }
         /**
-         * @private
+         * @internal
          */
         public cacheFrames(frameRate: number): void {
             if (this.cacheFrameRate > 0.0) { // TODO clear cache.
@@ -194,6 +283,15 @@ namespace dragonBones {
         /**
          * @private
          */
+        public addSurfaceTimeline(surface: SurfaceData, timeline: TimelineData): void {
+            const timelines = surface.name in this.surfaceTimelines ? this.surfaceTimelines[surface.name] : (this.surfaceTimelines[surface.name] = []);
+            if (timelines.indexOf(timeline) < 0) {
+                timelines.push(timeline);
+            }
+        }
+        /**
+         * @private
+         */
         public addSlotTimeline(slot: SlotData, timeline: TimelineData): void {
             const timelines = slot.name in this.slotTimelines ? this.slotTimelines[slot.name] : (this.slotTimelines[slot.name] = []);
             if (timelines.indexOf(timeline) < 0) {
@@ -203,30 +301,66 @@ namespace dragonBones {
         /**
          * @private
          */
-        public getBoneTimelines(name: string): Array<TimelineData> | null {
-            return name in this.boneTimelines ? this.boneTimelines[name] : null;
+        public addConstraintTimeline(constraint: ConstraintData, timeline: TimelineData): void {
+            const timelines = constraint.name in this.constraintTimelines ? this.constraintTimelines[constraint.name] : (this.constraintTimelines[constraint.name] = []);
+            if (timelines.indexOf(timeline) < 0) {
+                timelines.push(timeline);
+            }
         }
         /**
          * @private
          */
-        public getSlotTimeline(name: string): Array<TimelineData> | null {
-            return name in this.slotTimelines ? this.slotTimelines[name] : null;
+        public addAnimationTimeline(timelineName: string, timeline: TimelineData): void {
+            const timelines = timelineName in this.animationTimelines ? this.animationTimelines[timelineName] : (this.animationTimelines[timelineName] = []);
+            if (timelines.indexOf(timeline) < 0) {
+                timelines.push(timeline);
+            }
         }
         /**
          * @private
          */
-        public getBoneCachedFrameIndices(name: string): Array<number> | null {
-            return name in this.boneCachedFrameIndices ? this.boneCachedFrameIndices[name] : null;
+        public getBoneTimelines(timelineName: string): Array<TimelineData> | null {
+            return timelineName in this.boneTimelines ? this.boneTimelines[timelineName] : null;
         }
         /**
          * @private
          */
-        public getSlotCachedFrameIndices(name: string): Array<number> | null {
-            return name in this.slotCachedFrameIndices ? this.slotCachedFrameIndices[name] : null;
+        public getSurfaceTimelines(timelineName: string): Array<TimelineData> | null {
+            return timelineName in this.surfaceTimelines ? this.surfaceTimelines[timelineName] : null;
+        }
+        /**
+         * @private
+         */
+        public getSlotTimelines(timelineName: string): Array<TimelineData> | null {
+            return timelineName in this.slotTimelines ? this.slotTimelines[timelineName] : null;
+        }
+        /**
+         * @private
+         */
+        public getConstraintTimelines(timelineName: string): Array<TimelineData> | null {
+            return timelineName in this.constraintTimelines ? this.constraintTimelines[timelineName] : null;
+        }
+        /**
+         * @private
+         */
+        public getAnimationTimelines(timelineName: string): Array<TimelineData> | null {
+            return timelineName in this.animationTimelines ? this.animationTimelines[timelineName] : null;
+        }
+        /**
+         * @private
+         */
+        public getBoneCachedFrameIndices(boneName: string): Array<number> | null {
+            return boneName in this.boneCachedFrameIndices ? this.boneCachedFrameIndices[boneName] : null;
+        }
+        /**
+         * @private
+         */
+        public getSlotCachedFrameIndices(slotName: string): Array<number> | null {
+            return slotName in this.slotCachedFrameIndices ? this.slotCachedFrameIndices[slotName] : null;
         }
     }
     /**
-     * @private
+     * @internal
      */
     export class TimelineData extends BaseObject {
         public static toString(): string {

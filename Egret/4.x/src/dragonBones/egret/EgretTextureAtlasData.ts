@@ -1,6 +1,34 @@
+/**
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2012-2018 DragonBones team and other contributors
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of
+ * this software and associated documentation files (the "Software"), to deal in
+ * the Software without restriction, including without limitation the rights to
+ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+ * the Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+ * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+ * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+ * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
+
 namespace dragonBones {
     /**
-     * Egret 贴图集数据。
+     * - The egret texture atlas data.
+     * @version DragonBones 3.0
+     * @language en_US
+     */
+    /**
+     * - Egret 贴图集数据。
      * @version DragonBones 3.0
      * @language zh_CN
      */
@@ -8,13 +36,13 @@ namespace dragonBones {
         public static toString(): string {
             return "[class dragonBones.EgretTextureAtlasData]";
         }
-
+        /**
+         * @internal
+         */
         public disposeEnabled: boolean;
 
         private _renderTexture: egret.Texture | null = null; // Initial value.
-        /**
-         * @private
-         */
+
         protected _onClear(): void {
             super._onClear();
 
@@ -26,13 +54,18 @@ namespace dragonBones {
             this._renderTexture = null;
         }
         /**
-         * @private
+         * @inheritDoc
          */
         public createTexture(): TextureData {
             return BaseObject.borrowObject(EgretTextureData);
         }
         /**
-         * Egret 贴图。
+         * - The Egret texture.
+         * @version DragonBones 3.0
+         * @language en_US
+         */
+        /**
+         * - Egret 贴图。
          * @version DragonBones 3.0
          * @language zh_CN
          */
@@ -61,7 +94,7 @@ namespace dragonBones {
                         textureData.renderTexture = new egret.Texture();
                     }
 
-                    textureData.renderTexture._bitmapData = bitmapData;
+                    textureData.renderTexture.bitmapData = bitmapData;
 
                     if (textureData.rotated) {
                         textureData.renderTexture.$initData(
@@ -93,26 +126,36 @@ namespace dragonBones {
         }
 
         /**
+         * - Deprecated, please refer to {@link dragonBones.BaseFactory#removeTextureAtlasData()}.
          * @deprecated
-         * 已废弃，请参考 @see
-         * @see dragonBones.BaseFactory#removeTextureAtlasData()
+         * @language en_US
+         */
+        /**
+         * - 已废弃，请参考 {@link dragonBones.BaseFactory#removeTextureAtlasData()}。
+         * @deprecated
+         * @language zh_CN
          */
         public dispose(): void {
-            console.warn("已废弃，请参考 @see");
+            console.warn("已废弃。");
             this.returnToPool();
         }
         /**
+         * - Deprecated, please refer to {@link #renderTexture}.
          * @deprecated
-         * 已废弃，请参考 @see
-         * @see dragonBones.EgretTextureAtlasData#renderTexture
+         * @language en_US
+         */
+        /**
+         * - 已废弃，请参考 {@link #renderTexture}。
+         * @deprecated
+         * @language zh_CN
          */
         public get texture() {
-            console.warn("已废弃，请参考 @see");
+            console.warn("已废弃。");
             return this.renderTexture;
         }
     }
     /**
-     * @private
+     * @internal
      */
     export class EgretTextureData extends TextureData {
         public static toString(): string {

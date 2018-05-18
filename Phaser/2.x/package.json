@@ -1,0 +1,12 @@
+{
+  "name": "dragonbones-phaser",
+  "version": "5.6.2",
+  "main": "",
+  "scripts": {
+    "build": "tsc & uglifyjs ./out/dragonBones.js -o ./out/dragonBones.min.js -m"
+  },
+  "devDependencies": {
+    "typescript": "^2.4.2",
+    "uglify-js": "^3.0.26"
+  }
+}

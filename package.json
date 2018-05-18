@@ -1,0 +1,38 @@
+{
+  "name": "dragonbones-runtime",
+  "version": "5.6.200",
+  "description": "the tools to build dragonbones file for diffrent framework",
+  "homepage": "https://github.com/DragonBones/DragonBonesJS",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/DragonBones/DragonBonesJS.git"
+  },
+  "bugs": {
+    "url": "https://github.com/DragonBones/DragonBonesJS/issues"
+  },
+  "keywords": [
+    "dragonbones",
+    "egret",
+    "hilo",
+    "phaser",
+    "pixi",
+    "bones"
+  ],
+  "main": "./builds/index.js",
+  "bin": {
+    "dbr": "./builds/cli.js"
+  },
+  "dependencies": {
+    "typescript": "^2.4.2",
+    "uglify-js": "^3.0.26",
+    "lodash": "^4.17.4",
+    "async": "^2.6.0",
+    "minimist": "^1.2.0",
+    "copy": "^0.3.1",
+    "del": "^3.0.0",
+    "download": "^6.2.5",
+    "semver": "^5.4.1",
+    "debug": "^3.1.0"
+  }
+}

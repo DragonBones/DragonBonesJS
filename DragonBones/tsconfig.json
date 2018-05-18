@@ -25,7 +25,6 @@
 	],
 	"files": [
 		"./src/dragonBones/modules.ts",
-
 		"./src/dragonBones/core/DragonBones.ts",
 		"./src/dragonBones/core/BaseObject.ts",
 
@@ -39,16 +38,21 @@
 		"./src/dragonBones/model/DragonBonesData.ts",
 		"./src/dragonBones/model/ArmatureData.ts",
 		"./src/dragonBones/model/ConstraintData.ts",
+		"./src/dragonBones/model/CanvasData.ts",
+		"./src/dragonBones/model/SkinData.ts",
 		"./src/dragonBones/model/DisplayData.ts",
 		"./src/dragonBones/model/BoundingBoxData.ts",
 		"./src/dragonBones/model/AnimationData.ts",
 		"./src/dragonBones/model/AnimationConfig.ts",
 		"./src/dragonBones/model/TextureAtlasData.ts",
 
+		"./src/dragonBones/armature/DeformVertices.ts",
+		
 		"./src/dragonBones/armature/IArmatureProxy.ts",
 		"./src/dragonBones/armature/Armature.ts",
 		"./src/dragonBones/armature/TransformObject.ts",
 		"./src/dragonBones/armature/Bone.ts",
+		"./src/dragonBones/armature/Surface.ts",
 		"./src/dragonBones/armature/Slot.ts",
 		"./src/dragonBones/armature/Constraint.ts",
 
@@ -58,14 +62,14 @@
 		"./src/dragonBones/animation/AnimationState.ts",
 		"./src/dragonBones/animation/BaseTimelineState.ts",
 		"./src/dragonBones/animation/TimelineState.ts",
-		
+
 		"./src/dragonBones/event/EventObject.ts",
 		"./src/dragonBones/event/IEventDispatcher.ts",
 
 		"./src/dragonBones/parser/DataParser.ts",
 		"./src/dragonBones/parser/ObjectDataParser.ts",
 		"./src/dragonBones/parser/BinaryDataParser.ts",
-
+		
 		"./src/dragonBones/factory/BaseFactory.ts"
 	]
 }

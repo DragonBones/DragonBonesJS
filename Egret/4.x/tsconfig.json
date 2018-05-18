@@ -39,6 +39,8 @@
 		"../../DragonBones/src/dragonBones/model/UserData.ts",
 		"../../DragonBones/src/dragonBones/model/DragonBonesData.ts",
 		"../../DragonBones/src/dragonBones/model/ArmatureData.ts",
+		"../../DragonBones/src/dragonBones/model/CanvasData.ts",
+		"../../DragonBones/src/dragonBones/model/SkinData.ts",
 		"../../DragonBones/src/dragonBones/model/ConstraintData.ts",
 		"../../DragonBones/src/dragonBones/model/DisplayData.ts",
 		"../../DragonBones/src/dragonBones/model/BoundingBoxData.ts",
@@ -46,10 +48,13 @@
 		"../../DragonBones/src/dragonBones/model/AnimationConfig.ts",
 		"../../DragonBones/src/dragonBones/model/TextureAtlasData.ts",
 
+		"../../DragonBones/src/dragonBones/armature/DeformVertices.ts",
+
 		"../../DragonBones/src/dragonBones/armature/IArmatureProxy.ts",
 		"../../DragonBones/src/dragonBones/armature/Armature.ts",
 		"../../DragonBones/src/dragonBones/armature/TransformObject.ts",
 		"../../DragonBones/src/dragonBones/armature/Bone.ts",
+		"../../DragonBones/src/dragonBones/armature/Surface.ts",
 		"../../DragonBones/src/dragonBones/armature/Slot.ts",
 		"../../DragonBones/src/dragonBones/armature/Constraint.ts",
 

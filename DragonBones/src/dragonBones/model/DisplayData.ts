@@ -1,6 +1,56 @@
+/**
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2012-2018 DragonBones team and other contributors
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of
+ * this software and associated documentation files (the "Software"), to deal in
+ * the Software without restriction, including without limitation the rights to
+ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+ * the Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+ * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+ * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+ * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
 namespace dragonBones {
     /**
-     * @private
+     * @internal
+     */
+    export class VerticesData {
+        public isShared: boolean;
+        public inheritDeform: boolean;
+        public offset: number;
+        public data: DragonBonesData;
+        public weight: WeightData | null = null; // Initial value.
+
+        public clear(): void {
+            if (!this.isShared && this.weight !== null) {
+                this.weight.returnToPool();
+            }
+
+            this.isShared = false;
+            this.inheritDeform = false;
+            this.offset = 0;
+            this.data = null as any;
+            this.weight = null;
+        }
+
+        public shareFrom(value: VerticesData): void {
+            this.isShared = true;
+            this.offset = value.offset;
+            this.weight = value.weight;
+        }
+    }
+    /**
+     * @internal
      */
     export abstract class DisplayData extends BaseObject {
         public type: DisplayType;
@@ -17,7 +67,7 @@ namespace dragonBones {
         }
     }
     /**
-     * @private
+     * @internal
      */
     export class ImageDisplayData extends DisplayData {
         public static toString(): string {
@@ -36,7 +86,7 @@ namespace dragonBones {
         }
     }
     /**
-     * @private
+     * @internal
      */
     export class ArmatureDisplayData extends DisplayData {
         public static toString(): string {
@@ -67,32 +117,26 @@ namespace dragonBones {
         }
     }
     /**
-     * @private
+     * @internal
      */
-    export class MeshDisplayData extends ImageDisplayData {
+    export class MeshDisplayData extends DisplayData {
         public static toString(): string {
             return "[class dragonBones.MeshDisplayData]";
         }
 
-        public inheritAnimation: boolean;
-        public offset: number; // IntArray.
-        public weight: WeightData | null = null; // Initial value.
+        public readonly vertices: VerticesData = new VerticesData();
+        public texture: TextureData | null;
 
         protected _onClear(): void {
             super._onClear();
 
-            if (this.weight !== null) {
-                this.weight.returnToPool();
-            }
-
             this.type = DisplayType.Mesh;
-            this.inheritAnimation = false;
-            this.offset = 0;
-            this.weight = null;
+            this.vertices.clear();
+            this.texture = null;
         }
     }
     /**
-     * @private
+     * @internal
      */
     export class BoundingBoxDisplayData extends DisplayData {
         public static toString(): string {
@@ -113,7 +157,29 @@ namespace dragonBones {
         }
     }
     /**
-     * @private
+     * @internal
+     */
+    export class PathDisplayData extends DisplayData {
+        public static toString(): string {
+            return "[class dragonBones.PathDisplayData]";
+        }
+        public closed: boolean;
+        public constantSpeed: boolean;
+        public readonly vertices: VerticesData = new VerticesData();
+        public readonly curveLengths: Array<number> = [];
+
+        protected _onClear(): void {
+            super._onClear();
+
+            this.type = DisplayType.Path;
+            this.closed = false;
+            this.constantSpeed = false;
+            this.vertices.clear();
+            this.curveLengths.length = 0;
+        }
+    }
+    /**
+     * @internal
      */
     export class WeightData extends BaseObject {
         public static toString(): string {
@@ -121,7 +187,7 @@ namespace dragonBones {
         }
 
         public count: number;
-        public offset: number; // IntArray.
+        public offset: number;
         public readonly bones: Array<BoneData> = [];
 
         protected _onClear(): void {

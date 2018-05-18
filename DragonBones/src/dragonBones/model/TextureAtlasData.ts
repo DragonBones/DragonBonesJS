@@ -1,15 +1,39 @@
+/**
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2012-2018 DragonBones team and other contributors
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of
+ * this software and associated documentation files (the "Software"), to deal in
+ * the Software without restriction, including without limitation the rights to
+ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+ * the Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+ * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+ * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+ * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
 namespace dragonBones {
     /**
-     * 贴图集数据。
+     * - The texture atlas data.
+     * @version DragonBones 3.0
+     * @language en_US
+     */
+    /**
+     * - 贴图集数据。
      * @version DragonBones 3.0
      * @language zh_CN
      */
     export abstract class TextureAtlasData extends BaseObject {
         /**
-         * 是否开启共享搜索。
-         * @default false
-         * @version DragonBones 4.5
-         * @language zh_CN
+         * @private
          */
         public autoSearch: boolean;
         /**
@@ -21,19 +45,27 @@ namespace dragonBones {
          */
         public height: number;
         /**
-         * 贴图集缩放系数。
-         * @version DragonBones 3.0
-         * @language zh_CN
+         * @private
          */
         public scale: number;
         /**
-         * 贴图集名称。
+         * - The texture atlas name.
+         * @version DragonBones 3.0
+         * @language en_US
+         */
+        /**
+         * - 贴图集名称。
          * @version DragonBones 3.0
          * @language zh_CN
          */
         public name: string;
         /**
-         * 贴图集图片路径。
+         * - The image path of the texture atlas.
+         * @version DragonBones 3.0
+         * @language en_US
+         */
+        /**
+         * - 贴图集图片路径。
          * @version DragonBones 3.0
          * @language zh_CN
          */
@@ -42,9 +74,7 @@ namespace dragonBones {
          * @private
          */
         public readonly textures: Map<TextureData> = {};
-        /**
-         * @private
-         */
+
         protected _onClear(): void {
             for (let k in this.textures) {
                 this.textures[k].returnToPool();
@@ -84,16 +114,16 @@ namespace dragonBones {
             }
         }
         /**
-         * @private
+         * @internal
          */
         public abstract createTexture(): TextureData;
         /**
-         * @private
+         * @internal
          */
         public addTexture(value: TextureData): void {
             if (value.name in this.textures) {
-                console.warn("Replace texture: " + value.name);
-                this.textures[value.name].returnToPool();
+                console.warn("Same texture: " + value.name);
+                return;
             }
 
             value.parent = this;
@@ -102,12 +132,12 @@ namespace dragonBones {
         /**
          * @private
          */
-        public getTexture(name: string): TextureData | null {
-            return name in this.textures ? this.textures[name] : null;
+        public getTexture(textureName: string): TextureData | null {
+            return textureName in this.textures ? this.textures[textureName] : null;
         }
     }
     /**
-     * @private
+     * @internal
      */
     export abstract class TextureData extends BaseObject {
         public static createRectangle(): Rectangle {

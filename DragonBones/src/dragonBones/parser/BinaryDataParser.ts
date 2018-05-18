@@ -1,10 +1,32 @@
+/**
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2012-2018 DragonBones team and other contributors
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of
+ * this software and associated documentation files (the "Software"), to deal in
+ * the Software without restriction, including without limitation the rights to
+ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+ * the Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+ * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+ * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+ * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
 namespace dragonBones {
     /**
-     * @private
+     * @internal
      */
     export class BinaryDataParser extends ObjectDataParser {
-        private _binary: ArrayBuffer;
         private _binaryOffset: number;
+        private _binary: ArrayBuffer;
         private _intArrayBuffer: Int16Array;
         private _floatArrayBuffer: Float32Array;
         private _frameIntArrayBuffer: Int16Array;
@@ -186,16 +208,14 @@ namespace dragonBones {
 
             return timeline;
         }
-        /**
-         * @private
-         */
-        protected _parseMesh(rawData: any, mesh: MeshDisplayData): void {
-            mesh.offset = rawData[ObjectDataParser.OFFSET];
 
-            const weightOffset = this._intArrayBuffer[mesh.offset + BinaryOffset.MeshWeightOffset];
+        private _parseVertices(rawData: any, vertices: VerticesData): void {
+            vertices.offset = rawData[DataParser.OFFSET];
+
+            const weightOffset = this._intArrayBuffer[vertices.offset + BinaryOffset.MeshWeightOffset];
             if (weightOffset >= 0) {
                 const weight = BaseObject.borrowObject(WeightData);
-                const vertexCount = this._intArrayBuffer[mesh.offset + BinaryOffset.MeshVertexCount];
+                const vertexCount = this._intArrayBuffer[vertices.offset + BinaryOffset.MeshVertexCount];
                 const boneCount = this._intArrayBuffer[weightOffset + BinaryOffset.WeigthBoneCount];
                 weight.offset = weightOffset;
 
@@ -213,42 +233,48 @@ namespace dragonBones {
                 }
 
                 weight.count = weightCount;
-                mesh.weight = weight;
+                vertices.weight = weight;
             }
         }
-        /**
-         * @private
-         */
+
+        protected _parseMesh(rawData: any, mesh: MeshDisplayData): void {
+            this._parseVertices(rawData, mesh.vertices);
+        }
+
+        protected _parsePath(rawData: any, path: PathDisplayData): void {
+            this._parseVertices(rawData, path.vertices);
+        }
+
         protected _parseAnimation(rawData: any): AnimationData {
             const animation = BaseObject.borrowObject(AnimationData);
-            animation.frameCount = Math.max(ObjectDataParser._getNumber(rawData, ObjectDataParser.DURATION, 1), 1);
-            animation.playTimes = ObjectDataParser._getNumber(rawData, ObjectDataParser.PLAY_TIMES, 1);
+            animation.frameCount = Math.max(ObjectDataParser._getNumber(rawData, DataParser.DURATION, 1), 1);
+            animation.playTimes = ObjectDataParser._getNumber(rawData, DataParser.PLAY_TIMES, 1);
             animation.duration = animation.frameCount / this._armature.frameRate; // float
-            animation.fadeInTime = ObjectDataParser._getNumber(rawData, ObjectDataParser.FADE_IN_TIME, 0.0);
-            animation.scale = ObjectDataParser._getNumber(rawData, ObjectDataParser.SCALE, 1.0);
-            animation.name = ObjectDataParser._getString(rawData, ObjectDataParser.NAME, ObjectDataParser.DEFAULT_NAME);
+            animation.fadeInTime = ObjectDataParser._getNumber(rawData, DataParser.FADE_IN_TIME, 0.0);
+            animation.scale = ObjectDataParser._getNumber(rawData, DataParser.SCALE, 1.0);
+            animation.name = ObjectDataParser._getString(rawData, DataParser.NAME, DataParser.DEFAULT_NAME);
             if (animation.name.length === 0) {
-                animation.name = ObjectDataParser.DEFAULT_NAME;
+                animation.name = DataParser.DEFAULT_NAME;
             }
 
             // Offsets.
-            const offsets = rawData[ObjectDataParser.OFFSET] as Array<number>;
+            const offsets = rawData[DataParser.OFFSET] as Array<number>;
             animation.frameIntOffset = offsets[0];
             animation.frameFloatOffset = offsets[1];
             animation.frameOffset = offsets[2];
 
             this._animation = animation;
 
-            if (ObjectDataParser.ACTION in rawData) {
-                animation.actionTimeline = this._parseBinaryTimeline(TimelineType.Action, rawData[ObjectDataParser.ACTION]);
+            if (DataParser.ACTION in rawData) {
+                animation.actionTimeline = this._parseBinaryTimeline(TimelineType.Action, rawData[DataParser.ACTION]);
             }
 
-            if (ObjectDataParser.Z_ORDER in rawData) {
-                animation.zOrderTimeline = this._parseBinaryTimeline(TimelineType.ZOrder, rawData[ObjectDataParser.Z_ORDER]);
+            if (DataParser.Z_ORDER in rawData) {
+                animation.zOrderTimeline = this._parseBinaryTimeline(TimelineType.ZOrder, rawData[DataParser.Z_ORDER]);
             }
 
-            if (ObjectDataParser.BONE in rawData) {
-                const rawTimeliness = rawData[ObjectDataParser.BONE];
+            if (DataParser.BONE in rawData) {
+                const rawTimeliness = rawData[DataParser.BONE];
                 for (let k in rawTimeliness) {
                     const rawTimelines = rawTimeliness[k] as Array<number>;
                     if (DragonBones.webAssembly) {
@@ -269,8 +295,30 @@ namespace dragonBones {
                 }
             }
 
-            if (ObjectDataParser.SLOT in rawData) {
-                const rawTimeliness = rawData[ObjectDataParser.SLOT];
+            if (DataParser.SURFACE in rawData) {
+                const rawTimeliness = rawData[DataParser.SURFACE];
+                for (let k in rawTimeliness) {
+                    const rawTimelines = rawTimeliness[k] as Array<number>;
+                    if (DragonBones.webAssembly) {
+                        k = this._getUTF16Key(k);
+                    }
+
+                    const surface = this._armature.getBone(k) as SurfaceData;
+                    if (surface === null) {
+                        continue;
+                    }
+
+                    for (let i = 0, l = rawTimelines.length; i < l; i += 2) {
+                        const timelineType = rawTimelines[i];
+                        const timelineOffset = rawTimelines[i + 1];
+                        const timeline = this._parseBinaryTimeline(timelineType, timelineOffset);
+                        this._animation.addSurfaceTimeline(surface, timeline);
+                    }
+                }
+            }
+
+            if (DataParser.SLOT in rawData) {
+                const rawTimeliness = rawData[DataParser.SLOT];
                 for (let k in rawTimeliness) {
                     const rawTimelines = rawTimeliness[k] as Array<number>;
                     if (DragonBones.webAssembly) {
@@ -291,15 +339,52 @@ namespace dragonBones {
                 }
             }
 
+            if (DataParser.CONSTRAINT in rawData) {
+                const rawTimeliness = rawData[DataParser.CONSTRAINT];
+                for (let k in rawTimeliness) {
+                    const rawTimelines = rawTimeliness[k] as Array<number>;
+                    if (DragonBones.webAssembly) {
+                        k = this._getUTF16Key(k);
+                    }
+
+                    const constraint = this._armature.getConstraint(k);
+                    if (constraint === null) {
+                        continue;
+                    }
+
+                    for (let i = 0, l = rawTimelines.length; i < l; i += 2) {
+                        const timelineType = rawTimelines[i];
+                        const timelineOffset = rawTimelines[i + 1];
+                        const timeline = this._parseBinaryTimeline(timelineType, timelineOffset);
+                        this._animation.addConstraintTimeline(constraint, timeline);
+                    }
+                }
+            }
+
+            if (DataParser.ANIMATION in rawData) {
+                const rawTimeliness = rawData[DataParser.ANIMATION];
+                for (let k in rawTimeliness) {
+                    const rawTimelines = rawTimeliness[k] as Array<number>;
+                    if (DragonBones.webAssembly) {
+                        k = this._getUTF16Key(k);
+                    }
+
+                    for (let i = 0, l = rawTimelines.length; i < l; i += 2) {
+                        const timelineType = rawTimelines[i];
+                        const timelineOffset = rawTimelines[i + 1];
+                        const timeline = this._parseBinaryTimeline(timelineType, timelineOffset);
+                        this._animation.addAnimationTimeline(k, timeline);
+                    }
+                }
+            }
+
             this._animation = null as any;
 
             return animation;
         }
-        /**
-         * @private
-         */
+
         protected _parseArray(rawData: any): void {
-            const offsets = rawData[ObjectDataParser.OFFSET] as Array<number>;
+            const offsets = rawData[DataParser.OFFSET] as Array<number>;
             const l1 = offsets[1];
             const l2 = offsets[3];
             const l3 = offsets[5];
@@ -342,9 +427,7 @@ namespace dragonBones {
                 this._data.timelineArray = this._timelineArrayBuffer = timelineArray;
             }
         }
-        /**
-         * @inheritDoc
-         */
+
         public parseDragonBonesData(rawData: any, scale: number = 1): DragonBonesData | null {
             console.assert(rawData !== null && rawData !== undefined && rawData instanceof ArrayBuffer, "Data error.");
 
@@ -363,21 +446,23 @@ namespace dragonBones {
             const headerBytes = new Uint8Array(rawData, 8 + 4, headerLength);
             const headerString = this._decodeUTF8(headerBytes);
             const header = JSON.parse(headerString);
-
-            this._binary = rawData;
+            //
             this._binaryOffset = 8 + 4 + headerLength;
+            this._binary = rawData;
 
             return super.parseDragonBonesData(header, scale);
         }
 
+        private static _binaryDataParserInstance: BinaryDataParser | null = null;
         /**
-         * @private
-         */
-        private static _binaryDataParserInstance: BinaryDataParser = null as any;
-        /**
+         * - Deprecated, please refer to {@link dragonBones.BaseFactory#parseDragonBonesData()}.
          * @deprecated
-         * 已废弃，请参考 @see
-         * @see dragonBones.BaseFactory#parseDragonBonesData()
+         * @language en_US
+         */
+        /**
+         * - 已废弃，请参考 {@link dragonBones.BaseFactory#parseDragonBonesData()}。
+         * @deprecated
+         * @language zh_CN
          */
         public static getInstance(): BinaryDataParser {
             if (BinaryDataParser._binaryDataParserInstance === null) {

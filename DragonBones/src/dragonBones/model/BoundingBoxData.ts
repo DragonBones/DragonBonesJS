@@ -1,6 +1,36 @@
+/**
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2012-2018 DragonBones team and other contributors
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of
+ * this software and associated documentation files (the "Software"), to deal in
+ * the Software without restriction, including without limitation the rights to
+ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+ * the Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+ * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+ * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+ * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
 namespace dragonBones {
     /**
-     * 边界框数据基类。
+     * - The base class of bounding box data.
+     * @see dragonBones.RectangleData
+     * @see dragonBones.EllipseData
+     * @see dragonBones.PolygonData
+     * @version DragonBones 5.0
+     * @language en_US
+     */
+    /**
+     * - 边界框数据基类。
      * @see dragonBones.RectangleData
      * @see dragonBones.EllipseData
      * @see dragonBones.PolygonData
@@ -9,45 +39,52 @@ namespace dragonBones {
      */
     export abstract class BoundingBoxData extends BaseObject {
         /**
-         * 边界框类型。
+         * - The bounding box type.
+         * @version DragonBones 5.0
+         * @language en_US
+         */
+        /**
+         * - 边界框类型。
          * @version DragonBones 5.0
          * @language zh_CN
          */
         public type: BoundingBoxType;
         /**
-         * 边界框颜色。
-         * @version DragonBones 5.0
-         * @language zh_CN
+         * @private
          */
         public color: number;
         /**
-         * 边界框宽。（本地坐标系）
-         * @version DragonBones 5.0
-         * @language zh_CN
+         * @private
          */
         public width: number;
         /**
-         * 边界框高。（本地坐标系）
-         * @version DragonBones 5.0
-         * @language zh_CN
-         */
-        public height: number;
-        /**
          * @private
          */
+        public height: number;
+
         protected _onClear(): void {
             this.color = 0x000000;
             this.width = 0.0;
             this.height = 0.0;
         }
         /**
-         * 是否包含点。
+         * - Check whether the bounding box contains a specific point. (Local coordinate system)
+         * @version DragonBones 5.0
+         * @language en_US
+         */
+        /**
+         * - 检查边界框是否包含特定点。（本地坐标系）
          * @version DragonBones 5.0
          * @language zh_CN
          */
         public abstract containsPoint(pX: number, pY: number): boolean;
         /**
-         * 是否与线段相交。
+         * - Check whether the bounding box intersects a specific segment. (Local coordinate system)
+         * @version DragonBones 5.0
+         * @language en_US
+         */
+        /**
+         * - 检查边界框是否与特定线段相交。（本地坐标系）
          * @version DragonBones 5.0
          * @language zh_CN
          */
@@ -59,7 +96,7 @@ namespace dragonBones {
         ): number;
     }
     /**
-     * Cohen–Sutherland algorithm https://en.wikipedia.org/wiki/Cohen%E2%80%93Sutherland_algorithm
+     * - Cohen–Sutherland algorithm https://en.wikipedia.org/wiki/Cohen%E2%80%93Sutherland_algorithm
      * ----------------------
      * | 0101 | 0100 | 0110 |
      * ----------------------
@@ -76,19 +113,21 @@ namespace dragonBones {
         Bottom = 8  // 1000
     }
     /**
-     * 矩形边界框。
+     * - The rectangle bounding box data.
+     * @version DragonBones 5.1
+     * @language en_US
+     */
+    /**
+     * - 矩形边界框数据。
      * @version DragonBones 5.1
      * @language zh_CN
      */
     export class RectangleBoundingBoxData extends BoundingBoxData {
-        /**
-         * @private
-         */
         public static toString(): string {
             return "[class dragonBones.RectangleBoundingBoxData]";
         }
         /**
-         * Compute the bit code for a point (x, y) using the clip rectangle
+         * - Compute the bit code for a point (x, y) using the clip rectangle
          */
         private static _computeOutCode(x: number, y: number, xMin: number, yMin: number, xMax: number, yMax: number): number {
             let code = OutCode.InSide;  // initialised as being inside of [[clip window]]
@@ -255,16 +294,14 @@ namespace dragonBones {
 
             return intersectionCount;
         }
-        /**
-         * @private
-         */
+
         protected _onClear(): void {
             super._onClear();
 
             this.type = BoundingBoxType.Rectangle;
         }
         /**
-         * @inherDoc
+         * @inheritDoc
          */
         public containsPoint(pX: number, pY: number): boolean {
             const widthH = this.width * 0.5;
@@ -278,7 +315,7 @@ namespace dragonBones {
             return false;
         }
         /**
-         * @inherDoc
+         * @inheritDoc
          */
         public intersectsSegment(
             xA: number, yA: number, xB: number, yB: number,
@@ -298,14 +335,16 @@ namespace dragonBones {
         }
     }
     /**
-     * 椭圆边界框。
+     * - The ellipse bounding box data.
+     * @version DragonBones 5.1
+     * @language en_US
+     */
+    /**
+     * - 椭圆边界框数据。
      * @version DragonBones 5.1
      * @language zh_CN
      */
     export class EllipseBoundingBoxData extends BoundingBoxData {
-        /**
-         * @private
-         */
         public static toString(): string {
             return "[class dragonBones.EllipseData]";
         }
@@ -415,16 +454,14 @@ namespace dragonBones {
 
             return intersectionCount;
         }
-        /**
-         * @private
-         */
+
         protected _onClear(): void {
             super._onClear();
 
             this.type = BoundingBoxType.Ellipse;
         }
         /**
-         * @inherDoc
+         * @inheritDoc
          */
         public containsPoint(pX: number, pY: number): boolean {
             const widthH = this.width * 0.5;
@@ -439,7 +476,7 @@ namespace dragonBones {
             return false;
         }
         /**
-         * @inherDoc
+         * @inheritDoc
          */
         public intersectsSegment(
             xA: number, yA: number, xB: number, yB: number,
@@ -457,14 +494,16 @@ namespace dragonBones {
         }
     }
     /**
-     * 多边形边界框。
+     * - The polygon bounding box data.
+     * @version DragonBones 5.1
+     * @language en_US
+     */
+    /**
+     * - 多边形边界框数据。
      * @version DragonBones 5.1
      * @language zh_CN
      */
     export class PolygonBoundingBoxData extends BoundingBoxData {
-        /**
-         * @private
-         */
         public static toString(): string {
             return "[class dragonBones.PolygonBoundingBoxData]";
         }
@@ -624,33 +663,27 @@ namespace dragonBones {
          */
         public y: number;
         /**
-         * 多边形顶点。
+         * - The polygon vertices.
+         * @version DragonBones 5.1
+         * @language en_US
+         */
+        /**
+         * - 多边形顶点。
          * @version DragonBones 5.1
          * @language zh_CN
          */
         public readonly vertices: Array<number> = [];
-        /**
-         * @private
-         */
-        public weight: WeightData | null = null; // Initial value.
-        /**
-         * @private
-         */
+
         protected _onClear(): void {
             super._onClear();
-
-            if (this.weight !== null) {
-                this.weight.returnToPool();
-            }
 
             this.type = BoundingBoxType.Polygon;
             this.x = 0.0;
             this.y = 0.0;
             this.vertices.length = 0;
-            this.weight = null;
         }
         /**
-         * @inherDoc
+         * @inheritDoc
          */
         public containsPoint(pX: number, pY: number): boolean {
             let isInSide = false;
@@ -673,7 +706,7 @@ namespace dragonBones {
             return isInSide;
         }
         /**
-         * @inherDoc
+         * @inheritDoc
          */
         public intersectsSegment(
             xA: number, yA: number, xB: number, yB: number,
@@ -682,7 +715,7 @@ namespace dragonBones {
             normalRadians: { x: number, y: number } | null = null
         ): number {
             let intersectionCount = 0;
-            if (RectangleBoundingBoxData.rectangleIntersectsSegment(xA, yA, xB, yB, this.x, this.y, this.width, this.height, null, null, null) !== 0) {
+            if (RectangleBoundingBoxData.rectangleIntersectsSegment(xA, yA, xB, yB, this.x, this.y, this.x + this.width, this.y + this.height, null, null, null) !== 0) {
                 intersectionCount = PolygonBoundingBoxData.polygonIntersectsSegment(
                     xA, yA, xB, yB,
                     this.vertices,
