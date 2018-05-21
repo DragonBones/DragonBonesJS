@@ -3,6 +3,7 @@
 		"watch": false,
 		"sourceMap": false,
 		"declaration": true,
+        "stripInternal": true,
 		"alwaysStrict": true,
 		"noImplicitAny": true,
 		"noImplicitThis": true,

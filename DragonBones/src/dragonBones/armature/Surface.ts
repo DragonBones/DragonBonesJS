@@ -191,7 +191,7 @@ namespace dragonBones {
                 }
                 // Left.
                 isDown = y > this._kX * (x + lA) + pY;
-                matrixIndex = ((segmentX * (segmentY + 1) + segmentX * 2 + segmentY + indexY) * 2 + (isDown ? 1 : 0)) * 7;
+                matrixIndex = ((segmentX * (segmentY + 2) + segmentY + indexY) * 2 + (isDown ? 1 : 0)) * 7;
 
                 if (matrices[matrixIndex] > 0.0) {
                     helpMatrix.copyFromArray(matrices, matrixIndex + 1);
@@ -242,7 +242,7 @@ namespace dragonBones {
                 }
                 // Right.
                 isDown = y > this._kX * (x - lB) + pY;
-                matrixIndex = ((segmentX * (segmentY + 1) + segmentX + indexY) * 2 + (isDown ? 1 : 0)) * 7;
+                matrixIndex = ((segmentX * (segmentY + 1) + indexY) * 2 + (isDown ? 1 : 0)) * 7;
 
                 if (matrices[matrixIndex] > 0.0) {
                     helpMatrix.copyFromArray(matrices, matrixIndex + 1);
@@ -293,7 +293,7 @@ namespace dragonBones {
                 }
                 // Up.
                 isDown = y > this._kY * (x - pX - dX) - lB;
-                matrixIndex = ((segmentX * (segmentY + 1) + indexX) * 2 + (isDown ? 1 : 0)) * 7;
+                matrixIndex = ((segmentX * segmentY + indexX) * 2 + (isDown ? 1 : 0)) * 7;
 
                 if (matrices[matrixIndex] > 0.0) {
                     helpMatrix.copyFromArray(matrices, matrixIndex + 1);
@@ -344,7 +344,7 @@ namespace dragonBones {
                 }
                 // Down
                 isDown = y > this._kY * (x - pX - dX) + lA;
-                matrixIndex = ((segmentX * (segmentY + 1) + segmentX + segmentY + indexY) * 2 + (isDown ? 1 : 0)) * 7;
+                matrixIndex = ((segmentX * (segmentY + 1) + segmentY + indexX) * 2 + (isDown ? 1 : 0)) * 7;
 
                 if (matrices[matrixIndex] > 0.0) {
                     helpMatrix.copyFromArray(matrices, matrixIndex + 1);
