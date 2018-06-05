@@ -241,6 +241,8 @@ namespace dragonBones {
          */
         public _actionTimeline: ActionTimelineState = null as any; // Initial value.
         private _zOrderTimeline: ZOrderTimelineState | null = null; // Initial value.
+        private _activeChildA: AnimationState | null;
+        private _activeChildB: AnimationState | null;
         /**
          * @internal
          */
@@ -327,6 +329,8 @@ namespace dragonBones {
             this._armature = null as any; //
             this._actionTimeline = null as any; //
             this._zOrderTimeline = null;
+            this._activeChildA = null;
+            this._activeChildB = null;
             this._parent = null;
         }
 
@@ -539,6 +543,14 @@ namespace dragonBones {
                                         break;
                                     }
 
+                                    case TimelineType.SlotZIndex: {
+                                        const timeline = BaseObject.borrowObject(SlotZIndexTimelineState);
+                                        timeline.target = slot;
+                                        timeline.init(this._armature, this, timelineData);
+                                        this._slotTimelines.push(timeline);
+                                        break;
+                                    }
+
                                     case TimelineType.SlotColor: {
                                         const timeline = BaseObject.borrowObject(SlotColorTimelineState);
                                         timeline.target = slot;
@@ -560,14 +572,6 @@ namespace dragonBones {
                                         else {
                                             timeline.returnToPool();
                                         }
-                                        break;
-                                    }
-
-                                    case TimelineType.SlotZIndex: {
-                                        const timeline = BaseObject.borrowObject(SlotZIndexTimelineState);
-                                        timeline.target = this._armature.animation.getBlendState(BlendState.SLOT_ZINDEX, slot.name, slot);
-                                        timeline.init(this._armature, this, timelineData);
-                                        this._slotBlendTimelines.push(timeline);
                                         break;
                                     }
 
@@ -805,10 +809,6 @@ namespace dragonBones {
                 this._updateBoneAndSlotTimelines();
             }
 
-            if (this._weight === 0.0) {
-                return;
-            }
-
             const isBlendDirty = this._fadeState !== 0 || this._subFadeState !== 0;
             const isCacheEnabled = this._fadeState === 0 && cacheFrameRate > 0.0;
             let isUpdateTimeline = true;
@@ -822,6 +822,10 @@ namespace dragonBones {
 
             if (this._actionTimeline.playState <= 0) { // Update main timeline.
                 this._actionTimeline.update(time);
+            }
+
+            if (this._weight === 0.0) {
+                return;
             }
 
             if (isCacheEnabled) { // Cache time internval.
@@ -949,7 +953,7 @@ namespace dragonBones {
                         if (this.blendType === AnimationBlendType.E1D) { // TODO
                             const animationState = timeline.target as AnimationState;
                             const d = this.parameterX - animationState.positionX;
-                            animationState.weight = 0.0;
+                            animationState.displayControl = false;
 
                             if (d >= 0.0) {
                                 if (d < dL) {
@@ -963,14 +967,30 @@ namespace dragonBones {
                                     rightState = animationState;
                                 }
                             }
-
-                            if (i === l - 1) {
-                                if (leftState !== null && rightState !== null) {
-                                    leftState.weight = dR / (dL + dR);
-                                    rightState.weight = 1.0 - leftState.weight;
-                                }
-                            }
                         }
+                    }
+
+                    if (leftState !== null && rightState !== null) {
+                        if (this._activeChildA !== leftState) {
+                            if (this._activeChildA !== null) {
+                                this._activeChildA.displayControl = false;
+                                this._activeChildA.weight = 0.0;
+                            }
+
+                            this._activeChildA = leftState;
+                            this._activeChildA.displayControl = true;
+                        }
+
+                        if (this._activeChildB !== rightState) {
+                            if (this._activeChildB !== null) {
+                                this._activeChildB.weight = 0.0;
+                            }
+
+                            this._activeChildB = rightState;
+                        }
+
+                        leftState.weight = dR / (dL + dR);
+                        rightState.weight = 1.0 - leftState.weight;
                     }
                 }
             }
@@ -1250,6 +1270,7 @@ namespace dragonBones {
                                 const animaitonTimelineData = timelineData as AnimationTimelineData;
                                 animationState.positionX = animaitonTimelineData.x;
                                 animationState.positionY = animaitonTimelineData.y;
+                                animationState.weight = 0.0;
                             }
 
                             animationState._parent = this;
@@ -1478,7 +1499,6 @@ namespace dragonBones {
         public static readonly SURFACE: string = "surface";
         public static readonly SLOT_DEFORM: string = "slotDeform";
         public static readonly SLOT_ALPHA: string = "slotAlpha";
-        public static readonly SLOT_ZINDEX: string = "slotZIndex";
 
         public static toString(): string {
             return "[class dragonBones.BlendState]";

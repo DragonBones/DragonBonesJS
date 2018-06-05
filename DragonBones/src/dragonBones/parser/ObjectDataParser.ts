@@ -274,7 +274,7 @@ namespace dragonBones {
             if (frame === null) { // Create and cache frame.
                 frame = new ActionFrame();
                 frame.frameStart = frameStart;
-                this._actionFrames.splice(frameIndex + 1, 0, frame);
+                this._actionFrames.splice(frameIndex, 0, frame);
             }
 
             for (let i = 0; i < actions.length; ++i) { // Cache action offsets.
@@ -2238,7 +2238,8 @@ namespace dragonBones {
             const l4 = this._frameFloatArray.length * Float32Array.BYTES_PER_ELEMENT;
             const l5 = this._frameArray.length * Int16Array.BYTES_PER_ELEMENT;
             const l6 = this._timelineArray.length * Uint16Array.BYTES_PER_ELEMENT;
-            const lTotal = l1 + l2 + l3 + l4 + l5 + l6;
+            const l7 = this._colorArray.length * Int16Array.BYTES_PER_ELEMENT;
+            const lTotal = l1 + l2 + l3 + l4 + l5 + l6 + l7;
             //
             const binary = new ArrayBuffer(lTotal);
             const intArray = new Int16Array(binary, 0, this._intArray.length);

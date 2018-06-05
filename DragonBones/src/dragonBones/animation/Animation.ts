@@ -462,6 +462,13 @@ namespace dragonBones {
                 childAnimationState.resetToPose = false;
                 childAnimationState.stop();
                 animationState.addState(childAnimationState, timelines);
+                //
+                const index = this._animationStates.indexOf(animationState);
+                const childIndex = this._animationStates.indexOf(childAnimationState);
+                if (childIndex < index) {
+                    this._animationStates.splice(index, 1);
+                    this._animationStates.splice(childIndex, 0, animationState);
+                }
             }
 
             // if (!this._armature._lockUpdate && animationConfig.fadeInTime <= 0.0) { // Blend animation state, update armature.
