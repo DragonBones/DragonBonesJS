@@ -300,7 +300,7 @@ namespace dragonBones {
                 }
 
                 // Color.
-                node.alpha =1.0;
+                node.alpha = 1.0;
                 node.filter = null as any;
 
                 // ZOrder.

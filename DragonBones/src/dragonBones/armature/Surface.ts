@@ -163,13 +163,13 @@ namespace dragonBones {
         }
 
         public _getGlobalTransformMatrix(x: number, y: number): Matrix {
+            const lA = 200.0;
             const lB = 1000.0;
             if (x < -lB || lB < x || y < -lB || lB < y) {
                 return this.globalTransformMatrix;
             }
 
             let isDown = false;
-            const lA = 200.0;
             const surfaceData = this._boneData as SurfaceData;
             const segmentX = surfaceData.segmentX;
             const segmentY = surfaceData.segmentY;
@@ -191,7 +191,7 @@ namespace dragonBones {
                 }
                 // Left.
                 isDown = y > this._kX * (x + lA) + pY;
-                matrixIndex = ((segmentX * (segmentY + 2) + segmentY + indexY) * 2 + (isDown ? 1 : 0)) * 7;
+                matrixIndex = ((segmentX * segmentY + segmentX + segmentY + segmentY + indexY) * 2 + (isDown ? 1 : 0)) * 7;
 
                 if (matrices[matrixIndex] > 0.0) {
                     helpMatrix.copyFromArray(matrices, matrixIndex + 1);
@@ -242,7 +242,7 @@ namespace dragonBones {
                 }
                 // Right.
                 isDown = y > this._kX * (x - lB) + pY;
-                matrixIndex = ((segmentX * (segmentY + 1) + indexY) * 2 + (isDown ? 1 : 0)) * 7;
+                matrixIndex = ((segmentX * segmentY + segmentX + indexY) * 2 + (isDown ? 1 : 0)) * 7;
 
                 if (matrices[matrixIndex] > 0.0) {
                     helpMatrix.copyFromArray(matrices, matrixIndex + 1);
@@ -344,7 +344,7 @@ namespace dragonBones {
                 }
                 // Down
                 isDown = y > this._kY * (x - pX - dX) + lA;
-                matrixIndex = ((segmentX * (segmentY + 1) + segmentY + indexX) * 2 + (isDown ? 1 : 0)) * 7;
+                matrixIndex = ((segmentX * segmentY + segmentX + segmentY + indexX) * 2 + (isDown ? 1 : 0)) * 7;
 
                 if (matrices[matrixIndex] > 0.0) {
                     helpMatrix.copyFromArray(matrices, matrixIndex + 1);

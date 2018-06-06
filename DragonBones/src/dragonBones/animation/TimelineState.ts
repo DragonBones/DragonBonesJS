@@ -675,42 +675,13 @@ namespace dragonBones {
             return "[class dragonBones.SlotZIndexTimelineState]";
         }
 
-        protected _zIndex: number;
-
-        protected _onClear(): void {
-            super._onClear();
-
-            this._zIndex = 0;
-        }
-
         protected _onArriveAtFrame(): void {
-            const blendState = this.target as BlendState;
-            const slot = blendState.target as Slot;
-            this._zIndex = this._timelineData !== null ? this._frameArray[this._frameOffset + 1] : slot._slotData.zIndex;
+            const slot = this.target as Slot;
+            slot._zIndex = this._timelineData !== null ? this._frameArray[this._frameOffset + 1] : slot._slotData.zIndex;
+            this._armature._zIndexDirty = true;
         }
 
         protected _onUpdateFrame(): void { }
-
-        public blend(isDirty: boolean): void {
-            const blendState = this.target as BlendState;
-            const slot = blendState.target as Slot;
-            const blendWeight = blendState.blendWeight;
-
-            if (blendState.dirty > 1) {
-                slot._zIndex += this._zIndex * blendWeight;
-            }
-            else if (blendWeight !== 1.0) {
-                slot._zIndex = this._zIndex * blendWeight;
-            }
-            else {
-                slot._zIndex = this._zIndex;
-            }
-
-            if (isDirty || this.dirty) {
-                this.dirty = false;
-                this._armature._zIndexDirty = true;
-            }
-        }
     }
     /**
      * @internal

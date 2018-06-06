@@ -501,7 +501,7 @@ namespace dragonBones {
         }
 
         protected _updateDisplay(): void {
-            const prevDisplay = this._display;
+            const prevDisplay = this._display !== null ? this._display : this._rawDisplay;
             const prevChildArmature = this._childArmature;
 
             // Update display and child armature.
@@ -521,26 +521,17 @@ namespace dragonBones {
             }
 
             // Update display.
-            if (this._display !== prevDisplay) {
+            const currentDisplay = this._display !== null ? this._display : this._rawDisplay;
+            if (currentDisplay !== prevDisplay) {
                 this._textureDirty = true;
                 this._visibleDirty = true;
                 this._blendModeDirty = true;
-                this._zOrderDirty = true;
+                // this._zOrderDirty = true;
                 this._colorDirty = true;
                 this._transformDirty = true;
 
-                if (this._display !== null && prevDisplay !== null) {
-                    this._onUpdateDisplay();
-                    this._replaceDisplay(prevDisplay);
-                }
-                else if (this._display !== null) {
-                    this._onUpdateDisplay();
-                    this._addDisplay();
-                }
-                else {
-                    this._removeDisplay();
-                    this._onUpdateDisplay();
-                }
+                this._onUpdateDisplay();
+                this._replaceDisplay(prevDisplay);
             }
 
             // Update child armature.
@@ -675,6 +666,9 @@ namespace dragonBones {
             if (this._rawDisplay !== this._meshDisplay) {
                 this._initDisplay(this._meshDisplay, false);
             }
+
+            this._onUpdateDisplay();
+            this._addDisplay();
         }
         /**
          * @internal
@@ -690,17 +684,17 @@ namespace dragonBones {
                 this._displayDirty = false;
             }
 
-            if (this._display === null) {
-                return;
-            }
-
             if (this._geometryDirty || this._textureDirty) {
-                if (this._display === this._rawDisplay || this._display === this._meshDisplay) {
+                if (this._display === null || this._display === this._rawDisplay || this._display === this._meshDisplay) {
                     this._updateFrame();
                 }
 
                 this._geometryDirty = false;
                 this._textureDirty = false;
+            }
+
+            if (this._display === null) {
+                return;
             }
 
             if (this._visibleDirty) {

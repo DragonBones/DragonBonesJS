@@ -127,7 +127,8 @@ namespace dragonBones {
 
             if (this._armatureDisplay._batchEnabled) {
                 const nodes = (this._armatureDisplay.$renderNode as egret.sys.GroupNode).drawData;
-                nodes[nodes.indexOf(prevDisplay.$renderNode)] = this._renderDisplay.$renderNode;
+                const prevIndex = nodes.indexOf(prevDisplay.$renderNode);
+                nodes[prevIndex] = this._renderDisplay.$renderNode;
             }
             else {
                 this._armatureDisplay.addChild(this._renderDisplay);
@@ -149,7 +150,14 @@ namespace dragonBones {
         protected _updateZOrder(): void {
             if (this._armatureDisplay._batchEnabled) {
                 const nodes = (this._armatureDisplay.$renderNode as egret.sys.GroupNode).drawData;
+                const index = nodes.indexOf(this._renderDisplay.$renderNode);
+                if (index === this._zOrder) {
+                    return;
+                }
+
                 nodes[this._zOrder] = this._renderDisplay.$renderNode;
+                // nodes.splice(index, 1);
+                // nodes.splice(this._zOrder, 0, this._renderDisplay.$renderNode);
             }
             else {
                 const index = this._armatureDisplay.getChildIndex(this._renderDisplay);
@@ -201,7 +209,7 @@ namespace dragonBones {
 
         protected _updateColor(): void {
             const alpha = this._colorTransform.alphaMultiplier * this._globalAlpha;
-            
+
             if (
                 this._colorTransform.redMultiplier !== 1.0 ||
                 this._colorTransform.greenMultiplier !== 1.0 ||
