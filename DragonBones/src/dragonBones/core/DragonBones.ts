@@ -54,7 +54,7 @@ namespace dragonBones {
         DeformFloatOffset = 4
     }
     /**
-     * @internal
+     * @private
      */
     export const enum ArmatureType {
         Armature = 0,
@@ -62,7 +62,7 @@ namespace dragonBones {
         Stage = 2
     }
     /**
-     * @internal
+     * @private
      */
     export const enum BoneType {
         Bone = 0,
@@ -94,7 +94,7 @@ namespace dragonBones {
         Polygon = 2
     }
     /**
-     * @internal
+     * @private
      */
     export const enum ActionType {
         Play = 0,
@@ -102,7 +102,7 @@ namespace dragonBones {
         Sound = 11
     }
     /**
-     * @internal
+     * @private
      */
     export const enum BlendMode {
         Normal = 0,
@@ -121,7 +121,7 @@ namespace dragonBones {
         Subtract = 13
     }
     /**
-     * @internal
+     * @private
      */
     export const enum TweenType {
         None = 0,
@@ -132,7 +132,7 @@ namespace dragonBones {
         QuadInOut = 5
     }
     /**
-     * @internal
+     * @private
      */
     export const enum TimelineType {
         Action = 0,

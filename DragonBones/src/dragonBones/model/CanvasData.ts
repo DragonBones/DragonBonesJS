@@ -22,7 +22,7 @@
  */
 namespace dragonBones {
     /**
-     * @internal
+     * @private
      */
     export class CanvasData extends BaseObject {
         public static toString(): string {

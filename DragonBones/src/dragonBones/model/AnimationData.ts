@@ -337,7 +337,7 @@ namespace dragonBones {
         }
     }
     /**
-     * @internal
+     * @private
      */
     export class TimelineData extends BaseObject {
         public static toString(): string {

@@ -939,8 +939,8 @@ namespace dragonBones {
                 }
 
                 if (this._animationTimelines.length > 0) {
-                    let dL = 999999.0;
-                    let dR = 999999.0;
+                    let dL = 100.0;
+                    let dR = 100.0;
                     let leftState: AnimationState | null = null;
                     let rightState: AnimationState | null = null;
 
@@ -953,7 +953,6 @@ namespace dragonBones {
                         if (this.blendType === AnimationBlendType.E1D) { // TODO
                             const animationState = timeline.target as AnimationState;
                             const d = this.parameterX - animationState.positionX;
-                            animationState.displayControl = false;
 
                             if (d >= 0.0) {
                                 if (d < dL) {
@@ -970,7 +969,7 @@ namespace dragonBones {
                         }
                     }
 
-                    if (leftState !== null && rightState !== null) {
+                    if (leftState !== null) {
                         if (this._activeChildA !== leftState) {
                             if (this._activeChildA !== null) {
                                 this._activeChildA.displayControl = false;
@@ -979,6 +978,7 @@ namespace dragonBones {
 
                             this._activeChildA = leftState;
                             this._activeChildA.displayControl = true;
+                            this._activeChildA.activeTimeline();
                         }
 
                         if (this._activeChildB !== rightState) {
@@ -990,7 +990,10 @@ namespace dragonBones {
                         }
 
                         leftState.weight = dR / (dL + dR);
-                        rightState.weight = 1.0 - leftState.weight;
+
+                        if (rightState) { 
+                            rightState.weight = 1.0 - leftState.weight;
+                        }
                     }
                 }
             }
@@ -1270,6 +1273,7 @@ namespace dragonBones {
                                 const animaitonTimelineData = timelineData as AnimationTimelineData;
                                 animationState.positionX = animaitonTimelineData.x;
                                 animationState.positionY = animaitonTimelineData.y;
+                                animationState.displayControl = false;
                                 animationState.weight = 0.0;
                             }
 
@@ -1302,6 +1306,15 @@ namespace dragonBones {
 
             if (animationState._parent === null) {
                 animationState._parent = this;
+            }
+        }
+        /**
+         * @internal
+         */
+        public activeTimeline(): void {
+            for (const timeline of this._slotTimelines) {
+                timeline.dirty = true;
+                timeline.currentTime = -1.0;
             }
         }
         /**

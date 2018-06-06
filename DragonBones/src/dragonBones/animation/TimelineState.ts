@@ -665,7 +665,8 @@ namespace dragonBones {
             }
         }
 
-        protected _onUpdateFrame(): void { }
+        protected _onUpdateFrame(): void {
+        }
     }
     /**
      * @internal
@@ -675,13 +676,23 @@ namespace dragonBones {
             return "[class dragonBones.SlotZIndexTimelineState]";
         }
 
-        protected _onArriveAtFrame(): void {
-            const slot = this.target as Slot;
-            slot._zIndex = this._timelineData !== null ? this._frameArray[this._frameOffset + 1] : slot._slotData.zIndex;
-            this._armature._zIndexDirty = true;
+        protected _onArriveAtFrame(): void { 
+            // if (this.playState >= 0) {
+                const slot = this.target as Slot;
+                slot._zIndex = this._timelineData !== null ? this._frameArray[this._frameOffset + 1] : slot._slotData.zIndex;
+                this._armature._zIndexDirty = true;
+            // }
+            this.dirty = false;
         }
 
-        protected _onUpdateFrame(): void { }
+        protected _onUpdateFrame(): void {
+            // if (this.playState >= 0) {
+                const slot = this.target as Slot;
+                slot._zIndex = this._timelineData !== null ? this._frameArray[this._frameOffset + 1] : slot._slotData.zIndex;
+                this._armature._zIndexDirty = true;
+            // }
+            this.dirty = false;
+        }
     }
     /**
      * @internal

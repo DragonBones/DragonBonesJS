@@ -1006,7 +1006,7 @@ namespace dragonBones {
         }
     }
     /**
-     * @internal
+     * @private
      */
     export class BuildArmaturePackage {
         public dataName: string = "";

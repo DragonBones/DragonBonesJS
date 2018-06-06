@@ -22,7 +22,7 @@
  */
 namespace dragonBones {
     /**
-     * @internal
+     * @private
      */
     export abstract class DataParser {
         protected static readonly DATA_VERSION_2_3: string = "2.3";
