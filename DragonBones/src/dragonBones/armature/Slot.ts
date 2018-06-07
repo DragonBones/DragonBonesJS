@@ -22,7 +22,7 @@
  */
 namespace dragonBones {
     /**
-     * @internal
+     * @private
      */
     export class DisplayFrame extends BaseObject {
         public static toString(): string {

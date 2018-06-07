@@ -22,7 +22,7 @@
  */
 namespace dragonBones {
     /**
-     * @internal
+     * @private
      */
     export abstract class ConstraintData extends BaseObject {
         public order: number;
@@ -61,7 +61,6 @@ namespace dragonBones {
             this.weight = 1.0;
         }
     }
-
     /**
      * @internal
      */

@@ -22,7 +22,7 @@
  */
 namespace dragonBones {
     /**
-     * @internal
+     * @private
      */
     export const enum FrameValueType {
         Step,
@@ -30,7 +30,7 @@ namespace dragonBones {
         Float,
     }
     /**
-     * @internal
+     * @private
      */
     export class ObjectDataParser extends DataParser {
         protected static _getBoolean(rawData: any, key: string, defaultValue: boolean): boolean {
@@ -2425,7 +2425,7 @@ namespace dragonBones {
         }
     }
     /**
-     * @internal
+     * @private
      */
     export class ActionFrame {
         public frameStart: number = 0;

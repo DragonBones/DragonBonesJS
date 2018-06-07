@@ -22,7 +22,7 @@
  */
 namespace dragonBones {
     /**
-     * @internal
+     * @private
      */
     export class ColorTransform {
         public alphaMultiplier: number;

@@ -133,7 +133,7 @@ namespace dragonBones {
         }
     }
     /**
-     * @internal
+     * @private
      */
     export class ActionData extends BaseObject {
         public static toString(): string {

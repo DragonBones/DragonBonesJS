@@ -22,7 +22,7 @@
  */
 namespace dragonBones {
     /**
-     * @internal
+     * @private
      */
     export class BinaryDataParser extends ObjectDataParser {
         private _binaryOffset: number;

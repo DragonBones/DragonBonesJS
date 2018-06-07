@@ -137,7 +137,7 @@ namespace dragonBones {
         }
     }
     /**
-     * @internal
+     * @private
      */
     export abstract class TextureData extends BaseObject {
         public static createRectangle(): Rectangle {
