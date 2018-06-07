@@ -1417,7 +1417,11 @@ namespace dragonBones {
                 }
             }
 
-            if (this.playTimes > 0 && currentPlayTimes === this.playTimes - 1 && value === this._duration) {
+            if (
+                this.playTimes > 0 && currentPlayTimes === this.playTimes - 1 &&
+                value === this._duration &&
+                this._parent === null
+            ) {
                 value = this._duration - 0.000001; // 
             }
 
