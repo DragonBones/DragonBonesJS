@@ -809,7 +809,7 @@ namespace dragonBones {
                 this._updateBoneAndSlotTimelines();
             }
 
-            const isBlendDirty = this._fadeState !== 0 || this._subFadeState !== 0;
+            const isBlendDirty = this._fadeState !== 0 || this._subFadeState === 0;
             const isCacheEnabled = this._fadeState === 0 && cacheFrameRate > 0.0;
             let isUpdateTimeline = true;
             let isUpdateBoneTimeline = true;
@@ -991,7 +991,7 @@ namespace dragonBones {
 
                         leftState.weight = dR / (dL + dR);
 
-                        if (rightState) { 
+                        if (rightState) {
                             rightState.weight = 1.0 - leftState.weight;
                         }
                     }
@@ -1430,7 +1430,10 @@ namespace dragonBones {
                 }
             }
 
-            if (this.playTimes > 0 && currentPlayTimes === this.playTimes - 1 && value === this._duration) {
+            if (
+                this.playTimes > 0 && currentPlayTimes === this.playTimes - 1 &&
+                value === this._duration && this._parent === null
+            ) {
                 value = this._duration - 0.000001; // 
             }
 

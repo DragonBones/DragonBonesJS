@@ -552,41 +552,34 @@ namespace dragonBones {
             const surface = blendState.target as Surface;
             const blendWeight = blendState.blendWeight;
             const result = surface._deformVertices;
+            
+            const valueCount = this._valueCount;
+            const deformOffset = this._deformOffset;
+            const sameValueOffset = this._sameValueOffset;
+            const valueArray = this._valueArray;
+            const rd = this._rd;
 
-            if (this._isTween) {
-                const valueCount = this._valueCount;
-                const deformOffset = this._deformOffset;
-                const sameValueOffset = this._sameValueOffset;
-                const valueArray = this._valueArray;
-                const rd = this._rd;
+            for (let i = 0; i < this._deformCount; ++i) {
+                let value = 0.0;
 
-                for (let i = 0; i < this._deformCount; ++i) {
-                    let value = 0.0;
-
-                    if (i < deformOffset) {
-                        value = valueArray[sameValueOffset + i];
-                    }
-                    else if (i < deformOffset + valueCount) {
-                        value = rd[i - deformOffset];
-                    }
-                    else {
-                        value = valueArray[sameValueOffset + i - valueCount];
-                    }
-
-                    if (blendState.dirty > 1) {
-                        result[i] += value * blendWeight;
-                    }
-                    else if (blendWeight !== 1.0) {
-                        result[i] = value * blendWeight;
-                    }
-                    else {
-                        result[i] = value;
-                    }
+                if (i < deformOffset) {
+                    value = valueArray[sameValueOffset + i];
                 }
-            }
-            else if (blendState.dirty === 1) {
-                for (let i = 0; i < this._deformCount; ++i) {
-                    result[i] = 0.0;
+                else if (i < deformOffset + valueCount) {
+                    value = rd[i - deformOffset];
+                }
+                else {
+                    value = valueArray[sameValueOffset + i - valueCount];
+                }
+
+                if (blendState.dirty > 1) {
+                    result[i] += value * blendWeight;
+                }
+                else if (blendWeight !== 1.0) {
+                    result[i] = value * blendWeight;
+                }
+                else {
+                    result[i] = value;
                 }
             }
 
@@ -676,20 +669,20 @@ namespace dragonBones {
             return "[class dragonBones.SlotZIndexTimelineState]";
         }
 
-        protected _onArriveAtFrame(): void { 
+        protected _onArriveAtFrame(): void {
             // if (this.playState >= 0) {
-                const slot = this.target as Slot;
-                slot._zIndex = this._timelineData !== null ? this._frameArray[this._frameOffset + 1] : slot._slotData.zIndex;
-                this._armature._zIndexDirty = true;
+            const slot = this.target as Slot;
+            slot._zIndex = this._timelineData !== null ? this._frameArray[this._frameOffset + 1] : slot._slotData.zIndex;
+            this._armature._zIndexDirty = true;
             // }
             this.dirty = false;
         }
 
         protected _onUpdateFrame(): void {
             // if (this.playState >= 0) {
-                const slot = this.target as Slot;
-                slot._zIndex = this._timelineData !== null ? this._frameArray[this._frameOffset + 1] : slot._slotData.zIndex;
-                this._armature._zIndexDirty = true;
+            const slot = this.target as Slot;
+            slot._zIndex = this._timelineData !== null ? this._frameArray[this._frameOffset + 1] : slot._slotData.zIndex;
+            this._armature._zIndexDirty = true;
             // }
             this.dirty = false;
         }
@@ -931,40 +924,33 @@ namespace dragonBones {
             const blendWeight = blendState.blendWeight;
             const result = this.displayFrame.deformVertices;
 
-            if (this._isTween) {
-                const valueCount = this._valueCount;
-                const deformOffset = this._deformOffset;
-                const sameValueOffset = this._sameValueOffset;
-                const valueArray = this._valueArray;
-                const rd = this._rd;
+            const valueCount = this._valueCount;
+            const deformOffset = this._deformOffset;
+            const sameValueOffset = this._sameValueOffset;
+            const valueArray = this._valueArray;
+            const rd = this._rd;
 
-                for (let i = 0; i < this._deformCount; ++i) {
-                    let value = 0.0;
+            for (let i = 0; i < this._deformCount; ++i) {
+                let value = 0.0;
 
-                    if (i < deformOffset) {
-                        value = valueArray[sameValueOffset + i];
-                    }
-                    else if (i < deformOffset + valueCount) {
-                        value = rd[i - deformOffset];
-                    }
-                    else {
-                        value = valueArray[sameValueOffset + i - valueCount];
-                    }
-
-                    if (blendState.dirty > 1) {
-                        result[i] += value * blendWeight;
-                    }
-                    else if (blendWeight !== 1.0) {
-                        result[i] = value * blendWeight;
-                    }
-                    else {
-                        result[i] = value;
-                    }
+                if (i < deformOffset) {
+                    value = valueArray[sameValueOffset + i];
                 }
-            }
-            else if (blendState.dirty === 1) {
-                for (let i = 0; i < this._deformCount; ++i) {
-                    result[i] = 0.0;
+                else if (i < deformOffset + valueCount) {
+                    value = rd[i - deformOffset];
+                }
+                else {
+                    value = valueArray[sameValueOffset + i - valueCount];
+                }
+
+                if (blendState.dirty > 1) {
+                    result[i] += value * blendWeight;
+                }
+                else if (blendWeight !== 1.0) {
+                    result[i] = value * blendWeight;
+                }
+                else {
+                    result[i] = value;
                 }
             }
 
