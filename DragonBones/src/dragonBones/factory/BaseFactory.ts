@@ -410,9 +410,20 @@ namespace dragonBones {
             return textureAtlasData;
         }
         /**
-         * @private
+         * - Update texture atlases.
+         * @param textureAtlases - The texture atlas objects.
+         * @param name - The texture atlas name.
+         * @version DragonBones 5.7
+         * @language en_US
          */
-        public updateTextureAtlasData(name: string, textureAtlases: Array<any>): void {
+        /**
+         * - 更新贴图集对象。
+         * @param textureAtlases - 多个贴图集对象。
+         * @param name - 贴图集名称。
+         * @version DragonBones 5.7
+         * @language zh_CN
+         */
+        public updateTextureAtlases(textureAtlases: Array<any>, name: string): void {
             const textureAtlasDatas = this.getTextureAtlasData(name);
             if (textureAtlasDatas !== null) {
                 for (let i = 0, l = textureAtlasDatas.length; i < l; ++i) {

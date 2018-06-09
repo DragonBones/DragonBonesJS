@@ -552,12 +552,12 @@ namespace dragonBones {
             const surface = blendState.target as Surface;
             const blendWeight = blendState.blendWeight;
             const result = surface._deformVertices;
+            const valueArray = this._valueArray;
 
-            if (this._isTween) {
+            if (valueArray !== null) {
                 const valueCount = this._valueCount;
                 const deformOffset = this._deformOffset;
                 const sameValueOffset = this._sameValueOffset;
-                const valueArray = this._valueArray;
                 const rd = this._rd;
 
                 for (let i = 0; i < this._deformCount; ++i) {
@@ -676,20 +676,20 @@ namespace dragonBones {
             return "[class dragonBones.SlotZIndexTimelineState]";
         }
 
-        protected _onArriveAtFrame(): void { 
+        protected _onArriveAtFrame(): void {
             // if (this.playState >= 0) {
-                const slot = this.target as Slot;
-                slot._zIndex = this._timelineData !== null ? this._frameArray[this._frameOffset + 1] : slot._slotData.zIndex;
-                this._armature._zIndexDirty = true;
+            const slot = this.target as Slot;
+            slot._zIndex = this._timelineData !== null ? this._frameArray[this._frameOffset + 1] : slot._slotData.zIndex;
+            this._armature._zIndexDirty = true;
             // }
             this.dirty = false;
         }
 
         protected _onUpdateFrame(): void {
             // if (this.playState >= 0) {
-                const slot = this.target as Slot;
-                slot._zIndex = this._timelineData !== null ? this._frameArray[this._frameOffset + 1] : slot._slotData.zIndex;
-                this._armature._zIndexDirty = true;
+            const slot = this.target as Slot;
+            slot._zIndex = this._timelineData !== null ? this._frameArray[this._frameOffset + 1] : slot._slotData.zIndex;
+            this._armature._zIndexDirty = true;
             // }
             this.dirty = false;
         }
@@ -930,12 +930,12 @@ namespace dragonBones {
             const slot = blendState.target as Slot;
             const blendWeight = blendState.blendWeight;
             const result = this.displayFrame.deformVertices;
+            const valueArray = this._valueArray;
 
-            if (this._isTween) {
+            if (valueArray !== null) {
                 const valueCount = this._valueCount;
                 const deformOffset = this._deformOffset;
                 const sameValueOffset = this._sameValueOffset;
-                const valueArray = this._valueArray;
                 const rd = this._rd;
 
                 for (let i = 0; i < this._deformCount; ++i) {

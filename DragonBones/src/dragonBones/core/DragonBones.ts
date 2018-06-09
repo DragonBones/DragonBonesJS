@@ -284,7 +284,7 @@ namespace dragonBones {
      * @private
      */
     export class DragonBones {
-        public static readonly VERSION: string = "5.6.500";
+        public static readonly VERSION: string = "5.7.000";
 
         public static yDown: boolean = true;
         public static debug: boolean = false;

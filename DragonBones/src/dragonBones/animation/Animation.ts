@@ -452,7 +452,7 @@ namespace dragonBones {
             }
 
             for (let k in animationData.animationTimelines) { // Blend animation node.
-                const childAnimationState = this.fadeIn(k, 0.0, 1, animationState.layer, "", animationState.additive, AnimationFadeOutMode.Single);
+                const childAnimationState = this.fadeIn(k, 0.0, 1, animationState.layer, "", AnimationFadeOutMode.Single);
                 if (childAnimationState === null) {
                     continue;
                 }
@@ -566,10 +566,9 @@ namespace dragonBones {
          */
         public fadeIn(
             animationName: string, fadeInTime: number = -1.0, playTimes: number = -1,
-            layer: number = 0, group: string | null = null, additive: boolean = false, fadeOutMode: AnimationFadeOutMode = AnimationFadeOutMode.SameLayerAndGroup
+            layer: number = 0, group: string | null = null, fadeOutMode: AnimationFadeOutMode = AnimationFadeOutMode.SameLayerAndGroup
         ): AnimationState | null {
             this._animationConfig.clear();
-            this._animationConfig.additive = additive;
             this._animationConfig.fadeOutMode = fadeOutMode;
             this._animationConfig.playTimes = playTimes;
             this._animationConfig.layer = layer;
@@ -762,6 +761,7 @@ namespace dragonBones {
         /**
          * - Get a specific animation state.
          * @param animationName - The name of animation state.
+         * @param layer - The layer of find animation states. [-1: Find all layers, [0~N]: Specified layer] (default: -1)
          * @example
          * <pre>
          *     armature.animation.play("walk");
@@ -772,8 +772,9 @@ namespace dragonBones {
          * @language en_US
          */
         /**
-         * - 获取指定的动画状态
+         * - 获取指定的动画状态。
          * @param animationName - 动画状态名称。
+         * @param layer - 查找动画状态的层级。 [-1: 查找所有层级, [0~N]: 指定层级] （默认: -1）
          * @example
          * <pre>
          *     armature.animation.play("walk");
@@ -783,11 +784,11 @@ namespace dragonBones {
          * @version DragonBones 3.0
          * @language zh_CN
          */
-        public getState(animationName: string, layer: number = 0): AnimationState | null {
+        public getState(animationName: string, layer: number = -1): AnimationState | null {
             let i = this._animationStates.length;
             while (i--) {
                 const animationState = this._animationStates[i];
-                if (animationState.name === animationName && animationState.layer === layer) {
+                if (animationState.name === animationName && (layer < 0 || animationState.layer === layer)) {
                     return animationState;
                 }
             }

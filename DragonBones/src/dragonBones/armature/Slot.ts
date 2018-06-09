@@ -642,6 +642,7 @@ namespace dragonBones {
             }
 
             this._slotData = slotData;
+            this._colorDirty = true; //
             this._blendMode = this._slotData.blendMode;
             this._zOrder = this._slotData.zOrder;
             this._zIndex = this._slotData.zIndex;
