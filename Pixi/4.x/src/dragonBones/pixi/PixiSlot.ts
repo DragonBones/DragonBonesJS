@@ -310,7 +310,7 @@ namespace dragonBones {
                     meshDisplay.vertices[iD++] = yG;
                 }
             }
-            else if (hasDeform) {
+            else {
                 const isSurface = this._parent._boneData.type !== BoneType.Bone;
                 const data = geometryData.data;
                 const intArray = data.intArray;
@@ -323,8 +323,13 @@ namespace dragonBones {
                 }
 
                 for (let i = 0, l = vertexCount * 2; i < l; i += 2) {
-                    const x = floatArray[vertexOffset + i] * scale + deformVertices[i];
-                    const y = floatArray[vertexOffset + i + 1] * scale + deformVertices[i + 1];
+                    let x = floatArray[vertexOffset + i] * scale;
+                    let y = floatArray[vertexOffset + i + 1] * scale;
+
+                    if (hasDeform) {
+                        x += deformVertices[i];
+                        y += deformVertices[i + 1];
+                    }
 
                     if (isSurface) {
                         const matrix = (this._parent as Surface)._getGlobalTransformMatrix(x, y);

@@ -5902,6 +5902,7 @@ var dragonBones;
                 return;
             }
             this._slotData = slotData;
+            this._colorDirty = true; //
             this._blendMode = this._slotData.blendMode;
             this._zOrder = this._slotData.zOrder;
             this._zIndex = this._slotData.zIndex;
@@ -8787,9 +8788,9 @@ var dragonBones;
                                     }
                                     case 23 /* SlotZIndex */: {
                                         var timeline = dragonBones.BaseObject.borrowObject(dragonBones.SlotZIndexTimelineState);
-                                        timeline.target = slot;
+                                        timeline.target = this._armature.animation.getBlendState(BlendState.SLOT_ALPHA, slot.name, slot);
                                         timeline.init(this._armature, this, timelineData);
-                                        this._slotTimelines.push(timeline);
+                                        this._slotBlendTimelines.push(timeline);
                                         break;
                                     }
                                     case 21 /* SlotColor */: {
@@ -9155,11 +9156,9 @@ var dragonBones;
                     if (leftState !== null) {
                         if (this._activeChildA !== leftState) {
                             if (this._activeChildA !== null) {
-                                this._activeChildA.displayControl = false;
                                 this._activeChildA.weight = 0.0;
                             }
                             this._activeChildA = leftState;
-                            this._activeChildA.displayControl = true;
                             this._activeChildA.activeTimeline();
                         }
                         if (this._activeChildB !== rightState) {
@@ -9441,7 +9440,6 @@ var dragonBones;
                                 var animaitonTimelineData = timelineData;
                                 animationState.positionX = animaitonTimelineData.x;
                                 animationState.positionY = animaitonTimelineData.y;
-                                animationState.displayControl = false;
                                 animationState.weight = 0.0;
                             }
                             animationState._parent = this;
@@ -9728,26 +9726,28 @@ var dragonBones;
                     if (this.layer !== animationLayer) {
                         if (this.layerWeight >= this.leftWeight) {
                             this.dirty++;
+                            this.layer = animationLayer;
                             this.leftWeight = 0.0;
                             this.blendWeight = 0.0;
                             return false;
                         }
                         this.layer = animationLayer;
                         this.leftWeight -= this.layerWeight;
-                        this.layerWeight = animationWeight * this.leftWeight;
+                        this.layerWeight = 0.0;
                     }
                     animationWeight *= this.leftWeight;
                     this.dirty++;
                     this.blendWeight = animationWeight;
+                    this.layerWeight += this.blendWeight;
                     return true;
                 }
                 return false;
             }
             this.dirty++;
             this.layer = animationLayer;
-            this.layerWeight = animationWeight;
             this.leftWeight = 1.0;
             this.blendWeight = animationWeight;
+            this.layerWeight = animationWeight;
             return true;
         };
         BlendState.prototype.reset = function () {
@@ -9762,6 +9762,7 @@ var dragonBones;
         BlendState.SURFACE = "surface";
         BlendState.SLOT_DEFORM = "slotDeform";
         BlendState.SLOT_ALPHA = "slotAlpha";
+        BlendState.SLOT_Z_INDEX = "slotZIndex";
         return BlendState;
     }(dragonBones.BaseObject));
     dragonBones.BlendState = BlendState;
@@ -10556,21 +10557,13 @@ var dragonBones;
                 result.scaleX += (rd[4] - 1.0) * blendWeight;
                 result.scaleY += (rd[5] - 1.0) * blendWeight;
             }
-            else if (blendWeight !== 1.0) {
+            else {
                 result.x = rd[0] * blendWeight * valueScale;
                 result.y = rd[1] * blendWeight * valueScale;
                 result.rotation = rd[2] * blendWeight;
                 result.skew = rd[3] * blendWeight;
                 result.scaleX = (rd[4] - 1.0) * blendWeight + 1.0; // 
                 result.scaleY = (rd[5] - 1.0) * blendWeight + 1.0; //
-            }
-            else {
-                result.x = rd[0] * valueScale;
-                result.y = rd[1] * valueScale;
-                result.rotation = rd[2];
-                result.skew = rd[3];
-                result.scaleX = rd[4];
-                result.scaleY = rd[5];
             }
             if (isDirty || this.dirty) {
                 this.dirty = false;
@@ -10784,11 +10777,8 @@ var dragonBones;
                     if (blendState.dirty > 1) {
                         result[i] += value * blendWeight;
                     }
-                    else if (blendWeight !== 1.0) {
-                        result[i] = value * blendWeight;
-                    }
                     else {
-                        result[i] = value;
+                        result[i] = value * blendWeight;
                     }
                 }
             }
@@ -10839,12 +10829,7 @@ var dragonBones;
                 }
             }
             else {
-                if (blendWeight !== 1.0) {
-                    alphaTarget._alpha = this._result * blendWeight;
-                }
-                else {
-                    alphaTarget._alpha = this._result;
-                }
+                alphaTarget._alpha = this._result * blendWeight;
             }
             if (isDirty || this.dirty) {
                 this.dirty = false;
@@ -10879,36 +10864,6 @@ var dragonBones;
         return SlotDislayTimelineState;
     }(dragonBones.TimelineState));
     dragonBones.SlotDislayTimelineState = SlotDislayTimelineState;
-    /**
-     * @internal
-     */
-    var SlotZIndexTimelineState = (function (_super) {
-        __extends(SlotZIndexTimelineState, _super);
-        function SlotZIndexTimelineState() {
-            return _super !== null && _super.apply(this, arguments) || this;
-        }
-        SlotZIndexTimelineState.toString = function () {
-            return "[class dragonBones.SlotZIndexTimelineState]";
-        };
-        SlotZIndexTimelineState.prototype._onArriveAtFrame = function () {
-            // if (this.playState >= 0) {
-            var slot = this.target;
-            slot._zIndex = this._timelineData !== null ? this._frameArray[this._frameOffset + 1] : slot._slotData.zIndex;
-            this._armature._zIndexDirty = true;
-            // }
-            this.dirty = false;
-        };
-        SlotZIndexTimelineState.prototype._onUpdateFrame = function () {
-            // if (this.playState >= 0) {
-            var slot = this.target;
-            slot._zIndex = this._timelineData !== null ? this._frameArray[this._frameOffset + 1] : slot._slotData.zIndex;
-            this._armature._zIndexDirty = true;
-            // }
-            this.dirty = false;
-        };
-        return SlotZIndexTimelineState;
-    }(dragonBones.TimelineState));
-    dragonBones.SlotZIndexTimelineState = SlotZIndexTimelineState;
     /**
      * @internal
      */
@@ -11058,6 +11013,48 @@ var dragonBones;
     /**
      * @internal
      */
+    var SlotZIndexTimelineState = (function (_super) {
+        __extends(SlotZIndexTimelineState, _super);
+        function SlotZIndexTimelineState() {
+            return _super !== null && _super.apply(this, arguments) || this;
+        }
+        SlotZIndexTimelineState.toString = function () {
+            return "[class dragonBones.SlotZIndexTimelineState]";
+        };
+        SlotZIndexTimelineState.prototype._onArriveAtFrame = function () {
+            _super.prototype._onArriveAtFrame.call(this);
+            if (this._timelineData === null) {
+                var blendState = this.target;
+                var slot = blendState.target;
+                this._result = slot.slotData.zIndex;
+            }
+        };
+        SlotZIndexTimelineState.prototype.init = function (armature, animationState, timelineData) {
+            _super.prototype.init.call(this, armature, animationState, timelineData);
+            this._valueOffset = this._animationData.frameIntOffset;
+            this._valueArray = this._animationData.parent.parent.frameIntArray;
+        };
+        SlotZIndexTimelineState.prototype.blend = function (isDirty) {
+            var blendState = this.target;
+            var slot = blendState.target;
+            var blendWeight = blendState.blendWeight;
+            if (blendState.dirty > 1) {
+                slot._zIndex += this._result * blendWeight;
+            }
+            else {
+                slot._zIndex = this._result * blendWeight;
+            }
+            if (isDirty || this.dirty) {
+                this.dirty = false;
+                this._armature._zIndexDirty = true;
+            }
+        };
+        return SlotZIndexTimelineState;
+    }(dragonBones.SingleValueTimelineState));
+    dragonBones.SlotZIndexTimelineState = SlotZIndexTimelineState;
+    /**
+     * @internal
+     */
     var DeformTimelineState = (function (_super) {
         __extends(DeformTimelineState, _super);
         function DeformTimelineState() {
@@ -11139,11 +11136,8 @@ var dragonBones;
                     if (blendState.dirty > 1) {
                         result[i] += value * blendWeight;
                     }
-                    else if (blendWeight !== 1.0) {
-                        result[i] = value * blendWeight;
-                    }
                     else {
-                        result[i] = value;
+                        result[i] = value * blendWeight;
                     }
                 }
             }
@@ -12631,20 +12625,22 @@ var dragonBones;
                         case 0 /* Action */:
                             // TODO
                             break;
-                        case 20 /* SlotDisplay */:
-                        case 23 /* SlotZIndex */: // TODO
+                        case 20 /* SlotDisplay */: // TODO
+                        case 23 /* SlotZIndex */:
                         case 19 /* BoneAlpha */:
                         case 24 /* SlotAlpha */:
                         case 40 /* AnimationProgress */:
                         case 41 /* AnimationWeight */:
-                            if (timelineType === 20 /* SlotDisplay */ ||
-                                timelineType === 23 /* SlotZIndex */) {
+                            if (timelineType === 20 /* SlotDisplay */) {
                                 this._frameValueType = 0 /* Step */;
                                 this._frameValueScale = 1.0;
                             }
                             else {
                                 this._frameValueType = 1 /* Int */;
-                                if (timelineType === 40 /* AnimationProgress */ ||
+                                if (timelineType === 23 /* SlotZIndex */) {
+                                    this._frameValueScale = 1.0;
+                                }
+                                else if (timelineType === 40 /* AnimationProgress */ ||
                                     timelineType === 41 /* AnimationWeight */) {
                                     this._frameValueScale = 10000.0;
                                 }

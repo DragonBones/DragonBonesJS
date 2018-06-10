@@ -125,10 +125,7 @@ namespace dragonBones {
             return armature;
         }
 
-        protected _buildSlot(dataPackage: BuildArmaturePackage, slotData: SlotData, armature: Armature): Slot {
-            // tslint:disable-next-line:no-unused-expression
-            dataPackage;
-
+        protected _buildSlot(_dataPackage: BuildArmaturePackage, slotData: SlotData, armature: Armature): Slot {
             const slot = BaseObject.borrowObject(EgretSlot);
             slot.init(
                 slotData, armature,

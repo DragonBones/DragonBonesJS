@@ -189,15 +189,15 @@ namespace coreElement {
             this._armatureDisplay.x = 0.0;
             this._armatureDisplay.y = Game.GROUND;
             this._armature = this._armatureDisplay.armature;
-            this._armature.eventDispatcher.addEvent(dragonBones.EventObject.FADE_IN_COMPLETE, this._animationEventHandler, this);
-            this._armature.eventDispatcher.addEvent(dragonBones.EventObject.FADE_OUT_COMPLETE, this._animationEventHandler, this);
-            this._armature.eventDispatcher.addEvent(dragonBones.EventObject.COMPLETE, this._animationEventHandler, this);
+            this._armatureDisplay.on(dragonBones.EventObject.FADE_IN_COMPLETE, this._animationEventHandler, this);
+            this._armatureDisplay.on(dragonBones.EventObject.FADE_OUT_COMPLETE, this._animationEventHandler, this);
+            this._armatureDisplay.on(dragonBones.EventObject.COMPLETE, this._animationEventHandler, this);
 
             // Get weapon childArmature.
             this._weaponL = this._armature.getSlot("weapon_l").childArmature;
             this._weaponR = this._armature.getSlot("weapon_r").childArmature;
-            this._weaponL.eventDispatcher.addEvent(dragonBones.EventObject.FRAME_EVENT, this._frameEventHandler, this);
-            this._weaponR.eventDispatcher.addEvent(dragonBones.EventObject.FRAME_EVENT, this._frameEventHandler, this);
+            this._weaponL.display.on(dragonBones.EventObject.FRAME_EVENT, this._frameEventHandler, this);
+            this._weaponR.display.on(dragonBones.EventObject.FRAME_EVENT, this._frameEventHandler, this);
 
             Game.instance.addChild(this._armatureDisplay);
             this._updateAnimation();
@@ -244,25 +244,25 @@ namespace coreElement {
         }
 
         public switchWeaponL(): void {
-            this._weaponL.eventDispatcher.removeEvent(dragonBones.EventObject.FRAME_EVENT, this._frameEventHandler, this);
+            this._weaponL.display.off(dragonBones.EventObject.FRAME_EVENT, this._frameEventHandler, this);
 
             this._weaponLIndex++;
             this._weaponLIndex %= Mecha.WEAPON_L_LIST.length;
             const weaponName = Mecha.WEAPON_L_LIST[this._weaponLIndex];
             this._weaponL = dragonBones.PixiFactory.factory.buildArmature(weaponName);
             this._armature.getSlot("weapon_l").childArmature = this._weaponL;
-            this._weaponL.eventDispatcher.addEvent(dragonBones.EventObject.FRAME_EVENT, this._frameEventHandler, this);
+            this._weaponL.display.off(dragonBones.EventObject.FRAME_EVENT, this._frameEventHandler, this);
         }
 
         public switchWeaponR(): void {
-            this._weaponR.eventDispatcher.removeEvent(dragonBones.EventObject.FRAME_EVENT, this._frameEventHandler, this);
+            this._weaponR.display.off(dragonBones.EventObject.FRAME_EVENT, this._frameEventHandler, this);
 
             this._weaponRIndex++;
             this._weaponRIndex %= Mecha.WEAPON_R_LIST.length;
             const weaponName = Mecha.WEAPON_R_LIST[this._weaponRIndex];
             this._weaponR = dragonBones.PixiFactory.factory.buildArmature(weaponName);
             this._armature.getSlot("weapon_r").childArmature = this._weaponR;
-            this._weaponR.eventDispatcher.addEvent(dragonBones.EventObject.FRAME_EVENT, this._frameEventHandler, this);
+            this._weaponR.display.on(dragonBones.EventObject.FRAME_EVENT, this._frameEventHandler, this);
         }
 
         public switchSkin(): void {

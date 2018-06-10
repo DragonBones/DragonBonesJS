@@ -338,21 +338,13 @@ namespace dragonBones {
                 result.scaleX += (rd[4] - 1.0) * blendWeight;
                 result.scaleY += (rd[5] - 1.0) * blendWeight;
             }
-            else if (blendWeight !== 1.0) {
+            else {
                 result.x = rd[0] * blendWeight * valueScale;
                 result.y = rd[1] * blendWeight * valueScale;
                 result.rotation = rd[2] * blendWeight;
                 result.skew = rd[3] * blendWeight;
                 result.scaleX = (rd[4] - 1.0) * blendWeight + 1.0; // 
                 result.scaleY = (rd[5] - 1.0) * blendWeight + 1.0; //
-            }
-            else {
-                result.x = rd[0] * valueScale;
-                result.y = rd[1] * valueScale;
-                result.rotation = rd[2];
-                result.skew = rd[3];
-                result.scaleX = rd[4];
-                result.scaleY = rd[5];
             }
 
             if (isDirty || this.dirty) {
@@ -576,11 +568,8 @@ namespace dragonBones {
                     if (blendState.dirty > 1) {
                         result[i] += value * blendWeight;
                     }
-                    else if (blendWeight !== 1.0) {
-                        result[i] = value * blendWeight;
-                    }
                     else {
-                        result[i] = value;
+                        result[i] = value * blendWeight;
                     }
                 }
             }
@@ -632,12 +621,7 @@ namespace dragonBones {
                 }
             }
             else {
-                if (blendWeight !== 1.0) {
-                    alphaTarget._alpha = this._result * blendWeight;
-                }
-                else {
-                    alphaTarget._alpha = this._result;
-                }
+                alphaTarget._alpha = this._result * blendWeight;
             }
 
             if (isDirty || this.dirty) {
@@ -666,32 +650,6 @@ namespace dragonBones {
         }
 
         protected _onUpdateFrame(): void {
-        }
-    }
-    /**
-     * @internal
-     */
-    export class SlotZIndexTimelineState extends TimelineState {
-        public static toString(): string {
-            return "[class dragonBones.SlotZIndexTimelineState]";
-        }
-
-        protected _onArriveAtFrame(): void {
-            // if (this.playState >= 0) {
-            const slot = this.target as Slot;
-            slot._zIndex = this._timelineData !== null ? this._frameArray[this._frameOffset + 1] : slot._slotData.zIndex;
-            this._armature._zIndexDirty = true;
-            // }
-            this.dirty = false;
-        }
-
-        protected _onUpdateFrame(): void {
-            // if (this.playState >= 0) {
-            const slot = this.target as Slot;
-            slot._zIndex = this._timelineData !== null ? this._frameArray[this._frameOffset + 1] : slot._slotData.zIndex;
-            this._armature._zIndexDirty = true;
-            // }
-            this.dirty = false;
         }
     }
     /**
@@ -854,6 +812,49 @@ namespace dragonBones {
     /**
      * @internal
      */
+    export class SlotZIndexTimelineState extends SingleValueTimelineState {
+        public static toString(): string {
+            return "[class dragonBones.SlotZIndexTimelineState]";
+        }
+
+        protected _onArriveAtFrame(): void {
+            super._onArriveAtFrame();
+
+            if (this._timelineData === null) { // Pose.
+                const blendState = this.target as BlendState;
+                const slot = blendState.target as Slot;
+                this._result = slot.slotData.zIndex;
+            }
+        }
+
+        public init(armature: Armature, animationState: AnimationState, timelineData: TimelineData | null): void {
+            super.init(armature, animationState, timelineData);
+
+            this._valueOffset = this._animationData.frameIntOffset;
+            this._valueArray = this._animationData.parent.parent.frameIntArray;
+        }
+
+        public blend(isDirty: boolean): void {
+            const blendState = this.target as BlendState;
+            const slot = blendState.target as Slot;
+            const blendWeight = blendState.blendWeight;
+
+            if (blendState.dirty > 1) {
+                slot._zIndex += this._result * blendWeight;
+            }
+            else {
+                slot._zIndex = this._result * blendWeight;
+            }
+
+            if (isDirty || this.dirty) {
+                this.dirty = false;
+                this._armature._zIndexDirty = true;
+            }
+        }
+    }
+    /**
+     * @internal
+     */
     export class DeformTimelineState extends MutilpleValueTimelineState {
         public static toString(): string {
             return "[class dragonBones.DeformTimelineState]";
@@ -954,11 +955,8 @@ namespace dragonBones {
                     if (blendState.dirty > 1) {
                         result[i] += value * blendWeight;
                     }
-                    else if (blendWeight !== 1.0) {
-                        result[i] = value * blendWeight;
-                    }
                     else {
-                        result[i] = value;
+                        result[i] = value * blendWeight;
                     }
                 }
             }

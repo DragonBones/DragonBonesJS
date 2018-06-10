@@ -1003,15 +1003,14 @@ namespace dragonBones {
                             // TODO
                             break;
 
-                        case TimelineType.SlotDisplay:
-                        case TimelineType.SlotZIndex:  // TODO
+                        case TimelineType.SlotDisplay: // TODO
+                        case TimelineType.SlotZIndex:
                         case TimelineType.BoneAlpha:
                         case TimelineType.SlotAlpha:
                         case TimelineType.AnimationProgress:
                         case TimelineType.AnimationWeight:
                             if (
-                                timelineType === TimelineType.SlotDisplay ||
-                                timelineType === TimelineType.SlotZIndex
+                                timelineType === TimelineType.SlotDisplay
                             ) {
                                 this._frameValueType = FrameValueType.Step;
                                 this._frameValueScale = 1.0;
@@ -1019,7 +1018,10 @@ namespace dragonBones {
                             else {
                                 this._frameValueType = FrameValueType.Int;
 
-                                if (
+                                if (timelineType === TimelineType.SlotZIndex) {
+                                    this._frameValueScale = 1.0;
+                                }
+                                else if (
                                     timelineType === TimelineType.AnimationProgress ||
                                     timelineType === TimelineType.AnimationWeight
                                 ) {

@@ -2,7 +2,6 @@
 bin-debug/
 bin-release/
 bin/
-libs/
 node_modules/
 modules/
 .cache/

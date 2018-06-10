@@ -545,9 +545,9 @@ namespace dragonBones {
 
                                     case TimelineType.SlotZIndex: {
                                         const timeline = BaseObject.borrowObject(SlotZIndexTimelineState);
-                                        timeline.target = slot;
+                                        timeline.target = this._armature.animation.getBlendState(BlendState.SLOT_ALPHA, slot.name, slot);
                                         timeline.init(this._armature, this, timelineData);
-                                        this._slotTimelines.push(timeline);
+                                        this._slotBlendTimelines.push(timeline);
                                         break;
                                     }
 
@@ -972,12 +972,10 @@ namespace dragonBones {
                     if (leftState !== null) {
                         if (this._activeChildA !== leftState) {
                             if (this._activeChildA !== null) {
-                                this._activeChildA.displayControl = false;
                                 this._activeChildA.weight = 0.0;
                             }
 
                             this._activeChildA = leftState;
-                            this._activeChildA.displayControl = true;
                             this._activeChildA.activeTimeline();
                         }
 
@@ -1273,7 +1271,6 @@ namespace dragonBones {
                                 const animaitonTimelineData = timelineData as AnimationTimelineData;
                                 animationState.positionX = animaitonTimelineData.x;
                                 animationState.positionY = animaitonTimelineData.y;
-                                animationState.displayControl = false;
                                 animationState.weight = 0.0;
                             }
 
@@ -1515,6 +1512,7 @@ namespace dragonBones {
         public static readonly SURFACE: string = "surface";
         public static readonly SLOT_DEFORM: string = "slotDeform";
         public static readonly SLOT_ALPHA: string = "slotAlpha";
+        public static readonly SLOT_Z_INDEX: string = "slotZIndex";
 
         public static toString(): string {
             return "[class dragonBones.BlendState]";
@@ -1542,6 +1540,7 @@ namespace dragonBones {
                     if (this.layer !== animationLayer) {
                         if (this.layerWeight >= this.leftWeight) {
                             this.dirty++;
+                            this.layer = animationLayer;
                             this.leftWeight = 0.0;
                             this.blendWeight = 0.0;
                             
@@ -1550,12 +1549,13 @@ namespace dragonBones {
 
                         this.layer = animationLayer;
                         this.leftWeight -= this.layerWeight;
-                        this.layerWeight = animationWeight * this.leftWeight;
+                        this.layerWeight = 0.0;
                     }
 
                     animationWeight *= this.leftWeight;
                     this.dirty++;
                     this.blendWeight = animationWeight;
+                    this.layerWeight += this.blendWeight;
 
                     return true;
                 }
@@ -1565,9 +1565,9 @@ namespace dragonBones {
 
             this.dirty++;
             this.layer = animationLayer;
-            this.layerWeight = animationWeight;
             this.leftWeight = 1.0;
             this.blendWeight = animationWeight;
+            this.layerWeight = animationWeight;
 
             return true;
         }

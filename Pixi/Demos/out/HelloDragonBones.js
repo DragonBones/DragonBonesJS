@@ -26,7 +26,7 @@ var __extends = (this && this.__extends) || (function () {
  * 5. Add armature to stage.
  *    addChild(armatureDisplay);
  */
-var HelloDragonBones = /** @class */ (function (_super) {
+var HelloDragonBones = (function (_super) {
     __extends(HelloDragonBones, _super);
     function HelloDragonBones() {
         var _this = _super.call(this) || this;

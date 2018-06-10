@@ -14,6 +14,7 @@ class Main extends egret.DisplayObjectContainer {
         // this.addChild(new ReplaceSkin());
         // this.addChild(new ReplaceAnimation());
         // this.addChild(new coreElement.Game());
+        // this.addChild(new EyeTracking());
         // this.addChild(new PerformanceTest());
     }
 }
