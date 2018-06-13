@@ -75,7 +75,7 @@
 		"./src/dragonBones/phaser/PhaserTextureAtlasData.ts",
 		"./src/dragonBones/phaser/PhaserArmatureDisplay.ts",
 		"./src/dragonBones/phaser/PhaserSlot.ts",
-		"./src/dragonBones/phaser/PhaserSlotDisplay.ts",
-		"./src/dragonBones/phaser/PhaserFactory.ts"
+		"./src/dragonBones/phaser/PhaserFactory.ts",
+		"./src/dragonBones/phaser/PhaserPlugin.ts"
 	]
 }

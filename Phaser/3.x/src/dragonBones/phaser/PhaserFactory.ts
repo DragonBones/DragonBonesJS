@@ -33,21 +33,21 @@ namespace dragonBones {
      * @language zh_CN
      */
     export class PhaserFactory extends BaseFactory {
-        /**
-         * @internal
-         */
-        public static _game: Phaser.Game = null as any;
+        private static _game: Phaser.Game = null as any;
+        private static _scene: Phaser.Scene = null as any;
         private static _dragonBonesInstance: DragonBones = null as any;
         private static _factory: PhaserFactory = null as any;
 
-        public static init(game: Phaser.Game): void {
-            if (PhaserFactory._game !== null) {
-                return;
+        public static init(game: Phaser.Game, scene: Phaser.Scene): void {
+            this._scene = scene;
+            this._game = game;
+
+            if (this._dragonBonesInstance === null) {
+                const eventManager = new PhaserArmatureDisplay(this._scene);
+                this._dragonBonesInstance = new DragonBones(eventManager);
             }
 
-            PhaserFactory._game = game;
-            // const eventManager = new PhaserArmatureDisplay(this._game.scene.getScene("default")); // TODO How to create an global game object.
-            PhaserFactory._dragonBonesInstance = new DragonBones(null as any);
+            // (this._dragonBonesInstance.eventManager as PhaserArmatureDisplay).addTo(this._scene); // TODO how to add new scene.
         }
         /**
          * - A global factory instance that can be used directly.
@@ -60,11 +60,11 @@ namespace dragonBones {
          * @language zh_CN
          */
         public static get factory(): PhaserFactory {
-            if (PhaserFactory._factory === null) {
-                PhaserFactory._factory = new PhaserFactory();
+            if (this._factory === null) {
+                this._factory = new PhaserFactory();
             }
 
-            return PhaserFactory._factory;
+            return this._factory;
         }
         /**
          * @inheritDoc
@@ -76,7 +76,7 @@ namespace dragonBones {
         }
 
         protected _isSupportMesh(): boolean {
-            console.warn("Phaser-ce can not support mesh.");
+            console.warn("Phaser can not support mesh.");
 
             return false;
         }
@@ -94,7 +94,7 @@ namespace dragonBones {
 
         protected _buildArmature(dataPackage: BuildArmaturePackage): Armature {
             const armature = BaseObject.borrowObject(Armature);
-            const armatureDisplay = new PhaserArmatureDisplay(PhaserFactory._game.scene.getScene("default")); // TODO how to get current scene.
+            const armatureDisplay = new PhaserArmatureDisplay(PhaserFactory._scene);
 
             armature.init(
                 dataPackage.armature,
@@ -111,7 +111,7 @@ namespace dragonBones {
             armature;
 
             const slot = BaseObject.borrowObject(PhaserSlot);
-            const rawDisplay = new Phaser.GameObjects.Image(PhaserFactory._game.scene.getScene("default"), 0.0, 0.0, null as any); // TODO how to get current scene, how to set empty texture.
+            const rawDisplay = new Phaser.GameObjects.Image(PhaserFactory._scene, 0.0, 0.0, null as any); // TODO how to set empty texture.
 
             slot.init(
                 slotData, armature,

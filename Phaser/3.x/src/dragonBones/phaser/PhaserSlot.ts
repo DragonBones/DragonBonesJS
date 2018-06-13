@@ -228,7 +228,90 @@ namespace dragonBones {
         }
 
         protected _updateMesh(): void {
-            // TODO
+            const scale = this._armature._armatureData.scale;
+            const deformVertices = (this._displayFrame as DisplayFrame).deformVertices;
+            const bones = this._geometryBones;
+            const geometryData = this._geometryData as GeometryData;
+            const weightData = geometryData.weight;
+
+            const hasDeform = deformVertices.length > 0 && geometryData.inheritDeform;
+            const meshDisplay = this._renderDisplay as Phaser.GameObjects.Mesh;
+
+            if (weightData !== null) {
+                const data = geometryData.data;
+                const intArray = data.intArray;
+                const floatArray = data.floatArray;
+                const vertexCount = intArray[geometryData.offset + BinaryOffset.GeometryVertexCount];
+                let weightFloatOffset = intArray[weightData.offset + BinaryOffset.WeigthFloatOffset];
+
+                if (weightFloatOffset < 0) {
+                    weightFloatOffset += 65536; // Fixed out of bounds bug. 
+                }
+
+                for (
+                    let i = 0, iD = 0, iB = weightData.offset + BinaryOffset.WeigthBoneIndices + bones.length, iV = weightFloatOffset, iF = 0;
+                    i < vertexCount;
+                    ++i
+                ) {
+                    const boneCount = intArray[iB++];
+                    let xG = 0.0, yG = 0.0;
+
+                    for (let j = 0; j < boneCount; ++j) {
+                        const boneIndex = intArray[iB++];
+                        const bone = bones[boneIndex];
+
+                        if (bone !== null) {
+                            const matrix = bone.globalTransformMatrix;
+                            const weight = floatArray[iV++];
+                            let xL = floatArray[iV++] * scale;
+                            let yL = floatArray[iV++] * scale;
+
+                            if (hasDeform) {
+                                xL += deformVertices[iF++];
+                                yL += deformVertices[iF++];
+                            }
+
+                            xG += (matrix.a * xL + matrix.c * yL + matrix.tx) * weight;
+                            yG += (matrix.b * xL + matrix.d * yL + matrix.ty) * weight;
+                        }
+                    }
+
+                    meshDisplay.vertices[iD++] = xG;
+                    meshDisplay.vertices[iD++] = yG;
+                }
+            }
+            else {
+                const isSurface = this._parent._boneData.type !== BoneType.Bone;
+                const data = geometryData.data;
+                const intArray = data.intArray;
+                const floatArray = data.floatArray;
+                const vertexCount = intArray[geometryData.offset + BinaryOffset.GeometryVertexCount];
+                let vertexOffset = intArray[geometryData.offset + BinaryOffset.GeometryFloatOffset];
+
+                if (vertexOffset < 0) {
+                    vertexOffset += 65536; // Fixed out of bounds bug. 
+                }
+
+                for (let i = 0, l = vertexCount * 2; i < l; i += 2) {
+                    let x = floatArray[vertexOffset + i] * scale;
+                    let y = floatArray[vertexOffset + i + 1] * scale;
+
+                    if (hasDeform) {
+                        x += deformVertices[i];
+                        y += deformVertices[i + 1];
+                    }
+
+                    if (isSurface) {
+                        const matrix = (this._parent as Surface)._getGlobalTransformMatrix(x, y);
+                        meshDisplay.vertices[i] = matrix.a * x + matrix.c * y + matrix.tx;
+                        meshDisplay.vertices[i + 1] = matrix.b * x + matrix.d * y + matrix.ty;
+                    }
+                    else {
+                        meshDisplay.vertices[i] = x;
+                        meshDisplay.vertices[i + 1] = y;
+                    }
+                }
+            }
         }
 
         protected _updateTransform(): void {
