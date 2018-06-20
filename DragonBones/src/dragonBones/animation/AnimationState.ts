@@ -545,7 +545,7 @@ namespace dragonBones {
 
                                     case TimelineType.SlotZIndex: {
                                         const timeline = BaseObject.borrowObject(SlotZIndexTimelineState);
-                                        timeline.target = this._armature.animation.getBlendState(BlendState.SLOT_ALPHA, slot.name, slot);
+                                        timeline.target = this._armature.animation.getBlendState(BlendState.SLOT_Z_INDEX, slot.name, slot);
                                         timeline.init(this._armature, this, timelineData);
                                         this._slotBlendTimelines.push(timeline);
                                         break;
@@ -1543,7 +1543,7 @@ namespace dragonBones {
                             this.layer = animationLayer;
                             this.leftWeight = 0.0;
                             this.blendWeight = 0.0;
-                            
+
                             return false;
                         }
 
