@@ -80,8 +80,8 @@ namespace dragonBones {
 
                     textureData.renderTexture = new PIXI.Texture(
                         this._renderTexture,
-                        <any>textureData.region as PIXI.Rectangle, // No need to set frame.
-                        <any>textureData.region as PIXI.Rectangle,
+                        new PIXI.Rectangle(textureData.region.x, textureData.region.y, textureData.region.width, textureData.region.height),
+                        new PIXI.Rectangle(textureData.region.x, textureData.region.y, textureData.region.width, textureData.region.height),
                         new PIXI.Rectangle(0, 0, textureData.region.width, textureData.region.height),
                         textureData.rotated as any // .d.ts bug
                     );
