@@ -36,15 +36,7 @@ namespace dragonBones {
         private static _dragonBonesInstance: DragonBones = null as any;
         private static _factory: PixiFactory = null as any;
         private static _clockHandler(passedTime: number): void {
-            PixiFactory._dragonBonesInstance.advanceTime(PIXI.ticker.shared.elapsedMS * passedTime * 0.001);
-        }
-
-        private static _createDragonBones(): DragonBones {
-            const eventManager = new PixiArmatureDisplay();
-            const dragonBonesInstance = new DragonBones(eventManager);
-            PIXI.ticker.shared.add(PixiFactory._clockHandler, PixiFactory);
-
-            return dragonBonesInstance;
+            this._dragonBonesInstance.advanceTime(PIXI.ticker.shared.elapsedMS * passedTime * 0.001);
         }
         /**
          * - A global factory instance that can be used directly.
@@ -70,7 +62,9 @@ namespace dragonBones {
             super(dataParser);
 
             if (PixiFactory._dragonBonesInstance === null) {
-                PixiFactory._dragonBonesInstance = PixiFactory._createDragonBones();
+                const eventManager = new PixiArmatureDisplay();
+                PixiFactory._dragonBonesInstance = new DragonBones(eventManager);
+                PIXI.ticker.shared.add(PixiFactory._clockHandler, PixiFactory);
             }
 
             this._dragonBones = PixiFactory._dragonBonesInstance;

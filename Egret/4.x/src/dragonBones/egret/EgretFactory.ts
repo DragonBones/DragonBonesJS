@@ -45,7 +45,7 @@ namespace dragonBones {
             time *= 0.001;
 
             const passedTime = time - this._time;
-            EgretFactory._dragonBonesInstance.advanceTime(passedTime);
+            this._dragonBonesInstance.advanceTime(passedTime);
             this._time = time;
 
             return false;
@@ -61,11 +61,11 @@ namespace dragonBones {
          * @language zh_CN
          */
         public static get factory(): EgretFactory {
-            if (EgretFactory._factory === null) {
-                EgretFactory._factory = new EgretFactory();
+            if (this._factory === null) {
+                this._factory = new EgretFactory();
             }
 
-            return EgretFactory._factory;
+            return this._factory;
         }
         /**
          * @inheritDoc

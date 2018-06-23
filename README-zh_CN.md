@@ -8,6 +8,13 @@
 * [PixiJS](http://www.pixijs.com/) - [如何在 PixiJS 中使用 DragonBones](./Pixi/)
 * [Phaser](https://phaser.io/) - [如何在 Phaser 中使用 DragonBones](./Phaser/)
 * [Hilo](http://hiloteam.github.io/) - [如何在 Hilo 中使用 DragonBones](./Hilo/)
+* [Cocos Creator](http://www.cocos.com/) - [如何在 Cocos Creator 中使用 DragonBones](./Cocos/) 
+
+## 了解更多
+* [DragonBones 官网](http://www.dragonbones.com/)
+
+## 在线示例
+[![PerformanceTest](https://dragonbones.github.io/demo/demos.jpg)](https://github.com/DragonBones/Demos)
 
 ## 生成各引擎依赖的文件
 执行 `npm install -g dragonbones-runtime` 在全局安装 `dragonbones-runtime`。  
@@ -28,12 +35,6 @@ Hilo: `dbr hilo@1.1.6`
 npm - https://registry.npmjs.org/
 taobao - https://registry.npm.taobao.org/
 cnpm - http://r.cnpmjs.org/
-``` 
-
-## 了解更多
-* [DragonBones 官网](http://www.dragonbones.com/)
-
-## 在线示例
-[![PerformanceTest](https://dragonbones.github.io/demo/demos.jpg)](https://github.com/DragonBones/Demos)
+```
 
 Copyright (c) 2012-2018 The DragonBones team and other contributors.
