@@ -1,0 +1,7 @@
+{
+  "ver": "1.0.0",
+  "uuid": "6affadeb-1be4-4a41-8bab-5975d91b6759",
+  "atlasJson": "{\"width\":32,\"SubTexture\":[{\"width\":16,\"y\":1,\"height\":26,\"name\":\"earring/20803005\",\"x\":1}],\"height\":32,\"name\":\"20803005\",\"imagePath\":\"20803005_tex.png\"}",
+  "texture": "0c7bd5d5-c326-44f2-9140-36d7a0702c9c",
+  "subMetas": {}
+}

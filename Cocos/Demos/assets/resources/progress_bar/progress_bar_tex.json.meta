@@ -1,0 +1,7 @@
+{
+  "ver": "1.0.0",
+  "uuid": "f2c6fb73-a732-4c27-9a95-7e7580bb94c7",
+  "atlasJson": "{\"imagePath\":\"progress_bar_tex.png\",\"width\":1024,\"SubTexture\":[{\"width\":600,\"y\":1,\"height\":4,\"name\":\"_texture/track\",\"x\":73},{\"width\":600,\"y\":7,\"height\":4,\"name\":\"_texture/bar\",\"x\":73},{\"width\":88,\"y\":1,\"height\":30,\"name\":\"_texture/thrmb\",\"x\":675},{\"width\":70,\"y\":1,\"height\":60,\"name\":\"_texture/_diamond\",\"x\":1}],\"height\":64,\"name\":\"progress_bar\"}",
+  "texture": "73462a3c-c3ce-46d1-aa02-b5117fafddca",
+  "subMetas": {}
+}

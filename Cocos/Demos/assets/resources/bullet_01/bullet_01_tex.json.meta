@@ -1,0 +1,7 @@
+{
+  "ver": "1.0.0",
+  "uuid": "2a29bd11-005e-4969-a459-bf2834cfe41d",
+  "atlasJson": "{\"SubTexture\":[{\"width\":74,\"y\":1,\"height\":20,\"name\":\"bullet_01_f/bullet_01\",\"x\":1}],\"width\":128,\"height\":32,\"name\":\"bullet_01\",\"imagePath\":\"bullet_01_tex.png\"}",
+  "texture": "eac75507-47a5-4482-9497-53621aa3c1cd",
+  "subMetas": {}
+}

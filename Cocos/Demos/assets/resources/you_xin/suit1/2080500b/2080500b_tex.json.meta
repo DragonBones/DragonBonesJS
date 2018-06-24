@@ -1,0 +1,7 @@
+{
+  "ver": "1.0.0",
+  "uuid": "29164cb0-eb77-4977-b916-7c880238c669",
+  "atlasJson": "{\"width\":256,\"SubTexture\":[{\"width\":159,\"y\":1,\"height\":323,\"name\":\"glove/2080500b\",\"x\":1}],\"height\":512,\"name\":\"2080500b\",\"imagePath\":\"2080500b_tex.png\"}",
+  "texture": "d64df66d-7dc0-483b-86dc-b780b39bcf2c",
+  "subMetas": {}
+}

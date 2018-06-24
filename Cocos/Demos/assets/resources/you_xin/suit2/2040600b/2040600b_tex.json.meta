@@ -1,0 +1,7 @@
+{
+  "ver": "1.0.0",
+  "uuid": "8bdc41b5-ced1-40f0-a830-0f0abe568cb3",
+  "atlasJson": "{\"width\":512,\"SubTexture\":[{\"width\":262,\"y\":1,\"height\":936,\"name\":\"coat/2040600b\",\"x\":1}],\"height\":1024,\"name\":\"2040600b\",\"imagePath\":\"2040600b_tex.png\"}",
+  "texture": "7765dbcd-d72a-4538-9ca9-384fdf4037f2",
+  "subMetas": {}
+}

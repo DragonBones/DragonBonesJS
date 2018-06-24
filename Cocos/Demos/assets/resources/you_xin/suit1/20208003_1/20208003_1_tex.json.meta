@@ -1,0 +1,7 @@
+{
+  "ver": "1.0.0",
+  "uuid": "1901d0d0-5034-4be3-a073-36a5ebfd5339",
+  "atlasJson": "{\"width\":256,\"SubTexture\":[{\"width\":230,\"y\":1,\"height\":470,\"name\":\"cloak/20208003_1\",\"x\":1}],\"height\":512,\"name\":\"20208003_1\",\"imagePath\":\"20208003_1_tex.png\"}",
+  "texture": "aff9d8c3-89bd-434f-a4dd-a8c914884ad1",
+  "subMetas": {}
+}

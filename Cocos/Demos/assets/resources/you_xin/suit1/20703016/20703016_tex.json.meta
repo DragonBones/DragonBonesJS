@@ -1,0 +1,7 @@
+{
+  "ver": "1.0.0",
+  "uuid": "6c7e27f5-ac96-4020-8a60-5aae357483a0",
+  "atlasJson": "{\"width\":256,\"SubTexture\":[{\"width\":183,\"y\":1,\"height\":238,\"name\":\"shoe/20703016\",\"x\":1}],\"height\":256,\"name\":\"20703016\",\"imagePath\":\"20703016_tex.png\"}",
+  "texture": "23756136-49b7-4d13-a1e9-a913ee8b0079",
+  "subMetas": {}
+}

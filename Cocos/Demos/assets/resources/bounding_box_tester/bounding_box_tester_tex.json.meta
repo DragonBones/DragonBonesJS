@@ -1,0 +1,7 @@
+{
+  "ver": "1.0.0",
+  "uuid": "873f638a-76dd-47b0-ae41-a6483840874c",
+  "atlasJson": "{\"SubTexture\":[{\"width\":400,\"y\":1,\"height\":40,\"name\":\"line\",\"x\":1},{\"width\":100,\"y\":1,\"height\":100,\"name\":\"circle\",\"x\":403}],\"width\":512,\"height\":128,\"name\":\"bounding_box_tester\",\"imagePath\":\"bounding_box_tester_tex.png\"}",
+  "texture": "68d3d675-1012-4985-87b8-66dea6588f19",
+  "subMetas": {}
+}
