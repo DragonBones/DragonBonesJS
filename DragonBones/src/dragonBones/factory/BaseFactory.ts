@@ -251,9 +251,7 @@ namespace dragonBones {
             }
         }
 
-        protected _buildChildArmature(dataPackage: BuildArmaturePackage | null, slot: Slot, displayData: DisplayData): Armature | null {
-            // tslint:disable-next-line:no-unused-expression
-            slot;
+        protected _buildChildArmature(dataPackage: BuildArmaturePackage | null, _slot: Slot, displayData: ArmatureDisplayData): Armature | null {
             return this.buildArmature(displayData.path, dataPackage !== null ? dataPackage.dataName : "", "", dataPackage !== null ? dataPackage.textureAtlasName : "");
         }
 
@@ -288,7 +286,7 @@ namespace dragonBones {
 
                 case DisplayType.Armature: {
                     const armatureDisplayData = displayData as ArmatureDisplayData;
-                    const childArmature = this._buildChildArmature(dataPackage, slot, displayData);
+                    const childArmature = this._buildChildArmature(dataPackage, slot, armatureDisplayData);
                     if (childArmature !== null) {
                         childArmature.inheritAnimation = armatureDisplayData.inheritAnimation;
                         if (!childArmature.inheritAnimation) {

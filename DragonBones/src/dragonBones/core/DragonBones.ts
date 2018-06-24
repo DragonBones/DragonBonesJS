@@ -22,7 +22,7 @@
  */
 namespace dragonBones {
     /**
-     * @internal
+     * @private
      */
     export const enum BinaryOffset {
         WeigthBoneCount = 0,
@@ -379,7 +379,7 @@ var __extends: any = function (t: any, e: any) {
     r.prototype = e.prototype, t.prototype = new (r as any)();
 };
 //
-if (typeof global === "undefined") {
+if (typeof global === "undefined" && typeof window !== "undefined") {
     var global = window as any;
 }
 //
@@ -393,5 +393,8 @@ else if (typeof define === "function" && define["amd"]) {
     define(["dragonBones"], function () { return dragonBones; });
 }
 else if (typeof exports === "object") {
-    exports["dragonBones"] = dragonBones;
+    exports = dragonBones;
+}
+else if (typeof global !== "undefined") {
+    global.dragonBones = dragonBones;
 }
