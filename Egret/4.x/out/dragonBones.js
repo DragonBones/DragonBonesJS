@@ -102,10 +102,6 @@ var dragonBones;
     dragonBones.DragonBones = DragonBones;
 })(dragonBones || (dragonBones = {}));
 //
-if (typeof global === "undefined") {
-    var global = window;
-}
-//
 if (!console.warn) {
     console.warn = function () { };
 }
@@ -130,6 +126,22 @@ var __extends = function (t, e) {
     }
     r.prototype = e.prototype, t.prototype = new r();
 };
+//
+if (typeof global === "undefined" && typeof window !== "undefined") {
+    var global = window;
+}
+if (typeof exports === "object" && typeof module === "object") {
+    module.exports = dragonBones;
+}
+else if (typeof define === "function" && define["amd"]) {
+    define(["dragonBones"], function () { return dragonBones; });
+}
+else if (typeof exports === "object") {
+    exports = dragonBones;
+}
+else if (typeof global !== "undefined") {
+    global.dragonBones = dragonBones;
+}
 /**
  * The MIT License (MIT)
  *
@@ -8685,7 +8697,7 @@ var dragonBones;
                                         this._boneTimelines.push(timeline);
                                         break;
                                     }
-                                    case 19 /* BoneAlpha */: {
+                                    case 60 /* BoneAlpha */: {
                                         var timeline = dragonBones.BaseObject.borrowObject(dragonBones.AlphaTimelineState);
                                         timeline.target = this._armature.animation.getBlendState(BlendState.BONE_ALPHA, bone.name, bone);
                                         timeline.init(this._armature, this, timelineData);
@@ -8788,7 +8800,7 @@ var dragonBones;
                                     }
                                     case 23 /* SlotZIndex */: {
                                         var timeline = dragonBones.BaseObject.borrowObject(dragonBones.SlotZIndexTimelineState);
-                                        timeline.target = this._armature.animation.getBlendState(BlendState.SLOT_ALPHA, slot.name, slot);
+                                        timeline.target = this._armature.animation.getBlendState(BlendState.SLOT_Z_INDEX, slot.name, slot);
                                         timeline.init(this._armature, this, timelineData);
                                         this._slotBlendTimelines.push(timeline);
                                         break;
@@ -12627,7 +12639,7 @@ var dragonBones;
                             break;
                         case 20 /* SlotDisplay */: // TODO
                         case 23 /* SlotZIndex */:
-                        case 19 /* BoneAlpha */:
+                        case 60 /* BoneAlpha */:
                         case 24 /* SlotAlpha */:
                         case 40 /* AnimationProgress */:
                         case 41 /* AnimationWeight */:
@@ -12648,7 +12660,7 @@ var dragonBones;
                                     this._frameValueScale = 100.0;
                                 }
                             }
-                            if (timelineType === 19 /* BoneAlpha */ ||
+                            if (timelineType === 60 /* BoneAlpha */ ||
                                 timelineType === 24 /* SlotAlpha */ ||
                                 timelineType === 41 /* AnimationWeight */) {
                                 this._frameDefaultValue = 1.0;
@@ -12748,7 +12760,7 @@ var dragonBones;
                             case 12 /* BoneRotate */:
                             case 13 /* BoneScale */:
                             case 50 /* Surface */:
-                            case 19 /* BoneAlpha */:
+                            case 60 /* BoneAlpha */:
                                 this._animation.addBoneTimeline(timelineName, timeline);
                                 break;
                             case 20 /* SlotDisplay */:
@@ -14029,7 +14041,7 @@ var dragonBones;
                             case 12 /* BoneRotate */:
                             case 13 /* BoneScale */:
                             case 50 /* Surface */:
-                            case 19 /* BoneAlpha */:
+                            case 60 /* BoneAlpha */:
                                 this._animation.addBoneTimeline(timelineName, timeline);
                                 break;
                             case 20 /* SlotDisplay */:
@@ -14370,9 +14382,7 @@ var dragonBones;
                 }
             }
         };
-        BaseFactory.prototype._buildChildArmature = function (dataPackage, slot, displayData) {
-            // tslint:disable-next-line:no-unused-expression
-            slot;
+        BaseFactory.prototype._buildChildArmature = function (dataPackage, _slot, displayData) {
             return this.buildArmature(displayData.path, dataPackage !== null ? dataPackage.dataName : "", "", dataPackage !== null ? dataPackage.textureAtlasName : "");
         };
         BaseFactory.prototype._getSlotDisplay = function (dataPackage, displayData, slot) {
@@ -14402,7 +14412,7 @@ var dragonBones;
                 }
                 case 1 /* Armature */: {
                     var armatureDisplayData = displayData;
-                    var childArmature = this._buildChildArmature(dataPackage, slot, displayData);
+                    var childArmature = this._buildChildArmature(dataPackage, slot, armatureDisplayData);
                     if (childArmature !== null) {
                         childArmature.inheritAnimation = armatureDisplayData.inheritAnimation;
                         if (!childArmature.inheritAnimation) {
@@ -16255,7 +16265,7 @@ var dragonBones;
         EgretFactory._clockHandler = function (time) {
             time *= 0.001;
             var passedTime = time - this._time;
-            EgretFactory._dragonBonesInstance.advanceTime(passedTime);
+            this._dragonBonesInstance.advanceTime(passedTime);
             this._time = time;
             return false;
         };
@@ -16271,10 +16281,10 @@ var dragonBones;
              * @language zh_CN
              */
             get: function () {
-                if (EgretFactory._factory === null) {
-                    EgretFactory._factory = new EgretFactory();
+                if (this._factory === null) {
+                    this._factory = new EgretFactory();
                 }
-                return EgretFactory._factory;
+                return this._factory;
             },
             enumerable: true,
             configurable: true
@@ -16309,9 +16319,7 @@ var dragonBones;
             armature.init(dataPackage.armature, armatureDisplay, armatureDisplay, this._dragonBones);
             return armature;
         };
-        EgretFactory.prototype._buildSlot = function (dataPackage, slotData, armature) {
-            // tslint:disable-next-line:no-unused-expression
-            dataPackage;
+        EgretFactory.prototype._buildSlot = function (_dataPackage, slotData, armature) {
             var slot = dragonBones.BaseObject.borrowObject(dragonBones.EgretSlot);
             slot.init(slotData, armature, new egret.Bitmap(), new egret.Mesh());
             return slot;

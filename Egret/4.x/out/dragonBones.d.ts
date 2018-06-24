@@ -24,6 +24,34 @@ declare namespace dragonBones {
     /**
      * @private
      */
+    const enum BinaryOffset {
+        WeigthBoneCount = 0,
+        WeigthFloatOffset = 1,
+        WeigthBoneIndices = 2,
+        GeometryVertexCount = 0,
+        GeometryTriangleCount = 1,
+        GeometryFloatOffset = 2,
+        GeometryWeightOffset = 3,
+        GeometryVertexIndices = 4,
+        TimelineScale = 0,
+        TimelineOffset = 1,
+        TimelineKeyFrameCount = 2,
+        TimelineFrameValueCount = 3,
+        TimelineFrameValueOffset = 4,
+        TimelineFrameOffset = 5,
+        FramePosition = 0,
+        FrameTweenType = 1,
+        FrameTweenEasingOrCurveSampleCount = 2,
+        FrameCurveSamples = 3,
+        DeformVertexOffset = 0,
+        DeformCount = 1,
+        DeformValueCount = 2,
+        DeformValueOffset = 3,
+        DeformFloatOffset = 4,
+    }
+    /**
+     * @private
+     */
     const enum ArmatureType {
         Armature = 0,
         MovieClip = 1,
@@ -109,8 +137,8 @@ declare namespace dragonBones {
         BoneTranslate = 11,
         BoneRotate = 12,
         BoneScale = 13,
-        BoneAlpha = 19,
         Surface = 50,
+        BoneAlpha = 60,
         SlotDisplay = 20,
         SlotColor = 21,
         SlotDeform = 22,
@@ -264,6 +292,9 @@ declare namespace dragonBones {
     }
 }
 
+declare var exports: any;
+declare var module: any;
+declare var define: any;
 /**
  * The MIT License (MIT)
  *
@@ -5775,7 +5806,7 @@ declare namespace dragonBones {
          */
         protected _buildSlots(dataPackage: BuildArmaturePackage, armature: Armature): void;
         protected _buildConstraints(dataPackage: BuildArmaturePackage, armature: Armature): void;
-        protected _buildChildArmature(dataPackage: BuildArmaturePackage | null, slot: Slot, displayData: DisplayData): Armature | null;
+        protected _buildChildArmature(dataPackage: BuildArmaturePackage | null, _slot: Slot, displayData: ArmatureDisplayData): Armature | null;
         protected _getSlotDisplay(dataPackage: BuildArmaturePackage | null, displayData: DisplayData, slot: Slot): any;
         protected abstract _buildTextureAtlasData(textureAtlasData: TextureAtlasData | null, textureAtlas: any): TextureAtlasData;
         protected abstract _buildArmature(dataPackage: BuildArmaturePackage): Armature;
@@ -6516,7 +6547,7 @@ declare namespace dragonBones {
         protected _isSupportMesh(): boolean;
         protected _buildTextureAtlasData(textureAtlasData: EgretTextureAtlasData | null, textureAtlas: egret.Texture | HTMLImageElement | null): EgretTextureAtlasData;
         protected _buildArmature(dataPackage: BuildArmaturePackage): Armature;
-        protected _buildSlot(dataPackage: BuildArmaturePackage, slotData: SlotData, armature: Armature): Slot;
+        protected _buildSlot(_dataPackage: BuildArmaturePackage, slotData: SlotData, armature: Armature): Slot;
         /**
          * - Create a armature from cached DragonBonesData instances and TextureAtlasData instances, then use the {@link #clock} to update it.
          * Note that when the created armature proxy that is no longer in use, you need to explicitly dispose {@link #dragonBones.IArmatureProxy#dispose()}.
