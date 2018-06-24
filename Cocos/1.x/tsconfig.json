@@ -1,0 +1,81 @@
+{
+	"compilerOptions": {
+		"watch": false,
+		"sourceMap": false,
+		"declaration": true,
+        "stripInternal": true,
+		"alwaysStrict": true,
+		"noImplicitAny": true,
+		"noImplicitThis": true,
+		"noUnusedLocals": true,
+		"noUnusedParameters": true,
+		"strictNullChecks": true,
+		"experimentalDecorators": true,
+		"allowSyntheticDefaultImports": true,
+		"target": "es5",
+		"outFile": "out/dragonBones.js",
+		"lib": [
+			"es5",
+			"dom",
+			"es2015.promise"
+		]
+	},
+	"exclude": [
+		"node_modules",
+		"out"
+	],
+	"files": [
+		"./libs/creator.d.ts",
+		
+		"../../DragonBones/src/dragonBones/core/DragonBones.ts",
+		"../../DragonBones/src/dragonBones/core/BaseObject.ts",
+
+		"../../DragonBones/src/dragonBones/geom/Matrix.ts",
+		"../../DragonBones/src/dragonBones/geom/Transform.ts",
+		"../../DragonBones/src/dragonBones/geom/ColorTransform.ts",
+		"../../DragonBones/src/dragonBones/geom/Point.ts",
+		"../../DragonBones/src/dragonBones/geom/Rectangle.ts",
+
+		"../../DragonBones/src/dragonBones/model/UserData.ts",
+		"../../DragonBones/src/dragonBones/model/DragonBonesData.ts",
+		"../../DragonBones/src/dragonBones/model/ArmatureData.ts",
+		"../../DragonBones/src/dragonBones/model/CanvasData.ts",
+		"../../DragonBones/src/dragonBones/model/SkinData.ts",
+		"../../DragonBones/src/dragonBones/model/ConstraintData.ts",
+		"../../DragonBones/src/dragonBones/model/DisplayData.ts",
+		"../../DragonBones/src/dragonBones/model/BoundingBoxData.ts",
+		"../../DragonBones/src/dragonBones/model/AnimationData.ts",
+		"../../DragonBones/src/dragonBones/model/AnimationConfig.ts",
+		"../../DragonBones/src/dragonBones/model/TextureAtlasData.ts",
+
+		"../../DragonBones/src/dragonBones/armature/IArmatureProxy.ts",
+		"../../DragonBones/src/dragonBones/armature/Armature.ts",
+		"../../DragonBones/src/dragonBones/armature/TransformObject.ts",
+		"../../DragonBones/src/dragonBones/armature/Bone.ts",
+		"../../DragonBones/src/dragonBones/armature/Surface.ts",
+		"../../DragonBones/src/dragonBones/armature/Slot.ts",
+		"../../DragonBones/src/dragonBones/armature/Constraint.ts",
+
+		"../../DragonBones/src/dragonBones/animation/IAnimatable.ts",
+		"../../DragonBones/src/dragonBones/animation/WorldClock.ts",
+		"../../DragonBones/src/dragonBones/animation/Animation.ts",
+		"../../DragonBones/src/dragonBones/animation/AnimationState.ts",
+		"../../DragonBones/src/dragonBones/animation/BaseTimelineState.ts",
+		"../../DragonBones/src/dragonBones/animation/TimelineState.ts",
+		
+		"../../DragonBones/src/dragonBones/event/EventObject.ts",
+		"../../DragonBones/src/dragonBones/event/IEventDispatcher.ts",
+
+		"../../DragonBones/src/dragonBones/parser/DataParser.ts",
+		"../../DragonBones/src/dragonBones/parser/ObjectDataParser.ts",
+		"../../DragonBones/src/dragonBones/parser/BinaryDataParser.ts",
+
+		"../../DragonBones/src/dragonBones/factory/BaseFactory.ts",
+
+		"./src/dragonBones/cocos/CocosAsset.ts",
+		"./src/dragonBones/cocos/CocosTextureAtlasData.ts",
+		"./src/dragonBones/cocos/CocosArmatureComponent.ts",
+		"./src/dragonBones/cocos/CocosSlot.ts",
+		"./src/dragonBones/cocos/CocosFactory.ts"
+	]
+}
