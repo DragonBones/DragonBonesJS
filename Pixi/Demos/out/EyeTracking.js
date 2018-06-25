@@ -9,7 +9,7 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-var EyeTracking = (function (_super) {
+var EyeTracking = /** @class */ (function (_super) {
     __extends(EyeTracking, _super);
     function EyeTracking() {
         var _this = _super.call(this) || this;

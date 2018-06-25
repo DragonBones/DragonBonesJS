@@ -1,4 +1,7 @@
 ## How to build
+* Clone or download [DragonBonesJS](https://github.com/DragonBones/DragonBonesJS/).
+* Install [Node.JS](https://nodejs.org/).
+* Open `DragonBonesJS/Cocos/1.x/` in command.
 * $ `npm install`
 * $ `npm run build`
 
@@ -15,6 +18,9 @@ Your project
         |-- ...
     |-- ...
 ```
+
+## Notice
+Your should remove all dragoneBones declaration in creator.d.ts.
 
 ## Creator declaration
 [Get creator.d.ts](https://google.com/)

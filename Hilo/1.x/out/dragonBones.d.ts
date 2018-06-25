@@ -22,7 +22,7 @@
  */
 declare namespace dragonBones {
     /**
-     * @internal
+     * @private
      */
     const enum BinaryOffset {
         WeigthBoneCount = 0,
@@ -50,7 +50,7 @@ declare namespace dragonBones {
         DeformFloatOffset = 4,
     }
     /**
-     * @internal
+     * @private
      */
     const enum ArmatureType {
         Armature = 0,
@@ -58,7 +58,7 @@ declare namespace dragonBones {
         Stage = 2,
     }
     /**
-     * @internal
+     * @private
      */
     const enum BoneType {
         Bone = 0,
@@ -90,7 +90,7 @@ declare namespace dragonBones {
         Polygon = 2,
     }
     /**
-     * @internal
+     * @private
      */
     const enum ActionType {
         Play = 0,
@@ -98,7 +98,7 @@ declare namespace dragonBones {
         Sound = 11,
     }
     /**
-     * @internal
+     * @private
      */
     const enum BlendMode {
         Normal = 0,
@@ -117,7 +117,7 @@ declare namespace dragonBones {
         Subtract = 13,
     }
     /**
-     * @internal
+     * @private
      */
     const enum TweenType {
         None = 0,
@@ -128,7 +128,7 @@ declare namespace dragonBones {
         QuadInOut = 5,
     }
     /**
-     * @internal
+     * @private
      */
     const enum TimelineType {
         Action = 0,
@@ -137,8 +137,8 @@ declare namespace dragonBones {
         BoneTranslate = 11,
         BoneRotate = 12,
         BoneScale = 13,
-        BoneAlpha = 19,
         Surface = 50,
+        BoneAlpha = 60,
         SlotDisplay = 20,
         SlotColor = 21,
         SlotDeform = 22,
@@ -292,6 +292,9 @@ declare namespace dragonBones {
     }
 }
 declare var __extends: any;
+declare var exports: any;
+declare var module: any;
+declare var define: any;
 /**
  * The MIT License (MIT)
  *
@@ -781,7 +784,7 @@ declare namespace dragonBones {
  */
 declare namespace dragonBones {
     /**
-     * @internal
+     * @private
      */
     class ColorTransform {
         alphaMultiplier: number;
@@ -1106,7 +1109,7 @@ declare namespace dragonBones {
         getString(index?: number): string;
     }
     /**
-     * @internal
+     * @private
      */
     class ActionData extends BaseObject {
         static toString(): string;
@@ -1721,7 +1724,7 @@ declare namespace dragonBones {
  */
 declare namespace dragonBones {
     /**
-     * @internal
+     * @private
      */
     abstract class ConstraintData extends BaseObject {
         order: number;
@@ -1786,7 +1789,7 @@ declare namespace dragonBones {
  */
 declare namespace dragonBones {
     /**
-     * @internal
+     * @private
      */
     class CanvasData extends BaseObject {
         static toString(): string;
@@ -1892,7 +1895,7 @@ declare namespace dragonBones {
  */
 declare namespace dragonBones {
     /**
-     * @internal
+     * @private
      */
     class GeometryData {
         isShared: boolean;
@@ -1902,9 +1905,11 @@ declare namespace dragonBones {
         weight: WeightData | null;
         clear(): void;
         shareFrom(value: GeometryData): void;
+        readonly vertexCount: number;
+        readonly triangleCount: number;
     }
     /**
-     * @internal
+     * @private
      */
     abstract class DisplayData extends BaseObject {
         type: DisplayType;
@@ -1915,7 +1920,7 @@ declare namespace dragonBones {
         protected _onClear(): void;
     }
     /**
-     * @internal
+     * @private
      */
     class ImageDisplayData extends DisplayData {
         static toString(): string;
@@ -1924,7 +1929,7 @@ declare namespace dragonBones {
         protected _onClear(): void;
     }
     /**
-     * @internal
+     * @private
      */
     class ArmatureDisplayData extends DisplayData {
         static toString(): string;
@@ -1938,7 +1943,7 @@ declare namespace dragonBones {
         addAction(value: ActionData): void;
     }
     /**
-     * @internal
+     * @private
      */
     class MeshDisplayData extends DisplayData {
         static toString(): string;
@@ -1947,7 +1952,7 @@ declare namespace dragonBones {
         protected _onClear(): void;
     }
     /**
-     * @internal
+     * @private
      */
     class BoundingBoxDisplayData extends DisplayData {
         static toString(): string;
@@ -1955,7 +1960,7 @@ declare namespace dragonBones {
         protected _onClear(): void;
     }
     /**
-     * @internal
+     * @private
      */
     class PathDisplayData extends DisplayData {
         static toString(): string;
@@ -1966,7 +1971,7 @@ declare namespace dragonBones {
         protected _onClear(): void;
     }
     /**
-     * @internal
+     * @private
      */
     class WeightData extends BaseObject {
         static toString(): string;
@@ -2433,7 +2438,7 @@ declare namespace dragonBones {
         getSlotCachedFrameIndices(slotName: string): Array<number> | null;
     }
     /**
-     * @internal
+     * @private
      */
     class TimelineData extends BaseObject {
         static toString(): string;
@@ -2831,7 +2836,7 @@ declare namespace dragonBones {
         getTexture(textureName: string): TextureData | null;
     }
     /**
-     * @internal
+     * @private
      */
     abstract class TextureData extends BaseObject {
         static createRectangle(): Rectangle;
@@ -3835,7 +3840,7 @@ declare namespace dragonBones {
  */
 declare namespace dragonBones {
     /**
-     * @internal
+     * @private
      */
     class DisplayFrame extends BaseObject {
         static toString(): string;
@@ -4809,7 +4814,7 @@ declare namespace dragonBones {
          * @version DragonBones 4.5
          * @language zh_CN
          */
-        fadeIn(animationName: string, fadeInTime?: number, playTimes?: number, layer?: number, group?: string | null, additive?: boolean, fadeOutMode?: AnimationFadeOutMode): AnimationState | null;
+        fadeIn(animationName: string, fadeInTime?: number, playTimes?: number, layer?: number, group?: string | null, fadeOutMode?: AnimationFadeOutMode): AnimationState | null;
         /**
          * - Play a specific animation from the specific time.
          * @param animationName - The name of animation data.
@@ -4925,6 +4930,7 @@ declare namespace dragonBones {
         /**
          * - Get a specific animation state.
          * @param animationName - The name of animation state.
+         * @param layer - The layer of find animation states. [-1: Find all layers, [0~N]: Specified layer] (default: -1)
          * @example
          * <pre>
          *     armature.animation.play("walk");
@@ -4935,8 +4941,9 @@ declare namespace dragonBones {
          * @language en_US
          */
         /**
-         * - 获取指定的动画状态
+         * - 获取指定的动画状态。
          * @param animationName - 动画状态名称。
+         * @param layer - 查找动画状态的层级。 [-1: 查找所有层级, [0~N]: 指定层级] （默认: -1）
          * @example
          * <pre>
          *     armature.animation.play("walk");
@@ -5303,6 +5310,8 @@ declare namespace dragonBones {
          */
         _actionTimeline: ActionTimelineState;
         private _zOrderTimeline;
+        private _activeChildA;
+        private _activeChildB;
         /**
          * @internal
          */
@@ -5414,6 +5423,10 @@ declare namespace dragonBones {
          * @private
          */
         addState(animationState: AnimationState, timelineDatas?: TimelineData[] | null): void;
+        /**
+         * @internal
+         */
+        activeTimeline(): void;
         /**
          * - Whether the animation state is fading in.
          * @version DragonBones 5.1
@@ -5538,7 +5551,7 @@ declare namespace dragonBones {
         static readonly SURFACE: string;
         static readonly SLOT_DEFORM: string;
         static readonly SLOT_ALPHA: string;
-        static readonly SLOT_ZINDEX: string;
+        static readonly SLOT_Z_INDEX: string;
         static toString(): string;
         dirty: number;
         layer: number;
@@ -5780,17 +5793,6 @@ declare namespace dragonBones {
     /**
      * @internal
      */
-    class SlotZIndexTimelineState extends TimelineState {
-        static toString(): string;
-        protected _zIndex: number;
-        protected _onClear(): void;
-        protected _onArriveAtFrame(): void;
-        protected _onUpdateFrame(): void;
-        blend(isDirty: boolean): void;
-    }
-    /**
-     * @internal
-     */
     class SlotColorTimelineState extends TweenTimelineState {
         static toString(): string;
         private readonly _current;
@@ -5800,6 +5802,15 @@ declare namespace dragonBones {
         protected _onUpdateFrame(): void;
         fadeOut(): void;
         update(passedTime: number): void;
+    }
+    /**
+     * @internal
+     */
+    class SlotZIndexTimelineState extends SingleValueTimelineState {
+        static toString(): string;
+        protected _onArriveAtFrame(): void;
+        init(armature: Armature, animationState: AnimationState, timelineData: TimelineData | null): void;
+        blend(isDirty: boolean): void;
     }
     /**
      * @internal
@@ -6226,7 +6237,7 @@ declare namespace dragonBones {
  */
 declare namespace dragonBones {
     /**
-     * @internal
+     * @private
      */
     abstract class DataParser {
         protected static readonly DATA_VERSION_2_3: string;
@@ -6399,7 +6410,7 @@ declare namespace dragonBones {
  */
 declare namespace dragonBones {
     /**
-     * @internal
+     * @private
      */
     const enum FrameValueType {
         Step = 0,
@@ -6407,7 +6418,7 @@ declare namespace dragonBones {
         Float = 2,
     }
     /**
-     * @internal
+     * @private
      */
     class ObjectDataParser extends DataParser {
         protected static _getBoolean(rawData: any, key: string, defaultValue: boolean): boolean;
@@ -6508,7 +6519,7 @@ declare namespace dragonBones {
         static getInstance(): ObjectDataParser;
     }
     /**
-     * @internal
+     * @private
      */
     class ActionFrame {
         frameStart: number;
@@ -6539,7 +6550,7 @@ declare namespace dragonBones {
  */
 declare namespace dragonBones {
     /**
-     * @internal
+     * @private
      */
     class BinaryDataParser extends ObjectDataParser {
         private _binaryOffset;
@@ -6644,7 +6655,7 @@ declare namespace dragonBones {
          */
         protected _buildSlots(dataPackage: BuildArmaturePackage, armature: Armature): void;
         protected _buildConstraints(dataPackage: BuildArmaturePackage, armature: Armature): void;
-        protected _buildChildArmature(dataPackage: BuildArmaturePackage | null, slot: Slot, displayData: DisplayData): Armature | null;
+        protected _buildChildArmature(dataPackage: BuildArmaturePackage | null, _slot: Slot, displayData: ArmatureDisplayData): Armature | null;
         protected _getSlotDisplay(dataPackage: BuildArmaturePackage | null, displayData: DisplayData, slot: Slot): any;
         protected abstract _buildTextureAtlasData(textureAtlasData: TextureAtlasData | null, textureAtlas: any): TextureAtlasData;
         protected abstract _buildArmature(dataPackage: BuildArmaturePackage): Armature;
@@ -6706,9 +6717,20 @@ declare namespace dragonBones {
          */
         parseTextureAtlasData(rawData: any, textureAtlas: any, name?: string | null, scale?: number): TextureAtlasData;
         /**
-         * @private
+         * - Update texture atlases.
+         * @param textureAtlases - The texture atlas objects.
+         * @param name - The texture atlas name.
+         * @version DragonBones 5.7
+         * @language en_US
          */
-        updateTextureAtlasData(name: string, textureAtlases: Array<any>): void;
+        /**
+         * - 更新贴图集对象。
+         * @param textureAtlases - 多个贴图集对象。
+         * @param name - 贴图集名称。
+         * @version DragonBones 5.7
+         * @language zh_CN
+         */
+        updateTextureAtlases(textureAtlases: Array<any>, name: string): void;
         /**
          * - Get a specific DragonBonesData instance.
          * @param name - The DragonBonesData instance cache name.
@@ -7056,7 +7078,7 @@ declare namespace dragonBones {
         readonly dragonBones: DragonBones;
     }
     /**
-     * @internal
+     * @private
      */
     class BuildArmaturePackage {
         dataName: string;

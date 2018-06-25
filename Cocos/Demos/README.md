@@ -21,5 +21,8 @@ Your project
     |-- ...
 ```
 
+## Notice
+Your should remove all dragoneBones declaration in creator.d.ts.
+
 ## Creator
 [Get creator.d.ts](https://google.com/)

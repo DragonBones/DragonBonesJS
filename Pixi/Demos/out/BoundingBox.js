@@ -9,7 +9,7 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-var BoundingBox = (function (_super) {
+var BoundingBox = /** @class */ (function (_super) {
     __extends(BoundingBox, _super);
     function BoundingBox() {
         var _this = _super.call(this) || this;
@@ -44,9 +44,9 @@ var BoundingBox = (function (_super) {
         this._boundingBoxTester.y = 200.0;
         this._targetA.armature.inheritAnimation = false;
         this._targetB.armature.inheritAnimation = false;
-        this._line.offsetMode = dragonBones.OffsetMode.Override;
-        this._pointA.offsetMode = dragonBones.OffsetMode.Override;
-        this._pointB.offsetMode = dragonBones.OffsetMode.Override;
+        this._line.offsetMode = 2 /* Override */;
+        this._pointA.offsetMode = 2 /* Override */;
+        this._pointB.offsetMode = 2 /* Override */;
         this._armatureDisplay.animation.play("walk");
         this._boundingBoxTester.animation.play("0");
         //

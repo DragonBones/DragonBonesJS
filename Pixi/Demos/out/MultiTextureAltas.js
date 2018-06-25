@@ -9,7 +9,7 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-var MultiTextureAltas = (function (_super) {
+var MultiTextureAltas = /** @class */ (function (_super) {
     __extends(MultiTextureAltas, _super);
     function MultiTextureAltas() {
         var _this = _super.call(this) || this;

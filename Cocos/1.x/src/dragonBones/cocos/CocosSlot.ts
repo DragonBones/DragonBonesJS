@@ -61,14 +61,23 @@ namespace dragonBones {
 
         protected _addDisplay(): void {
             const container = this._armature.display as cc.Node;
-            container.addChild(this._renderDisplay, this._zOrder);
+            if (this._renderDisplay.parent !== container) {
+                container.addChild(this._renderDisplay, this._zOrder);
+            }
         }
 
         protected _replaceDisplay(value: any): void {
             const container = this._armature.display as cc.Node;
             const prevDisplay = value as cc.Node;
-            container.addChild(this._renderDisplay, prevDisplay.getLocalZOrder());
-            container.removeChild(prevDisplay, false);
+
+            if (this._renderDisplay.parent !== container) {
+                container.addChild(this._renderDisplay, prevDisplay.getLocalZOrder());
+            }
+
+            // container.removeChild(prevDisplay, false);
+            this._renderDisplay.active = true;
+            prevDisplay.active = false;
+
             this._textureScale = 1.0;
         }
 
@@ -91,19 +100,20 @@ namespace dragonBones {
         }
 
         protected _updateBlendMode(): void {
-            if (this._renderDisplay instanceof cc.Sprite) {
+            const sprite = this._renderDisplay.getComponent(cc.Sprite);
+            if (sprite) {
                 switch (this._blendMode) {
                     case BlendMode.Normal:
                         break;
 
                     case BlendMode.Add:
-                        var texture = this._renderDisplay.spriteFrame.getTexture();
+                        const texture = sprite.spriteFrame.getTexture();
                         const BlendFunc = cc.BlendFunc as any; // creator.d.ts error.
                         if (texture && texture.hasPremultipliedAlpha()) {
-                            (this._renderDisplay as any)._sgNode.setBlendFunc(BlendFunc.BlendFactor.ONE, BlendFunc.BlendFactor.ONE); // creator.d.ts error.
+                            (sprite as any)._sgNode.setBlendFunc(BlendFunc.BlendFactor.ONE, BlendFunc.BlendFactor.ONE); // creator.d.ts error.
                         }
                         else {
-                            (this._renderDisplay as any)._sgNode.setBlendFunc(BlendFunc.BlendFactor.SRC_ALPHA, BlendFunc.BlendFactor.ONE); // creator.d.ts error.
+                            (sprite as any)._sgNode.setBlendFunc(BlendFunc.BlendFactor.SRC_ALPHA, BlendFunc.BlendFactor.ONE); // creator.d.ts error.
                         }
                         break;
 
@@ -456,8 +466,8 @@ namespace dragonBones {
 
             this._renderDisplay.rotationX = -(transform.rotation - transform.skew) * dragonBones.Transform.RAD_DEG;
             this._renderDisplay.rotationY = -transform.rotation * dragonBones.Transform.RAD_DEG;
-            this._renderDisplay.scaleX = transform.scaleX;
-            this._renderDisplay.scaleY = -transform.scaleY;
+            this._renderDisplay.scaleX = transform.scaleX * this._textureScale;
+            this._renderDisplay.scaleY = -transform.scaleY * this._textureScale;
         }
 
         protected _identityTransform(): void {

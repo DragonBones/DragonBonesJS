@@ -171,6 +171,8 @@ namespace dragonBones {
             if (childArmature !== null) {
                 const childArmatureDisplay = childArmature.display as cc.Node;
                 childArmatureDisplay.name = childDisplayName;
+                proxy.node.addChild(childArmatureDisplay, slot._zOrder);
+                childArmatureDisplay.active = false;
 
                 return childArmature;
             }
