@@ -101,7 +101,7 @@ namespace dragonBones {
         }
 
         protected _isSupportMesh(): boolean {
-            if ((cc as any)._renderType === (cc.game as any).RENDER_TYPE_WEBGL) { // creator.d.ts error.
+            if ((cc as any)._renderType !== (cc.game as any).RENDER_TYPE_WEBGL) { // creator.d.ts error.
                 console.warn("Only webgl mode can support mesh.");
 
                 return false;

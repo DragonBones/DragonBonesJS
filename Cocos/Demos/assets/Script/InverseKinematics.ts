@@ -53,14 +53,14 @@ export default class InverseKinematics extends cc.Component {
             //
             this.node.on(cc.Node.EventType.MOUSE_MOVE, (event: cc.Event.EventMouse) => {
                 this._target.x = event.getLocationX() - this.node.x;
-                this._target.y = this.node.y - event.getLocationY();
+                this._target.y = event.getLocationY() - this.node.y;
             }, this);
             //
             DragHelper.getInstance().enableDrag(this._floorBoard.armature.getSlot("circle").display);
         });
     }
 
-    update(): void {
+    update() {
         if (!this._armatureComponent) {
             return;
         }

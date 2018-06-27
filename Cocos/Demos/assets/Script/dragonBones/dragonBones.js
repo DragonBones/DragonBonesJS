@@ -42,7 +42,7 @@ var dragonBones;
     /**
      * @private
      */
-    var DragonBones = /** @class */ (function () {
+    var DragonBones = (function () {
         function DragonBones(eventManager) {
             this._clock = new dragonBones.WorldClock();
             this._events = [];
@@ -184,7 +184,7 @@ var dragonBones;
      * @version DragonBones 4.5
      * @language zh_CN
      */
-    var BaseObject = /** @class */ (function () {
+    var BaseObject = (function () {
         function BaseObject() {
             /**
              * - A unique identification number assigned to the object.
@@ -365,7 +365,7 @@ var dragonBones;
      * @version DragonBones 3.0
      * @language zh_CN
      */
-    var Matrix = /** @class */ (function () {
+    var Matrix = (function () {
         /**
          * @private
          */
@@ -628,7 +628,7 @@ var dragonBones;
      * @version DragonBones 3.0
      * @language zh_CN
      */
-    var Transform = /** @class */ (function () {
+    var Transform = (function () {
         /**
          * @private
          */
@@ -812,7 +812,7 @@ var dragonBones;
     /**
      * @private
      */
-    var ColorTransform = /** @class */ (function () {
+    var ColorTransform = (function () {
         function ColorTransform(alphaMultiplier, redMultiplier, greenMultiplier, blueMultiplier, alphaOffset, redOffset, greenOffset, blueOffset) {
             if (alphaMultiplier === void 0) { alphaMultiplier = 1.0; }
             if (redMultiplier === void 0) { redMultiplier = 1.0; }
@@ -883,7 +883,7 @@ var dragonBones;
      * @version DragonBones 3.0
      * @language zh_CN
      */
-    var Point = /** @class */ (function () {
+    var Point = (function () {
         /**
          * - Creates a new point. If you pass no parameters to this method, a point is created at (0,0).
          * @param x - The horizontal coordinate.
@@ -963,7 +963,7 @@ var dragonBones;
      * @version DragonBones 3.0
      * @language zh_CN
      */
-    var Rectangle = /** @class */ (function () {
+    var Rectangle = (function () {
         /**
          * @private
          */
@@ -1031,7 +1031,7 @@ var dragonBones;
      * @version DragonBones 5.0
      * @language zh_CN
      */
-    var UserData = /** @class */ (function (_super) {
+    var UserData = (function (_super) {
         __extends(UserData, _super);
         function UserData() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
@@ -1144,7 +1144,7 @@ var dragonBones;
     /**
      * @private
      */
-    var ActionData = /** @class */ (function (_super) {
+    var ActionData = (function (_super) {
         __extends(ActionData, _super);
         function ActionData() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
@@ -1206,7 +1206,7 @@ var dragonBones;
      * @version DragonBones 3.0
      * @language zh_CN
      */
-    var DragonBonesData = /** @class */ (function (_super) {
+    var DragonBonesData = (function (_super) {
         __extends(DragonBonesData, _super);
         function DragonBonesData() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
@@ -1334,7 +1334,7 @@ var dragonBones;
      * @version DragonBones 3.0
      * @language zh_CN
      */
-    var ArmatureData = /** @class */ (function (_super) {
+    var ArmatureData = (function (_super) {
         __extends(ArmatureData, _super);
         function ArmatureData() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
@@ -1710,7 +1710,7 @@ var dragonBones;
      * @version DragonBones 3.0
      * @language zh_CN
      */
-    var BoneData = /** @class */ (function (_super) {
+    var BoneData = (function (_super) {
         __extends(BoneData, _super);
         function BoneData() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
@@ -1749,7 +1749,7 @@ var dragonBones;
     /**
      * @internal
      */
-    var SurfaceData = /** @class */ (function (_super) {
+    var SurfaceData = (function (_super) {
         __extends(SurfaceData, _super);
         function SurfaceData() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
@@ -1779,7 +1779,7 @@ var dragonBones;
      * @version DragonBones 3.0
      * @language zh_CN
      */
-    var SlotData = /** @class */ (function (_super) {
+    var SlotData = (function (_super) {
         __extends(SlotData, _super);
         function SlotData() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
@@ -1851,7 +1851,7 @@ var dragonBones;
     /**
      * @private
      */
-    var CanvasData = /** @class */ (function (_super) {
+    var CanvasData = (function (_super) {
         __extends(CanvasData, _super);
         function CanvasData() {
             return _super !== null && _super.apply(this, arguments) || this;
@@ -1905,7 +1905,7 @@ var dragonBones;
      * @version DragonBones 3.0
      * @language zh_CN
      */
-    var SkinData = /** @class */ (function (_super) {
+    var SkinData = (function (_super) {
         __extends(SkinData, _super);
         function SkinData() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
@@ -2001,7 +2001,7 @@ var dragonBones;
     /**
      * @private
      */
-    var ConstraintData = /** @class */ (function (_super) {
+    var ConstraintData = (function (_super) {
         __extends(ConstraintData, _super);
         function ConstraintData() {
             return _super !== null && _super.apply(this, arguments) || this;
@@ -2020,7 +2020,7 @@ var dragonBones;
     /**
      * @internal
      */
-    var IKConstraintData = /** @class */ (function (_super) {
+    var IKConstraintData = (function (_super) {
         __extends(IKConstraintData, _super);
         function IKConstraintData() {
             return _super !== null && _super.apply(this, arguments) || this;
@@ -2040,7 +2040,7 @@ var dragonBones;
     /**
      * @internal
      */
-    var PathConstraintData = /** @class */ (function (_super) {
+    var PathConstraintData = (function (_super) {
         __extends(PathConstraintData, _super);
         function PathConstraintData() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
@@ -2098,7 +2098,7 @@ var dragonBones;
     /**
      * @private
      */
-    var GeometryData = /** @class */ (function () {
+    var GeometryData = (function () {
         function GeometryData() {
             this.weight = null; // Initial value.
         }
@@ -2139,7 +2139,7 @@ var dragonBones;
     /**
      * @private
      */
-    var DisplayData = /** @class */ (function (_super) {
+    var DisplayData = (function (_super) {
         __extends(DisplayData, _super);
         function DisplayData() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
@@ -2158,7 +2158,7 @@ var dragonBones;
     /**
      * @private
      */
-    var ImageDisplayData = /** @class */ (function (_super) {
+    var ImageDisplayData = (function (_super) {
         __extends(ImageDisplayData, _super);
         function ImageDisplayData() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
@@ -2180,7 +2180,7 @@ var dragonBones;
     /**
      * @private
      */
-    var ArmatureDisplayData = /** @class */ (function (_super) {
+    var ArmatureDisplayData = (function (_super) {
         __extends(ArmatureDisplayData, _super);
         function ArmatureDisplayData() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
@@ -2213,7 +2213,7 @@ var dragonBones;
     /**
      * @private
      */
-    var MeshDisplayData = /** @class */ (function (_super) {
+    var MeshDisplayData = (function (_super) {
         __extends(MeshDisplayData, _super);
         function MeshDisplayData() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
@@ -2235,7 +2235,7 @@ var dragonBones;
     /**
      * @private
      */
-    var BoundingBoxDisplayData = /** @class */ (function (_super) {
+    var BoundingBoxDisplayData = (function (_super) {
         __extends(BoundingBoxDisplayData, _super);
         function BoundingBoxDisplayData() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
@@ -2259,7 +2259,7 @@ var dragonBones;
     /**
      * @private
      */
-    var PathDisplayData = /** @class */ (function (_super) {
+    var PathDisplayData = (function (_super) {
         __extends(PathDisplayData, _super);
         function PathDisplayData() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
@@ -2284,7 +2284,7 @@ var dragonBones;
     /**
      * @private
      */
-    var WeightData = /** @class */ (function (_super) {
+    var WeightData = (function (_super) {
         __extends(WeightData, _super);
         function WeightData() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
@@ -2346,7 +2346,7 @@ var dragonBones;
      * @version DragonBones 5.0
      * @language zh_CN
      */
-    var BoundingBoxData = /** @class */ (function (_super) {
+    var BoundingBoxData = (function (_super) {
         __extends(BoundingBoxData, _super);
         function BoundingBoxData() {
             return _super !== null && _super.apply(this, arguments) || this;
@@ -2369,7 +2369,7 @@ var dragonBones;
      * @version DragonBones 5.1
      * @language zh_CN
      */
-    var RectangleBoundingBoxData = /** @class */ (function (_super) {
+    var RectangleBoundingBoxData = (function (_super) {
         __extends(RectangleBoundingBoxData, _super);
         function RectangleBoundingBoxData() {
             return _super !== null && _super.apply(this, arguments) || this;
@@ -2559,7 +2559,7 @@ var dragonBones;
      * @version DragonBones 5.1
      * @language zh_CN
      */
-    var EllipseBoundingBoxData = /** @class */ (function (_super) {
+    var EllipseBoundingBoxData = (function (_super) {
         __extends(EllipseBoundingBoxData, _super);
         function EllipseBoundingBoxData() {
             return _super !== null && _super.apply(this, arguments) || this;
@@ -2696,7 +2696,7 @@ var dragonBones;
      * @version DragonBones 5.1
      * @language zh_CN
      */
-    var PolygonBoundingBoxData = /** @class */ (function (_super) {
+    var PolygonBoundingBoxData = (function (_super) {
         __extends(PolygonBoundingBoxData, _super);
         function PolygonBoundingBoxData() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
@@ -2918,7 +2918,7 @@ var dragonBones;
      * @version DragonBones 3.0
      * @language zh_CN
      */
-    var AnimationData = /** @class */ (function (_super) {
+    var AnimationData = (function (_super) {
         __extends(AnimationData, _super);
         function AnimationData() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
@@ -3134,7 +3134,7 @@ var dragonBones;
     /**
      * @private
      */
-    var TimelineData = /** @class */ (function (_super) {
+    var TimelineData = (function (_super) {
         __extends(TimelineData, _super);
         function TimelineData() {
             return _super !== null && _super.apply(this, arguments) || this;
@@ -3153,7 +3153,7 @@ var dragonBones;
     /**
      * @internal
      */
-    var AnimationTimelineData = /** @class */ (function (_super) {
+    var AnimationTimelineData = (function (_super) {
         __extends(AnimationTimelineData, _super);
         function AnimationTimelineData() {
             return _super !== null && _super.apply(this, arguments) || this;
@@ -3210,7 +3210,7 @@ var dragonBones;
      * @version DragonBones 5.0
      * @language zh_CN
      */
-    var AnimationConfig = /** @class */ (function (_super) {
+    var AnimationConfig = (function (_super) {
         __extends(AnimationConfig, _super);
         function AnimationConfig() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
@@ -3321,7 +3321,7 @@ var dragonBones;
      * @version DragonBones 3.0
      * @language zh_CN
      */
-    var TextureAtlasData = /** @class */ (function (_super) {
+    var TextureAtlasData = (function (_super) {
         __extends(TextureAtlasData, _super);
         function TextureAtlasData() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
@@ -3388,7 +3388,7 @@ var dragonBones;
     /**
      * @private
      */
-    var TextureData = /** @class */ (function (_super) {
+    var TextureData = (function (_super) {
         __extends(TextureData, _super);
         function TextureData() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
@@ -3467,7 +3467,7 @@ var dragonBones;
      * @version DragonBones 3.0
      * @language zh_CN
      */
-    var Armature = /** @class */ (function (_super) {
+    var Armature = (function (_super) {
         __extends(Armature, _super);
         function Armature() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
@@ -4361,7 +4361,7 @@ var dragonBones;
      * @version DragonBones 4.5
      * @language zh_CN
      */
-    var TransformObject = /** @class */ (function (_super) {
+    var TransformObject = (function (_super) {
         __extends(TransformObject, _super);
         function TransformObject() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
@@ -4513,7 +4513,7 @@ var dragonBones;
      * @version DragonBones 3.0
      * @language zh_CN
      */
-    var Bone = /** @class */ (function (_super) {
+    var Bone = (function (_super) {
         __extends(Bone, _super);
         function Bone() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
@@ -4664,6 +4664,9 @@ var dragonBones;
                             rotation -= global.rotation * 2.0;
                             if (flipX !== flipY || boneData.inheritReflection) {
                                 global.skew += Math.PI;
+                            }
+                            if (!dragonBones.DragonBones.yDown) {
+                                global.skew = -global.skew;
                             }
                         }
                         global.rotation = rotation;
@@ -4991,7 +4994,7 @@ var dragonBones;
     /**
      * @internal
      */
-    var Surface = /** @class */ (function (_super) {
+    var Surface = (function (_super) {
         __extends(Surface, _super);
         function Surface() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
@@ -5456,7 +5459,7 @@ var dragonBones;
     /**
      * @private
      */
-    var DisplayFrame = /** @class */ (function (_super) {
+    var DisplayFrame = (function (_super) {
         __extends(DisplayFrame, _super);
         function DisplayFrame() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
@@ -5576,7 +5579,7 @@ var dragonBones;
      * @version DragonBones 3.0
      * @language zh_CN
      */
-    var Slot = /** @class */ (function (_super) {
+    var Slot = (function (_super) {
         __extends(Slot, _super);
         function Slot() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
@@ -5821,7 +5824,6 @@ var dragonBones;
                 this._transformDirty = true;
                 this._onUpdateDisplay();
                 this._replaceDisplay(prevDisplay);
-                console.log(this.name);
             }
             // Update child armature.
             if (this._childArmature !== prevChildArmature) {
@@ -6623,7 +6625,7 @@ var dragonBones;
     /**
      * @internal
      */
-    var Constraint = /** @class */ (function (_super) {
+    var Constraint = (function (_super) {
         __extends(Constraint, _super);
         function Constraint() {
             return _super !== null && _super.apply(this, arguments) || this;
@@ -6650,7 +6652,7 @@ var dragonBones;
     /**
      * @internal
      */
-    var IKConstraint = /** @class */ (function (_super) {
+    var IKConstraint = (function (_super) {
         __extends(IKConstraint, _super);
         function IKConstraint() {
             return _super !== null && _super.apply(this, arguments) || this;
@@ -6784,7 +6786,7 @@ var dragonBones;
     /**
      * @internal
      */
-    var PathConstraint = /** @class */ (function (_super) {
+    var PathConstraint = (function (_super) {
         __extends(PathConstraint, _super);
         function PathConstraint() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
@@ -7339,7 +7341,7 @@ var dragonBones;
      * @version DragonBones 3.0
      * @language zh_CN
      */
-    var WorldClock = /** @class */ (function () {
+    var WorldClock = (function () {
         /**
          * - Creating a Worldclock instance. Typically, you do not need to create Worldclock instance.
          * When multiple Worldclock instances are running at different speeds, can achieving some specific animation effects, such as bullet time.
@@ -7588,7 +7590,7 @@ var dragonBones;
      * @version DragonBones 3.0
      * @language zh_CN
      */
-    var Animation = /** @class */ (function (_super) {
+    var Animation = (function (_super) {
         __extends(Animation, _super);
         function Animation() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
@@ -8506,7 +8508,7 @@ var dragonBones;
      * @version DragonBones 3.0
      * @language zh_CN
      */
-    var AnimationState = /** @class */ (function (_super) {
+    var AnimationState = (function (_super) {
         __extends(AnimationState, _super);
         function AnimationState() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
@@ -9726,7 +9728,7 @@ var dragonBones;
     /**
      * @internal
      */
-    var BlendState = /** @class */ (function (_super) {
+    var BlendState = (function (_super) {
         __extends(BlendState, _super);
         function BlendState() {
             return _super !== null && _super.apply(this, arguments) || this;
@@ -9814,7 +9816,7 @@ var dragonBones;
     /**
      * @internal
      */
-    var TimelineState = /** @class */ (function (_super) {
+    var TimelineState = (function (_super) {
         __extends(TimelineState, _super);
         function TimelineState() {
             return _super !== null && _super.apply(this, arguments) || this;
@@ -9966,7 +9968,7 @@ var dragonBones;
     /**
      * @internal
      */
-    var TweenTimelineState = /** @class */ (function (_super) {
+    var TweenTimelineState = (function (_super) {
         __extends(TweenTimelineState, _super);
         function TweenTimelineState() {
             return _super !== null && _super.apply(this, arguments) || this;
@@ -10074,7 +10076,7 @@ var dragonBones;
     /**
      * @internal
      */
-    var SingleValueTimelineState = /** @class */ (function (_super) {
+    var SingleValueTimelineState = (function (_super) {
         __extends(SingleValueTimelineState, _super);
         function SingleValueTimelineState() {
             return _super !== null && _super.apply(this, arguments) || this;
@@ -10125,7 +10127,7 @@ var dragonBones;
     /**
      * @internal
      */
-    var DoubleValueTimelineState = /** @class */ (function (_super) {
+    var DoubleValueTimelineState = (function (_super) {
         __extends(DoubleValueTimelineState, _super);
         function DoubleValueTimelineState() {
             return _super !== null && _super.apply(this, arguments) || this;
@@ -10186,7 +10188,7 @@ var dragonBones;
     /**
      * @internal
      */
-    var MutilpleValueTimelineState = /** @class */ (function (_super) {
+    var MutilpleValueTimelineState = (function (_super) {
         __extends(MutilpleValueTimelineState, _super);
         function MutilpleValueTimelineState() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
@@ -10292,7 +10294,7 @@ var dragonBones;
     /**
      * @internal
      */
-    var ActionTimelineState = /** @class */ (function (_super) {
+    var ActionTimelineState = (function (_super) {
         __extends(ActionTimelineState, _super);
         function ActionTimelineState() {
             return _super !== null && _super.apply(this, arguments) || this;
@@ -10505,7 +10507,7 @@ var dragonBones;
     /**
      * @internal
      */
-    var ZOrderTimelineState = /** @class */ (function (_super) {
+    var ZOrderTimelineState = (function (_super) {
         __extends(ZOrderTimelineState, _super);
         function ZOrderTimelineState() {
             return _super !== null && _super.apply(this, arguments) || this;
@@ -10531,7 +10533,7 @@ var dragonBones;
     /**
      * @internal
      */
-    var BoneAllTimelineState = /** @class */ (function (_super) {
+    var BoneAllTimelineState = (function (_super) {
         __extends(BoneAllTimelineState, _super);
         function BoneAllTimelineState() {
             return _super !== null && _super.apply(this, arguments) || this;
@@ -10596,7 +10598,7 @@ var dragonBones;
     /**
      * @internal
      */
-    var BoneTranslateTimelineState = /** @class */ (function (_super) {
+    var BoneTranslateTimelineState = (function (_super) {
         __extends(BoneTranslateTimelineState, _super);
         function BoneTranslateTimelineState() {
             return _super !== null && _super.apply(this, arguments) || this;
@@ -10638,7 +10640,7 @@ var dragonBones;
     /**
      * @internal
      */
-    var BoneRotateTimelineState = /** @class */ (function (_super) {
+    var BoneRotateTimelineState = (function (_super) {
         __extends(BoneRotateTimelineState, _super);
         function BoneRotateTimelineState() {
             return _super !== null && _super.apply(this, arguments) || this;
@@ -10691,7 +10693,7 @@ var dragonBones;
     /**
      * @internal
      */
-    var BoneScaleTimelineState = /** @class */ (function (_super) {
+    var BoneScaleTimelineState = (function (_super) {
         __extends(BoneScaleTimelineState, _super);
         function BoneScaleTimelineState() {
             return _super !== null && _super.apply(this, arguments) || this;
@@ -10739,7 +10741,7 @@ var dragonBones;
     /**
      * @internal
      */
-    var SurfaceTimelineState = /** @class */ (function (_super) {
+    var SurfaceTimelineState = (function (_super) {
         __extends(SurfaceTimelineState, _super);
         function SurfaceTimelineState() {
             return _super !== null && _super.apply(this, arguments) || this;
@@ -10818,7 +10820,7 @@ var dragonBones;
     /**
      * @internal
      */
-    var AlphaTimelineState = /** @class */ (function (_super) {
+    var AlphaTimelineState = (function (_super) {
         __extends(AlphaTimelineState, _super);
         function AlphaTimelineState() {
             return _super !== null && _super.apply(this, arguments) || this;
@@ -10862,7 +10864,7 @@ var dragonBones;
     /**
      * @internal
      */
-    var SlotDislayTimelineState = /** @class */ (function (_super) {
+    var SlotDislayTimelineState = (function (_super) {
         __extends(SlotDislayTimelineState, _super);
         function SlotDislayTimelineState() {
             return _super !== null && _super.apply(this, arguments) || this;
@@ -10887,7 +10889,7 @@ var dragonBones;
     /**
      * @internal
      */
-    var SlotColorTimelineState = /** @class */ (function (_super) {
+    var SlotColorTimelineState = (function (_super) {
         __extends(SlotColorTimelineState, _super);
         function SlotColorTimelineState() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
@@ -11033,7 +11035,7 @@ var dragonBones;
     /**
      * @internal
      */
-    var SlotZIndexTimelineState = /** @class */ (function (_super) {
+    var SlotZIndexTimelineState = (function (_super) {
         __extends(SlotZIndexTimelineState, _super);
         function SlotZIndexTimelineState() {
             return _super !== null && _super.apply(this, arguments) || this;
@@ -11075,7 +11077,7 @@ var dragonBones;
     /**
      * @internal
      */
-    var DeformTimelineState = /** @class */ (function (_super) {
+    var DeformTimelineState = (function (_super) {
         __extends(DeformTimelineState, _super);
         function DeformTimelineState() {
             return _super !== null && _super.apply(this, arguments) || this;
@@ -11179,7 +11181,7 @@ var dragonBones;
     /**
      * @internal
      */
-    var IKConstraintTimelineState = /** @class */ (function (_super) {
+    var IKConstraintTimelineState = (function (_super) {
         __extends(IKConstraintTimelineState, _super);
         function IKConstraintTimelineState() {
             return _super !== null && _super.apply(this, arguments) || this;
@@ -11214,7 +11216,7 @@ var dragonBones;
     /**
      * @internal
      */
-    var AnimationProgressTimelineState = /** @class */ (function (_super) {
+    var AnimationProgressTimelineState = (function (_super) {
         __extends(AnimationProgressTimelineState, _super);
         function AnimationProgressTimelineState() {
             return _super !== null && _super.apply(this, arguments) || this;
@@ -11242,7 +11244,7 @@ var dragonBones;
     /**
      * @internal
      */
-    var AnimationWeightTimelineState = /** @class */ (function (_super) {
+    var AnimationWeightTimelineState = (function (_super) {
         __extends(AnimationWeightTimelineState, _super);
         function AnimationWeightTimelineState() {
             return _super !== null && _super.apply(this, arguments) || this;
@@ -11270,7 +11272,7 @@ var dragonBones;
     /**
      * @internal
      */
-    var AnimationParametersTimelineState = /** @class */ (function (_super) {
+    var AnimationParametersTimelineState = (function (_super) {
         __extends(AnimationParametersTimelineState, _super);
         function AnimationParametersTimelineState() {
             return _super !== null && _super.apply(this, arguments) || this;
@@ -11332,7 +11334,7 @@ var dragonBones;
      * @version DragonBones 4.5
      * @language zh_CN
      */
-    var EventObject = /** @class */ (function (_super) {
+    var EventObject = (function (_super) {
         __extends(EventObject, _super);
         function EventObject() {
             return _super !== null && _super.apply(this, arguments) || this;
@@ -11503,7 +11505,7 @@ var dragonBones;
     /**
      * @private
      */
-    var DataParser = /** @class */ (function () {
+    var DataParser = (function () {
         function DataParser() {
         }
         DataParser._getArmatureType = function (value) {
@@ -11815,7 +11817,7 @@ var dragonBones;
     /**
      * @private
      */
-    var ObjectDataParser = /** @class */ (function (_super) {
+    var ObjectDataParser = (function (_super) {
         __extends(ObjectDataParser, _super);
         function ObjectDataParser() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
@@ -13779,7 +13781,7 @@ var dragonBones;
     /**
      * @private
      */
-    var ActionFrame = /** @class */ (function () {
+    var ActionFrame = (function () {
         function ActionFrame() {
             this.frameStart = 0;
             this.actions = [];
@@ -13815,7 +13817,7 @@ var dragonBones;
     /**
      * @private
      */
-    var BinaryDataParser = /** @class */ (function (_super) {
+    var BinaryDataParser = (function (_super) {
         __extends(BinaryDataParser, _super);
         function BinaryDataParser() {
             return _super !== null && _super.apply(this, arguments) || this;
@@ -14210,7 +14212,7 @@ var dragonBones;
      * @version DragonBones 3.0
      * @language zh_CN
      */
-    var BaseFactory = /** @class */ (function () {
+    var BaseFactory = (function () {
         /**
          * - Create a factory instance. (typically only one global factory instance is required)
          * @version DragonBones 3.0
@@ -15133,7 +15135,7 @@ var dragonBones;
     /**
      * @private
      */
-    var BuildArmaturePackage = /** @class */ (function () {
+    var BuildArmaturePackage = (function () {
         function BuildArmaturePackage() {
             this.dataName = "";
             this.textureAtlasName = "";
@@ -15168,7 +15170,7 @@ var dragonBones;
 var dragonBones;
 (function (dragonBones) {
     var _a = cc._decorator, ccclass = _a.ccclass, property = _a.property;
-    var DragonBonesAsset = /** @class */ (function (_super) {
+    var DragonBonesAsset = (function (_super) {
         __extends(DragonBonesAsset, _super);
         function DragonBonesAsset() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
@@ -15223,7 +15225,7 @@ var dragonBones;
      * @version DragonBones 3.0
      * @language zh_CN
      */
-    var CocosTextureAtlasData = /** @class */ (function (_super) {
+    var CocosTextureAtlasData = (function (_super) {
         __extends(CocosTextureAtlasData, _super);
         function CocosTextureAtlasData() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
@@ -15293,7 +15295,7 @@ var dragonBones;
     /**
      * @internal
      */
-    var CocosTextureData = /** @class */ (function (_super) {
+    var CocosTextureData = (function (_super) {
         __extends(CocosTextureData, _super);
         function CocosTextureData() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
@@ -15350,7 +15352,7 @@ var dragonBones;
     /**
      * @see dragonBones.IArmatureProxy
      */
-    var CocosArmatureComponent = /** @class */ (function (_super) {
+    var CocosArmatureComponent = (function (_super) {
         __extends(CocosArmatureComponent, _super);
         function CocosArmatureComponent() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
@@ -15556,7 +15558,7 @@ var dragonBones;
      * @version DragonBones 3.0
      * @language zh_CN
      */
-    var CocosSlot = /** @class */ (function (_super) {
+    var CocosSlot = (function (_super) {
         __extends(CocosSlot, _super);
         function CocosSlot() {
             return _super !== null && _super.apply(this, arguments) || this;
@@ -15612,7 +15614,6 @@ var dragonBones;
             this._renderDisplay.active = this._parent.visible && this._visible;
         };
         CocosSlot.prototype._updateBlendMode = function () {
-            console.log(this._blendMode);
             var sprite = this._renderDisplay.getComponent(cc.Sprite);
             if (sprite) {
                 switch (this._blendMode) {
@@ -15772,7 +15773,7 @@ var dragonBones;
             var geometryData = this._geometryData;
             var weightData = geometryData.weight;
             var hasDeform = deformVertices.length > 0 && geometryData.inheritDeform;
-            var meshDisplay = this._renderDisplay._sgNode; // as cc.Scale9Sprite;
+            var meshDisplay = this._renderDisplay.getComponent(cc.Sprite)._sgNode; // as cc.Scale9Sprite;
             var polygonInfo = meshDisplay.getMeshPolygonInfo();
             if (!polygonInfo) {
                 return;
@@ -15809,18 +15810,18 @@ var dragonBones;
                     }
                     var vertex = verticesAndUVs[i];
                     vertex.x = xG;
-                    vertex.y = -yG;
+                    vertex.y = yG;
                     if (boundsRect.x > xG) {
                         boundsRect.x = xG;
                     }
                     if (boundsRect.width < xG) {
                         boundsRect.width = xG;
                     }
-                    if (boundsRect.y > -yG) {
-                        boundsRect.y = -yG;
+                    if (boundsRect.y > yG) {
+                        boundsRect.y = yG;
                     }
-                    if (boundsRect.height < -yG) {
-                        boundsRect.height = -yG;
+                    if (boundsRect.height < yG) {
+                        boundsRect.height = yG;
                     }
                 }
             }
@@ -15853,7 +15854,7 @@ var dragonBones;
                     }
                     else {
                         vertex.x = x;
-                        vertex.y = -y;
+                        vertex.y = y = -y;
                     }
                     if (boundsRect.x > x) {
                         boundsRect.x = x;
@@ -15861,25 +15862,31 @@ var dragonBones;
                     if (boundsRect.width < x) {
                         boundsRect.width = x;
                     }
-                    if (boundsRect.y > -y) {
-                        boundsRect.y = -y;
+                    if (boundsRect.y > y) {
+                        boundsRect.y = y;
                     }
-                    if (boundsRect.height < -y) {
-                        boundsRect.height = -y;
+                    if (boundsRect.height < y) {
+                        boundsRect.height = y;
                     }
                 }
             }
             boundsRect.width -= boundsRect.x;
             boundsRect.height -= boundsRect.y;
             polygonInfo.rect = boundsRect;
-            var transform = meshDisplay.getNodeToParentTransform();
             meshDisplay.setContentSize(cc.size(boundsRect.width, boundsRect.height));
             meshDisplay.setMeshPolygonInfo(polygonInfo);
             if (weightData !== null) {
                 this._identityTransform();
             }
             else {
-                meshDisplay._renderCmd.setNodeToParentTransform(transform);
+                var transform = this.global;
+                var globalTransformMatrix = this.globalTransformMatrix;
+                this._renderDisplay.x = transform.x - (globalTransformMatrix.a * this._pivotX - globalTransformMatrix.c * this._pivotY);
+                this._renderDisplay.y = transform.y - (globalTransformMatrix.b * this._pivotX - globalTransformMatrix.d * this._pivotY);
+                this._renderDisplay.rotationX = -(transform.rotation - Math.abs(transform.skew)) * dragonBones.Transform.RAD_DEG;
+                this._renderDisplay.rotationY = -transform.rotation * dragonBones.Transform.RAD_DEG;
+                this._renderDisplay.scaleX = transform.scaleX * this._textureScale;
+                this._renderDisplay.scaleY = -transform.scaleY * this._textureScale;
             }
         };
         CocosSlot.prototype._updateTransform = function () {
@@ -15909,7 +15916,7 @@ var dragonBones;
                 this._renderDisplay.x = transform.x;
                 this._renderDisplay.y = transform.y;
             }
-            this._renderDisplay.rotationX = -(transform.rotation - transform.skew) * dragonBones.Transform.RAD_DEG;
+            this._renderDisplay.rotationX = -(transform.rotation - Math.abs(transform.skew)) * dragonBones.Transform.RAD_DEG;
             this._renderDisplay.rotationY = -transform.rotation * dragonBones.Transform.RAD_DEG;
             this._renderDisplay.scaleX = transform.scaleX * this._textureScale;
             this._renderDisplay.scaleY = -transform.scaleY * this._textureScale;
@@ -15925,8 +15932,8 @@ var dragonBones;
             // (this._renderDisplay as any)._renderCmd.setNodeToParentTransform(helpMatrix);
             this._renderDisplay.x = 0.0;
             this._renderDisplay.y = 0.0;
-            this._renderDisplay.rotation = -0.0;
             this._renderDisplay.rotationX = -0.0;
+            this._renderDisplay.rotationY = -0.0;
             this._renderDisplay.scaleX = 1.0;
             this._renderDisplay.scaleY = -1.0;
         };
@@ -15959,7 +15966,7 @@ var dragonBones;
 var dragonBones;
 (function (dragonBones) {
     var ccclass = cc._decorator.ccclass;
-    var ClockHandler = /** @class */ (function (_super) {
+    var ClockHandler = (function (_super) {
         __extends(ClockHandler, _super);
         function ClockHandler() {
             return _super !== null && _super.apply(this, arguments) || this;
@@ -15982,7 +15989,7 @@ var dragonBones;
      * @version DragonBones 3.0
      * @language zh_CN
      */
-    var CocosFactory = /** @class */ (function (_super) {
+    var CocosFactory = (function (_super) {
         __extends(CocosFactory, _super);
         function CocosFactory(dataParser) {
             if (dataParser === void 0) { dataParser = null; }
@@ -16039,7 +16046,7 @@ var dragonBones;
             configurable: true
         });
         CocosFactory.prototype._isSupportMesh = function () {
-            if (cc._renderType === cc.game.RENDER_TYPE_WEBGL) {
+            if (cc._renderType !== cc.game.RENDER_TYPE_WEBGL) {
                 console.warn("Only webgl mode can support mesh.");
                 return false;
             }
@@ -16109,9 +16116,6 @@ var dragonBones;
             rawSlotDisplay.setOpacityModifyRGB(false);
             rawSlotDisplay.setCascadeOpacityEnabled(true);
             rawSlotDisplay._sgNode.setCascadeColorEnabled(true); // creator.d.ts error.
-            if (slotData.name ===  "b2") { 
-                debugger;
-            }
             slot.init(slotData, armature, rawSlotDisplay, rawSlotDisplay);
             return slot;
         };

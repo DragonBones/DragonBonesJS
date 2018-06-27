@@ -291,7 +291,7 @@ namespace dragonBones {
             const weightData = geometryData.weight;
 
             const hasDeform = deformVertices.length > 0 && geometryData.inheritDeform;
-            const meshDisplay = (this._renderDisplay as any)._sgNode; // as cc.Scale9Sprite;
+            const meshDisplay = (this._renderDisplay.getComponent(cc.Sprite) as any)._sgNode; // as cc.Scale9Sprite;
             const polygonInfo = meshDisplay.getMeshPolygonInfo();
             if (!polygonInfo) {
                 return;
@@ -341,7 +341,7 @@ namespace dragonBones {
 
                     const vertex = verticesAndUVs[i];
                     vertex.x = xG;
-                    vertex.y = -yG;
+                    vertex.y = yG;
 
                     if (boundsRect.x > xG) {
                         boundsRect.x = xG;
@@ -351,12 +351,12 @@ namespace dragonBones {
                         boundsRect.width = xG;
                     }
 
-                    if (boundsRect.y > -yG) {
-                        boundsRect.y = -yG;
+                    if (boundsRect.y > yG) {
+                        boundsRect.y = yG;
                     }
 
-                    if (boundsRect.height < -yG) {
-                        boundsRect.height = -yG;
+                    if (boundsRect.height < yG) {
+                        boundsRect.height = yG;
                     }
                 }
             }
@@ -394,7 +394,7 @@ namespace dragonBones {
                     }
                     else {
                         vertex.x = x;
-                        vertex.y = -y;
+                        vertex.y = y = -y;
                     }
 
                     if (boundsRect.x > x) {
@@ -405,12 +405,12 @@ namespace dragonBones {
                         boundsRect.width = x;
                     }
 
-                    if (boundsRect.y > -y) {
-                        boundsRect.y = -y;
+                    if (boundsRect.y > y) {
+                        boundsRect.y = y;
                     }
 
-                    if (boundsRect.height < -y) {
-                        boundsRect.height = -y;
+                    if (boundsRect.height < y) {
+                        boundsRect.height = y;
                     }
                 }
             }
@@ -419,7 +419,6 @@ namespace dragonBones {
             boundsRect.height -= boundsRect.y;
 
             polygonInfo.rect = boundsRect;
-            const transform = meshDisplay.getNodeToParentTransform();
             meshDisplay.setContentSize(cc.size(boundsRect.width, boundsRect.height));
             meshDisplay.setMeshPolygonInfo(polygonInfo);
 
@@ -427,7 +426,14 @@ namespace dragonBones {
                 this._identityTransform();
             }
             else {
-                meshDisplay._renderCmd.setNodeToParentTransform(transform);
+                const transform = this.global;
+                const globalTransformMatrix = this.globalTransformMatrix;
+                this._renderDisplay.x = transform.x - (globalTransformMatrix.a * this._pivotX - globalTransformMatrix.c * this._pivotY);
+                this._renderDisplay.y = transform.y - (globalTransformMatrix.b * this._pivotX - globalTransformMatrix.d * this._pivotY);
+                this._renderDisplay.rotationX = -(transform.rotation - Math.abs(transform.skew)) * dragonBones.Transform.RAD_DEG;
+                this._renderDisplay.rotationY = -transform.rotation * dragonBones.Transform.RAD_DEG;
+                this._renderDisplay.scaleX = transform.scaleX * this._textureScale;
+                this._renderDisplay.scaleY = -transform.scaleY * this._textureScale;
             }
         }
 
@@ -464,7 +470,7 @@ namespace dragonBones {
                 this._renderDisplay.y = transform.y;
             }
 
-            this._renderDisplay.rotationX = -(transform.rotation - transform.skew) * dragonBones.Transform.RAD_DEG;
+            this._renderDisplay.rotationX = -(transform.rotation - Math.abs(transform.skew)) * dragonBones.Transform.RAD_DEG;
             this._renderDisplay.rotationY = -transform.rotation * dragonBones.Transform.RAD_DEG;
             this._renderDisplay.scaleX = transform.scaleX * this._textureScale;
             this._renderDisplay.scaleY = -transform.scaleY * this._textureScale;
@@ -482,8 +488,8 @@ namespace dragonBones {
 
             this._renderDisplay.x = 0.0;
             this._renderDisplay.y = 0.0;
-            this._renderDisplay.rotation = -0.0;
             this._renderDisplay.rotationX = -0.0;
+            this._renderDisplay.rotationY = -0.0;
             this._renderDisplay.scaleX = 1.0;
             this._renderDisplay.scaleY = -1.0;
         }
