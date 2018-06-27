@@ -247,6 +247,10 @@ namespace dragonBones {
                             if (flipX !== flipY || boneData.inheritReflection) {
                                 global.skew += Math.PI;
                             }
+
+                            if (!dragonBones.DragonBones.yDown) {
+                                global.skew = -global.skew;
+                            }
                         }
 
                         global.rotation = rotation;
