@@ -118,7 +118,7 @@ namespace dragonBones {
                         this.currentTime = 0.0;
                     }
                     else {
-                        this.currentTime = this._duration + 0.000001; // Precision problem
+                        this.currentTime = this.playState === 1 ? this._duration + 0.000001 : this._duration; // Precision problem
                     }
                 }
                 else {

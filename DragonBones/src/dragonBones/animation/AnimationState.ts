@@ -535,7 +535,7 @@ namespace dragonBones {
                             for (const timelineData of timelineDatas) {
                                 switch (timelineData.type) {
                                     case TimelineType.SlotDisplay: {
-                                        const timeline = BaseObject.borrowObject(SlotDislayTimelineState);
+                                        const timeline = BaseObject.borrowObject(SlotDisplayTimelineState);
                                         timeline.target = slot;
                                         timeline.init(this._armature, this, timelineData);
                                         this._slotTimelines.push(timeline);
@@ -591,7 +591,7 @@ namespace dragonBones {
 
                         if (this.resetToPose) { // Pose timeline.
                             if (!displayIndexFlag) {
-                                const timeline = BaseObject.borrowObject(SlotDislayTimelineState);
+                                const timeline = BaseObject.borrowObject(SlotDisplayTimelineState);
                                 timeline.target = slot;
                                 timeline.init(this._armature, this, null);
                                 this._slotTimelines.push(timeline);

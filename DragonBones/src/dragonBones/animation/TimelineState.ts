@@ -633,9 +633,9 @@ namespace dragonBones {
     /**
      * @internal
      */
-    export class SlotDislayTimelineState extends TimelineState {
+    export class SlotDisplayTimelineState extends TimelineState {
         public static toString(): string {
-            return "[class dragonBones.SlotDislayTimelineState]";
+            return "[class dragonBones.SlotDisplayTimelineState]";
         }
 
         protected _onArriveAtFrame(): void {
