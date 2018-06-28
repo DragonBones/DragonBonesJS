@@ -18,7 +18,7 @@ export default class MultiTextureAltas extends cc.Component {
             factory.parseDragonBonesData(cc.loader.getRes(resources[0]), "hd", 1.0);
             factory.parseDragonBonesData(cc.loader.getRes(resources[0]), "sd", 0.5);
             factory.parseTextureAtlasData(cc.loader.getRes(resources[1]), cc.loader.getRes(resources[2]), "hd", 1.0);
-            factory.parseTextureAtlasData(cc.loader.getRes(resources[3]), cc.loader.getRes(resources[4]), "sd", 0.5);
+            factory.parseTextureAtlasData(cc.loader.getRes(resources[3]), cc.loader.getRes(resources[4]), "sd", 2.0);
 
             this._armatureComponentA = factory.buildArmatureComponent("flower", "hd", null, "hd"); // HD Armature and HD TextureAtlas.
             this._armatureComponentB = factory.buildArmatureComponent("flower", "hd", null, "sd"); // HD Armature and SD TextureAtlas.

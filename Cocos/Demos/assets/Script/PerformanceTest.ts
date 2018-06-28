@@ -4,6 +4,7 @@ export default class PerformanceTest extends cc.Component {
     private _removingArmature: boolean = false;
     private readonly _resources: string[] = [];
     private readonly _armatures: dragonBones.CocosArmatureComponent[] = [];
+    private _text: cc.Label;
 
     start() {
         this._resources.push(
@@ -22,6 +23,7 @@ export default class PerformanceTest extends cc.Component {
             this._resetPosition();
             this._updateText();
         });
+        this._text = this.getComponentInChildren(cc.Label);
     }
 
     update() {
@@ -118,10 +120,6 @@ export default class PerformanceTest extends cc.Component {
     }
 
     private _updateText(): void {
-        // this._text.text = "Count: " + this._armatures.length + ". Touch screen left to decrease count / right to increase count.";
-        // this._text.width = this.stageWidth;
-        // this._text.x = -this.stageWidth * 0.5;
-        // this._text.y = this.stageHeight * 0.5 - 100;
-        // this.addChild(this._text);
+        this._text.string = "Count: " + this._armatures.length + ". Touch screen left to decrease count / right to increase count.";
     }
 }

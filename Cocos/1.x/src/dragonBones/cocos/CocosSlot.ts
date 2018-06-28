@@ -61,9 +61,7 @@ namespace dragonBones {
 
         protected _addDisplay(): void {
             const container = this._armature.display as cc.Node;
-            if (this._renderDisplay.parent !== container) {
-                container.addChild(this._renderDisplay, this._zOrder);
-            }
+            container.addChild(this._renderDisplay, this._zOrder);
         }
 
         protected _replaceDisplay(value: any): void {
@@ -387,14 +385,14 @@ namespace dragonBones {
                     if (isSurface) {
                         const matrix = (this._parent as Surface)._getGlobalTransformMatrix(x, y);
                         vertex.x = matrix.a * x + matrix.c * y + matrix.tx;
-                        vertex.y = -(matrix.b * x + matrix.d * y + matrix.ty);
+                        vertex.y = matrix.b * x + matrix.d * y + matrix.ty;
                         //
                         x = vertex.x;
                         y = vertex.y;
                     }
                     else {
                         vertex.x = x;
-                        vertex.y = y = -y;
+                        y = vertex.y = -y;
                     }
 
                     if (boundsRect.x > x) {
@@ -430,7 +428,7 @@ namespace dragonBones {
                 const globalTransformMatrix = this.globalTransformMatrix;
                 this._renderDisplay.x = transform.x - (globalTransformMatrix.a * this._pivotX - globalTransformMatrix.c * this._pivotY);
                 this._renderDisplay.y = transform.y - (globalTransformMatrix.b * this._pivotX - globalTransformMatrix.d * this._pivotY);
-                this._renderDisplay.rotationX = -(transform.rotation - Math.abs(transform.skew)) * dragonBones.Transform.RAD_DEG;
+                this._renderDisplay.rotationX = -(transform.rotation + transform.skew) * dragonBones.Transform.RAD_DEG;
                 this._renderDisplay.rotationY = -transform.rotation * dragonBones.Transform.RAD_DEG;
                 this._renderDisplay.scaleX = transform.scaleX * this._textureScale;
                 this._renderDisplay.scaleY = -transform.scaleY * this._textureScale;
@@ -470,7 +468,7 @@ namespace dragonBones {
                 this._renderDisplay.y = transform.y;
             }
 
-            this._renderDisplay.rotationX = -(transform.rotation - Math.abs(transform.skew)) * dragonBones.Transform.RAD_DEG;
+            this._renderDisplay.rotationX = -(transform.rotation + transform.skew) * dragonBones.Transform.RAD_DEG;
             this._renderDisplay.rotationY = -transform.rotation * dragonBones.Transform.RAD_DEG;
             this._renderDisplay.scaleX = transform.scaleX * this._textureScale;
             this._renderDisplay.scaleY = -transform.scaleY * this._textureScale;
@@ -488,10 +486,10 @@ namespace dragonBones {
 
             this._renderDisplay.x = 0.0;
             this._renderDisplay.y = 0.0;
-            this._renderDisplay.rotationX = -0.0;
-            this._renderDisplay.rotationY = -0.0;
+            this._renderDisplay.rotationX = 0.0;
+            this._renderDisplay.rotationY = 0.0;
             this._renderDisplay.scaleX = 1.0;
-            this._renderDisplay.scaleY = -1.0;
+            this._renderDisplay.scaleY = 1.0;
         }
     }
 }

@@ -8801,7 +8801,7 @@ var dragonBones;
                                 var timelineData = timelineDatas_3[_q];
                                 switch (timelineData.type) {
                                     case 20 /* SlotDisplay */: {
-                                        var timeline = dragonBones.BaseObject.borrowObject(dragonBones.SlotDislayTimelineState);
+                                        var timeline = dragonBones.BaseObject.borrowObject(dragonBones.SlotDisplayTimelineState);
                                         timeline.target = slot;
                                         timeline.init(this._armature, this, timelineData);
                                         this._slotTimelines.push(timeline);
@@ -8850,7 +8850,7 @@ var dragonBones;
                         }
                         if (this.resetToPose) {
                             if (!displayIndexFlag) {
-                                var timeline = dragonBones.BaseObject.borrowObject(dragonBones.SlotDislayTimelineState);
+                                var timeline = dragonBones.BaseObject.borrowObject(dragonBones.SlotDisplayTimelineState);
                                 timeline.target = slot;
                                 timeline.init(this._armature, this, null);
                                 this._slotTimelines.push(timeline);
@@ -9874,7 +9874,7 @@ var dragonBones;
                         this.currentTime = 0.0;
                     }
                     else {
-                        this.currentTime = this._duration + 0.000001; // Precision problem
+                        this.currentTime = this.playState === 1 ? this._duration + 0.000001 : this._duration; // Precision problem
                     }
                 }
                 else {
@@ -10864,15 +10864,15 @@ var dragonBones;
     /**
      * @internal
      */
-    var SlotDislayTimelineState = (function (_super) {
-        __extends(SlotDislayTimelineState, _super);
-        function SlotDislayTimelineState() {
+    var SlotDisplayTimelineState = (function (_super) {
+        __extends(SlotDisplayTimelineState, _super);
+        function SlotDisplayTimelineState() {
             return _super !== null && _super.apply(this, arguments) || this;
         }
-        SlotDislayTimelineState.toString = function () {
-            return "[class dragonBones.SlotDislayTimelineState]";
+        SlotDisplayTimelineState.toString = function () {
+            return "[class dragonBones.SlotDisplayTimelineState]";
         };
-        SlotDislayTimelineState.prototype._onArriveAtFrame = function () {
+        SlotDisplayTimelineState.prototype._onArriveAtFrame = function () {
             if (this.playState >= 0) {
                 var slot = this.target;
                 var displayIndex = this._timelineData !== null ? this._frameArray[this._frameOffset + 1] : slot._slotData.displayIndex;
@@ -10881,11 +10881,11 @@ var dragonBones;
                 }
             }
         };
-        SlotDislayTimelineState.prototype._onUpdateFrame = function () {
+        SlotDisplayTimelineState.prototype._onUpdateFrame = function () {
         };
-        return SlotDislayTimelineState;
+        return SlotDisplayTimelineState;
     }(dragonBones.TimelineState));
-    dragonBones.SlotDislayTimelineState = SlotDislayTimelineState;
+    dragonBones.SlotDisplayTimelineState = SlotDisplayTimelineState;
     /**
      * @internal
      */
@@ -15583,9 +15583,7 @@ var dragonBones;
         };
         CocosSlot.prototype._addDisplay = function () {
             var container = this._armature.display;
-            if (this._renderDisplay.parent !== container) {
-                container.addChild(this._renderDisplay, this._zOrder);
-            }
+            container.addChild(this._renderDisplay, this._zOrder);
         };
         CocosSlot.prototype._replaceDisplay = function (value) {
             var container = this._armature.display;
@@ -15847,14 +15845,14 @@ var dragonBones;
                     if (isSurface) {
                         var matrix = this._parent._getGlobalTransformMatrix(x, y);
                         vertex.x = matrix.a * x + matrix.c * y + matrix.tx;
-                        vertex.y = -(matrix.b * x + matrix.d * y + matrix.ty);
+                        vertex.y = matrix.b * x + matrix.d * y + matrix.ty;
                         //
                         x = vertex.x;
                         y = vertex.y;
                     }
                     else {
                         vertex.x = x;
-                        vertex.y = y = -y;
+                        y = vertex.y = -y;
                     }
                     if (boundsRect.x > x) {
                         boundsRect.x = x;
@@ -15883,7 +15881,7 @@ var dragonBones;
                 var globalTransformMatrix = this.globalTransformMatrix;
                 this._renderDisplay.x = transform.x - (globalTransformMatrix.a * this._pivotX - globalTransformMatrix.c * this._pivotY);
                 this._renderDisplay.y = transform.y - (globalTransformMatrix.b * this._pivotX - globalTransformMatrix.d * this._pivotY);
-                this._renderDisplay.rotationX = -(transform.rotation - Math.abs(transform.skew)) * dragonBones.Transform.RAD_DEG;
+                this._renderDisplay.rotationX = -(transform.rotation + transform.skew) * dragonBones.Transform.RAD_DEG;
                 this._renderDisplay.rotationY = -transform.rotation * dragonBones.Transform.RAD_DEG;
                 this._renderDisplay.scaleX = transform.scaleX * this._textureScale;
                 this._renderDisplay.scaleY = -transform.scaleY * this._textureScale;
@@ -15916,7 +15914,7 @@ var dragonBones;
                 this._renderDisplay.x = transform.x;
                 this._renderDisplay.y = transform.y;
             }
-            this._renderDisplay.rotationX = -(transform.rotation - Math.abs(transform.skew)) * dragonBones.Transform.RAD_DEG;
+            this._renderDisplay.rotationX = -(transform.rotation + transform.skew) * dragonBones.Transform.RAD_DEG;
             this._renderDisplay.rotationY = -transform.rotation * dragonBones.Transform.RAD_DEG;
             this._renderDisplay.scaleX = transform.scaleX * this._textureScale;
             this._renderDisplay.scaleY = -transform.scaleY * this._textureScale;
@@ -15932,10 +15930,10 @@ var dragonBones;
             // (this._renderDisplay as any)._renderCmd.setNodeToParentTransform(helpMatrix);
             this._renderDisplay.x = 0.0;
             this._renderDisplay.y = 0.0;
-            this._renderDisplay.rotationX = -0.0;
-            this._renderDisplay.rotationY = -0.0;
+            this._renderDisplay.rotationX = 0.0;
+            this._renderDisplay.rotationY = 0.0;
             this._renderDisplay.scaleX = 1.0;
-            this._renderDisplay.scaleY = -1.0;
+            this._renderDisplay.scaleY = 1.0;
         };
         return CocosSlot;
     }(dragonBones.Slot));
@@ -16087,25 +16085,29 @@ var dragonBones;
                 }
             }
             else {
-                var childArmatureComponent = null;
-                if (dataPackage !== null) {
-                    childArmatureComponent = this.buildArmatureComponent(displayData.path, dataPackage !== null ? dataPackage.dataName : "", "", dataPackage.textureAtlasName, childNode);
-                }
-                else {
-                    childArmatureComponent = this.buildArmatureComponent(displayData.path, "", "", "", childNode);
+                var childArmatureComponent = childNode.getComponent(dragonBones.CocosArmatureComponent) || null;
+                if (childArmatureComponent === null) {
+                    if (dataPackage !== null) {
+                        childArmatureComponent = this.buildArmatureComponent(displayData.path, dataPackage !== null ? dataPackage.dataName : "", "", dataPackage.textureAtlasName, childNode);
+                    }
+                    else {
+                        childArmatureComponent = this.buildArmatureComponent(displayData.path, "", "", "", childNode);
+                    }
                 }
                 if (childArmatureComponent !== null) {
                     childArmature = childArmatureComponent.armature;
                 }
             }
-            if (childArmature !== null) {
-                var childArmatureDisplay = childArmature.display;
-                childArmatureDisplay.name = childDisplayName;
-                proxy.node.addChild(childArmatureDisplay, slot._zOrder);
-                childArmatureDisplay.active = false;
-                return childArmature;
+            if (childArmature === null) {
+                return null;
             }
-            return null;
+            var childArmatureDisplay = childArmature.display;
+            childArmatureDisplay.name = childDisplayName;
+            if (childArmatureDisplay.parent !== proxy.node) {
+                proxy.node.addChild(childArmatureDisplay, slot._zOrder);
+            }
+            childArmatureDisplay.active = false;
+            return childArmature;
         };
         CocosFactory.prototype._buildSlot = function (_dataPackage, slotData, armature) {
             var slot = dragonBones.BaseObject.borrowObject(dragonBones.CocosSlot);

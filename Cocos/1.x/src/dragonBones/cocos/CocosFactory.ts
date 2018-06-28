@@ -155,12 +155,15 @@ namespace dragonBones {
                 }
             }
             else {
-                let childArmatureComponent: CocosArmatureComponent | null = null;
-                if (dataPackage !== null) {
-                    childArmatureComponent = this.buildArmatureComponent(displayData.path, dataPackage !== null ? dataPackage.dataName : "", "", dataPackage.textureAtlasName, childNode);
-                }
-                else {
-                    childArmatureComponent = this.buildArmatureComponent(displayData.path, "", "", "", childNode);
+                let childArmatureComponent: CocosArmatureComponent | null = childNode.getComponent(CocosArmatureComponent) || null;
+
+                if (childArmatureComponent === null) {
+                    if (dataPackage !== null) {
+                        childArmatureComponent = this.buildArmatureComponent(displayData.path, dataPackage !== null ? dataPackage.dataName : "", "", dataPackage.textureAtlasName, childNode);
+                    }
+                    else {
+                        childArmatureComponent = this.buildArmatureComponent(displayData.path, "", "", "", childNode);
+                    }
                 }
 
                 if (childArmatureComponent !== null) {
@@ -168,16 +171,20 @@ namespace dragonBones {
                 }
             }
 
-            if (childArmature !== null) {
-                const childArmatureDisplay = childArmature.display as cc.Node;
-                childArmatureDisplay.name = childDisplayName;
-                proxy.node.addChild(childArmatureDisplay, slot._zOrder);
-                childArmatureDisplay.active = false;
-
-                return childArmature;
+            if (childArmature === null) {
+                return null;
             }
 
-            return null;
+            const childArmatureDisplay = childArmature.display as cc.Node;
+            childArmatureDisplay.name = childDisplayName;
+
+            if (childArmatureDisplay.parent !== proxy.node) {
+                proxy.node.addChild(childArmatureDisplay, slot._zOrder);
+            }
+
+            childArmatureDisplay.active = false;
+
+            return childArmature;
         }
 
         protected _buildSlot(_dataPackage: BuildArmaturePackage, slotData: SlotData, armature: Armature): Slot {
