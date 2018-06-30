@@ -1,0 +1,8 @@
+{
+    "name": "dragonbones",
+    "version": "0.0.1",
+    "description": "",
+    "author": "",
+    "main": "main.js",
+    "scene-script": "scene.js"
+}

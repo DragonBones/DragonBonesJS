@@ -67,6 +67,9 @@
       },
       {
         "__id__": 6
+      },
+      {
+        "__id__": 7
       }
     ],
     "_prefab": null,
@@ -208,5 +211,21 @@
       "__id__": 2
     },
     "_enabled": true
+  },
+  {
+    "__type__": "CocosArmatureComponent",
+    "_name": "",
+    "_objFlags": 0,
+    "node": {
+      "__id__": 2
+    },
+    "_enabled": true,
+    "_armatureName": "",
+    "_animationName": "",
+    "_dragonBonesAsset": {
+      "__uuid__": "ff2e056a-d84a-49d2-8b7c-5e08c9f607a7"
+    },
+    "_playTimes": -1,
+    "_timeScale": 1
   }
 ]
