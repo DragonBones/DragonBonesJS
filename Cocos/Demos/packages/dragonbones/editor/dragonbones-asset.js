@@ -45,6 +45,7 @@ var DragonBonesAsset = /** @class */ (function (_super) {
         var _this = _super !== null && _super.apply(this, arguments) || this;
         _this.dragonBonesData = "";
         _this.textureAtlases = [];
+        _this.textures = [];
         return _this;
     }
     __decorate([
@@ -53,6 +54,9 @@ var DragonBonesAsset = /** @class */ (function (_super) {
     __decorate([
         property([cc.String])
     ], DragonBonesAsset.prototype, "textureAtlases", void 0);
+    __decorate([
+        property
+    ], DragonBonesAsset.prototype, "textures", void 0);
     DragonBonesAsset = __decorate([
         ccclass("DragonBones.DragonBonesAsset")
     ], DragonBonesAsset);

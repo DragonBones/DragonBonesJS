@@ -36,6 +36,7 @@ module.exports = {
         Editor.metas.dragonbones = origin.metas.dragonbones;
         Editor.assetdb.unregister(newMeta);
         Editor.assetdb.unmount(MOUNT_PATH);
+        cc.js.unregisterClass(newAsset);
 
         Editor.Ipc.sendToWins('dragonbones:unloaded');
     }

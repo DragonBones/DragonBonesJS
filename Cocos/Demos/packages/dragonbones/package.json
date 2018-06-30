@@ -4,5 +4,8 @@
     "description": "",
     "author": "",
     "main": "main.js",
+    "reload": {
+        "ignore": "**/*"
+    },
     "scene-script": "scene.js"
 }
