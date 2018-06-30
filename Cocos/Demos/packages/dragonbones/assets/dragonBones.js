@@ -15191,7 +15191,7 @@ var dragonBones;
             property
         ], DragonBonesAsset.prototype, "textureAtlases", void 0);
         DragonBonesAsset = __decorate([
-            ccclass //("dragonBones.DragonBonesAsset")
+            ccclass("DragonBones.DragonBonesAsset")
         ], DragonBonesAsset);
         return DragonBonesAsset;
     }(cc.Asset));

@@ -4,8 +4,6 @@
 
 const { ipcRenderer } = require('electron');
 
-// const newAsset = window.dragonBones.DragonBonesAsset || // 先判断一下，防止和项目中的 dragonBones.js 类名冲突
-//                  require('./editor/dragonbones-asset');
 const newAsset = dragonBones.DragonBonesAsset;
 const newMeta = require('./editor/dragonbones-meta');
 

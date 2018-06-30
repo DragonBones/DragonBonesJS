@@ -2,8 +2,7 @@
 const fs = require('fire-fs');
 const ps = require('fire-path');
 
-// const DragonBonesAsset = require('./dragonbones-asset');
-const DragonBonesAsset = dragonBones.DragonBonesAsset;
+const DragonBonesAsset = Editor.isMainProcess ? require('./dragonbones-asset') : dragonBones.DragonBonesAsset;
 
 const DRAGONBONES_ENCODING = 'utf8';
 
