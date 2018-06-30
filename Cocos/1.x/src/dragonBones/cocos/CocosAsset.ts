@@ -22,11 +22,13 @@
  */
 namespace dragonBones {
     const { ccclass, property } = cc._decorator;
-    @ccclass//("dragonBones.DragonBonesAsset")
+    @ccclass("DragonBones.DragonBonesAsset")
     export class DragonBonesAsset extends cc.Asset {
         @property
         public readonly dragonBonesData: string | ArrayBuffer = "";
         @property
         public readonly textureAtlases: string[] = [];
+        @property
+        public readonly textures: cc.Texture2D[] = [];
     }
 }
