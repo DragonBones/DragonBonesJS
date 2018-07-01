@@ -21,17 +21,17 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 namespace dragonBones {
-    const _defaultItems = cc.Enum({ "None": -1 });
-    function _setItems(object: any, key: string, items: any) {
-        (cc.Class as any).attr( // creator.d.ts error.
-            object,
-            key,
-            {
-                type: "Enum",
-                enumList: (cc.Enum as any).getList(items), // creator.d.ts error.
-            }
-        );
-    }
+    // const _defaultItems = cc.Enum({ "None": -1 });
+    // function _setItems(object: any, key: string, items: any) {
+    //     (cc.Class as any).attr( // creator.d.ts error.
+    //         object,
+    //         key,
+    //         {
+    //             type: "Enum",
+    //             enumList: (cc.Enum as any).getList(items), // creator.d.ts error.
+    //         }
+    //     );
+    // }
 
     const {
         ccclass,
@@ -45,7 +45,7 @@ namespace dragonBones {
     /**
      * @see dragonBones.IArmatureProxy
      */
-    @ccclass
+    @ccclass("CocosArmatureComponent")
     @executeInEditMode
     @disallowMultiple
     @playOnFocus
@@ -90,7 +90,7 @@ namespace dragonBones {
         public destroy(): true {
             this.dispose();
 
-            if (false) {
+            if (false) { // `super.destroy()` will be called in `dbClear()`.
                 super.destroy();
             }
 

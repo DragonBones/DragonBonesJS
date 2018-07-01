@@ -78,10 +78,10 @@ export default class InverseKinematics extends cc.Component {
         this._armatureComponent.armature.flipX = this._faceDir < 0;
 
         if (this._faceDir > 0) {
-            this._aimRadian = Math.atan2(this._target.y - positionY - aimOffsetY, this._target.x - positionX);
+            this._aimRadian = -Math.atan2(this._target.y - positionY - aimOffsetY, this._target.x - positionX);
         }
         else {
-            this._aimRadian = Math.PI - Math.atan2(this._target.y - positionY - aimOffsetY, this._target.x - positionX);
+            this._aimRadian = Math.PI + Math.atan2(this._target.y - positionY - aimOffsetY, this._target.x - positionX);
             if (this._aimRadian > Math.PI) {
                 this._aimRadian -= Math.PI * 2.0;
             }
@@ -97,7 +97,7 @@ export default class InverseKinematics extends cc.Component {
         // Set floor board bone offset.
         const minRadian = -25.0 * dragonBones.Transform.DEG_RAD;
         const maxRadian = 25.0 * dragonBones.Transform.DEG_RAD;
-        let circleRadian = Math.atan2(-this._circleBone.global.y, this._circleBone.global.x);
+        let circleRadian = Math.atan2(this._circleBone.global.y, this._circleBone.global.x);
 
         if (this._circleBone.global.x < 0.0) {
             circleRadian = dragonBones.Transform.normalizeRadian(circleRadian + Math.PI);

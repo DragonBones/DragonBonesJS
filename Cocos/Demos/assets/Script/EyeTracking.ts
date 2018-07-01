@@ -64,7 +64,7 @@ export default class EyeTracking extends cc.Component {
 
         let p = 0.0;
         const pX = Math.max(Math.min((this._target.x - canvas.x) / (canvas.width * 0.5), 1.0), -1.0);
-        const pY = -Math.max(Math.min((this._target.y - canvas.y) / (canvas.height * 0.5), 1.0), -1.0);
+        const pY = Math.max(Math.min((this._target.y + canvas.y) / (canvas.height * 0.5), 1.0), -1.0);
         for (const animationName of this._animationNames) {
             if (!animation.hasAnimation(animationName)) {
                 continue;

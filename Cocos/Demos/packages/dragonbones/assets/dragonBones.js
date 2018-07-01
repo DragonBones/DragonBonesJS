@@ -15,12 +15,6 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-
-// force overwrite builtin dragonBones
-if (CC_EDITOR) {
-    _Scene.Sandbox._globalsVerifier_loadPluginScript.ignoreNames['dragonBones'] = true;
-}
-
 /**
  * The MIT License (MIT)
  *
@@ -3679,7 +3673,7 @@ var dragonBones;
                 this._slots.sort(Armature._onSortSlots);
                 if (this._zIndexDirty) {
                     for (var i = 0, l = this._slots.length; i < l; ++i) {
-                        this._slots[i]._setZOrder(i); //
+                        this._slots[i]._setZOrder(i); // 
                     }
                 }
                 this._slotsDirty = false;
@@ -4563,14 +4557,27 @@ var dragonBones;
                 if (origin !== null) {
                     // global.copyFrom(this.origin).add(this.offset).add(this.animationPose);
                     global.x = origin.x + offset.x + animationPose.x;
-                    global.y = origin.y + offset.y + animationPose.y;
-                    global.skew = origin.skew + offset.skew + animationPose.skew;
-                    global.rotation = origin.rotation + offset.rotation + animationPose.rotation;
                     global.scaleX = origin.scaleX * offset.scaleX * animationPose.scaleX;
                     global.scaleY = origin.scaleY * offset.scaleY * animationPose.scaleY;
+                    if (dragonBones.DragonBones.yDown) {
+                        global.y = origin.y + offset.y + animationPose.y;
+                        global.skew = origin.skew + offset.skew + animationPose.skew;
+                        global.rotation = origin.rotation + offset.rotation + animationPose.rotation;
+                    }
+                    else {
+                        global.y = origin.y - offset.y + animationPose.y;
+                        global.skew = origin.skew - offset.skew + animationPose.skew;
+                        global.rotation = origin.rotation - offset.rotation + animationPose.rotation;
+                    }
                 }
                 else {
-                    global.copyFrom(offset).add(animationPose);
+                    global.copyFrom(offset);
+                    if (!dragonBones.DragonBones.yDown) {
+                        global.y = -global.y;
+                        global.skew = -global.skew;
+                        global.rotation = -global.rotation;
+                    }
+                    global.add(animationPose);
                 }
             }
             else if (this.offsetMode === 0 /* None */) {
@@ -4584,6 +4591,11 @@ var dragonBones;
             else {
                 inherit = false;
                 global.copyFrom(offset);
+                if (!dragonBones.DragonBones.yDown) {
+                    global.y = -global.y;
+                    global.skew = -global.skew;
+                    global.rotation = -global.rotation;
+                }
             }
             if (inherit) {
                 var isSurface = parent._boneData.type === 1 /* Surface */;
@@ -9650,7 +9662,7 @@ var dragonBones;
                 }
                 if (this.playTimes > 0 && currentPlayTimes === this.playTimes - 1 &&
                     value === this._duration && this._parent === null) {
-                    value = this._duration - 0.000001; //
+                    value = this._duration - 0.000001; // 
                 }
                 if (this._time === value) {
                     return;
@@ -10590,7 +10602,7 @@ var dragonBones;
                 result.y = rd[1] * blendWeight * valueScale;
                 result.rotation = rd[2] * blendWeight;
                 result.skew = rd[3] * blendWeight;
-                result.scaleX = (rd[4] - 1.0) * blendWeight + 1.0; //
+                result.scaleX = (rd[4] - 1.0) * blendWeight + 1.0; // 
                 result.scaleY = (rd[5] - 1.0) * blendWeight + 1.0; //
             }
             if (isDirty || this.dirty) {
@@ -10916,7 +10928,7 @@ var dragonBones;
                 var valueOffset = this._animationData.frameIntOffset + this._frameValueOffset + this._frameIndex;
                 var colorOffset = frameIntArray[valueOffset];
                 if (colorOffset < 0) {
-                    colorOffset += 65536; // Fixed out of bounds bug.
+                    colorOffset += 65536; // Fixed out of bounds bug. 
                 }
                 if (this._isTween) {
                     this._current[0] = colorArray[colorOffset++];
@@ -10934,7 +10946,7 @@ var dragonBones;
                         colorOffset = frameIntArray[valueOffset + 1];
                     }
                     if (colorOffset < 0) {
-                        colorOffset += 65536; // Fixed out of bounds bug.
+                        colorOffset += 65536; // Fixed out of bounds bug. 
                     }
                     this._difference[0] = colorArray[colorOffset++] - this._current[0];
                     this._difference[1] = colorArray[colorOffset++] - this._current[1];
@@ -11108,7 +11120,7 @@ var dragonBones;
                 var slot = this.target.target;
                 this.geometryOffset = frameIntArray[frameIntOffset + 0 /* DeformVertexOffset */];
                 if (this.geometryOffset < 0) {
-                    this.geometryOffset += 65536; // Fixed out of bounds bug.
+                    this.geometryOffset += 65536; // Fixed out of bounds bug. 
                 }
                 for (var i = 0, l = slot.displayFrameCount; i < l; ++i) {
                     var displayFrame = slot.getDisplayFrameAt(i);
@@ -13497,7 +13509,7 @@ var dragonBones;
             this._intArray[geometryOffset + 0 /* GeometryVertexCount */] = vertexCount;
             this._intArray[geometryOffset + 2 /* GeometryFloatOffset */] = verticesOffset;
             this._intArray[geometryOffset + 3 /* GeometryWeightOffset */] = -1; //
-            //
+            // 
             this._floatArray.length += vertexCount * 2;
             for (var i = 0, l = vertexCount * 2; i < l; ++i) {
                 this._floatArray[verticesOffset + i] = rawVertices[i];
@@ -14446,7 +14458,7 @@ var dragonBones;
                                 childArmature.animation.play();
                             }
                         }
-                        armatureDisplayData.armature = childArmature.armatureData; //
+                        armatureDisplayData.armature = childArmature.armatureData; // 
                     }
                     display = childArmature;
                     break;
@@ -15173,6 +15185,9 @@ var dragonBones;
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+if (CC_EDITOR) {
+    _Scene.Sandbox._globalsVerifier_loadPluginScript.ignoreNames['dragonBones'] = true;
+}
 var dragonBones;
 (function (dragonBones) {
     var _a = cc._decorator, ccclass = _a.ccclass, property = _a.property;
@@ -15189,10 +15204,10 @@ var dragonBones;
             property
         ], DragonBonesAsset.prototype, "dragonBonesData", void 0);
         __decorate([
-            property
+            property([cc.String])
         ], DragonBonesAsset.prototype, "textureAtlases", void 0);
         __decorate([
-            property
+            property([cc.Texture2D])
         ], DragonBonesAsset.prototype, "textures", void 0);
         DragonBonesAsset = __decorate([
             ccclass("DragonBones.DragonBonesAsset")
@@ -15350,14 +15365,17 @@ var dragonBones;
  */
 var dragonBones;
 (function (dragonBones) {
-    var _defaultItems = cc.Enum({ "None": -1 });
-    function _setItems(object, key, items) {
-        cc.Class.attr(// creator.d.ts error.
-        object, key, {
-            type: "Enum",
-            enumList: cc.Enum.getList(items),
-        });
-    }
+    // const _defaultItems = cc.Enum({ "None": -1 });
+    // function _setItems(object: any, key: string, items: any) {
+    //     (cc.Class as any).attr( // creator.d.ts error.
+    //         object,
+    //         key,
+    //         {
+    //             type: "Enum",
+    //             enumList: (cc.Enum as any).getList(items), // creator.d.ts error.
+    //         }
+    //     );
+    // }
     var _a = cc._decorator, ccclass = _a.ccclass, property = _a.property, executeInEditMode = _a.executeInEditMode, disallowMultiple = _a.disallowMultiple, playOnFocus = _a.playOnFocus, menu = _a.menu, help = _a.help;
     /**
      * @see dragonBones.IArmatureProxy
@@ -15699,7 +15717,7 @@ var dragonBones;
                         var triangleCount = intArray[this._geometryData.offset + 1 /* GeometryTriangleCount */];
                         var vertexOffset = intArray[this._geometryData.offset + 2 /* GeometryFloatOffset */];
                         if (vertexOffset < 0) {
-                            vertexOffset += 65536; // Fixed out of bouds bug.
+                            vertexOffset += 65536; // Fixed out of bouds bug. 
                         }
                         var uvOffset = vertexOffset + vertexCount * 2;
                         var scale = this._armature._armatureData.scale;
@@ -15795,7 +15813,7 @@ var dragonBones;
                 var vertexCount = intArray[geometryData.offset + 0 /* GeometryVertexCount */];
                 var weightFloatOffset = intArray[weightData.offset + 1 /* WeigthFloatOffset */];
                 if (weightFloatOffset < 0) {
-                    weightFloatOffset += 65536; // Fixed out of bouds bug.
+                    weightFloatOffset += 65536; // Fixed out of bouds bug. 
                 }
                 for (var i = 0, iB = weightData.offset + 2 /* WeigthBoneIndices */ + bones.length, iV = weightFloatOffset, iF = 0; i < vertexCount; ++i) {
                     var boneCount = intArray[iB++];
@@ -15841,7 +15859,7 @@ var dragonBones;
                 var vertexCount = intArray[geometryData.offset + 0 /* GeometryVertexCount */];
                 var vertexOffset = intArray[geometryData.offset + 2 /* GeometryFloatOffset */];
                 if (vertexOffset < 0) {
-                    vertexOffset += 65536; // Fixed out of bouds bug.
+                    vertexOffset += 65536; // Fixed out of bouds bug. 
                 }
                 for (var i = 0, l = vertexCount * 2; i < l; i += 2) {
                     var iH = i / 2; // int.

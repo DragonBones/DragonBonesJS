@@ -294,9 +294,3 @@ namespace dragonBones {
         }
     }
 }
-//
-cc.Class({
-    extends: cc.Component,
-    start: function () {
-    }
-});

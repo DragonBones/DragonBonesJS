@@ -4557,14 +4557,27 @@ var dragonBones;
                 if (origin !== null) {
                     // global.copyFrom(this.origin).add(this.offset).add(this.animationPose);
                     global.x = origin.x + offset.x + animationPose.x;
-                    global.y = origin.y + offset.y + animationPose.y;
-                    global.skew = origin.skew + offset.skew + animationPose.skew;
-                    global.rotation = origin.rotation + offset.rotation + animationPose.rotation;
                     global.scaleX = origin.scaleX * offset.scaleX * animationPose.scaleX;
                     global.scaleY = origin.scaleY * offset.scaleY * animationPose.scaleY;
+                    if (dragonBones.DragonBones.yDown) {
+                        global.y = origin.y + offset.y + animationPose.y;
+                        global.skew = origin.skew + offset.skew + animationPose.skew;
+                        global.rotation = origin.rotation + offset.rotation + animationPose.rotation;
+                    }
+                    else {
+                        global.y = origin.y - offset.y + animationPose.y;
+                        global.skew = origin.skew - offset.skew + animationPose.skew;
+                        global.rotation = origin.rotation - offset.rotation + animationPose.rotation;
+                    }
                 }
                 else {
-                    global.copyFrom(offset).add(animationPose);
+                    global.copyFrom(offset);
+                    if (!dragonBones.DragonBones.yDown) {
+                        global.y = -global.y;
+                        global.skew = -global.skew;
+                        global.rotation = -global.rotation;
+                    }
+                    global.add(animationPose);
                 }
             }
             else if (this.offsetMode === 0 /* None */) {
@@ -4578,6 +4591,11 @@ var dragonBones;
             else {
                 inherit = false;
                 global.copyFrom(offset);
+                if (!dragonBones.DragonBones.yDown) {
+                    global.y = -global.y;
+                    global.skew = -global.skew;
+                    global.rotation = -global.rotation;
+                }
             }
             if (inherit) {
                 var isSurface = parent._boneData.type === 1 /* Surface */;
@@ -15167,6 +15185,9 @@ var dragonBones;
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+if (CC_EDITOR) {
+    _Scene.Sandbox._globalsVerifier_loadPluginScript.ignoreNames['dragonBones'] = true;
+}
 var dragonBones;
 (function (dragonBones) {
     var _a = cc._decorator, ccclass = _a.ccclass, property = _a.property;
@@ -15176,16 +15197,20 @@ var dragonBones;
             var _this = _super !== null && _super.apply(this, arguments) || this;
             _this.dragonBonesData = "";
             _this.textureAtlases = [];
+            _this.textures = [];
             return _this;
         }
         __decorate([
             property
         ], DragonBonesAsset.prototype, "dragonBonesData", void 0);
         __decorate([
-            property
+            property([cc.String])
         ], DragonBonesAsset.prototype, "textureAtlases", void 0);
+        __decorate([
+            property([cc.Texture2D])
+        ], DragonBonesAsset.prototype, "textures", void 0);
         DragonBonesAsset = __decorate([
-            ccclass //("dragonBones.DragonBonesAsset")
+            ccclass("DragonBones.DragonBonesAsset")
         ], DragonBonesAsset);
         return DragonBonesAsset;
     }(cc.Asset));
@@ -15340,14 +15365,17 @@ var dragonBones;
  */
 var dragonBones;
 (function (dragonBones) {
-    var _defaultItems = cc.Enum({ "None": -1 });
-    function _setItems(object, key, items) {
-        cc.Class.attr(// creator.d.ts error.
-        object, key, {
-            type: "Enum",
-            enumList: cc.Enum.getList(items),
-        });
-    }
+    // const _defaultItems = cc.Enum({ "None": -1 });
+    // function _setItems(object: any, key: string, items: any) {
+    //     (cc.Class as any).attr( // creator.d.ts error.
+    //         object,
+    //         key,
+    //         {
+    //             type: "Enum",
+    //             enumList: (cc.Enum as any).getList(items), // creator.d.ts error.
+    //         }
+    //     );
+    // }
     var _a = cc._decorator, ccclass = _a.ccclass, property = _a.property, executeInEditMode = _a.executeInEditMode, disallowMultiple = _a.disallowMultiple, playOnFocus = _a.playOnFocus, menu = _a.menu, help = _a.help;
     /**
      * @see dragonBones.IArmatureProxy
@@ -15512,7 +15540,7 @@ var dragonBones;
             })
         ], CocosArmatureComponent.prototype, "_timeScale", void 0);
         CocosArmatureComponent = __decorate([
-            ccclass,
+            ccclass("CocosArmatureComponent"),
             executeInEditMode,
             disallowMultiple,
             playOnFocus,
@@ -16220,9 +16248,3 @@ var dragonBones;
     }(dragonBones.BaseFactory));
     dragonBones.CocosFactory = CocosFactory;
 })(dragonBones || (dragonBones = {}));
-//
-cc.Class({
-    extends: cc.Component,
-    start: function () {
-    }
-});

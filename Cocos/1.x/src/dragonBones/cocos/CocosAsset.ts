@@ -20,15 +20,22 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+
+// force overwrite builtin dragonBones
+declare var _Scene: any;
+if (CC_EDITOR) {
+    _Scene.Sandbox._globalsVerifier_loadPluginScript.ignoreNames['dragonBones'] = true;
+}
+
 namespace dragonBones {
     const { ccclass, property } = cc._decorator;
     @ccclass("DragonBones.DragonBonesAsset")
     export class DragonBonesAsset extends cc.Asset {
         @property
         public readonly dragonBonesData: string | ArrayBuffer = "";
-        @property
+        @property([cc.String])
         public readonly textureAtlases: string[] = [];
-        @property
+        @property([cc.Texture2D])
         public readonly textures: cc.Texture2D[] = [];
     }
 }

@@ -6,8 +6,8 @@
     "portrait": false,
     "upsideDown": false
   },
-  "packageName": "org.cocos2d.helloworld",
+  "packageName": "org.cocos2d.hellodragonbones",
   "startScene": "2d2f792f-a40c-49bb-a189-ed176a246e49",
-  "title": "hello_world",
+  "title": "hello_dragonbones",
   "webOrientation": "auto"
 }

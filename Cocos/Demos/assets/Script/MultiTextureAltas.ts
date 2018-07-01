@@ -19,12 +19,17 @@ export default class MultiTextureAltas extends cc.Component {
             factory.parseDragonBonesData(cc.loader.getRes(resources[0]), "sd", 0.5);
             factory.parseTextureAtlasData(cc.loader.getRes(resources[1]), cc.loader.getRes(resources[2]), "hd", 1.0);
             factory.parseTextureAtlasData(cc.loader.getRes(resources[3]), cc.loader.getRes(resources[4]), "sd", 2.0);
-
+            //
             this._armatureComponentA = factory.buildArmatureComponent("flower", "hd", null, "hd"); // HD Armature and HD TextureAtlas.
             this._armatureComponentB = factory.buildArmatureComponent("flower", "hd", null, "sd"); // HD Armature and SD TextureAtlas.
             this._armatureComponentC = factory.buildArmatureComponent("flower", "sd", null, "hd"); // SD Armature and HD TextureAtlas.
             this._armatureComponentD = factory.buildArmatureComponent("flower", "sd", null, "sd"); // SD Armature and SD TextureAtlas.
-
+            // Test flip.
+            this._armatureComponentB.armature.flipX = true;
+            this._armatureComponentC.armature.flipY = true;
+            this._armatureComponentD.armature.flipX = true;
+            this._armatureComponentD.armature.flipY = true;
+            //
             this._armatureComponentA.node.x = -250.0;
             this._armatureComponentA.node.y = 0.0;
             this._armatureComponentB.node.x = 250.0;
@@ -33,7 +38,7 @@ export default class MultiTextureAltas extends cc.Component {
             this._armatureComponentC.node.y = -200.0;
             this._armatureComponentD.node.x = 250.0;
             this._armatureComponentD.node.y = -200.0;
-
+            //
             this.node.addChild(this._armatureComponentA.node);
             this.node.addChild(this._armatureComponentB.node);
             this.node.addChild(this._armatureComponentC.node);
