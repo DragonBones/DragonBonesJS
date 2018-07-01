@@ -6404,6 +6404,7 @@ declare namespace dragonBones {
      */
     class CocosSlot extends Slot {
         static toString(): string;
+        private _ccMeshDirty;
         private _textureScale;
         private _renderDisplay;
         protected _onClear(): void;

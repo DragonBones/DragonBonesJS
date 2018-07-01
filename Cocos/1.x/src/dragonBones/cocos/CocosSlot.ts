@@ -36,6 +36,7 @@ namespace dragonBones {
             return "[class dragonBones.CocosSlot]";
         }
 
+        private _ccMeshDirty: boolean = false;
         private _textureScale: number;
         private _renderDisplay: cc.Node;
 
@@ -261,6 +262,8 @@ namespace dragonBones {
                         if (isSkinned || isSurface) {
                             this._identityTransform();
                         }
+                        // Delay to update cocos mesh. (some cocos bug.)
+                        this._ccMeshDirty = true;
                     }
                     else { // Normal texture.
                         this._textureScale = currentTextureData.parent.scale * this._armature._armatureData.scale;
@@ -432,6 +435,11 @@ namespace dragonBones {
                 this._renderDisplay.rotationY = -transform.rotation * dragonBones.Transform.RAD_DEG;
                 this._renderDisplay.scaleX = transform.scaleX * this._textureScale;
                 this._renderDisplay.scaleY = -transform.scaleY * this._textureScale;
+            }
+
+            if (this._ccMeshDirty) {
+                this._ccMeshDirty = false;
+                this._verticesDirty = true;
             }
         }
 

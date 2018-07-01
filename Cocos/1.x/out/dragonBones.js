@@ -6012,8 +6012,8 @@ var dragonBones;
                 if (this._verticesDirty ||
                     (isSkinned && this._isBonesUpdate()) ||
                     (isSurface && this._parent._childrenTransformDirty)) {
+                    this._verticesDirty = false; // Allow update mesh to reset the dirty value.
                     this._updateMesh();
-                    this._verticesDirty = false;
                 }
                 if (isSkinned || isSurface) {
                     return;
@@ -15589,7 +15589,9 @@ var dragonBones;
     var CocosSlot = (function (_super) {
         __extends(CocosSlot, _super);
         function CocosSlot() {
-            return _super !== null && _super.apply(this, arguments) || this;
+            var _this = _super !== null && _super.apply(this, arguments) || this;
+            _this._ccMeshDirty = false;
+            return _this;
         }
         CocosSlot.toString = function () {
             return "[class dragonBones.CocosSlot]";
@@ -15776,6 +15778,8 @@ var dragonBones;
                         if (isSkinned || isSurface) {
                             this._identityTransform();
                         }
+                        // Delay to update cocos mesh. (some cocos bug.)
+                        this._ccMeshDirty = true;
                     }
                     else {
                         this._textureScale = currentTextureData.parent.scale * this._armature._armatureData.scale;
@@ -15913,6 +15917,10 @@ var dragonBones;
                 this._renderDisplay.rotationY = -transform.rotation * dragonBones.Transform.RAD_DEG;
                 this._renderDisplay.scaleX = transform.scaleX * this._textureScale;
                 this._renderDisplay.scaleY = -transform.scaleY * this._textureScale;
+            }
+            if (this._ccMeshDirty) {
+                this._ccMeshDirty = false;
+                this._verticesDirty = true;
             }
         };
         CocosSlot.prototype._updateTransform = function () {

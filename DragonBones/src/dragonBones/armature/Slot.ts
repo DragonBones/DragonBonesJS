@@ -728,8 +728,8 @@ namespace dragonBones {
                     (isSkinned && this._isBonesUpdate()) ||
                     (isSurface && this._parent._childrenTransformDirty)
                 ) {
+                    this._verticesDirty = false; // Allow update mesh to reset the dirty value.
                     this._updateMesh();
-                    this._verticesDirty = false;
                 }
 
                 if (isSkinned || isSurface) { // Compatible.
