@@ -49,7 +49,7 @@ var dragonBones;
             this._objects = [];
             this._eventManager = null;
             this._eventManager = eventManager;
-            console.info("YuPeng DragonBones: " + DragonBones.VERSION + "\nWebsite: http://dragonbones.com/\nSource and Demo: https://github.com/DragonBones/");
+            console.info("DragonBones: " + DragonBones.VERSION + "\nWebsite: http://dragonbones.com/\nSource and Demo: https://github.com/DragonBones/");
         }
         DragonBones.prototype.advanceTime = function (passedTime) {
             if (this._objects.length > 0) {
@@ -15521,7 +15521,7 @@ var dragonBones;
                 dragonBonesData = this.dragonBonesAsset.dragonBonesData;
             }
             var data = dragonBones.CocosFactory.factory.parseDragonBonesData(dragonBonesData);
-            if (data === null) {
+            if (!data) {
                 console.warn("DragonBones Armature not exist");
                 return;
             }
@@ -15574,7 +15574,7 @@ var dragonBones;
         };
         CocosArmatureComponent.prototype.onLoad = function () {
             // this.display();
-            if (!!this._dragonBonesNode) {
+            if (this._dragonBonesNode) {
                 var component = this._dragonBonesNode.getComponent(CocosArmatureComponent_1);
                 var state = component.animation.play(component.animation.animationNames[0], 0);
                 if (!state) {
@@ -15591,22 +15591,19 @@ var dragonBones;
         };
         var CocosArmatureComponent_1;
         __decorate([
-            property(cc.String)
+            property
         ], CocosArmatureComponent.prototype, "_armatureName", void 0);
         __decorate([
-            property(cc.String)
+            property
         ], CocosArmatureComponent.prototype, "_animationName", void 0);
         __decorate([
-            property({
-                type: dragonBones.DragonBonesAsset,
-            })
+            property(dragonBones.DragonBonesAsset)
         ], CocosArmatureComponent.prototype, "_dragonBonesAsset", void 0);
         __decorate([
             property({
                 type: dragonBones.DragonBonesAsset,
                 displayName: "DragonBones",
                 tooltip: "DragonBones Asset",
-                visible: true,
             })
         ], CocosArmatureComponent.prototype, "dragonBonesAsset", null);
         __decorate([
@@ -15615,7 +15612,6 @@ var dragonBones;
                 displayName: "Armature",
                 tooltip: "The armature name.",
                 visible: true,
-                editorOnly: true,
                 serializable: false,
             })
         ], CocosArmatureComponent.prototype, "_armatureNames", void 0);
@@ -15625,7 +15621,6 @@ var dragonBones;
                 displayName: "Animation",
                 tooltip: "The animation name.",
                 visible: true,
-                editorOnly: true,
                 serializable: false,
             })
         ], CocosArmatureComponent.prototype, "_animationNames", void 0);

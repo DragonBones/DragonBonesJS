@@ -6368,10 +6368,10 @@ declare namespace dragonBones {
         readonly animation: Animation;
         dragonBonesName: string;
         dragonBonesAsset: DragonBonesAsset | null;
+        _dragonBonesNode: cc.Node;
         _loadAndDisplayDragonBones(): void;
         _parseDragonAsset(): void;
         _parseDragonAtlasAsset(): void;
-        _dragonBonesNode: cc.Node;
         display(): void;
         onLoad(): void;
     }

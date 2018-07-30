@@ -118,7 +118,6 @@ namespace dragonBones {
             this.node.off(type, listener, target);
         }
 
-
         public get armature(): Armature {
             return this._armature;
         }
@@ -130,28 +129,25 @@ namespace dragonBones {
         /**
          * @internal
          */
-        @property(cc.String)
+        @property
         _armatureName: string = "";
 
         dragonBonesName = '';
         /**
          * @internal
          */
-        @property(cc.String)
+        @property
         _animationName: string = "";
         // Visibie.
         /**
          * @internal
          */
-        @property({
-            type: DragonBonesAsset,
-        })
+        @property(DragonBonesAsset)
         public _dragonBonesAsset: DragonBonesAsset | null = null;
         @property({
             type: DragonBonesAsset,
             displayName: "DragonBones",
             tooltip: "DragonBones Asset",
-            visible: true,
         })
         get dragonBonesAsset() {
             return this._dragonBonesAsset || null;
@@ -168,7 +164,6 @@ namespace dragonBones {
             displayName: "Armature",
             tooltip: "The armature name.",
             visible: true,
-            editorOnly: true,
             serializable: false,
         })
         public readonly _armatureNames: Array<string> = [];
@@ -180,7 +175,6 @@ namespace dragonBones {
             displayName: "Animation",
             tooltip: "The animation name.",
             visible: true,
-            editorOnly: true,
             serializable: false,
         })
         public readonly _animationNames: Array<string> = [];
@@ -209,6 +203,8 @@ namespace dragonBones {
         })
         public _timeScale: number = 1.0;
 
+        _dragonBonesNode: cc.Node;
+
         _loadAndDisplayDragonBones() {
             console.warn(`开始创建 DragonBones Armature`);
             let notExistAsset = !this.dragonBonesAsset
@@ -233,14 +229,14 @@ namespace dragonBones {
                 dragonBonesData = this.dragonBonesAsset.dragonBonesData;
             }
             let data = dragonBones.CocosFactory.factory.parseDragonBonesData(dragonBonesData);
-            if (data === null) {
+            if (!data) {
                 console.warn(`DragonBones Armature not exist`);
                 return;
             }
             this._armatureName = data.armatureNames[0];
             console.log(`parseDragonBonesData`, data);
-
         }
+
         _parseDragonAtlasAsset() {
             let textureAtlases = this.dragonBonesAsset.textureAtlases;
             if (typeof textureAtlases[0] === 'string') {
@@ -262,8 +258,6 @@ namespace dragonBones {
                     console.log(`dragonBonesAsset`, this.dragonBonesAsset);
                     console.log(`textureAtlases`, textureAtlases);
                     console.log(`texture`, tex);
-
-
                 }, this);
             } else {
                 let data = dragonBones.CocosFactory.factory.parseTextureAtlasData(this.dragonBonesAsset.textureAtlases, texture);
@@ -271,7 +265,7 @@ namespace dragonBones {
                 console.log(`string  dragonBonesAsset`, this.dragonBonesAsset);
             }
         }
-        _dragonBonesNode: cc.Node;
+
         display() {
             console.warn(`Armature name:${this._armatureName},dragonBonesName:${this.dragonBonesName}`);
             const armatureComponent = dragonBones.CocosFactory.factory.buildArmatureComponent(this._armatureName, this.dragonBonesName);
@@ -287,9 +281,10 @@ namespace dragonBones {
             this._dragonBonesNode = armatureComponent.node;
             console.log(`play animation default animation`);
         }
+
         onLoad() {
             // this.display();
-            if (!!this._dragonBonesNode) {
+            if (this._dragonBonesNode) {
                 let component = this._dragonBonesNode.getComponent(CocosArmatureComponent);
                 let state = component.animation.play(component.animation.animationNames[0], 0);
                 if (!state) {
