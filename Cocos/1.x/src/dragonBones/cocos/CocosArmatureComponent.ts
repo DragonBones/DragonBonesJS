@@ -118,6 +118,7 @@ namespace dragonBones {
             this.node.off(type, listener, target);
         }
 
+
         public get armature(): Armature {
             return this._armature;
         }
@@ -129,24 +130,36 @@ namespace dragonBones {
         /**
          * @internal
          */
-        @property
-        public _armatureName: string = "";
+        @property(cc.String)
+        _armatureName: string = "";
+
+        dragonBonesName = '';
         /**
          * @internal
          */
-        @property
-        public _animationName: string = "";
+        @property(cc.String)
+        _animationName: string = "";
         // Visibie.
         /**
          * @internal
          */
         @property({
             type: DragonBonesAsset,
+        })
+        public _dragonBonesAsset: DragonBonesAsset | null = null;
+        @property({
+            type: DragonBonesAsset,
             displayName: "DragonBones",
             tooltip: "DragonBones Asset",
             visible: true,
         })
-        public _dragonBonesAsset: DragonBonesAsset | null = null;
+        get dragonBonesAsset() {
+            return this._dragonBonesAsset || null;
+        }
+        set dragonBonesAsset(value: DragonBonesAsset | null) {
+            this._dragonBonesAsset = value;
+            this._loadAndDisplayDragonBones();
+        }
         /**
          * @internal
          */
@@ -196,8 +209,99 @@ namespace dragonBones {
         })
         public _timeScale: number = 1.0;
 
-        start() {
+        _loadAndDisplayDragonBones() {
+            console.warn(`开始创建 DragonBones Armature`);
+            let notExistAsset = !this.dragonBonesAsset
+                || !this.dragonBonesAsset.dragonBonesData
+                || !this.dragonBonesAsset.textureAtlases
+                || !this.dragonBonesAsset.textures;
+            if (notExistAsset) {
+                console.error(`dragonBonesAsset 为空`);
+                return;
+            }
+            console.warn(`创建 DragonBones Armature`);
+            this._parseDragonAsset();
+            this._parseDragonAtlasAsset();
+            this.display();
+        }
+        _parseDragonAsset() {
+            let dragonBonesData;
+            if (typeof this.dragonBonesAsset.dragonBonesData === 'string') {
+                console.log(`JSON.parse(this.dragonBonesAsset.dragonBonesData)`);
+                dragonBonesData = JSON.parse(this.dragonBonesAsset.dragonBonesData);
+            } else {
+                dragonBonesData = this.dragonBonesAsset.dragonBonesData;
+            }
+            let data = dragonBones.CocosFactory.factory.parseDragonBonesData(dragonBonesData);
+            if (data === null) {
+                console.warn(`DragonBones Armature not exist`);
+                return;
+            }
+            this._armatureName = data.armatureNames[0];
+            console.log(`parseDragonBonesData`, data);
 
+        }
+        _parseDragonAtlasAsset() {
+            let textureAtlases = this.dragonBonesAsset.textureAtlases;
+            if (typeof textureAtlases[0] === 'string') {
+                console.log('JSON.parse(this.dragonBonesAsset.textureAtlases)');
+                textureAtlases = JSON.parse(textureAtlases);
+            } else {
+                textureAtlases = this.dragonBonesAsset.textureAtlases;
+            }
+
+            let texture = Array.isArray(this.dragonBonesAsset.textures) ? this.dragonBonesAsset.textures[0] : this.dragonBonesAsset.textures;
+            if (typeof texture === 'string') {
+                cc.textureCache.addImage(texture, (tex, error) => {
+                    if (error) {
+                        console.error(`error:${error.message}`, error);
+                        return;
+                    }
+                    let data = dragonBones.CocosFactory.factory.parseTextureAtlasData(textureAtlases, tex);
+                    console.log(`parseTextureAtlasData`, data);
+                    console.log(`dragonBonesAsset`, this.dragonBonesAsset);
+                    console.log(`textureAtlases`, textureAtlases);
+                    console.log(`texture`, tex);
+
+
+                }, this);
+            } else {
+                let data = dragonBones.CocosFactory.factory.parseTextureAtlasData(this.dragonBonesAsset.textureAtlases, texture);
+                console.log(`string  parseTextureAtlasData`, data);
+                console.log(`string  dragonBonesAsset`, this.dragonBonesAsset);
+            }
+        }
+        _dragonBonesNode: cc.Node;
+        display() {
+            console.warn(`Armature name:${this._armatureName},dragonBonesName:${this.dragonBonesName}`);
+            const armatureComponent = dragonBones.CocosFactory.factory.buildArmatureComponent(this._armatureName, this.dragonBonesName);
+            if (!armatureComponent) {
+                console.log(`armatureComponent is null`);
+                return;
+            }
+            armatureComponent.animation.play(armatureComponent.animation.animationNames[0], 0);
+
+            armatureComponent.node.x = 0.0;
+            armatureComponent.node.y = 0;
+            this.node.addChild(armatureComponent.node);
+            this._dragonBonesNode = armatureComponent.node;
+            console.log(`play animation default animation`);
+        }
+        onLoad() {
+            // this.display();
+            if (!!this._dragonBonesNode) {
+                let component = this._dragonBonesNode.getComponent(CocosArmatureComponent);
+                let state = component.animation.play(component.animation.animationNames[0], 0);
+                if (!state) {
+                    return;
+                }
+                console.warn(`播放动画：${state.name}`, state);
+            } else {
+                this._loadAndDisplayDragonBones();
+                // this.onLoad();
+                // dragonBones.CocosFactory.factory.parseDragonBonesData(this.dragonBonesAsset.dragonBonesData);
+                // dragonBones.CocosFactory.factory.parseTextureAtlasData(this.dragonBonesAsset.textureAtlases, this.dragonBonesAsset.textures);
+            }
         }
     }
 }
