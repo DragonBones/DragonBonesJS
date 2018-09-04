@@ -1,55 +1,56 @@
 class BoundingBox extends BaseDemo {
-    private readonly _helpPointA: Phaser.Point = new Phaser.Point();
-    private readonly _helpPointB: Phaser.Point = new Phaser.Point();
-    private readonly _helpPointC: Phaser.Point = new Phaser.Point();
+    private readonly _helpPointA: Phaser.Math.Vector2 = new Phaser.Math.Vector2();
+    private readonly _helpPointB: Phaser.Math.Vector2 = new Phaser.Math.Vector2();
+    private readonly _helpPointC: Phaser.Math.Vector2 = new Phaser.Math.Vector2();
+    private _helperMatrix: Phaser.GameObjects.Components.TransformMatrix = new Phaser.GameObjects.Components.TransformMatrix();
 
-    private _armatureDisplay: dragonBones.PhaserArmatureDisplay;
-    private _boundingBoxTester: dragonBones.PhaserArmatureDisplay;
-    private _targetA: dragonBones.PhaserArmatureDisplay;
-    private _targetB: dragonBones.PhaserArmatureDisplay;
+    private _armatureDisplay: dragonBones.phaser.display.ArmatureDisplay;
+    private _boundingBoxTester: dragonBones.phaser.display.ArmatureDisplay;
+    private _targetA: dragonBones.phaser.display.ArmatureDisplay;
+    private _targetB: dragonBones.phaser.display.ArmatureDisplay;
     private _line: dragonBones.Bone;
     private _pointA: dragonBones.Bone;
     private _pointB: dragonBones.Bone;
 
-    public constructor(game: Phaser.Game) {
-        super(game);
+    public constructor() {
+        super("BoundingBox");
+    }
 
-        this._resources.push(
-            "resource/mecha_2903/mecha_2903_ske.json",
-            "resource/mecha_2903/mecha_2903_tex.json",
+    preload(): void {
+        super.preload();
+        this.load.dragonbone(
+            "mecha_2903d",
             "resource/mecha_2903/mecha_2903_tex.png",
-            "resource/bounding_box_tester/bounding_box_tester_ske.json",
+            "resource/mecha_2903/mecha_2903_tex.json",
+            "resource/mecha_2903/mecha_2903_ske.json"
+        );  
+        this.load.dragonbone(
+            "tester",
+            "resource/bounding_box_tester/bounding_box_tester_tex.png",
             "resource/bounding_box_tester/bounding_box_tester_tex.json",
-            "resource/bounding_box_tester/bounding_box_tester_tex.png"
+            "resource/bounding_box_tester/bounding_box_tester_ske.json"
         );
     }
 
-    protected _onStart(): void {
-        const factory = dragonBones.PhaserFactory.factory;
-        factory.parseDragonBonesData(this.game.cache.getItem("resource/mecha_2903/mecha_2903_ske.json", Phaser.Cache.JSON).data);
-        factory.parseTextureAtlasData(
-            this.game.cache.getItem("resource/mecha_2903/mecha_2903_tex.json", Phaser.Cache.JSON).data,
-            (this.game.cache.getImage("resource/mecha_2903/mecha_2903_tex.png", true) as any).base
-        );
-        factory.parseDragonBonesData(this.game.cache.getItem("resource/bounding_box_tester/bounding_box_tester_ske.json", Phaser.Cache.JSON).data);
-        factory.parseTextureAtlasData(
-            this.game.cache.getItem("resource/bounding_box_tester/bounding_box_tester_tex.json", Phaser.Cache.JSON).data,
-            (this.game.cache.getImage("resource/bounding_box_tester/bounding_box_tester_tex.png", true) as any).base
-        );
-        //
-        this._armatureDisplay = factory.buildArmatureDisplay("mecha_2903d");
-        this._boundingBoxTester = factory.buildArmatureDisplay("tester");
+    create(): void {
+        super.create();
+        
+        this._armatureDisplay = this.add.armature("mecha_2903d");
+        this._boundingBoxTester = this.add.armature("tester");
         this._targetA = this._boundingBoxTester.armature.getSlot("target_a").display;
         this._targetB = this._boundingBoxTester.armature.getSlot("target_b").display;
         this._line = this._boundingBoxTester.armature.getBone("line");
         this._pointA = this._boundingBoxTester.armature.getBone("point_a");
         this._pointB = this._boundingBoxTester.armature.getBone("point_b");
-        //
+        
+        const cx = this.cameras.main.centerX;
+        const cy = this.cameras.main.centerY;
+
         this._armatureDisplay.debugDraw = true;
-        this._armatureDisplay.x = 0.0;
-        this._armatureDisplay.y = 100.0;
-        this._boundingBoxTester.x = 0.0;
-        this._boundingBoxTester.y = 200.0;
+        this._armatureDisplay.x = cx;
+        this._armatureDisplay.y = cy + 100.0;
+        this._boundingBoxTester.x = cx;
+        this._boundingBoxTester.y = cy + 200.0;
         this._targetA.armature.inheritAnimation = false;
         this._targetB.armature.inheritAnimation = false;
         this._line.offsetMode = dragonBones.OffsetMode.Override;
@@ -57,27 +58,27 @@ class BoundingBox extends BaseDemo {
         this._pointB.offsetMode = dragonBones.OffsetMode.Override;
         this._armatureDisplay.animation.play("walk");
         this._boundingBoxTester.animation.play("0");
-        //
-        this.addChild(this._armatureDisplay);
-        this.addChild(this._boundingBoxTester);
-        //
-        this.inputEnabled = true;
-        DragHelper.getInstance().enableDrag(this._targetA);
-        DragHelper.getInstance().enableDrag(this._targetB);
-        //
+        
+        const bA = this._targetA.getAt(0) as Phaser.GameObjects.Image;
+        const bB = this._targetB.getAt(0) as Phaser.GameObjects.Image;
+        this._targetA.setSize(bA.displayWidth, bA.displayHeight);
+        DragHelper.getInstance().enableDrag(this, this._targetA);
+        this._targetB.setSize(bB.displayWidth, bB.displayHeight);
+        DragHelper.getInstance().enableDrag(this, this._targetB);
+        
         this.createText("Touch to drag bounding box tester.");
     }
 
-    public update(): void {
-        if (!this._armatureDisplay) {
+    update(time: number, delta: number): void {
+        if (!this._armatureDisplay)
             return;
-        }
 
-        this._helpPointA.set(this._targetA.x, this._targetA.y);
-        this._helpPointB.set(this._targetB.x, this._targetB.y);
-        this._helpPointA.copyFrom(this._armatureDisplay.toLocal(this._helpPointA, this._boundingBoxTester) as any);
-        this._helpPointB.copyFrom(this._armatureDisplay.toLocal(this._helpPointB, this._boundingBoxTester) as any);
-
+        this._boundingBoxTester.getWorldTransformMatrix(this._helperMatrix);
+        this._helperMatrix.transformPoint(this._targetA.x, this._targetA.y, this._helpPointA);
+        this._helperMatrix.transformPoint(this._targetB.x, this._targetB.y, this._helpPointB);
+        this._armatureDisplay.localTransform.transformPoint(this._helpPointA.x, this._helpPointA.y, this._helpPointA);
+        this._armatureDisplay.localTransform.transformPoint(this._helpPointB.x, this._helpPointB.y, this._helpPointB);
+        
         const containsSlotA = this._armatureDisplay.armature.containsPoint(this._helpPointA.x, this._helpPointA.y);
         const containsSlotB = this._armatureDisplay.armature.containsPoint(this._helpPointB.x, this._helpPointB.y);
         const intersectsSlots = this._armatureDisplay.armature.intersectsSegment(this._helpPointA.x, this._helpPointA.y, this._helpPointB.x, this._helpPointB.y, this._helpPointA, this._helpPointB, this._helpPointC);
@@ -113,9 +114,13 @@ class BoundingBox extends BaseDemo {
             }
 
             if (intersectsSlots) {
-                this._helpPointA.copyFrom(this._boundingBoxTester.toLocal(this._helpPointA, this._armatureDisplay) as any);
-                this._helpPointB.copyFrom(this._boundingBoxTester.toLocal(this._helpPointB, this._armatureDisplay) as any);
-
+                console.log("INSECT");
+                this._armatureDisplay.getWorldTransformMatrix(this._helperMatrix);
+                this._helperMatrix.transformPoint(this._helpPointA.x, this._helpPointA.y, this._helpPointA);
+                this._helperMatrix.transformPoint(this._helpPointB.x, this._helpPointB.y, this._helpPointB);
+                this._boundingBoxTester.localTransform.transformPoint(this._helpPointA.x, this._helpPointA.y, this._helpPointA);
+                this._boundingBoxTester.localTransform.transformPoint(this._helpPointB.x, this._helpPointB.y, this._helpPointB);
+                
                 this._pointA.visible = true;
                 this._pointB.visible = true;
                 this._pointA.offset.x = this._helpPointA.x;

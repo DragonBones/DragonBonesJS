@@ -1,8 +1,11 @@
 "use strict";
 var __extends = (this && this.__extends) || (function () {
-    var extendStatics = Object.setPrototypeOf ||
-        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -11,42 +14,39 @@ var __extends = (this && this.__extends) || (function () {
 })();
 var ReplaceAnimation = /** @class */ (function (_super) {
     __extends(ReplaceAnimation, _super);
-    function ReplaceAnimation(game) {
-        var _this = _super.call(this, game) || this;
-        _this._resources.push("resource/mecha_2903/mecha_2903_ske.json", "resource/mecha_2903/mecha_2903_tex.json", "resource/mecha_2903/mecha_2903_tex.png");
-        return _this;
+    function ReplaceAnimation() {
+        return _super.call(this, "ReplaceAnimation") || this;
     }
-    ReplaceAnimation.prototype._onStart = function () {
+    ReplaceAnimation.prototype.preload = function () {
+        _super.prototype.preload.call(this);
+        this.load.dragonbone("mecha_2903", "resource/mecha_2903/mecha_2903_tex.png", "resource/mecha_2903/mecha_2903_tex.json", "resource/mecha_2903/mecha_2903_ske.json");
+    };
+    ReplaceAnimation.prototype.create = function () {
         var _this = this;
-        var factory = dragonBones.PhaserFactory.factory;
-        factory.parseDragonBonesData(this.game.cache.getItem("resource/mecha_2903/mecha_2903_ske.json", Phaser.Cache.JSON).data);
-        factory.parseTextureAtlasData(this.game.cache.getItem("resource/mecha_2903/mecha_2903_tex.json", Phaser.Cache.JSON).data, this.game.cache.getImage("resource/mecha_2903/mecha_2903_tex.png", true).base);
-        this._armatureDisplayA = factory.buildArmatureDisplay("mecha_2903");
-        this._armatureDisplayB = factory.buildArmatureDisplay("mecha_2903b");
-        this._armatureDisplayC = factory.buildArmatureDisplay("mecha_2903c");
-        this._armatureDisplayD = factory.buildArmatureDisplay("mecha_2903d");
+        _super.prototype.create.call(this);
+        this._armatureDisplayA = this.add.armature("mecha_2903");
+        this._armatureDisplayB = this.add.armature("mecha_2903b");
+        this._armatureDisplayC = this.add.armature("mecha_2903c");
+        this._armatureDisplayD = this.add.armature("mecha_2903d");
+        var factory = this.dragonbone.factory;
         var sourceArmatureData = factory.getArmatureData("mecha_2903d");
         factory.replaceAnimation(this._armatureDisplayA.armature, sourceArmatureData);
         factory.replaceAnimation(this._armatureDisplayB.armature, sourceArmatureData);
         factory.replaceAnimation(this._armatureDisplayC.armature, sourceArmatureData);
-        this.addChild(this._armatureDisplayD);
-        this.addChild(this._armatureDisplayA);
-        this.addChild(this._armatureDisplayB);
-        this.addChild(this._armatureDisplayC);
-        this._armatureDisplayA.x = 0.0 - 350.0;
-        this._armatureDisplayA.y = 0.0 + 150.0;
-        this._armatureDisplayB.x = 0.0;
-        this._armatureDisplayB.y = 0.0 + 150.0;
-        this._armatureDisplayC.x = 0.0 + 350.0;
-        this._armatureDisplayC.y = 0.0 + 150.0;
-        this._armatureDisplayD.x = 0.0;
-        this._armatureDisplayD.y = 0.0 - 50.0;
-        //
-        this.inputEnabled = true;
-        this.events.onInputDown.add(function () {
+        var cx = this.cameras.main.centerX;
+        var cy = this.cameras.main.centerY;
+        this._armatureDisplayA.x = cx - 350.0;
+        this._armatureDisplayA.y = cy + 150.0;
+        this._armatureDisplayB.x = cx;
+        this._armatureDisplayB.y = cy + 150.0;
+        this._armatureDisplayC.x = cx + 350.0;
+        this._armatureDisplayC.y = cy + 150.0;
+        this._armatureDisplayD.x = cx;
+        this._armatureDisplayD.y = cy - 50.0;
+        this.input.enabled = true;
+        this.input.addDownCallback(function () {
             _this._changeAnimation();
-        });
-        //
+        }, false);
         this.createText("Touch to change animation.");
     };
     ReplaceAnimation.prototype._changeAnimation = function () {

@@ -2,9 +2,9 @@ class InverseKinematics extends BaseDemo {
     private _faceDir: number = 0;
     private _aimRadian: number = 0.0;
     private _offsetRotation: number = 0.0;
-    private readonly _target: Phaser.Point = new Phaser.Point();
-    private _armatureDisplay: dragonBones.PhaserArmatureDisplay;
-    private _floorBoard: dragonBones.PhaserArmatureDisplay;
+    private readonly _target: Phaser.Math.Vector2 = new Phaser.Math.Vector2();
+    private _armatureDisplay: dragonBones.phaser.display.ArmatureDisplay;
+    private _floorBoard: dragonBones.phaser.display.ArmatureDisplay;
     private _chestBone: dragonBones.Bone;
     private _leftFootBone: dragonBones.Bone;
     private _rightFootBone: dragonBones.Bone;
@@ -12,34 +12,32 @@ class InverseKinematics extends BaseDemo {
     private _floorBoardBone: dragonBones.Bone;
     private _aimState: dragonBones.AnimationState;
 
-    public constructor(game: Phaser.Game) {
-        super(game);
+    public constructor() {
+        super("IKDemo");
+    }
 
-        this._resources.push(
-            "resource/mecha_1406/mecha_1406_ske.json",
-            "resource/mecha_1406/mecha_1406_tex.json",
+    preload(): void {
+        super.preload();
+
+        this.load.dragonbone(
+            "mecha_1406",
             "resource/mecha_1406/mecha_1406_tex.png",
-            "resource/floor_board/floor_board_ske.json",
+            "resource/mecha_1406/mecha_1406_tex.json",
+            "resource/mecha_1406/mecha_1406_ske.json"
+        );
+        this.load.dragonbone(
+            "floor_board",
+            "resource/floor_board/floor_board_tex.png",
             "resource/floor_board/floor_board_tex.json",
-            "resource/floor_board/floor_board_tex.png"
+            "resource/floor_board/floor_board_ske.json"
         );
     }
 
-    protected _onStart(): void {
-        const factory = dragonBones.PhaserFactory.factory;
-        factory.parseDragonBonesData(this.game.cache.getItem("resource/mecha_1406/mecha_1406_ske.json", Phaser.Cache.JSON).data);
-        factory.parseTextureAtlasData(
-            this.game.cache.getItem("resource/mecha_1406/mecha_1406_tex.json", Phaser.Cache.JSON).data,
-            (this.game.cache.getImage("resource/mecha_1406/mecha_1406_tex.png", true) as any).base
-        );
-        factory.parseDragonBonesData(this.game.cache.getItem("resource/floor_board/floor_board_ske.json", Phaser.Cache.JSON).data);
-        factory.parseTextureAtlasData(
-            this.game.cache.getItem("resource/floor_board/floor_board_tex.json", Phaser.Cache.JSON).data,
-            (this.game.cache.getImage("resource/floor_board/floor_board_tex.png", true) as any).base
-        );
-        //
-        this._armatureDisplay = factory.buildArmatureDisplay("mecha_1406");
-        this._floorBoard = factory.buildArmatureDisplay("floor_board");
+    create(): void {
+        super.create();
+
+        this._armatureDisplay = this.add.armature("mecha_1406");
+        this._floorBoard = this.add.armature("floor_board");
         //
         this._chestBone = this._armatureDisplay.armature.getBone("chest");
         this._leftFootBone = this._armatureDisplay.armature.getBone("foot_l");
@@ -54,23 +52,21 @@ class InverseKinematics extends BaseDemo {
         //
         this._floorBoard.animation.play("idle");
         this._floorBoard.armature.getSlot("player").display = this._armatureDisplay;
-        this._floorBoard.x = 0.0;
-        this._floorBoard.y = 50.0;
-        this.addChild(this._floorBoard);
+        this._floorBoard.x = this.cameras.main.centerX;
+        this._floorBoard.y =  this.cameras.main.centerY + 50.0;
         //
-        this.inputEnabled = true;
-        DragHelper.getInstance().enableDrag(this._floorBoard.armature.getSlot("circle").display);
+        DragHelper.getInstance().enableDrag(this, this._floorBoard.armature.getSlot("circle").display);
         //
-        this.createText("Touch to drag circle to modify IK bones.");
+        this.createText("Touch and drag the red circle to modify the IK bones.");
     }
 
-    public update(): void {
+    update(time: number, delta: number): void {
         if (!this._floorBoard) {
             return;
         }
 
-        this._target.x = this.game.input.x - this.x;
-        this._target.y = this.game.input.y - this.y;
+        this._target.x = this.input.x - this.cameras.main.centerX;
+        this._target.y = this.input.y - this.cameras.main.centerY;
 
         this._updateAim();
         this._updateFoot();
@@ -79,7 +75,7 @@ class InverseKinematics extends BaseDemo {
     private _updateAim(): void {
         const positionX = this._floorBoard.x;
         const positionY = this._floorBoard.y;
-        const aimOffsetY = this._chestBone.global.y * this._floorBoard.scale.y;
+        const aimOffsetY = this._chestBone.global.y * this._floorBoard.scaleY;
 
         this._faceDir = this._target.x > 0.0 ? 1 : -1;
         this._armatureDisplay.armature.flipX = this._faceDir < 0;

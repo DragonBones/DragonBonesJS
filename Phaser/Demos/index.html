@@ -5,7 +5,7 @@
     <meta charset="utf-8" />
     <title>DragonBones Demo</title>
 
-    <script src="//cdn.jsdelivr.net/npm/phaser-ce@2.9.2/build/phaser.js"></script>
+    <script src="./libs/phaser/phaser.js"></script>
     <script src="./libs/dragonBones/dragonBones.js"></script>
 
     <script src="./out/DragHelper.js"></script>
@@ -18,7 +18,6 @@
     <script src="./out/InverseKinematics.js"></script>
     <script src="./out/BoundingBox.js"></script>
     <script src="./out/ReplaceSlotDisplay.js"></script>
-    <!-- <script src="./out/ReplaceSkin.js"></script> -->
     <script src="./out/ReplaceAnimation.js"></script>
     <script src="./out/CoreElement.js"></script>
     <script src="./out/PerformanceTest.js"></script>
@@ -26,27 +25,41 @@
 
 <body>
     <script>
-        var game = new Phaser.Game(1136, 640, Phaser.AUTO, null, {
-            create: function () {
-                dragonBones.PhaserFactory.init(this.game); // Static factory init.
-                //
-                this.world.add(new HelloDragonBones(this.game));
-                // this.world.add(new AnimationBase(this.game));
-                // this.world.add(new DragonBonesEvent(this.game));
-                // this.world.add(new AnimationLayer(this.game));
-                // this.world.add(new BoneOffset(this.game));
-                // this.world.add(new InverseKinematics(this.game));
-                // this.world.add(new BoundingBox(this.game));
-                // this.world.add(new ReplaceSlotDisplay(this.game));
-                // this.world.add(new ReplaceSkin(this.game)); TODO
-                // this.world.add(new ReplaceAnimation(this.game));
-                // this.world.add(new coreElement.Game(this.game));
-                // this.world.add(new PerformanceTest(this.game));
-            },
-            render: function () {
-                dragonBones.PhaserFactory.factory.dragonBones.advanceTime(-1.0); // update.
-            }
-        });
+    const config = {
+        version: "1.0",
+
+        canvas: document.createElement("CANVAS"),
+        width: 1000,
+        height: 640,
+        backgroundColor: 0x0,
+
+        render: {
+            pixelArt: false,
+            clearBeforeRender: false
+        },
+
+        disableContextMenu: true,
+
+        plugins: {
+            global: [
+                { key: "DragonBonesPlugin", plugin: dragonBones.phaser.plugin.DragonBonesPlugin, start: true }    // setup DB plugin
+            ]
+        },
+
+        scene: HelloDragonBones    // scene to display
+        // scene: AnimationBase
+        // scene: DragonBonesEvent
+        // scene: AnimationLayer
+        // scene: BoneOffset
+        // scene: InverseKinematics
+        // scene: BoundingBox
+        // scene: ReplaceSlotDisplay
+        // scene: ReplaceAnimation
+        // scene: coreElement.Game
+        // scene: PerformanceTest
+    };
+
+    new Phaser.Game(config);
     </script>
 </body>
 

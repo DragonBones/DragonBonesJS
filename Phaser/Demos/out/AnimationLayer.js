@@ -1,8 +1,11 @@
 "use strict";
 var __extends = (this && this.__extends) || (function () {
-    var extendStatics = Object.setPrototypeOf ||
-        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -11,21 +14,20 @@ var __extends = (this && this.__extends) || (function () {
 })();
 var AnimationLayer = /** @class */ (function (_super) {
     __extends(AnimationLayer, _super);
-    function AnimationLayer(game) {
-        var _this = _super.call(this, game) || this;
-        _this._resources.push("resource/mecha_1004d/mecha_1004d_ske.json", "resource/mecha_1004d/mecha_1004d_tex.json", "resource/mecha_1004d/mecha_1004d_tex.png");
-        return _this;
+    function AnimationLayer() {
+        return _super.call(this, "AnimationLayer") || this;
     }
-    AnimationLayer.prototype._onStart = function () {
-        var factory = dragonBones.PhaserFactory.factory;
-        factory.parseDragonBonesData(this.game.cache.getItem("resource/mecha_1004d/mecha_1004d_ske.json", Phaser.Cache.JSON).data);
-        factory.parseTextureAtlasData(this.game.cache.getItem("resource/mecha_1004d/mecha_1004d_tex.json", Phaser.Cache.JSON).data, this.game.cache.getImage("resource/mecha_1004d/mecha_1004d_tex.png", true).base);
-        this._armatureDisplay = factory.buildArmatureDisplay("mecha_1004d");
+    AnimationLayer.prototype.preload = function () {
+        _super.prototype.preload.call(this);
+        this.load.dragonbone("mecha_1004d", "resource/mecha_1004d/mecha_1004d_tex.png", "resource/mecha_1004d/mecha_1004d_tex.json", "resource/mecha_1004d/mecha_1004d_ske.json");
+    };
+    AnimationLayer.prototype.create = function () {
+        _super.prototype.create.call(this);
+        this._armatureDisplay = this.add.armature("mecha_1004d");
         this._armatureDisplay.addDBEventListener(dragonBones.EventObject.LOOP_COMPLETE, this._animationEventHandler, this);
         this._armatureDisplay.animation.play("walk");
-        this._armatureDisplay.x = 0.0;
-        this._armatureDisplay.y = 100.0;
-        this.addChild(this._armatureDisplay);
+        this._armatureDisplay.x = this.cameras.main.centerX;
+        this._armatureDisplay.y = this.cameras.main.centerY + 100.0;
     };
     AnimationLayer.prototype._animationEventHandler = function (event) {
         var attackState = this._armatureDisplay.animation.getState("attack_01");

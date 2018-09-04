@@ -1,20 +1,49 @@
 class PerformanceTest extends BaseDemo {
     private _addingArmature: boolean = false;
     private _removingArmature: boolean = false;
-    private readonly _armatures: Array<dragonBones.PhaserArmatureDisplay> = [];
-    private _text: Phaser.Text;
+    private readonly _armatures: Array<dragonBones.phaser.display.ArmatureDisplay> = [];
+    private _text: Phaser.GameObjects.Text;
+    private _perfText: Phaser.GameObjects.Text;
 
-    public constructor(game: Phaser.Game) {
-        super(game);
+    public constructor() {
+        super("PerformanceText");
+    }
 
-        this._resources.push(
-            "resource/mecha_1406/mecha_1406_ske.dbbin",
+    preload(): void {
+        super.preload();
+
+        this.load.dragonbone(
+            "mecha_1406",
+            "resource/mecha_1406/mecha_1406_tex.png",
             "resource/mecha_1406/mecha_1406_tex.json",
-            "resource/mecha_1406/mecha_1406_tex.png"
+            "resource/mecha_1406/mecha_1406_ske.dbbin",
+            null,
+            null,
+            { responseType: "arraybuffer" }
         );
     }
 
-    public update(): void {
+    create(): void {
+        super.create();
+
+        this.input.enabled = true;
+        this.input.addDownCallback(p => this._inputDown(p), false);
+        this.input.addUpCallback(() => this._inputUp(), false);
+        
+        this._text = this.createText("--");
+        this._text.y = this.cameras.main.height - 80;
+        this._perfText = this.createText("--");
+        this._perfText.y = this._text.y + this._text.height + 10;
+
+        for (let i = 0; i < 300; ++i) {
+            this._addArmature();
+        }
+
+        this._resetPosition();
+        this._updateText();
+    }
+
+    update(time: number, delta: number): void {
         if (this._addingArmature) {
             for (let i = 0; i < 10; ++i) {
                 this._addArmature();
@@ -32,25 +61,13 @@ class PerformanceTest extends BaseDemo {
             this._resetPosition();
             this._updateText();
         }
+
+        const game = this.scene.systems.game;
+        this._perfText.setText(`FPS:${game.loop.actualFps.toFixed(1)} (${game.loop.minFps}-${game.loop.targetFps})`);
     }
 
-    protected _onStart(): void {
-        this.inputEnabled = true;
-        this.events.onInputDown.add(this._inputDown, this);
-        this.events.onInputUp.add(this._inputUp, this);
-        //
-        this._text = this.createText("");
-
-        for (let i = 0; i < 300; ++i) {
-            this._addArmature();
-        }
-
-        this._resetPosition();
-        this._updateText();
-    }
-
-    private _inputDown(target: any, pointer: Phaser.Pointer): void {
-        const touchRight = pointer.x > this.stageWidth * 0.5;
+    private _inputDown(pointer: Phaser.Input.Pointer): void {
+        const touchRight = pointer.x > this.cameras.main.centerX;
         this._addingArmature = touchRight;
         this._removingArmature = !touchRight;
     }
@@ -61,21 +78,11 @@ class PerformanceTest extends BaseDemo {
     }
 
     private _addArmature(): void {
-        const factory = dragonBones.PhaserFactory.factory;
-        if (this._armatures.length === 0) {
-            factory.parseDragonBonesData(this.game.cache.getItem("resource/mecha_1406/mecha_1406_ske.dbbin", Phaser.Cache.BINARY));
-            factory.parseTextureAtlasData(
-                this.game.cache.getItem("resource/mecha_1406/mecha_1406_tex.json", Phaser.Cache.JSON).data,
-                (this.game.cache.getImage("resource/mecha_1406/mecha_1406_tex.png", true) as any).base
-            );
-        }
-
-        const armatureDisplay = factory.buildArmatureDisplay("mecha_1406");
+        const armatureDisplay = this.add.armature("mecha_1406");
         armatureDisplay.armature.cacheFrameRate = 24;
         armatureDisplay.animation.play("walk");
-        armatureDisplay.scale.x = armatureDisplay.scale.y = 0.5;
-        this.addChild(armatureDisplay);
-
+        armatureDisplay.setScale(.5);
+        
         this._armatures.push(armatureDisplay);
     }
 
@@ -85,11 +92,10 @@ class PerformanceTest extends BaseDemo {
         }
 
         const armatureDisplay = this._armatures.pop();
-        this.removeChild(armatureDisplay);
-        armatureDisplay.dispose();
+        armatureDisplay.destroy();
 
         if (this._armatures.length === 0) {
-            dragonBones.PhaserFactory.factory.clear(true);
+            this.dragonbone.factory.clear(true);
             dragonBones.BaseObject.clearPool();
         }
     }
@@ -104,24 +110,22 @@ class PerformanceTest extends BaseDemo {
         const paddingT = 200;
         const paddingB = 100;
         const gapping = 90;
-        const stageWidth = this.stageWidth - paddingH * 2;
+        const stageHeight = this.cameras.main.height;
+        const stageWidth = this.cameras.main.width - paddingH * 2;
         const columnCount = Math.floor(stageWidth / gapping);
-        const paddingHModify = (this.stageWidth - columnCount * gapping) * 0.5;
+        const paddingHModify = (stageWidth - columnCount * gapping);
         const dX = stageWidth / columnCount;
-        const dY = (this.stageHeight - paddingT - paddingB) / Math.ceil(armatureCount / columnCount);
+        const dY = (stageHeight - paddingT - paddingB) / Math.ceil(armatureCount / columnCount);
 
         for (let i = 0, l = armatureCount; i < l; ++i) {
             const armatureDisplay = this._armatures[i];
             const lineY = Math.floor(i / columnCount);
-            armatureDisplay.x = (i % columnCount) * dX + paddingHModify - this.stageWidth * 0.5;
-            armatureDisplay.y = lineY * dY + paddingT - this.stageHeight * 0.5;
+            armatureDisplay.x = (i % columnCount) * dX + paddingHModify + paddingH * .5;
+            armatureDisplay.y = lineY * dY + paddingT;
         }
     }
 
     private _updateText(): void {
-        this._text.text = "Count: " + this._armatures.length + ". Touch screen left to decrease count / right to increase count.";
-        this._text.x = - this._text.width * 0.5;
-        this._text.y = this.stageHeight * 0.5 - 100;
-        this.addChild(this._text);
+        this._text.setText("Count: " + this._armatures.length + ". Touch screen left to decrease count / right to increase count.");
     }
 }
