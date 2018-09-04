@@ -5,11 +5,7 @@
 		"declaration": true,
         "stripInternal": true,
 		"alwaysStrict": true,
-		"noImplicitAny": true,
-		"noImplicitThis": true,
 		"noUnusedLocals": true,
-		"noUnusedParameters": true,
-		"strictNullChecks": true,
 		"experimentalDecorators": true,
 		"allowSyntheticDefaultImports": true,
 		"target": "es5",
@@ -25,7 +21,7 @@
 		"out"
 	],
 	"files": [
-		"./libs/phaser.d.ts",
+		"./types/phaser.d.ts",
 
 		"../../DragonBones/src/dragonBones/core/DragonBones.ts",
 		"../../DragonBones/src/dragonBones/core/BaseObject.ts",
@@ -39,9 +35,9 @@
 		"../../DragonBones/src/dragonBones/model/UserData.ts",
 		"../../DragonBones/src/dragonBones/model/DragonBonesData.ts",
 		"../../DragonBones/src/dragonBones/model/ArmatureData.ts",
+		"../../DragonBones/src/dragonBones/model/ConstraintData.ts",
 		"../../DragonBones/src/dragonBones/model/CanvasData.ts",
 		"../../DragonBones/src/dragonBones/model/SkinData.ts",
-		"../../DragonBones/src/dragonBones/model/ConstraintData.ts",
 		"../../DragonBones/src/dragonBones/model/DisplayData.ts",
 		"../../DragonBones/src/dragonBones/model/BoundingBoxData.ts",
 		"../../DragonBones/src/dragonBones/model/AnimationData.ts",
@@ -62,7 +58,7 @@
 		"../../DragonBones/src/dragonBones/animation/AnimationState.ts",
 		"../../DragonBones/src/dragonBones/animation/BaseTimelineState.ts",
 		"../../DragonBones/src/dragonBones/animation/TimelineState.ts",
-
+		
 		"../../DragonBones/src/dragonBones/event/EventObject.ts",
 		"../../DragonBones/src/dragonBones/event/IEventDispatcher.ts",
 
@@ -72,10 +68,18 @@
 
 		"../../DragonBones/src/dragonBones/factory/BaseFactory.ts",
 
-		"./src/dragonBones/phaser/PhaserTextureAtlasData.ts",
-		"./src/dragonBones/phaser/PhaserArmatureDisplay.ts",
-		"./src/dragonBones/phaser/PhaserSlot.ts",
-		"./src/dragonBones/phaser/PhaserFactory.ts",
-		"./src/dragonBones/phaser/PhaserPlugin.ts"
+		"./src/dragonBones/phaser/util/EventDispatcher.ts",
+		"./src/dragonBones/phaser/util/SkewComponent.ts",
+		"./src/dragonBones/phaser/util/TransformMatrix.ts",
+		"./src/dragonBones/phaser/display/DisplayContainer.ts",
+		"./src/dragonBones/phaser/display/ArmatureDisplay.ts",
+		"./src/dragonBones/phaser/display/SlotImage.ts",
+		"./src/dragonBones/phaser/display/SlotSprite.ts",
+		"./src/dragonBones/phaser/display/Slot.ts",
+		"./src/dragonBones/phaser/display/TextureAtlasData.ts",
+		"./src/dragonBones/phaser/pipeline/TextureTintPipeline.ts",
+		"./src/dragonBones/phaser/plugin/DragonBonesFile.ts",
+		"./src/dragonBones/phaser/plugin/DragonBonesPlugin.ts",
+		"./src/dragonBones/phaser/Factory.ts"
 	]
 }
