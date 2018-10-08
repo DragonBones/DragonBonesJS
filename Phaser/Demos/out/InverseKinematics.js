@@ -1,8 +1,11 @@
 "use strict";
 var __extends = (this && this.__extends) || (function () {
-    var extendStatics = Object.setPrototypeOf ||
-        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -11,24 +14,23 @@ var __extends = (this && this.__extends) || (function () {
 })();
 var InverseKinematics = /** @class */ (function (_super) {
     __extends(InverseKinematics, _super);
-    function InverseKinematics(game) {
-        var _this = _super.call(this, game) || this;
+    function InverseKinematics() {
+        var _this = _super.call(this, "IKDemo") || this;
         _this._faceDir = 0;
         _this._aimRadian = 0.0;
         _this._offsetRotation = 0.0;
-        _this._target = new Phaser.Point();
-        _this._resources.push("resource/mecha_1406/mecha_1406_ske.json", "resource/mecha_1406/mecha_1406_tex.json", "resource/mecha_1406/mecha_1406_tex.png", "resource/floor_board/floor_board_ske.json", "resource/floor_board/floor_board_tex.json", "resource/floor_board/floor_board_tex.png");
+        _this._target = new Phaser.Math.Vector2();
         return _this;
     }
-    InverseKinematics.prototype._onStart = function () {
-        var factory = dragonBones.PhaserFactory.factory;
-        factory.parseDragonBonesData(this.game.cache.getItem("resource/mecha_1406/mecha_1406_ske.json", Phaser.Cache.JSON).data);
-        factory.parseTextureAtlasData(this.game.cache.getItem("resource/mecha_1406/mecha_1406_tex.json", Phaser.Cache.JSON).data, this.game.cache.getImage("resource/mecha_1406/mecha_1406_tex.png", true).base);
-        factory.parseDragonBonesData(this.game.cache.getItem("resource/floor_board/floor_board_ske.json", Phaser.Cache.JSON).data);
-        factory.parseTextureAtlasData(this.game.cache.getItem("resource/floor_board/floor_board_tex.json", Phaser.Cache.JSON).data, this.game.cache.getImage("resource/floor_board/floor_board_tex.png", true).base);
-        //
-        this._armatureDisplay = factory.buildArmatureDisplay("mecha_1406");
-        this._floorBoard = factory.buildArmatureDisplay("floor_board");
+    InverseKinematics.prototype.preload = function () {
+        _super.prototype.preload.call(this);
+        this.load.dragonbone("mecha_1406", "resource/mecha_1406/mecha_1406_tex.png", "resource/mecha_1406/mecha_1406_tex.json", "resource/mecha_1406/mecha_1406_ske.json");
+        this.load.dragonbone("floor_board", "resource/floor_board/floor_board_tex.png", "resource/floor_board/floor_board_tex.json", "resource/floor_board/floor_board_ske.json");
+    };
+    InverseKinematics.prototype.create = function () {
+        _super.prototype.create.call(this);
+        this._armatureDisplay = this.add.armature("mecha_1406");
+        this._floorBoard = this.add.armature("floor_board");
         //
         this._chestBone = this._armatureDisplay.armature.getBone("chest");
         this._leftFootBone = this._armatureDisplay.armature.getBone("foot_l");
@@ -43,28 +45,26 @@ var InverseKinematics = /** @class */ (function (_super) {
         //
         this._floorBoard.animation.play("idle");
         this._floorBoard.armature.getSlot("player").display = this._armatureDisplay;
-        this._floorBoard.x = 0.0;
-        this._floorBoard.y = 50.0;
-        this.addChild(this._floorBoard);
+        this._floorBoard.x = this.cameras.main.centerX;
+        this._floorBoard.y = this.cameras.main.centerY + 50.0;
         //
-        this.inputEnabled = true;
-        DragHelper.getInstance().enableDrag(this._floorBoard.armature.getSlot("circle").display);
+        DragHelper.getInstance().enableDrag(this, this._floorBoard.armature.getSlot("circle").display);
         //
-        this.createText("Touch to drag circle to modify IK bones.");
+        this.createText("Touch and drag the red circle to modify the IK bones.");
     };
-    InverseKinematics.prototype.update = function () {
+    InverseKinematics.prototype.update = function (time, delta) {
         if (!this._floorBoard) {
             return;
         }
-        this._target.x = this.game.input.x - this.x;
-        this._target.y = this.game.input.y - this.y;
+        this._target.x = this.input.x - this.cameras.main.centerX;
+        this._target.y = this.input.y - this.cameras.main.centerY;
         this._updateAim();
         this._updateFoot();
     };
     InverseKinematics.prototype._updateAim = function () {
         var positionX = this._floorBoard.x;
         var positionY = this._floorBoard.y;
-        var aimOffsetY = this._chestBone.global.y * this._floorBoard.scale.y;
+        var aimOffsetY = this._chestBone.global.y * this._floorBoard.scaleY;
         this._faceDir = this._target.x > 0.0 ? 1 : -1;
         this._armatureDisplay.armature.flipX = this._faceDir < 0;
         if (this._faceDir > 0) {

@@ -1,8 +1,11 @@
 "use strict";
 var __extends = (this && this.__extends) || (function () {
-    var extendStatics = Object.setPrototypeOf ||
-        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -11,15 +14,34 @@ var __extends = (this && this.__extends) || (function () {
 })();
 var PerformanceTest = /** @class */ (function (_super) {
     __extends(PerformanceTest, _super);
-    function PerformanceTest(game) {
-        var _this = _super.call(this, game) || this;
+    function PerformanceTest() {
+        var _this = _super.call(this, "PerformanceText") || this;
         _this._addingArmature = false;
         _this._removingArmature = false;
         _this._armatures = [];
-        _this._resources.push("resource/mecha_1406/mecha_1406_ske.dbbin", "resource/mecha_1406/mecha_1406_tex.json", "resource/mecha_1406/mecha_1406_tex.png");
         return _this;
     }
-    PerformanceTest.prototype.update = function () {
+    PerformanceTest.prototype.preload = function () {
+        _super.prototype.preload.call(this);
+        this.load.dragonbone("mecha_1406", "resource/mecha_1406/mecha_1406_tex.png", "resource/mecha_1406/mecha_1406_tex.json", "resource/mecha_1406/mecha_1406_ske.dbbin", null, null, { responseType: "arraybuffer" });
+    };
+    PerformanceTest.prototype.create = function () {
+        var _this = this;
+        _super.prototype.create.call(this);
+        this.input.enabled = true;
+        this.input.addDownCallback(function (p) { return _this._inputDown(p); }, false);
+        this.input.addUpCallback(function () { return _this._inputUp(); }, false);
+        this._text = this.createText("--");
+        this._text.y = this.cameras.main.height - 80;
+        this._perfText = this.createText("--");
+        this._perfText.y = this._text.y + this._text.height + 10;
+        for (var i = 0; i < 300; ++i) {
+            this._addArmature();
+        }
+        this._resetPosition();
+        this._updateText();
+    };
+    PerformanceTest.prototype.update = function (time, delta) {
         if (this._addingArmature) {
             for (var i = 0; i < 10; ++i) {
                 this._addArmature();
@@ -34,21 +56,11 @@ var PerformanceTest = /** @class */ (function (_super) {
             this._resetPosition();
             this._updateText();
         }
+        var game = this.scene.systems.game;
+        this._perfText.setText("FPS:" + game.loop.actualFps.toFixed(1) + " (" + game.loop.minFps + "-" + game.loop.targetFps + ")");
     };
-    PerformanceTest.prototype._onStart = function () {
-        this.inputEnabled = true;
-        this.events.onInputDown.add(this._inputDown, this);
-        this.events.onInputUp.add(this._inputUp, this);
-        //
-        this._text = this.createText("");
-        for (var i = 0; i < 300; ++i) {
-            this._addArmature();
-        }
-        this._resetPosition();
-        this._updateText();
-    };
-    PerformanceTest.prototype._inputDown = function (target, pointer) {
-        var touchRight = pointer.x > this.stageWidth * 0.5;
+    PerformanceTest.prototype._inputDown = function (pointer) {
+        var touchRight = pointer.x > this.cameras.main.centerX;
         this._addingArmature = touchRight;
         this._removingArmature = !touchRight;
     };
@@ -57,16 +69,10 @@ var PerformanceTest = /** @class */ (function (_super) {
         this._removingArmature = false;
     };
     PerformanceTest.prototype._addArmature = function () {
-        var factory = dragonBones.PhaserFactory.factory;
-        if (this._armatures.length === 0) {
-            factory.parseDragonBonesData(this.game.cache.getItem("resource/mecha_1406/mecha_1406_ske.dbbin", Phaser.Cache.BINARY));
-            factory.parseTextureAtlasData(this.game.cache.getItem("resource/mecha_1406/mecha_1406_tex.json", Phaser.Cache.JSON).data, this.game.cache.getImage("resource/mecha_1406/mecha_1406_tex.png", true).base);
-        }
-        var armatureDisplay = factory.buildArmatureDisplay("mecha_1406");
+        var armatureDisplay = this.add.armature("mecha_1406");
         armatureDisplay.armature.cacheFrameRate = 24;
         armatureDisplay.animation.play("walk");
-        armatureDisplay.scale.x = armatureDisplay.scale.y = 0.5;
-        this.addChild(armatureDisplay);
+        armatureDisplay.setScale(.5);
         this._armatures.push(armatureDisplay);
     };
     PerformanceTest.prototype._removeArmature = function () {
@@ -74,10 +80,9 @@ var PerformanceTest = /** @class */ (function (_super) {
             return;
         }
         var armatureDisplay = this._armatures.pop();
-        this.removeChild(armatureDisplay);
-        armatureDisplay.dispose();
+        armatureDisplay.destroy();
         if (this._armatures.length === 0) {
-            dragonBones.PhaserFactory.factory.clear(true);
+            this.dragonbone.factory.clear(true);
             dragonBones.BaseObject.clearPool();
         }
     };
@@ -90,23 +95,21 @@ var PerformanceTest = /** @class */ (function (_super) {
         var paddingT = 200;
         var paddingB = 100;
         var gapping = 90;
-        var stageWidth = this.stageWidth - paddingH * 2;
+        var stageHeight = this.cameras.main.height;
+        var stageWidth = this.cameras.main.width - paddingH * 2;
         var columnCount = Math.floor(stageWidth / gapping);
-        var paddingHModify = (this.stageWidth - columnCount * gapping) * 0.5;
+        var paddingHModify = (stageWidth - columnCount * gapping);
         var dX = stageWidth / columnCount;
-        var dY = (this.stageHeight - paddingT - paddingB) / Math.ceil(armatureCount / columnCount);
+        var dY = (stageHeight - paddingT - paddingB) / Math.ceil(armatureCount / columnCount);
         for (var i = 0, l = armatureCount; i < l; ++i) {
             var armatureDisplay = this._armatures[i];
             var lineY = Math.floor(i / columnCount);
-            armatureDisplay.x = (i % columnCount) * dX + paddingHModify - this.stageWidth * 0.5;
-            armatureDisplay.y = lineY * dY + paddingT - this.stageHeight * 0.5;
+            armatureDisplay.x = (i % columnCount) * dX + paddingHModify + paddingH * .5;
+            armatureDisplay.y = lineY * dY + paddingT;
         }
     };
     PerformanceTest.prototype._updateText = function () {
-        this._text.text = "Count: " + this._armatures.length + ". Touch screen left to decrease count / right to increase count.";
-        this._text.x = -this._text.width * 0.5;
-        this._text.y = this.stageHeight * 0.5 - 100;
-        this.addChild(this._text);
+        this._text.setText("Count: " + this._armatures.length + ". Touch screen left to decrease count / right to increase count.");
     };
     return PerformanceTest;
 }(BaseDemo));

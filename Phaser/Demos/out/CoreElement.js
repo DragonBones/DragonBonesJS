@@ -1,8 +1,11 @@
 "use strict";
 var __extends = (this && this.__extends) || (function () {
-    var extendStatics = Object.setPrototypeOf ||
-        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -13,39 +16,34 @@ var coreElement;
 (function (coreElement) {
     var Game = /** @class */ (function (_super) {
         __extends(Game, _super);
-        function Game(game) {
-            var _this = _super.call(this, game) || this;
+        function Game() {
+            var _this = _super.call(this, "CoreElement") || this;
             _this._left = false;
             _this._right = false;
             _this._bullets = [];
-            _this._resources.push("resource/mecha_1502b/mecha_1502b_ske.json", "resource/mecha_1502b/mecha_1502b_tex.json", "resource/mecha_1502b/mecha_1502b_tex.png", "resource/skin_1502b/skin_1502b_ske.json", "resource/skin_1502b/skin_1502b_tex.json", "resource/skin_1502b/skin_1502b_tex.png", "resource/weapon_1000/weapon_1000_ske.json", "resource/weapon_1000/weapon_1000_tex.json", "resource/weapon_1000/weapon_1000_tex.png");
             return _this;
         }
-        Game.prototype._onStart = function () {
-            Game.GROUND = this.stageHeight * 0.5 - 150.0;
+        Game.prototype.preload = function () {
+            _super.prototype.preload.call(this);
+            this.load.dragonbone("mecha_1502b", "resource/mecha_1502b/mecha_1502b_tex.png", "resource/mecha_1502b/mecha_1502b_tex.json", "resource/mecha_1502b/mecha_1502b_ske.json");
+            this.load.dragonbone("skin_1502b", "resource/skin_1502b/skin_1502b_tex.png", "resource/skin_1502b/skin_1502b_tex.json", "resource/skin_1502b/skin_1502b_ske.json");
+            this.load.dragonbone("weapon_1000", "resource/weapon_1000/weapon_1000_tex.png", "resource/weapon_1000/weapon_1000_tex.json", "resource/weapon_1000/weapon_1000_ske.json");
+        };
+        Game.prototype.create = function () {
+            var _this = this;
+            _super.prototype.create.call(this);
+            Game.GROUND = this.cameras.main.height - 150.0;
             Game.instance = this;
-            //
-            this.inputEnabled = true;
-            this.events.onInputDown.add(this._inputDown, this);
-            this.events.onInputUp.add(this._inputUp, this);
+            this.input.addDownCallback(function () { return _this._inputDown(); }, false);
+            this.input.addUpCallback(function () { return _this._inputUp(); }, false);
             document.addEventListener("keydown", this._keyHandler);
             document.addEventListener("keyup", this._keyHandler);
-            //
             this.createText("Press W/A/S/D to move. Press Q/E/SPACE to switch weapons and skin. Touch to aim and fire.");
-            //
-            var factory = dragonBones.PhaserFactory.factory;
-            factory.parseDragonBonesData(this.game.cache.getItem("resource/mecha_1502b/mecha_1502b_ske.json", Phaser.Cache.JSON).data);
-            factory.parseTextureAtlasData(this.game.cache.getItem("resource/mecha_1502b/mecha_1502b_tex.json", Phaser.Cache.JSON).data, this.game.cache.getImage("resource/mecha_1502b/mecha_1502b_tex.png", true).base);
-            factory.parseDragonBonesData(this.game.cache.getItem("resource/skin_1502b/skin_1502b_ske.json", Phaser.Cache.JSON).data);
-            factory.parseTextureAtlasData(this.game.cache.getItem("resource/skin_1502b/skin_1502b_tex.json", Phaser.Cache.JSON).data, this.game.cache.getImage("resource/skin_1502b/skin_1502b_tex.png", true).base);
-            factory.parseDragonBonesData(this.game.cache.getItem("resource/weapon_1000/weapon_1000_ske.json", Phaser.Cache.JSON).data);
-            factory.parseTextureAtlasData(this.game.cache.getItem("resource/weapon_1000/weapon_1000_tex.json", Phaser.Cache.JSON).data, this.game.cache.getImage("resource/weapon_1000/weapon_1000_tex.png", true).base);
-            //
-            this._player = new Mecha();
+            this._player = new Mecha(this);
         };
-        Game.prototype.update = function () {
+        Game.prototype.update = function (time, delta) {
             if (this._player) {
-                this._player.aim(this.game.input.x - this.x, this.game.input.y - this.y);
+                this._player.aim(this.input.x, this.input.y);
                 this._player.update();
             }
             var i = this._bullets.length;
@@ -124,7 +122,7 @@ var coreElement;
     }(BaseDemo));
     coreElement.Game = Game;
     var Mecha = /** @class */ (function () {
-        function Mecha() {
+        function Mecha(scene) {
             this._isJumpingA = false;
             this._isSquating = false;
             this._isAttackingA = false;
@@ -141,21 +139,22 @@ var coreElement;
             this._aimState = null;
             this._walkState = null;
             this._attackState = null;
-            this._target = new PIXI.Point();
-            this._helpPoint = new PIXI.Point();
-            this._armatureDisplay = dragonBones.PhaserFactory.factory.buildArmatureDisplay("mecha_1502b");
-            this._armatureDisplay.x = 0.0;
+            this._target = new Phaser.Math.Vector2();
+            this._helpPoint = new Phaser.Math.Vector2();
+            this._helperMatrix = new Phaser.GameObjects.Components.TransformMatrix();
+            this.scene = scene;
+            this._armatureDisplay = this.scene.add.armature("mecha_1502b");
+            this._armatureDisplay.x = this.scene.cameras.main.centerX;
             this._armatureDisplay.y = Game.GROUND;
             this._armature = this._armatureDisplay.armature;
-            this._armature.eventDispatcher.addEvent(dragonBones.EventObject.FADE_IN_COMPLETE, this._animationEventHandler, this);
-            this._armature.eventDispatcher.addEvent(dragonBones.EventObject.FADE_OUT_COMPLETE, this._animationEventHandler, this);
-            this._armature.eventDispatcher.addEvent(dragonBones.EventObject.COMPLETE, this._animationEventHandler, this);
+            this._armature.eventDispatcher.addDBEventListener(dragonBones.EventObject.FADE_IN_COMPLETE, this._animationEventHandler, this);
+            this._armature.eventDispatcher.addDBEventListener(dragonBones.EventObject.FADE_OUT_COMPLETE, this._animationEventHandler, this);
+            this._armature.eventDispatcher.addDBEventListener(dragonBones.EventObject.COMPLETE, this._animationEventHandler, this);
             // Get weapon childArmature.
             this._weaponL = this._armature.getSlot("weapon_l").childArmature;
             this._weaponR = this._armature.getSlot("weapon_r").childArmature;
-            this._weaponL.eventDispatcher.addEvent(dragonBones.EventObject.FRAME_EVENT, this._frameEventHandler, this);
-            this._weaponR.eventDispatcher.addEvent(dragonBones.EventObject.FRAME_EVENT, this._frameEventHandler, this);
-            Game.instance.addChild(this._armatureDisplay);
+            this._weaponL.eventDispatcher.addDBEventListener(dragonBones.EventObject.FRAME_EVENT, this._frameEventHandler, this);
+            this._weaponR.eventDispatcher.addDBEventListener(dragonBones.EventObject.FRAME_EVENT, this._frameEventHandler, this);
             this._updateAnimation();
         }
         Mecha.prototype.move = function (dir) {
@@ -187,29 +186,29 @@ var coreElement;
             this._isAttackingA = isAttacking;
         };
         Mecha.prototype.switchWeaponL = function () {
-            this._weaponL.eventDispatcher.removeEvent(dragonBones.EventObject.FRAME_EVENT, this._frameEventHandler, this);
+            this._weaponL.eventDispatcher.removeDBEventListener(dragonBones.EventObject.FRAME_EVENT, this._frameEventHandler, this);
             this._weaponLIndex++;
             this._weaponLIndex %= Mecha.WEAPON_L_LIST.length;
             var weaponName = Mecha.WEAPON_L_LIST[this._weaponLIndex];
-            this._weaponL = dragonBones.PhaserFactory.factory.buildArmature(weaponName);
+            this._weaponL = this.scene.dragonbone.factory.buildArmature(weaponName);
             this._armature.getSlot("weapon_l").childArmature = this._weaponL;
-            this._weaponL.eventDispatcher.addEvent(dragonBones.EventObject.FRAME_EVENT, this._frameEventHandler, this);
+            this._weaponL.eventDispatcher.addDBEventListener(dragonBones.EventObject.FRAME_EVENT, this._frameEventHandler, this);
         };
         Mecha.prototype.switchWeaponR = function () {
-            this._weaponR.eventDispatcher.removeEvent(dragonBones.EventObject.FRAME_EVENT, this._frameEventHandler, this);
+            this._weaponR.eventDispatcher.removeDBEventListener(dragonBones.EventObject.FRAME_EVENT, this._frameEventHandler, this);
             this._weaponRIndex++;
             this._weaponRIndex %= Mecha.WEAPON_R_LIST.length;
             var weaponName = Mecha.WEAPON_R_LIST[this._weaponRIndex];
-            this._weaponR = dragonBones.PhaserFactory.factory.buildArmature(weaponName);
+            this._weaponR = this.scene.dragonbone.factory.buildArmature(weaponName);
             this._armature.getSlot("weapon_r").childArmature = this._weaponR;
-            this._weaponR.eventDispatcher.addEvent(dragonBones.EventObject.FRAME_EVENT, this._frameEventHandler, this);
+            this._weaponR.eventDispatcher.addDBEventListener(dragonBones.EventObject.FRAME_EVENT, this._frameEventHandler, this);
         };
         Mecha.prototype.switchSkin = function () {
             this._skinIndex++;
             this._skinIndex %= Mecha.SKINS.length;
             var skinName = Mecha.SKINS[this._skinIndex];
-            var skinData = dragonBones.PhaserFactory.factory.getArmatureData(skinName).defaultSkin;
-            dragonBones.PhaserFactory.factory.replaceSkin(this._armature, skinData, false, ["weapon_l", "weapon_r"]);
+            var skinData = this.scene.dragonbone.factory.getArmatureData(skinName).defaultSkin;
+            this.scene.dragonbone.factory.replaceSkin(this._armature, skinData, false, ["weapon_l", "weapon_r"]);
         };
         Mecha.prototype.aim = function (x, y) {
             this._target.x = x;
@@ -252,17 +251,13 @@ var coreElement;
         };
         Mecha.prototype._frameEventHandler = function (event) {
             if (event.name === "fire") {
-                this._helpPoint.x = event.bone.global.x;
-                this._helpPoint.y = event.bone.global.y;
-                var globalPoint = event.armature.display.toGlobal(this._helpPoint);
-                this._helpPoint.x = globalPoint.x - Game.instance.x;
-                this._helpPoint.y = globalPoint.y - Game.instance.y;
+                event.armature.display.getWorldTransformMatrix(this._helperMatrix).transformPoint(event.bone.global.x, event.bone.global.y, this._helpPoint);
                 this._fire(this._helpPoint);
             }
         };
         Mecha.prototype._fire = function (firePoint) {
             var radian = this._faceDir < 0 ? Math.PI - this._aimRadian : this._aimRadian;
-            var bullet = new Bullet("bullet_01", "fire_effect_01", radian + Math.random() * 0.02 - 0.01, 40, firePoint);
+            var bullet = new Bullet(this.scene, "bullet_01", "fire_effect_01", radian + Math.random() * 0.02 - 0.01, 40, firePoint);
             Game.instance.addBullet(bullet);
         };
         Mecha.prototype._updateAnimation = function () {
@@ -302,11 +297,13 @@ var coreElement;
         Mecha.prototype._updatePosition = function () {
             if (this._speedX !== 0.0) {
                 this._armatureDisplay.x += this._speedX;
-                if (this._armatureDisplay.x < -Game.instance.stageWidth * 0.5) {
-                    this._armatureDisplay.x = -Game.instance.stageWidth * 0.5;
+                var sw = this.scene.cameras.main.width;
+                var border = 20;
+                if (this._armatureDisplay.x < border) {
+                    this._armatureDisplay.x = border;
                 }
-                else if (this._armatureDisplay.x > Game.instance.stageWidth * 0.5) {
-                    this._armatureDisplay.x = Game.instance.stageWidth * 0.5;
+                else if (this._armatureDisplay.x > sw - border) {
+                    this._armatureDisplay.x = sw - border;
                 }
             }
             if (this._speedY !== 0.0) {
@@ -330,7 +327,7 @@ var coreElement;
                     this._updateAnimation();
                 }
             }
-            var aimOffsetY = this._armature.getBone("chest").global.y * this._armatureDisplay.scale.y;
+            var aimOffsetY = this._armature.getBone("chest").global.y * this._armatureDisplay.scaleX;
             if (this._faceDir > 0) {
                 this._aimRadian = Math.atan2(this._target.y - this._armatureDisplay.y - aimOffsetY, this._target.x - this._armatureDisplay.x);
             }
@@ -383,43 +380,40 @@ var coreElement;
         return Mecha;
     }());
     var Bullet = /** @class */ (function () {
-        function Bullet(armatureName, effectArmatureName, radian, speed, position) {
+        function Bullet(scene, armatureName, effectArmatureName, radian, speed, position) {
             this._speedX = 0.0;
             this._speedY = 0.0;
             this._effecDisplay = null;
             this._speedX = Math.cos(radian) * speed;
             this._speedY = Math.sin(radian) * speed;
-            this._armatureDisplay = dragonBones.PhaserFactory.factory.buildArmatureDisplay(armatureName);
+            this.scene = scene;
+            this._armatureDisplay = this.scene.add.armature(armatureName);
             this._armatureDisplay.x = position.x + Math.random() * 2 - 1;
             this._armatureDisplay.y = position.y + Math.random() * 2 - 1;
             this._armatureDisplay.rotation = radian;
             if (effectArmatureName !== null) {
-                this._effecDisplay = dragonBones.PhaserFactory.factory.buildArmatureDisplay(effectArmatureName);
+                this._effecDisplay = this.scene.add.armature(effectArmatureName);
                 this._effecDisplay.rotation = radian;
                 this._effecDisplay.x = this._armatureDisplay.x;
                 this._effecDisplay.y = this._armatureDisplay.y;
-                this._effecDisplay.scale.x = 1.0 + Math.random() * 1.0;
-                this._effecDisplay.scale.y = 1.0 + Math.random() * 0.5;
+                this._effecDisplay.scaleX = 1.0 + Math.random() * 1.0;
+                this._effecDisplay.scaleY = 1.0 + Math.random() * 0.5;
                 if (Math.random() < 0.5) {
-                    this._effecDisplay.scale.y *= -1.0;
+                    this._effecDisplay.scaleY *= -1.0;
                 }
-                Game.instance.addChild(this._effecDisplay);
                 this._effecDisplay.animation.play("idle");
             }
-            Game.instance.addChild(this._armatureDisplay);
             this._armatureDisplay.animation.play("idle");
         }
         Bullet.prototype.update = function () {
             this._armatureDisplay.x += this._speedX;
             this._armatureDisplay.y += this._speedY;
-            if (this._armatureDisplay.x < -Game.instance.stageWidth * 0.5 - 100.0 || this._armatureDisplay.x > Game.instance.stageWidth * 0.5 + 100.0 ||
-                this._armatureDisplay.y < -Game.instance.stageHeight * 0.5 - 100.0 || this._armatureDisplay.y > Game.instance.stageHeight * 0.5 + 100.0) {
-                Game.instance.removeChild(this._armatureDisplay);
-                this._armatureDisplay.dispose();
-                if (this._effecDisplay !== null) {
-                    Game.instance.removeChild(this._effecDisplay);
-                    this._effecDisplay.dispose();
-                }
+            var cx = this.scene.cameras.main.width, cy = this.scene.cameras.main.height;
+            if (this._armatureDisplay.x < -cx - 100.0 || this._armatureDisplay.x > cx + 100.0 ||
+                this._armatureDisplay.y < -cy * 0.5 - 100.0 || this._armatureDisplay.y > cy + 100.0) {
+                this._armatureDisplay.destroy();
+                if (this._effecDisplay !== null)
+                    this._effecDisplay.destroy();
                 return true;
             }
             return false;

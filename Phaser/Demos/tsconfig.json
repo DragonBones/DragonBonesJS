@@ -4,7 +4,6 @@
 		"sourceMap": false,
 		"declaration": false,
 		"alwaysStrict": true,
-		"noImplicitAny": true,
 		"noImplicitThis": true,
 		"noUnusedLocals": true,
 		"noUnusedParameters": false,

@@ -8,7 +8,7 @@
 ## Make sure project structure like this:
 ```
 Your project
-    |-- libs
+    |-- types
         |-- phaser.d.ts
     |-- node_modules
         |-- ...
@@ -18,6 +18,3 @@ Your project
         |-- ...
     |-- ...
 ```
-
-## Phaser declaration
-* [Get phaser.d.ts](https://github.com/photonstorm/phaser3-docs/tree/master/typescript/)
