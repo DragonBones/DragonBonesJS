@@ -71,6 +71,7 @@
 		"./src/dragonBones/phaser/util/EventDispatcher.ts",
 		"./src/dragonBones/phaser/util/SkewComponent.ts",
 		"./src/dragonBones/phaser/util/TransformMatrix.ts",
+		"./src/dragonBones/phaser/util/CacheItem.ts",
 		"./src/dragonBones/phaser/display/DisplayContainer.ts",
 		"./src/dragonBones/phaser/display/ArmatureDisplay.ts",
 		"./src/dragonBones/phaser/display/SlotImage.ts",

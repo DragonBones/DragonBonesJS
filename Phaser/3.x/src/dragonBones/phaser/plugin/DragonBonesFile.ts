@@ -75,17 +75,24 @@ namespace dragonBones.phaser.plugin {
 
         addToCache(): void {
             if (this.isReadyToProcess()) {
+                const binaryParser = new BinaryDataParser();
+
                 const image = this.files[0];
                 const json = this.files[1];
                 const bone = this.files[2];
 
-                const dbPlugin = this.loader.scene["dragonbone"];
-                if (!dbPlugin)
-                    throw new Error("Please add the dragonbone plugin in your GameConfig");
+                const cacheItem:Phaser.Cache.BaseCache = this.loader["cacheManager"].addCustom("dragonbones");
 
-                const db = dbPlugin.factory.parseDragonBonesData(bone.data, bone.key, this._scale);
-                db.name = image.key;
-                dbPlugin.factory.parseTextureAtlasData(json.data, image.data, image.key, this._scale);
+                const dragonBonesData = binaryParser.parseDragonBonesData(bone.data, this._scale);
+
+                const cacheObject:util.CacheItem = {
+                    boneData: dragonBonesData,
+                    scale: this._scale,
+                    textureData: json.data,
+                    textureImage: image.data,
+                    textureImageKey: image.key
+                }
+                cacheItem.add(bone.key, cacheObject);
 
                 this.complete = true;
             }
