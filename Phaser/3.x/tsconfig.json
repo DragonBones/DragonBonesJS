@@ -75,6 +75,7 @@
 		"./src/dragonBones/phaser/display/ArmatureDisplay.ts",
 		"./src/dragonBones/phaser/display/SlotImage.ts",
 		"./src/dragonBones/phaser/display/SlotSprite.ts",
+		"./src/dragonBones/phaser/display/SlotMesh.ts",
 		"./src/dragonBones/phaser/display/Slot.ts",
 		"./src/dragonBones/phaser/display/TextureAtlasData.ts",
 		"./src/dragonBones/phaser/pipeline/TextureTintPipeline.ts",

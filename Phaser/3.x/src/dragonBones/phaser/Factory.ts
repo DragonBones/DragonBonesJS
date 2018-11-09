@@ -10,9 +10,7 @@ namespace dragonBones.phaser {
         }
 
         protected _isSupportMesh(): boolean {
-            console.warn("Mesh is not supported yet");
-
-            return false;
+            return true;
         }
 
         protected _buildTextureAtlasData(textureAtlasData: display.TextureAtlasData, textureAtlas: Phaser.Textures.Texture): TextureAtlasData {
@@ -39,7 +37,7 @@ namespace dragonBones.phaser {
         protected _buildSlot(dataPackage: BuildArmaturePackage, slotData: SlotData, armature: Armature): Slot {
             const slot = BaseObject.borrowObject(display.Slot);
             const rawDisplay = this._scene.dragonbone.createSlotDisplayPlaceholder();
-            const meshDisplay = rawDisplay;  // TODO: meshDisplay is not supported yet
+            const meshDisplay = this._scene.dragonbone.createMeshDisplayPlaceholder();
             slot.init(slotData, armature, rawDisplay, meshDisplay);
 
             return slot;
