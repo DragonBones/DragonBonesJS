@@ -53,7 +53,7 @@ class BuildPixi extends BuildBase {
     copyDeclear (callback) {
         copy(
             [
-                path.join(this.cacheFolder, `pixi-typescript-${ this.version }/pixi.js.d.ts`)
+                path.join(this.cacheFolder, `pixi-typescript-4.6.2/pixi.js.d.ts`)
             ],
             path.join(this.cacheSourceFolder, 'libs'),
             { flatten: true },
