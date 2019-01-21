@@ -1,7 +1,5 @@
 namespace dragonBones.phaser.plugin {
     export class DragonBonesFile extends Phaser.Loader.MultiFile {
-        private _scale: number;
-
         constructor(loader: Phaser.Loader.LoaderPlugin,
                     key: string | object,
                     textureURL?: string,
@@ -9,13 +7,16 @@ namespace dragonBones.phaser.plugin {
                     boneURL?: string,
                     textureXhrSettings?: XHRSettingsObject,
                     atlasXhrSettings?: XHRSettingsObject,
-                    boneXhrSettings?: XHRSettingsObject,
-                    scale: number = 1.0) {
-            let image;
-            let data;
-            let boneData;
+                    boneXhrSettings?: XHRSettingsObject) {
+            let image: Phaser.Loader.FileTypes.ImageFile;
+            let data: Phaser.Loader.FileTypes.JSONFile;
+            let boneData: Phaser.Loader.File;
 
             let keyName: string;
+
+            const binFileType = FileTypes.getType(FileTypes.BINARY);
+            const jsonFileType = FileTypes.getType(FileTypes.JSON);
+            const imageFileType = FileTypes.getType(FileTypes.IMAGE);
 
             const createBoneFileByType = (loader: Phaser.Loader.LoaderPlugin, key: string, boneURL: string, boneXhrSettings?: XHRSettingsObject): Phaser.Loader.File => {
                 let type = "json";
@@ -33,8 +34,8 @@ namespace dragonBones.phaser.plugin {
                 }
 
                 return type === "bin" ?
-                    new Phaser.Loader.FileTypes.BinaryFile(loader, key, boneURL, boneXhrSettings) :
-                    new Phaser.Loader.FileTypes.JSONFile(loader, key, boneURL, boneXhrSettings);
+                    new binFileType(loader, key, boneURL, boneXhrSettings) :
+                    new jsonFileType(loader, key, boneURL, boneXhrSettings);
             };
 
             if (Phaser.Utils.Objects.IsPlainObject(key as object)) {
@@ -42,14 +43,14 @@ namespace dragonBones.phaser.plugin {
                 const config = key as object;
                 keyName = Phaser.Utils.Objects.GetFastValue(config, 'key');
 
-                image = new Phaser.Loader.FileTypes.ImageFile(loader, {
+                image = new imageFileType(loader, {
                     key: keyName,
                     url: Phaser.Utils.Objects.GetFastValue(config, 'textureURL'),
                     extension: Phaser.Utils.Objects.GetFastValue(config, 'textureExtension', 'png'),
                     xhrSettings: Phaser.Utils.Objects.GetFastValue(config, 'textureXhrSettings')
                 });
 
-                data = new Phaser.Loader.FileTypes.JSONFile(loader, {
+                data = new jsonFileType(loader, {
                     key: keyName + "_atlasjson",
                     url: Phaser.Utils.Objects.GetFastValue(config, 'atlasURL'),
                     extension: Phaser.Utils.Objects.GetFastValue(config, 'atlasExtension', 'json'),
@@ -63,36 +64,25 @@ namespace dragonBones.phaser.plugin {
             } else {
                 keyName = key as string;
 
-                image = new Phaser.Loader.FileTypes.ImageFile(loader, keyName, textureURL, textureXhrSettings);
-                data = new Phaser.Loader.FileTypes.JSONFile(loader, keyName + "_atlasjson", atlasURL, atlasXhrSettings);
+                image = new imageFileType(loader, keyName, textureURL, textureXhrSettings);
+                data = new jsonFileType(loader, keyName + "_atlasjson", atlasURL, atlasXhrSettings);
                 boneData = createBoneFileByType(loader, keyName, boneURL, boneXhrSettings);
             }
 
-            super(loader, 'dragonbone', keyName, [ image, data, boneData ]);
+            boneData.cache = loader["cacheManager"].custom.dragonbone;
 
-            this._scale = scale;
+            super(loader, 'dragonbone', keyName, [ image, data, boneData ]);
         }
 
         addToCache(): void {
             if (this.isReadyToProcess()) {
-                const binaryParser = new BinaryDataParser();
-
                 const image = this.files[0];
                 const json = this.files[1];
                 const bone = this.files[2];
 
-                const cacheItem:Phaser.Cache.BaseCache = this.loader["cacheManager"].addCustom("dragonbones");
-
-                const dragonBonesData = binaryParser.parseDragonBonesData(bone.data, this._scale);
-
-                const cacheObject:util.CacheItem = {
-                    boneData: dragonBonesData,
-                    scale: this._scale,
-                    textureData: json.data,
-                    textureImage: image.data,
-                    textureImageKey: image.key
-                }
-                cacheItem.add(bone.key, cacheObject);
+                json.addToCache();
+                bone.addToCache();
+                this.loader.textureManager.addImage(image.key, image.data);
 
                 this.complete = true;
             }
