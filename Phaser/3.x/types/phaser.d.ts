@@ -14011,6 +14011,9 @@ declare namespace Phaser {
                  */
                 destroy(): void;
 
+                getX(x: number, y: number): number;
+                getY(x: number, y: number): number;
+
             }
 
             /**
@@ -49125,7 +49128,7 @@ declare namespace Phaser {
                      * @param tintBR The bottom-right tint color value.
                      * @param tintEffect The tint effect for the shader to use.
                      */
-                    batchVertices(tx0: number, ty0: number, tx1: number, ty1: number, tx2: number, ty2: number, tx3: number, ty3: number, u0: number, v0: number, u1: number, v1: number, tintTL: number, tintTR: number, tintBL: number, tintBR: number, tintEffect: number | boolean): boolean;
+                    batchQuad(tx0: number, ty0: number, tx1: number, ty1: number, tx2: number, ty2: number, tx3: number, ty3: number, u0: number, v0: number, u1: number, v1: number, tintTL: number, tintTR: number, tintBL: number, tintBR: number, tintEffect: number | boolean): boolean;
 
                     /**
                      * Immediately draws a Texture Frame with no batching.
@@ -58392,7 +58395,7 @@ declare namespace Phaser {
             /**
              * This is a slightly modified version of http://api.jquery.com/jQuery.extend/
              */
-            function Extend(): object;
+            function Extend(... args: any[]): object;
 
             /**
              * [description]
