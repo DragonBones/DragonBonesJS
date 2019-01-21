@@ -41,8 +41,8 @@
         disableContextMenu: true,
 
         plugins: {
-            global: [
-                { key: "DragonBonesPlugin", plugin: dragonBones.phaser.plugin.DragonBonesPlugin, start: true }    // setup DB plugin
+            scene: [
+                { key: "DragonBones", plugin: dragonBones.phaser.plugin.DragonBonesScenePlugin, mapping: "dragonbone" }    // setup DB scene plugin
             ]
         },
 
