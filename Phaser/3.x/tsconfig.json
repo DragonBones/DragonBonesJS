@@ -71,7 +71,6 @@
 		"./src/dragonBones/phaser/util/EventDispatcher.ts",
 		"./src/dragonBones/phaser/util/SkewComponent.ts",
 		"./src/dragonBones/phaser/util/TransformMatrix.ts",
-		"./src/dragonBones/phaser/util/CacheItem.ts",
 		"./src/dragonBones/phaser/display/DisplayContainer.ts",
 		"./src/dragonBones/phaser/display/ArmatureDisplay.ts",
 		"./src/dragonBones/phaser/display/SlotImage.ts",
@@ -79,6 +78,7 @@
 		"./src/dragonBones/phaser/display/Slot.ts",
 		"./src/dragonBones/phaser/display/TextureAtlasData.ts",
 		"./src/dragonBones/phaser/pipeline/TextureTintPipeline.ts",
+		"./src/dragonBones/phaser/plugin/FileTypes.ts",
 		"./src/dragonBones/phaser/plugin/DragonBonesFile.ts",
 		"./src/dragonBones/phaser/plugin/DragonBonesPlugin.ts",
 		"./src/dragonBones/phaser/Factory.ts"
