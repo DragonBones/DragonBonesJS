@@ -2,11 +2,13 @@ namespace dragonBones.phaser {
     export class Factory extends BaseFactory {
         protected _scene: Phaser.Scene;
         protected _dragonBones: DragonBones;
+        protected _cacheStore:Phaser.Cache.BaseCache;
 
         constructor(dragonBones: DragonBones, scene: Phaser.Scene, dataParser?: DataParser) {
             super(dataParser);
             this._scene = scene;
             this._dragonBones = dragonBones;
+            this._cacheStore = scene.cache.addCustom("dragonbones");
         }
 
         protected _isSupportMesh(): boolean {
@@ -47,11 +49,21 @@ namespace dragonBones.phaser {
         }
 
         buildArmatureDisplay(armatureName: string, dragonBonesName: string = "", skinName: string = "", textureAtlasName: string = ""): display.ArmatureDisplay {
-            const armature = this.buildArmature(armatureName, dragonBonesName, skinName, textureAtlasName);
+            let armature = this.buildArmature(armatureName, dragonBonesName, skinName, textureAtlasName);
             if (armature !== null) {
                 this._dragonBones.clock.add(armature);
-
                 return armature.display as display.ArmatureDisplay;
+            } else {
+                const cacheObject:util.CacheItem = this._cacheStore.get(dragonBonesName);
+                if(cacheObject != null) {
+                    const scale = cacheObject.scale;
+                    this.addDragonBonesData(cacheObject.boneData, dragonBonesName);
+                    this.parseTextureAtlasData(cacheObject.textureData, cacheObject.textureImage, cacheObject.textureImageKey, scale);
+                    armature = this.buildArmature(armatureName, dragonBonesName, skinName, textureAtlasName);
+
+                    this._dragonBones.clock.add(armature);
+                    return armature.display as display.ArmatureDisplay;
+               }
             }
 
             return null;
