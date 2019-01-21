@@ -104,47 +104,6 @@ var dragonBones;
     }());
     dragonBones.DragonBones = DragonBones;
 })(dragonBones || (dragonBones = {}));
-//
-if (!console.warn) {
-    console.warn = function () { };
-}
-if (!console.assert) {
-    console.assert = function () { };
-}
-//
-if (!Date.now) {
-    Date.now = function now() {
-        return new Date().getTime();
-    };
-}
-// Weixin can not support typescript extends.
-var __extends = function (t, e) {
-    function r() {
-        this.constructor = t;
-    }
-    for (var i in e) {
-        if (e.hasOwnProperty(i)) {
-            t[i] = e[i];
-        }
-    }
-    r.prototype = e.prototype, t.prototype = new r();
-};
-//
-if (typeof global === "undefined" && typeof window !== "undefined") {
-    var global = window;
-}
-if (typeof exports === "object" && typeof module === "object") {
-    module.exports = dragonBones;
-}
-else if (typeof define === "function" && define["amd"]) {
-    define(["dragonBones"], function () { return dragonBones; });
-}
-else if (typeof exports === "object") {
-    exports = dragonBones;
-}
-else if (typeof global !== "undefined") {
-    global.dragonBones = dragonBones;
-}
 /**
  * The MIT License (MIT)
  *
@@ -6677,7 +6636,7 @@ var dragonBones;
         };
         IKConstraint.prototype._onClear = function () {
             _super.prototype._onClear.call(this);
-            this._scaleEnabled = false;
+            // this._scaleEnabled = false;
             this._bendPositive = false;
             this._weight = 1.0;
             this._constraintData = null;
@@ -6773,7 +6732,7 @@ var dragonBones;
             this._bone = this._constraintData.bone !== null ? this._armature.getBone(this._constraintData.bone.name) : null;
             {
                 var ikConstraintData = this._constraintData;
-                this._scaleEnabled = ikConstraintData.scaleEnabled;
+                // this._scaleEnabled = ikConstraintData.scaleEnabled;
                 this._bendPositive = ikConstraintData.bendPositive;
                 this._weight = ikConstraintData.weight;
             }
@@ -15784,14 +15743,14 @@ var dragonBones;
                         //  Multiply by the Sprite matrix, store result in calcMatrix
                         camMatrix.multiply(spriteMatrix, calcMatrix);
                     }
-                    var tx0 = x * calcMatrix.a + y * calcMatrix.c + calcMatrix.e;
-                    var ty0 = x * calcMatrix.b + y * calcMatrix.d + calcMatrix.f;
-                    var tx1 = x * calcMatrix.a + yh * calcMatrix.c + calcMatrix.e;
-                    var ty1 = x * calcMatrix.b + yh * calcMatrix.d + calcMatrix.f;
-                    var tx2 = xw * calcMatrix.a + yh * calcMatrix.c + calcMatrix.e;
-                    var ty2 = xw * calcMatrix.b + yh * calcMatrix.d + calcMatrix.f;
-                    var tx3 = xw * calcMatrix.a + y * calcMatrix.c + calcMatrix.e;
-                    var ty3 = xw * calcMatrix.b + y * calcMatrix.d + calcMatrix.f;
+                    var tx0 = calcMatrix.getX(x, y);
+                    var ty0 = calcMatrix.getY(x, y);
+                    var tx1 = calcMatrix.getX(x, yh);
+                    var ty1 = calcMatrix.getY(x, yh);
+                    var tx2 = calcMatrix.getX(xw, yh);
+                    var ty2 = calcMatrix.getY(xw, yh);
+                    var tx3 = calcMatrix.getX(xw, y);
+                    var ty3 = calcMatrix.getY(xw, y);
                     var tintTL = Phaser.Renderer.WebGL.Utils.getTintAppendFloatAlpha(sprite["_tintTL"], camera.alpha * sprite["_alphaTL"]);
                     var tintTR = Phaser.Renderer.WebGL.Utils.getTintAppendFloatAlpha(sprite["_tintTR"], camera.alpha * sprite["_alphaTR"]);
                     var tintBL = Phaser.Renderer.WebGL.Utils.getTintAppendFloatAlpha(sprite["_tintBL"], camera.alpha * sprite["_alphaBL"]);
@@ -15808,7 +15767,7 @@ var dragonBones;
                     }
                     this.setTexture2D(texture, 0);
                     var tintEffect = (sprite["_isTinted"] && sprite.tintFill);
-                    this.batchVertices(tx0, ty0, tx1, ty1, tx2, ty2, tx3, ty3, u0, v0, u1, v1, tintTL, tintTR, tintBL, tintBR, tintEffect);
+                    this.batchQuad(tx0, ty0, tx1, ty1, tx2, ty2, tx3, ty3, u0, v0, u1, v1, tintTL, tintTR, tintBL, tintBR, tintEffect);
                 };
                 return TextureTintPipeline;
             }(Phaser.Renderer.WebGL.Pipelines.TextureTintPipeline));
@@ -15822,15 +15781,42 @@ var dragonBones;
     (function (phaser) {
         var plugin;
         (function (plugin) {
+            plugin.FileTypes = {
+                IMAGE: "imageFile",
+                JSON: "jsonFile",
+                BINARY: "binaryFile",
+                map: {
+                    imageFile: Phaser.Loader.FileTypes.ImageFile,
+                    jsonFile: Phaser.Loader.FileTypes.JSONFile,
+                    binaryFile: Phaser.Loader.FileTypes.BinaryFile
+                },
+                setType: function (type, clazz) {
+                    plugin.FileTypes.map[type] = clazz;
+                },
+                getType: function (type) {
+                    return plugin.FileTypes.map[type];
+                }
+            };
+        })(plugin = phaser.plugin || (phaser.plugin = {}));
+    })(phaser = dragonBones.phaser || (dragonBones.phaser = {}));
+})(dragonBones || (dragonBones = {}));
+var dragonBones;
+(function (dragonBones) {
+    var phaser;
+    (function (phaser) {
+        var plugin;
+        (function (plugin) {
             var DragonBonesFile = /** @class */ (function (_super) {
                 __extends(DragonBonesFile, _super);
-                function DragonBonesFile(loader, key, textureURL, atlasURL, boneURL, textureXhrSettings, atlasXhrSettings, boneXhrSettings, scale) {
-                    if (scale === void 0) { scale = 1.0; }
+                function DragonBonesFile(loader, key, textureURL, atlasURL, boneURL, textureXhrSettings, atlasXhrSettings, boneXhrSettings) {
                     var _this = this;
                     var image;
                     var data;
                     var boneData;
                     var keyName;
+                    var binFileType = plugin.FileTypes.getType(plugin.FileTypes.BINARY);
+                    var jsonFileType = plugin.FileTypes.getType(plugin.FileTypes.JSON);
+                    var imageFileType = plugin.FileTypes.getType(plugin.FileTypes.IMAGE);
                     var createBoneFileByType = function (loader, key, boneURL, boneXhrSettings) {
                         var type = "json";
                         if (boneXhrSettings && boneXhrSettings.responseType) {
@@ -15846,20 +15832,20 @@ var dragonBones;
                             }
                         }
                         return type === "bin" ?
-                            new Phaser.Loader.FileTypes.BinaryFile(loader, key, boneURL, boneXhrSettings) :
-                            new Phaser.Loader.FileTypes.JSONFile(loader, key, boneURL, boneXhrSettings);
+                            new binFileType(loader, key, boneURL, boneXhrSettings) :
+                            new jsonFileType(loader, key, boneURL, boneXhrSettings);
                     };
                     if (Phaser.Utils.Objects.IsPlainObject(key)) {
                         // key is actually a config object
                         var config = key;
                         keyName = Phaser.Utils.Objects.GetFastValue(config, 'key');
-                        image = new Phaser.Loader.FileTypes.ImageFile(loader, {
+                        image = new imageFileType(loader, {
                             key: keyName,
                             url: Phaser.Utils.Objects.GetFastValue(config, 'textureURL'),
                             extension: Phaser.Utils.Objects.GetFastValue(config, 'textureExtension', 'png'),
                             xhrSettings: Phaser.Utils.Objects.GetFastValue(config, 'textureXhrSettings')
                         });
-                        data = new Phaser.Loader.FileTypes.JSONFile(loader, {
+                        data = new jsonFileType(loader, {
                             key: keyName + "_atlasjson",
                             url: Phaser.Utils.Objects.GetFastValue(config, 'atlasURL'),
                             extension: Phaser.Utils.Objects.GetFastValue(config, 'atlasExtension', 'json'),
@@ -15869,12 +15855,12 @@ var dragonBones;
                     }
                     else {
                         keyName = key;
-                        image = new Phaser.Loader.FileTypes.ImageFile(loader, keyName, textureURL, textureXhrSettings);
-                        data = new Phaser.Loader.FileTypes.JSONFile(loader, keyName + "_atlasjson", atlasURL, atlasXhrSettings);
+                        image = new imageFileType(loader, keyName, textureURL, textureXhrSettings);
+                        data = new jsonFileType(loader, keyName + "_atlasjson", atlasURL, atlasXhrSettings);
                         boneData = createBoneFileByType(loader, keyName, boneURL, boneXhrSettings);
                     }
+                    boneData.cache = loader["cacheManager"].custom.dragonbone;
                     _this = _super.call(this, loader, 'dragonbone', keyName, [image, data, boneData]) || this;
-                    _this._scale = scale;
                     return _this;
                 }
                 DragonBonesFile.prototype.addToCache = function () {
@@ -15882,12 +15868,9 @@ var dragonBones;
                         var image = this.files[0];
                         var json = this.files[1];
                         var bone = this.files[2];
-                        var dbPlugin = this.loader.scene["dragonbone"];
-                        if (!dbPlugin)
-                            throw new Error("Please add the dragonbone plugin in your GameConfig");
-                        var db = dbPlugin.factory.parseDragonBonesData(bone.data, bone.key, this._scale);
-                        db.name = image.key;
-                        dbPlugin.factory.parseTextureAtlasData(json.data, image.data, image.key, this._scale);
+                        json.addToCache();
+                        bone.addToCache();
+                        this.loader.textureManager.addImage(image.key, image.data);
                         this.complete = true;
                     }
                 };
@@ -15903,67 +15886,35 @@ var dragonBones;
     (function (phaser) {
         var plugin;
         (function (plugin) {
-            var DragonBonesPlugin = /** @class */ (function (_super) {
-                __extends(DragonBonesPlugin, _super);
-                function DragonBonesPlugin(pluginManager) {
-                    var _this = _super.call(this, pluginManager) || this;
-                    _this._dbInst = new dragonBones_2.DragonBones(new phaser.util.EventDispatcher());
-                    var renderer = _this.game.renderer;
-                    renderer.addPipeline('PhaserTextureTintPipeline', new phaser.pipeline.TextureTintPipeline({ game: _this.game, renderer: renderer }));
-                    pluginManager.installScenePlugin("DragonBonesScenePlugin", DragonBonesScenePlugin, "dragonbone");
-                    return _this;
-                }
-                DragonBonesPlugin.prototype.start = function () {
-                    _super.prototype.start.call(this);
-                    this.game.events.on('step', this.updateDBInst, this);
-                };
-                DragonBonesPlugin.prototype.stop = function () {
-                    _super.prototype.stop.call(this);
-                    this.game.events.off('step', this.updateDBInst, this);
-                };
-                DragonBonesPlugin.prototype.destroy = function () {
-                    this.game.events.off('step', this.updateDBInst, this);
-                    _super.prototype.destroy.call(this);
-                };
-                DragonBonesPlugin.prototype.updateDBInst = function (time, delta) {
-                    if (!this._dbInst)
-                        return;
-                    this._dbInst.advanceTime(delta * 0.001);
-                };
-                Object.defineProperty(DragonBonesPlugin.prototype, "dbInstance", {
-                    get: function () {
-                        return this._dbInst;
-                    },
-                    enumerable: true,
-                    configurable: true
-                });
-                return DragonBonesPlugin;
-            }(Phaser.Plugins.BasePlugin));
-            plugin.DragonBonesPlugin = DragonBonesPlugin;
             var DragonBonesScenePlugin = /** @class */ (function (_super) {
                 __extends(DragonBonesScenePlugin, _super);
                 function DragonBonesScenePlugin(scene, pluginManager) {
                     var _this = _super.call(this, scene, pluginManager) || this;
+                    var game = _this.game;
+                    // bone data store
+                    game.cache.addCustom("dragonbone");
+                    if (_this.game.config.renderType === Phaser.WEBGL) {
+                        var renderer = _this.game.renderer;
+                        if (!renderer.hasPipeline('PhaserTextureTintPipeline'))
+                            renderer.addPipeline('PhaserTextureTintPipeline', new phaser.pipeline.TextureTintPipeline({ game: game, renderer: renderer }));
+                    }
                     pluginManager.registerGameObject("armature", CreateArmatureRegisterHandler);
+                    pluginManager.registerFileType("dragonbone", DragonBoneFileRegisterHandler, scene);
                     return _this;
                 }
-                DragonBonesScenePlugin.prototype.createArmature = function (armature, dragonBones, skinName, atlasTextureName) {
-                    return this.factory.buildArmatureDisplay(armature, dragonBones, skinName, atlasTextureName);
+                DragonBonesScenePlugin.prototype.createArmature = function (armature, dragonBones, skinName, atlasTextureName, textureScale) {
+                    if (textureScale === void 0) { textureScale = 1.0; }
+                    var display = this.factory.buildArmatureDisplay(armature, dragonBones, skinName, atlasTextureName, textureScale);
+                    this.systems.displayList.add(display);
+                    // use db.clock instead, if here we just use this.systems.updateList.add(display), that will cause the db event is dispatched with 1 or more frames delay
+                    this._dbInst.clock.add(display.armature);
+                    return display;
                 };
                 Object.defineProperty(DragonBonesScenePlugin.prototype, "factory", {
                     get: function () {
                         if (!this._factory) {
-                            var dbPlugin = void 0;
-                            for (var _i = 0, _a = this.pluginManager.plugins; _i < _a.length; _i++) {
-                                var p = _a[_i];
-                                if (p.plugin instanceof DragonBonesPlugin) {
-                                    dbPlugin = p.plugin;
-                                    break;
-                                }
-                            }
-                            if (!dbPlugin)
-                                throw new Error("Please add the dragonbone plugin in your GameConfig");
-                            this._factory = new phaser.Factory(dbPlugin.dbInstance, this.scene);
+                            this._dbInst = new dragonBones.DragonBones(new phaser.util.EventDispatcher());
+                            this._factory = new phaser.Factory(this._dbInst, this.scene);
                         }
                         return this._factory;
                     },
@@ -15977,21 +15928,43 @@ var dragonBones;
                 DragonBonesScenePlugin.prototype.createSlotDisplayPlaceholder = function () {
                     return new phaser.display.SlotImage(this.scene, 0, 0);
                 };
+                DragonBonesScenePlugin.prototype.boot = function () {
+                    this.systems.events.once('destroy', this.destroy, this);
+                    this.start();
+                };
+                DragonBonesScenePlugin.prototype.start = function () {
+                    var ee = this.systems.events;
+                    ee.on('update', this.update, this);
+                    ee.once('shutdown', this.shutdown, this);
+                };
+                DragonBonesScenePlugin.prototype.update = function (time, delta) {
+                    this._dbInst && this._dbInst.advanceTime(delta * 0.001);
+                };
+                DragonBonesScenePlugin.prototype.shutdown = function () {
+                    var ee = this.systems.events;
+                    ee.off('update', this.update, this);
+                    ee.off('shutdown', this.shutdown, this);
+                };
+                DragonBonesScenePlugin.prototype.destroy = function () {
+                    this.shutdown();
+                    this._factory =
+                        this._dbInst = null;
+                    this.pluginManager =
+                        this.game =
+                            this.scene =
+                                this.systems = null;
+                };
                 return DragonBonesScenePlugin;
             }(Phaser.Plugins.ScenePlugin));
             plugin.DragonBonesScenePlugin = DragonBonesScenePlugin;
             var CreateArmatureRegisterHandler = function (armature, dragonBones, skinName, atlasTextureName) {
-                var display = this.scene.dragonbone.createArmature(armature, dragonBones, skinName, atlasTextureName);
-                this.displayList.add(display);
-                return display;
+                return this.scene.dragonbone.createArmature(armature, dragonBones, skinName, atlasTextureName);
             };
-            var DragonBoneFileRegisterHandler = function (dragonbonesName, textureURL, atlasURL, boneURL, textureXhrSettings, atlasXhrSettings, boneXhrSettings, scale) {
-                if (scale === void 0) { scale = 1.0; }
-                var multifile = new plugin.DragonBonesFile(this, dragonbonesName, textureURL, atlasURL, boneURL, textureXhrSettings, atlasXhrSettings, boneXhrSettings, scale);
+            var DragonBoneFileRegisterHandler = function (dragonbonesName, textureURL, atlasURL, boneURL, textureXhrSettings, atlasXhrSettings, boneXhrSettings) {
+                var multifile = new plugin.DragonBonesFile(this, dragonbonesName, textureURL, atlasURL, boneURL, textureXhrSettings, atlasXhrSettings, boneXhrSettings);
                 this.addFile(multifile.files);
                 return this;
             };
-            Phaser.Loader.FileTypesManager.register("dragonbone", DragonBoneFileRegisterHandler);
         })(plugin = phaser.plugin || (phaser.plugin = {}));
     })(phaser = dragonBones_2.phaser || (dragonBones_2.phaser = {}));
 })(dragonBones || (dragonBones = {}));
@@ -16013,8 +15986,7 @@ var dragonBones;
             };
             Factory.prototype._buildTextureAtlasData = function (textureAtlasData, textureAtlas) {
                 if (textureAtlasData) {
-                    var tex = this._scene.textures.addImage(textureAtlasData.name, textureAtlas);
-                    textureAtlasData.renderTexture = tex;
+                    textureAtlasData.renderTexture = textureAtlas;
                 }
                 else
                     textureAtlasData = dragonBones_3.BaseObject.borrowObject(phaser.display.TextureAtlasData);
@@ -16033,16 +16005,27 @@ var dragonBones;
                 slot.init(slotData, armature, rawDisplay, meshDisplay);
                 return slot;
             };
-            Factory.prototype.buildArmatureDisplay = function (armatureName, dragonBonesName, skinName, textureAtlasName) {
+            Factory.prototype.buildArmatureDisplay = function (armatureName, dragonBonesName, skinName, textureAtlasName, textureScale) {
                 if (dragonBonesName === void 0) { dragonBonesName = ""; }
                 if (skinName === void 0) { skinName = ""; }
                 if (textureAtlasName === void 0) { textureAtlasName = ""; }
-                var armature = this.buildArmature(armatureName, dragonBonesName, skinName, textureAtlasName);
-                if (armature !== null) {
-                    this._dragonBones.clock.add(armature);
-                    return armature.display;
+                if (textureScale === void 0) { textureScale = 1.0; }
+                var armature;
+                if (!this._dragonBonesDataMap[dragonBonesName]) {
+                    var cache = this._scene.cache;
+                    var boneRawData = cache.custom.dragonbone.get(dragonBonesName);
+                    if (boneRawData != null) {
+                        // parse raw data and add to cache map
+                        this.parseDragonBonesData(boneRawData, dragonBonesName, textureScale);
+                        var texture = this._scene.textures.get(dragonBonesName);
+                        var json = cache.json.get(dragonBonesName + "_atlasjson");
+                        this.parseTextureAtlasData(json, texture, texture.key, textureScale);
+                        armature = this.buildArmature(armatureName, dragonBonesName, skinName, textureAtlasName);
+                    }
                 }
-                return null;
+                else
+                    armature = this.buildArmature(armatureName, dragonBonesName, skinName, textureAtlasName);
+                return armature.display;
             };
             return Factory;
         }(dragonBones_3.BaseFactory));
