@@ -1,29 +1,27 @@
 class AnimationBase extends BaseDemo {
-    private _armatureDisplay: dragonBones.PhaserArmatureDisplay;
+    private _armatureDisplay: dragonBones.phaser.display.ArmatureDisplay;
 
-    public constructor(game: Phaser.Game) {
-        super(game);
+    public constructor() {
+        super("AnimationBase");
+    }
 
-        this._resources.push(
-            "resource/progress_bar/progress_bar_ske.json",
+    preload(): void {
+        super.preload();
+
+        this.load.dragonbone(
+            "progress_bar",
+            "resource/progress_bar/progress_bar_tex.png",
             "resource/progress_bar/progress_bar_tex.json",
-            "resource/progress_bar/progress_bar_tex.png"
+            "resource/progress_bar/progress_bar_ske.json"
         );
     }
 
-    protected _onStart(): void {
-        const factory = dragonBones.PhaserFactory.factory;
-        factory.parseDragonBonesData(this.game.cache.getItem("resource/progress_bar/progress_bar_ske.json", Phaser.Cache.JSON).data);
-        factory.parseTextureAtlasData(
-            this.game.cache.getItem("resource/progress_bar/progress_bar_tex.json", Phaser.Cache.JSON).data,
-            (this.game.cache.getImage("resource/progress_bar/progress_bar_tex.png", true) as any).base
-        );
-        //
-        this._armatureDisplay = factory.buildArmatureDisplay("progress_bar");
-        this._armatureDisplay.x = 0.0;
-        this._armatureDisplay.y = 0.0;
-        this.addChild(this._armatureDisplay);
-        // Add animation event listener.
+    create(): void {
+        super.create();
+
+        this._armatureDisplay = this.add.armature("progress_bar");
+        this._armatureDisplay.x = this.cameras.main.centerX;
+        this._armatureDisplay.y = this.cameras.main.centerY;
         this._armatureDisplay.addDBEventListener(dragonBones.EventObject.START, this._animationEventHandler, this);
         this._armatureDisplay.addDBEventListener(dragonBones.EventObject.LOOP_COMPLETE, this._animationEventHandler, this);
         this._armatureDisplay.addDBEventListener(dragonBones.EventObject.COMPLETE, this._animationEventHandler, this);
@@ -33,18 +31,18 @@ class AnimationBase extends BaseDemo {
         this._armatureDisplay.addDBEventListener(dragonBones.EventObject.FADE_OUT_COMPLETE, this._animationEventHandler, this);
         this._armatureDisplay.addDBEventListener(dragonBones.EventObject.FRAME_EVENT, this._animationEventHandler, this);
         this._armatureDisplay.animation.play("idle");
-        //
-        this.inputEnabled = true;
-        this.events.onInputDown.add(this._inputDown, this);
-        this.events.onInputUp.add(this._inputUp, this);
-        //
+        
+        this.input.enabled = true;
+        this.input.addDownCallback(() => this._inputDown(), false);
+        this.input.addUpCallback(() => this._inputUp(), false);
+
         this.createText("Touch to control animation play progress.");
     }
 
     private _isTouched: boolean = false;
 
     private _inputDown(): void {
-        const progress = Math.min(Math.max((this.game.input.x - this.x + 300.0) / 600.0, 0.0), 1.0);
+        const progress = Phaser.Math.Clamp((this.input.x - this._armatureDisplay.x + 300.0) / 600.0, 0.0, 1.0);
         this._isTouched = true;
         this._armatureDisplay.animation.gotoAndStopByProgress("idle", progress);
     }
@@ -56,7 +54,7 @@ class AnimationBase extends BaseDemo {
 
     public update(): void {
         if (this._isTouched) {
-            const progress = Math.min(Math.max((this.game.input.x - this.x + 300.0) / 600.0, 0.0), 1.0);
+            const progress = Phaser.Math.Clamp((this.input.x - this._armatureDisplay.x + 300.0) / 600.0, 0.0, 1.0);
             const animationState = this._armatureDisplay.animation.getState("idle");
             animationState.currentTime = animationState.totalTime * progress;
         }
