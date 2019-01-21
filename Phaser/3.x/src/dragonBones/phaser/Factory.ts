@@ -2,13 +2,11 @@ namespace dragonBones.phaser {
     export class Factory extends BaseFactory {
         protected _scene: Phaser.Scene;
         protected _dragonBones: DragonBones;
-        protected _cacheStore:Phaser.Cache.BaseCache;
 
         constructor(dragonBones: DragonBones, scene: Phaser.Scene, dataParser?: DataParser) {
             super(dataParser);
             this._scene = scene;
             this._dragonBones = dragonBones;
-            this._cacheStore = scene.cache.addCustom("dragonbones");
         }
 
         protected _isSupportMesh(): boolean {
@@ -17,10 +15,9 @@ namespace dragonBones.phaser {
             return false;
         }
 
-        protected _buildTextureAtlasData(textureAtlasData: display.TextureAtlasData, textureAtlas: any): TextureAtlasData {
+        protected _buildTextureAtlasData(textureAtlasData: display.TextureAtlasData, textureAtlas: Phaser.Textures.Texture): TextureAtlasData {
             if (textureAtlasData) {
-                const tex = this._scene.textures.addImage(textureAtlasData.name, textureAtlas);
-                textureAtlasData.renderTexture = tex;
+                textureAtlasData.renderTexture = textureAtlas;
             } else
                 textureAtlasData = BaseObject.borrowObject(display.TextureAtlasData);
 
@@ -48,25 +45,26 @@ namespace dragonBones.phaser {
             return slot;
         }
 
-        buildArmatureDisplay(armatureName: string, dragonBonesName: string = "", skinName: string = "", textureAtlasName: string = ""): display.ArmatureDisplay {
-            let armature = this.buildArmature(armatureName, dragonBonesName, skinName, textureAtlasName);
-            if (armature !== null) {
-                this._dragonBones.clock.add(armature);
-                return armature.display as display.ArmatureDisplay;
-            } else {
-                const cacheObject:util.CacheItem = this._cacheStore.get(dragonBonesName);
-                if(cacheObject != null) {
-                    const scale = cacheObject.scale;
-                    this.addDragonBonesData(cacheObject.boneData, dragonBonesName);
-                    this.parseTextureAtlasData(cacheObject.textureData, cacheObject.textureImage, cacheObject.textureImageKey, scale);
+        buildArmatureDisplay(armatureName: string, dragonBonesName: string = "", skinName: string = "", textureAtlasName: string = "", textureScale = 1.0): display.ArmatureDisplay {
+            let armature: dragonBones.Armature;
+
+            if (!this._dragonBonesDataMap[dragonBonesName]) {
+                const cache = this._scene.cache;
+                const boneRawData: any = cache.custom.dragonbone.get(dragonBonesName);
+                if (boneRawData != null) {
+                    // parse raw data and add to cache map
+                    this.parseDragonBonesData(boneRawData, dragonBonesName, textureScale);
+
+                    const texture = this._scene.textures.get(dragonBonesName);
+                    const json = cache.json.get(`${dragonBonesName}_atlasjson`);
+
+                    this.parseTextureAtlasData(json, texture, texture.key, textureScale);
                     armature = this.buildArmature(armatureName, dragonBonesName, skinName, textureAtlasName);
+                }
+            } else
+                armature = this.buildArmature(armatureName, dragonBonesName, skinName, textureAtlasName);
 
-                    this._dragonBones.clock.add(armature);
-                    return armature.display as display.ArmatureDisplay;
-               }
-            }
-
-            return null;
+            return armature.display as display.ArmatureDisplay;
         }
     }
 }
