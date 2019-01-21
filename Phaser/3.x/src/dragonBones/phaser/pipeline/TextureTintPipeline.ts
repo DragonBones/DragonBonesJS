@@ -1,6 +1,6 @@
 namespace dragonBones.phaser.pipeline {
     export class TextureTintPipeline extends Phaser.Renderer.WebGL.Pipelines.TextureTintPipeline {
-        private _tempMatrix1: dragonBones.phaser.util.TransformMatrix;
+        private _tempMatrix1: util.TransformMatrix;
         private _tempMatrix2: util.TransformMatrix;
         private _tempMatrix3: util.TransformMatrix;
 
@@ -89,17 +89,17 @@ namespace dragonBones.phaser.pipeline {
                 camMatrix.multiply(spriteMatrix, calcMatrix);
             }
 
-            let tx0 = x * calcMatrix.a + y * calcMatrix.c + calcMatrix.e;
-            let ty0 = x * calcMatrix.b + y * calcMatrix.d + calcMatrix.f;
+            let tx0 = calcMatrix.getX(x, y);
+            let ty0 = calcMatrix.getY(x, y);
 
-            let tx1 = x * calcMatrix.a + yh * calcMatrix.c + calcMatrix.e;
-            let ty1 = x * calcMatrix.b + yh * calcMatrix.d + calcMatrix.f;
+            let tx1 = calcMatrix.getX(x, yh);
+            let ty1 = calcMatrix.getY(x, yh);
 
-            let tx2 = xw * calcMatrix.a + yh * calcMatrix.c + calcMatrix.e;
-            let ty2 = xw * calcMatrix.b + yh * calcMatrix.d + calcMatrix.f;
+            let tx2 = calcMatrix.getX(xw, yh);
+            let ty2 = calcMatrix.getY(xw, yh);
 
-            let tx3 = xw * calcMatrix.a + y * calcMatrix.c + calcMatrix.e;
-            let ty3 = xw * calcMatrix.b + y * calcMatrix.d + calcMatrix.f;
+            let tx3 = calcMatrix.getX(xw, y);
+            let ty3 = calcMatrix.getY(xw, y);
 
             const tintTL = Phaser.Renderer.WebGL.Utils.getTintAppendFloatAlpha(sprite["_tintTL"], camera.alpha * sprite["_alphaTL"]);
             const tintTR = Phaser.Renderer.WebGL.Utils.getTintAppendFloatAlpha(sprite["_tintTR"], camera.alpha * sprite["_alphaTR"]);
@@ -124,7 +124,7 @@ namespace dragonBones.phaser.pipeline {
 
             const tintEffect = (sprite["_isTinted"] && sprite.tintFill);
 
-            this.batchVertices(tx0, ty0, tx1, ty1, tx2, ty2, tx3, ty3, u0, v0, u1, v1, tintTL, tintTR, tintBL, tintBR, tintEffect);
+            this.batchQuad(tx0, ty0, tx1, ty1, tx2, ty2, tx3, ty3, u0, v0, u1, v1, tintTL, tintTR, tintBL, tintBR, tintEffect);
         }
     }
 }
