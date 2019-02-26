@@ -1,7 +1,7 @@
 namespace dragonBones.phaser.display {
     export class SlotMesh extends Phaser.GameObjects.Mesh {
-        fakeIndicies: Uint16Array;
-        fakeVerticies: Uint16Array;
+        fakeIndices: Uint16Array;
+        fakeVertices: Uint16Array;
         fakeUvs: Uint16Array;
 
         constructor(scene: Phaser.Scene, x: number, y: number, vertices: number[], uv: number[], colors: number[], alphas: number[], texture: string, frame?: string | integer) {
@@ -13,29 +13,29 @@ namespace dragonBones.phaser.display {
           // NOTHING
         }
 
-        updateVerticies() {
-            const fakeIndicies = this.fakeIndicies;
-            const fakeVerticies = this.fakeVerticies;
+        updateVertices() {
+            const fakeIndices = this.fakeIndices;
+            const fakeVertices = this.fakeVertices;
             const fakeUvs = this.fakeUvs;
 
-            this.vertices = new Float32Array(fakeIndicies.length * 2) as any;
-            this.uv = new Float32Array(fakeIndicies.length * 2) as any;
-            this.alphas = new Uint32Array(fakeIndicies.length) as any;
-            this.colors = new Uint32Array(fakeIndicies.length) as any;
+            this.vertices = new Float32Array(fakeIndices.length * 2) as any;
+            this.uv = new Float32Array(fakeIndices.length * 2) as any;
+            this.alphas = new Uint32Array(fakeIndices.length) as any;
+            this.colors = new Uint32Array(fakeIndices.length) as any;
 
-            for (let i = 0; i < fakeIndicies.length; i++) {
-                this.vertices[i * 2] = fakeVerticies[fakeIndicies[i] * 2];
-                this.vertices[i * 2 + 1] = fakeVerticies[fakeIndicies[i] * 2 + 1];
+            for (let i = 0; i < fakeIndices.length; i++) {
+                this.vertices[i * 2] = fakeVertices[fakeIndices[i] * 2];
+                this.vertices[i * 2 + 1] = fakeVertices[fakeIndices[i] * 2 + 1];
 
-                this.uv[i * 2] = fakeUvs[fakeIndicies[i] * 2];
-                this.uv[i * 2 + 1] = fakeUvs[fakeIndicies[i] * 2 + 1];
+                this.uv[i * 2] = fakeUvs[fakeIndices[i] * 2];
+                this.uv[i * 2 + 1] = fakeUvs[fakeIndices[i] * 2 + 1];
 
                 this.alphas[i] = 1.0;
                 this.colors[i] = 0xFFFFFF;
             }
 
             // this.tintFill = true;
-            // for (let i = 0; i < fakeIndicies.length / 3; i++) {
+            // for (let i = 0; i < fakeIndices.length / 3; i++) {
             //     this.colors[i * 3] = 0xFF0000;
             //     this.colors[i * 3 + 1] = 0x00FF00;
             //     this.colors[i * 3 + 2] = 0x0000FF;

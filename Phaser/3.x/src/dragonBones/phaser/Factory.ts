@@ -64,5 +64,15 @@ namespace dragonBones.phaser {
 
             return armature.display as display.ArmatureDisplay;
         }
+
+        /**
+         * - A global sound event manager.
+         * Sound events can be listened to uniformly from the manager.
+         * @version DragonBones 4.5
+         * @language en_US
+         */
+        public get soundEventManager(): display.ArmatureDisplay {
+            return this._dragonBones.eventManager as display.ArmatureDisplay;
+        }        
     }
 }

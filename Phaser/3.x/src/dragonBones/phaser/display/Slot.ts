@@ -149,16 +149,16 @@ namespace dragonBones.phaser.display {
                         const meshDisplay = this._renderDisplay as SlotMesh;
                         const region = currentTextureData.region;
 
-                        meshDisplay.fakeVerticies = new Float32Array(vertexCount * 2) as any;
+                        meshDisplay.fakeVertices = new Float32Array(vertexCount * 2) as any;
                         meshDisplay.fakeUvs = new Float32Array(vertexCount * 2) as any;
-                        meshDisplay.fakeIndicies = new Uint16Array(triangleCount * 3);
+                        meshDisplay.fakeIndices = new Uint16Array(triangleCount * 3);
 
                         for (let i = 0, l = vertexCount * 2; i < l; ++i) {
-                            meshDisplay.fakeVerticies[i] = floatArray[vertexOffset + i] * scale;
+                            meshDisplay.fakeVertices[i] = floatArray[vertexOffset + i] * scale;
                         }
 
                         for (let i = 0; i < triangleCount * 3; ++i) {
-                            meshDisplay.fakeIndicies[i] = intArray[this._geometryData.offset + BinaryOffset.GeometryVertexIndices + i];
+                            meshDisplay.fakeIndices[i] = intArray[this._geometryData.offset + BinaryOffset.GeometryVertexIndices + i];
                         }
 
                         for (let i = 0, l = vertexCount * 2; i < l; i += 2) {
@@ -179,7 +179,7 @@ namespace dragonBones.phaser.display {
                         meshDisplay.texture = frame.texture;
                         meshDisplay.frame = frame;
 
-                        meshDisplay.updateVerticies();
+                        meshDisplay.updateVertices();
 
                         const isSkinned = this._geometryData.weight !== null;
                         const isSurface = this._parent._boneData.type !== BoneType.Bone;
@@ -253,8 +253,8 @@ namespace dragonBones.phaser.display {
                         }
                     }
 
-                    meshDisplay.fakeVerticies[iD++] = xG;
-                    meshDisplay.fakeVerticies[iD++] = yG;
+                    meshDisplay.fakeVertices[iD++] = xG;
+                    meshDisplay.fakeVertices[iD++] = yG;
                 }
             }
             else {
@@ -280,16 +280,16 @@ namespace dragonBones.phaser.display {
 
                     if (isSurface) {
                         const matrix = (this._parent as Surface)._getGlobalTransformMatrix(x, y);
-                        meshDisplay.fakeVerticies[i] = matrix.a * x + matrix.c * y + matrix.tx;
-                        meshDisplay.fakeVerticies[i + 1] = matrix.b * x + matrix.d * y + matrix.ty;
+                        meshDisplay.fakeVertices[i] = matrix.a * x + matrix.c * y + matrix.tx;
+                        meshDisplay.fakeVertices[i + 1] = matrix.b * x + matrix.d * y + matrix.ty;
                     }
                     else {
-                        meshDisplay.fakeVerticies[i] = x;
-                        meshDisplay.fakeVerticies[i + 1] = y;
+                        meshDisplay.fakeVertices[i] = x;
+                        meshDisplay.fakeVertices[i + 1] = y;
                     }
                 }
             }
-            meshDisplay.updateVerticies();
+            meshDisplay.updateVertices();
         }
 
         protected _updateTransform(): void {
