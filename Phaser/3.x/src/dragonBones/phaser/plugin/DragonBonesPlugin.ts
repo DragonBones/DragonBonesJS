@@ -81,6 +81,10 @@ namespace dragonBones.phaser.plugin {
             this.scene =
             this.systems = null;
         }
+
+        createMeshDisplayPlaceholder(): Phaser.GameObjects.Mesh {
+            return new display.SlotMesh(this.scene, 0, 0, [], [], [], [], null, null);
+        }
     }
 
     const CreateArmatureRegisterHandler = function(armature: string, dragonBones?: string, skinName?: string, atlasTextureName?: string): display.ArmatureDisplay {
