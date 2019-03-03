@@ -80,7 +80,7 @@ namespace dragonBones {
                             this._armature._sortZOrder(null, 0);
                         }
 
-                        prevPlayTimes = this.currentPlayTimes;
+                        // prevPlayTimes = this.currentPlayTimes; // TODO
 
                         if (eventActive && eventDispatcher.hasDBEventListener(EventObject.START)) {
                             const eventObject = BaseObject.borrowObject(EventObject);
