@@ -68,6 +68,20 @@ namespace dragonBones {
 
             return PixiFactory._factory;
         }
+
+        /**
+         * - 一个获取全局工厂实例(单例)的方法, 和get factory相比, 优点是可以传参数。
+         * @version DragonBones 4.7
+         * @language zh_CN
+         */
+        public static newInstance(useSharedTicker = true): PixiFactory {
+            if (PixiFactory._factory === null) {
+                PixiFactory._factory = new PixiFactory(null, useSharedTicker);
+            }
+
+            return PixiFactory._factory;
+        }
+
         /**
          * @inheritDoc
          */
