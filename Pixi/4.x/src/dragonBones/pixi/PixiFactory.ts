@@ -39,8 +39,11 @@ namespace dragonBones {
             this._dragonBonesInstance.advanceTime(PIXI.ticker.shared.elapsedMS * passedTime * 0.001);
         }
 
-        public static tick(elapsedSec: number): void {
-            this._dragonBonesInstance.advanceTime(elapsedSec);
+        /*
+         * `passedTime` is elapsed time, specified in seconds.
+         */
+        public static advanceTime(passedTime: number): void {
+            this._dragonBonesInstance.advanceTime(passedTime);
         }
 
         /**
