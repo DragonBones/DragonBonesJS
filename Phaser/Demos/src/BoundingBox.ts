@@ -23,7 +23,7 @@ class BoundingBox extends BaseDemo {
             "resource/mecha_2903/mecha_2903_tex.png",
             "resource/mecha_2903/mecha_2903_tex.json",
             "resource/mecha_2903/mecha_2903_ske.json"
-        );  
+        );
         this.load.dragonbone(
             "tester",
             "resource/bounding_box_tester/bounding_box_tester_tex.png",
@@ -34,15 +34,15 @@ class BoundingBox extends BaseDemo {
 
     create(): void {
         super.create();
-        
-        this._armatureDisplay = this.add.armature("mecha_2903d");
-        this._boundingBoxTester = this.add.armature("tester");
+
+        this._armatureDisplay = this.add.armature("mecha_2903d", "mecha_2903d");
+        this._boundingBoxTester = this.add.armature("tester", "tester");
         this._targetA = this._boundingBoxTester.armature.getSlot("target_a").display;
         this._targetB = this._boundingBoxTester.armature.getSlot("target_b").display;
         this._line = this._boundingBoxTester.armature.getBone("line");
         this._pointA = this._boundingBoxTester.armature.getBone("point_a");
         this._pointB = this._boundingBoxTester.armature.getBone("point_b");
-        
+
         const cx = this.cameras.main.centerX;
         const cy = this.cameras.main.centerY;
 
@@ -58,14 +58,14 @@ class BoundingBox extends BaseDemo {
         this._pointB.offsetMode = dragonBones.OffsetMode.Override;
         this._armatureDisplay.animation.play("walk");
         this._boundingBoxTester.animation.play("0");
-        
+
         const bA = this._targetA.getAt(0) as Phaser.GameObjects.Image;
         const bB = this._targetB.getAt(0) as Phaser.GameObjects.Image;
         this._targetA.setSize(bA.displayWidth, bA.displayHeight);
         DragHelper.getInstance().enableDrag(this, this._targetA);
         this._targetB.setSize(bB.displayWidth, bB.displayHeight);
         DragHelper.getInstance().enableDrag(this, this._targetB);
-        
+
         this.createText("Touch to drag bounding box tester.");
     }
 
@@ -78,7 +78,7 @@ class BoundingBox extends BaseDemo {
         this._helperMatrix.transformPoint(this._targetB.x, this._targetB.y, this._helpPointB);
         this._armatureDisplay.localTransform.transformPoint(this._helpPointA.x, this._helpPointA.y, this._helpPointA);
         this._armatureDisplay.localTransform.transformPoint(this._helpPointB.x, this._helpPointB.y, this._helpPointB);
-        
+
         const containsSlotA = this._armatureDisplay.armature.containsPoint(this._helpPointA.x, this._helpPointA.y);
         const containsSlotB = this._armatureDisplay.armature.containsPoint(this._helpPointB.x, this._helpPointB.y);
         const intersectsSlots = this._armatureDisplay.armature.intersectsSegment(this._helpPointA.x, this._helpPointA.y, this._helpPointB.x, this._helpPointB.y, this._helpPointA, this._helpPointB, this._helpPointC);
@@ -120,7 +120,7 @@ class BoundingBox extends BaseDemo {
                 this._helperMatrix.transformPoint(this._helpPointB.x, this._helpPointB.y, this._helpPointB);
                 this._boundingBoxTester.localTransform.transformPoint(this._helpPointA.x, this._helpPointA.y, this._helpPointA);
                 this._boundingBoxTester.localTransform.transformPoint(this._helpPointB.x, this._helpPointB.y, this._helpPointB);
-                
+
                 this._pointA.visible = true;
                 this._pointB.visible = true;
                 this._pointA.offset.x = this._helpPointA.x;

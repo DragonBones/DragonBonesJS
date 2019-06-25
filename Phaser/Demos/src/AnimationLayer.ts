@@ -12,12 +12,12 @@ class AnimationLayer extends BaseDemo {
             "resource/mecha_1004d/mecha_1004d_tex.png",
             "resource/mecha_1004d/mecha_1004d_tex.json",
             "resource/mecha_1004d/mecha_1004d_ske.json"
-        );  
+        );
     }
 
     create(): void {
         super.create();
-        this._armatureDisplay = this.add.armature("mecha_1004d");
+        this._armatureDisplay = this.add.armature("mecha_1004d", "mecha_1004d");
         this._armatureDisplay.addDBEventListener(dragonBones.EventObject.LOOP_COMPLETE, this._animationEventHandler, this);
         this._armatureDisplay.animation.play("walk");
 

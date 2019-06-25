@@ -17,6 +17,9 @@ namespace dragonBones.phaser.plugin {
                     renderer.addPipeline('PhaserTextureTintPipeline', new pipeline.TextureTintPipeline({ game, renderer }));
             }
 
+            // Add dragonBones only
+            pluginManager.registerGameObject("dragonBones", CreateDragonBonesRegisterHandler);
+            // Add armature, this will add dragonBones when not exist
             pluginManager.registerGameObject("armature", CreateArmatureRegisterHandler);
             pluginManager.registerFileType("dragonbone", DragonBoneFileRegisterHandler, scene);
         }
@@ -28,6 +31,10 @@ namespace dragonBones.phaser.plugin {
             this._dbInst.clock.add(display.armature);
 
             return display;
+        }
+
+        createDragonBones(dragonBonesName: string, textureScale = 1.0): DragonBonesData {
+            return this.factory.buildDragonBonesData(dragonBonesName, textureScale);
         }
 
         get factory(): Factory {  // lazy instancing
@@ -82,6 +89,10 @@ namespace dragonBones.phaser.plugin {
             this.systems = null;
         }
     }
+
+    const CreateDragonBonesRegisterHandler = function(dragonBonesName: string, textureScale = 1.0): DragonBonesData {
+        return this.scene.dragonbone.createDragonBones(dragonBonesName, textureScale);
+    };
 
     const CreateArmatureRegisterHandler = function(armature: string, dragonBones?: string, skinName?: string, atlasTextureName?: string): display.ArmatureDisplay {
         return this.scene.dragonbone.createArmature(armature, dragonBones, skinName, atlasTextureName);

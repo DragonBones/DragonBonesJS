@@ -10,14 +10,14 @@ class BoneOffset extends BaseDemo {
             "resource/bullet_01/bullet_01_tex.png",
             "resource/bullet_01/bullet_01_tex.json",
             "resource/bullet_01/bullet_01_ske.json",
-        );  
+        );
     }
 
     create(): void {
         super.create();
 
         for (let i = 0; i < 100; ++i) {
-            const armatureDisplay = this.add.armature("bullet_01");
+            const armatureDisplay = this.add.armature("bullet_01", "bullet_01");
             armatureDisplay.addDBEventListener(dragonBones.EventObject.COMPLETE, this._animationHandler, this);
             armatureDisplay.x = 0;
             armatureDisplay.y = 0;
