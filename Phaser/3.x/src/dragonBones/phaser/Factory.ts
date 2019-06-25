@@ -45,7 +45,7 @@ namespace dragonBones.phaser {
             return slot;
         }
 
-        buildArmatureDisplay(armatureName: string, dragonBonesName: string = "", skinName: string = "", textureAtlasName: string = "", textureScale = 1.0): display.ArmatureDisplay {
+        buildArmatureDisplay(armatureName: string, dragonBonesName: string, skinName: string = "", textureAtlasName: string = "", textureScale = 1.0): display.ArmatureDisplay {
             let armature: dragonBones.Armature;
 
             if (!this._dragonBonesDataMap[dragonBonesName]) {
