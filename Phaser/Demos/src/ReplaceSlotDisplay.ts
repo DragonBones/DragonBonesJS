@@ -33,13 +33,16 @@ class ReplaceSlotDisplay extends BaseDemo {
 
         this._factory = this.dragonbone.factory;
 
-        this._armatureDisplay = this.add.armature("mecha_1004d");
+        this._armatureDisplay = this.add.armature("mecha_1004d", "mecha_1004d");
         this._armatureDisplay.animation.play();
+
+        // Dragonbones data will be finded only when add.armature or add.dragonBones called, this makes replaceSlotDisplay work
+        this.add.dragonBones("weapon_1004");
         //
         this._armatureDisplay.x = this.cameras.main.centerX + 100.0;
         this._armatureDisplay.y = this.cameras.main.centerY + 200.0;
         //
-        this.input.addDownCallback(() => {
+        this.input.on('pointerdown', () => {
             const localX = this.input.x - this._armatureDisplay.x;
             if (localX < -150.0)
                 this._replaceDisplay(-1);
@@ -47,7 +50,7 @@ class ReplaceSlotDisplay extends BaseDemo {
                 this._replaceDisplay(1);
             else
                 this._replaceDisplay(0);
-        }, false);
+        });
         //
         this.createText("Touch screen left / center / right to replace slot display.");
     }

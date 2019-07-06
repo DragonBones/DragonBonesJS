@@ -16,16 +16,16 @@ class ReplaceAnimation extends BaseDemo {
             "resource/mecha_2903/mecha_2903_tex.png",
             "resource/mecha_2903/mecha_2903_tex.json",
             "resource/mecha_2903/mecha_2903_ske.json"
-        );  
+        );
     }
 
     create(): void {
         super.create();
 
-        this._armatureDisplayA = this.add.armature("mecha_2903");
-        this._armatureDisplayB = this.add.armature("mecha_2903b");
-        this._armatureDisplayC = this.add.armature("mecha_2903c");
-        this._armatureDisplayD = this.add.armature("mecha_2903d");
+        this._armatureDisplayA = this.add.armature("mecha_2903", "mecha_2903");
+        this._armatureDisplayB = this.add.armature("mecha_2903b", "mecha_2903");
+        this._armatureDisplayC = this.add.armature("mecha_2903c", "mecha_2903");
+        this._armatureDisplayD = this.add.armature("mecha_2903d", "mecha_2903");
 
         const factory = this.dragonbone.factory;
         const sourceArmatureData = factory.getArmatureData("mecha_2903d");
@@ -44,12 +44,12 @@ class ReplaceAnimation extends BaseDemo {
         this._armatureDisplayC.y = cy + 150.0;
         this._armatureDisplayD.x = cx;
         this._armatureDisplayD.y = cy - 50.0;
-        
+
         this.input.enabled = true;
-        this.input.addDownCallback(() => {
+        this.input.on('pointerdown', () => {
             this._changeAnimation();
-        }, false);
-        
+        });
+
         this.createText("Touch to change animation.");
     }
 

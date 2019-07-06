@@ -36,8 +36,8 @@ class InverseKinematics extends BaseDemo {
     create(): void {
         super.create();
 
-        this._armatureDisplay = this.add.armature("mecha_1406");
-        this._floorBoard = this.add.armature("floor_board");
+        this._armatureDisplay = this.add.armature("mecha_1406", "mecha_1406");
+        this._floorBoard = this.add.armature("floor_board", "floor_board");
         //
         this._chestBone = this._armatureDisplay.armature.getBone("chest");
         this._leftFootBone = this._armatureDisplay.armature.getBone("foot_l");

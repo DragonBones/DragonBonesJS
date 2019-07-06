@@ -30,14 +30,14 @@ namespace coreElement {
 
             Game.GROUND = this.cameras.main.height - 150.0;
             Game.instance = this;
-            
-            this.input.addDownCallback(() => this._inputDown(), false);
-            this.input.addUpCallback(() => this._inputUp(), false);
+
+            this.input.on('pointerdown', () => this._inputDown());
+            this.input.on('pointerup', () => this._inputUp());
             document.addEventListener("keydown", this._keyHandler);
             document.addEventListener("keyup", this._keyHandler);
-            
+
             this.createText("Press W/A/S/D to move. Press Q/E/SPACE to switch weapons and skin. Touch to aim and fire.");
-            
+
             this._player = new Mecha(this);
         }
 
@@ -172,7 +172,9 @@ namespace coreElement {
         public constructor(scene: Phaser.Scene) {
             this.scene = scene;
 
-            this._armatureDisplay = this.scene.add.armature("mecha_1502b");
+            this.scene.add.dragonBones("skin_1502b");
+            this.scene.add.dragonBones("weapon_1000");
+            this._armatureDisplay = this.scene.add.armature("mecha_1502b", "mecha_1502b");
             this._armatureDisplay.x = this.scene.cameras.main.centerX;
             this._armatureDisplay.y = Game.GROUND;
             this._armature = this._armatureDisplay.armature;
@@ -235,7 +237,11 @@ namespace coreElement {
             this._weaponLIndex++;
             this._weaponLIndex %= Mecha.WEAPON_L_LIST.length;
             const weaponName = Mecha.WEAPON_L_LIST[this._weaponLIndex];
-            this._weaponL = this.scene.dragonbone.factory.buildArmature(weaponName);
+            if (weaponName === "weapon_1502b_l" || weaponName === "weapon_1502b_r") {
+                this._weaponL = this.scene.dragonbone.factory.buildArmature(weaponName, "mecha_1502b");
+            } else {
+                this._weaponL = this.scene.dragonbone.factory.buildArmature(weaponName, "weapon_1000");
+            }
             this._armature.getSlot("weapon_l").childArmature = this._weaponL;
             this._weaponL.eventDispatcher.addDBEventListener(dragonBones.EventObject.FRAME_EVENT, this._frameEventHandler, this);
         }
@@ -246,7 +252,11 @@ namespace coreElement {
             this._weaponRIndex++;
             this._weaponRIndex %= Mecha.WEAPON_R_LIST.length;
             const weaponName = Mecha.WEAPON_R_LIST[this._weaponRIndex];
-            this._weaponR = this.scene.dragonbone.factory.buildArmature(weaponName);
+            if (weaponName === "weapon_1502b_l" || weaponName === "weapon_1502b_r") {
+                this._weaponR = this.scene.dragonbone.factory.buildArmature(weaponName, "mecha_1502b");
+            } else {
+                this._weaponR = this.scene.dragonbone.factory.buildArmature(weaponName, "weapon_1000");
+            }
             this._armature.getSlot("weapon_r").childArmature = this._weaponR;
             this._weaponR.eventDispatcher.addDBEventListener(dragonBones.EventObject.FRAME_EVENT, this._frameEventHandler, this);
         }
@@ -375,7 +385,7 @@ namespace coreElement {
         private _updatePosition(): void {
             if (this._speedX !== 0.0) {
                 this._armatureDisplay.x += this._speedX;
-                
+
                 const sw = this.scene.cameras.main.width;
                 const border = 20;
 
@@ -491,13 +501,13 @@ namespace coreElement {
             this._speedY = Math.sin(radian) * speed;
             this.scene = scene;
 
-            this._armatureDisplay = this.scene.add.armature(armatureName);
+            this._armatureDisplay = this.scene.add.armature(armatureName, "mecha_1502b");
             this._armatureDisplay.x = position.x + Math.random() * 2 - 1;
             this._armatureDisplay.y = position.y + Math.random() * 2 - 1;
             this._armatureDisplay.rotation = radian;
 
             if (effectArmatureName !== null) {
-                this._effecDisplay = this.scene.add.armature(effectArmatureName);
+                this._effecDisplay = this.scene.add.armature(effectArmatureName, "mecha_1502b");
                 this._effecDisplay.rotation = radian;
                 this._effecDisplay.x = this._armatureDisplay.x;
                 this._effecDisplay.y = this._armatureDisplay.y;
