@@ -1,11 +1,8 @@
 "use strict";
 var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    }
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -104,6 +101,47 @@ var dragonBones;
     }());
     dragonBones.DragonBones = DragonBones;
 })(dragonBones || (dragonBones = {}));
+//
+if (!console.warn) {
+    console.warn = function () { };
+}
+if (!console.assert) {
+    console.assert = function () { };
+}
+//
+if (!Date.now) {
+    Date.now = function now() {
+        return new Date().getTime();
+    };
+}
+// Weixin can not support typescript extends.
+var __extends = function (t, e) {
+    function r() {
+        this.constructor = t;
+    }
+    for (var i in e) {
+        if (e.hasOwnProperty(i)) {
+            t[i] = e[i];
+        }
+    }
+    r.prototype = e.prototype, t.prototype = new r();
+};
+//
+if (typeof global === "undefined" && typeof window !== "undefined") {
+    var global = window;
+}
+if (typeof exports === "object" && typeof module === "object") {
+    module.exports = dragonBones;
+}
+else if (typeof define === "function" && define["amd"]) {
+    define(["dragonBones"], function () { return dragonBones; });
+}
+else if (typeof exports === "object") {
+    exports = dragonBones;
+}
+else if (typeof global !== "undefined") {
+    global.dragonBones = dragonBones;
+}
 /**
  * The MIT License (MIT)
  *
@@ -6636,7 +6674,7 @@ var dragonBones;
         };
         IKConstraint.prototype._onClear = function () {
             _super.prototype._onClear.call(this);
-            // this._scaleEnabled = false;
+            this._scaleEnabled = false;
             this._bendPositive = false;
             this._weight = 1.0;
             this._constraintData = null;
@@ -6732,7 +6770,7 @@ var dragonBones;
             this._bone = this._constraintData.bone !== null ? this._armature.getBone(this._constraintData.bone.name) : null;
             {
                 var ikConstraintData = this._constraintData;
-                // this._scaleEnabled = ikConstraintData.scaleEnabled;
+                this._scaleEnabled = ikConstraintData.scaleEnabled;
                 this._bendPositive = ikConstraintData.bendPositive;
                 this._weight = ikConstraintData.weight;
             }
@@ -9798,7 +9836,7 @@ var dragonBones;
         TimelineState.prototype._onClear = function () {
             this.dirty = false;
             this.playState = -1;
-            this.currentPlayTimes = -1;
+            this.currentPlayTimes = 0;
             this.currentTime = -1.0;
             this.target = null;
             this._isTween = false;
@@ -10321,7 +10359,7 @@ var dragonBones;
                         if (this._animationState.displayControl && this._animationState.resetToPose) { // Reset zorder to pose.
                             this._armature._sortZOrder(null, 0);
                         }
-                        prevPlayTimes = this.currentPlayTimes;
+                        // prevPlayTimes = this.currentPlayTimes; // TODO
                         if (eventActive && eventDispatcher.hasDBEventListener(dragonBones.EventObject.START)) {
                             var eventObject = dragonBones.BaseObject.borrowObject(dragonBones.EventObject);
                             eventObject.type = dragonBones.EventObject.START;
@@ -15898,6 +15936,9 @@ var dragonBones;
                         if (!renderer.hasPipeline('PhaserTextureTintPipeline'))
                             renderer.addPipeline('PhaserTextureTintPipeline', new phaser.pipeline.TextureTintPipeline({ game: game, renderer: renderer }));
                     }
+                    // Add dragonBones only
+                    pluginManager.registerGameObject("dragonBones", CreateDragonBonesRegisterHandler);
+                    // Add armature, this will add dragonBones when not exist
                     pluginManager.registerGameObject("armature", CreateArmatureRegisterHandler);
                     pluginManager.registerFileType("dragonbone", DragonBoneFileRegisterHandler, scene);
                     return _this;
@@ -15909,6 +15950,10 @@ var dragonBones;
                     // use db.clock instead, if here we just use this.systems.updateList.add(display), that will cause the db event is dispatched with 1 or more frames delay
                     this._dbInst.clock.add(display.armature);
                     return display;
+                };
+                DragonBonesScenePlugin.prototype.createDragonBones = function (dragonBonesName, textureScale) {
+                    if (textureScale === void 0) { textureScale = 1.0; }
+                    return this.factory.buildDragonBonesData(dragonBonesName, textureScale);
                 };
                 Object.defineProperty(DragonBonesScenePlugin.prototype, "factory", {
                     get: function () {
@@ -15957,6 +16002,10 @@ var dragonBones;
                 return DragonBonesScenePlugin;
             }(Phaser.Plugins.ScenePlugin));
             plugin.DragonBonesScenePlugin = DragonBonesScenePlugin;
+            var CreateDragonBonesRegisterHandler = function (dragonBonesName, textureScale) {
+                if (textureScale === void 0) { textureScale = 1.0; }
+                return this.scene.dragonbone.createDragonBones(dragonBonesName, textureScale);
+            };
             var CreateArmatureRegisterHandler = function (armature, dragonBones, skinName, atlasTextureName) {
                 return this.scene.dragonbone.createArmature(armature, dragonBones, skinName, atlasTextureName);
             };
@@ -16005,27 +16054,32 @@ var dragonBones;
                 slot.init(slotData, armature, rawDisplay, meshDisplay);
                 return slot;
             };
+            // dragonBonesName must be assigned, or can't find in cache inside
             Factory.prototype.buildArmatureDisplay = function (armatureName, dragonBonesName, skinName, textureAtlasName, textureScale) {
-                if (dragonBonesName === void 0) { dragonBonesName = ""; }
                 if (skinName === void 0) { skinName = ""; }
                 if (textureAtlasName === void 0) { textureAtlasName = ""; }
                 if (textureScale === void 0) { textureScale = 1.0; }
                 var armature;
-                if (!this._dragonBonesDataMap[dragonBonesName]) {
+                if (this.buildDragonBonesData(dragonBonesName, textureScale)) {
+                    armature = this.buildArmature(armatureName, dragonBonesName, skinName, textureAtlasName);
+                }
+                return armature.display;
+            };
+            Factory.prototype.buildDragonBonesData = function (dragonBonesName, textureScale) {
+                if (textureScale === void 0) { textureScale = 1.0; }
+                var data = this._dragonBonesDataMap[dragonBonesName];
+                if (!data) {
                     var cache = this._scene.cache;
                     var boneRawData = cache.custom.dragonbone.get(dragonBonesName);
-                    if (boneRawData != null) {
+                    if (boneRawData) {
                         // parse raw data and add to cache map
-                        this.parseDragonBonesData(boneRawData, dragonBonesName, textureScale);
+                        data = this.parseDragonBonesData(boneRawData, dragonBonesName, textureScale);
                         var texture = this._scene.textures.get(dragonBonesName);
                         var json = cache.json.get(dragonBonesName + "_atlasjson");
                         this.parseTextureAtlasData(json, texture, texture.key, textureScale);
-                        armature = this.buildArmature(armatureName, dragonBonesName, skinName, textureAtlasName);
                     }
                 }
-                else
-                    armature = this.buildArmature(armatureName, dragonBonesName, skinName, textureAtlasName);
-                return armature.display;
+                return data;
             };
             return Factory;
         }(dragonBones_3.BaseFactory));

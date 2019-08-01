@@ -5,7 +5,7 @@ var __extends = (this && this.__extends) || (function () {
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    }
+    };
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -29,8 +29,8 @@ var InverseKinematics = /** @class */ (function (_super) {
     };
     InverseKinematics.prototype.create = function () {
         _super.prototype.create.call(this);
-        this._armatureDisplay = this.add.armature("mecha_1406");
-        this._floorBoard = this.add.armature("floor_board");
+        this._armatureDisplay = this.add.armature("mecha_1406", "mecha_1406");
+        this._floorBoard = this.add.armature("floor_board", "floor_board");
         //
         this._chestBone = this._armatureDisplay.armature.getBone("chest");
         this._leftFootBone = this._armatureDisplay.armature.getBone("foot_l");

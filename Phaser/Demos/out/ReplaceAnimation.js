@@ -5,7 +5,7 @@ var __extends = (this && this.__extends) || (function () {
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    }
+    };
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -24,10 +24,10 @@ var ReplaceAnimation = /** @class */ (function (_super) {
     ReplaceAnimation.prototype.create = function () {
         var _this = this;
         _super.prototype.create.call(this);
-        this._armatureDisplayA = this.add.armature("mecha_2903");
-        this._armatureDisplayB = this.add.armature("mecha_2903b");
-        this._armatureDisplayC = this.add.armature("mecha_2903c");
-        this._armatureDisplayD = this.add.armature("mecha_2903d");
+        this._armatureDisplayA = this.add.armature("mecha_2903", "mecha_2903");
+        this._armatureDisplayB = this.add.armature("mecha_2903b", "mecha_2903");
+        this._armatureDisplayC = this.add.armature("mecha_2903c", "mecha_2903");
+        this._armatureDisplayD = this.add.armature("mecha_2903d", "mecha_2903");
         var factory = this.dragonbone.factory;
         var sourceArmatureData = factory.getArmatureData("mecha_2903d");
         factory.replaceAnimation(this._armatureDisplayA.armature, sourceArmatureData);
@@ -44,9 +44,9 @@ var ReplaceAnimation = /** @class */ (function (_super) {
         this._armatureDisplayD.x = cx;
         this._armatureDisplayD.y = cy - 50.0;
         this.input.enabled = true;
-        this.input.addDownCallback(function () {
+        this.input.on('pointerdown', function () {
             _this._changeAnimation();
-        }, false);
+        });
         this.createText("Touch to change animation.");
     };
     ReplaceAnimation.prototype._changeAnimation = function () {

@@ -5,7 +5,7 @@ var __extends = (this && this.__extends) || (function () {
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    }
+    };
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -29,8 +29,8 @@ var BoundingBox = /** @class */ (function (_super) {
     };
     BoundingBox.prototype.create = function () {
         _super.prototype.create.call(this);
-        this._armatureDisplay = this.add.armature("mecha_2903d");
-        this._boundingBoxTester = this.add.armature("tester");
+        this._armatureDisplay = this.add.armature("mecha_2903d", "mecha_2903d");
+        this._boundingBoxTester = this.add.armature("tester", "tester");
         this._targetA = this._boundingBoxTester.armature.getSlot("target_a").display;
         this._targetB = this._boundingBoxTester.armature.getSlot("target_b").display;
         this._line = this._boundingBoxTester.armature.getBone("line");

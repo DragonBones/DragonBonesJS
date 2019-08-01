@@ -291,10 +291,6 @@ declare namespace dragonBones {
         readonly eventManager: IEventDispatcher;
     }
 }
-declare var __extends: any;
-declare var exports: any;
-declare var module: any;
-declare var define: any;
 /**
  * The MIT License (MIT)
  *
@@ -6361,28 +6357,41 @@ declare namespace dragonBones.phaser.pipeline {
     }
 }
 declare namespace dragonBones.phaser.plugin {
+    interface FileTypeClass {
+        new (...args: any[]): Phaser.Loader.File;
+    }
+    const FileTypes: {
+        IMAGE: string;
+        JSON: string;
+        BINARY: string;
+        map: {
+            imageFile: typeof Phaser.Loader.FileTypes.ImageFile;
+            jsonFile: typeof Phaser.Loader.FileTypes.JSONFile;
+            binaryFile: typeof Phaser.Loader.FileTypes.BinaryFile;
+        };
+        setType: (type: string, clazz: FileTypeClass) => void;
+        getType: (type: string) => FileTypeClass;
+    };
+}
+declare namespace dragonBones.phaser.plugin {
     class DragonBonesFile extends Phaser.Loader.MultiFile {
-        private _scale;
-        constructor(loader: Phaser.Loader.LoaderPlugin, key: string | object, textureURL?: string, atlasURL?: string, boneURL?: string, textureXhrSettings?: XHRSettingsObject, atlasXhrSettings?: XHRSettingsObject, boneXhrSettings?: XHRSettingsObject, scale?: number);
+        constructor(loader: Phaser.Loader.LoaderPlugin, key: string | object, textureURL?: string, atlasURL?: string, boneURL?: string, textureXhrSettings?: XHRSettingsObject, atlasXhrSettings?: XHRSettingsObject, boneXhrSettings?: XHRSettingsObject);
         addToCache(): void;
     }
 }
 declare namespace dragonBones.phaser.plugin {
-    class DragonBonesPlugin extends Phaser.Plugins.BasePlugin {
-        private _dbInst;
-        constructor(pluginManager: Phaser.Plugins.PluginManager);
-        start(): void;
-        stop(): void;
-        destroy(): void;
-        private updateDBInst;
-        readonly dbInstance: DragonBones;
-    }
     class DragonBonesScenePlugin extends Phaser.Plugins.ScenePlugin {
-        private _factory;
+        protected _dbInst: dragonBones.DragonBones;
+        protected _factory: Factory;
         constructor(scene: Phaser.Scene, pluginManager: Phaser.Plugins.PluginManager);
-        createArmature(armature: string, dragonBones?: string, skinName?: string, atlasTextureName?: string): display.ArmatureDisplay;
+        createArmature(armature: string, dragonBones?: string, skinName?: string, atlasTextureName?: string, textureScale?: number): display.ArmatureDisplay;
         readonly factory: Factory;
         createSlotDisplayPlaceholder(): display.SlotImage | display.SlotSprite;
+        boot(): void;
+        start(): void;
+        private update;
+        shutdown(): void;
+        destroy(): void;
     }
 }
 declare namespace dragonBones.phaser {
@@ -6391,9 +6400,9 @@ declare namespace dragonBones.phaser {
         protected _dragonBones: DragonBones;
         constructor(dragonBones: DragonBones, scene: Phaser.Scene, dataParser?: DataParser);
         protected _isSupportMesh(): boolean;
-        protected _buildTextureAtlasData(textureAtlasData: display.TextureAtlasData, textureAtlas: any): TextureAtlasData;
+        protected _buildTextureAtlasData(textureAtlasData: display.TextureAtlasData, textureAtlas: Phaser.Textures.Texture): TextureAtlasData;
         protected _buildArmature(dataPackage: BuildArmaturePackage): Armature;
         protected _buildSlot(dataPackage: BuildArmaturePackage, slotData: SlotData, armature: Armature): Slot;
-        buildArmatureDisplay(armatureName: string, dragonBonesName?: string, skinName?: string, textureAtlasName?: string): display.ArmatureDisplay;
+        buildArmatureDisplay(armatureName: string, dragonBonesName?: string, skinName?: string, textureAtlasName?: string, textureScale?: number): display.ArmatureDisplay;
     }
 }

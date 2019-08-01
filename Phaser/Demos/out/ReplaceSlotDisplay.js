@@ -5,7 +5,7 @@ var __extends = (this && this.__extends) || (function () {
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    }
+    };
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -30,13 +30,15 @@ var ReplaceSlotDisplay = /** @class */ (function (_super) {
         var _this = this;
         _super.prototype.create.call(this);
         this._factory = this.dragonbone.factory;
-        this._armatureDisplay = this.add.armature("mecha_1004d");
+        this._armatureDisplay = this.add.armature("mecha_1004d", "mecha_1004d");
         this._armatureDisplay.animation.play();
+        // Dragonbones data will be finded only when add.armature called, this makes replaceSlotDisplay work
+        this.add.armature("weapon", "weapon_1004");
         //
         this._armatureDisplay.x = this.cameras.main.centerX + 100.0;
         this._armatureDisplay.y = this.cameras.main.centerY + 200.0;
         //
-        this.input.addDownCallback(function () {
+        this.input.on('pointerdown', function () {
             var localX = _this.input.x - _this._armatureDisplay.x;
             if (localX < -150.0)
                 _this._replaceDisplay(-1);
@@ -44,7 +46,7 @@ var ReplaceSlotDisplay = /** @class */ (function (_super) {
                 _this._replaceDisplay(1);
             else
                 _this._replaceDisplay(0);
-        }, false);
+        });
         //
         this.createText("Touch screen left / center / right to replace slot display.");
     };

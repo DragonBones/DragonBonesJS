@@ -5,7 +5,7 @@ var __extends = (this && this.__extends) || (function () {
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    }
+    };
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -26,7 +26,7 @@ var AnimationBase = /** @class */ (function (_super) {
     AnimationBase.prototype.create = function () {
         var _this = this;
         _super.prototype.create.call(this);
-        this._armatureDisplay = this.add.armature("progress_bar");
+        this._armatureDisplay = this.add.armature("progress_bar", "progress_bar");
         this._armatureDisplay.x = this.cameras.main.centerX;
         this._armatureDisplay.y = this.cameras.main.centerY;
         this._armatureDisplay.addDBEventListener(dragonBones.EventObject.START, this._animationEventHandler, this);
@@ -39,8 +39,8 @@ var AnimationBase = /** @class */ (function (_super) {
         this._armatureDisplay.addDBEventListener(dragonBones.EventObject.FRAME_EVENT, this._animationEventHandler, this);
         this._armatureDisplay.animation.play("idle");
         this.input.enabled = true;
-        this.input.addDownCallback(function () { return _this._inputDown(); }, false);
-        this.input.addUpCallback(function () { return _this._inputUp(); }, false);
+        this.input.on('pointerdown', function () { return _this._inputDown(); });
+        this.input.on('pointerup', function () { return _this._inputUp(); });
         this.createText("Touch to control animation play progress.");
     };
     AnimationBase.prototype._inputDown = function () {
