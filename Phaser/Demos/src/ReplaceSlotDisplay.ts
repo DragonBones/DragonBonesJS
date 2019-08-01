@@ -36,7 +36,6 @@ class ReplaceSlotDisplay extends BaseDemo {
         this._armatureDisplay = this.add.armature("mecha_1004d", "mecha_1004d");
         this._armatureDisplay.animation.play();
 
-        // Dragonbones data will be finded only when add.armature called, this makes replaceSlotDisplay work
         this.add.armature("weapon", "weapon_1004");
         //
         this._armatureDisplay.x = this.cameras.main.centerX + 100.0;
