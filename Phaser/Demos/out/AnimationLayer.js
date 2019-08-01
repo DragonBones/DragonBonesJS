@@ -5,7 +5,7 @@ var __extends = (this && this.__extends) || (function () {
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    }
+    };
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -23,7 +23,7 @@ var AnimationLayer = /** @class */ (function (_super) {
     };
     AnimationLayer.prototype.create = function () {
         _super.prototype.create.call(this);
-        this._armatureDisplay = this.add.armature("mecha_1004d");
+        this._armatureDisplay = this.add.armature("mecha_1004d", "mecha_1004d");
         this._armatureDisplay.addDBEventListener(dragonBones.EventObject.LOOP_COMPLETE, this._animationEventHandler, this);
         this._armatureDisplay.animation.play("walk");
         this._armatureDisplay.x = this.cameras.main.centerX;
