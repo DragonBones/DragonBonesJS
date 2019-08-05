@@ -15661,37 +15661,32 @@ var dragonBones;
                         var uvOffset = vertexOffset + vertexCount * 2;
                         var scale = this._armature._armatureData.scale;
                         var meshDisplay = this._renderDisplay;
-                        var textureAtlasWidth = currentTextureAtlasData.width > 0.0 ? currentTextureAtlasData.width : renderTexture.baseTexture.width;
-                        var textureAtlasHeight = currentTextureAtlasData.height > 0.0 ? currentTextureAtlasData.height : renderTexture.baseTexture.height;
-                        var region = currentTextureData.region;
-                        meshDisplay.vertices = new Float32Array(vertexCount * 2);
-                        meshDisplay.geometry.getBuffer('aTextureCoord').data = new Float32Array(vertexCount * 2);
-                        meshDisplay.geometry.getIndex().data = new Uint16Array(triangleCount * 3);
+                        var vertices = new Float32Array(vertexCount * 2);
+                        var uvs = new Float32Array(vertexCount * 2);
+                        var indices = new Uint16Array(triangleCount * 3);
                         for (var i = 0, l = vertexCount * 2; i < l; ++i) {
-                            meshDisplay.vertices[i] = floatArray[vertexOffset + i] * scale;
+                            vertices[i] = floatArray[vertexOffset + i] * scale;
                         }
                         for (var i = 0; i < triangleCount * 3; ++i) {
-                            // @ts-ignore
-                            meshDisplay.geometry.getIndex().data[i] = intArray[this._geometryData.offset + 4 /* GeometryVertexIndices */ + i];
+                            indices[i] = intArray[this._geometryData.offset + 4 /* GeometryVertexIndices */ + i];
                         }
                         for (var i = 0, l = vertexCount * 2; i < l; i += 2) {
                             var u = floatArray[uvOffset + i];
                             var v = floatArray[uvOffset + i + 1];
                             if (currentTextureData.rotated) {
-                                // @ts-ignore
-                                meshDisplay.geometry.getBuffer('aTextureCoord').data[i] = (region.x + (1.0 - v) * region.width) / textureAtlasWidth;
-                                // @ts-ignore
-                                meshDisplay.geometry.getBuffer('aTextureCoord').data[i + 1] = (region.y + u * region.height) / textureAtlasHeight;
+                                uvs[i] = 1 - v;
+                                uvs[i + 1] = u;
                             }
                             else {
-                                // @ts-ignore
-                                meshDisplay.geometry.getBuffer('aTextureCoord').data[i] = (region.x + u * region.width) / textureAtlasWidth;
-                                // @ts-ignore
-                                meshDisplay.geometry.getBuffer('aTextureCoord').data[i + 1] = (region.y + v * region.height) / textureAtlasHeight;
+                                uvs[i] = u;
+                                uvs[i + 1] = v;
                             }
                         }
                         this._textureScale = 1.0;
                         meshDisplay.texture = renderTexture;
+                        meshDisplay.vertices = vertices;
+                        meshDisplay.uvBuffer.update(uvs);
+                        meshDisplay.geometry.addIndex(indices);
                         var isSkinned = this._geometryData.weight !== null;
                         var isSurface = this._parent._boneData.type !== 0 /* Bone */;
                         if (isSkinned || isSurface) {
@@ -15943,7 +15938,7 @@ var dragonBones;
         };
         PixiFactory.prototype._buildSlot = function (_dataPackage, slotData, armature) {
             var slot = dragonBones.BaseObject.borrowObject(dragonBones.PixiSlot);
-            slot.init(slotData, armature, new PIXI.Sprite(PIXI.Texture.EMPTY), new PIXI.SimpleMesh(null, null, null, null, PIXI.DRAW_MODES.TRIANGLES));
+            slot.init(slotData, armature, new PIXI.Sprite(PIXI.Texture.EMPTY), new PIXI.SimpleMesh());
             return slot;
         };
         /**
