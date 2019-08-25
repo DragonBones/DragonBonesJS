@@ -83,7 +83,7 @@ namespace dragonBones.phaser.plugin {
                 json.addToCache();
                 bone.addToCache();
                 this.loader.textureManager.addImage(image.key, image.data);
-                image.pendingDestroy();
+                image.addToCache();
 
                 this.complete = true;
             }
