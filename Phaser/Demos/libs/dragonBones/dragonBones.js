@@ -13641,13 +13641,13 @@ var dragonBones;
             var lTotal = l1 + l2 + l3 + l4 + l5 + l6 + l7;
             //
             var binary = new ArrayBuffer(lTotal);
-            var intArray = new Int16Array(binary, 0, this._intArray.length);
+            var intArray = new Uint16Array(binary, 0, this._intArray.length);
             var floatArray = new Float32Array(binary, l1, this._floatArray.length);
             var frameIntArray = new Int16Array(binary, l1 + l2, this._frameIntArray.length);
             var frameFloatArray = new Float32Array(binary, l1 + l2 + l3, this._frameFloatArray.length);
             var frameArray = new Int16Array(binary, l1 + l2 + l3 + l4, this._frameArray.length);
             var timelineArray = new Uint16Array(binary, l1 + l2 + l3 + l4 + l5, this._timelineArray.length);
-            var colorArray = new Int16Array(binary, l1 + l2 + l3 + l4 + l5 + l6, this._colorArray.length);
+            var colorArray = new Uint16Array(binary, l1 + l2 + l3 + l4 + l5 + l6, this._colorArray.length);
             for (var i = 0, l = this._intArray.length; i < l; ++i) {
                 intArray[i] = this._intArray[i];
             }
@@ -14121,13 +14121,13 @@ var dragonBones;
             var l5 = offsets[9];
             var l6 = offsets[11];
             var l7 = offsets.length > 12 ? offsets[13] : 0; // Color.
-            var intArray = new Int16Array(this._binary, this._binaryOffset + offsets[0], l1 / Int16Array.BYTES_PER_ELEMENT);
+            var intArray = new Uint16Array(this._binary, this._binaryOffset + offsets[0], l1 / Uint16Array.BYTES_PER_ELEMENT);
             var floatArray = new Float32Array(this._binary, this._binaryOffset + offsets[2], l2 / Float32Array.BYTES_PER_ELEMENT);
             var frameIntArray = new Int16Array(this._binary, this._binaryOffset + offsets[4], l3 / Int16Array.BYTES_PER_ELEMENT);
             var frameFloatArray = new Float32Array(this._binary, this._binaryOffset + offsets[6], l4 / Float32Array.BYTES_PER_ELEMENT);
             var frameArray = new Int16Array(this._binary, this._binaryOffset + offsets[8], l5 / Int16Array.BYTES_PER_ELEMENT);
             var timelineArray = new Uint16Array(this._binary, this._binaryOffset + offsets[10], l6 / Uint16Array.BYTES_PER_ELEMENT);
-            var colorArray = l7 > 0 ? new Int16Array(this._binary, this._binaryOffset + offsets[12], l7 / Int16Array.BYTES_PER_ELEMENT) : intArray; // Color.
+            var colorArray = l7 > 0 ? new Uint16Array(this._binary, this._binaryOffset + offsets[12], l7 / Uint16Array.BYTES_PER_ELEMENT) : intArray; // Color.
             this._data.binary = this._binary;
             this._data.intArray = this._intArrayBuffer = intArray;
             this._data.floatArray = floatArray;
@@ -15908,7 +15908,7 @@ var dragonBones;
                         var bone = this.files[2];
                         json.addToCache();
                         bone.addToCache();
-                        this.loader.textureManager.addImage(image.key, image.data);
+                        image.addToCache();
                         this.complete = true;
                     }
                 };
