@@ -35,8 +35,8 @@ var DragHelper = /** @class */ (function () {
                     this._helpPoint.x = event.data.global.x;
                     this._helpPoint.y = event.data.global.y;
                     armatureDisplay.toLocal(this._helpPoint, this.stage, this._helpPoint);
-                    if (bone.offsetMode !== dragonBones.OffsetMode.Override) {
-                        bone.offsetMode = dragonBones.OffsetMode.Override;
+                    if (bone.offsetMode !== 2 /* Override */) {
+                        bone.offsetMode = 2 /* Override */;
                         bone.offset.x = bone.global.x;
                         bone.offset.y = bone.global.y;
                     }
