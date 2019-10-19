@@ -3,6 +3,7 @@
   "version": "5.6.2",
   "main": "",
   "scripts": {
+    "first-build": "cd ../4.x && npm install && npm run build && cd ../Demos && npm run start",
     "start": "tsc & copyfiles -u 3 -s ../4.x/out/* libs/dragonBones/ & anywhere",
     "upgradeA": "cd .. & cd 4.x & npm run build & cd .. & cd Demos",
     "upgradeB": "copyfiles -u 3 ../4.x/out/* libs/dragonBones/",

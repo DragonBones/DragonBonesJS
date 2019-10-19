@@ -1,5 +1,8 @@
 ## How to run
-* $ `npm install`
+* $ `npm install` to install Demo dependencies
+* $ `npm run first-build` when running for the first time. This will install the 4.x dependencies, build it, and the run the local server.
+
+Otherwise, if not running for the first time, you can do:
 * $ `npm run start`
 
 ## Make sure project structure like this:
