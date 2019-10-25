@@ -5,7 +5,7 @@
     <meta charset="utf-8" />
     <title>DragonBones Demo</title>
 
-    <script src="//cdn.jsdelivr.net/npm/phaser-ce@2.9.2/build/phaser.js"></script>
+    <script src="//cdn.jsdelivr.net/npm/phaser-ce@2.13.3/build/phaser.js"></script>
     <script src="./libs/dragonBones/dragonBones.js"></script>
 
     <script src="./out/DragHelper.js"></script>
@@ -26,7 +26,7 @@
 
 <body>
     <script>
-        var game = new Phaser.Game(1920, 1080, Phaser.AUTO, null, {
+        var game = new Phaser.Game(1366, 768, Phaser.AUTO, null, {
             create: function () {
                 dragonBones.PhaserFactory.init(this.game); // Static factory init.
                 //

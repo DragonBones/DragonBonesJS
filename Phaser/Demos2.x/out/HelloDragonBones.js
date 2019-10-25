@@ -1,8 +1,11 @@
 "use strict";
 var __extends = (this && this.__extends) || (function () {
-    var extendStatics = Object.setPrototypeOf ||
-        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -32,18 +35,18 @@ var HelloDragonBones = /** @class */ (function (_super) {
         var _this = _super.call(this, game) || this;
         _this._resources.push(
         // "resource/mecha_1002_101d_show/mecha_1002_101d_show_ske.json",
-        "resource/right_abcd/right_abcd_ske.json", "resource/right_abcd/right_abcd_tex.json", "resource/right_abcd/right_abcd_tex.png");
+        "resource/mecha_1002_101d_show/mecha_1002_101d_show_ske.dbbin", "resource/mecha_1002_101d_show/mecha_1002_101d_show_tex.json", "resource/mecha_1002_101d_show/mecha_1002_101d_show_tex.png");
         return _this;
     }
     HelloDragonBones.prototype._onStart = function () {
         var factory = dragonBones.PhaserFactory.factory;
-        factory.parseDragonBonesData(this.game.cache.getItem("resource/right_abcd/right_abcd_ske.json", Phaser.Cache.JSON).data);
-        // factory.parseDragonBonesData(this.game.cache.getItem("resource/right_abcd/right_abcd_ske.dbbin", Phaser.Cache.BINARY));
-        factory.parseTextureAtlasData(this.game.cache.getItem("resource/right_abcd/right_abcd_tex.json", Phaser.Cache.JSON).data, this.game.cache.getImage("resource/right_abcd/right_abcd_tex.png", true).base);
-        var armatureDisplay = factory.buildArmatureDisplay("right_abcd", "right_abcd");
-        armatureDisplay.animation.play("right_a");
-        armatureDisplay.x = -1920 / 2;
-        armatureDisplay.y = -1080 / 2;
+        // factory.parseDragonBonesData(this.game.cache.getItem("resource/mecha_1002_101d_show/mecha_1002_101d_show_ske.json", Phaser.Cache.JSON).data);
+        factory.parseDragonBonesData(this.game.cache.getItem("resource/mecha_1002_101d_show/mecha_1002_101d_show_ske.dbbin", Phaser.Cache.BINARY));
+        factory.parseTextureAtlasData(this.game.cache.getItem("resource/mecha_1002_101d_show/mecha_1002_101d_show_tex.json", Phaser.Cache.JSON).data, this.game.cache.getImage("resource/mecha_1002_101d_show/mecha_1002_101d_show_tex.png", true).base);
+        var armatureDisplay = factory.buildArmatureDisplay("mecha_1002_101d", "mecha_1002_101d_show");
+        armatureDisplay.animation.play("idle");
+        armatureDisplay.x = 0.0;
+        armatureDisplay.y = 200.0;
         this.addChild(armatureDisplay);
     };
     return HelloDragonBones;
