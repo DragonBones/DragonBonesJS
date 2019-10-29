@@ -15313,7 +15313,7 @@ var dragonBones;
          * @inheritDoc
          */
         function PhaserArmatureDisplay() {
-            var _this = _super.call(this, dragonBones.PhaserFactory._game, 0, 0) || this;
+            var _this = _super.call(this, dragonBones.PhaserFactory._game, 0.0, 0.0) || this;
             /**
              * @private
              */
@@ -15365,7 +15365,7 @@ var dragonBones;
                 this._debugDraw = drawed;
                 if (this._debugDraw) {
                     if (this._debugDrawer === null) {
-                        this._debugDrawer = new Phaser.Sprite(this.game, 0, 0);
+                        this._debugDrawer = new Phaser.Sprite(this.game, 0.0, 0.0);
                         var boneDrawer_1 = new Phaser.Graphics(this.game);
                         this._debugDrawer.addChild(boneDrawer_1);
                     }
@@ -16081,7 +16081,6 @@ var dragonBones;
          */
         PhaserFactory.prototype.getTextureDisplay = function (textureName, textureAtlasName) {
             if (textureAtlasName === void 0) { textureAtlasName = null; }
-            console.log('getTextureDisplay');
             var textureData = this._getTextureData(textureAtlasName !== null ? textureAtlasName : "", textureName);
             if (textureData !== null && textureData.renderTexture !== null) {
                 return new Phaser.Sprite(PhaserFactory._game, 0.0, 0.0);
