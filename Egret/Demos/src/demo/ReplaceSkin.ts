@@ -10,37 +10,24 @@ class ReplaceSkin extends BaseDemo {
 
         this._suitConfigs.push([
             "2010600a",
-            "2010600a_1",
+            "2080100c",
+            "2080100e",
+            "2080500b",
             "20208003",
-            "20208003_1",
-            "20208003_2",
-            "20208003_3",
             "20405006",
             "20509005",
             "20703016",
-            "20703016_1",
-            "2080100c",
-            "2080100e",
-            "2080100e_1",
             "20803005",
-            "2080500b",
-            "2080500b_1"
         ]);
 
         this._suitConfigs.push([
-            "20106010",
-            "20106010_1",
-            "20208006",
-            "20208006_1",
-            "20208006_2",
-            "20208006_3",
+            "2080b003",
             "2040600b",
-            "2040600b_1",
+            "20106010",
+            "20208006",
             "20509007",
             "20703020",
-            "20703020_1",
-            "2080b003",
-            "20801015"
+            "20801015",
         ]);
 
         this._resources.push(
@@ -51,8 +38,8 @@ class ReplaceSkin extends BaseDemo {
 
         for (let i = 0, l = this._suitConfigs.length; i < l; ++i) {
             for (const partArmatureName of this._suitConfigs[i]) {
-                // resource/you_xin/suit1/2010600a/xxxxxx
-                const path = "resource/you_xin/suit" + (i + 1) + "/" + partArmatureName + "/" + partArmatureName;
+                // resource/you_xin/suit1/xxxxxx
+                const path = "resource/you_xin/suit" + (i + 1) + "/" + partArmatureName;
                 const dragonBonesJSONPath = path + "_ske.json";
                 const textureAtlasJSONPath = path + "_tex.json";
                 const textureAtlasPath = path + "_tex.png";
@@ -72,7 +59,7 @@ class ReplaceSkin extends BaseDemo {
 
         for (let i = 0, l = this._suitConfigs.length; i < l; ++i) {
             for (const partArmatureName of this._suitConfigs[i]) {
-                const path = "resource/you_xin/suit" + (i + 1) + "/" + partArmatureName + "/" + partArmatureName;
+                const path = "resource/you_xin/suit" + (i + 1) + "/" + partArmatureName;
                 const dragonBonesJSONPath = path + "_ske.json";
                 const textureAtlasJSONPath = path + "_tex.json";
                 const textureAtlasPath = path + "_tex.png";
