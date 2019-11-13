@@ -10,19 +10,15 @@ class ReplaceSkin extends BaseDemo {
 
         this._suitConfigs.push([
             "2010600a",
-            "2080100c",
             "2080100e",
             "2080500b",
             "20208003",
-            "20405006",
             "20509005",
             "20703016",
-            "20803005",
         ]);
 
         this._suitConfigs.push([
             "2080b003",
-            "2040600b",
             "20106010",
             "20208006",
             "20509007",
@@ -91,11 +87,19 @@ class ReplaceSkin extends BaseDemo {
     }
 
     private _animationEventHandler(event: dragonBones.EgretEvent): void {
-        // Random animation index.
-        const animationIndex = Math.floor(Math.random() * this._armatureDisplay.animation.animationNames.length);
-        const animationName = this._armatureDisplay.animation.animationNames[animationIndex];
-        // Play animation.
-        this._armatureDisplay.animation.fadeIn(animationName, 0.3, 0);
+        if (event.eventObject.animationState.name === "idle") {
+            if (Math.random() > 0.7) {
+                return;
+            }
+            // Random animation index.
+            const animationIndex = Math.floor(Math.random() * this._armatureDisplay.animation.animationNames.length);
+            const animationName = this._armatureDisplay.animation.animationNames[animationIndex];
+            // Play animation.
+            this._armatureDisplay.animation.fadeIn(animationName, 0.3, 0);
+        }
+        else {
+            this._armatureDisplay.animation.fadeIn("idle", 0.3, 0);
+        }
     }
 
     private _randomReplaceSkin(): void {
