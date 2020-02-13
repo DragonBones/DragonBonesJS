@@ -88,6 +88,10 @@ namespace dragonBones.phaser.plugin {
             this.scene =
             this.systems = null;
         }
+
+        createMeshDisplayPlaceholder(): Phaser.GameObjects.Mesh {
+            return new display.SlotMesh(this.scene, 0, 0, [], [], [], [], null, null);
+        }
     }
 
     const CreateDragonBonesRegisterHandler = function(dragonBonesName: string, textureScale = 1.0): DragonBonesData {
