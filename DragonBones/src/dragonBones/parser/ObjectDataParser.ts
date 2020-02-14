@@ -2244,13 +2244,13 @@ namespace dragonBones {
             const lTotal = l1 + l2 + l3 + l4 + l5 + l6 + l7;
             //
             const binary = new ArrayBuffer(lTotal);
-            const intArray = new Uint16Array(binary, 0, this._intArray.length);
+            const intArray = new Int16Array(binary, 0, this._intArray.length);
             const floatArray = new Float32Array(binary, l1, this._floatArray.length);
             const frameIntArray = new Int16Array(binary, l1 + l2, this._frameIntArray.length);
             const frameFloatArray = new Float32Array(binary, l1 + l2 + l3, this._frameFloatArray.length);
             const frameArray = new Int16Array(binary, l1 + l2 + l3 + l4, this._frameArray.length);
             const timelineArray = new Uint16Array(binary, l1 + l2 + l3 + l4 + l5, this._timelineArray.length);
-            const colorArray = new Uint16Array(binary, l1 + l2 + l3 + l4 + l5 + l6, this._colorArray.length);
+            const colorArray = new Int16Array(binary, l1 + l2 + l3 + l4 + l5 + l6, this._colorArray.length);
 
             for (let i = 0, l = this._intArray.length; i < l; ++i) {
                 intArray[i] = this._intArray[i];

@@ -561,16 +561,36 @@ namespace dragonBones {
                                     }
 
                                     case TimelineType.SlotDeform: {
-                                        const timeline = BaseObject.borrowObject(DeformTimelineState);
-                                        timeline.target = this._armature.animation.getBlendState(BlendState.SLOT_DEFORM, slot.name, slot);
-                                        timeline.init(this._armature, this, timelineData);
+                                        const dragonBonesData = this._animationData.parent.parent;
+                                        const timelineArray = dragonBonesData.timelineArray;
 
-                                        if (timeline.target !== null) {
-                                            this._slotBlendTimelines.push(timeline);
-                                            ffdFlags.push(timeline.geometryOffset);
+                                        const frameIntOffset = this._animationData.frameIntOffset + timelineArray[timelineData.offset + BinaryOffset.TimelineFrameValueCount];
+                                        const frameIntArray = dragonBonesData.frameIntArray;
+                                        let geometryOffset = frameIntArray[frameIntOffset + BinaryOffset.DeformVertexOffset];
+
+                                        if (geometryOffset < 0) {
+                                            geometryOffset += 65536; // Fixed out of bounds bug. 
                                         }
-                                        else {
-                                            timeline.returnToPool();
+
+                                        for (let i = 0, l = slot.displayFrameCount; i < l; ++i) {
+                                            const displayFrame = slot.getDisplayFrameAt(i);
+                                            const geometryData = displayFrame.getGeometryData();
+
+                                            if (geometryData === null) {
+                                                continue;
+                                            }
+
+                                            if (geometryData.offset === geometryOffset) {
+                                                const timeline = BaseObject.borrowObject(DeformTimelineState);
+                                                timeline.target = this._armature.animation.getBlendState(BlendState.SLOT_DEFORM, displayFrame.rawDisplayData!.name, slot);
+                                                timeline.displayFrame = displayFrame;
+                                                timeline.init(this._armature, this, timelineData);
+                                                this._slotBlendTimelines.push(timeline);
+
+                                                displayFrame.updateDeformVertices();
+                                                ffdFlags.push(geometryOffset);
+                                                break;
+                                            }
                                         }
                                         break;
                                     }
@@ -615,7 +635,6 @@ namespace dragonBones {
                                 const geometryData = displayFrame.getGeometryData();
                                 if (geometryData !== null && ffdFlags.indexOf(geometryData.offset) < 0) {
                                     const timeline = BaseObject.borrowObject(DeformTimelineState);
-                                    timeline.geometryOffset = geometryData.offset; //
                                     timeline.displayFrame = displayFrame; //
                                     timeline.target = this._armature.animation.getBlendState(BlendState.SLOT_DEFORM, slot.name, slot);
                                     timeline.init(this._armature, this, null);

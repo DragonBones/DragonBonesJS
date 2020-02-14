@@ -69,7 +69,7 @@ namespace dragonBones {
             return "[class dragonBones.IKConstraint]";
         }
 
-        private _scaleEnabled: boolean; // TODO
+        // private _scaleEnabled: boolean; // TODO
         /**
          * - For timeline state.
          * @internal
@@ -84,7 +84,7 @@ namespace dragonBones {
         protected _onClear(): void {
             super._onClear();
 
-            this._scaleEnabled = false;
+            // this._scaleEnabled = false;
             this._bendPositive = false;
             this._weight = 1.0;
             this._constraintData = null as any;
@@ -195,7 +195,7 @@ namespace dragonBones {
 
             {
                 const ikConstraintData = this._constraintData as IKConstraintData;
-                this._scaleEnabled = ikConstraintData.scaleEnabled;
+                // this._scaleEnabled = ikConstraintData.scaleEnabled;
                 this._bendPositive = ikConstraintData.bendPositive;
                 this._weight = ikConstraintData.weight;
             }
@@ -389,7 +389,7 @@ namespace dragonBones {
                 }
 
                 curveVertices.length = 8;
-                for (let i = 0, o = 0, curve = 0; i < spaceCount; i++ , o += 3) {
+                for (let i = 0, o = 0, curve = 0; i < spaceCount; i++, o += 3) {
                     const space = spaces[i];
                     position += space;
 
@@ -466,7 +466,7 @@ namespace dragonBones {
             let x1 = curveVertices[0], y1 = curveVertices[1], cx1 = 0, cy1 = 0, cx2 = 0, cy2 = 0, x2 = 0, y2 = 0;
             let tmpx, tmpy, dddfx, dddfy, ddfx, ddfy, dfx, dfy;
 
-            for (let i = 0, w = 2; i < curveCount; i++ , w += 6) {
+            for (let i = 0, w = 2; i < curveCount; i++, w += 6) {
                 cx1 = curveVertices[w];
                 cy1 = curveVertices[w + 1];
                 cx2 = curveVertices[w + 2];
@@ -509,7 +509,7 @@ namespace dragonBones {
 
             let segments = this._segments;
             let curveLength: number = 0;
-            for (let i = 0, o = 0, curve = 0, segment = 0; i < spaceCount; i++ , o += 3) {
+            for (let i = 0, o = 0, curve = 0, segment = 0; i < spaceCount; i++, o += 3) {
                 const space = spaces[i];
                 position += space;
                 let p = position;
@@ -762,7 +762,7 @@ namespace dragonBones {
             //
             const rotateMix = this.rotateMix;
             const translateMix = this.translateMix;
-            for (let i = 0, p = 3; i < boneCount; i++ , p += 3) {
+            for (let i = 0, p = 3; i < boneCount; i++, p += 3) {
                 let bone = bones[i];
                 bone.updateByConstraint();
                 let matrix = bone.globalTransformMatrix;
