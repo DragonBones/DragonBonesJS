@@ -47,7 +47,7 @@ declare namespace dragonBones {
         DeformCount = 1,
         DeformValueCount = 2,
         DeformValueOffset = 3,
-        DeformFloatOffset = 4,
+        DeformFloatOffset = 4
     }
     /**
      * @private
@@ -55,14 +55,14 @@ declare namespace dragonBones {
     const enum ArmatureType {
         Armature = 0,
         MovieClip = 1,
-        Stage = 2,
+        Stage = 2
     }
     /**
      * @private
      */
     const enum BoneType {
         Bone = 0,
-        Surface = 1,
+        Surface = 1
     }
     /**
      * @private
@@ -72,7 +72,7 @@ declare namespace dragonBones {
         Armature = 1,
         Mesh = 2,
         BoundingBox = 3,
-        Path = 4,
+        Path = 4
     }
     /**
      * - Bounding box type.
@@ -87,7 +87,7 @@ declare namespace dragonBones {
     const enum BoundingBoxType {
         Rectangle = 0,
         Ellipse = 1,
-        Polygon = 2,
+        Polygon = 2
     }
     /**
      * @private
@@ -95,7 +95,7 @@ declare namespace dragonBones {
     const enum ActionType {
         Play = 0,
         Frame = 10,
-        Sound = 11,
+        Sound = 11
     }
     /**
      * @private
@@ -114,7 +114,7 @@ declare namespace dragonBones {
         Multiply = 10,
         Overlay = 11,
         Screen = 12,
-        Subtract = 13,
+        Subtract = 13
     }
     /**
      * @private
@@ -125,7 +125,7 @@ declare namespace dragonBones {
         Curve = 2,
         QuadIn = 3,
         QuadOut = 4,
-        QuadInOut = 5,
+        QuadInOut = 5
     }
     /**
      * @private
@@ -147,7 +147,7 @@ declare namespace dragonBones {
         IKConstraint = 30,
         AnimationProgress = 40,
         AnimationWeight = 41,
-        AnimationParameter = 42,
+        AnimationParameter = 42
     }
     /**
      * - Offset mode.
@@ -162,7 +162,7 @@ declare namespace dragonBones {
     const enum OffsetMode {
         None = 0,
         Additive = 1,
-        Override = 2,
+        Override = 2
     }
     /**
      * - Animation fade out mode.
@@ -219,35 +219,35 @@ declare namespace dragonBones {
          * - 不替换同名的动画状态。
          * @language zh_CN
          */
-        Single = 5,
+        Single = 5
     }
     /**
      * @private
      */
     const enum AnimationBlendType {
         None = 0,
-        E1D = 1,
+        E1D = 1
     }
     /**
      * @private
      */
     const enum AnimationBlendMode {
         Additive = 0,
-        Override = 1,
+        Override = 1
     }
     /**
      * @private
      */
     const enum ConstraintType {
         IK = 0,
-        Path = 1,
+        Path = 1
     }
     /**
      * @private
      */
     const enum PositionMode {
         Fixed = 0,
-        Percent = 1,
+        Percent = 1
     }
     /**
      * @private
@@ -255,7 +255,7 @@ declare namespace dragonBones {
     const enum SpacingMode {
         Length = 0,
         Fixed = 1,
-        Percent = 2,
+        Percent = 2
     }
     /**
      * @private
@@ -263,7 +263,7 @@ declare namespace dragonBones {
     const enum RotateMode {
         Tangent = 0,
         Chain = 1,
-        ChainScale = 2,
+        ChainScale = 2
     }
     /**
      * @private
@@ -335,7 +335,7 @@ declare namespace dragonBones {
         private static _defaultMaxCount;
         private static readonly _maxCountMap;
         private static readonly _poolsMap;
-        private static _returnObject(object);
+        private static _returnObject;
         static toString(): string;
         /**
          * - Set the maximum cache count of the specify object pool.
@@ -1946,7 +1946,7 @@ declare namespace dragonBones {
         /**
          * - Compute the bit code for a point (x, y) using the clip rectangle
          */
-        private static _computeOutCode(x, y, xMin, yMin, xMax, yMax);
+        private static _computeOutCode;
         /**
          * @private
          */
@@ -2790,7 +2790,7 @@ declare namespace dragonBones {
      */
     class Armature extends BaseObject implements IAnimatable {
         static toString(): string;
-        private static _onSortSlots(a, b);
+        private static _onSortSlots;
         /**
          * - Whether to inherit the animation control of the parent armature.
          * True to try to have the child armature play an animation with the same name when the parent armature play the animation.
@@ -4184,7 +4184,7 @@ declare namespace dragonBones {
         private _animationConfig;
         private _lastAnimationState;
         protected _onClear(): void;
-        private _fadeOut(animationConfig);
+        private _fadeOut;
         /**
          * - Clear all animations states.
          * @see dragonBones.AnimationState
@@ -4753,9 +4753,9 @@ declare namespace dragonBones {
         private _activeChildA;
         private _activeChildB;
         protected _onClear(): void;
-        private _updateTimelines();
-        private _updateBoneAndSlotTimelines();
-        private _advanceFadeTime(passedTime);
+        private _updateTimelines;
+        private _updateBoneAndSlotTimelines;
+        private _advanceFadeTime;
         /**
          * - Continue play.
          * @version DragonBones 3.0
@@ -5566,7 +5566,7 @@ declare namespace dragonBones {
     const enum FrameValueType {
         Step = 0,
         Int = 1,
-        Float = 2,
+        Float = 2
     }
     /**
      * @private
@@ -5613,10 +5613,10 @@ declare namespace dragonBones {
         private readonly _weightBonePoses;
         private readonly _cacheBones;
         private readonly _slotChildActions;
-        private _getCurvePoint(x1, y1, x2, y2, x3, y3, x4, y4, t, result);
-        private _samplingEasingCurve(curve, samples);
-        private _parseActionDataInFrame(rawData, frameStart, bone, slot);
-        private _mergeActionFrame(rawData, frameStart, type, bone, slot);
+        private _getCurvePoint;
+        private _samplingEasingCurve;
+        private _parseActionDataInFrame;
+        private _mergeActionFrame;
         protected _parseArmature(rawData: any, scale: number): ArmatureData;
         protected _parseBone(rawData: any): BoneData;
         protected _parseIKConstraint(rawData: any): ConstraintData | null;
@@ -5709,9 +5709,9 @@ declare namespace dragonBones {
         private _intArrayBuffer;
         private _frameArrayBuffer;
         private _timelineArrayBuffer;
-        private _inRange(a, min, max);
-        private _decodeUTF8(data);
-        private _parseBinaryTimeline(type, offset, timelineData?);
+        private _inRange;
+        private _decodeUTF8;
+        private _parseBinaryTimeline;
         protected _parseAnimation(rawData: any): AnimationData;
         protected _parseGeometry(rawData: any, geometry: GeometryData): void;
         protected _parseArray(rawData: any): void;
@@ -6345,7 +6345,7 @@ declare namespace dragonBones {
      * @inheritDoc
      */
     class EgretArmatureDisplay extends egret.DisplayObjectContainer implements IArmatureProxy {
-        private static _cleanBeforeRender();
+        private static _cleanBeforeRender;
         /**
          * @private
          */
@@ -6487,8 +6487,8 @@ declare namespace dragonBones {
         protected _updateMesh(): void;
         protected _updateTransform(): void;
         protected _identityTransform(): void;
-        private _updateTransformV4();
-        private _updateTransformV5();
+        private _updateTransformV4;
+        private _updateTransformV5;
     }
 }
 /**
@@ -6528,7 +6528,7 @@ declare namespace dragonBones {
         private static _time;
         private static _dragonBonesInstance;
         private static _factory;
-        private static _clockHandler(time);
+        private static _clockHandler;
         /**
          * - A global factory instance that can be used directly.
          * @version DragonBones 4.7
@@ -6611,379 +6611,5 @@ declare namespace dragonBones {
          * @language zh_CN
          */
         readonly soundEventManager: EgretArmatureDisplay;
-    }
-}
-/**
- * The MIT License (MIT)
- *
- * Copyright (c) 2012-2018 DragonBones team and other contributors
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy of
- * this software and associated documentation files (the "Software"), to deal in
- * the Software without restriction, including without limitation the rights to
- * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
- * the Software, and to permit persons to whom the Software is furnished to do so,
- * subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
- * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
- * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
- * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
- * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- */
-declare const _super: any;
-declare namespace dragonBones {
-    /**
-     * 是否包含指定名称的动画组。
-     * @param groupName 动画组的名称。
-     * @version DragonBones 4.7
-     * @language zh_CN
-     */
-    function hasMovieGroup(groupName: string): boolean;
-    /**
-     * 添加动画组。
-     * @param groupData 动画二进制数据。
-     * @param textureAtlas 贴图集或贴图集列表。
-     * @param groupName 为动画组指定一个名称，如果未设置，则使用数据中的名称。
-     * @version DragonBones 4.7
-     * @language zh_CN
-     */
-    function addMovieGroup(groupData: ArrayBuffer, textureAtlas: egret.Texture | egret.Texture[], groupName?: string | null): void;
-    /**
-     * 移除动画组。
-     * @param groupName 动画组的名称。
-     * @version DragonBones 4.7
-     * @language zh_CN
-     */
-    function removeMovieGroup(groupName: string): void;
-    /**
-     * 移除所有的动画组。
-     * @param groupName 动画组的名称。
-     * @version DragonBones 4.7
-     * @language zh_CN
-     */
-    function removeAllMovieGroup(): void;
-    /**
-     * 创建一个动画。
-     * @param movieName 动画的名称。
-     * @param groupName 动画组的名称，如果未设置，将检索所有的动画组，当多个动画组中包含同名的动画时，可能无法创建出准确的动画。
-     * @version DragonBones 4.7
-     * @language zh_CN
-     */
-    function buildMovie(movieName: string, groupName?: string | null): Movie | null;
-    /**
-     * 获取指定动画组内包含的所有动画名称。
-     * @param groupName 动画组的名称。
-     * @version DragonBones 4.7
-     * @language zh_CN
-     */
-    function getMovieNames(groupName: string): string[] | null;
-    /**
-     * 动画事件。
-     * @version DragonBones 4.7
-     * @language zh_CN
-     */
-    class MovieEvent extends egret.Event {
-        /**
-         * 动画剪辑开始播放。
-         * @version DragonBones 4.7
-         * @language zh_CN
-         */
-        static START: string;
-        /**
-         * 动画剪辑循环播放一次完成。
-         * @version DragonBones 4.7
-         * @language zh_CN
-         */
-        static LOOP_COMPLETE: string;
-        /**
-         * 动画剪辑播放完成。
-         * @version DragonBones 4.7
-         * @language zh_CN
-         */
-        static COMPLETE: string;
-        /**
-         * 动画剪辑帧事件。
-         * @version DragonBones 4.7
-         * @language zh_CN
-         */
-        static FRAME_EVENT: string;
-        /**
-         * 动画剪辑声音事件。
-         * @version DragonBones 4.7
-         * @language zh_CN
-         */
-        static SOUND_EVENT: string;
-        /**
-         * 事件名称。 (帧标签的名称或声音的名称)
-         * @version DragonBones 4.7
-         * @language zh_CN
-         */
-        name: string;
-        /**
-         * 发出事件的插槽名称。
-         * @version DragonBones 4.7
-         * @language zh_CN
-         */
-        slotName: string;
-        /**
-         * 发出事件的动画剪辑名称。
-         * @version DragonBones 4.7
-         * @language zh_CN
-         */
-        clipName: string;
-        /**
-         * 发出事件的动画。
-         * @version DragonBones 4.7
-         * @language zh_CN
-         */
-        movie: Movie;
-        /**
-         * @private
-         */
-        constructor(type: string);
-        /**
-         * @private
-         */
-        readonly armature: any;
-        /**
-         * @private
-         */
-        readonly bone: any;
-        /**
-         * @private
-         */
-        readonly animationState: any;
-        /**
-         * @private
-         */
-        readonly frameLabel: any;
-        /**
-         * @private
-         */
-        readonly movementID: any;
-    }
-    /**
-     * 通过读取缓存的二进制动画数据来更新动画，具有良好的运行性能，同时对内存的占用也非常低。
-     * @see dragonBones.buildMovie
-     * @version DragonBones 4.7
-     * @language zh_CN
-     */
-    class Movie extends egret.DisplayObjectContainer implements IAnimatable {
-        private static _cleanBeforeRender();
-        /**
-         * 动画的播放速度。 [(-N~0): 倒转播放, 0: 停止播放, (0~1): 慢速播放, 1: 正常播放, (1~N): 快速播放]
-         * @default 1
-         * @version DragonBones 4.7
-         * @language zh_CN
-         */
-        timeScale: number;
-        /**
-         * 动画剪辑的播放速度。 [(-N~0): 倒转播放, 0: 停止播放, (0~1): 慢速播放, 1: 正常播放, (1~N): 快速播放]
-         * （当再次播放其他动画剪辑时，此值将被重置为 1）
-         * @default 1
-         * @version DragonBones 4.7
-         * @language zh_CN
-         */
-        clipTimeScale: number;
-        private _batchEnabled;
-        private _isLockDispose;
-        private _isDelayDispose;
-        private _isStarted;
-        private _isPlaying;
-        private _isReversing;
-        private _isCompleted;
-        private _playTimes;
-        private _time;
-        private _currentTime;
-        private _currentPlayTimes;
-        private _cacheFrameIndex;
-        private _frameSize;
-        private _cacheRectangle;
-        private _clock;
-        private _groupConfig;
-        private _config;
-        private _clipConfig;
-        private _currentFrameConfig;
-        private _clipArray;
-        private _clipNames;
-        private _slots;
-        private _childMovies;
-        constructor(createMovieHelper: any);
-        private _configToEvent(config, event);
-        private _onCrossFrame(frameConfig);
-        private _updateSlotBlendMode(slot);
-        private _updateSlotColor(slot, aM, rM, gM, bM, aO, rO, gO, bO);
-        private _updateSlotDisplay(slot);
-        private _getSlot(name);
-        /**
-         * @inheritDoc
-         */
-        $render(): void;
-        /**
-         * @inheritDoc
-         */
-        $updateRenderNode(): void;
-        /**
-         * @inheritDoc
-         */
-        $measureContentBounds(bounds: egret.Rectangle): void;
-        /**
-         * @inheritDoc
-         */
-        $doAddChild(child: egret.DisplayObject, index: number, notifyListeners?: boolean): egret.DisplayObject;
-        /**
-         * @inheritDoc
-         */
-        $doRemoveChild(index: number, notifyListeners?: boolean): egret.DisplayObject;
-        /**
-         * 释放动画。
-         * @version DragonBones 3.0
-         * @language zh_CN
-         */
-        dispose(): void;
-        /**
-         * @inheritDoc
-         */
-        advanceTime(passedTime: number): void;
-        /**
-         * 播放动画剪辑。
-         * @param clipName 动画剪辑的名称，如果未设置，则播放默认动画剪辑，或将暂停状态切换为播放状态，或重新播放上一个正在播放的动画剪辑。
-         * @param playTimes 动画剪辑需要播放的次数。 [-1: 使用动画剪辑默认值, 0: 无限循环播放, [1~N]: 循环播放 N 次]
-         * @version DragonBones 4.7
-         * @language zh_CN
-         */
-        play(clipName?: string | null, playTimes?: number): void;
-        /**
-         * 暂停播放动画。
-         * @version DragonBones 4.7
-         * @language zh_CN
-         */
-        stop(): void;
-        /**
-         * 从指定时间播放动画。
-         * @param clipName 动画剪辑的名称。
-         * @param time 指定时间。（以秒为单位）
-         * @param playTimes 动画剪辑需要播放的次数。 [-1: 使用动画剪辑默认值, 0: 无限循环播放, [1~N]: 循环播放 N 次]
-         * @version DragonBones 5.0
-         * @language zh_CN
-         */
-        gotoAndPlay(clipName: string | null | undefined, time: number, playTimes?: number): void;
-        /**
-         * 将动画停止到指定时间。
-         * @param clipName 动画剪辑的名称。
-         * @param time 指定时间。（以秒为单位）
-         * @version DragonBones 5.0
-         * @language zh_CN
-         */
-        gotoAndStop(clipName: string | null | undefined, time: number): void;
-        /**
-         * 是否包含指定动画剪辑。
-         * @param clipName 动画剪辑的名称。
-         * @version DragonBones 4.7
-         * @language zh_CN
-         */
-        hasClip(clipName: string): boolean;
-        /**
-         * 动画剪辑是否处正在播放。
-         * @version DragonBones 4.7
-         * @language zh_CN
-         */
-        readonly isPlaying: boolean;
-        /**
-         * 动画剪辑是否均播放完毕。
-         * @version DragonBones 4.7
-         * @language zh_CN
-         */
-        readonly isComplete: boolean;
-        /**
-         * 当前动画剪辑的播放时间。 (以秒为单位)
-         * @version DragonBones 4.7
-         * @language zh_CN
-         */
-        readonly currentTime: number;
-        /**
-         * 当前动画剪辑的总时间。 (以秒为单位)
-         * @version DragonBones 4.7
-         * @language zh_CN
-         */
-        readonly totalTime: number;
-        /**
-         * 当前动画剪辑的播放次数。
-         * @version DragonBones 4.7
-         * @language zh_CN
-         */
-        readonly currentPlayTimes: number;
-        /**
-         * 当前动画剪辑需要播放的次数。 [0: 无限循环播放, [1~N]: 循环播放 N 次]
-         * @version DragonBones 4.7
-         * @language zh_CN
-         */
-        readonly playTimes: number;
-        readonly groupName: string;
-        /**
-         * 正在播放的动画剪辑名称。
-         * @version DragonBones 4.7
-         * @language zh_CN
-         */
-        readonly clipName: string;
-        /**
-         * 所有动画剪辑的名称。
-         * @version DragonBones 4.7
-         * @language zh_CN
-         */
-        readonly clipNames: string[];
-        /**
-         * @inheritDoc
-         */
-        clock: WorldClock | null;
-        /**
-         * @private
-         */
-        readonly display: any;
-        /**
-         * @private
-         */
-        readonly animation: any;
-        /**
-         * @private
-         */
-        readonly armature: any;
-        /**
-         * @private
-         */
-        getAnimation(): any;
-        /**
-         * @private
-         */
-        getArmature(): any;
-        /**
-         * @private
-         */
-        getDisplay(): any;
-        /**
-         * @private
-         */
-        hasAnimation(name: string): boolean;
-        /**
-         * @private
-         */
-        invalidUpdate(...args: any[]): void;
-        /**
-         * @private
-         */
-        readonly lastAnimationName: string;
-        /**
-         * @private
-         */
-        readonly animationNames: string[];
-        /**
-         * @private
-         */
-        readonly animationList: string[];
     }
 }
