@@ -888,11 +888,13 @@ namespace dragonBones {
                 this._valueCount = frameIntArray[frameIntOffset + BinaryOffset.DeformValueCount];
                 this._deformCount = frameIntArray[frameIntOffset + BinaryOffset.DeformCount];
                 this._deformOffset = frameIntArray[frameIntOffset + BinaryOffset.DeformValueOffset];
-                this._sameValueOffset = frameIntArray[frameIntOffset + BinaryOffset.DeformFloatOffset] + this._animationData.frameFloatOffset;
-
+                this._sameValueOffset = frameIntArray[frameIntOffset + BinaryOffset.DeformFloatOffset];
+                
                 if (this._sameValueOffset < 0) {
                     this._sameValueOffset += 65536; // Fixed out of bounds bug. 
                 }
+
+                this._sameValueOffset += this._animationData.frameFloatOffset
 
                 this._valueScale = this._armature.armatureData.scale;
                 this._valueArray = dragonBonesData.frameFloatArray;

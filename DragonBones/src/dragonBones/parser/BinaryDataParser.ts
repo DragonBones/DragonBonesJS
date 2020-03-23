@@ -332,11 +332,17 @@ namespace dragonBones {
             geometry.offset = rawData[DataParser.OFFSET];
             geometry.data = this._data;
 
-            const weightOffset = this._intArrayBuffer[geometry.offset + BinaryOffset.GeometryWeightOffset];
+            let weightOffset = this._intArrayBuffer[geometry.offset + BinaryOffset.GeometryWeightOffset];
+
+            if (weightOffset < -1) { // -1 is a special flag that there is no bones weight.
+                weightOffset += 65536; // Fixed out of bounds bug. 
+            }
+
             if (weightOffset >= 0) {
                 const weight = BaseObject.borrowObject(WeightData);
                 const vertexCount = this._intArrayBuffer[geometry.offset + BinaryOffset.GeometryVertexCount];
                 const boneCount = this._intArrayBuffer[weightOffset + BinaryOffset.WeigthBoneCount];
+
                 weight.offset = weightOffset;
 
                 for (let i = 0; i < boneCount; ++i) {
@@ -346,6 +352,7 @@ namespace dragonBones {
 
                 let boneIndicesOffset = weightOffset + BinaryOffset.WeigthBoneIndices + boneCount;
                 let weightCount = 0;
+
                 for (let i = 0, l = vertexCount; i < l; ++i) {
                     const vertexBoneCount = this._intArrayBuffer[boneIndicesOffset++];
                     weightCount += vertexBoneCount;

@@ -11128,10 +11128,11 @@ var dragonBones;
                 this._valueCount = frameIntArray[frameIntOffset + 2 /* DeformValueCount */];
                 this._deformCount = frameIntArray[frameIntOffset + 1 /* DeformCount */];
                 this._deformOffset = frameIntArray[frameIntOffset + 3 /* DeformValueOffset */];
-                this._sameValueOffset = frameIntArray[frameIntOffset + 4 /* DeformFloatOffset */] + this._animationData.frameFloatOffset;
+                this._sameValueOffset = frameIntArray[frameIntOffset + 4 /* DeformFloatOffset */];
                 if (this._sameValueOffset < 0) {
                     this._sameValueOffset += 65536; // Fixed out of bounds bug. 
                 }
+                this._sameValueOffset += this._animationData.frameFloatOffset;
                 this._valueScale = this._armature.armatureData.scale;
                 this._valueArray = dragonBonesData.frameFloatArray;
                 this._rd.length = this._valueCount * 2;
@@ -14087,6 +14088,9 @@ var dragonBones;
             geometry.offset = rawData[dragonBones.DataParser.OFFSET];
             geometry.data = this._data;
             var weightOffset = this._intArrayBuffer[geometry.offset + 3 /* GeometryWeightOffset */];
+            if (weightOffset < -1) { // -1 is a special flag that there is no bones weight.
+                weightOffset += 65536; // Fixed out of bounds bug. 
+            }
             if (weightOffset >= 0) {
                 var weight = dragonBones.BaseObject.borrowObject(dragonBones.WeightData);
                 var vertexCount = this._intArrayBuffer[geometry.offset + 0 /* GeometryVertexCount */];
