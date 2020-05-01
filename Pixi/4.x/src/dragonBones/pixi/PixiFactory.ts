@@ -9,10 +9,10 @@
  * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
  * the Software, and to permit persons to whom the Software is furnished to do so,
  * subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
  * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
@@ -38,6 +38,19 @@ namespace dragonBones {
         private static _clockHandler(passedTime: number): void {
             this._dragonBonesInstance.advanceTime(PIXI.ticker.shared.elapsedMS * passedTime * 0.001);
         }
+
+        /*
+         * `passedTime` is elapsed time, specified in seconds.
+         */
+        public static advanceTime(passedTime: number): void {
+            this._dragonBonesInstance.advanceTime(passedTime);
+        }
+
+        /*
+        * whether use `PIXI.ticker.shared`
+        */
+        public static useSharedTicker: boolean = true;
+
         /**
          * - A global factory instance that can be used directly.
          * @version DragonBones 4.7
@@ -50,21 +63,37 @@ namespace dragonBones {
          */
         public static get factory(): PixiFactory {
             if (PixiFactory._factory === null) {
-                PixiFactory._factory = new PixiFactory();
+                PixiFactory._factory = new PixiFactory(null, PixiFactory.useSharedTicker);
             }
 
             return PixiFactory._factory;
         }
+
+        /**
+         * - 一个获取全局工厂实例(单例)的方法, 和get factory相比, 优点是可以传参数。
+         * @version DragonBones 4.7
+         * @language zh_CN
+         */
+        public static newInstance(useSharedTicker = true): PixiFactory {
+            if (PixiFactory._factory === null) {
+                PixiFactory._factory = new PixiFactory(null, useSharedTicker);
+            }
+
+            return PixiFactory._factory;
+        }
+
         /**
          * @inheritDoc
          */
-        public constructor(dataParser: DataParser | null = null) {
+        public constructor(dataParser: DataParser | null = null, useSharedTicker = true) {
             super(dataParser);
 
             if (PixiFactory._dragonBonesInstance === null) {
                 const eventManager = new PixiArmatureDisplay();
                 PixiFactory._dragonBonesInstance = new DragonBones(eventManager);
-                PIXI.ticker.shared.add(PixiFactory._clockHandler, PixiFactory);
+                if (useSharedTicker) {
+                    PIXI.ticker.shared.add(PixiFactory._clockHandler, PixiFactory);
+                }
             }
 
             this._dragonBones = PixiFactory._dragonBonesInstance;
