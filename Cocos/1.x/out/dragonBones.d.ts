@@ -47,7 +47,7 @@ declare namespace dragonBones {
         DeformCount = 1,
         DeformValueCount = 2,
         DeformValueOffset = 3,
-        DeformFloatOffset = 4,
+        DeformFloatOffset = 4
     }
     /**
      * @private
@@ -55,14 +55,14 @@ declare namespace dragonBones {
     const enum ArmatureType {
         Armature = 0,
         MovieClip = 1,
-        Stage = 2,
+        Stage = 2
     }
     /**
      * @private
      */
     const enum BoneType {
         Bone = 0,
-        Surface = 1,
+        Surface = 1
     }
     /**
      * @private
@@ -72,7 +72,7 @@ declare namespace dragonBones {
         Armature = 1,
         Mesh = 2,
         BoundingBox = 3,
-        Path = 4,
+        Path = 4
     }
     /**
      * - Bounding box type.
@@ -87,7 +87,7 @@ declare namespace dragonBones {
     const enum BoundingBoxType {
         Rectangle = 0,
         Ellipse = 1,
-        Polygon = 2,
+        Polygon = 2
     }
     /**
      * @private
@@ -95,7 +95,7 @@ declare namespace dragonBones {
     const enum ActionType {
         Play = 0,
         Frame = 10,
-        Sound = 11,
+        Sound = 11
     }
     /**
      * @private
@@ -114,7 +114,7 @@ declare namespace dragonBones {
         Multiply = 10,
         Overlay = 11,
         Screen = 12,
-        Subtract = 13,
+        Subtract = 13
     }
     /**
      * @private
@@ -125,7 +125,7 @@ declare namespace dragonBones {
         Curve = 2,
         QuadIn = 3,
         QuadOut = 4,
-        QuadInOut = 5,
+        QuadInOut = 5
     }
     /**
      * @private
@@ -147,7 +147,7 @@ declare namespace dragonBones {
         IKConstraint = 30,
         AnimationProgress = 40,
         AnimationWeight = 41,
-        AnimationParameter = 42,
+        AnimationParameter = 42
     }
     /**
      * - Offset mode.
@@ -162,7 +162,7 @@ declare namespace dragonBones {
     const enum OffsetMode {
         None = 0,
         Additive = 1,
-        Override = 2,
+        Override = 2
     }
     /**
      * - Animation fade out mode.
@@ -219,35 +219,35 @@ declare namespace dragonBones {
          * - 不替换同名的动画状态。
          * @language zh_CN
          */
-        Single = 5,
+        Single = 5
     }
     /**
      * @private
      */
     const enum AnimationBlendType {
         None = 0,
-        E1D = 1,
+        E1D = 1
     }
     /**
      * @private
      */
     const enum AnimationBlendMode {
         Additive = 0,
-        Override = 1,
+        Override = 1
     }
     /**
      * @private
      */
     const enum ConstraintType {
         IK = 0,
-        Path = 1,
+        Path = 1
     }
     /**
      * @private
      */
     const enum PositionMode {
         Fixed = 0,
-        Percent = 1,
+        Percent = 1
     }
     /**
      * @private
@@ -255,7 +255,7 @@ declare namespace dragonBones {
     const enum SpacingMode {
         Length = 0,
         Fixed = 1,
-        Percent = 2,
+        Percent = 2
     }
     /**
      * @private
@@ -263,7 +263,7 @@ declare namespace dragonBones {
     const enum RotateMode {
         Tangent = 0,
         Chain = 1,
-        ChainScale = 2,
+        ChainScale = 2
     }
     /**
      * @private
@@ -335,7 +335,7 @@ declare namespace dragonBones {
         private static _defaultMaxCount;
         private static readonly _maxCountMap;
         private static readonly _poolsMap;
-        private static _returnObject(object);
+        private static _returnObject;
         static toString(): string;
         /**
          * - Set the maximum cache count of the specify object pool.
@@ -1946,7 +1946,7 @@ declare namespace dragonBones {
         /**
          * - Compute the bit code for a point (x, y) using the clip rectangle
          */
-        private static _computeOutCode(x, y, xMin, yMin, xMax, yMax);
+        private static _computeOutCode;
         /**
          * @private
          */
@@ -2790,7 +2790,7 @@ declare namespace dragonBones {
      */
     class Armature extends BaseObject implements IAnimatable {
         static toString(): string;
-        private static _onSortSlots(a, b);
+        private static _onSortSlots;
         /**
          * - Whether to inherit the animation control of the parent armature.
          * True to try to have the child armature play an animation with the same name when the parent armature play the animation.
@@ -4184,7 +4184,7 @@ declare namespace dragonBones {
         private _animationConfig;
         private _lastAnimationState;
         protected _onClear(): void;
-        private _fadeOut(animationConfig);
+        private _fadeOut;
         /**
          * - Clear all animations states.
          * @see dragonBones.AnimationState
@@ -4753,9 +4753,9 @@ declare namespace dragonBones {
         private _activeChildA;
         private _activeChildB;
         protected _onClear(): void;
-        private _updateTimelines();
-        private _updateBoneAndSlotTimelines();
-        private _advanceFadeTime(passedTime);
+        private _updateTimelines;
+        private _updateBoneAndSlotTimelines;
+        private _advanceFadeTime;
         /**
          * - Continue play.
          * @version DragonBones 3.0
@@ -5566,7 +5566,7 @@ declare namespace dragonBones {
     const enum FrameValueType {
         Step = 0,
         Int = 1,
-        Float = 2,
+        Float = 2
     }
     /**
      * @private
@@ -5613,10 +5613,10 @@ declare namespace dragonBones {
         private readonly _weightBonePoses;
         private readonly _cacheBones;
         private readonly _slotChildActions;
-        private _getCurvePoint(x1, y1, x2, y2, x3, y3, x4, y4, t, result);
-        private _samplingEasingCurve(curve, samples);
-        private _parseActionDataInFrame(rawData, frameStart, bone, slot);
-        private _mergeActionFrame(rawData, frameStart, type, bone, slot);
+        private _getCurvePoint;
+        private _samplingEasingCurve;
+        private _parseActionDataInFrame;
+        private _mergeActionFrame;
         protected _parseArmature(rawData: any, scale: number): ArmatureData;
         protected _parseBone(rawData: any): BoneData;
         protected _parseIKConstraint(rawData: any): ConstraintData | null;
@@ -5709,9 +5709,9 @@ declare namespace dragonBones {
         private _intArrayBuffer;
         private _frameArrayBuffer;
         private _timelineArrayBuffer;
-        private _inRange(a, min, max);
-        private _decodeUTF8(data);
-        private _parseBinaryTimeline(type, offset, timelineData?);
+        private _inRange;
+        private _decodeUTF8;
+        private _parseBinaryTimeline;
         protected _parseAnimation(rawData: any): AnimationData;
         protected _parseGeometry(rawData: any, geometry: GeometryData): void;
         protected _parseArray(rawData: any): void;
@@ -6366,7 +6366,14 @@ declare namespace dragonBones {
         removeDBEventListener(type: EventStringType, listener: (event: cc.Event.EventCustom) => void, target: any): void;
         readonly armature: Armature;
         readonly animation: Animation;
-        start(): void;
+        dragonBonesName: string;
+        dragonBonesAsset: DragonBonesAsset | null;
+        _dragonBonesNode: cc.Node;
+        _loadAndDisplayDragonBones(): void;
+        _parseDragonAsset(): void;
+        _parseDragonAtlasAsset(): void;
+        display(): void;
+        onLoad(): void;
     }
 }
 /**
