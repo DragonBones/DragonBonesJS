@@ -1,0 +1,17 @@
+{
+  "name": "dragonbones-phaser-demos",
+  "version": "5.6.2",
+  "main": "",
+  "scripts": {
+    "start": "tsc & npm run upgrade & anywhere",
+    "upgradeA": "cd .. & cd 2.x & npm run build & cd .. & cd Demos2.x",
+    "upgradeB": "copyfiles -u 3 ../2.x/out/* libs/dragonBones/",
+    "upgrade": "npm run upgradeA & npm run upgradeB",
+    "build": "tsc"
+  },
+  "devDependencies": {
+    "anywhere": "^1.4.0",
+    "copyfiles": "^2.1.1",
+    "typescript": "^3.6.4"
+  }
+}

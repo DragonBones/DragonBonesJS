@@ -6,7 +6,7 @@
     "build": "tsc & uglifyjs ./out/dragonBones.js -o ./out/dragonBones.min.js -m"
   },
   "devDependencies": {
-    "typescript": "^2.4.2",
+    "typescript": "^3.6.4",
     "uglify-js": "^3.0.26"
   }
 }

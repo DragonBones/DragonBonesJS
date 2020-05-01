@@ -1,0 +1,22 @@
+{
+	"compilerOptions": {
+		"watch": false,
+		"sourceMap": false,
+		"declaration": false,
+		"alwaysStrict": true,
+		"noImplicitAny": true,
+		"noImplicitThis": true,
+		"noUnusedLocals": true,
+		"noUnusedParameters": false,
+		"strictNullChecks": false,
+		"experimentalDecorators": true,
+		"allowSyntheticDefaultImports": true,
+		"target": "es5",
+		"module": "commonjs",
+		"outDir": "./out"
+	},
+	"exclude": [
+		"node_modules",
+		"out"
+	]
+}

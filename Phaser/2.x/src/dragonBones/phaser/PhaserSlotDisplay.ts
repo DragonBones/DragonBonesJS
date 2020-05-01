@@ -35,6 +35,7 @@ namespace dragonBones {
      * @inheritDoc
      */
     export class PhaserSlotDisplay extends Phaser.Image {
+      public _renderIndex = 0;
       /**
        * @inheritDoc
        */

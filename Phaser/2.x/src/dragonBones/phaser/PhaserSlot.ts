@@ -48,8 +48,8 @@ namespace dragonBones {
         }
 
         protected _initDisplay(value: any, isRetain: boolean): void {
-            // tslint:disable-next-line:no-unused-expression
-            value;
+            const display = value as PhaserSlotDisplay;
+            display._renderIndex = 0;
             // tslint:disable-next-line:no-unused-expression
             isRetain;
         }
@@ -76,6 +76,7 @@ namespace dragonBones {
             const prevDisplay = value as PIXI.DisplayObject;
             container.addChild(this._renderDisplay);
             container.swapChildren(this._renderDisplay, prevDisplay);
+            this._renderDisplay._renderIndex = prevDisplay._renderIndex;
             container.removeChild(prevDisplay);
             this._textureScale = 1.0;
         }
@@ -86,12 +87,22 @@ namespace dragonBones {
 
         protected _updateZOrder(): void {
             const container = this._armature.display as PhaserArmatureDisplay;
-            const index = container.getChildIndex(this._renderDisplay);
-            if (index === this._zOrder) {
-                return;
+            if (this._renderDisplay._renderIndex !== this._zOrder) {
+                this._renderDisplay._renderIndex = this._zOrder;
+                container.removeChild(this._renderDisplay);
+                let added = false;
+                for (let i = 0; i < container.children.length; ++i) {
+                    const child = container.getChildAt(i);
+                    if (child._renderIndex > this._zOrder) {
+                        container.addChildAt(this._renderDisplay, i);
+                        added = true;
+                        break;
+                    }
+                }
+                if (!added) {
+                    container.addChild(this._renderDisplay);
+                }
             }
-
-            container.addChildAt(this._renderDisplay, this._zOrder);
         }
         /**
          * @internal
@@ -162,7 +173,7 @@ namespace dragonBones {
 
             if (this._displayIndex >= 0 && this._display !== null && currentTextureData !== null) {
                 let currentTextureAtlasData = currentTextureData.parent as PhaserTextureAtlasData;
-                
+
                 if (this._armature.replacedTexture !== null) { // Update replaced texture atlas.
                     if (this._armature._replaceTextureAtlasData === null) {
                         currentTextureAtlasData = BaseObject.borrowObject(PhaserTextureAtlasData);
