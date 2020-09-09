@@ -81,8 +81,10 @@ namespace dragonBones {
 
             if (this._renderTexture !== null) {
                 const bitmapData = this._renderTexture.bitmapData;
-                const textureAtlasWidth = this.width > 0.0 ? this.width : bitmapData.width;
-                const textureAtlasHeight = this.height > 0.0 ? this.height : bitmapData.height;
+                const textureAtlasWidth = bitmapData.width;
+                const textureAtlasHeight = bitmapData.height;
+                const textureOffsetX = this._renderTexture.$bitmapX;
+                const textureOffsetY = this._renderTexture.$bitmapY;
 
                 for (let k in this.textures) {
                     const scale = egret.$TextureScaleFactor;
@@ -98,7 +100,7 @@ namespace dragonBones {
 
                     if (textureData.rotated) {
                         textureData.renderTexture.$initData(
-                            textureData.region.x * scale, textureData.region.y * scale,
+                            textureOffsetX + textureData.region.x * scale, textureOffsetY + textureData.region.y * scale,
                             subTextureHeight * scale, subTextureWidth * scale,
                             0, 0,
                             subTextureHeight * scale, subTextureWidth * scale,
@@ -108,7 +110,7 @@ namespace dragonBones {
                     }
                     else {
                         textureData.renderTexture.$initData(
-                            textureData.region.x * scale, textureData.region.y * scale,
+                            textureOffsetX + textureData.region.x * scale, textureOffsetY + textureData.region.y * scale,
                             subTextureWidth * scale, subTextureHeight * scale,
                             0, 0,
                             subTextureWidth * scale, subTextureHeight * scale,
