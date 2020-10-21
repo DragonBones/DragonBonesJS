@@ -15512,12 +15512,15 @@ var dragonBones;
                 Slot.prototype._removeDisplay = function () {
                     // can't use this._armature.display.remove here, perphaps this._renderDisplay is a child of armature.
                     this._renderDisplay.parentContainer.remove(this._renderDisplay);
+                };                
+                Slot.prototype._updateZOrder=function(){                   	
+		if (this._renderDisplay.depth === this._zOrder){
+                    return;
+                }					
+		//Fixed by MadDogMayCry
+			this.armature.display.moveTo(this._armature._slots[this._zOrder].display,this._zOrder);
                 };
-                Slot.prototype._updateZOrder = function () {
-                    if (this._renderDisplay.depth === this._zOrder)
-                        return;
-                    this._renderDisplay.setDepth(this._zOrder);
-                };
+                
                 Slot.prototype._updateVisible = function () {
                     this._renderDisplay.setVisible(this._parent.visible && this._visible);
                 };
