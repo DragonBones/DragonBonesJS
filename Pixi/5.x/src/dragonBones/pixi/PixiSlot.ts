@@ -225,7 +225,7 @@ namespace dragonBones {
                         meshDisplay.texture = renderTexture as any;
                         meshDisplay.vertices = vertices;
                         meshDisplay.uvBuffer.update(uvs);
-                        meshDisplay.geometry.addIndex(indices);
+                        meshDisplay.geometry.getIndex().update(indices);
 
                         const isSkinned = this._geometryData.weight !== null;
                         const isSurface = this._parent._boneData.type !== BoneType.Bone;
