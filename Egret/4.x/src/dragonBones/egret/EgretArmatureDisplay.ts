@@ -55,6 +55,15 @@ namespace dragonBones {
     export class EgretArmatureDisplay extends egret.DisplayObjectContainer implements IArmatureProxy {
         private static _cleanBeforeRender(): void { }
         /**
+         * Whether to use tint instead of color filter
+         * @language en_US
+         */
+        /**
+         * 是否使用 tint 优化 color filter
+         * @language zh_CN
+         */
+        public isUseTint: boolean = false;
+        /**
          * @private
          */
         public debugDraw: boolean = false;

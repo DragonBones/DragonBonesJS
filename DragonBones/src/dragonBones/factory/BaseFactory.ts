@@ -698,7 +698,7 @@ namespace dragonBones {
          * @version DragonBones 3.0
          * @language zh_CN
          */
-        public buildArmature(armatureName: string, dragonBonesName: string = "", skinName: string = "", textureAtlasName: string = ""): Armature | null {
+        public buildArmature(armatureName: string, dragonBonesName: string = "", skinName: string = "", textureAtlasName: string = "", isUseTint: boolean = false): Armature | null {
             const dataPackage: BuildArmaturePackage = new BuildArmaturePackage();
             if (!this._fillBuildArmaturePackage(dataPackage, dragonBonesName || "", armatureName, skinName || "", textureAtlasName || "")) {
                 console.warn("No armature data: " + armatureName + ", " + (dragonBonesName !== null ? dragonBonesName : ""));
@@ -706,6 +706,7 @@ namespace dragonBones {
             }
 
             const armature = this._buildArmature(dataPackage);
+            armature.display.isUseTint = isUseTint;
             this._buildBones(dataPackage, armature);
             this._buildSlots(dataPackage, armature);
             this._buildConstraints(dataPackage, armature);
