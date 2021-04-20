@@ -219,6 +219,33 @@ namespace dragonBones {
                 this._colorTransform.blueOffset !== 0 ||
                 this._colorTransform.alphaOffset !== 0
             ) {
+                if (
+                    this._armatureDisplay.isUseTint &&
+                    this._colorTransform.redOffset === 0 &&
+                    this._colorTransform.greenOffset === 0 &&
+                    this._colorTransform.blueOffset === 0 &&
+                    this._colorTransform.alphaOffset === 0
+                ) {
+                    // 当不使用offset时，可以用 tint+alpha 代替 filter
+                    const red = (this._colorTransform.redMultiplier * 0xFF + 0.5 | 0) << 16;
+                    const green = (this._colorTransform.greenMultiplier * 0xFF + 0.5 | 0) << 8;
+                    const blue = this._colorTransform.blueMultiplier * 0xFF + 0.5 | 0;
+                    const tintColor = red + green + blue;
+                    if (this._armatureDisplay._batchEnabled) {
+                        const node = this._renderDisplay.$renderNode as (egret.sys.BitmapNode);
+                        if ('tint' in node) {
+                            // 需要egret引擎BitmapNode与MeshNode支持tint属性
+                            node.tint = tintColor;
+                            node.alpha = alpha;
+                            return;
+                        }
+                    } else {
+                        this._renderDisplay.tint = tintColor;
+                        this._renderDisplay.alpha = alpha;
+                        return;
+                    }
+                }
+
                 if (this._colorFilter === null) {
                     this._colorFilter = new egret.ColorMatrixFilter();
                 }
@@ -257,10 +284,12 @@ namespace dragonBones {
                     const node = this._renderDisplay.$renderNode as (egret.sys.BitmapNode);
                     node.filter = null as any;
                     node.alpha = alpha;
+                    if ('tint' in node) node.tint = 0xFFFFFF;
                 }
 
                 this._renderDisplay.filters = null as any;
                 this._renderDisplay.alpha = alpha;
+                this._renderDisplay.tint = 0xFFFFFF;
             }
         }
 
