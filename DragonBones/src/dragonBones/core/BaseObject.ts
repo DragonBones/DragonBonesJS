@@ -40,7 +40,7 @@ namespace dragonBones {
         private static readonly _poolsMap: Map<Array<BaseObject>> = {};
 
         private static _returnObject(object: BaseObject): void {
-            const classType = String(object.constructor);
+            const classType = object.constructor.toString();
             const maxCount = classType in BaseObject._maxCountMap ? BaseObject._maxCountMap[classType] : BaseObject._defaultMaxCount;
             const pool = BaseObject._poolsMap[classType] = BaseObject._poolsMap[classType] || [];
             if (pool.length < maxCount) {
@@ -79,7 +79,7 @@ namespace dragonBones {
             }
 
             if (objectConstructor !== null) {
-                const classType = String(objectConstructor);
+                const classType = objectConstructor.toString();
                 const pool = classType in BaseObject._poolsMap ? BaseObject._poolsMap[classType] : null;
                 if (pool !== null && pool.length > maxCount) {
                     pool.length = maxCount;
@@ -116,7 +116,7 @@ namespace dragonBones {
          */
         public static clearPool(objectConstructor: (typeof BaseObject) | null = null): void {
             if (objectConstructor !== null) {
-                const classType = String(objectConstructor);
+                const classType = objectConstructor.toString();
                 const pool = classType in BaseObject._poolsMap ? BaseObject._poolsMap[classType] : null;
                 if (pool !== null && pool.length > 0) {
                     pool.length = 0;
@@ -142,7 +142,7 @@ namespace dragonBones {
          * @language zh_CN
          */
         public static borrowObject<T extends BaseObject>(objectConstructor: { new(): T; }): T {
-            const classType = String(objectConstructor);
+            const classType = objectConstructor.toString();
             const pool = classType in BaseObject._poolsMap ? BaseObject._poolsMap[classType] : null;
             if (pool !== null && pool.length > 0) {
                 const object = pool.pop() as T;
