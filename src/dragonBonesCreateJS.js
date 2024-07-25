@@ -1,12 +1,13 @@
-/// <reference path="createjs.d.ts"/>
-/// <reference path="dragonBones.ts">
+let createjs = require('@blakeelearning/createjs');
+let dragonBones = require('./dragonBones.js');
+
 var __extends = this.__extends || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
     __.prototype = b.prototype;
     d.prototype = new __();
 };
-var dragonBones;
+
 (function (dragonBones) {
     (function (display) {
         var CreateJSDisplayBridge = (function () {
@@ -204,5 +205,18 @@ var dragonBones;
         factorys.CreateJSFactory = CreateJSFactory;
     })(dragonBones.factorys || (dragonBones.factorys = {}));
     var factorys = dragonBones.factorys;
-})(dragonBones || (dragonBones = {}));
-//# sourceMappingURL=dragonBonesCreateJS.js.map
+})(dragonBones);
+
+// Shim for deprecated createjs method pending dragonbones update
+dragonBones.display.CreateJSDisplayBridge.prototype.addDisplay = function (container, index) {
+  let parent = container;
+  if (parent && this._display) {
+    if (index < 0) {
+      parent.addChild(this._display);
+    } else {
+      parent.addChildAt(this._display, Math.min(index, parent.numChildren));
+    }
+  }
+}
+
+module.exports = dragonBones;

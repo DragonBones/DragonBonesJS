@@ -1,0 +1,22 @@
+lockfileVersion: '9.0'
+
+settings:
+  autoInstallPeers: true
+  excludeLinksFromLockfile: false
+
+importers:
+
+  .:
+    dependencies:
+      '@blakeelearning/createjs':
+        specifier: ^1.0.0
+        version: 1.0.0
+
+packages:
+
+  '@blakeelearning/createjs@1.0.0':
+    resolution: {integrity: sha512-Rbz9rONpwAIo13hWtYDys1tg20YaqoTBON3z/ZUwXWLgdpyMlPeQhBKQzXcbn+8+2Ik1GW2wBgE2T1tozjIhdg==}
+
+snapshots:
+
+  '@blakeelearning/createjs@1.0.0': {}

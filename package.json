@@ -1,11 +1,18 @@
 {
-  "name": "@blakeelearning/dragonBones-createjs",
+  "name": "@blakeelearning/dragonbones-createjs",
   "version": "0.1.0",
   "description": "dragonbonesjs with patches and createjs support",
   "homepage": "https://github.com/blake-education/dragonBones-createjs",
   "license": "MIT",
+  "main": "./src/dragonBonesCreateJS.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/blake-education/dragonBones-createjs.git"
+  },
+  "exports": {
+    ".": "./src/dragonBonesCreateJS.js"
+  },
+  "peerDependencies": {
+    "@blakeelearning/createjs": "^1.0.0"
   }
 }

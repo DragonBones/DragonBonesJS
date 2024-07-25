@@ -3608,3 +3608,5 @@ var dragonBones;
     })(events.EventDispatcher);
     dragonBones.Armature = Armature;
 })(dragonBones || (dragonBones = {}));
+
+module.exports = dragonBones;
