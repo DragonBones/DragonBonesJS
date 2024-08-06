@@ -1601,7 +1601,6 @@ var dragonBones;
             function SlotData() {
                 this._displayDataList = [];
                 this.zOrder = 0;
-                this.blendMode = "normal";
             }
             SlotData.prototype.getDisplayDataList = function () {
                 return this._displayDataList;
@@ -2055,11 +2054,6 @@ var dragonBones;
                 slotData.parent = slotObject[utils.ConstValues.A_PARENT];
                 slotData.zOrder = Number(slotObject[utils.ConstValues.A_Z_ORDER]);
 
-                slotData.blendMode = slotObject[utils.ConstValues.A_BLENDMODE];
-                if (!slotData.blendMode) {
-                    slotData.blendMode = "normal";
-                }
-
                 var displayObjectList = slotObject[utils.ConstValues.DISPLAY];
                 for (var index in displayObjectList) {
                     if (!displayObjectList.hasOwnProperty(index)) continue;
@@ -2386,7 +2380,6 @@ var dragonBones;
                     displayDataList = slotData.getDisplayDataList();
                     slot = this._generateSlot();
                     slot.name = slotData.name;
-                    slot._blendMode = slotData.blendMode;
                     slot._originZOrder = slotData.zOrder;
                     slot._dislayDataList = displayDataList;
 
@@ -2508,7 +2501,6 @@ var dragonBones;
             ConstValues.A_TWEEN_ROTATE = "tweenRotate";
             ConstValues.A_DISPLAY_INDEX = "displayIndex";
             ConstValues.A_Z_ORDER = "z";
-            ConstValues.A_BLENDMODE = "blendMode";
             ConstValues.A_WIDTH = "width";
             ConstValues.A_HEIGHT = "height";
             ConstValues.A_SCALE_MODE = "scaleMode";
@@ -2897,9 +2889,6 @@ var dragonBones;
 
             this._isDisplayOnStage = false;
             this._isHideDisplay = false;
-
-            this._blendMode = "normal";
-            this._displayBridge.updateBlendMode(this._blendMode);
         }
         Slot.prototype.getZOrder = function () {
             return this._originZOrder + this._tweenZorder + this._offsetZOrder;
@@ -2924,19 +2913,6 @@ var dragonBones;
         Slot.prototype.setDisplay = function (value) {
             this._displayList[this._displayIndex] = value;
             this._setDisplay(value);
-        };
-
-        Slot.prototype.getBlendMode = function () {
-            return this._blendMode;
-        };
-
-        Slot.prototype.setBlendMode = function (value) {
-            if (this._blendMode != value) {
-                this._blendMode = value;
-                if (this._displayBridge.getDisplay()) {
-                    this._displayBridge.updateBlendMode(this._blendMode);
-                }
-            }
         };
 
         Slot.prototype.getChildArmature = function () {
@@ -2983,9 +2959,6 @@ var dragonBones;
             }
 
             this.updateChildArmatureAnimation();
-            if (display) {
-                this._displayBridge.updateBlendMode(this._blendMode);
-            }
 
             if (!this._isHideDisplay && this._displayBridge.getDisplay()) {
                 this._isDisplayOnStage = true;
