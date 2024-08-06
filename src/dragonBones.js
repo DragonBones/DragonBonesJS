@@ -1,4 +1,4 @@
-var __extends = this.__extends || function (d, b) {
+let __extends = function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
     __.prototype = b.prototype;
@@ -3608,3 +3608,5 @@ var dragonBones;
     })(events.EventDispatcher);
     dragonBones.Armature = Armature;
 })(dragonBones || (dragonBones = {}));
+
+module.exports = dragonBones;
