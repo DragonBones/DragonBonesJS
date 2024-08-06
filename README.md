@@ -1,12 +1,10 @@
-SkeletonAnimationLibraryJS
-==========================
+Dragonbones+CreateJS - last working version
+===========================================
 
-http://dragonbones.github.io/  
+## About
 
-In this project you can find the JavaScript source code of DragonBones library, which is a framework support rendering characters with skeleton animation by parsing assets exported from [SkeletonAnimationDesignPanel](https://github.com/DragonBones/SkeletonAnimationDesignPanel).
+This is a fork of v2.4.1 of https://github.com/DragonBones/DragonBonesJS, which is the last version to include [CreateJS](https://createjs.com/) support.
 
-There are some demos in [SkeletonAnimationDemos](https://github.com/DragonBones/SkeletonAnimationDemos) project, which can guild you how to use the library  
-
-**All things you need to download can be found [here](http://dragonbones.github.io/download.html)**  
+## Dragonbones copyright
 
 Copyright 2012-2013 the DragonBones Team
