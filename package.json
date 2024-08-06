@@ -1,6 +1,6 @@
 {
   "name": "@blakeelearning/dragonbones-createjs",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "dragonbonesjs with patches and createjs support",
   "homepage": "https://github.com/blake-education/dragonBones-createjs",
   "license": "MIT",
