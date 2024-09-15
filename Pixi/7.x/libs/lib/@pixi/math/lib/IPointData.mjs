@@ -1,0 +1,2 @@
+
+//# sourceMappingURL=IPointData.mjs.map

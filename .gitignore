@@ -5,7 +5,8 @@ bin/
 node_modules/
 modules/
 .cache/
-
+debug/
+package-lock.json
 pids
 logs
 results

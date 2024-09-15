@@ -1,0 +1,45 @@
+{
+  "name": "@pixi/text-bitmap",
+  "version": "7.4.2",
+  "main": "lib/index.js",
+  "module": "lib/index.mjs",
+  "types": "lib/index.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./lib/index.d.ts",
+        "default": "./lib/index.mjs"
+      },
+      "require": {
+        "types": "./lib/index.d.ts",
+        "default": "./lib/index.js"
+      }
+    }
+  },
+  "description": "Text via bitmap fonts",
+  "author": "Mat Groves",
+  "contributors": [
+    "Matt Karl <matt@mattkarl.com>"
+  ],
+  "homepage": "http://pixijs.com/",
+  "bugs": "https://github.com/pixijs/pixijs/issues",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pixijs/pixijs.git"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "files": [
+    "lib",
+    "*.d.ts"
+  ],
+  "peerDependencies": {
+    "@pixi/assets": "7.4.2",
+    "@pixi/core": "7.4.2",
+    "@pixi/display": "7.4.2",
+    "@pixi/mesh": "7.4.2",
+    "@pixi/text": "7.4.2"
+  }
+}

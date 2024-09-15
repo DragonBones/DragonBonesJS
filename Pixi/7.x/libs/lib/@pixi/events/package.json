@@ -1,0 +1,49 @@
+{
+  "name": "@pixi/events",
+  "version": "7.4.2",
+  "main": "lib/index.js",
+  "module": "lib/index.mjs",
+  "types": "lib/index.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./lib/index.d.ts",
+        "default": "./lib/index.mjs"
+      },
+      "require": {
+        "types": "./lib/index.d.ts",
+        "default": "./lib/index.js"
+      }
+    }
+  },
+  "description": "Federated Events API, the plumbing behind the propagation of UI events into the PixiJS scene graph.",
+  "keywords": [
+    "interaction",
+    "UI",
+    "events",
+    "pointer",
+    "mouse",
+    "touch"
+  ],
+  "author": "Shukant Pal <shukant@pixijs.io>",
+  "homepage": "https://github.com/pixijs/pixijs#readme",
+  "license": "MIT",
+  "files": [
+    "lib",
+    "*.d.ts"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pixijs/pixijs.git"
+  },
+  "bugs": {
+    "url": "https://github.com/pixijs/pixijs/issues"
+  },
+  "peerDependencies": {
+    "@pixi/core": "7.4.2",
+    "@pixi/display": "7.4.2"
+  }
+}

@@ -1,0 +1,1 @@
+{"version":3,"file":"isSingleItem.js","sources":["../../src/utils/isSingleItem.ts"],"sourcesContent":["/**\n * Checks if the given value is an array.\n * @param item - The item to test\n */\nexport const isSingleItem = (item: unknown): boolean => (!Array.isArray(item));\n"],"names":[],"mappings":";AAIO,MAAM,eAAe,CAAC,SAA4B,CAAC,MAAM,QAAQ,IAAI;;"}
