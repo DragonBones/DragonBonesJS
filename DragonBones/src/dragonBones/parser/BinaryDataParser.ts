@@ -381,6 +381,7 @@ namespace dragonBones {
             this._data.frameFloatArray = frameFloatArray;
             this._data.frameArray = this._frameArrayBuffer = frameArray;
             this._data.timelineArray = this._timelineArrayBuffer = timelineArray;
+            // TODO: this._data.timelineArray 需要兼容，6.0版本的数据，每个时间轴多了两个数据，所以这里要处理一下
             this._data.colorArray = colorArray;
         }
 

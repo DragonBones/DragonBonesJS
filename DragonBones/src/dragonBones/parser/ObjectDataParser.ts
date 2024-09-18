@@ -1249,8 +1249,12 @@ namespace dragonBones {
             timeline.offset = timelineOffset;
             this._frameValueType = frameValueType;
             this._timeline = timeline;
+            // 这里比5.7版本增加了TimelineLoop和TimelineDuration，所以就和二进制版本的数据不兼容了。
+            
             // BinaryOffset.TimelineScale
             // BinaryOffset.TimelineOffset
+            // BinaryOffset.TimelineLoop = 2,
+            // BinaryOffset.TimelineDuration = 3,
             // BinaryOffset.TimelineKeyFrameCount
             // BinaryOffset.TimelineFrameValueCount
             // BinaryOffset.TimelineFrameValueOffset
@@ -1272,7 +1276,6 @@ namespace dragonBones {
             }
 
             const timelineDuration = this.getTimelineDuration(rawFrames);
-            console.log("timelineDuration", timelineDuration);
             this._timelineArray[timelineOffset + BinaryOffset.TimelineDuration] = timelineDuration;
 
             this._timelineArray[timelineOffset + BinaryOffset.TimelineKeyFrameCount] = keyFrameCount;

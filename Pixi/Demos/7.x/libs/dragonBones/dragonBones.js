@@ -9315,68 +9315,63 @@ var dragonBones;
                 this.currentPlayTimes = 1;
                 this.currentTime = this._actionTimeline.currentTime;
             }
-            else { // Action timeline or has scale and offset.
+            else if (this._actionTimeline === null) {
+                // Action timeline 主时间轴，是事件时间轴，如果没有事件，就是空帧的时间轴。不可缩放，不可偏移，不可循环
+                // 每次更新会首先更新它，然后再更新其他时间轴
                 const playTimes = this._animationState.playTimes;
                 const totalTime = playTimes * this._duration;
-                let timelinePassedTime = passedTime % this._duration;
-                timelinePassedTime = timelinePassedTime * this._timeScale;
-                if (this._timeOffset !== 0.0) {
-                    timelinePassedTime += this._timeOffset;
-                }
-                if (timelinePassedTime >= this._timelineDuration) {
-                    if (this._timeLoop) {
-                        timelinePassedTime %= this._timelineDuration;
-                        if (timelinePassedTime < 0.0) {
-                            timelinePassedTime += this._timelineDuration;
-                        }
-                    }
-                    else {
-                        timelinePassedTime = this._timelineDuration + 0.000001;
-                    }
-                }
-                else if (timelinePassedTime < 0.0) {
-                    if (this._timeLoop) {
-                        timelinePassedTime %= this._timelineDuration;
-                        timelinePassedTime += this._timelineDuration;
-                    }
-                    else {
-                        timelinePassedTime = 0.0;
-                    }
-                }
-                this.currentTime = timelinePassedTime;
                 if (playTimes > 0 && (passedTime >= totalTime || passedTime <= -totalTime)) {
                     if (this.playState <= 0 && this._animationState._playheadState === 3) {
                         this.playState = 1;
                     }
                     this.currentPlayTimes = playTimes;
-                    // if (passedTime < 0.0) {
-                    //     this.currentTime = 0.0;
-                    // }
-                    // else {
-                    //     this.currentTime = this.playState === 1 ? this._duration + 0.000001 : this._duration; // Precision problem
-                    // }
+                    if (passedTime < 0.0) {
+                        this.currentTime = 0.0;
+                    }
+                    else {
+                        this.currentTime = this.playState === 1 ? this._duration + 0.000001 : this._duration; // Precision problem
+                    }
                 }
                 else {
                     if (this.playState !== 0 && this._animationState._playheadState === 3) {
                         this.playState = 0;
                     }
                     if (passedTime < 0.0) {
-                        // passedTime = -passedTime;
+                        passedTime = -passedTime;
                         this.currentPlayTimes = Math.floor(passedTime / this._duration);
-                        // this.currentTime = this._duration - (passedTime % this._duration);
+                        // 倒放
+                        this.currentTime = this._duration - (passedTime % this._duration);
                     }
                     else {
                         this.currentPlayTimes = Math.floor(passedTime / this._duration);
-                        // this.currentTime = passedTime % this._duration;
+                        this.currentTime = passedTime % this._duration;
                     }
                 }
-                // if (this._timelineData && this._timelineData.hashCode === 7) {
-                //     console.log('skkk2', this.currentTime, passedTime)
-                // }
                 this.currentTime += this._position;
             }
-            if (this._timelineData) {
-                console.log('skkk', this.currentTime, passedTime, this._timelineDuration, this._actionTimeline);
+            else { // Multi frames.
+                // 包含多帧的时间轴，可以缩放，可以偏移，可以循环
+                // 这里和5.7版本的逻辑不一样了。增加了时间轴的循环属性，缩放和偏移稍有不同
+                // 5.7版本的缩放和偏移是加在骨骼上的，并且每个时间轴的长度必须和总时间轴的长度一致
+                // 6.0版本的缩放和偏移是加在时间轴上的，每个时间轴的长度可以不一致
+                this.playState = this._actionTimeline.playState;
+                this.currentPlayTimes = this._actionTimeline.currentPlayTimes;
+                let mainTime = this._actionTimeline.currentTime;
+                if (this._timeScale === 1.0 && this._timeOffset === 0.0 && this._timeLoop === 0 && this._timelineDuration === this._duration) {
+                    this.currentTime = mainTime;
+                }
+                else {
+                    if (this._timeScale !== 1.0 || this._timeOffset !== 0.0) {
+                        mainTime *= this._timeScale;
+                        mainTime += this._timeOffset * this._animationData.duration;
+                        mainTime = mainTime % this._duration;
+                    }
+                    if (this._timeLoop !== 0) {
+                        mainTime = mainTime % this._timelineDuration;
+                    }
+                    this.currentTime = mainTime;
+                }
+                this.currentTime += this._position;
             }
             if (this.currentPlayTimes === prevPlayTimes && this.currentTime === prevTime) {
                 return false;
@@ -12183,8 +12178,11 @@ var dragonBones;
             timeline.offset = timelineOffset;
             this._frameValueType = frameValueType;
             this._timeline = timeline;
+            // 这里比5.7版本增加了TimelineLoop和TimelineDuration，所以就和二进制版本的数据不兼容了。
             // BinaryOffset.TimelineScale
             // BinaryOffset.TimelineOffset
+            // BinaryOffset.TimelineLoop = 2,
+            // BinaryOffset.TimelineDuration = 3,
             // BinaryOffset.TimelineKeyFrameCount
             // BinaryOffset.TimelineFrameValueCount
             // BinaryOffset.TimelineFrameValueOffset
@@ -12203,7 +12201,6 @@ var dragonBones;
                 this._timelineArray[timelineOffset + 2 /* TimelineLoop */] = 0;
             }
             const timelineDuration = this.getTimelineDuration(rawFrames);
-            console.log("timelineDuration", timelineDuration);
             this._timelineArray[timelineOffset + 3 /* TimelineDuration */] = timelineDuration;
             this._timelineArray[timelineOffset + 4 /* TimelineKeyFrameCount */] = keyFrameCount;
             this._timelineArray[timelineOffset + 5 /* TimelineFrameValueCount */] = frameValueCount;
@@ -13487,6 +13484,7 @@ var dragonBones;
             this._data.frameFloatArray = frameFloatArray;
             this._data.frameArray = this._frameArrayBuffer = frameArray;
             this._data.timelineArray = this._timelineArrayBuffer = timelineArray;
+            // TODO: this._data.timelineArray 需要兼容，6.0版本的数据，每个时间轴多了两个数据，所以这里要处理一下
             this._data.colorArray = colorArray;
         }
         parseDragonBonesData(rawData, scale = 1) {
