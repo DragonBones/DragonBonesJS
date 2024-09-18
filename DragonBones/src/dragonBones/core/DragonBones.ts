@@ -37,10 +37,12 @@ namespace dragonBones {
 
         TimelineScale = 0,
         TimelineOffset = 1,
-        TimelineKeyFrameCount = 2,
-        TimelineFrameValueCount = 3,
-        TimelineFrameValueOffset = 4,
-        TimelineFrameOffset = 5,
+        TimelineLoop = 2,
+        TimelineDuration = 3,
+        TimelineKeyFrameCount = 4,
+        TimelineFrameValueCount = 5,
+        TimelineFrameValueOffset = 6,
+        TimelineFrameOffset = 7,
 
         FramePosition = 0,
         FrameTweenType = 1,

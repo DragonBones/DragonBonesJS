@@ -46,6 +46,8 @@ namespace dragonBones {
         protected _duration: number;
         protected _timeScale: number;
         protected _timeOffset: number;
+        protected _timeLoop: number;
+        protected _timelineDuration: number;
         protected _animationData: AnimationData;
         protected _timelineData: TimelineData | null;
         protected _armature: Armature;
@@ -99,27 +101,49 @@ namespace dragonBones {
                 this.currentPlayTimes = 1;
                 this.currentTime = this._actionTimeline.currentTime;
             }
-            else if (this._actionTimeline === null || this._timeScale !== 1.0 || this._timeOffset !== 0.0) { // Action timeline or has scale and offset.
+            else { // Action timeline or has scale and offset.
                 const playTimes = this._animationState.playTimes;
                 const totalTime = playTimes * this._duration;
 
-                passedTime *= this._timeScale;
+                let timelinePassedTime = passedTime % this._duration;
+                timelinePassedTime = timelinePassedTime * this._timeScale;
                 if (this._timeOffset !== 0.0) {
-                    passedTime += this._timeOffset * this._animationData.duration;
+                    timelinePassedTime += this._timeOffset;
                 }
+
+                if (timelinePassedTime >= this._timelineDuration) {
+                    if (this._timeLoop) {
+                        timelinePassedTime %= this._timelineDuration;
+                        if (timelinePassedTime < 0.0) {
+                            timelinePassedTime += this._timelineDuration;
+                        }
+                    }
+                    else {
+                        timelinePassedTime = this._timelineDuration + 0.000001;
+                    }
+                }
+                else if (timelinePassedTime < 0.0) {
+                    if (this._timeLoop) {
+                        timelinePassedTime %= this._timelineDuration;
+                        timelinePassedTime += this._timelineDuration;
+                    }
+                    else {
+                        timelinePassedTime = 0.0;
+                    }
+                }
+                this.currentTime = timelinePassedTime;
 
                 if (playTimes > 0 && (passedTime >= totalTime || passedTime <= -totalTime)) {
                     if (this.playState <= 0 && this._animationState._playheadState === 3) {
                         this.playState = 1;
                     }
-
                     this.currentPlayTimes = playTimes;
-                    if (passedTime < 0.0) {
-                        this.currentTime = 0.0;
-                    }
-                    else {
-                        this.currentTime = this.playState === 1 ? this._duration + 0.000001 : this._duration; // Precision problem
-                    }
+                    // if (passedTime < 0.0) {
+                    //     this.currentTime = 0.0;
+                    // }
+                    // else {
+                    //     this.currentTime = this.playState === 1 ? this._duration + 0.000001 : this._duration; // Precision problem
+                    // }
                 }
                 else {
                     if (this.playState !== 0 && this._animationState._playheadState === 3) {
@@ -127,24 +151,24 @@ namespace dragonBones {
                     }
 
                     if (passedTime < 0.0) {
-                        passedTime = -passedTime;
+                        // passedTime = -passedTime;
                         this.currentPlayTimes = Math.floor(passedTime / this._duration);
-                        this.currentTime = this._duration - (passedTime % this._duration);
+                        // this.currentTime = this._duration - (passedTime % this._duration);
                     }
                     else {
                         this.currentPlayTimes = Math.floor(passedTime / this._duration);
-                        this.currentTime = passedTime % this._duration;
+                        // this.currentTime = passedTime % this._duration;
                     }
                 }
-
+                // if (this._timelineData && this._timelineData.hashCode === 7) {
+                //     console.log('skkk2', this.currentTime, passedTime)
+                // }
                 this.currentTime += this._position;
             }
-            else { // Multi frames.
-                this.playState = this._actionTimeline.playState;
-                this.currentPlayTimes = this._actionTimeline.currentPlayTimes;
-                this.currentTime = this._actionTimeline.currentTime;
-            }
 
+            if (this._timelineData) {
+                console.log('skkk', this.currentTime, passedTime, this._timelineDuration, this._actionTimeline)
+            }
             if (this.currentPlayTimes === prevPlayTimes && this.currentTime === prevTime) {
                 return false;
             }
@@ -185,8 +209,10 @@ namespace dragonBones {
                 //
                 this._frameCount = this._timelineArray[this._timelineData.offset + BinaryOffset.TimelineKeyFrameCount];
                 this._frameValueOffset = this._timelineArray[this._timelineData.offset + BinaryOffset.TimelineFrameValueOffset];
-                this._timeScale = 100.0 / this._timelineArray[this._timelineData.offset + BinaryOffset.TimelineScale];
-                this._timeOffset = this._timelineArray[this._timelineData.offset + BinaryOffset.TimelineOffset] * 0.01;
+                this._timeScale = this._timelineArray[this._timelineData.offset + BinaryOffset.TimelineScale] * 0.01;
+                this._timeOffset = this._timelineArray[this._timelineData.offset + BinaryOffset.TimelineOffset] * this._frameRateR;
+                this._timeLoop = this._timelineArray[this._timelineData.offset + BinaryOffset.TimelineLoop];
+                this._timelineDuration = this._timelineArray[this._timelineData.offset + BinaryOffset.TimelineDuration] * this._frameRateR;
             }
         }
 

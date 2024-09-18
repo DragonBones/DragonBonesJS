@@ -122,6 +122,7 @@ namespace dragonBones {
         protected static readonly PLAY_TIMES: string = "playTimes";
         protected static readonly SCALE: string = "scale";
         protected static readonly OFFSET: string = "offset";
+        protected static readonly LOOP: string = "loop";
         protected static readonly POSITION: string = "position";
         protected static readonly DURATION: string = "duration";
         protected static readonly TWEEN_EASING: string = "tweenEasing";

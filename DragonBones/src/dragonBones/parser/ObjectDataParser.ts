@@ -1207,6 +1207,19 @@ namespace dragonBones {
             return animation;
         }
 
+        protected getTimelineDuration(frames: {duration: number}[]) {
+            if (!frames || frames.length === 0) {
+                return 0;
+            }
+            else {
+                let duration = 0;
+                for (let i = 0, l = frames.length; i < l; ++i) {
+                    const frame = frames[i];
+                    duration += frame.duration >= 0 ? frame.duration : 0;
+                }
+                return duration;
+            }
+        }
         protected _parseTimeline(
             rawData: any, rawFrames: Array<any> | null, framesKey: string,
             timelineType: TimelineType, frameValueType: FrameValueType, frameValueCount: number,
@@ -1236,16 +1249,31 @@ namespace dragonBones {
             timeline.offset = timelineOffset;
             this._frameValueType = frameValueType;
             this._timeline = timeline;
-            this._timelineArray.length += 1 + 1 + 1 + 1 + 1 + keyFrameCount;
+            // BinaryOffset.TimelineScale
+            // BinaryOffset.TimelineOffset
+            // BinaryOffset.TimelineKeyFrameCount
+            // BinaryOffset.TimelineFrameValueCount
+            // BinaryOffset.TimelineFrameValueOffset
+            // 帧的数量
+            //
+            this._timelineArray.length += 1 + 1 + 1 + 1 + 1 + 1 + 1 + keyFrameCount;
 
-            if (rawData !== null) {
-                this._timelineArray[timelineOffset + BinaryOffset.TimelineScale] = Math.round(ObjectDataParser._getNumber(rawData, DataParser.SCALE, 1.0) * 100);
-                this._timelineArray[timelineOffset + BinaryOffset.TimelineOffset] = Math.round(ObjectDataParser._getNumber(rawData, DataParser.OFFSET, 0.0) * 100);
+            if (rawData !== null && rawData.timelineConfig && rawData.timelineConfig[framesKey]) {
+                
+                const rawTimelineConfig = rawData.timelineConfig[framesKey];
+                this._timelineArray[timelineOffset + BinaryOffset.TimelineScale] = Math.round(ObjectDataParser._getNumber(rawTimelineConfig, DataParser.SCALE, 1.0) * 100);
+                this._timelineArray[timelineOffset + BinaryOffset.TimelineOffset] = Math.round(ObjectDataParser._getNumber(rawTimelineConfig, DataParser.OFFSET, 0));
+                this._timelineArray[timelineOffset + BinaryOffset.TimelineLoop] = (ObjectDataParser._getBoolean(rawTimelineConfig, DataParser.LOOP, false)) ? 1 : 0;
             }
             else {
                 this._timelineArray[timelineOffset + BinaryOffset.TimelineScale] = 100;
                 this._timelineArray[timelineOffset + BinaryOffset.TimelineOffset] = 0;
+                 this._timelineArray[timelineOffset + BinaryOffset.TimelineLoop] = 0;
             }
+
+            const timelineDuration = this.getTimelineDuration(rawFrames);
+            console.log("timelineDuration", timelineDuration);
+            this._timelineArray[timelineOffset + BinaryOffset.TimelineDuration] = timelineDuration;
 
             this._timelineArray[timelineOffset + BinaryOffset.TimelineKeyFrameCount] = keyFrameCount;
             this._timelineArray[timelineOffset + BinaryOffset.TimelineFrameValueCount] = frameValueCount;

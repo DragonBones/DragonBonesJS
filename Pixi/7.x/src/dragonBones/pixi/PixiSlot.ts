@@ -248,14 +248,14 @@ namespace dragonBones {
 
             if (this._geometryData !== null) {
                 const meshDisplay = this._renderDisplay as PIXI.SimpleMesh;
-                meshDisplay.texture = null as any;
+                // meshDisplay.texture = null as any;
                 meshDisplay.x = 0.0;
                 meshDisplay.y = 0.0;
                 meshDisplay.visible = false;
             }
             else {
                 const normalDisplay = this._renderDisplay as PIXI.Sprite;
-                normalDisplay.texture = null as any;
+                // normalDisplay.texture = null as any;
                 normalDisplay.x = 0.0;
                 normalDisplay.y = 0.0;
                 normalDisplay.visible = false;

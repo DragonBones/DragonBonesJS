@@ -3,7 +3,8 @@
   "version": "5.6.2",
   "main": "",
   "scripts": {
-    "build": "tsc & uglifyjs ./out/dragonBones.js -o ./out/dragonBones.min.js -m"
+    "build": "tsc & uglifyjs ./out/dragonBones.js -o ./out/dragonBones.min.js -m",
+    "debug": "tsc -w --sourceMap --outFile ../Demos/7.x/libs/dragonBones/dragonBones.js"
   },
   "devDependencies": {
     "typescript": "^2.4.2",
