@@ -80,7 +80,7 @@ namespace dragonBones {
                             this._armature._sortZOrder(null, 0);
                         }
 
-                        prevPlayTimes = this.currentPlayTimes;
+                        // prevPlayTimes = this.currentPlayTimes; // TODO
 
                         if (eventActive && eventDispatcher.hasDBEventListener(EventObject.START)) {
                             const eventObject = BaseObject.borrowObject(EventObject);
@@ -860,7 +860,6 @@ namespace dragonBones {
             return "[class dragonBones.DeformTimelineState]";
         }
 
-        public geometryOffset: number;
         public displayFrame: DisplayFrame;
 
         private _deformCount: number;
@@ -870,7 +869,6 @@ namespace dragonBones {
         protected _onClear(): void {
             super._onClear();
 
-            this.geometryOffset = 0;
             this.displayFrame = null as any;
 
             this._deformCount = 0;
@@ -885,38 +883,19 @@ namespace dragonBones {
                 const frameIntOffset = this._animationData.frameIntOffset + this._timelineArray[this._timelineData.offset + BinaryOffset.TimelineFrameValueCount];
                 const dragonBonesData = this._animationData.parent.parent;
                 const frameIntArray = dragonBonesData.frameIntArray;
-                const slot = (this.target as BlendState).target as Slot;
-                this.geometryOffset = frameIntArray[frameIntOffset + BinaryOffset.DeformVertexOffset];
-
-                if (this.geometryOffset < 0) {
-                    this.geometryOffset += 65536; // Fixed out of bounds bug. 
-                }
-
-                for (let i = 0, l = slot.displayFrameCount; i < l; ++i) {
-                    const displayFrame = slot.getDisplayFrameAt(i);
-                    const geometryData = displayFrame.getGeometryData();
-
-                    if (geometryData === null) {
-                        continue;
-                    }
-
-                    if (geometryData.offset === this.geometryOffset) {
-                        this.displayFrame = displayFrame;
-                        this.displayFrame.updateDeformVertices();
-                        break;
-                    }
-                }
-
-                if (this.displayFrame === null) {
-                    this.returnToPool(); //
-                    return;
-                }
 
                 this._valueOffset = this._animationData.frameFloatOffset;
                 this._valueCount = frameIntArray[frameIntOffset + BinaryOffset.DeformValueCount];
                 this._deformCount = frameIntArray[frameIntOffset + BinaryOffset.DeformCount];
                 this._deformOffset = frameIntArray[frameIntOffset + BinaryOffset.DeformValueOffset];
-                this._sameValueOffset = frameIntArray[frameIntOffset + BinaryOffset.DeformFloatOffset] + this._animationData.frameFloatOffset;
+                this._sameValueOffset = frameIntArray[frameIntOffset + BinaryOffset.DeformFloatOffset];
+                
+                if (this._sameValueOffset < 0) {
+                    this._sameValueOffset += 65536; // Fixed out of bounds bug. 
+                }
+
+                this._sameValueOffset += this._animationData.frameFloatOffset
+
                 this._valueScale = this._armature.armatureData.scale;
                 this._valueArray = dragonBonesData.frameFloatArray;
                 this._rd.length = this._valueCount * 2;

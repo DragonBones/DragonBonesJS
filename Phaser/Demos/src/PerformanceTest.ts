@@ -27,9 +27,9 @@ class PerformanceTest extends BaseDemo {
         super.create();
 
         this.input.enabled = true;
-        this.input.addDownCallback(p => this._inputDown(p), false);
-        this.input.addUpCallback(() => this._inputUp(), false);
-        
+        this.input.on("pointerdown", p => this._inputDown(p));
+        this.input.on("pointerup", () => this._inputUp());
+
         this._text = this.createText("--");
         this._text.y = this.cameras.main.height - 80;
         this._perfText = this.createText("--");
@@ -78,11 +78,11 @@ class PerformanceTest extends BaseDemo {
     }
 
     private _addArmature(): void {
-        const armatureDisplay = this.add.armature("mecha_1406");
+        const armatureDisplay = this.add.armature("mecha_1406", "mecha_1406");
         armatureDisplay.armature.cacheFrameRate = 24;
         armatureDisplay.animation.play("walk");
         armatureDisplay.setScale(.5);
-        
+
         this._armatures.push(armatureDisplay);
     }
 

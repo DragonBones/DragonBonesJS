@@ -19,7 +19,7 @@ class DragonBonesEvent extends BaseDemo {
     create(): void {
         super.create();
 
-        this._armatureDisplay = this.add.armature("mecha_1004d");
+        this._armatureDisplay = this.add.armature("mecha_1004d", "mecha_1004d");
         this._armatureDisplay.addDBEventListener(dragonBones.EventObject.COMPLETE, this._animationEventHandler, this);
         this._armatureDisplay.animation.play("walk");
 
@@ -27,9 +27,9 @@ class DragonBonesEvent extends BaseDemo {
         this._armatureDisplay.y = this.cameras.main.centerY + 100.0;
         //
         this.input.enabled = true;
-        this.input.addDownCallback(() => {
+        this.input.on('pointerdown', () => {
             this._armatureDisplay.animation.fadeIn("skill_03", 0.2);
-        }, false);
+        });
         //
         this.createText("Touch to play animation.");
     }

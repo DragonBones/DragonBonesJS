@@ -332,11 +332,17 @@ namespace dragonBones {
             geometry.offset = rawData[DataParser.OFFSET];
             geometry.data = this._data;
 
-            const weightOffset = this._intArrayBuffer[geometry.offset + BinaryOffset.GeometryWeightOffset];
+            let weightOffset = this._intArrayBuffer[geometry.offset + BinaryOffset.GeometryWeightOffset];
+
+            if (weightOffset < -1) { // -1 is a special flag that there is no bones weight.
+                weightOffset += 65536; // Fixed out of bounds bug. 
+            }
+
             if (weightOffset >= 0) {
                 const weight = BaseObject.borrowObject(WeightData);
                 const vertexCount = this._intArrayBuffer[geometry.offset + BinaryOffset.GeometryVertexCount];
                 const boneCount = this._intArrayBuffer[weightOffset + BinaryOffset.WeigthBoneCount];
+
                 weight.offset = weightOffset;
 
                 for (let i = 0; i < boneCount; ++i) {
@@ -346,6 +352,7 @@ namespace dragonBones {
 
                 let boneIndicesOffset = weightOffset + BinaryOffset.WeigthBoneIndices + boneCount;
                 let weightCount = 0;
+
                 for (let i = 0, l = vertexCount; i < l; ++i) {
                     const vertexBoneCount = this._intArrayBuffer[boneIndicesOffset++];
                     weightCount += vertexBoneCount;
@@ -372,7 +379,7 @@ namespace dragonBones {
             const frameFloatArray = new Float32Array(this._binary, this._binaryOffset + offsets[6], l4 / Float32Array.BYTES_PER_ELEMENT);
             const frameArray = new Int16Array(this._binary, this._binaryOffset + offsets[8], l5 / Int16Array.BYTES_PER_ELEMENT);
             const timelineArray = new Uint16Array(this._binary, this._binaryOffset + offsets[10], l6 / Uint16Array.BYTES_PER_ELEMENT);
-            const colorArray = l7 > 0 ? new Int16Array(this._binary, this._binaryOffset + offsets[12], l7 / Int16Array.BYTES_PER_ELEMENT) : intArray; // Color.
+            const colorArray = l7 > 0 ? new Int16Array(this._binary, this._binaryOffset + offsets[12], l7 / Uint16Array.BYTES_PER_ELEMENT) : intArray; // Color.
 
             this._data.binary = this._binary;
             this._data.intArray = this._intArrayBuffer = intArray;

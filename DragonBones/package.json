@@ -4,12 +4,12 @@
   "main": "",
   "scripts": {
     "build": "tsc & uglifyjs ./out/dragonBones.js -o ./out/dragonBones.min.js -m",
-    "build-egret-4.x": "cd .. & cd Egret & cd 4.x & npm run build & cd .. & cd .. & cd DragonBones",
+    "build-egret": "cd .. & cd Egret & cd 4.x & npm run build & cd .. & cd .. & cd DragonBones",
     "build-pixi": "cd .. & cd Pixi & cd 4.x & npm run build & cd .. & cd Demos & tsc & cd .. & cd .. & cd DragonBones",
     "build-phaser": "cd .. & cd Phaser & cd 2.x & npm run build & cd .. & cd Demos & tsc & cd .. & cd .. & cd DragonBones",
     "build-hilo": "cd .. & cd Hilo & cd 1.x & npm run build & cd .. & cd Demos & tsc & cd .. & cd .. & cd DragonBones",
     "build-cocos": "cd .. & cd Cocos & cd 1.x & npm run build & cd .. & cd .. & cd DragonBones",
-    "build-all": "npm run build-egret-4.x & npm run build-pixi & npm run build-phaser & npm run build-hilo & npm run build-cocos"
+  "build-all": "npm run build-egret & npm run build-pixi & npm run build-phaser & npm run build-hilo & npm run build-cocos"
   },
   "devDependencies": {
     "typescript": "^2.4.2",

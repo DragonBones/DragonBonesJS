@@ -19,7 +19,7 @@ class AnimationBase extends BaseDemo {
     create(): void {
         super.create();
 
-        this._armatureDisplay = this.add.armature("progress_bar");
+        this._armatureDisplay = this.add.armature("progress_bar", "progress_bar");
         this._armatureDisplay.x = this.cameras.main.centerX;
         this._armatureDisplay.y = this.cameras.main.centerY;
         this._armatureDisplay.addDBEventListener(dragonBones.EventObject.START, this._animationEventHandler, this);
@@ -31,10 +31,10 @@ class AnimationBase extends BaseDemo {
         this._armatureDisplay.addDBEventListener(dragonBones.EventObject.FADE_OUT_COMPLETE, this._animationEventHandler, this);
         this._armatureDisplay.addDBEventListener(dragonBones.EventObject.FRAME_EVENT, this._animationEventHandler, this);
         this._armatureDisplay.animation.play("idle");
-        
+
         this.input.enabled = true;
-        this.input.addDownCallback(() => this._inputDown(), false);
-        this.input.addUpCallback(() => this._inputUp(), false);
+        this.input.on('pointerdown', () => this._inputDown());
+        this.input.on('pointerup', () => this._inputUp());
 
         this.createText("Touch to control animation play progress.");
     }

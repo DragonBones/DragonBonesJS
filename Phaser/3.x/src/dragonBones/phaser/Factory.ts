@@ -43,26 +43,33 @@ namespace dragonBones.phaser {
             return slot;
         }
 
-        buildArmatureDisplay(armatureName: string, dragonBonesName: string = "", skinName: string = "", textureAtlasName: string = "", textureScale = 1.0): display.ArmatureDisplay {
+        // dragonBonesName must be assigned, or can't find in cache inside
+        buildArmatureDisplay(armatureName: string, dragonBonesName: string, skinName: string = "", textureAtlasName: string = "", textureScale = 1.0): display.ArmatureDisplay {
             let armature: dragonBones.Armature;
 
-            if (!this._dragonBonesDataMap[dragonBonesName]) {
+            if (this.buildDragonBonesData(dragonBonesName, textureScale)) {
+                armature = this.buildArmature(armatureName, dragonBonesName, skinName, textureAtlasName);
+            }
+
+            return armature.display as display.ArmatureDisplay;
+        }
+
+        buildDragonBonesData(dragonBonesName: string, textureScale = 1.0): DragonBonesData {
+            let data = this._dragonBonesDataMap[dragonBonesName];
+            if (!data) {
                 const cache = this._scene.cache;
                 const boneRawData: any = cache.custom.dragonbone.get(dragonBonesName);
-                if (boneRawData != null) {
+                if (boneRawData) {
                     // parse raw data and add to cache map
-                    this.parseDragonBonesData(boneRawData, dragonBonesName, textureScale);
+                    data = this.parseDragonBonesData(boneRawData, dragonBonesName, textureScale);
 
                     const texture = this._scene.textures.get(dragonBonesName);
                     const json = cache.json.get(`${dragonBonesName}_atlasjson`);
 
                     this.parseTextureAtlasData(json, texture, texture.key, textureScale);
-                    armature = this.buildArmature(armatureName, dragonBonesName, skinName, textureAtlasName);
                 }
-            } else
-                armature = this.buildArmature(armatureName, dragonBonesName, skinName, textureAtlasName);
-
-            return armature.display as display.ArmatureDisplay;
+            }
+            return data;
         }
 
         /**

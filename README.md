@@ -1,7 +1,7 @@
 # DragonBones JavaScript / TypeScript Runtime
 [中文 README](./README-zh_CN.md)
 ## [DragonBones common library](./DragonBones/)
-## Highly suggest use [DragonBones Pro](http://www.dragonbones.com/) to create aniamtion.
+## Highly suggest use [DragonBones Pro](http://www.dragonbones.com/) to create animation.
 
 ## Supported engines
 * [Egret](http://www.egret.com/) - [How to use DragonBones in Egret](./Egret/)

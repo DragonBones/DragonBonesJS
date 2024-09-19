@@ -5,7 +5,7 @@ var __extends = (this && this.__extends) || (function () {
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    }
+    };
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -24,7 +24,7 @@ var BoneOffset = /** @class */ (function (_super) {
     BoneOffset.prototype.create = function () {
         _super.prototype.create.call(this);
         for (var i = 0; i < 100; ++i) {
-            var armatureDisplay = this.add.armature("bullet_01");
+            var armatureDisplay = this.add.armature("bullet_01", "bullet_01");
             armatureDisplay.addDBEventListener(dragonBones.EventObject.COMPLETE, this._animationHandler, this);
             armatureDisplay.x = 0;
             armatureDisplay.y = 0;

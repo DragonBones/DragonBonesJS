@@ -3,7 +3,8 @@
   "version": "5.6.2",
   "main": "",
   "scripts": {
-    "start": "tsc & copyfiles -u 3 -s ../2.x/out/* libs/dragonBones/ & anywhere",
+    "start": "tsc & npm run copyVer3 & anywhere",
+    "copyVer3": "copyfiles -u 3 ../3.x/out/* libs/dragonBones/",
     "upgradeA": "cd .. & cd 2.x & npm run build & cd .. & cd Demos",
     "upgradeB": "copyfiles -u 3 ../2.x/out/* libs/dragonBones/",
     "upgrade": "npm run upgradeA & npm run upgradeB",

@@ -5,7 +5,7 @@ var __extends = (this && this.__extends) || (function () {
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    }
+    };
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -29,8 +29,8 @@ var PerformanceTest = /** @class */ (function (_super) {
         var _this = this;
         _super.prototype.create.call(this);
         this.input.enabled = true;
-        this.input.addDownCallback(function (p) { return _this._inputDown(p); }, false);
-        this.input.addUpCallback(function () { return _this._inputUp(); }, false);
+        this.input.on("pointerdown", function (p) { return _this._inputDown(p); });
+        this.input.on("pointerup", function () { return _this._inputUp(); });
         this._text = this.createText("--");
         this._text.y = this.cameras.main.height - 80;
         this._perfText = this.createText("--");
@@ -69,7 +69,7 @@ var PerformanceTest = /** @class */ (function (_super) {
         this._removingArmature = false;
     };
     PerformanceTest.prototype._addArmature = function () {
-        var armatureDisplay = this.add.armature("mecha_1406");
+        var armatureDisplay = this.add.armature("mecha_1406", "mecha_1406");
         armatureDisplay.armature.cacheFrameRate = 24;
         armatureDisplay.animation.play("walk");
         armatureDisplay.setScale(.5);

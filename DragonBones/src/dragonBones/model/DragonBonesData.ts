@@ -136,7 +136,7 @@ namespace dragonBones {
         /**
          * @internal
          */
-        public colorArray: Uint16Array;
+        public colorArray: Int16Array | Uint16Array;
         /**
          * @private
          */

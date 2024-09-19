@@ -61,7 +61,7 @@ namespace dragonBones {
         protected _onClear(): void {
             this.dirty = false;
             this.playState = -1;
-            this.currentPlayTimes = -1;
+            this.currentPlayTimes = 0;
             this.currentTime = -1.0;
             this.target = null as any;
 

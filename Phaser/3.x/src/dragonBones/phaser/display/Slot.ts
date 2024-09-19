@@ -49,6 +49,14 @@ namespace dragonBones.phaser.display {
             this._renderDisplay.parentContainer.remove(this._renderDisplay);
         }
 
+        protected _updateDisplayData(): void {
+            super._updateDisplayData();
+
+            if (this.armature.replacedTexture !== null) {
+                this._textureDirty = true;
+            }
+        }
+
         protected _updateZOrder(): void {
             if (this._renderDisplay.depth === this._zOrder) return;
             this._renderDisplay.setDepth(this._zOrder);
