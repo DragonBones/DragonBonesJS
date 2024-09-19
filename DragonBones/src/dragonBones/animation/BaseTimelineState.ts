@@ -151,11 +151,20 @@ namespace dragonBones {
                 else {
                     if (this._timeScale !== 1.0 || this._timeOffset !== 0.0) {
                         mainTime *= this._timeScale;
-                        mainTime += this._timeOffset * this._animationData.duration;
-                        mainTime = mainTime % this._duration;
+                        mainTime += this._timeOffset;
                     }
                     if (this._timeLoop !== 0) {
                         mainTime = mainTime % this._timelineDuration;
+                        if (mainTime < 0) {
+                            mainTime += this._timelineDuration;
+                        }
+                    }
+                    else if (mainTime > this._timelineDuration) {
+                        // 如果时间轴不循环，那么当时间超过时间轴长度时，就会停在最后一帧
+                        mainTime = this._timelineDuration + 0.000001;
+                    }
+                    else if (mainTime < 0) {
+                        mainTime = 0.0;
                     }
                     this.currentTime = mainTime;
                 }
@@ -178,6 +187,12 @@ namespace dragonBones {
             return true;
         }
 
+        private uint2int(v: number): number {
+            if (v > 32767) {
+                return v - 65536;
+            }
+            return v;
+        }
         public init(armature: Armature, animationState: AnimationState, timelineData: TimelineData | null): void {
             this._armature = armature;
             this._animationState = animationState;
@@ -204,7 +219,7 @@ namespace dragonBones {
                 this._frameCount = this._timelineArray[this._timelineData.offset + BinaryOffset.TimelineKeyFrameCount];
                 this._frameValueOffset = this._timelineArray[this._timelineData.offset + BinaryOffset.TimelineFrameValueOffset];
                 this._timeScale = this._timelineArray[this._timelineData.offset + BinaryOffset.TimelineScale] * 0.01;
-                this._timeOffset = this._timelineArray[this._timelineData.offset + BinaryOffset.TimelineOffset] * this._frameRateR;
+                this._timeOffset = this.uint2int(this._timelineArray[this._timelineData.offset + BinaryOffset.TimelineOffset]) * this._frameRateR;
                 this._timeLoop = this._timelineArray[this._timelineData.offset + BinaryOffset.TimelineLoop];
                 this._timelineDuration = this._timelineArray[this._timelineData.offset + BinaryOffset.TimelineDuration] * this._frameRateR;
             }
