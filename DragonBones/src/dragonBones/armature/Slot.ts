@@ -427,10 +427,10 @@ namespace dragonBones {
                     this._pivotX *= width * scale;
                     this._pivotY *= height * scale;
 
-                    if (frame !== null) {
-                        this._pivotX += frame.x * scale;
-                        this._pivotY += frame.y * scale;
-                    }
+                    // if (frame !== null) {
+                    //     this._pivotX += frame.x * scale;
+                    //     this._pivotY += frame.y * scale;
+                    // }
 
                     // Update replace pivot. TODO
                     if (rawDisplayData !== null && imageDisplayData !== rawDisplayData) {

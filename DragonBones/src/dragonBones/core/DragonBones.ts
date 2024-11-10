@@ -286,7 +286,7 @@ namespace dragonBones {
      * @private
      */
     export class DragonBones {
-        public static readonly VERSION: string = "6.0.000";
+        public static readonly VERSION: string = "6.0.001";
 
         public static yDown: boolean = true;
         public static debug: boolean = false;
@@ -300,7 +300,7 @@ namespace dragonBones {
         public constructor(eventManager: IEventDispatcher) {
             this._eventManager = eventManager;
 
-            console.info(`DragonBones: ${DragonBones.VERSION}\nWebsite: http://dragonbones.com/\nSource and Demo: https://github.com/DragonBones/`);
+            console.info(`DragonBones: ${DragonBones.VERSION}\nWebsite: http://www.dragonbones.cn/\nSource and Demo: https://github.com/DragonBones/`);
         }
 
         public advanceTime(passedTime: number): void {
