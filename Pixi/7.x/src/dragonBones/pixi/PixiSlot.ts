@@ -349,6 +349,52 @@ namespace dragonBones {
             }
         }
 
+        protected _updateShape(): void {
+            // const scale = this._armature._armatureData.scale;
+            const shapeData = this._shapeData as ShapeData;
+            const shapeDisplay = this._renderDisplay as PIXI.Graphics;
+            shapeDisplay.clear();
+            for (let i = 0, len = shapeData.paths.length; i < len; i++) {
+                const path = shapeData.paths[i];
+                const { indexes, style } = path;
+                const { fill, stroke } = style;
+                if (indexes.length === 0) {
+                    continue;
+                }
+
+                if (stroke) {
+                    shapeDisplay.lineStyle(stroke.width || 1, stroke.color || 0, stroke.opacity || 0);
+                }
+                else {
+                    shapeDisplay.lineStyle(0, 0, 0);
+                }
+                
+                if (fill) {
+                    shapeDisplay.beginFill(fill.color[0], fill.opacity);
+                }
+                for (let j = 0, jLen = indexes.length; j < jLen; j++) {
+                    const pointIndex = indexes[j] * 6;
+                    
+                    if(j === 0) {
+                        shapeDisplay.moveTo(shapeData.vertices[pointIndex + 0 ], shapeData.vertices[pointIndex + 1]);
+                    }
+                    else {
+                        const prevPointIndex = indexes[j - 1] * 6;
+                        shapeDisplay.bezierCurveTo(
+                            shapeData.vertices[prevPointIndex + 4], shapeData.vertices[prevPointIndex + 5], 
+                            shapeData.vertices[pointIndex + 2], shapeData.vertices[pointIndex + 3], 
+                            shapeData.vertices[pointIndex + 0], shapeData.vertices[pointIndex + 1]
+                        );
+                    }
+
+                }
+                
+                if (fill) {
+                    shapeDisplay.endFill();
+                }
+                
+            }
+        }
         protected _updateTransform(): void {
             throw new Error();
         }

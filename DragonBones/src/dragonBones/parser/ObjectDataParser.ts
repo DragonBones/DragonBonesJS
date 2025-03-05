@@ -753,6 +753,17 @@ namespace dragonBones {
                     this._parsePath(rawData, pathDisplay);
                     break;
                 }
+                
+                case DisplayType.Shape: {
+                    const shape = this._parseShape(rawData);
+                    if (shape !== null) {
+                        const shapeDisplay = display = BaseObject.borrowObject(ShapeDisplayData);
+                        shapeDisplay.name = name;
+                        shapeDisplay.path = path.length > 0 ? path : name;
+                        shapeDisplay.shape = shape;
+                    }
+                    break;
+                }
             }
 
             if (display !== null && DataParser.TRANSFORM in rawData) {
@@ -875,6 +886,29 @@ namespace dragonBones {
             return polygonBoundingBox;
         }
 
+        protected _parseShape(rawData: any): ShapeData | null {
+            let shape: ShapeData | null = null;
+
+            shape = BaseObject.borrowObject(ShapeData);
+
+            if (DataParser.SHAPE in rawData) {
+                const scale = this._armature.scale;
+                const shapeData = rawData[DataParser.SHAPE] as {vertices: number[], paths:{indexes: number[], style: {stroke:{color: number, opacity: number, width: number}}}[]}
+                const vertices = shapeData.vertices;
+                for(let i = 0, len = vertices.length; i < len; i++) {
+                    shape.vertices.push(vertices[i] * scale);
+                }
+                if(shapeData.paths) {
+                    for(let i = 0, len = shapeData.paths.length; i < len; i++) {
+                        shape.paths.push(shapeData.paths[i]);
+                    }
+                }
+            }
+            else {
+                console.warn("Data error.\n Please reexport DragonBones Data to fixed the bug.");
+            }
+            return shape;
+        }
         protected _parseAnimation(rawData: any): AnimationData {
             const animation = BaseObject.borrowObject(AnimationData);
             animation.blendType = DataParser._getAnimationBlendType(ObjectDataParser._getString(rawData, DataParser.BLEND_TYPE, ""));

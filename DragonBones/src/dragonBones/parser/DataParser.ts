@@ -32,6 +32,7 @@ namespace dragonBones {
         protected static readonly DATA_VERSION_5_0: string = "5.0";
         protected static readonly DATA_VERSION_5_5: string = "5.5";
         protected static readonly DATA_VERSION_5_6: string = "5.6";
+        protected static readonly DATA_VERSION_6_0: string = "6.0";
         protected static readonly DATA_VERSION: string = DataParser.DATA_VERSION_5_6;
 
         protected static readonly DATA_VERSIONS: Array<string> = [
@@ -39,7 +40,8 @@ namespace dragonBones {
             DataParser.DATA_VERSION_4_5,
             DataParser.DATA_VERSION_5_0,
             DataParser.DATA_VERSION_5_5,
-            DataParser.DATA_VERSION_5_6
+            DataParser.DATA_VERSION_5_6,
+            DataParser.DATA_VERSION_6_0,
         ];
 
         protected static readonly TEXTURE_ATLAS: string = "textureAtlas";
@@ -160,11 +162,12 @@ namespace dragonBones {
         protected static readonly WEIGHTS: string = "weights";
         protected static readonly SLOT_POSE: string = "slotPose";
         protected static readonly BONE_POSE: string = "bonePose";
+        protected static readonly SHAPE: string = "shape";
 
         protected static readonly BONES: string = "bones";
         protected static readonly POSITION_MODE: string = "positionMode";
         protected static readonly SPACING_MODE: string = "spacingMode";
-        protected static readonly ROTATE_MODE: string = "rotateMode";
+        protected static readonly ROTATE_MODE: string = "rotateMode";shape
         protected static readonly SPACING: string = "spacing";
         protected static readonly ROTATE_OFFSET: string = "rotateOffset";
         protected static readonly ROTATE_MIX: string = "rotateMix";
@@ -271,6 +274,9 @@ namespace dragonBones {
                 case "path":
                     return DisplayType.Path;
 
+                case 'shape':
+                    return DisplayType.Shape;
+                    
                 default:
                     return DisplayType.Image;
             }

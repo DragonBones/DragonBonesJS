@@ -5400,6 +5400,7 @@ declare namespace dragonBones {
         protected static readonly DATA_VERSION_5_0: string;
         protected static readonly DATA_VERSION_5_5: string;
         protected static readonly DATA_VERSION_5_6: string;
+        protected static readonly DATA_VERSION_6_0: string;
         protected static readonly DATA_VERSION: string;
         protected static readonly DATA_VERSIONS: Array<string>;
         protected static readonly TEXTURE_ATLAS: string;

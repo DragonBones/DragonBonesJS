@@ -78,7 +78,8 @@ namespace dragonBones {
         Armature = 1,
         Mesh = 2,
         BoundingBox = 3,
-        Path = 4
+        Path = 4,
+        Shape = 5,
     }
     /**
      * - Bounding box type.

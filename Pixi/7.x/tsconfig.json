@@ -43,6 +43,7 @@
 		"../../DragonBones/src/dragonBones/model/CanvasData.ts",
 		"../../DragonBones/src/dragonBones/model/SkinData.ts",
 		"../../DragonBones/src/dragonBones/model/DisplayData.ts",
+		"../../DragonBones/src/dragonBones/model/ShapeData.ts",
 		"../../DragonBones/src/dragonBones/model/BoundingBoxData.ts",
 		"../../DragonBones/src/dragonBones/model/AnimationData.ts",
 		"../../DragonBones/src/dragonBones/model/AnimationConfig.ts",

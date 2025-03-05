@@ -97,6 +97,18 @@ namespace dragonBones {
             return null;
         }
 
+        public getShapeData(): ShapeData | null {
+            if (this.displayData !== null && this.displayData.type === DisplayType.Shape) {
+                return (this.displayData as ShapeDisplayData).shape;
+            }
+
+            if (this.rawDisplayData !== null && this.rawDisplayData.type === DisplayType.Shape) {
+                return (this.rawDisplayData as ShapeDisplayData).shape;
+            }
+
+            return null;
+        }
+
         public getBoundingBox(): BoundingBoxData | null {
             if (this.displayData !== null && this.displayData.type === DisplayType.BoundingBox) {
                 return (this.displayData as BoundingBoxDisplayData).boundingBox;
@@ -184,6 +196,7 @@ namespace dragonBones {
         protected _displayDataDirty: boolean;
         protected _displayDirty: boolean;
         protected _geometryDirty: boolean;
+        protected _shapeDirty: boolean;
         protected _textureDirty: boolean;
         protected _visibleDirty: boolean;
         protected _blendModeDirty: boolean;
@@ -243,10 +256,12 @@ namespace dragonBones {
          * @internal
          */
         public _geometryData: GeometryData | null;
+        protected _shapeData: ShapeData | null;
         protected _boundingBoxData: BoundingBoxData | null;
         protected _textureData: TextureData | null;
         protected _rawDisplay: any = null; // Initial value.
         protected _meshDisplay: any = null; // Initial value.
+        protected _shapeDisplay: any = null; // Initial value.
         protected _display: any | null = null;
         protected _childArmature: Armature | null;
         /**
@@ -286,6 +301,9 @@ namespace dragonBones {
             if (this._meshDisplay !== null && this._meshDisplay !== this._rawDisplay) { // May be _meshDisplay and _rawDisplay is the same one.
                 this._disposeDisplay(this._meshDisplay, false);
             }
+            if (this._shapeDisplay !== null && this._shapeDisplay !== this._rawDisplay) { // May be _shapeDisplay and _rawDisplay is the same one.
+                this._disposeDisplay(this._shapeDisplay, false);
+            }
 
             if (this._rawDisplay !== null) {
                 this._disposeDisplay(this._rawDisplay, false);
@@ -297,6 +315,7 @@ namespace dragonBones {
             this._displayDirty = false;
             this._geometryDirty = false;
             this._textureDirty = false;
+            this._shapeDirty = false;
             this._visibleDirty = false;
             this._blendModeDirty = false;
             this._zOrderDirty = false;
@@ -319,6 +338,7 @@ namespace dragonBones {
             this._slotData = null as any; //
             this._displayFrame = null;
             this._geometryData = null;
+            this._shapeData = null;
             this._boundingBoxData = null;
             this._textureData = null;
             this._rawDisplay = null;
@@ -344,6 +364,7 @@ namespace dragonBones {
         protected abstract _updateColor(): void;
         protected abstract _updateFrame(): void;
         protected abstract _updateMesh(): void;
+        protected abstract _updateShape(): void;
         protected abstract _updateTransform(): void;
         protected abstract _identityTransform(): void;
 
@@ -384,11 +405,13 @@ namespace dragonBones {
             const prevDisplayFrame = this._displayFrame;
             const prevGeometryData = this._geometryData;
             const prevTextureData = this._textureData;
+            const prevShapeData = this._shapeData;
             let rawDisplayData: DisplayData | null = null;
             let displayData: DisplayData | null = null;
 
             this._displayFrame = null;
             this._geometryData = null;
+            this._shapeData = null;
             this._boundingBoxData = null;
             this._textureData = null;
 
@@ -400,11 +423,14 @@ namespace dragonBones {
                 this._geometryData = this._displayFrame.getGeometryData();
                 this._boundingBoxData = this._displayFrame.getBoundingBox();
                 this._textureData = this._displayFrame.getTextureData();
+                this._shapeData = this._displayFrame.getShapeData();
             }
 
             if (
                 this._displayFrame !== prevDisplayFrame ||
-                this._geometryData !== prevGeometryData || this._textureData !== prevTextureData
+                this._geometryData !== prevGeometryData || 
+                this._textureData !== prevTextureData ||
+                this._shapeData !== prevShapeData
             ) {
                 // Update pivot offset.
                 if (this._geometryData === null && this._textureData !== null) {
@@ -451,6 +477,9 @@ namespace dragonBones {
                         this._pivotY = (this._textureData.rotated ? this._textureData.region.width : this._textureData.region.height) * scale - this._pivotY;
                     }
                 }
+                else if(this._shapeData !== null) {
+
+                }
                 else {
                     this._pivotX = 0.0;
                     this._pivotY = 0.0;
@@ -493,6 +522,9 @@ namespace dragonBones {
                         this._geometryBones.length = 0;
                         this._geometryData = null;
                     }
+                }
+                if (this._shapeData !== prevShapeData) {
+                    this._shapeDirty = true;
                 }
 
                 this._textureDirty = this._textureData !== prevTextureData;
@@ -636,7 +668,7 @@ namespace dragonBones {
         /**
          * @internal
          */
-        public init(slotData: SlotData, armatureValue: Armature, rawDisplay: any, meshDisplay: any): void {
+        public init(slotData: SlotData, armatureValue: Armature, rawDisplay: any, meshDisplay: any, shapeDisplay: any): void {
             if (this._slotData !== null) {
                 return;
             }
@@ -651,6 +683,7 @@ namespace dragonBones {
             this._colorTransform.copyFrom(this._slotData.color);
             this._rawDisplay = rawDisplay;
             this._meshDisplay = meshDisplay;
+            this._shapeDisplay = shapeDisplay;
             //
             this._armature = armatureValue;
             const slotParent = this._armature.getBone(this._slotData.parent.name);
@@ -667,6 +700,9 @@ namespace dragonBones {
             this._initDisplay(this._rawDisplay, false);
             if (this._rawDisplay !== this._meshDisplay) {
                 this._initDisplay(this._meshDisplay, false);
+            }
+            if (this._rawDisplay !== this._shapeDisplay) {
+                this._initDisplay(this._shapeDisplay, false);
             }
 
             this._onUpdateDisplay();
@@ -693,6 +729,10 @@ namespace dragonBones {
 
                 this._geometryDirty = false;
                 this._textureDirty = false;
+            }
+            if (this._shapeDirty) {
+                this._updateShape();
+                this._shapeDirty = false;
             }
 
             if (this._display === null) {
@@ -1197,6 +1237,12 @@ namespace dragonBones {
          */
         public get meshDisplay(): any {
             return this._meshDisplay;
+        }
+        /**
+         * @private
+         */
+        public get shapeDisplay(): any {
+            return this._shapeDisplay;
         }
         /**
          * - The display object that the slot displays at this time.

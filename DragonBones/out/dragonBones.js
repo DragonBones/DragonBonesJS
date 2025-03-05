@@ -11698,13 +11698,15 @@ var dragonBones;
         DataParser.DATA_VERSION_5_0 = "5.0";
         DataParser.DATA_VERSION_5_5 = "5.5";
         DataParser.DATA_VERSION_5_6 = "5.6";
+        DataParser.DATA_VERSION_6_0 = "6.0";
         DataParser.DATA_VERSION = DataParser.DATA_VERSION_5_6;
         DataParser.DATA_VERSIONS = [
             DataParser.DATA_VERSION_4_0,
             DataParser.DATA_VERSION_4_5,
             DataParser.DATA_VERSION_5_0,
             DataParser.DATA_VERSION_5_5,
-            DataParser.DATA_VERSION_5_6
+            DataParser.DATA_VERSION_5_6,
+            DataParser.DATA_VERSION_6_0,
         ];
         DataParser.TEXTURE_ATLAS = "textureAtlas";
         DataParser.SUB_TEXTURE = "SubTexture";

@@ -98,7 +98,7 @@ namespace dragonBones {
             const slot = BaseObject.borrowObject(PixiSlot);
             slot.init(
                 slotData, armature,
-                new PIXI.Sprite(), new PIXI.SimpleMesh()
+                new PIXI.Sprite(), new PIXI.SimpleMesh(), new PIXI.Graphics()
             );
 
             return slot;

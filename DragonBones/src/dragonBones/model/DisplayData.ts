@@ -210,4 +210,25 @@ namespace dragonBones {
             this.bones.push(value);
         }
     }
+     /**
+     * @private
+     */
+     export class ShapeDisplayData extends DisplayData {
+        public static toString(): string {
+            return "[class dragonBones.ShapeDisplayData]";
+        }
+
+        public shape: ShapeData | null = null; // Initial value.
+
+        protected _onClear(): void {
+            super._onClear();
+
+            if (this.shape !== null) {
+                this.shape.returnToPool();
+            }
+
+            this.type = DisplayType.Shape;
+            this.shape = null;
+        }
+    }
 }

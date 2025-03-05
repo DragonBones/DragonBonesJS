@@ -314,6 +314,11 @@ namespace dragonBones {
                 case DisplayType.BoundingBox:
                     break;
 
+                case DisplayType.Shape: {
+                    const shapeDisplayData = displayData as ShapeDisplayData;
+                    display = slot.shapeDisplay;
+                    break;
+                }
                 default:
                     break;
             }
@@ -737,6 +742,9 @@ namespace dragonBones {
                         rawDisplayData.type === DisplayType.Mesh
                     ) {
                         display = slot.meshDisplay;
+                    }
+                    else if (rawDisplayData !== null && rawDisplayData.type === DisplayType.Shape) {
+                        display = slot.shapeDisplay;
                     }
                 }
 
