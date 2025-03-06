@@ -34,6 +34,8 @@ namespace dragonBones {
         public textureData: TextureData | null;
         public display: any | Armature | null;
         public readonly deformVertices: Array<number> = [];
+        public readonly shapeVertices: Array<number> = [];
+
 
         protected _onClear(): void {
             this.rawDisplayData = null;
@@ -41,6 +43,7 @@ namespace dragonBones {
             this.textureData = null;
             this.display = null;
             this.deformVertices.length = 0;
+            this.shapeVertices.length = 0;
         }
 
         public updateDeformVertices(): void {
@@ -48,6 +51,7 @@ namespace dragonBones {
                 return;
             }
 
+            console.log("updateDeformVertices", this.rawDisplayData);
             let rawGeometryData: GeometryData;
             if (this.rawDisplayData.type === DisplayType.Mesh) {
                 rawGeometryData = (this.rawDisplayData as MeshDisplayData).geometry;
@@ -95,6 +99,29 @@ namespace dragonBones {
             }
 
             return null;
+        }
+
+        public updateShapeVertices(): void {
+            if (this.rawDisplayData === null || this.shapeVertices.length !== 0) {
+                return;
+            }
+
+            let rawVerticesData: number[] | undefined = undefined;
+            if (this.rawDisplayData.type === DisplayType.Shape) {
+                if ((this.rawDisplayData as ShapeDisplayData).shape) {
+                    rawVerticesData = (this.rawDisplayData as ShapeDisplayData).shape.vertices;
+                }
+            }
+            else {
+                return;
+            }
+
+            let vertexCount = rawVerticesData ? rawVerticesData.length : 0;
+
+            this.shapeVertices.length = vertexCount;
+            for (let i = 0, l = this.shapeVertices.length; i < l; ++i) {
+                this.shapeVertices[i] = 0.0;
+            }
         }
 
         public getShapeData(): ShapeData | null {
@@ -209,6 +236,7 @@ namespace dragonBones {
          * @internal
          */
         public _verticesDirty: boolean;
+        public _shapeVerticesDirty: boolean;
         protected _transformDirty: boolean;
         protected _visible: boolean;
         protected _blendMode: BlendMode;
@@ -256,7 +284,7 @@ namespace dragonBones {
          * @internal
          */
         public _geometryData: GeometryData | null;
-        protected _shapeData: ShapeData | null;
+        public _shapeData: ShapeData | null;
         protected _boundingBoxData: BoundingBoxData | null;
         protected _textureData: TextureData | null;
         protected _rawDisplay: any = null; // Initial value.
@@ -730,10 +758,6 @@ namespace dragonBones {
                 this._geometryDirty = false;
                 this._textureDirty = false;
             }
-            if (this._shapeDirty) {
-                this._updateShape();
-                this._shapeDirty = false;
-            }
 
             if (this._display === null) {
                 return;
@@ -776,6 +800,14 @@ namespace dragonBones {
                     return;
                 }
             }
+            if (this._shapeData !== null && this._display === this._shapeDisplay) {
+                if (this._shapeDirty || this._shapeVerticesDirty) {
+                    this._shapeVerticesDirty = false;
+                    this._shapeDirty = false;
+                    this._updateShape();
+                }
+            }
+
 
             if (cacheFrameIndex >= 0 && this._cachedFrameIndices !== null) {
                 const cachedFrameIndex = this._cachedFrameIndices[cacheFrameIndex];

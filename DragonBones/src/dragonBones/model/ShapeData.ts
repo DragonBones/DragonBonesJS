@@ -23,18 +23,19 @@
 namespace dragonBones {
     /**
      * - The shape data.
-     * @version DragonBones 5.1
+     * @version DragonBones 6.0
      * @language en_US
      */
     /**
      * - 形状数据。
-     * @version DragonBones 5.1
+     * @version DragonBones 6.0
      * @language zh_CN
      */
     export class ShapeData extends BaseObject {
         public static toString(): string {
             return "[class dragonBones.ShapeData]";
         }
+        public offset: number;
         /**
          * @private
          */
@@ -54,11 +55,12 @@ namespace dragonBones {
          * @language zh_CN
          */
         public readonly vertices: Array<number> = [];
-        public readonly paths: {indexes:number[], style:{fill?:{color:number[], opacity:number}, stroke?:{color:number, opacity:number, width:number, type?:number}}}[] = [];
+        public readonly paths: {indexes:number[], style:{fill?:{color:number, opacity:number}, stroke?:{color:number, opacity:number, width:number, type?:number}}}[] = [];
 
         protected _onClear(): void {
             this.x = 0.0;
             this.y = 0.0;
+            this.offset = 0;
             this.vertices.length = 0;
             this.paths.length = 0;
         }

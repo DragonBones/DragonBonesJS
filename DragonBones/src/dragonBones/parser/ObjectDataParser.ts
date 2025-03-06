@@ -100,6 +100,7 @@ namespace dragonBones {
         protected _slot: SlotData = null as any; //
         protected _skin: SkinData = null as any; //
         protected _mesh: MeshDisplayData = null as any; //
+        protected _shape: ShapeDisplayData = null as any; //
         protected _animation: AnimationData = null as any; //
         protected _timeline: TimelineData = null as any; //
         protected _rawTextureAtlases: Array<any> | null = null;
@@ -994,7 +995,35 @@ namespace dragonBones {
                     this._mesh = null as any; //
                 }
             }
+            if (DataParser.SHAPE in rawData) {
+                const rawTimelines = rawData[DataParser.SHAPE] as Array<any>;
+                for (const rawTimeline of rawTimelines) {
+                    let skinName = ObjectDataParser._getString(rawTimeline, DataParser.SKIN, DataParser.DEFAULT_NAME);
+                    const slotName = ObjectDataParser._getString(rawTimeline, DataParser.SLOT, "");
+                    const displayName = ObjectDataParser._getString(rawTimeline, DataParser.NAME, "");
 
+                    if (skinName.length === 0) { //
+                        skinName = DataParser.DEFAULT_NAME;
+                    }
+
+                    this._slot = this._armature.getSlot(slotName) as any;
+                    this._shape = this._armature.getShape(skinName, slotName, displayName) as any;
+                    if (this._slot === null || this._shape === null) {
+                        continue;
+                    }
+                    const timeline = this._parseTimeline(
+                        rawTimeline, null, DataParser.FRAME, TimelineType.SlotShape,
+                        FrameValueType.Float, 0,
+                        this._parseSlotShapeFrame
+                    );
+
+                    if (timeline !== null) {
+                        this._animation.addSlotTimeline(slotName, timeline);
+                    }
+                    this._slot = null as any; //
+                    this._shape = null as any; //
+                }
+            }
             if (DataParser.IK in rawData) {
                 const rawTimelines = rawData[DataParser.IK] as Array<any>;
                 for (const rawTimeline of rawTimelines) {
@@ -1938,6 +1967,104 @@ namespace dragonBones {
             return frameOffset;
         }
 
+        protected _parseSlotShapeFrame(rawData: any, frameStart: number, frameCount: number): number {
+            const frameFloatOffset = this._frameFloatArray.length;
+            const frameOffset = this._parseTweenFrame(rawData, frameStart, frameCount);
+            const rawVertices = DataParser.VERTICES in rawData ? rawData[DataParser.VERTICES] as Array<number> : null;
+            const offset = ObjectDataParser._getNumber(rawData, DataParser.OFFSET, 0); // uint
+            const vertexCount = this._shape.shape ? this._shape.shape.vertices.length / 6 : 0;
+            // TODO: 把shape的数据存到_intArray里,来兼容二进制数据
+            // const vertexCount = this._intArray[this._mesh.geometry.offset + BinaryOffset.GeometryVertexCount];
+
+            let x = 0.0;
+            let y = 0.0;
+            let c0X = 0.0;
+            let c0Y = 0.0;
+            let c1X = 0.0;
+            let c1Y = 0.0;
+            
+            const vertexValueCount = 6; // 贝塞尔曲线3个点
+            this._frameFloatArray.length += vertexCount * vertexValueCount;
+
+            for (
+                let i = 0;
+                i < vertexCount * vertexValueCount;
+                i += vertexValueCount
+            ) {
+                if (rawVertices === null) { // Fill 0.
+                    x = 0.0;
+                    y = 0.0;
+                    c0X = 0.0;
+                    c0Y = 0.0;
+                    c1X = 0.0;
+                    c1Y = 0.0;
+                }
+                else {
+                    // 这个offset表示数据前面省略了多少个0
+                    if (i < offset || i - offset >= rawVertices.length) {
+                        x = 0.0;
+                    }
+                    else {
+                        x = rawVertices[i - offset];
+                    }
+
+                    if (i + 1 < offset || i + 1 - offset >= rawVertices.length) {
+                        y = 0.0;
+                    }
+                    else {
+                        y = rawVertices[i + 1 - offset];
+                    }
+
+                    if (i + 2 < offset || i + 2 - offset >= rawVertices.length) {
+                        c0X = 0.0;
+                    }
+                    else {
+                        c0X = rawVertices[i + 2 - offset];
+                    }
+
+                    if (i + 3 < offset || i + 3 - offset >= rawVertices.length) {
+                        c0Y = 0.0;
+                    }
+                    else {
+                        c0Y = rawVertices[i + 3 - offset];
+                    }
+
+                    if (i + 4 < offset || i + 4 - offset >= rawVertices.length) {
+                        c1X = 0.0;
+                    }
+                    else {
+                        c1X = rawVertices[i + 4 - offset];
+                    }
+
+                    if (i + 5 < offset || i + 5 - offset >= rawVertices.length) {
+                        c1Y = 0.0;
+                    }
+                    else {
+                        c1Y = rawVertices[i + 5 - offset];
+                    }
+                }
+
+                this._frameFloatArray[frameFloatOffset + i + 0] = x;
+                this._frameFloatArray[frameFloatOffset + i + 1] = y;
+                this._frameFloatArray[frameFloatOffset + i + 2] = c0X;
+                this._frameFloatArray[frameFloatOffset + i + 3] = c0Y;
+                this._frameFloatArray[frameFloatOffset + i + 4] = c1X;
+                this._frameFloatArray[frameFloatOffset + i + 5] = c1Y;
+            }
+
+            if (frameStart === 0) {
+                const frameIntOffset = this._frameIntArray.length;
+                this._frameIntArray.length += 1 + 1 + 1 + 1 + 1;
+                this._frameIntArray[frameIntOffset + BinaryOffset.ShapeVerticesOffset] = this._shape.shape ? this._shape.shape.offset : 0;
+                this._frameIntArray[frameIntOffset + BinaryOffset.ShapeVerticesCount] = this._frameFloatArray.length - frameFloatOffset;
+                this._frameIntArray[frameIntOffset + BinaryOffset.ShapeVerticesValueCount] = this._frameFloatArray.length - frameFloatOffset;
+                this._frameIntArray[frameIntOffset + BinaryOffset.ShapeVerticesValueOffset] = 0;
+                this._frameIntArray[frameIntOffset + BinaryOffset.ShapeVerticesFloatOffset] = frameFloatOffset - this._animation.frameFloatOffset;
+                this._timelineArray[this._timeline.offset + BinaryOffset.TimelineFrameValueCount] = frameIntOffset - this._animation.frameIntOffset;
+            }
+
+            return frameOffset;
+        }
         protected _parseIKConstraintFrame(rawData: any, frameStart: number, frameCount: number): number {
             const frameOffset = this._parseTweenFrame(rawData, frameStart, frameCount);
             let frameIntOffset = this._frameIntArray.length;

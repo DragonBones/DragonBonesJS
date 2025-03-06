@@ -73,6 +73,7 @@ namespace dragonBones {
         protected static readonly ANIMATION: string = "animation";
         protected static readonly TIMELINE: string = "timeline";
         protected static readonly FFD: string = "ffd";
+        protected static readonly SHAPE: string = "shape";
         protected static readonly TRANSLATE_FRAME: string = "translateFrame";
         protected static readonly ROTATE_FRAME: string = "rotateFrame";
         protected static readonly SCALE_FRAME: string = "scaleFrame";

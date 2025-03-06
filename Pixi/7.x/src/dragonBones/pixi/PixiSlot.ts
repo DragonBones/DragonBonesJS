@@ -350,10 +350,14 @@ namespace dragonBones {
         }
 
         protected _updateShape(): void {
-            // const scale = this._armature._armatureData.scale;
+            const scale = this._armature._armatureData.scale;
             const shapeData = this._shapeData as ShapeData;
             const shapeDisplay = this._renderDisplay as PIXI.Graphics;
             shapeDisplay.clear();
+            const shapeVertices = (this._displayFrame as DisplayFrame).shapeVertices;
+            const hasMorph = shapeVertices && shapeVertices.length > 0;
+            const pointValueCount = 6;
+
             for (let i = 0, len = shapeData.paths.length; i < len; i++) {
                 const path = shapeData.paths[i];
                 const { indexes, style } = path;
@@ -370,20 +374,40 @@ namespace dragonBones {
                 }
                 
                 if (fill) {
-                    shapeDisplay.beginFill(fill.color[0], fill.opacity);
+                    shapeDisplay.beginFill(fill.color, fill.opacity);
                 }
                 for (let j = 0, jLen = indexes.length; j < jLen; j++) {
-                    const pointIndex = indexes[j] * 6;
-                    
+                    const pointIndex = indexes[j] * pointValueCount;
+                    // TODO: 数据存到floatArray里面
+                    let x = shapeData.vertices[pointIndex + 0] * scale;
+                    let y = shapeData.vertices[pointIndex + 1] * scale;
+                    let c0x = shapeData.vertices[pointIndex + 2] * scale;
+                    let c0y = shapeData.vertices[pointIndex + 3] * scale;
+
+                    if (hasMorph) {
+                        const morphIndex = pointIndex;
+                        x += shapeVertices[morphIndex];
+                        y += shapeVertices[morphIndex + 1];
+                        c0x += shapeVertices[morphIndex + 2];
+                        c0y += shapeVertices[morphIndex + 3];;
+                    }
                     if(j === 0) {
-                        shapeDisplay.moveTo(shapeData.vertices[pointIndex + 0 ], shapeData.vertices[pointIndex + 1]);
+                        shapeDisplay.moveTo(x, y);
                     }
                     else {
-                        const prevPointIndex = indexes[j - 1] * 6;
+                        const prevPointIndex = indexes[j - 1] * pointValueCount;
+                        let prevC1x = shapeData.vertices[prevPointIndex + 4] * scale;
+                        let prevC1y = shapeData.vertices[prevPointIndex + 5] * scale;
+                        if (hasMorph) {
+                            const morphIndex = prevPointIndex;
+                            prevC1x += shapeVertices[morphIndex + 4];
+                            prevC1y += shapeVertices[morphIndex + 5];
+                        }
+
                         shapeDisplay.bezierCurveTo(
-                            shapeData.vertices[prevPointIndex + 4], shapeData.vertices[prevPointIndex + 5], 
-                            shapeData.vertices[pointIndex + 2], shapeData.vertices[pointIndex + 3], 
-                            shapeData.vertices[pointIndex + 0], shapeData.vertices[pointIndex + 1]
+                            prevC1x, prevC1y, 
+                            c0x, c0y, 
+                            x, y
                         );
                     }
 

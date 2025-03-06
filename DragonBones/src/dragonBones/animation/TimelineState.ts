@@ -1071,4 +1071,104 @@ namespace dragonBones {
             this._valueArray = this._animationData.parent.parent.frameIntArray;
         }
     }
+
+    export class ShapeTimelineState extends MutilpleValueTimelineState {
+        public static toString(): string {
+            return "[class dragonBones.ShapeTimelineState]";
+        }
+
+        public displayFrame: DisplayFrame;
+
+        private _shapeVerticesCount: number;
+        private _shapeVerticesOffset: number;
+        private _sameValueOffset: number;
+
+        protected _onClear(): void {
+            super._onClear();
+
+            this.displayFrame = null as any;
+
+            this._shapeVerticesCount = 0;
+            this._shapeVerticesOffset = 0;
+            this._sameValueOffset = 0;
+        }
+
+        public init(armature: Armature, animationState: AnimationState, timelineData: TimelineData | null): void {
+            super.init(armature, animationState, timelineData);
+
+            if (this._timelineData !== null) {
+                const frameIntOffset = this._animationData.frameIntOffset + this._timelineArray[this._timelineData.offset + BinaryOffset.TimelineFrameValueCount];
+                const dragonBonesData = this._animationData.parent.parent;
+                const frameIntArray = dragonBonesData.frameIntArray;
+
+                this._valueOffset = this._animationData.frameFloatOffset;
+                this._valueCount = frameIntArray[frameIntOffset + BinaryOffset.ShapeVerticesValueCount];
+                this._shapeVerticesCount = frameIntArray[frameIntOffset + BinaryOffset.ShapeVerticesCount];
+                this._shapeVerticesOffset = frameIntArray[frameIntOffset + BinaryOffset.ShapeVerticesOffset];
+                this._sameValueOffset = frameIntArray[frameIntOffset + BinaryOffset.ShapeVerticesFloatOffset];
+                
+                if (this._sameValueOffset < 0) {
+                    this._sameValueOffset += 65536; // Fixed out of bounds bug. 
+                }
+
+                this._sameValueOffset += this._animationData.frameFloatOffset
+
+                this._valueScale = this._armature.armatureData.scale;
+                this._valueArray = dragonBonesData.frameFloatArray;
+                this._rd.length = this._valueCount * 2;
+            }
+            else {
+                this._shapeVerticesCount = this.displayFrame.shapeVertices.length;
+            }
+        }
+
+        public blend(isDirty: boolean): void {
+            const blendState = this.target as BlendState;
+            const slot = blendState.target as Slot;
+            const blendWeight = blendState.blendWeight;
+            const result = this.displayFrame.shapeVertices;
+            const valueArray = this._valueArray;
+
+            if (valueArray !== null) {
+                const valueCount = this._valueCount;
+                const shapeVerticesOffset = this._shapeVerticesOffset;
+                const sameValueOffset = this._sameValueOffset;
+                const rd = this._rd;
+
+                for (let i = 0; i < this._shapeVerticesCount; ++i) {
+                    let value = 0.0;
+
+                    if (i < shapeVerticesOffset) {
+                        value = valueArray[sameValueOffset + i];
+                    }
+                    else if (i < shapeVerticesOffset + valueCount) {
+                        value = rd[i - shapeVerticesOffset];
+                    }
+                    else {
+                        value = valueArray[sameValueOffset + i - valueCount];
+                    }
+
+                    if (blendState.dirty > 1) {
+                        result[i] += value * blendWeight;
+                    }
+                    else {
+                        result[i] = value * blendWeight;
+                    }
+                }
+            }
+            else if (blendState.dirty === 1) {
+                for (let i = 0; i < this._shapeVerticesCount; ++i) {
+                    result[i] = 0.0;
+                }
+            }
+
+            if (isDirty || this.dirty) {
+                this.dirty = false; 
+
+                if (slot._shapeData === this.displayFrame.getShapeData()) {
+                    slot._shapeVerticesDirty = true;
+                }
+            }
+        }
+    }
 }

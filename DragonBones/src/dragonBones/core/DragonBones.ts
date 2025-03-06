@@ -53,7 +53,13 @@ namespace dragonBones {
         DeformCount = 1,
         DeformValueCount = 2,
         DeformValueOffset = 3,
-        DeformFloatOffset = 4
+        DeformFloatOffset = 4,
+
+        ShapeVerticesOffset = 0,
+        ShapeVerticesCount = 1,
+        ShapeVerticesValueCount = 2,
+        ShapeVerticesValueOffset = 3,
+        ShapeVerticesFloatOffset = 4
     }
     /**
      * @private
@@ -154,6 +160,7 @@ namespace dragonBones {
         SlotDeform = 22,
         SlotZIndex = 23,
         SlotAlpha = 24,
+        SlotShape = 25,
 
         IKConstraint = 30,
 

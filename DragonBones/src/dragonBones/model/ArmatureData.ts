@@ -458,6 +458,17 @@ namespace dragonBones {
 
             return skin.getDisplay(slotName, meshName) as MeshDisplayData | null;
         }
+         /**
+         * @private
+         */
+         public getShape(skinName: string, slotName: string, shapeName: string): ShapeDisplayData | null {
+            const skin = this.getSkin(skinName);
+            if (skin === null) {
+                return null;
+            }
+
+            return skin.getDisplay(slotName, shapeName) as ShapeDisplayData | null;
+        }
         /**
          * - Get a specific animation data.
          * @param animationName - The animation animationName.
