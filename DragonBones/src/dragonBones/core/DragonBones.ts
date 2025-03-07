@@ -163,6 +163,9 @@ namespace dragonBones {
         SlotShape = 25,
 
         IKConstraint = 30,
+        PathConstraintPosition = 31,
+        PathConstraintSpacing = 32,
+        PathConstraintWeight = 33,
 
         AnimationProgress = 40,
         AnimationWeight = 41,

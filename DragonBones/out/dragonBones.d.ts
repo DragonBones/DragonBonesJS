@@ -49,7 +49,12 @@ declare namespace dragonBones {
         DeformCount = 1,
         DeformValueCount = 2,
         DeformValueOffset = 3,
-        DeformFloatOffset = 4
+        DeformFloatOffset = 4,
+        ShapeVerticesOffset = 0,
+        ShapeVerticesCount = 1,
+        ShapeVerticesValueCount = 2,
+        ShapeVerticesValueOffset = 3,
+        ShapeVerticesFloatOffset = 4
     }
     /**
      * @private
@@ -74,7 +79,8 @@ declare namespace dragonBones {
         Armature = 1,
         Mesh = 2,
         BoundingBox = 3,
-        Path = 4
+        Path = 4,
+        Shape = 5
     }
     /**
      * - Bounding box type.
@@ -146,6 +152,7 @@ declare namespace dragonBones {
         SlotDeform = 22,
         SlotZIndex = 23,
         SlotAlpha = 24,
+        SlotShape = 25,
         IKConstraint = 30,
         AnimationProgress = 40,
         AnimationWeight = 41,
@@ -1431,6 +1438,10 @@ declare namespace dragonBones {
          */
         getMesh(skinName: string, slotName: string, meshName: string): MeshDisplayData | null;
         /**
+        * @private
+        */
+        getShape(skinName: string, slotName: string, shapeName: string): ShapeDisplayData | null;
+        /**
          * - Get a specific animation data.
          * @param animationName - The animation animationName.
          * @version DragonBones 3.0
@@ -1835,6 +1846,87 @@ declare namespace dragonBones {
         readonly bones: Array<BoneData>;
         protected _onClear(): void;
         addBone(value: BoneData): void;
+    }
+    /**
+    * @private
+    */
+    class ShapeDisplayData extends DisplayData {
+        static toString(): string;
+        shape: ShapeData | null;
+        protected _onClear(): void;
+    }
+}
+/**
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2012-2018 DragonBones team and other contributors
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of
+ * this software and associated documentation files (the "Software"), to deal in
+ * the Software without restriction, including without limitation the rights to
+ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+ * the Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+ * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+ * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+ * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
+declare namespace dragonBones {
+    /**
+     * - The shape data.
+     * @version DragonBones 6.0
+     * @language en_US
+     */
+    /**
+     * - 形状数据。
+     * @version DragonBones 6.0
+     * @language zh_CN
+     */
+    class ShapeData extends BaseObject {
+        static toString(): string;
+        offset: number;
+        /**
+         * @private
+         */
+        x: number;
+        /**
+         * @private
+         */
+        y: number;
+        /**
+         * - The shape vertices.
+         * @version DragonBones 5.1
+         * @language en_US
+         */
+        /**
+         * - 形状顶点。组成这个形状的贝塞尔的点。每个贝塞尔点包含3个顶点，1个线上的点和两个控制点。[p.x, p.y, c0.x, c0.y, c1.x, c1.y]
+         * @version DragonBones 5.1
+         * @language zh_CN
+         */
+        readonly vertices: Array<number>;
+        readonly paths: {
+            indexes: number[];
+            style: {
+                fill?: {
+                    color: number;
+                    opacity: number;
+                };
+                stroke?: {
+                    color: number;
+                    opacity: number;
+                    width: number;
+                    type?: number;
+                };
+            };
+        }[];
+        protected _onClear(): void;
     }
 }
 /**
@@ -3504,9 +3596,12 @@ declare namespace dragonBones {
         textureData: TextureData | null;
         display: any | Armature | null;
         readonly deformVertices: Array<number>;
+        readonly shapeVertices: Array<number>;
         protected _onClear(): void;
         updateDeformVertices(): void;
         getGeometryData(): GeometryData | null;
+        updateShapeVertices(): void;
+        getShapeData(): ShapeData | null;
         getBoundingBox(): BoundingBoxData | null;
         getTextureData(): TextureData | null;
     }
@@ -3557,10 +3652,12 @@ declare namespace dragonBones {
         protected _displayDataDirty: boolean;
         protected _displayDirty: boolean;
         protected _geometryDirty: boolean;
+        protected _shapeDirty: boolean;
         protected _textureDirty: boolean;
         protected _visibleDirty: boolean;
         protected _blendModeDirty: boolean;
         protected _zOrderDirty: boolean;
+        _shapeVerticesDirty: boolean;
         protected _transformDirty: boolean;
         protected _visible: boolean;
         protected _blendMode: BlendMode;
@@ -3568,10 +3665,12 @@ declare namespace dragonBones {
         protected _animationDisplayIndex: number;
         protected _cachedFrameIndex: number;
         protected readonly _localMatrix: Matrix;
+        _shapeData: ShapeData | null;
         protected _boundingBoxData: BoundingBoxData | null;
         protected _textureData: TextureData | null;
         protected _rawDisplay: any;
         protected _meshDisplay: any;
+        protected _shapeDisplay: any;
         protected _display: any | null;
         protected _childArmature: Armature | null;
         /**
@@ -3590,6 +3689,7 @@ declare namespace dragonBones {
         protected abstract _updateColor(): void;
         protected abstract _updateFrame(): void;
         protected abstract _updateMesh(): void;
+        protected abstract _updateShape(): void;
         protected abstract _updateTransform(): void;
         protected abstract _identityTransform(): void;
         protected _hasDisplay(display: any): boolean;
@@ -3786,6 +3886,10 @@ declare namespace dragonBones {
          * @private
          */
         readonly meshDisplay: any;
+        /**
+         * @private
+         */
+        readonly shapeDisplay: any;
         /**
          * - The display object that the slot displays at this time.
          * @example
@@ -5016,6 +5120,16 @@ declare namespace dragonBones {
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 declare namespace dragonBones {
+    class ShapeTimelineState extends MutilpleValueTimelineState {
+        static toString(): string;
+        displayFrame: DisplayFrame;
+        private _shapeVerticesCount;
+        private _shapeVerticesOffset;
+        private _sameValueOffset;
+        protected _onClear(): void;
+        init(armature: Armature, animationState: AnimationState, timelineData: TimelineData | null): void;
+        blend(isDirty: boolean): void;
+    }
 }
 /**
  * The MIT License (MIT)
@@ -5430,6 +5544,7 @@ declare namespace dragonBones {
         protected static readonly ANIMATION: string;
         protected static readonly TIMELINE: string;
         protected static readonly FFD: string;
+        protected static readonly SHAPE: string;
         protected static readonly TRANSLATE_FRAME: string;
         protected static readonly ROTATE_FRAME: string;
         protected static readonly SCALE_FRAME: string;
@@ -5512,10 +5627,12 @@ declare namespace dragonBones {
         protected static readonly WEIGHTS: string;
         protected static readonly SLOT_POSE: string;
         protected static readonly BONE_POSE: string;
+        protected static readonly SHAPE: string;
         protected static readonly BONES: string;
         protected static readonly POSITION_MODE: string;
         protected static readonly SPACING_MODE: string;
         protected static readonly ROTATE_MODE: string;
+        shape: any;
         protected static readonly SPACING: string;
         protected static readonly ROTATE_OFFSET: string;
         protected static readonly ROTATE_MIX: string;
@@ -5588,6 +5705,7 @@ declare namespace dragonBones {
         protected _slot: SlotData;
         protected _skin: SkinData;
         protected _mesh: MeshDisplayData;
+        protected _shape: ShapeDisplayData;
         protected _animation: AnimationData;
         protected _timeline: TimelineData;
         protected _rawTextureAtlases: Array<any> | null;
@@ -5633,6 +5751,7 @@ declare namespace dragonBones {
         protected _parseMesh(rawData: any, mesh: MeshDisplayData): void;
         protected _parseBoundingBox(rawData: any): BoundingBoxData | null;
         protected _parsePolygonBoundingBox(rawData: any): PolygonBoundingBoxData;
+        protected _parseShape(rawData: any): ShapeData | null;
         protected _parseAnimation(rawData: any): AnimationData;
         protected getTimelineDuration(frames: {
             duration: number;
@@ -5653,6 +5772,7 @@ declare namespace dragonBones {
         protected _parseSlotDisplayFrame(rawData: any, frameStart: number, frameCount: number): number;
         protected _parseSlotColorFrame(rawData: any, frameStart: number, frameCount: number): number;
         protected _parseSlotDeformFrame(rawData: any, frameStart: number, frameCount: number): number;
+        protected _parseSlotShapeFrame(rawData: any, frameStart: number, frameCount: number): number;
         protected _parseIKConstraintFrame(rawData: any, frameStart: number, frameCount: number): number;
         protected _parseActionData(rawData: any, type: ActionType, bone: BoneData | null, slot: SlotData | null): Array<ActionData>;
         protected _parseDeformFrame(rawData: any, frameStart: number, frameCount: number): number;

@@ -80,8 +80,9 @@ namespace dragonBones {
         public position : number;
         public spacing : number;
         public rotateOffset : number;
-        public rotateMix : number;
-        public translateMix : number;
+        public rotateWeight : number;
+        public xWeight : number;
+        public yWeight : number;
 
         protected _onClear() : void {
             super._onClear();
@@ -97,8 +98,9 @@ namespace dragonBones {
             this.position = 0.0;
             this.spacing = 0.0;
             this.rotateOffset = 0.0;
-            this.rotateMix = 0.0;
-            this.translateMix = 0.0;
+            this.rotateWeight = 0.0;
+            this.xWeight = 0.0;
+            this.yWeight = 0.0;
         }
 
         public AddBone(value : BoneData) : void {

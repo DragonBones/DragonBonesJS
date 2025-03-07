@@ -574,8 +574,9 @@ namespace dragonBones {
             constraint.position = ObjectDataParser._getNumber(rawData, DataParser.POSITION, 0);
             constraint.spacing = ObjectDataParser._getNumber(rawData, DataParser.SPACING, 0);
             constraint.rotateOffset = ObjectDataParser._getNumber(rawData, DataParser.ROTATE_OFFSET, 0);
-            constraint.rotateMix = ObjectDataParser._getNumber(rawData, DataParser.ROTATE_MIX, 1);
-            constraint.translateMix = ObjectDataParser._getNumber(rawData, DataParser.TRANSLATE_MIX, 1);
+            constraint.rotateWeight = ObjectDataParser._getNumber(rawData, DataParser.ROTATE_WEIGHT, 1);
+            constraint.xWeight = ObjectDataParser._getNumber(rawData, DataParser.X_WEIGHT, 1);
+            constraint.yWeight = ObjectDataParser._getNumber(rawData, DataParser.Y_WEIGHT, 1);
             //
             for (var boneName of bones) {
                 const bone = this._armature.getBone(boneName);
@@ -1044,7 +1045,51 @@ namespace dragonBones {
                     }
                 }
             }
-
+            if (DataParser.PATH in rawData) {
+                const rawTimelines = rawData[DataParser.PATH] as Array<any>;
+                for (const rawTimeline of rawTimelines) {
+                    const constraintName = ObjectDataParser._getString(rawTimeline, DataParser.NAME, "");
+                    const constraint = this._armature.getConstraint(constraintName);
+                    if (constraint === null) {
+                        continue;
+                    }
+                    // 
+                    if (rawTimeline[DataParser.PATH_CONSTRAINT_POSITION]) {
+                        const timeline = this._parseTimeline(
+                            rawTimeline, null, DataParser.PATH_CONSTRAINT_POSITION, TimelineType.PathConstraintPosition,
+                            FrameValueType.Float, 1,
+                            this._parsePathConstraintPositionFrame
+                        );
+    
+                        if (timeline !== null) {
+                            this._animation.addConstraintTimeline(constraintName, timeline);
+                        }
+                    }
+                    if (rawTimeline[DataParser.PATH_CONSTRAINT_SPACING]) {
+                        const timeline = this._parseTimeline(
+                            rawTimeline, null, DataParser.PATH_CONSTRAINT_SPACING, TimelineType.PathConstraintSpacing,
+                            FrameValueType.Float, 1,
+                            this._parsePathConstraintSpacingFrame
+                        );
+    
+                        if (timeline !== null) {
+                            this._animation.addConstraintTimeline(constraintName, timeline);
+                        }
+                    }
+                    if (rawTimeline[DataParser.PATH_CONSTRAINT_WEIGHT]) {
+                        const timeline = this._parseTimeline(
+                            rawTimeline, null, DataParser.PATH_CONSTRAINT_WEIGHT, TimelineType.PathConstraintWeight,
+                            FrameValueType.Float, 3,
+                            this._parsePathConstraintWeightFrame
+                        );
+    
+                        if (timeline !== null) {
+                            this._animation.addConstraintTimeline(constraintName, timeline);
+                        }
+                    }
+                    
+                }
+            }
             if (this._actionFrames.length > 0) {
                 this._animation.actionTimeline = this._parseTimeline(
                     null, this._actionFrames, "", TimelineType.Action,
@@ -2069,9 +2114,34 @@ namespace dragonBones {
             const frameOffset = this._parseTweenFrame(rawData, frameStart, frameCount);
             let frameIntOffset = this._frameIntArray.length;
             this._frameIntArray.length += 2;
-            this._frameIntArray[frameIntOffset++] = ObjectDataParser._getBoolean(rawData, DataParser.BEND_POSITIVE, true) ? 1 : 0;
+            this._frameIntArray[frameIntOffset++] = ObjectDataParser._getBoolean(rawData, DataParser.BEND_POSITIVE, true) ? 100 : 0;
             this._frameIntArray[frameIntOffset++] = Math.round(ObjectDataParser._getNumber(rawData, DataParser.WEIGHT, 1.0) * 100.0);
 
+            return frameOffset;
+        }
+
+        protected _parsePathConstraintPositionFrame(rawData: any, frameStart: number, frameCount: number): number {
+            const frameOffset = this._parseTweenFrame(rawData, frameStart, frameCount);
+            let frameFloatOffset = this._frameFloatArray.length;
+            this._frameFloatArray.length += 1;
+            this._frameFloatArray[frameFloatOffset++] = ObjectDataParser._getNumber(rawData, DataParser.VALUE, 0.0);
+            return frameOffset;
+        }
+        protected _parsePathConstraintSpacingFrame(rawData: any, frameStart: number, frameCount: number): number {
+            const frameOffset = this._parseTweenFrame(rawData, frameStart, frameCount);
+            let frameFloatOffset = this._frameFloatArray.length;
+            this._frameFloatArray.length += 1;
+            this._frameFloatArray[frameFloatOffset++] = ObjectDataParser._getNumber(rawData, DataParser.VALUE, 0.0);
+            return frameOffset;
+        }
+        protected _parsePathConstraintWeightFrame(rawData: any, frameStart: number, frameCount: number): number {
+            const frameOffset = this._parseTweenFrame(rawData, frameStart, frameCount);
+            let frameFloatOffset = this._frameFloatArray.length;
+            const rawValue = DataParser.VALUE in rawData ? rawData[DataParser.VALUE] as Array<number> : [1.0, 1.0, 1.0];
+            this._frameFloatArray.length += 3;
+            this._frameFloatArray[frameFloatOffset++] = rawValue[0];
+            this._frameFloatArray[frameFloatOffset++] = rawValue[1];
+            this._frameFloatArray[frameFloatOffset++] = rawValue[2];
             return frameOffset;
         }
 

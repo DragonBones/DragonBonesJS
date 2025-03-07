@@ -234,8 +234,9 @@ namespace dragonBones {
         public position: number;
         public spacing: number;
         public rotateOffset: number;
-        public rotateMix: number;
-        public translateMix: number;
+        public rotateWeight: number;
+        public xWeight: number;
+        public yWeight: number;
 
         private _pathSlot: Slot;
         private _bones: Array<Bone> = [];
@@ -261,8 +262,9 @@ namespace dragonBones {
             this.position = 0.0;
             this.spacing = 0.0;
             this.rotateOffset = 0.0;
-            this.rotateMix = 1.0;
-            this.translateMix = 1.0;
+            this.rotateWeight = 1.0;
+            this.xWeight = 1.0;
+            this.yWeight = 1.0;
 
             this._pathSlot = null as any;
             this._bones.length = 0;
@@ -297,7 +299,7 @@ namespace dragonBones {
 
                 const matrix = parentBone.globalTransformMatrix;
 
-                for (let i = 0, iV = pathVertexOffset; i < pathVertexCount; i += 2) {
+                for (let i = 0, iV = pathVertexOffset; i < pathVertexCount * 2; i += 2) {
                     const vx = floatArray[iV++] * scale;
                     const vy = floatArray[iV++] * scale;
 
@@ -370,13 +372,13 @@ namespace dragonBones {
             let position = this.position;
 
             positions.length = spaceCount * 3 + 2;
-
             let pathLength = 0.0;
             //不需要匀速运动，效率高些
             if (!pathDisplayDta.constantSpeed) {
-                const lenghts = pathDisplayDta.curveLengths;
-                curveCount -= isClosed ? 1 : 2;
-                pathLength = lenghts[curveCount];
+                const lengths = pathDisplayDta.curveLengths;
+                curveCount -= isClosed ? 1 : 1;
+                //  lengths最后一个表示整个曲线的长度
+                pathLength = lengths[curveCount];
 
                 if (percentPosition) {
                     position *= pathLength;
@@ -410,8 +412,9 @@ namespace dragonBones {
                     }
 
                     let percent = 0.0;
+
                     for (; ; curve++) {
-                        const len = lenghts[curve];
+                        const len = lengths[curve];
                         if (position > len) {
                             continue;
                         }
@@ -419,16 +422,16 @@ namespace dragonBones {
                             percent = position / len;
                         }
                         else {
-                            const preLen = lenghts[curve - 1];
+                            const preLen = lengths[curve - 1];
                             percent = (position - preLen) / (len - preLen);
                         }
                         break;
                     }
-
+                    
                     if (curve !== preCurve) {
                         preCurve = curve;
                         if (isClosed && curve === curveCount) {
-                            //计算曲线
+                            //计算是哪段曲线
                             this._computeVertices(verticesLength - 4, 4, 0, curveVertices);
                             this._computeVertices(0, 4, 4, curveVertices);
                         }
@@ -436,8 +439,7 @@ namespace dragonBones {
                             this._computeVertices(curve * 6 + 2, 8, 0, curveVertices);
                         }
                     }
-
-                    //
+                    // 计算曲线上点的位置和斜率，有bug
                     this.addCurvePosition(percent, curveVertices[0], curveVertices[1], curveVertices[2], curveVertices[3], curveVertices[4], curveVertices[5], curveVertices[6], curveVertices[7], positions, o, tangents);
                 }
 
@@ -645,8 +647,9 @@ namespace dragonBones {
             this.position = data.position;
             this.spacing = data.spacing;
             this.rotateOffset = data.rotateOffset;
-            this.rotateMix = data.rotateMix;
-            this.translateMix = data.translateMix;
+            this.rotateWeight = data.rotateWeight;
+            this.xWeight = data.xWeight;
+            this.yWeight = data.yWeight;
 
             //
             this._root = this._armature.getBone(data.root.name) as Bone;
@@ -760,28 +763,29 @@ namespace dragonBones {
             }
 
             //
-            const rotateMix = this.rotateMix;
-            const translateMix = this.translateMix;
+            const rotateWeight = this.rotateWeight;
+            const xWeight = this.xWeight;
+            const yWeight = this.yWeight;
             for (let i = 0, p = 3; i < boneCount; i++, p += 3) {
                 let bone = bones[i];
                 bone.updateByConstraint();
                 let matrix = bone.globalTransformMatrix;
-                matrix.tx += (boneX - matrix.tx) * translateMix;
-                matrix.ty += (boneY - matrix.ty) * translateMix;
+                matrix.tx += (boneX - matrix.tx) * xWeight;
+                matrix.ty += (boneY - matrix.ty) * yWeight;
 
                 const x = positions[p], y = positions[p + 1];
                 const dx = x - boneX, dy = y - boneY;
                 if (isChainScaleMode) {
                     const lenght = this._boneLengths[i];
 
-                    const s = (Math.sqrt(dx * dx + dy * dy) / lenght - 1) * rotateMix + 1;
+                    const s = (Math.sqrt(dx * dx + dy * dy) / lenght - 1) * rotateWeight + 1;
                     matrix.a *= s;
                     matrix.b *= s;
                 }
 
                 boneX = x;
                 boneY = y;
-                if (rotateMix > 0) {
+                if (rotateWeight > 0) {
                     let a = matrix.a, b = matrix.b, c = matrix.c, d = matrix.d, r, cos, sin;
                     if (isTangentMode) {
                         r = positions[p - 1];
@@ -797,8 +801,8 @@ namespace dragonBones {
                         sin = Math.sin(r);
 
                         const length = bone._boneData.length;
-                        boneX += (length * (cos * a - sin * b) - dx) * rotateMix;
-                        boneY += (length * (sin * a + cos * b) - dy) * rotateMix;
+                        boneX += (length * (cos * a - sin * b) - dx) * rotateWeight;
+                        boneY += (length * (sin * a + cos * b) - dy) * rotateWeight;
                     }
                     else {
                         r += rotateOffset;
@@ -811,7 +815,7 @@ namespace dragonBones {
                         r += Transform.PI_D;
                     }
 
-                    r *= rotateMix;
+                    r *= rotateWeight;
 
                     cos = Math.cos(r);
                     sin = Math.sin(r);

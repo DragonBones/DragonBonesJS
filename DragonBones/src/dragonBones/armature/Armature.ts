@@ -692,6 +692,19 @@ namespace dragonBones {
         public getSlots(): Array<Slot> {
             return this._slots;
         }
+
+        public getPathConstraints(): Array<PathConstraint> {
+            if(this._constraints) {
+                const pathConstraints: Array<PathConstraint> = [];
+                for(const constraint of this._constraints) {
+                    if(constraint instanceof PathConstraint) {
+                        pathConstraints.push(constraint);
+                    }
+                }
+                return pathConstraints;
+            }
+            return [];
+        }
         /**
          * - Whether to flip the armature horizontally.
          * @version DragonBones 5.5

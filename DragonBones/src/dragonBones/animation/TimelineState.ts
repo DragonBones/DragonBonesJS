@@ -969,7 +969,7 @@ namespace dragonBones {
 
             if (this._timelineData !== null) {
                 ikConstraint._bendPositive = this._currentA > 0.0;
-                ikConstraint._weight = this._currentB;
+                ikConstraint._weight = this._resultB;
             }
             else {
                 const ikConstraintData = ikConstraint._constraintData as IKConstraintData;
@@ -987,6 +987,108 @@ namespace dragonBones {
             this._valueOffset = this._animationData.frameIntOffset;
             this._valueScale = 0.01;
             this._valueArray = this._animationData.parent.parent.frameIntArray;
+        }
+    }
+
+    /**
+     * @internal
+     */
+    export class PathConstraintPositionTimelineState extends SingleValueTimelineState {
+        public static toString(): string {
+            return "[class dragonBones.PathConstraintPositionTimelineState]";
+        }
+
+        protected _onUpdateFrame(): void {
+            super._onUpdateFrame();
+
+            const pathConstraint = this.target as PathConstraint;
+
+            if (this._timelineData !== null) {
+                pathConstraint.position = this._result;
+            }
+            else {
+                const pathConstraintData = pathConstraint._constraintData as PathConstraintData;
+                pathConstraint.position = pathConstraintData.position;
+            }
+
+            pathConstraint.invalidUpdate();
+            this.dirty = false;
+        }
+
+        public init(armature: Armature, animationState: AnimationState, timelineData: TimelineData | null): void {
+            super.init(armature, animationState, timelineData);
+
+            this._valueOffset = this._animationData.frameFloatOffset;
+            this._valueArray = this._animationData.parent.parent.frameFloatArray;
+        }
+    }
+
+    /**
+     * @internal
+     */
+    export class PathConstraintSpacingTimelineState extends SingleValueTimelineState {
+        public static toString(): string {
+            return "[class dragonBones.PathConstraintSpacingTimelineState]";
+        }
+
+        protected _onUpdateFrame(): void {
+            super._onUpdateFrame();
+
+            const pathConstraint = this.target as PathConstraint;
+
+            if (this._timelineData !== null) {
+                pathConstraint.spacing = this._result;
+            }
+            else {
+                const pathConstraintData = pathConstraint._constraintData as PathConstraintData;
+                pathConstraint.spacing = pathConstraintData.spacing;
+            }
+
+            pathConstraint.invalidUpdate();
+            this.dirty = false;
+        }
+
+        public init(armature: Armature, animationState: AnimationState, timelineData: TimelineData | null): void {
+            super.init(armature, animationState, timelineData);
+
+            this._valueOffset = this._animationData.frameFloatOffset;
+            this._valueArray = this._animationData.parent.parent.frameFloatArray;
+        }
+    }
+
+    /**
+     * @internal
+     */
+    export class PathConstraintWeightTimelineState extends MutilpleValueTimelineState {
+        public static toString(): string {
+            return "[class dragonBones.PathConstraintWeightTimelineState]";
+        }
+
+        protected _onUpdateFrame(): void {
+            super._onUpdateFrame();
+
+            const pathConstraint = this.target as PathConstraint;
+
+            if (this._timelineData !== null) {
+                const result = this._rd;
+                pathConstraint.rotateWeight = result[0];
+                pathConstraint.xWeight = result[1];
+                pathConstraint.yWeight = result[2];
+            }
+            else {
+                const pathConstraintData = pathConstraint._constraintData as PathConstraintData;
+                pathConstraint.spacing = pathConstraintData.spacing;
+            }
+
+            pathConstraint.invalidUpdate();
+            this.dirty = false;
+        }
+
+        public init(armature: Armature, animationState: AnimationState, timelineData: TimelineData | null): void {
+            super.init(armature, animationState, timelineData);
+
+            this._valueOffset = this._animationData.frameFloatOffset;
+            this._valueArray = this._animationData.parent.parent.frameFloatArray;
         }
     }
     /**

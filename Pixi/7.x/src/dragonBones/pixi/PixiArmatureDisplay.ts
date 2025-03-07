@@ -155,6 +155,33 @@ namespace dragonBones {
                             }
                         }
                     }
+                    const pathConstraints = this._armature.getPathConstraints();
+                    if(pathConstraints) {
+                        for(let i = 0, len = pathConstraints.length; i < len; i++) {
+                            const pathConstraint = pathConstraints[i];
+                            
+                            let child = this._debugDrawer.getChildByName(pathConstraint.name) as PIXI.Graphics;
+                            if (!child) {
+                                child = new PIXI.Graphics();
+                                child.name = pathConstraint.name;
+                                this._debugDrawer.addChild(child);
+                            }
+                            child.clear();
+                            child.lineStyle(2.0, 0x00FF00, 0.7);
+                            const vertices: number[] = (pathConstraint as any)._pathGlobalVertices;
+                            if(vertices) {
+                                for(let j = 0, jlen = vertices.length; j < jlen; j += 6) {
+                                    if (j === 0) {
+                                        child.moveTo(vertices[j + 2], vertices[j + 3]);
+                                    }
+                                    else {
+                                        const prevP = (j - 6);
+                                        child.bezierCurveTo(vertices[prevP + 4], vertices[prevP + 5], vertices[j + 0], vertices[j + 1], vertices[j + 2], vertices[j + 3]);
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
                 else if (this._debugDrawer !== null && this._debugDrawer.parent === this) {
                     this.removeChild(this._debugDrawer);

@@ -69,6 +69,9 @@ namespace dragonBones {
         protected static readonly FRAME: string = "frame";
         protected static readonly IK: string = "ik";
         protected static readonly PATH_CONSTRAINT: string = "path";
+        protected static readonly PATH_CONSTRAINT_POSITION: string = "position";
+        protected static readonly PATH_CONSTRAINT_SPACING: string = "spacing";
+        protected static readonly PATH_CONSTRAINT_WEIGHT: string = "weight";
 
         protected static readonly ANIMATION: string = "animation";
         protected static readonly TIMELINE: string = "timeline";
@@ -163,16 +166,16 @@ namespace dragonBones {
         protected static readonly WEIGHTS: string = "weights";
         protected static readonly SLOT_POSE: string = "slotPose";
         protected static readonly BONE_POSE: string = "bonePose";
-        protected static readonly SHAPE: string = "shape";
 
         protected static readonly BONES: string = "bones";
         protected static readonly POSITION_MODE: string = "positionMode";
         protected static readonly SPACING_MODE: string = "spacingMode";
-        protected static readonly ROTATE_MODE: string = "rotateMode";shape
+        protected static readonly ROTATE_MODE: string = "rotateMode";
         protected static readonly SPACING: string = "spacing";
         protected static readonly ROTATE_OFFSET: string = "rotateOffset";
-        protected static readonly ROTATE_MIX: string = "rotateMix";
-        protected static readonly TRANSLATE_MIX: string = "translateMix";
+        protected static readonly ROTATE_WEIGHT: string = "rotateWeight";
+        protected static readonly X_WEIGHT: string = "xWeight";
+        protected static readonly Y_WEIGHT: string = "yWeight";
 
         protected static readonly TARGET_DISPLAY: string = "targetDisplay";
         protected static readonly CLOSED: string = "closed";

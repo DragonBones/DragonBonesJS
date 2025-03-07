@@ -349,6 +349,27 @@ namespace dragonBones {
                                     this._constraintTimelines.push(timeline);
                                     break;
                                 }
+                                case TimelineType.PathConstraintPosition: {
+                                    const timeline = BaseObject.borrowObject(PathConstraintPositionTimelineState);
+                                    timeline.target = constraint;
+                                    timeline.init(this._armature, this, timelineData);
+                                    this._constraintTimelines.push(timeline);
+                                    break;
+                                }
+                                case TimelineType.PathConstraintSpacing: {
+                                    const timeline = BaseObject.borrowObject(PathConstraintSpacingTimelineState);
+                                    timeline.target = constraint;
+                                    timeline.init(this._armature, this, timelineData);
+                                    this._constraintTimelines.push(timeline);
+                                    break;
+                                }
+                                case TimelineType.PathConstraintWeight: {
+                                    const timeline = BaseObject.borrowObject(PathConstraintWeightTimelineState);
+                                    timeline.target = constraint;
+                                    timeline.init(this._armature, this, timelineData);
+                                    this._constraintTimelines.push(timeline);
+                                    break;
+                                }
 
                                 default:
                                     break;

@@ -104,6 +104,7 @@ namespace dragonBones {
             else if (this._actionTimeline === null) { 
                 // Action timeline 主时间轴，是事件时间轴，如果没有事件，就是空帧的时间轴。不可缩放，不可偏移，不可循环
                 // 每次更新会首先更新它，然后再更新其他时间轴
+                // FIXME: playState 变成1后，时间轴不更新了，导致最后一帧的状态更新不上。
                 const playTimes = this._animationState.playTimes;
                 const totalTime = playTimes * this._duration;
                 if (playTimes > 0 && (passedTime >= totalTime || passedTime <= -totalTime)) {
