@@ -372,13 +372,12 @@ namespace dragonBones {
             let position = this.position;
 
             positions.length = spaceCount * 3 + 2;
-            let pathLength = 0.0;
+            // 最后一个就是整个曲线的长度
+            let pathLength = pathDisplayDta.curveLengths[pathDisplayDta.curveLengths.length - 1]
             //不需要匀速运动，效率高些
             if (!pathDisplayDta.constantSpeed) {
                 const lengths = pathDisplayDta.curveLengths;
                 curveCount -= isClosed ? 1 : 1;
-                //  lengths最后一个表示整个曲线的长度
-                pathLength = lengths[curveCount];
 
                 if (percentPosition) {
                     position *= pathLength;
@@ -390,10 +389,11 @@ namespace dragonBones {
                     }
                 }
 
-                curveVertices.length = 8;
+                curveVertices.length = 10;
                 for (let i = 0, o = 0, curve = 0; i < spaceCount; i++, o += 3) {
                     const space = spaces[i];
                     position += space;
+                    let percent = 0.0;
 
                     if (isClosed) {
                         position %= pathLength;
@@ -402,50 +402,48 @@ namespace dragonBones {
                         }
                         curve = 0;
                     }
-                    else if (position < 0) {
-                        //TODO
-                        continue;
+                    if (position < 0) {
+                        percent = position / pathLength;
+                        curve = 0;
                     }
                     else if (position > pathLength) {
-                        //TODO
-                        continue;
+                        percent = (position) / pathLength;
+                        curve = curveCount - 1;
                     }
-
-                    let percent = 0.0;
-
-                    for (; ; curve++) {
-                        const len = lengths[curve];
-                        if (position > len) {
-                            continue;
+                    else {
+                        for (; ; curve++) {
+                            const len = lengths[curve];
+                            if (position > len) {
+                                continue;
+                            }
+                            if (curve === 0) {
+                                percent = position / len;
+                            }
+                            else {
+                                const preLen = lengths[curve - 1];
+                                percent = (position - preLen) / (len - preLen);
+                            }
+                            break;
                         }
-                        if (curve === 0) {
-                            percent = position / len;
-                        }
-                        else {
-                            const preLen = lengths[curve - 1];
-                            percent = (position - preLen) / (len - preLen);
-                        }
-                        break;
                     }
-                    
                     if (curve !== preCurve) {
                         preCurve = curve;
                         if (isClosed && curve === curveCount) {
                             //计算是哪段曲线
                             this._computeVertices(verticesLength - 4, 4, 0, curveVertices);
-                            this._computeVertices(0, 4, 4, curveVertices);
+                            this._computeVertices(0, 10, 4, curveVertices);
                         }
                         else {
-                            this._computeVertices(curve * 6 + 2, 8, 0, curveVertices);
+                            this._computeVertices(curve * 6 + 2, 10, 0, curveVertices);
                         }
                     }
-                    // 计算曲线上点的位置和斜率，有bug
-                    this.addCurvePosition(percent, curveVertices[0], curveVertices[1], curveVertices[2], curveVertices[3], curveVertices[4], curveVertices[5], curveVertices[6], curveVertices[7], positions, o, tangents);
+                    // 计算曲线上点的位置和斜率
+                    
+                    this.addCurvePosition2(percent, curveVertices, positions, o, tangents, pathLength);
                 }
 
                 return;
             }
-
             //匀速的
             if (isClosed) {
                 verticesLength += 2;
@@ -635,6 +633,94 @@ namespace dragonBones {
             }
         }
 
+        private addCurvePosition2(t: number, vertices: number[], out: Array<number>, offset: number, tangents: boolean, totalLength: number) {
+            if(vertices.length !== 10) {
+                out[offset] = 0;
+                out[offset + 1] = 0;
+                out[offset + 2] = 0;
+                return;
+            }
+            const x1 =  vertices[0];
+            const y1 =  vertices[1];
+            const cx1 = vertices[2];
+            const cy1 = vertices[3];
+            const cx2 = vertices[4];
+            const cy2 = vertices[5];
+            const  x2 = vertices[6];
+            const  y2 = vertices[7];
+            const cx3 = vertices[8];
+            const cy3 = vertices[9];
+
+            if (t < 0) {
+                const dydt = cy1 - y1;
+                const dxdt = cx1 - x1;
+                const angle = Math.atan2(dydt, dxdt);
+                const length = totalLength * t;
+                out[offset] = x1 + length * Math.cos(angle);
+                out[offset + 1] = y1 + length * Math.sin(angle);
+                out[offset + 2] = angle;
+                return;
+            }
+            if (t > 1) {
+                const dydt = cy3 - y2;
+                const dxdt = cx3 - x2;
+                const angle = Math.atan2(dydt, dxdt);
+                const length = totalLength * (1 - t);
+                out[offset] = x2 + length * Math.cos(angle);
+                out[offset + 1] = y2 + length * Math.sin(angle);
+                out[offset + 2] = angle;
+            }
+            if (t === 0) {
+                out[offset] = x1;
+                out[offset + 1] = y1;
+                const dydt = cy1 - y1;
+                const dxdt = cx1 - x1;
+                out[offset + 2] = Math.atan2(dydt, dxdt);
+                return;
+            }
+
+            if (t === 1) {
+                out[offset] = x2;
+                out[offset + 1] = y2;
+                const dydt = cy3 - y2;
+                const dxdt = cx3 - x2;
+                out[offset + 2] = Math.atan2(dydt, dxdt);
+                return;
+            }
+            const t1 = 1 - t;
+            const t1Sq = t1 * t1;
+            const t1Cu = t1Sq * t1;
+            const tSq = t * t;
+            const tCu = tSq * t;
+        
+            // 计算坐标
+            const x = t1Cu * x1 + 3 * t1Sq * t * cx1 + 3 * t1 * tSq * cx2 + tCu * x2;
+            const y = t1Cu * y1 + 3 * t1Sq * t *cy1 + 3 * t1 * tSq * cy2 + tCu * y2;
+        
+            out[offset] = x;
+            out[offset + 1] = y;
+            if (tangents) {
+                // 计算导数（切线方向）
+                const dxdt = 3 * (
+                    (cx1 - x1) * t1Sq +
+                    2 * (cx2 - cx1) * t1 * t +
+                    (x2 - cx2) * tSq
+                );
+
+                const dydt = 3 * (
+                    (cy1 - y1) * t1Sq +
+                    2 * (cy2 -cy1) * t1 * t +
+                    (y2 - cy2) * tSq
+                );
+
+                // 处理斜率计算
+                out[offset + 2] = Math.atan2(dydt, dxdt);
+            }
+            else {
+                out[offset + 2] = 0;
+            }
+        }
+
         public init(constraintData: ConstraintData, armature: Armature): void {
             this._constraintData = constraintData;
             this._armature = armature;
@@ -768,6 +854,8 @@ namespace dragonBones {
             const yWeight = this.yWeight;
             for (let i = 0, p = 3; i < boneCount; i++, p += 3) {
                 let bone = bones[i];
+                // TODO: 优化,这里可能会计算多遍
+                bone.forceUpdateTransform();
                 bone.updateByConstraint();
                 let matrix = bone.globalTransformMatrix;
                 matrix.tx += (boneX - matrix.tx) * xWeight;

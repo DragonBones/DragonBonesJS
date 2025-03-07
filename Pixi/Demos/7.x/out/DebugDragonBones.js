@@ -30,7 +30,7 @@ class DebugDragonBones extends BaseDemo {
                                       this._pixiResources["resource/debug/dragonbones-web_tex.png"]);
         const armatureDisplay = factory.buildArmatureDisplay("armature1");
         armatureDisplay.debugDraw = true;
-        // armatureDisplay.animation.play("newAnimation", 1);
+        armatureDisplay.animation.play("newAnimation", 1);
         armatureDisplay.x = -200.0;
         armatureDisplay.y = 100.0;
         armatureDisplay.scale.set(0.8);

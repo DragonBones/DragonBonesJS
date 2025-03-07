@@ -453,6 +453,9 @@ namespace dragonBones {
                 this._transformDirty = true;
             }
         }
+        public forceUpdateTransform(): void {
+            this._updateGlobalTransformMatrix(true);
+        }
         /**
          * - Forces the bone to update the transform in the next frame.
          * When the bone is not animated or its animation state is finished, the bone will not continue to update,

@@ -1077,7 +1077,9 @@ namespace dragonBones {
             }
             else {
                 const pathConstraintData = pathConstraint._constraintData as PathConstraintData;
-                pathConstraint.spacing = pathConstraintData.spacing;
+                pathConstraint.rotateWeight = pathConstraintData.rotateWeight;
+                pathConstraint.xWeight = pathConstraintData.xWeight;
+                pathConstraint.yWeight = pathConstraintData.yWeight;
             }
 
             pathConstraint.invalidUpdate();
@@ -1086,7 +1088,7 @@ namespace dragonBones {
 
         public init(armature: Armature, animationState: AnimationState, timelineData: TimelineData | null): void {
             super.init(armature, animationState, timelineData);
-
+            this._valueCount = 3;
             this._valueOffset = this._animationData.frameFloatOffset;
             this._valueArray = this._animationData.parent.parent.frameFloatArray;
         }

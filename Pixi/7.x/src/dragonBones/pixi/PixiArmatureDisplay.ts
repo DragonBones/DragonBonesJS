@@ -159,7 +159,7 @@ namespace dragonBones {
                     if(pathConstraints) {
                         for(let i = 0, len = pathConstraints.length; i < len; i++) {
                             const pathConstraint = pathConstraints[i];
-                            
+                            const pathData = ((pathConstraint as any)._pathSlot._displayFrame as DisplayFrame).rawDisplayData as PathDisplayData
                             let child = this._debugDrawer.getChildByName(pathConstraint.name) as PIXI.Graphics;
                             if (!child) {
                                 child = new PIXI.Graphics();
@@ -178,6 +178,9 @@ namespace dragonBones {
                                         const prevP = (j - 6);
                                         child.bezierCurveTo(vertices[prevP + 4], vertices[prevP + 5], vertices[j + 0], vertices[j + 1], vertices[j + 2], vertices[j + 3]);
                                     }
+                                }
+                                if(pathData.closed){
+                                    child.bezierCurveTo(vertices[vertices.length - 2], vertices[vertices.length - 1], vertices[0], vertices[1], vertices[2], vertices[3]);
                                 }
                             }
                         }
