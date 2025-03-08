@@ -683,6 +683,8 @@ namespace dragonBones {
                     imageDisplay.name = name;
                     imageDisplay.path = path.length > 0 ? path : name;
                     this._parsePivot(rawData, imageDisplay);
+                    imageDisplay.mask = ObjectDataParser._getBoolean(rawData, DataParser.MASK, false);
+                    imageDisplay.maskRange = ObjectDataParser._getNumber(rawData, DataParser.MASK_RANGE, 0);
                     break;
                 }
 
@@ -763,6 +765,8 @@ namespace dragonBones {
                         shapeDisplay.name = name;
                         shapeDisplay.path = path.length > 0 ? path : name;
                         shapeDisplay.shape = shape;
+                        shapeDisplay.mask = ObjectDataParser._getBoolean(rawData, DataParser.MASK, false);
+                        shapeDisplay.maskRange = ObjectDataParser._getNumber(rawData, DataParser.MASK_RANGE, 0);
                     }
                     break;
                 }

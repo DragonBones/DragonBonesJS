@@ -5556,6 +5556,8 @@ var dragonBones;
                 this._boundingBoxData = this._displayFrame.getBoundingBox();
                 this._textureData = this._displayFrame.getTextureData();
                 this._shapeData = this._displayFrame.getShapeData();
+                this._mask = rawDisplayData ? rawDisplayData.mask : false;
+                this._maskRange = rawDisplayData ? rawDisplayData.maskRange : 0;
             }
             if (this._displayFrame !== prevDisplayFrame ||
                 this._geometryData !== prevGeometryData ||
@@ -5837,9 +5839,14 @@ var dragonBones;
                 this._updateColor();
                 this._colorDirty = false;
             }
+            if (this._maskDirty) {
+                this._updateMask();
+                this._maskDirty = false;
+            }
             if (this._zOrderDirty) {
                 this._updateZOrder();
                 this._zOrderDirty = false;
+                this._maskDirty = true;
             }
             if (this._geometryData !== null && this._display === this._meshDisplay) {
                 const isSkinned = this._geometryData.weight !== null;
@@ -11610,6 +11617,8 @@ var dragonBones;
     DataParser.BEND_POSITIVE = "bendPositive";
     DataParser.CHAIN = "chain";
     DataParser.WEIGHT = "weight";
+    DataParser.MASK = "mask";
+    DataParser.MASK_RANGE = "maskRange";
     DataParser.BLEND_TYPE = "blendType";
     DataParser.FADE_IN_TIME = "fadeInTime";
     DataParser.PLAY_TIMES = "playTimes";
@@ -12248,6 +12257,8 @@ var dragonBones;
                     imageDisplay.name = name;
                     imageDisplay.path = path.length > 0 ? path : name;
                     this._parsePivot(rawData, imageDisplay);
+                    imageDisplay.mask = ObjectDataParser._getBoolean(rawData, dragonBones.DataParser.MASK, false);
+                    imageDisplay.maskRange = ObjectDataParser._getNumber(rawData, dragonBones.DataParser.MASK_RANGE, 0);
                     break;
                 }
                 case 1 /* Armature */: {
@@ -12318,6 +12329,8 @@ var dragonBones;
                         shapeDisplay.name = name;
                         shapeDisplay.path = path.length > 0 ? path : name;
                         shapeDisplay.shape = shape;
+                        shapeDisplay.mask = ObjectDataParser._getBoolean(rawData, dragonBones.DataParser.MASK, false);
+                        shapeDisplay.maskRange = ObjectDataParser._getNumber(rawData, dragonBones.DataParser.MASK_RANGE, 0);
                     }
                     break;
                 }
@@ -15321,6 +15334,7 @@ var dragonBones;
             // private _disposeProxy: boolean = false;
             this._armature = null;
             this._debugDrawer = null;
+            this.pixiApp = null;
         }
         /**
          * @inheritDoc
@@ -15715,6 +15729,25 @@ var dragonBones;
                         this._textureScale = currentTextureData.parent.scale * this._armature._armatureData.scale;
                         const normalDisplay = this._renderDisplay;
                         normalDisplay.texture = renderTexture;
+                        if (this._mask) {
+                            const colorMatrix = new PIXI.filters.ColorMatrixFilter();
+                            colorMatrix.matrix = [
+                                1, 0, 0, 0, 1,
+                                0, 1, 0, 0, 1,
+                                0, 0, 1, 0, 1,
+                                0, 0, 0, 1, 0
+                            ];
+                            normalDisplay.filters = [colorMatrix];
+                            const container = this._armature.display;
+                            if (container && container.pixiApp) {
+                                const texture = container.pixiApp.renderer.generateTexture(normalDisplay);
+                                normalDisplay.texture = texture;
+                                normalDisplay.filters = [];
+                            }
+                            if (this._maskRange > 0) {
+                                this._updateMask();
+                            }
+                        }
                     }
                     this._visibleDirty = true;
                     return;
@@ -15862,6 +15895,31 @@ var dragonBones;
                     shapeDisplay.endFill();
                 }
             }
+            this._updateMask();
+        }
+        _updateMask() {
+            if (this._mask && this._maskRange > 0) {
+                const container = this._armature.display;
+                // clear mask
+                const length = container.children.length;
+                for (let i = 0; i < length; i++) {
+                    const child = container.getChildAt(i);
+                    if (child.mask === this._renderDisplay) {
+                        child.mask = null;
+                    }
+                }
+                // set mask
+                const index = container.getChildIndex(this._renderDisplay);
+                for (let i = 0; i < this._maskRange; i++) {
+                    let maskIndex = index + i + 1;
+                    if (maskIndex < length) {
+                        const child = container.getChildAt(maskIndex);
+                        if (child) {
+                            child.mask = this._renderDisplay;
+                        }
+                    }
+                }
+            }
         }
         _updateTransform() {
             throw new Error();
@@ -15942,6 +16000,7 @@ var dragonBones;
          */
         constructor(dataParser = null) {
             super(dataParser);
+            this._app = null;
             if (PixiFactory._dragonBonesInstance === null) {
                 PIXI.Assets.loader.parsers.push(new PixiDBBinParser());
                 const eventManager = new dragonBones.PixiArmatureDisplay();
@@ -15981,6 +16040,7 @@ var dragonBones;
         _buildArmature(dataPackage) {
             const armature = dragonBones.BaseObject.borrowObject(dragonBones.Armature);
             const armatureDisplay = new dragonBones.PixiArmatureDisplay();
+            armatureDisplay.pixiApp = this._app;
             armature.init(dataPackage.armature, armatureDisplay, armatureDisplay, this._dragonBones);
             return armature;
         }
@@ -16064,6 +16124,9 @@ var dragonBones;
          */
         get soundEventManager() {
             return this._dragonBones.eventManager;
+        }
+        set pixiApp(app) {
+            this._app = app;
         }
     }
     PixiFactory._dragonBonesInstance = null;

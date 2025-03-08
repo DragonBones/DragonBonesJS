@@ -122,6 +122,9 @@ namespace dragonBones {
         protected static readonly BEND_POSITIVE: string = "bendPositive";
         protected static readonly CHAIN: string = "chain";
         protected static readonly WEIGHT: string = "weight";
+        protected static readonly MASK: string = "mask";
+        protected static readonly MASK_RANGE: string = "maskRange";
+
 
         protected static readonly BLEND_TYPE: string = "blendType";
         protected static readonly FADE_IN_TIME: string = "fadeInTime";

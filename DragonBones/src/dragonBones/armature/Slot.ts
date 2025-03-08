@@ -228,6 +228,7 @@ namespace dragonBones {
         protected _visibleDirty: boolean;
         protected _blendModeDirty: boolean;
         protected _zOrderDirty: boolean;
+        protected _maskDirty: boolean;
         /**
          * @internal
          */
@@ -285,6 +286,8 @@ namespace dragonBones {
          */
         public _geometryData: GeometryData | null;
         public _shapeData: ShapeData | null;
+        protected _mask:boolean;
+        protected _maskRange:number;
         protected _boundingBoxData: BoundingBoxData | null;
         protected _textureData: TextureData | null;
         protected _rawDisplay: any = null; // Initial value.
@@ -384,6 +387,7 @@ namespace dragonBones {
         protected abstract _replaceDisplay(value: any): void;
         protected abstract _removeDisplay(): void;
         protected abstract _updateZOrder(): void;
+        protected abstract _updateMask(): void;
         /**
          * @internal
          */
@@ -452,6 +456,8 @@ namespace dragonBones {
                 this._boundingBoxData = this._displayFrame.getBoundingBox();
                 this._textureData = this._displayFrame.getTextureData();
                 this._shapeData = this._displayFrame.getShapeData();
+                this._mask = rawDisplayData ? rawDisplayData.mask : false;
+                this._maskRange = rawDisplayData ? rawDisplayData.maskRange : 0;
             }
 
             if (
@@ -778,9 +784,14 @@ namespace dragonBones {
                 this._colorDirty = false;
             }
 
+            if (this._maskDirty) {
+                this._updateMask();
+                this._maskDirty = false;
+            }
             if (this._zOrderDirty) {
                 this._updateZOrder();
                 this._zOrderDirty = false;
+                this._maskDirty = true;
             }
 
             if (this._geometryData !== null && this._display === this._meshDisplay) {

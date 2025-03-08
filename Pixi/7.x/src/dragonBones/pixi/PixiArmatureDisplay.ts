@@ -34,6 +34,7 @@ namespace dragonBones {
         // private _disposeProxy: boolean = false;
         private _armature: Armature = null as any;
         private _debugDrawer: PIXI.Sprite | null = null;
+        public pixiApp: PIXI.Application | null = null;
         /**
          * @inheritDoc
          */

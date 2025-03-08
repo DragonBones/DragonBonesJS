@@ -238,6 +238,25 @@ namespace dragonBones {
                         this._textureScale = currentTextureData.parent.scale * this._armature._armatureData.scale;
                         const normalDisplay = this._renderDisplay as PIXI.Sprite;
                         normalDisplay.texture = renderTexture;
+                        if (this._mask) {
+                            const colorMatrix = new PIXI.filters.ColorMatrixFilter();
+                            colorMatrix.matrix = [
+                                1, 0, 0, 0, 1,
+                                0, 1, 0, 0, 1,
+                                0, 0, 1, 0, 1,
+                                0, 0, 0, 1, 0
+                            ];
+                            normalDisplay.filters = [colorMatrix];
+                            const container = this._armature.display as PixiArmatureDisplay;
+                            if(container && container.pixiApp) {
+                                const texture = container.pixiApp.renderer.generateTexture(normalDisplay);
+                                normalDisplay.texture = texture;
+                                normalDisplay.filters = [];
+                            }
+                            if(this._maskRange > 0) {
+                                this._updateMask();
+                            }
+                        }
                     }
 
                     this._visibleDirty = true;
@@ -417,6 +436,32 @@ namespace dragonBones {
                     shapeDisplay.endFill();
                 }
                 
+            }
+            this._updateMask();
+        }
+
+        protected _updateMask() {
+            if(this._mask && this._maskRange > 0) {
+                const container = this._armature.display as PixiArmatureDisplay;
+                // clear mask
+                const length = container.children.length;
+                for(let i = 0; i < length; i++) {
+                    const child = container.getChildAt(i);
+                    if(child.mask === this._renderDisplay) {
+                        child.mask = null;
+                    }
+                }
+                // set mask
+                const index = container.getChildIndex(this._renderDisplay);
+                for(let i = 0; i < this._maskRange; i++) {
+                    let maskIndex = index + i + 1;
+                    if(maskIndex < length) {
+                        const child = container.getChildAt(maskIndex);
+                        if(child) {
+                            child.mask = this._renderDisplay;
+                        }
+                    }
+                }
             }
         }
         protected _updateTransform(): void {

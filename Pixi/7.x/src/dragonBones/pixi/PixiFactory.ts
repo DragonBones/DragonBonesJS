@@ -85,7 +85,7 @@ namespace dragonBones {
         protected _buildArmature(dataPackage: BuildArmaturePackage): Armature {
             const armature = BaseObject.borrowObject(Armature);
             const armatureDisplay = new PixiArmatureDisplay();
-
+            armatureDisplay.pixiApp = this._app;
             armature.init(
                 dataPackage.armature,
                 armatureDisplay, armatureDisplay, this._dragonBones
@@ -181,6 +181,11 @@ namespace dragonBones {
          */
         public get soundEventManager(): PixiArmatureDisplay {
             return this._dragonBones.eventManager as PixiArmatureDisplay;
+        }
+
+        private _app: PIXI.Application = null;
+        public set pixiApp(app: PIXI.Application) {
+            this._app = app;
         }
     }
 }

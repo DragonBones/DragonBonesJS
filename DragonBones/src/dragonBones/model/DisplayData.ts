@@ -68,7 +68,8 @@ namespace dragonBones {
         public path: string;
         public readonly transform: Transform = new Transform();
         public parent: SkinData;
-
+        public mask: boolean;
+        public maskRange: number;
         protected _onClear(): void {
             this.name = "";
             this.path = "";
