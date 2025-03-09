@@ -252,7 +252,9 @@ declare namespace dragonBones {
      */
     const enum ConstraintType {
         IK = 0,
-        Path = 1
+        Path = 1,
+        Transform = 2,
+        Physics = 3
     }
     /**
      * @private
@@ -3456,7 +3458,6 @@ declare namespace dragonBones {
         protected _parent: Bone | null;
         protected _onClear(): void;
         protected _updateGlobalTransformMatrix(isCache: boolean): void;
-        forceUpdateTransform(): void;
         /**
          * - Forces the bone to update the transform in the next frame.
          * When the bone is not animated or its animation state is finished, the bone will not continue to update,
@@ -5551,6 +5552,8 @@ declare namespace dragonBones {
         protected static readonly DISPLAY: string;
         protected static readonly FRAME: string;
         protected static readonly IK: string;
+        protected static readonly TRANSFORM_CONSTRAINT: string;
+        protected static readonly PHYSICS: string;
         protected static readonly PATH_CONSTRAINT: string;
         protected static readonly PATH_CONSTRAINT_POSITION: string;
         protected static readonly PATH_CONSTRAINT_SPACING: string;
@@ -5625,6 +5628,7 @@ declare namespace dragonBones {
         protected static readonly SKEW_Y: string;
         protected static readonly SCALE_X: string;
         protected static readonly SCALE_Y: string;
+        protected static readonly SHEAR_X: string;
         protected static readonly VALUE: string;
         protected static readonly ROTATE: string;
         protected static readonly SKEW: string;
@@ -5650,8 +5654,12 @@ declare namespace dragonBones {
         protected static readonly SPACING: string;
         protected static readonly ROTATE_OFFSET: string;
         protected static readonly ROTATE_WEIGHT: string;
+        protected static readonly SCALE_WEIGHT: string;
+        protected static readonly TRANSLATE_WEIGHT: string;
         protected static readonly X_WEIGHT: string;
         protected static readonly Y_WEIGHT: string;
+        protected static readonly LOCAL: string;
+        protected static readonly RELATIVE: string;
         protected static readonly TARGET_DISPLAY: string;
         protected static readonly CLOSED: string;
         protected static readonly CONSTANT_SPEED: string;
@@ -5659,11 +5667,19 @@ declare namespace dragonBones {
         protected static readonly LENGTHS: string;
         protected static readonly GOTO_AND_PLAY: string;
         protected static readonly DEFAULT_NAME: string;
+        protected static readonly LIMIT: string;
+        protected static readonly FPS: string;
+        protected static readonly INERTIA: string;
+        protected static readonly STRENGTH: string;
+        protected static readonly DAMPING: string;
+        protected static readonly MASS: string;
+        protected static readonly WIND: string;
+        protected static readonly GRAVITY: string;
         protected static _getArmatureType(value: string): ArmatureType;
         protected static _getBoneType(value: string): BoneType;
-        protected static _getPositionMode(value: string): PositionMode;
-        protected static _getSpacingMode(value: string): SpacingMode;
-        protected static _getRotateMode(value: string): RotateMode;
+        protected static _getPositionMode(value: number): PositionMode;
+        protected static _getSpacingMode(value: number): SpacingMode;
+        protected static _getRotateMode(value: number): RotateMode;
         protected static _getDisplayType(value: string): DisplayType;
         protected static _getBoundingBoxType(value: string): BoundingBoxType;
         protected static _getBlendMode(value: string): BlendMode;
@@ -5757,6 +5773,8 @@ declare namespace dragonBones {
         protected _parseArmature(rawData: any, scale: number): ArmatureData;
         protected _parseBone(rawData: any): BoneData;
         protected _parseIKConstraint(rawData: any): ConstraintData | null;
+        protected _parseTransformConstraint(rawData: any): ConstraintData | null;
+        protected _parsePhysics(rawData: any): ConstraintData | null;
         protected _parsePathConstraint(rawData: any): ConstraintData | null;
         protected _parseSlot(rawData: any, zOrder: number): SlotData;
         protected _parseSkin(rawData: any): SkinData;

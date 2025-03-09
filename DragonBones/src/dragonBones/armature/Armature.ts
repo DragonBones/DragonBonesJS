@@ -266,6 +266,24 @@ namespace dragonBones {
             if (this._armatureData !== null) {
                 this._lockUpdate = true;
                 this._dragonBones.bufferObject(this);
+                if(this._constraints) {
+                    for(const constraint of this._constraints) {
+                        constraint.returnToPool();
+                    }
+                }
+                if(this._bones) {
+                    for(const bone of this._bones) {
+                        if(bone._transformConstraint) {
+                            bone._transformConstraint.returnToPool();
+                            bone._transformConstraint = null as any;
+                        }
+                        if(bone._physicsConstraint) {
+                            bone._physicsConstraint.returnToPool();
+                            bone._physicsConstraint = null as any;
+                        }
+                        bone.returnToPool();
+                    }
+                }
             }
         }
         /**
