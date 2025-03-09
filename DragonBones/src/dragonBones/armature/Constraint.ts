@@ -224,7 +224,7 @@ namespace dragonBones {
         }
     }
 
-        /**
+    /**
      * @internal
      */
     export class TransformConstraint extends Constraint {
@@ -334,6 +334,389 @@ namespace dragonBones {
                     this._root.global.toMatrix(globalTransformMatrix);
                 }
             }
+        }
+
+        public invalidUpdate(): void {
+            if (this._root) {
+                this._root.invalidUpdate();
+            }
+        }
+    }
+
+    /**
+     * @internal
+     */
+    export class PhysicsConstraint extends Constraint {
+        public static toString(): string {
+            return "[class dragonBones.PhysicsConstraint]";
+        }
+
+        /**
+         * - For timeline state.
+         * @internal
+         */
+        public _inertia: number;
+        /**
+         * - For timeline state.
+         * @internal
+         */
+        public _strength: number;
+        /**
+         * - For timeline state.
+         * @internal
+         */
+        public _damping: number;
+        /**
+         * - For timeline state.
+         * @internal
+         */
+        public _mass: number; 
+        /**
+         * - For timeline state.
+         * @internal
+         */
+        public _wind: number;
+        /**
+         * - For timeline state.
+         * @internal
+         */
+        public _gravity: number;
+        /**
+         * - For timeline state.
+         * @internal
+         */
+        public _weight: number;
+        /**
+         * - For timeline state.
+         * @internal
+         */
+        public _reset: boolean;
+
+        public _sleeping: boolean = false;
+
+        private _massInverse: number = 0;
+        private _fpsTime: number = 0;
+        private _dump : number = 0;
+
+        private _remaining: number = 0;
+        private _lastTime: number = 0;
+        private _xOffset: number = 0;
+        private _xVelocity: number = 0;
+        private _yOffset: number = 0;
+        private _yVelocity: number = 0;
+        private _rotateOffset: number = 0;
+        private _rotateVelocity: number = 0;
+        private _scaleOffset: number = 0;
+        private _scaleVelocity: number = 0;
+        private _lastReset: boolean = false;
+        private _by: number = 0;
+        private _bx: number = 0;
+        private _cx: number = 0;
+        private _cy: number = 0;
+        private _tx: number = 0;
+        private _ty: number = 0;
+        private PI = 3.1415927;
+        private PI2 = this.PI * 2;
+        private PI1_2 = 1 / this.PI2;
+        protected _onClear(): void {
+            super._onClear();
+
+            this._constraintData = null as any;
+        }
+
+        public init(constraintData: ConstraintData, armature: Armature): void {
+            if (this._constraintData !== null) {
+                return;
+            }
+            this._constraintData = constraintData;
+            this._armature = armature;
+            this._target = this._armature.getBone(this._constraintData.target.name) as any;
+            if(this._target) {
+                this._target._physicsConstraint = this;
+            }
+            const physicsData = this._constraintData as PhysicsConstraintData;
+
+            this._inertia = physicsData.inertia;
+            this._strength = physicsData.strength;
+            this._damping = physicsData.damping;
+            this._mass = physicsData.mass;
+            this._wind = physicsData.wind;
+            this._gravity = physicsData.gravity;
+            this._weight = physicsData.weight;
+
+            this._fpsTime = 1 / physicsData.fps;
+            this._massInverse = 1 / this._mass;
+            this._dump = 1 - this._damping;
+            this._reset = true;
+        }
+
+        private isNumberEqual(a: number, b: number, acc: number = 0.001): boolean {
+            if (a + acc >= b && a - acc <= b) {
+                return true;
+            }
+            return false;
+        }
+
+        public update(): void {
+            if (this._sleeping) {
+                return;
+            }
+            const physicsData = this._constraintData as PhysicsConstraintData;
+            if(this._armature.clock) {
+                const bone = this._target;
+                const hasX = physicsData.x > 0;
+                const hasY = physicsData.y > 0;
+                const hasRotate = physicsData.rotate > 0 || physicsData.shearX > 0;
+                const hasScaleX = physicsData.scaleX > 0;
+                const boneLength = bone.boneData.length;
+                if(this._reset) {
+                    this.reset();
+                    this._reset = false;
+                    this._lastReset = true;
+                }
+                else {
+                    
+                    this._sleeping = true;
+                    // 过去的时间，单位是秒
+                    
+                    const globalTime = this._armature.clock.time;
+                    const delta = Math.max(globalTime - this._lastTime, 0);
+                   
+                    // 参与计算的时间，单位是秒
+                    this._remaining += delta;
+                    this._lastTime = globalTime;
+                    // console.log('start bone.globalTransform.x', bone.globalTransform.x)
+                    const bx = bone.global.x;
+                    const by = bone.global.y;
+
+                    if (this._lastReset) {
+                        this._lastReset = false;
+                        this._bx = bx;
+                        this._by = by;
+                    } else {
+                        // console.log('physics update', delta, this._sleeping)
+                        const armatureReferenceScale = 1;
+                        const armatureScaleX = 1;
+                        const armatureScaleY = 1;
+                        const armatureYDown = DragonBones.yDown;
+                        let remaining = this._remaining;
+                        let armatureScale = armatureReferenceScale;
+                        let damping = -1;
+                        let qx = physicsData.limit * delta;
+                        let qy = qx * Math.abs(armatureScaleX);
+                        qx *= Math.abs(armatureScaleY);
+                        if (hasX || hasY) {
+                            if (hasX) {
+                                // 在惯性下，偏移会继续增加一点，这个增加的值是上一帧的偏移和这一帧的偏移的差值
+                                const u = (this._bx - bx) * this._inertia;
+                                // 惯性有个最大值
+                                this._xOffset += u > qx ? qx : u < -qx ? -qx : u;
+                                // 每次迭代只和上一帧的偏移有关
+                                this._bx = bx;
+                            }
+                            if (hasY) {
+                                const u = (this._by - by) * this._inertia;
+                                this._yOffset += u > qy ? qy : u < -qy ? -qy : u;
+                                this._by = by;
+                            }
+                            if (remaining >= this._fpsTime) {
+                                damping = this._dump;
+                                const w = this._wind * armatureScale * armatureScaleX;
+                                const g = this._gravity * armatureScale * armatureScaleY;
+                                do {
+                                    //物理fps
+                                    if (hasX) {
+                                        // 力 = 弹簧力 + 风力
+                                        const deltaV = (w - this._xOffset * this._strength) * this._massInverse * this._fpsTime;
+                                        this._xVelocity += deltaV;
+                                        const deltaOffset = this._xVelocity * this._fpsTime;
+                                        this._xOffset += deltaOffset;
+                                        this._xVelocity *= damping;
+                                    }
+                                    if (hasY) {
+                                        this._yVelocity -= (g + this._yOffset * this._strength) * this._massInverse * this._fpsTime;
+                                        this._yOffset += this._yVelocity * this._fpsTime;
+                                        this._yVelocity *= damping;
+                                    }
+                                    remaining -= this._fpsTime;
+                                } while (remaining >= this._fpsTime);
+                            }
+                            if (hasX) {
+                                // 偏移要乘以物理的权重，再乘以x的权重
+                                if( Math.abs(this._xOffset) > physicsData.limit) {
+                                    // 防止过大
+                                    this._xOffset = this._xOffset > 0 ? physicsData.limit : -physicsData.limit;
+                                }
+                                const offsetX = this._xOffset * this._weight * physicsData.x;
+                                bone.global.x += offsetX;
+                                if(!this.isNumberEqual(offsetX, 0)) {
+                                    this._sleeping = false;
+                                }
+                            }
+                            if (hasY) {
+                                if( Math.abs(this._yOffset) > physicsData.limit) {
+                                    // 防止过大
+                                    this._yOffset = this._yOffset > 0 ? physicsData.limit : -physicsData.limit;
+                                }
+                                const offsetY = this._yOffset * this._weight * physicsData.y;
+                                bone.global.y += offsetY;
+                                if(!this.isNumberEqual(offsetY, 0)) {
+                                    this._sleeping = false;
+                                }
+                            }
+                        }
+                        if (hasRotate || hasScaleX) {
+                            const globalMatrix = bone.globalTransformMatrix;
+                            let ca = Math.atan2(globalMatrix.c, globalMatrix.a);
+                            let c = 0;
+                            let s = 0;
+                            let mr = 0;
+                            let dx = this._cx - bone.global.x;
+                            let dy = this._cy - bone.global.y;
+                            if (dx > qx)
+                                dx = qx;
+                            else if (dx < -qx) //
+                                dx = -qx;
+                            if (dy > qy)
+                                dy = qy;
+                            else if (dy < -qy) //
+                                dy = -qy;
+                            if (hasRotate) {
+                                mr = (physicsData.rotate + physicsData.shearX) * this._weight;
+                                let r = Math.atan2(dy + this._ty, dx + this._tx) - ca - this._rotateOffset * mr;
+                                // r 限制在 -pi到pi之间；
+                                r = (r - Math.ceil(r * this.PI1_2 - 0.5) * this.PI2); 
+                                const inertiaRotateOffset = r * this._inertia;
+                                if(!this.isNumberEqual(inertiaRotateOffset, 0, 0.0001)) {
+                                    this._sleeping = false;
+                                }
+                                // 旋转的偏移收到惯性的影响
+                                this._rotateOffset += inertiaRotateOffset;
+                                r = this._rotateOffset * mr + ca;
+                                c = Math.cos(r);
+                                s = Math.sin(r);
+                                if (hasScaleX) {
+                                    r = boneLength * bone.global.scaleX;
+                                    if (r > 0) {
+                                        this._scaleOffset += (dx * c + dy * s) * this._inertia / r;
+                                    }
+                                }
+                            } else {
+                                c = Math.cos(ca);
+                                s = Math.sin(ca);
+                                const r = boneLength * bone.global.scaleX;
+                                if (r > 0) {
+                                    this._scaleOffset += (dx * c + dy * s) * this._inertia / r;
+                                }
+                            }
+                            remaining = this._remaining;
+                            if (remaining >= this._fpsTime) {
+                                if (damping == -1)  {
+                                    damping = this._dump;
+                                }
+                                const mass = this._massInverse * this._fpsTime;
+                                const strength = this._strength;
+                                const wind = this._wind;
+                                const gravity = (armatureYDown ? -this._gravity : this._gravity);
+                                const boneLen = boneLength / armatureScale;
+                                while (true) {
+                                    remaining -= this._fpsTime;
+                                    if (hasScaleX) {
+                                        this._scaleVelocity += (wind * c - gravity * s - this._scaleOffset * strength) * mass;
+                                        this._scaleOffset += this._scaleVelocity * this._fpsTime;
+                                        this._scaleVelocity *= damping;
+                                    }
+                                    if (hasRotate) {
+                                        this._rotateVelocity -= ((wind * s + gravity * c) * boneLen + this._rotateOffset * strength) * mass;
+                                        // 旋转的偏移受到力作用
+                                        this._rotateOffset += this._rotateVelocity * this._fpsTime;
+                                        if(Math.abs(this._rotateOffset) > this.PI2) {
+                                            // 旋转的偏移限制在 -2pi到2pi之间；
+                                            this._rotateOffset = this._rotateOffset > 0 ? this.PI2 : -this.PI2;
+                                        }
+                                        if(!this.isNumberEqual(this._rotateVelocity, 0, 0.0001)) {
+                                            this._sleeping = false;
+                                        }
+                                        this._rotateVelocity *= damping;
+                                        if (remaining < this._fpsTime) {
+                                            break;
+                                        }
+                                        const r = this._rotateOffset * mr + ca;
+                                        c = Math.cos(r);
+                                        s = Math.sin(r);
+                                    } else if (remaining < this._fpsTime) //
+                                        break;
+                                }
+                            }
+                        }
+                        this._remaining = remaining;
+                    }
+                    this._cx = bone.global.x;
+                    this._cy = bone.global.y;
+                }
+
+                const globalMatrix = this._target.globalTransformMatrix;
+                if (hasRotate) {
+                    let o = this._rotateOffset * this._weight, s = 0, c = 0, a = 0;
+                    if (physicsData.shearX > 0) {
+                        let r = 0;
+                        if (physicsData.rotate > 0) {
+                            r = o * physicsData.rotate;
+                            s = Math.sin(r);
+                            c = Math.cos(r);
+                            a = globalMatrix.b;
+                            globalMatrix.b = c * a - s * globalMatrix.d;
+                            globalMatrix.d = s * a + c * globalMatrix.d;
+                        }
+                        r += o * physicsData.shearX;
+                        s = Math.sin(r);
+                        c = Math.cos(r);
+                        a = globalMatrix.a;
+                        globalMatrix.a = c * a - s * globalMatrix.c;
+                        globalMatrix.c = s * a + c * globalMatrix.c;
+                    } else {
+                        o *= physicsData.rotate;
+                        s = Math.sin(o);
+                        c = Math.cos(o);
+                        a = globalMatrix.a;
+                        globalMatrix.a = c * a - s * globalMatrix.c;
+                        globalMatrix.c = s * a + c * globalMatrix.c;
+                        a = globalMatrix.b;
+                        globalMatrix.b = c * a - s * globalMatrix.d;
+                        globalMatrix.d = s * a + c * globalMatrix.d;
+                    }
+                }
+                if (hasScaleX) {
+                    const s = 1 + this._scaleOffset * this._weight * physicsData.scaleX;
+                    globalMatrix.a *= s;
+                    globalMatrix.c *= s;
+                }
+                this._tx = boneLength * globalMatrix.a;
+                this._ty = boneLength * globalMatrix.c;
+                globalMatrix.tx = bone.global.x;
+                globalMatrix.ty = bone.global.y;
+
+                const oldRotation = bone.global.rotation;
+                const oldSkew = bone.global.skew;
+
+                bone.global.fromMatrix(globalMatrix);
+                if(!this.isNumberEqual(oldRotation, bone.global.rotation) 
+                || (!this.isNumberEqual(oldSkew, bone.global.skew))) {
+                    this._sleeping = false;
+                }
+            }
+        }
+        private reset() {
+            this._remaining = 0;
+            this._lastTime = this._armature.clock ? this._armature.clock.time: 0;
+            this._xOffset = 0;
+            this._xVelocity = 0;
+            this._yOffset = 0;
+            this._yVelocity = 0;
+            this._rotateOffset = 0;
+            this._rotateVelocity = 0;
+            this._scaleOffset = 0;
+            this._scaleVelocity = 0;
         }
 
         public invalidUpdate(): void {

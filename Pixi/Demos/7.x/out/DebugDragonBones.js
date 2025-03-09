@@ -21,7 +21,8 @@ class DebugDragonBones extends BaseDemo {
     constructor() {
         super();
         this.mask                = false;
-        this.transformConstraint = true;
+        this.transformConstraint = false;
+        this.physics             = true;
         if (this.mask) {
             this._resources.push("resource/debug/dragonbones-mask.json");
             this._resources.push("resource/debug/dragonbones-mask_tex.json");
@@ -29,6 +30,9 @@ class DebugDragonBones extends BaseDemo {
         }
         if (this.transformConstraint) {
             this._resources.push("resource/debug/dragonbones-trans.json");
+        }
+        if (this.physics) {
+            this._resources.push("resource/debug/dragonbones-physics.json");
         }
     }
     _onStart() {
@@ -57,6 +61,19 @@ class DebugDragonBones extends BaseDemo {
             armatureDisplay.x = -200.0;
             armatureDisplay.y = -100.0;
             armatureDisplay.scale.set(0.3);
+            this.addChild(armatureDisplay);  
+        }
+        if (this.physics) {
+            factory.parseDragonBonesData(this._pixiResources["resource/debug/dragonbones-physics.json"]);
+            // factory.parseTextureAtlasData(this._pixiResources["resource/debug/dragonbones-mask_tex.json"], 
+            //                               this._pixiResources["resource/debug/dragonbones-mask_tex.png"]);
+            factory.pixiApp = this;
+            const armatureDisplay = factory.buildArmatureDisplay("armature1");
+            armatureDisplay.debugDraw = true;
+            armatureDisplay.animation.play("newAnimation", 1);
+            armatureDisplay.x = -200.0;
+            armatureDisplay.y = -100.0;
+            armatureDisplay.scale.set(0.6);
             this.addChild(armatureDisplay);  
         }
        

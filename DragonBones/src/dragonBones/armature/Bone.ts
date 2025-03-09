@@ -83,6 +83,10 @@ namespace dragonBones {
          * @internal
          */
         public _targetTransformConstraint: TransformConstraint | null;
+         /**
+         * @internal
+         */
+        public _physicsConstraint: PhysicsConstraint | null;
         protected _visible: boolean;
         protected _cachedFrameIndex: number;
         /**
@@ -342,6 +346,9 @@ namespace dragonBones {
             if (this._targetTransformConstraint) {
                 this._targetTransformConstraint._dirty = true;
             }
+            if(this._physicsConstraint) {
+                this._physicsConstraint._sleeping = false;
+            }
         }
         /**
          * @internal
@@ -379,6 +386,9 @@ namespace dragonBones {
          */
         public update(cacheFrameIndex: number): void {
             if(this._transformConstraint && this._transformConstraint._dirty) {
+                this._transformDirty = true;
+            }
+            if (this._physicsConstraint && !this._physicsConstraint._sleeping) {
                 this._transformDirty = true;
             }
             if (cacheFrameIndex >= 0 && this._cachedFrameIndices !== null) {
@@ -457,6 +467,9 @@ namespace dragonBones {
 
             if(this._transformConstraint) {
                 this._transformConstraint.update();
+            }
+            if(this._physicsConstraint && !this._physicsConstraint._sleeping) {
+                this._physicsConstraint.update();
             }
             this._localDirty = true;
         }

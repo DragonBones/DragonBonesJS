@@ -253,7 +253,10 @@ namespace dragonBones {
                             }
                         }
                         break;
-
+                    case ConstraintType.Physics:
+                        const physicsConstraint = BaseObject.borrowObject(PhysicsConstraint);
+                        physicsConstraint.init(constraintData, armature);
+                        break;
                     default:
                         const constraint = BaseObject.borrowObject(IKConstraint);
                         constraint.init(constraintData, armature);

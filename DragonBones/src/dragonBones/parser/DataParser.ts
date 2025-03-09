@@ -69,6 +69,7 @@ namespace dragonBones {
         protected static readonly FRAME: string = "frame";
         protected static readonly IK: string = "ik";
         protected static readonly TRANSFORM_CONSTRAINT: string = "transform";
+        protected static readonly PHYSICS: string = "physics";
         protected static readonly PATH_CONSTRAINT: string = "path";
         protected static readonly PATH_CONSTRAINT_POSITION: string = "position";
         protected static readonly PATH_CONSTRAINT_SPACING: string = "spacing";
@@ -150,6 +151,7 @@ namespace dragonBones {
         protected static readonly SKEW_Y: string = "skY";
         protected static readonly SCALE_X: string = "scX";
         protected static readonly SCALE_Y: string = "scY";
+        protected static readonly SHEAR_X: string = "shearX";
         protected static readonly VALUE: string = "value";
         protected static readonly ROTATE: string = "rotate";
         protected static readonly SKEW: string = "skew";
@@ -195,6 +197,15 @@ namespace dragonBones {
         protected static readonly GOTO_AND_PLAY: string = "gotoAndPlay";
 
         protected static readonly DEFAULT_NAME: string = "default";
+        // physics
+        protected static readonly LIMIT: string = "limit";
+        protected static readonly FPS: string = "fps";
+        protected static readonly INERTIA: string = "inertia";
+        protected static readonly STRENGTH: string = "strength";
+        protected static readonly DAMPING: string = "damping";
+        protected static readonly MASS: string = "mass";
+        protected static readonly WIND: string = "wind";
+        protected static readonly GRAVITY: string = "gravity";
 
         protected static _getArmatureType(value: string): ArmatureType {
             switch (value.toLowerCase()) {

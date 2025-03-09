@@ -102,6 +102,49 @@ namespace dragonBones {
             this.type = ConstraintType.Transform;
         }
     }
+
+    /**
+     * @internal
+     */
+    export class PhysicsConstraintData extends ConstraintData {
+        public static toString(): string {
+            return "[class dragonBones.PhysicsConstraintData]";
+        }
+        public x: number; 
+        public y: number;
+        public rotate: number; 
+        public scaleX: number; 
+        public shearX: number; 
+        public limit: number; 
+        public fps: number; 
+        public inertia: number; 
+        public strength: number; 
+        public damping: number;
+        public mass: number; 
+        public wind: number;
+        public gravity: number;
+        public weight: number;
+
+        protected _onClear(): void {
+            super._onClear();
+
+            this.x = 0;
+            this.y = 0;
+            this.rotate = 0;
+            this.scaleX = 0;
+            this.shearX = 0;
+            this.limit = 0;
+            this.fps = 0;
+            this.inertia = 0;
+            this.strength = 0;
+            this.damping = 0;
+            this.mass = 0;
+            this.wind = 0;
+            this.gravity = 0;
+            this.weight = 0;
+            this.type = ConstraintType.Physics;
+        }
+    }
     /**
      * @internal
      */

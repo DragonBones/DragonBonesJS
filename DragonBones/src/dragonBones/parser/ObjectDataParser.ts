@@ -380,6 +380,15 @@ namespace dragonBones {
                     }
                 }
             }
+            if (DataParser.PHYSICS in rawData) {
+                const rawPhysicsConstraints = rawData[DataParser.PHYSICS] as Array<any>;
+                for (const rawPhysicsCon of rawPhysicsConstraints) {
+                    const constraint = this._parsePhysics(rawPhysicsCon);
+                    if (constraint) {
+                        armature.addConstraint(constraint);
+                    }
+                }
+            }
             armature.sortBones();
 
             if (DataParser.SLOT in rawData) {
@@ -591,6 +600,39 @@ namespace dragonBones {
 
             return constraint;
         }
+
+        protected _parsePhysics(rawData: any): ConstraintData | null {
+            const boneName = rawData[DataParser.BONE] as string;
+            if (!boneName) {
+                return null;
+            }
+            const bone = this._armature.getBone(boneName);
+            if (!bone) {
+                return null;
+            }
+            const constraint = BaseObject.borrowObject(PhysicsConstraintData);
+            constraint.type = ConstraintType.Physics;
+            constraint.target = bone;
+            constraint.bone = bone;
+            constraint.name = ObjectDataParser._getString(rawData, DataParser.NAME, "");
+            constraint.x = ObjectDataParser._getNumber(rawData, DataParser.X, 0.0);
+            constraint.y = ObjectDataParser._getNumber(rawData, DataParser.Y, 0.0);
+            constraint.rotate = ObjectDataParser._getNumber(rawData, DataParser.ROTATE, 0.0);
+            constraint.scaleX = ObjectDataParser._getNumber(rawData, DataParser.SCALE_X, 0.0);
+            constraint.shearX = ObjectDataParser._getNumber(rawData, DataParser.SHEAR_X, 0.0);
+            constraint.limit = ObjectDataParser._getNumber(rawData, DataParser.LIMIT, 0.0);
+            constraint.fps = ObjectDataParser._getNumber(rawData, DataParser.FPS, 1.0);
+            constraint.inertia = ObjectDataParser._getNumber(rawData, DataParser.INERTIA, 0.0);
+            constraint.strength = ObjectDataParser._getNumber(rawData, DataParser.STRENGTH, 0.0); 
+            constraint.damping = ObjectDataParser._getNumber(rawData, DataParser.DAMPING, 0.0);
+            constraint.mass = ObjectDataParser._getNumber(rawData, DataParser.MASS, 0.0);
+            constraint.wind = ObjectDataParser._getNumber(rawData, DataParser.WIND, 0.0);
+            constraint.gravity = ObjectDataParser._getNumber(rawData, DataParser.GRAVITY, 0.0);
+            constraint.weight = ObjectDataParser._getNumber(rawData, DataParser.WEIGHT, 0.0);
+
+            return constraint;
+        }
+
         protected _parsePathConstraint(rawData: any): ConstraintData | null {
             const target = this._armature.getSlot(ObjectDataParser._getString(rawData, DataParser.TARGET, ""));
             if (target === null) {
