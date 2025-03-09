@@ -262,7 +262,8 @@ namespace dragonBones {
      */
     export const enum ConstraintType {
         IK,
-        Path
+        Path,
+        Transform
     }
     /**
      * @private

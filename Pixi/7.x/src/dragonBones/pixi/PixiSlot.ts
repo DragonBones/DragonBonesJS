@@ -239,6 +239,8 @@ namespace dragonBones {
                         const normalDisplay = this._renderDisplay as PIXI.Sprite;
                         normalDisplay.texture = renderTexture;
                         if (this._mask) {
+                            // pixi 的遮罩效果比较奇怪，详情见 https://ithelp.ithome.com.tw/articles/10191374
+                            // 为了让遮罩效果统一，这里统一处理成灰阶
                             const colorMatrix = new PIXI.filters.ColorMatrixFilter();
                             colorMatrix.matrix = [
                                 1, 0, 0, 0, 1,

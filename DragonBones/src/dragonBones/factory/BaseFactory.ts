@@ -240,6 +240,19 @@ namespace dragonBones {
                         pathConstraint.init(constraintData, armature);
                         armature._addConstraint(pathConstraint);
                         break;
+                    case ConstraintType.Transform:
+                        const transformConstraintData = constraintData as TransformConstraintData;
+                        if(transformConstraintData.bones && transformConstraintData.bones.length > 0) {
+                            for (let i = 0, l = transformConstraintData.bones.length; i < l; ++i) {
+                                const bone = transformConstraintData.bones[i];
+                                if (bone) {
+                                    const transformConstraint = BaseObject.borrowObject(TransformConstraint);
+                                    transformConstraint.index = i;
+                                    transformConstraint.init(constraintData, armature);
+                                }
+                            }
+                        }
+                        break;
 
                     default:
                         const constraint = BaseObject.borrowObject(IKConstraint);

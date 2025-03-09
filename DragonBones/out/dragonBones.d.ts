@@ -154,6 +154,9 @@ declare namespace dragonBones {
         SlotAlpha = 24,
         SlotShape = 25,
         IKConstraint = 30,
+        PathConstraintPosition = 31,
+        PathConstraintSpacing = 32,
+        PathConstraintWeight = 33,
         AnimationProgress = 40,
         AnimationWeight = 41,
         AnimationParameter = 42
@@ -1783,6 +1786,8 @@ declare namespace dragonBones {
         path: string;
         readonly transform: Transform;
         parent: SkinData;
+        mask: boolean;
+        maskRange: number;
         protected _onClear(): void;
     }
     /**
@@ -3107,6 +3112,7 @@ declare namespace dragonBones {
          * @language zh_CN
          */
         getSlots(): Array<Slot>;
+        getPathConstraints(): Array<PathConstraint>;
         /**
          * - Whether to flip the armature horizontally.
          * @version DragonBones 5.5
@@ -3450,6 +3456,7 @@ declare namespace dragonBones {
         protected _parent: Bone | null;
         protected _onClear(): void;
         protected _updateGlobalTransformMatrix(isCache: boolean): void;
+        forceUpdateTransform(): void;
         /**
          * - Forces the bone to update the transform in the next frame.
          * When the bone is not animated or its animation state is finished, the bone will not continue to update,
@@ -3657,6 +3664,7 @@ declare namespace dragonBones {
         protected _visibleDirty: boolean;
         protected _blendModeDirty: boolean;
         protected _zOrderDirty: boolean;
+        protected _maskDirty: boolean;
         _shapeVerticesDirty: boolean;
         protected _transformDirty: boolean;
         protected _visible: boolean;
@@ -3666,6 +3674,8 @@ declare namespace dragonBones {
         protected _cachedFrameIndex: number;
         protected readonly _localMatrix: Matrix;
         _shapeData: ShapeData | null;
+        protected _mask: boolean;
+        protected _maskRange: number;
         protected _boundingBoxData: BoundingBoxData | null;
         protected _textureData: TextureData | null;
         protected _rawDisplay: any;
@@ -3685,6 +3695,7 @@ declare namespace dragonBones {
         protected abstract _replaceDisplay(value: any): void;
         protected abstract _removeDisplay(): void;
         protected abstract _updateZOrder(): void;
+        protected abstract _updateMask(): void;
         protected abstract _updateBlendMode(): void;
         protected abstract _updateColor(): void;
         protected abstract _updateFrame(): void;
@@ -5541,6 +5552,9 @@ declare namespace dragonBones {
         protected static readonly FRAME: string;
         protected static readonly IK: string;
         protected static readonly PATH_CONSTRAINT: string;
+        protected static readonly PATH_CONSTRAINT_POSITION: string;
+        protected static readonly PATH_CONSTRAINT_SPACING: string;
+        protected static readonly PATH_CONSTRAINT_WEIGHT: string;
         protected static readonly ANIMATION: string;
         protected static readonly TIMELINE: string;
         protected static readonly FFD: string;
@@ -5587,6 +5601,8 @@ declare namespace dragonBones {
         protected static readonly BEND_POSITIVE: string;
         protected static readonly CHAIN: string;
         protected static readonly WEIGHT: string;
+        protected static readonly MASK: string;
+        protected static readonly MASK_RANGE: string;
         protected static readonly BLEND_TYPE: string;
         protected static readonly FADE_IN_TIME: string;
         protected static readonly PLAY_TIMES: string;
@@ -5627,16 +5643,15 @@ declare namespace dragonBones {
         protected static readonly WEIGHTS: string;
         protected static readonly SLOT_POSE: string;
         protected static readonly BONE_POSE: string;
-        protected static readonly SHAPE: string;
         protected static readonly BONES: string;
         protected static readonly POSITION_MODE: string;
         protected static readonly SPACING_MODE: string;
         protected static readonly ROTATE_MODE: string;
-        shape: any;
         protected static readonly SPACING: string;
         protected static readonly ROTATE_OFFSET: string;
-        protected static readonly ROTATE_MIX: string;
-        protected static readonly TRANSLATE_MIX: string;
+        protected static readonly ROTATE_WEIGHT: string;
+        protected static readonly X_WEIGHT: string;
+        protected static readonly Y_WEIGHT: string;
         protected static readonly TARGET_DISPLAY: string;
         protected static readonly CLOSED: string;
         protected static readonly CONSTANT_SPEED: string;
@@ -5774,6 +5789,9 @@ declare namespace dragonBones {
         protected _parseSlotDeformFrame(rawData: any, frameStart: number, frameCount: number): number;
         protected _parseSlotShapeFrame(rawData: any, frameStart: number, frameCount: number): number;
         protected _parseIKConstraintFrame(rawData: any, frameStart: number, frameCount: number): number;
+        protected _parsePathConstraintPositionFrame(rawData: any, frameStart: number, frameCount: number): number;
+        protected _parsePathConstraintSpacingFrame(rawData: any, frameStart: number, frameCount: number): number;
+        protected _parsePathConstraintWeightFrame(rawData: any, frameStart: number, frameCount: number): number;
         protected _parseActionData(rawData: any, type: ActionType, bone: BoneData | null, slot: SlotData | null): Array<ActionData>;
         protected _parseDeformFrame(rawData: any, frameStart: number, frameCount: number): number;
         protected _parseTransform(rawData: any, transform: Transform, scale: number): void;

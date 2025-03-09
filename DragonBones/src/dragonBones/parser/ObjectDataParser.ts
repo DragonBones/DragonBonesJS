@@ -371,7 +371,15 @@ namespace dragonBones {
                     }
                 }
             }
-
+            if (DataParser.TRANSFORM_CONSTRAINT in rawData) {
+                const rawTransformConstraints = rawData[DataParser.TRANSFORM_CONSTRAINT] as Array<any>;
+                for (const rawTransCon of rawTransformConstraints) {
+                    const constraint = this._parseTransformConstraint(rawTransCon);
+                    if (constraint) {
+                        armature.addConstraint(constraint);
+                    }
+                }
+            }
             armature.sortBones();
 
             if (DataParser.SLOT in rawData) {
@@ -541,6 +549,48 @@ namespace dragonBones {
             return constraint;
         }
 
+        protected _parseTransformConstraint(rawData: any): ConstraintData | null {
+            const target = this._armature.getBone(ObjectDataParser._getString(rawData, DataParser.TARGET, ""));
+            if (target === null) {
+                return null;
+            }
+            const boneNames = rawData[DataParser.BONES] as Array<string>;
+            if (boneNames === null || boneNames.length === 0) {
+                return null;
+            }
+            const bones = new Array<BoneData>();
+            for(let boneName of boneNames) {
+                const bone = this._armature.getBone(boneName);
+                if (bone !== null) {
+                    bones.push(bone);
+                }
+            }
+            if (bones.length === 0) {
+                return null;
+            }
+            const constraint = BaseObject.borrowObject(TransformConstraintData);
+            constraint.type = ConstraintType.Transform;
+            constraint.target = target;
+            constraint.bones = bones;
+            constraint.name = ObjectDataParser._getString(rawData, DataParser.NAME, "");
+            const rawOffsetTransform = rawData[DataParser.OFFSET] as any;
+
+            constraint.offsetX = ObjectDataParser._getNumber(rawOffsetTransform, DataParser.X, 0.0);
+            constraint.offsetY = ObjectDataParser._getNumber(rawOffsetTransform, DataParser.Y, 0.0);
+            if (DataParser.SKEW_X in rawOffsetTransform) {
+                constraint.offsetRotation = Transform.normalizeRadian(ObjectDataParser._getNumber(rawOffsetTransform, DataParser.SKEW_X, 0.0) * Transform.DEG_RAD);
+            }
+            constraint.offsetScaleX = ObjectDataParser._getNumber(rawOffsetTransform, DataParser.SCALE_X, 0.0);
+            constraint.offsetScaleY = ObjectDataParser._getNumber(rawOffsetTransform, DataParser.SCALE_Y, 0.0);
+
+            constraint.rotateWeight = ObjectDataParser._getNumber(rawData, DataParser.ROTATE_WEIGHT, 0.0);
+            constraint.scaleWeight = ObjectDataParser._getNumber(rawData, DataParser.SCALE_WEIGHT, 0.0);
+            constraint.translateWeight = ObjectDataParser._getNumber(rawData, DataParser.TRANSLATE_WEIGHT, 0.0);
+            constraint.local = ObjectDataParser._getBoolean(rawData, DataParser.LOCAL, false);
+            constraint.relative = ObjectDataParser._getBoolean(rawData, DataParser.RELATIVE, false);
+
+            return constraint;
+        }
         protected _parsePathConstraint(rawData: any): ConstraintData | null {
             const target = this._armature.getSlot(ObjectDataParser._getString(rawData, DataParser.TARGET, ""));
             if (target === null) {
@@ -568,9 +618,9 @@ namespace dragonBones {
             constraint.pathSlot = target;
             constraint.pathDisplayData = targetDisplay;
             constraint.target = target.parent;
-            constraint.positionMode = DataParser._getPositionMode(ObjectDataParser._getString(rawData, DataParser.POSITION_MODE, ""));
-            constraint.spacingMode = DataParser._getSpacingMode(ObjectDataParser._getString(rawData, DataParser.SPACING_MODE, ""));
-            constraint.rotateMode = DataParser._getRotateMode(ObjectDataParser._getString(rawData, DataParser.ROTATE_MODE, ""));
+            constraint.positionMode = DataParser._getPositionMode(ObjectDataParser._getNumber(rawData, DataParser.POSITION_MODE, PositionMode.Fixed));
+            constraint.spacingMode = DataParser._getSpacingMode(ObjectDataParser._getNumber(rawData, DataParser.SPACING_MODE, SpacingMode.Fixed));
+            constraint.rotateMode = DataParser._getRotateMode(ObjectDataParser._getNumber(rawData, DataParser.ROTATE_MODE, RotateMode.Tangent));
             constraint.position = ObjectDataParser._getNumber(rawData, DataParser.POSITION, 0);
             constraint.spacing = ObjectDataParser._getNumber(rawData, DataParser.SPACING, 0);
             constraint.rotateOffset = ObjectDataParser._getNumber(rawData, DataParser.ROTATE_OFFSET, 0);

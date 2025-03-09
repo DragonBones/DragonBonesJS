@@ -1915,8 +1915,9 @@ var dragonBones;
             this.position = 0.0;
             this.spacing = 0.0;
             this.rotateOffset = 0.0;
-            this.rotateMix = 0.0;
-            this.translateMix = 0.0;
+            this.rotateWeight = 0.0;
+            this.xWeight = 0.0;
+            this.yWeight = 0.0;
         };
         PathConstraintData.prototype.AddBone = function (value) {
             this.bones.push(value);
@@ -4129,6 +4130,19 @@ var dragonBones;
         Armature.prototype.getSlots = function () {
             return this._slots;
         };
+        Armature.prototype.getPathConstraints = function () {
+            if (this._constraints) {
+                var pathConstraints = [];
+                for (var _i = 0, _a = this._constraints; _i < _a.length; _i++) {
+                    var constraint = _a[_i];
+                    if (constraint instanceof dragonBones_1.PathConstraint) {
+                        pathConstraints.push(constraint);
+                    }
+                }
+                return pathConstraints;
+            }
+            return [];
+        };
         Object.defineProperty(Armature.prototype, "flipX", {
             /**
              * - Whether to flip the armature horizontally.
@@ -4940,6 +4954,9 @@ var dragonBones;
                 }
                 this._transformDirty = true;
             }
+        };
+        Bone.prototype.forceUpdateTransform = function () {
+            this._updateGlobalTransformMatrix(true);
         };
         /**
          * - Forces the bone to update the transform in the next frame.
@@ -5864,6 +5881,8 @@ var dragonBones;
                 this._boundingBoxData = this._displayFrame.getBoundingBox();
                 this._textureData = this._displayFrame.getTextureData();
                 this._shapeData = this._displayFrame.getShapeData();
+                this._mask = rawDisplayData ? rawDisplayData.mask : false;
+                this._maskRange = rawDisplayData ? rawDisplayData.maskRange : 0;
             }
             if (this._displayFrame !== prevDisplayFrame ||
                 this._geometryData !== prevGeometryData ||
@@ -6147,9 +6166,14 @@ var dragonBones;
                 this._updateColor();
                 this._colorDirty = false;
             }
+            if (this._maskDirty) {
+                this._updateMask();
+                this._maskDirty = false;
+            }
             if (this._zOrderDirty) {
                 this._updateZOrder();
                 this._zOrderDirty = false;
+                this._maskDirty = true;
             }
             if (this._geometryData !== null && this._display === this._meshDisplay) {
                 var isSkinned = this._geometryData.weight !== null;
@@ -6989,8 +7013,9 @@ var dragonBones;
             this.position = 0.0;
             this.spacing = 0.0;
             this.rotateOffset = 0.0;
-            this.rotateMix = 1.0;
-            this.translateMix = 1.0;
+            this.rotateWeight = 1.0;
+            this.xWeight = 1.0;
+            this.yWeight = 1.0;
             this._pathSlot = null;
             this._bones.length = 0;
             this._spaces.length = 0;
@@ -7016,7 +7041,7 @@ var dragonBones;
                 var parentBone = this._pathSlot.parent;
                 parentBone.updateByConstraint();
                 var matrix = parentBone.globalTransformMatrix;
-                for (var i = 0, iV_1 = pathVertexOffset; i < pathVertexCount; i += 2) {
+                for (var i = 0, iV_1 = pathVertexOffset; i < pathVertexCount * 2; i += 2) {
                     var vx = floatArray[iV_1++] * scale;
                     var vy = floatArray[iV_1++] * scale;
                     var x = matrix.a * vx + matrix.c * vy + matrix.tx;
@@ -7076,12 +7101,12 @@ var dragonBones;
             var preCurve = -1;
             var position = this.position;
             positions.length = spaceCount * 3 + 2;
-            var pathLength = 0.0;
+            // 最后一个就是整个曲线的长度
+            var pathLength = pathDisplayDta.curveLengths[pathDisplayDta.curveLengths.length - 1];
             //不需要匀速运动，效率高些
             if (!pathDisplayDta.constantSpeed) {
-                var lenghts = pathDisplayDta.curveLengths;
-                curveCount -= isClosed ? 1 : 2;
-                pathLength = lenghts[curveCount];
+                var lengths = pathDisplayDta.curveLengths;
+                curveCount -= isClosed ? 1 : 1;
                 if (percentPosition) {
                     position *= pathLength;
                 }
@@ -7090,10 +7115,11 @@ var dragonBones;
                         spaces[i] *= pathLength;
                     }
                 }
-                curveVertices.length = 8;
+                curveVertices.length = 10;
                 for (var i = 0, o = 0, curve = 0; i < spaceCount; i++, o += 3) {
                     var space = spaces[i];
                     position += space;
+                    var percent = 0.0;
                     if (isClosed) {
                         position %= pathLength;
                         if (position < 0) {
@@ -7101,42 +7127,43 @@ var dragonBones;
                         }
                         curve = 0;
                     }
-                    else if (position < 0) {
-                        //TODO
-                        continue;
+                    if (position < 0) {
+                        percent = position / pathLength;
+                        curve = 0;
                     }
                     else if (position > pathLength) {
-                        //TODO
-                        continue;
+                        percent = (position) / pathLength;
+                        curve = curveCount - 1;
                     }
-                    var percent = 0.0;
-                    for (;; curve++) {
-                        var len = lenghts[curve];
-                        if (position > len) {
-                            continue;
+                    else {
+                        for (;; curve++) {
+                            var len = lengths[curve];
+                            if (position > len) {
+                                continue;
+                            }
+                            if (curve === 0) {
+                                percent = position / len;
+                            }
+                            else {
+                                var preLen = lengths[curve - 1];
+                                percent = (position - preLen) / (len - preLen);
+                            }
+                            break;
                         }
-                        if (curve === 0) {
-                            percent = position / len;
-                        }
-                        else {
-                            var preLen = lenghts[curve - 1];
-                            percent = (position - preLen) / (len - preLen);
-                        }
-                        break;
                     }
                     if (curve !== preCurve) {
                         preCurve = curve;
                         if (isClosed && curve === curveCount) {
-                            //计算曲线
+                            //计算是哪段曲线
                             this._computeVertices(verticesLength - 4, 4, 0, curveVertices);
-                            this._computeVertices(0, 4, 4, curveVertices);
+                            this._computeVertices(0, 10, 4, curveVertices);
                         }
                         else {
-                            this._computeVertices(curve * 6 + 2, 8, 0, curveVertices);
+                            this._computeVertices(curve * 6 + 2, 10, 0, curveVertices);
                         }
                     }
-                    //
-                    this.addCurvePosition(percent, curveVertices[0], curveVertices[1], curveVertices[2], curveVertices[3], curveVertices[4], curveVertices[5], curveVertices[6], curveVertices[7], positions, o, tangents);
+                    // 计算曲线上点的位置和斜率
+                    this.addCurvePosition2(percent, curveVertices, positions, o, tangents, pathLength);
                 }
                 return;
             }
@@ -7319,6 +7346,83 @@ var dragonBones;
                 out[offset + 2] = 0;
             }
         };
+        PathConstraint.prototype.addCurvePosition2 = function (t, vertices, out, offset, tangents, totalLength) {
+            if (vertices.length !== 10) {
+                out[offset] = 0;
+                out[offset + 1] = 0;
+                out[offset + 2] = 0;
+                return;
+            }
+            var x1 = vertices[0];
+            var y1 = vertices[1];
+            var cx1 = vertices[2];
+            var cy1 = vertices[3];
+            var cx2 = vertices[4];
+            var cy2 = vertices[5];
+            var x2 = vertices[6];
+            var y2 = vertices[7];
+            var cx3 = vertices[8];
+            var cy3 = vertices[9];
+            if (t < 0) {
+                var dydt = cy1 - y1;
+                var dxdt = cx1 - x1;
+                var angle = Math.atan2(dydt, dxdt);
+                var length_3 = totalLength * t;
+                out[offset] = x1 + length_3 * Math.cos(angle);
+                out[offset + 1] = y1 + length_3 * Math.sin(angle);
+                out[offset + 2] = angle;
+                return;
+            }
+            if (t > 1) {
+                var dydt = cy3 - y2;
+                var dxdt = cx3 - x2;
+                var angle = Math.atan2(dydt, dxdt);
+                var length_4 = totalLength * (1 - t);
+                out[offset] = x2 + length_4 * Math.cos(angle);
+                out[offset + 1] = y2 + length_4 * Math.sin(angle);
+                out[offset + 2] = angle;
+            }
+            if (t === 0) {
+                out[offset] = x1;
+                out[offset + 1] = y1;
+                var dydt = cy1 - y1;
+                var dxdt = cx1 - x1;
+                out[offset + 2] = Math.atan2(dydt, dxdt);
+                return;
+            }
+            if (t === 1) {
+                out[offset] = x2;
+                out[offset + 1] = y2;
+                var dydt = cy3 - y2;
+                var dxdt = cx3 - x2;
+                out[offset + 2] = Math.atan2(dydt, dxdt);
+                return;
+            }
+            var t1 = 1 - t;
+            var t1Sq = t1 * t1;
+            var t1Cu = t1Sq * t1;
+            var tSq = t * t;
+            var tCu = tSq * t;
+            // 计算坐标
+            var x = t1Cu * x1 + 3 * t1Sq * t * cx1 + 3 * t1 * tSq * cx2 + tCu * x2;
+            var y = t1Cu * y1 + 3 * t1Sq * t * cy1 + 3 * t1 * tSq * cy2 + tCu * y2;
+            out[offset] = x;
+            out[offset + 1] = y;
+            if (tangents) {
+                // 计算导数（切线方向）
+                var dxdt = 3 * ((cx1 - x1) * t1Sq +
+                    2 * (cx2 - cx1) * t1 * t +
+                    (x2 - cx2) * tSq);
+                var dydt = 3 * ((cy1 - y1) * t1Sq +
+                    2 * (cy2 - cy1) * t1 * t +
+                    (y2 - cy2) * tSq);
+                // 处理斜率计算
+                out[offset + 2] = Math.atan2(dydt, dxdt);
+            }
+            else {
+                out[offset + 2] = 0;
+            }
+        };
         PathConstraint.prototype.init = function (constraintData, armature) {
             this._constraintData = constraintData;
             this._armature = armature;
@@ -7328,8 +7432,9 @@ var dragonBones;
             this.position = data.position;
             this.spacing = data.spacing;
             this.rotateOffset = data.rotateOffset;
-            this.rotateMix = data.rotateMix;
-            this.translateMix = data.translateMix;
+            this.rotateWeight = data.rotateWeight;
+            this.xWeight = data.xWeight;
+            this.yWeight = data.yWeight;
             //
             this._root = this._armature.getBone(data.root.name);
             this._target = this._armature.getBone(data.target.name);
@@ -7422,25 +7527,28 @@ var dragonBones;
                 }
             }
             //
-            var rotateMix = this.rotateMix;
-            var translateMix = this.translateMix;
+            var rotateWeight = this.rotateWeight;
+            var xWeight = this.xWeight;
+            var yWeight = this.yWeight;
             for (var i = 0, p = 3; i < boneCount; i++, p += 3) {
                 var bone = bones[i];
+                // TODO: 优化,这里可能会计算多遍
+                bone.forceUpdateTransform();
                 bone.updateByConstraint();
                 var matrix = bone.globalTransformMatrix;
-                matrix.tx += (boneX - matrix.tx) * translateMix;
-                matrix.ty += (boneY - matrix.ty) * translateMix;
+                matrix.tx += (boneX - matrix.tx) * xWeight;
+                matrix.ty += (boneY - matrix.ty) * yWeight;
                 var x = positions[p], y = positions[p + 1];
                 var dx = x - boneX, dy = y - boneY;
                 if (isChainScaleMode) {
                     var lenght = this._boneLengths[i];
-                    var s = (Math.sqrt(dx * dx + dy * dy) / lenght - 1) * rotateMix + 1;
+                    var s = (Math.sqrt(dx * dx + dy * dy) / lenght - 1) * rotateWeight + 1;
                     matrix.a *= s;
                     matrix.b *= s;
                 }
                 boneX = x;
                 boneY = y;
-                if (rotateMix > 0) {
+                if (rotateWeight > 0) {
                     var a = matrix.a, b = matrix.b, c = matrix.c, d = matrix.d, r = void 0, cos = void 0, sin = void 0;
                     if (isTangentMode) {
                         r = positions[p - 1];
@@ -7452,9 +7560,9 @@ var dragonBones;
                     if (tip) {
                         cos = Math.cos(r);
                         sin = Math.sin(r);
-                        var length_3 = bone._boneData.length;
-                        boneX += (length_3 * (cos * a - sin * b) - dx) * rotateMix;
-                        boneY += (length_3 * (sin * a + cos * b) - dy) * rotateMix;
+                        var length_5 = bone._boneData.length;
+                        boneX += (length_5 * (cos * a - sin * b) - dx) * rotateWeight;
+                        boneY += (length_5 * (sin * a + cos * b) - dy) * rotateWeight;
                     }
                     else {
                         r += rotateOffset;
@@ -7465,7 +7573,7 @@ var dragonBones;
                     else if (r < -dragonBones.Transform.PI) {
                         r += dragonBones.Transform.PI_D;
                     }
-                    r *= rotateMix;
+                    r *= rotateWeight;
                     cos = Math.cos(r);
                     sin = Math.sin(r);
                     matrix.a = cos * a - sin * b;
@@ -8807,6 +8915,27 @@ var dragonBones;
                                     this._constraintTimelines.push(timeline);
                                     break;
                                 }
+                                case 31 /* PathConstraintPosition */: {
+                                    var timeline = dragonBones.BaseObject.borrowObject(dragonBones.PathConstraintPositionTimelineState);
+                                    timeline.target = constraint;
+                                    timeline.init(this._armature, this, timelineData);
+                                    this._constraintTimelines.push(timeline);
+                                    break;
+                                }
+                                case 32 /* PathConstraintSpacing */: {
+                                    var timeline = dragonBones.BaseObject.borrowObject(dragonBones.PathConstraintSpacingTimelineState);
+                                    timeline.target = constraint;
+                                    timeline.init(this._armature, this, timelineData);
+                                    this._constraintTimelines.push(timeline);
+                                    break;
+                                }
+                                case 33 /* PathConstraintWeight */: {
+                                    var timeline = dragonBones.BaseObject.borrowObject(dragonBones.PathConstraintWeightTimelineState);
+                                    timeline.target = constraint;
+                                    timeline.init(this._armature, this, timelineData);
+                                    this._constraintTimelines.push(timeline);
+                                    break;
+                                }
                                 default:
                                     break;
                             }
@@ -10095,6 +10224,7 @@ var dragonBones;
             else if (this._actionTimeline === null) {
                 // Action timeline 主时间轴，是事件时间轴，如果没有事件，就是空帧的时间轴。不可缩放，不可偏移，不可循环
                 // 每次更新会首先更新它，然后再更新其他时间轴
+                // FIXME: playState 变成1后，时间轴不更新了，导致最后一帧的状态更新不上。
                 var playTimes = this._animationState.playTimes;
                 var totalTime = playTimes * this._duration;
                 if (playTimes > 0 && (passedTime >= totalTime || passedTime <= -totalTime)) {
@@ -11445,7 +11575,7 @@ var dragonBones;
             var ikConstraint = this.target;
             if (this._timelineData !== null) {
                 ikConstraint._bendPositive = this._currentA > 0.0;
-                ikConstraint._weight = this._currentB;
+                ikConstraint._weight = this._resultB;
             }
             else {
                 var ikConstraintData = ikConstraint._constraintData;
@@ -11464,6 +11594,108 @@ var dragonBones;
         return IKConstraintTimelineState;
     }(dragonBones.DoubleValueTimelineState));
     dragonBones.IKConstraintTimelineState = IKConstraintTimelineState;
+    /**
+     * @internal
+     */
+    var PathConstraintPositionTimelineState = /** @class */ (function (_super) {
+        __extends(PathConstraintPositionTimelineState, _super);
+        function PathConstraintPositionTimelineState() {
+            return _super !== null && _super.apply(this, arguments) || this;
+        }
+        PathConstraintPositionTimelineState.toString = function () {
+            return "[class dragonBones.PathConstraintPositionTimelineState]";
+        };
+        PathConstraintPositionTimelineState.prototype._onUpdateFrame = function () {
+            _super.prototype._onUpdateFrame.call(this);
+            var pathConstraint = this.target;
+            if (this._timelineData !== null) {
+                pathConstraint.position = this._result;
+            }
+            else {
+                var pathConstraintData = pathConstraint._constraintData;
+                pathConstraint.position = pathConstraintData.position;
+            }
+            pathConstraint.invalidUpdate();
+            this.dirty = false;
+        };
+        PathConstraintPositionTimelineState.prototype.init = function (armature, animationState, timelineData) {
+            _super.prototype.init.call(this, armature, animationState, timelineData);
+            this._valueOffset = this._animationData.frameFloatOffset;
+            this._valueArray = this._animationData.parent.parent.frameFloatArray;
+        };
+        return PathConstraintPositionTimelineState;
+    }(dragonBones.SingleValueTimelineState));
+    dragonBones.PathConstraintPositionTimelineState = PathConstraintPositionTimelineState;
+    /**
+     * @internal
+     */
+    var PathConstraintSpacingTimelineState = /** @class */ (function (_super) {
+        __extends(PathConstraintSpacingTimelineState, _super);
+        function PathConstraintSpacingTimelineState() {
+            return _super !== null && _super.apply(this, arguments) || this;
+        }
+        PathConstraintSpacingTimelineState.toString = function () {
+            return "[class dragonBones.PathConstraintSpacingTimelineState]";
+        };
+        PathConstraintSpacingTimelineState.prototype._onUpdateFrame = function () {
+            _super.prototype._onUpdateFrame.call(this);
+            var pathConstraint = this.target;
+            if (this._timelineData !== null) {
+                pathConstraint.spacing = this._result;
+            }
+            else {
+                var pathConstraintData = pathConstraint._constraintData;
+                pathConstraint.spacing = pathConstraintData.spacing;
+            }
+            pathConstraint.invalidUpdate();
+            this.dirty = false;
+        };
+        PathConstraintSpacingTimelineState.prototype.init = function (armature, animationState, timelineData) {
+            _super.prototype.init.call(this, armature, animationState, timelineData);
+            this._valueOffset = this._animationData.frameFloatOffset;
+            this._valueArray = this._animationData.parent.parent.frameFloatArray;
+        };
+        return PathConstraintSpacingTimelineState;
+    }(dragonBones.SingleValueTimelineState));
+    dragonBones.PathConstraintSpacingTimelineState = PathConstraintSpacingTimelineState;
+    /**
+     * @internal
+     */
+    var PathConstraintWeightTimelineState = /** @class */ (function (_super) {
+        __extends(PathConstraintWeightTimelineState, _super);
+        function PathConstraintWeightTimelineState() {
+            return _super !== null && _super.apply(this, arguments) || this;
+        }
+        PathConstraintWeightTimelineState.toString = function () {
+            return "[class dragonBones.PathConstraintWeightTimelineState]";
+        };
+        PathConstraintWeightTimelineState.prototype._onUpdateFrame = function () {
+            _super.prototype._onUpdateFrame.call(this);
+            var pathConstraint = this.target;
+            if (this._timelineData !== null) {
+                var result = this._rd;
+                pathConstraint.rotateWeight = result[0];
+                pathConstraint.xWeight = result[1];
+                pathConstraint.yWeight = result[2];
+            }
+            else {
+                var pathConstraintData = pathConstraint._constraintData;
+                pathConstraint.rotateWeight = pathConstraintData.rotateWeight;
+                pathConstraint.xWeight = pathConstraintData.xWeight;
+                pathConstraint.yWeight = pathConstraintData.yWeight;
+            }
+            pathConstraint.invalidUpdate();
+            this.dirty = false;
+        };
+        PathConstraintWeightTimelineState.prototype.init = function (armature, animationState, timelineData) {
+            _super.prototype.init.call(this, armature, animationState, timelineData);
+            this._valueCount = 3;
+            this._valueOffset = this._animationData.frameFloatOffset;
+            this._valueArray = this._animationData.parent.parent.frameFloatArray;
+        };
+        return PathConstraintWeightTimelineState;
+    }(dragonBones.MutilpleValueTimelineState));
+    dragonBones.PathConstraintWeightTimelineState = PathConstraintWeightTimelineState;
     /**
      * @internal
      */
@@ -12025,6 +12257,9 @@ var dragonBones;
         DataParser.FRAME = "frame";
         DataParser.IK = "ik";
         DataParser.PATH_CONSTRAINT = "path";
+        DataParser.PATH_CONSTRAINT_POSITION = "position";
+        DataParser.PATH_CONSTRAINT_SPACING = "spacing";
+        DataParser.PATH_CONSTRAINT_WEIGHT = "weight";
         DataParser.ANIMATION = "animation";
         DataParser.TIMELINE = "timeline";
         DataParser.FFD = "ffd";
@@ -12071,6 +12306,8 @@ var dragonBones;
         DataParser.BEND_POSITIVE = "bendPositive";
         DataParser.CHAIN = "chain";
         DataParser.WEIGHT = "weight";
+        DataParser.MASK = "mask";
+        DataParser.MASK_RANGE = "maskRange";
         DataParser.BLEND_TYPE = "blendType";
         DataParser.FADE_IN_TIME = "fadeInTime";
         DataParser.PLAY_TIMES = "playTimes";
@@ -12111,15 +12348,15 @@ var dragonBones;
         DataParser.WEIGHTS = "weights";
         DataParser.SLOT_POSE = "slotPose";
         DataParser.BONE_POSE = "bonePose";
-        DataParser.SHAPE = "shape";
         DataParser.BONES = "bones";
         DataParser.POSITION_MODE = "positionMode";
         DataParser.SPACING_MODE = "spacingMode";
         DataParser.ROTATE_MODE = "rotateMode";
         DataParser.SPACING = "spacing";
         DataParser.ROTATE_OFFSET = "rotateOffset";
-        DataParser.ROTATE_MIX = "rotateMix";
-        DataParser.TRANSLATE_MIX = "translateMix";
+        DataParser.ROTATE_WEIGHT = "rotateWeight";
+        DataParser.X_WEIGHT = "xWeight";
+        DataParser.Y_WEIGHT = "yWeight";
         DataParser.TARGET_DISPLAY = "targetDisplay";
         DataParser.CLOSED = "closed";
         DataParser.CONSTANT_SPEED = "constantSpeed";
@@ -12634,8 +12871,9 @@ var dragonBones;
             constraint.position = ObjectDataParser._getNumber(rawData, dragonBones.DataParser.POSITION, 0);
             constraint.spacing = ObjectDataParser._getNumber(rawData, dragonBones.DataParser.SPACING, 0);
             constraint.rotateOffset = ObjectDataParser._getNumber(rawData, dragonBones.DataParser.ROTATE_OFFSET, 0);
-            constraint.rotateMix = ObjectDataParser._getNumber(rawData, dragonBones.DataParser.ROTATE_MIX, 1);
-            constraint.translateMix = ObjectDataParser._getNumber(rawData, dragonBones.DataParser.TRANSLATE_MIX, 1);
+            constraint.rotateWeight = ObjectDataParser._getNumber(rawData, dragonBones.DataParser.ROTATE_WEIGHT, 1);
+            constraint.xWeight = ObjectDataParser._getNumber(rawData, dragonBones.DataParser.X_WEIGHT, 1);
+            constraint.yWeight = ObjectDataParser._getNumber(rawData, dragonBones.DataParser.Y_WEIGHT, 1);
             //
             for (var _i = 0, bones_3 = bones; _i < bones_3.length; _i++) {
                 var boneName = bones_3[_i];
@@ -12726,6 +12964,8 @@ var dragonBones;
                     imageDisplay.name = name;
                     imageDisplay.path = path.length > 0 ? path : name;
                     this._parsePivot(rawData, imageDisplay);
+                    imageDisplay.mask = ObjectDataParser._getBoolean(rawData, dragonBones.DataParser.MASK, false);
+                    imageDisplay.maskRange = ObjectDataParser._getNumber(rawData, dragonBones.DataParser.MASK_RANGE, 0);
                     break;
                 }
                 case 1 /* Armature */: {
@@ -12798,6 +13038,8 @@ var dragonBones;
                         shapeDisplay.name = name;
                         shapeDisplay.path = path.length > 0 ? path : name;
                         shapeDisplay.shape = shape;
+                        shapeDisplay.mask = ObjectDataParser._getBoolean(rawData, dragonBones.DataParser.MASK, false);
+                        shapeDisplay.maskRange = ObjectDataParser._getNumber(rawData, dragonBones.DataParser.MASK_RANGE, 0);
                     }
                     break;
                 }
@@ -13028,14 +13270,44 @@ var dragonBones;
                     }
                 }
             }
+            if (dragonBones.DataParser.PATH in rawData) {
+                var rawTimelines = rawData[dragonBones.DataParser.PATH];
+                for (var _e = 0, rawTimelines_6 = rawTimelines; _e < rawTimelines_6.length; _e++) {
+                    var rawTimeline = rawTimelines_6[_e];
+                    var constraintName = ObjectDataParser._getString(rawTimeline, dragonBones.DataParser.NAME, "");
+                    var constraint = this._armature.getConstraint(constraintName);
+                    if (constraint === null) {
+                        continue;
+                    }
+                    // 
+                    if (rawTimeline[dragonBones.DataParser.PATH_CONSTRAINT_POSITION]) {
+                        var timeline = this._parseTimeline(rawTimeline, null, dragonBones.DataParser.PATH_CONSTRAINT_POSITION, 31 /* PathConstraintPosition */, 2 /* Float */, 1, this._parsePathConstraintPositionFrame);
+                        if (timeline !== null) {
+                            this._animation.addConstraintTimeline(constraintName, timeline);
+                        }
+                    }
+                    if (rawTimeline[dragonBones.DataParser.PATH_CONSTRAINT_SPACING]) {
+                        var timeline = this._parseTimeline(rawTimeline, null, dragonBones.DataParser.PATH_CONSTRAINT_SPACING, 32 /* PathConstraintSpacing */, 2 /* Float */, 1, this._parsePathConstraintSpacingFrame);
+                        if (timeline !== null) {
+                            this._animation.addConstraintTimeline(constraintName, timeline);
+                        }
+                    }
+                    if (rawTimeline[dragonBones.DataParser.PATH_CONSTRAINT_WEIGHT]) {
+                        var timeline = this._parseTimeline(rawTimeline, null, dragonBones.DataParser.PATH_CONSTRAINT_WEIGHT, 33 /* PathConstraintWeight */, 2 /* Float */, 3, this._parsePathConstraintWeightFrame);
+                        if (timeline !== null) {
+                            this._animation.addConstraintTimeline(constraintName, timeline);
+                        }
+                    }
+                }
+            }
             if (this._actionFrames.length > 0) {
                 this._animation.actionTimeline = this._parseTimeline(null, this._actionFrames, "", 0 /* Action */, 0 /* Step */, 0, this._parseActionFrame);
                 this._actionFrames.length = 0;
             }
             if (dragonBones.DataParser.TIMELINE in rawData) {
                 var rawTimelines = rawData[dragonBones.DataParser.TIMELINE];
-                for (var _e = 0, rawTimelines_6 = rawTimelines; _e < rawTimelines_6.length; _e++) {
-                    var rawTimeline = rawTimelines_6[_e];
+                for (var _f = 0, rawTimelines_7 = rawTimelines; _f < rawTimelines_7.length; _f++) {
+                    var rawTimeline = rawTimelines_7[_f];
                     var timelineType = ObjectDataParser._getNumber(rawTimeline, dragonBones.DataParser.TYPE, 0 /* Action */);
                     var timelineName = ObjectDataParser._getString(rawTimeline, dragonBones.DataParser.NAME, "");
                     var timeline = null;
@@ -13134,8 +13406,8 @@ var dragonBones;
                                 var skin = this._armature.skins[skinName];
                                 for (var slontName in skin.displays) {
                                     var displays = skin.displays[slontName];
-                                    for (var _f = 0, displays_1 = displays; _f < displays_1.length; _f++) {
-                                        var display = displays_1[_f];
+                                    for (var _g = 0, displays_1 = displays; _g < displays_1.length; _g++) {
+                                        var display = displays_1[_g];
                                         if (display !== null && display.name === timelineName) {
                                             this._geometry = display.geometry;
                                             break;
@@ -13827,8 +14099,32 @@ var dragonBones;
             var frameOffset = this._parseTweenFrame(rawData, frameStart, frameCount);
             var frameIntOffset = this._frameIntArray.length;
             this._frameIntArray.length += 2;
-            this._frameIntArray[frameIntOffset++] = ObjectDataParser._getBoolean(rawData, dragonBones.DataParser.BEND_POSITIVE, true) ? 1 : 0;
+            this._frameIntArray[frameIntOffset++] = ObjectDataParser._getBoolean(rawData, dragonBones.DataParser.BEND_POSITIVE, true) ? 100 : 0;
             this._frameIntArray[frameIntOffset++] = Math.round(ObjectDataParser._getNumber(rawData, dragonBones.DataParser.WEIGHT, 1.0) * 100.0);
+            return frameOffset;
+        };
+        ObjectDataParser.prototype._parsePathConstraintPositionFrame = function (rawData, frameStart, frameCount) {
+            var frameOffset = this._parseTweenFrame(rawData, frameStart, frameCount);
+            var frameFloatOffset = this._frameFloatArray.length;
+            this._frameFloatArray.length += 1;
+            this._frameFloatArray[frameFloatOffset++] = ObjectDataParser._getNumber(rawData, dragonBones.DataParser.VALUE, 0.0);
+            return frameOffset;
+        };
+        ObjectDataParser.prototype._parsePathConstraintSpacingFrame = function (rawData, frameStart, frameCount) {
+            var frameOffset = this._parseTweenFrame(rawData, frameStart, frameCount);
+            var frameFloatOffset = this._frameFloatArray.length;
+            this._frameFloatArray.length += 1;
+            this._frameFloatArray[frameFloatOffset++] = ObjectDataParser._getNumber(rawData, dragonBones.DataParser.VALUE, 0.0);
+            return frameOffset;
+        };
+        ObjectDataParser.prototype._parsePathConstraintWeightFrame = function (rawData, frameStart, frameCount) {
+            var frameOffset = this._parseTweenFrame(rawData, frameStart, frameCount);
+            var frameFloatOffset = this._frameFloatArray.length;
+            var rawValue = dragonBones.DataParser.VALUE in rawData ? rawData[dragonBones.DataParser.VALUE] : [1.0, 1.0, 1.0];
+            this._frameFloatArray.length += 3;
+            this._frameFloatArray[frameFloatOffset++] = rawValue[0];
+            this._frameFloatArray[frameFloatOffset++] = rawValue[1];
+            this._frameFloatArray[frameFloatOffset++] = rawValue[2];
             return frameOffset;
         };
         ObjectDataParser.prototype._parseActionData = function (rawData, type, bone, slot) {
@@ -14533,8 +14829,8 @@ var dragonBones;
             }
             if (dragonBones.DataParser.TIMELINE in rawData) {
                 var rawTimelines = rawData[dragonBones.DataParser.TIMELINE];
-                for (var _i = 0, rawTimelines_7 = rawTimelines; _i < rawTimelines_7.length; _i++) {
-                    var rawTimeline = rawTimelines_7[_i];
+                for (var _i = 0, rawTimelines_8 = rawTimelines; _i < rawTimelines_8.length; _i++) {
+                    var rawTimeline = rawTimelines_8[_i];
                     var timelineOffset = dragonBones.ObjectDataParser._getNumber(rawTimeline, dragonBones.DataParser.OFFSET, 0);
                     if (timelineOffset >= 0) {
                         var timelineType = dragonBones.ObjectDataParser._getNumber(rawTimeline, dragonBones.DataParser.TYPE, 0 /* Action */);

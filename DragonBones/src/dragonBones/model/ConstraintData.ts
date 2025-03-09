@@ -61,6 +61,47 @@ namespace dragonBones {
             this.weight = 1.0;
         }
     }
+
+    /**
+     * @internal
+     */
+    export class TransformConstraintData extends ConstraintData {
+        public static toString(): string {
+            return "[class dragonBones.TransformConstraintData]";
+        }
+        public targetBone: BoneData;
+        public bones: BoneData[];
+        public offsetX: number;
+        public offsetY: number;
+        public offsetRotation: number;
+        public offsetScaleX: number;
+        public offsetScaleY: number;
+
+        public rotateWeight : number;
+        public scaleWeight : number;
+        public translateWeight : number;
+
+        public local: boolean;
+        public relative: boolean;
+
+        protected _onClear(): void {
+            super._onClear();
+
+            this.targetBone = null as any; //
+            this.bones = [];
+            this.offsetX = 0;
+            this.offsetY= 0;
+            this.offsetRotation = 0;
+            this.offsetScaleX = 0;
+            this.offsetScaleY = 0;
+            this.rotateWeight = 0;
+            this.scaleWeight = 0;
+            this.translateWeight = 0;
+            this.local = false;
+            this.relative = false;
+            this.type = ConstraintType.Transform;
+        }
+    }
     /**
      * @internal
      */
@@ -101,6 +142,7 @@ namespace dragonBones {
             this.rotateWeight = 0.0;
             this.xWeight = 0.0;
             this.yWeight = 0.0;
+            this.type = ConstraintType.Path;
         }
 
         public AddBone(value : BoneData) : void {

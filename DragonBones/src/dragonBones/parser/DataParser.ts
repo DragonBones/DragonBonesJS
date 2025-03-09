@@ -68,6 +68,7 @@ namespace dragonBones {
         protected static readonly DISPLAY: string = "display";
         protected static readonly FRAME: string = "frame";
         protected static readonly IK: string = "ik";
+        protected static readonly TRANSFORM_CONSTRAINT: string = "transform";
         protected static readonly PATH_CONSTRAINT: string = "path";
         protected static readonly PATH_CONSTRAINT_POSITION: string = "position";
         protected static readonly PATH_CONSTRAINT_SPACING: string = "spacing";
@@ -177,8 +178,13 @@ namespace dragonBones {
         protected static readonly SPACING: string = "spacing";
         protected static readonly ROTATE_OFFSET: string = "rotateOffset";
         protected static readonly ROTATE_WEIGHT: string = "rotateWeight";
+        protected static readonly SCALE_WEIGHT: string = "scaleWeight";
+        protected static readonly TRANSLATE_WEIGHT: string = "translateWeight";
         protected static readonly X_WEIGHT: string = "xWeight";
         protected static readonly Y_WEIGHT: string = "yWeight";
+        protected static readonly LOCAL: string = "local";
+        protected static readonly RELATIVE: string = "relative";
+
 
         protected static readonly TARGET_DISPLAY: string = "targetDisplay";
         protected static readonly CLOSED: string = "closed";
@@ -219,12 +225,12 @@ namespace dragonBones {
             }
         }
 
-        protected static _getPositionMode(value: string): PositionMode {
-            switch (value.toLocaleLowerCase()) {
-                case "percent":
+        protected static _getPositionMode(value: number): PositionMode {
+            switch (value) {
+                case PositionMode.Percent:
                     return PositionMode.Percent;
 
-                case "fixed":
+                case PositionMode.Fixed:
                     return PositionMode.Fixed;
 
                 default:
@@ -232,15 +238,15 @@ namespace dragonBones {
             }
         }
 
-        protected static _getSpacingMode(value: string): SpacingMode {
-            switch (value.toLocaleLowerCase()) {
-                case "length":
+        protected static _getSpacingMode(value: number): SpacingMode {
+            switch (value) {
+                case SpacingMode.Length:
                     return SpacingMode.Length;
 
-                case "percent":
+                case SpacingMode.Percent:
                     return SpacingMode.Percent;
 
-                case "fixed":
+                case SpacingMode.Fixed:
                     return SpacingMode.Fixed;
 
                 default:
@@ -248,15 +254,15 @@ namespace dragonBones {
             }
         }
 
-        protected static _getRotateMode(value: string): RotateMode {
-            switch (value.toLocaleLowerCase()) {
-                case "tangent":
+        protected static _getRotateMode(value: number): RotateMode {
+            switch (value) {
+                case RotateMode.Tangent:
                     return RotateMode.Tangent;
 
-                case "chain":
+                case RotateMode.Chain:
                     return RotateMode.Chain;
 
-                case "chainscale":
+                case RotateMode.ChainScale:
                     return RotateMode.ChainScale;
 
                 default:

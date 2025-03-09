@@ -243,9 +243,15 @@ namespace dragonBones {
                 }
 
                 let flag = false;
-                for (let k in this.constraints) { // Wait constraint.
+                for (let k in this.constraints) {
                     const constraint = this.constraints[k];
-                    if (constraint.root === bone && this.sortedBones.indexOf(constraint.target) < 0) {
+                    if (constraint instanceof IKConstraintData && constraint.root === bone && this.sortedBones.indexOf(constraint.target) < 0) {
+                         // Wait ik constraint.
+                        flag = true;
+                        break;
+                    }
+                    else if(constraint instanceof TransformConstraintData && constraint.bones.indexOf(bone) >= 0 && this.sortedBones.indexOf(constraint.target) < 0) {
+                         // Wait transform constraint.
                         flag = true;
                         break;
                     }

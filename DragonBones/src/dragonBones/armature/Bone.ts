@@ -74,6 +74,15 @@ namespace dragonBones {
          * @internal
          */
         public _hasConstraint: boolean;
+
+        /**
+         * @internal
+         */
+        public _transformConstraint: TransformConstraint | null;
+        /**
+         * @internal
+         */
+        public _targetTransformConstraint: TransformConstraint | null;
         protected _visible: boolean;
         protected _cachedFrameIndex: number;
         /**
@@ -327,6 +336,12 @@ namespace dragonBones {
 
                 global.toMatrix(globalTransformMatrix);
             }
+            if (this._transformConstraint) {
+                this._transformConstraint._dirty = true;
+            }
+            if (this._targetTransformConstraint) {
+                this._targetTransformConstraint._dirty = true;
+            }
         }
         /**
          * @internal
@@ -363,6 +378,9 @@ namespace dragonBones {
          * @internal
          */
         public update(cacheFrameIndex: number): void {
+            if(this._transformConstraint && this._transformConstraint._dirty) {
+                this._transformDirty = true;
+            }
             if (cacheFrameIndex >= 0 && this._cachedFrameIndices !== null) {
                 const cachedFrameIndex = this._cachedFrameIndices[cacheFrameIndex];
                 if (cachedFrameIndex >= 0 && this._cachedFrameIndex === cachedFrameIndex) { // Same cache.
@@ -437,6 +455,9 @@ namespace dragonBones {
                 this._childrenTransformDirty = false;
             }
 
+            if(this._transformConstraint) {
+                this._transformConstraint.update();
+            }
             this._localDirty = true;
         }
         /**
@@ -453,6 +474,9 @@ namespace dragonBones {
                 this._transformDirty = true;
             }
         }
+        /**
+         * @internal
+         */
         public forceUpdateTransform(): void {
             this._updateGlobalTransformMatrix(true);
         }

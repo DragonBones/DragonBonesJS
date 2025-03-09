@@ -1402,9 +1402,15 @@ var dragonBones;
                     continue;
                 }
                 let flag = false;
-                for (let k in this.constraints) { // Wait constraint.
+                for (let k in this.constraints) {
                     const constraint = this.constraints[k];
-                    if (constraint.root === bone && this.sortedBones.indexOf(constraint.target) < 0) {
+                    if (constraint instanceof dragonBones.IKConstraintData && constraint.root === bone && this.sortedBones.indexOf(constraint.target) < 0) {
+                        // Wait ik constraint.
+                        flag = true;
+                        break;
+                    }
+                    else if (constraint instanceof dragonBones.TransformConstraintData && constraint.bones.indexOf(bone) >= 0 && this.sortedBones.indexOf(constraint.target) < 0) {
+                        // Wait transform constraint.
                         flag = true;
                         break;
                     }
@@ -1802,6 +1808,31 @@ var dragonBones;
     /**
      * @internal
      */
+    class TransformConstraintData extends ConstraintData {
+        static toString() {
+            return "[class dragonBones.TransformConstraintData]";
+        }
+        _onClear() {
+            super._onClear();
+            this.targetBone = null; //
+            this.bones = [];
+            this.offsetX = 0;
+            this.offsetY = 0;
+            this.offsetRotation = 0;
+            this.offsetScaleX = 0;
+            this.offsetScaleY = 0;
+            this.rotateWeight = 0;
+            this.scaleWeight = 0;
+            this.translateWeight = 0;
+            this.local = false;
+            this.relative = false;
+            this.type = 2 /* Transform */;
+        }
+    }
+    dragonBones.TransformConstraintData = TransformConstraintData;
+    /**
+     * @internal
+     */
     class PathConstraintData extends ConstraintData {
         constructor() {
             super(...arguments);
@@ -1824,6 +1855,7 @@ var dragonBones;
             this.rotateWeight = 0.0;
             this.xWeight = 0.0;
             this.yWeight = 0.0;
+            this.type = 1 /* Path */;
         }
         AddBone(value) {
             this.bones.push(value);
@@ -4548,6 +4580,12 @@ var dragonBones;
                 }
                 global.toMatrix(globalTransformMatrix);
             }
+            if (this._transformConstraint) {
+                this._transformConstraint._dirty = true;
+            }
+            if (this._targetTransformConstraint) {
+                this._targetTransformConstraint._dirty = true;
+            }
         }
         /**
          * @internal
@@ -4581,6 +4619,9 @@ var dragonBones;
          * @internal
          */
         update(cacheFrameIndex) {
+            if (this._transformConstraint && this._transformConstraint._dirty) {
+                this._transformDirty = true;
+            }
             if (cacheFrameIndex >= 0 && this._cachedFrameIndices !== null) {
                 const cachedFrameIndex = this._cachedFrameIndices[cacheFrameIndex];
                 if (cachedFrameIndex >= 0 && this._cachedFrameIndex === cachedFrameIndex) { // Same cache.
@@ -4648,6 +4689,9 @@ var dragonBones;
             else if (this._childrenTransformDirty) {
                 this._childrenTransformDirty = false;
             }
+            if (this._transformConstraint) {
+                this._transformConstraint.update();
+            }
             this._localDirty = true;
         }
         /**
@@ -4662,6 +4706,9 @@ var dragonBones;
                 this._transformDirty = true;
             }
         }
+        /**
+         * @internal
+         */
         forceUpdateTransform() {
             this._updateGlobalTransformMatrix(true);
         }
@@ -6584,6 +6631,82 @@ var dragonBones;
         }
     }
     dragonBones.IKConstraint = IKConstraint;
+    /**
+ * @internal
+ */
+    class TransformConstraint extends Constraint {
+        constructor() {
+            super(...arguments);
+            this._dirty = true;
+            this.index = -1;
+        }
+        static toString() {
+            return "[class dragonBones.TransformConstraint]";
+        }
+        _onClear() {
+            super._onClear();
+            this._constraintData = null;
+            this.index = -1;
+        }
+        init(constraintData, armature) {
+            if (this._constraintData !== null) {
+                return;
+            }
+            if (this.index < 0) {
+                return;
+            }
+            this._constraintData = constraintData;
+            this._armature = armature;
+            this._target = this._armature.getBone(this._constraintData.target.name);
+            const transformConstraintData = this._constraintData;
+            const boneName = transformConstraintData.bones[this.index].name;
+            this._bone = this._armature.getBone(boneName);
+            if (!this._bone) {
+                return;
+            }
+            this._rotateWeight = transformConstraintData.rotateWeight;
+            this._scaleWeight = transformConstraintData.scaleWeight;
+            this._translateWeight = transformConstraintData.translateWeight;
+            this._root = this._bone;
+            this._root._transformConstraint = this;
+            this._target._targetTransformConstraint = this;
+        }
+        update() {
+            if (!this._dirty) {
+                return;
+            }
+            if (!this._root || !this._target || !this._bone) {
+                return;
+            }
+            if (this._bone !== null) {
+                this._compute();
+            }
+            this._dirty = false;
+        }
+        _compute() {
+            if (this._target && this._root) {
+                const transformConstraintData = this._constraintData;
+                const { offsetX, offsetY, offsetRotation, offsetScaleX, offsetScaleY, local, relative } = transformConstraintData;
+                const globalTransformMatrix = this._root.globalTransformMatrix;
+                if (local) {
+                }
+                else {
+                    this._root.global.x = this._root.global.x * (1 - this._translateWeight) + this._target.global.x * this._translateWeight + offsetX;
+                    this._root.global.y = this._root.global.y * (1 - this._translateWeight) + this._target.global.y * this._translateWeight + offsetY;
+                    this._root.global.rotation = this._root.global.rotation * (1 - this._rotateWeight) + this._target.global.rotation * this._rotateWeight + offsetRotation;
+                    this._root.global.scaleX = this._root.global.scaleX * (1 - this._scaleWeight) + this._target.global.scaleX * this._scaleWeight + offsetScaleX;
+                    this._root.global.scaleY = this._root.global.scaleY * (1 - this._scaleWeight) + this._target.global.scaleY * this._scaleWeight + offsetScaleY;
+                    this._root.global.toMatrix(globalTransformMatrix);
+                }
+            }
+        }
+        invalidUpdate() {
+            if (this._root) {
+                this._root.invalidUpdate();
+            }
+        }
+    }
+    dragonBones.TransformConstraint = TransformConstraint;
     /**
      * @internal
      */
@@ -11407,34 +11530,34 @@ var dragonBones;
             }
         }
         static _getPositionMode(value) {
-            switch (value.toLocaleLowerCase()) {
-                case "percent":
+            switch (value) {
+                case 1 /* Percent */:
                     return 1 /* Percent */;
-                case "fixed":
+                case 0 /* Fixed */:
                     return 0 /* Fixed */;
                 default:
                     return 1 /* Percent */;
             }
         }
         static _getSpacingMode(value) {
-            switch (value.toLocaleLowerCase()) {
-                case "length":
+            switch (value) {
+                case 0 /* Length */:
                     return 0 /* Length */;
-                case "percent":
+                case 2 /* Percent */:
                     return 2 /* Percent */;
-                case "fixed":
+                case 1 /* Fixed */:
                     return 1 /* Fixed */;
                 default:
                     return 0 /* Length */;
             }
         }
         static _getRotateMode(value) {
-            switch (value.toLocaleLowerCase()) {
-                case "tangent":
+            switch (value) {
+                case 0 /* Tangent */:
                     return 0 /* Tangent */;
-                case "chain":
+                case 1 /* Chain */:
                     return 1 /* Chain */;
-                case "chainscale":
+                case 2 /* ChainScale */:
                     return 2 /* ChainScale */;
                 default:
                     return 0 /* Tangent */;
@@ -11567,6 +11690,7 @@ var dragonBones;
     DataParser.DISPLAY = "display";
     DataParser.FRAME = "frame";
     DataParser.IK = "ik";
+    DataParser.TRANSFORM_CONSTRAINT = "transform";
     DataParser.PATH_CONSTRAINT = "path";
     DataParser.PATH_CONSTRAINT_POSITION = "position";
     DataParser.PATH_CONSTRAINT_SPACING = "spacing";
@@ -11666,8 +11790,12 @@ var dragonBones;
     DataParser.SPACING = "spacing";
     DataParser.ROTATE_OFFSET = "rotateOffset";
     DataParser.ROTATE_WEIGHT = "rotateWeight";
+    DataParser.SCALE_WEIGHT = "scaleWeight";
+    DataParser.TRANSLATE_WEIGHT = "translateWeight";
     DataParser.X_WEIGHT = "xWeight";
     DataParser.Y_WEIGHT = "yWeight";
+    DataParser.LOCAL = "local";
+    DataParser.RELATIVE = "relative";
     DataParser.TARGET_DISPLAY = "targetDisplay";
     DataParser.CLOSED = "closed";
     DataParser.CONSTANT_SPEED = "constantSpeed";
@@ -11995,6 +12123,15 @@ var dragonBones;
                     }
                 }
             }
+            if (dragonBones.DataParser.TRANSFORM_CONSTRAINT in rawData) {
+                const rawTransformConstraints = rawData[dragonBones.DataParser.TRANSFORM_CONSTRAINT];
+                for (const rawTransCon of rawTransformConstraints) {
+                    const constraint = this._parseTransformConstraint(rawTransCon);
+                    if (constraint) {
+                        armature.addConstraint(constraint);
+                    }
+                }
+            }
             armature.sortBones();
             if (dragonBones.DataParser.SLOT in rawData) {
                 let zOrder = 0;
@@ -12137,6 +12274,45 @@ var dragonBones;
             }
             return constraint;
         }
+        _parseTransformConstraint(rawData) {
+            const target = this._armature.getBone(ObjectDataParser._getString(rawData, dragonBones.DataParser.TARGET, ""));
+            if (target === null) {
+                return null;
+            }
+            const boneNames = rawData[dragonBones.DataParser.BONES];
+            if (boneNames === null || boneNames.length === 0) {
+                return null;
+            }
+            const bones = new Array();
+            for (let boneName of boneNames) {
+                const bone = this._armature.getBone(boneName);
+                if (bone !== null) {
+                    bones.push(bone);
+                }
+            }
+            if (bones.length === 0) {
+                return null;
+            }
+            const constraint = dragonBones.BaseObject.borrowObject(dragonBones.TransformConstraintData);
+            constraint.type = 2 /* Transform */;
+            constraint.target = target;
+            constraint.bones = bones;
+            constraint.name = ObjectDataParser._getString(rawData, dragonBones.DataParser.NAME, "");
+            const rawOffsetTransform = rawData[dragonBones.DataParser.OFFSET];
+            constraint.offsetX = ObjectDataParser._getNumber(rawOffsetTransform, dragonBones.DataParser.X, 0.0);
+            constraint.offsetY = ObjectDataParser._getNumber(rawOffsetTransform, dragonBones.DataParser.Y, 0.0);
+            if (dragonBones.DataParser.SKEW_X in rawOffsetTransform) {
+                constraint.offsetRotation = dragonBones.Transform.normalizeRadian(ObjectDataParser._getNumber(rawOffsetTransform, dragonBones.DataParser.SKEW_X, 0.0) * dragonBones.Transform.DEG_RAD);
+            }
+            constraint.offsetScaleX = ObjectDataParser._getNumber(rawOffsetTransform, dragonBones.DataParser.SCALE_X, 0.0);
+            constraint.offsetScaleY = ObjectDataParser._getNumber(rawOffsetTransform, dragonBones.DataParser.SCALE_Y, 0.0);
+            constraint.rotateWeight = ObjectDataParser._getNumber(rawData, dragonBones.DataParser.ROTATE_WEIGHT, 0.0);
+            constraint.scaleWeight = ObjectDataParser._getNumber(rawData, dragonBones.DataParser.SCALE_WEIGHT, 0.0);
+            constraint.translateWeight = ObjectDataParser._getNumber(rawData, dragonBones.DataParser.TRANSLATE_WEIGHT, 0.0);
+            constraint.local = ObjectDataParser._getBoolean(rawData, dragonBones.DataParser.LOCAL, false);
+            constraint.relative = ObjectDataParser._getBoolean(rawData, dragonBones.DataParser.RELATIVE, false);
+            return constraint;
+        }
         _parsePathConstraint(rawData) {
             const target = this._armature.getSlot(ObjectDataParser._getString(rawData, dragonBones.DataParser.TARGET, ""));
             if (target === null) {
@@ -12161,9 +12337,9 @@ var dragonBones;
             constraint.pathSlot = target;
             constraint.pathDisplayData = targetDisplay;
             constraint.target = target.parent;
-            constraint.positionMode = dragonBones.DataParser._getPositionMode(ObjectDataParser._getString(rawData, dragonBones.DataParser.POSITION_MODE, ""));
-            constraint.spacingMode = dragonBones.DataParser._getSpacingMode(ObjectDataParser._getString(rawData, dragonBones.DataParser.SPACING_MODE, ""));
-            constraint.rotateMode = dragonBones.DataParser._getRotateMode(ObjectDataParser._getString(rawData, dragonBones.DataParser.ROTATE_MODE, ""));
+            constraint.positionMode = dragonBones.DataParser._getPositionMode(ObjectDataParser._getNumber(rawData, dragonBones.DataParser.POSITION_MODE, 0 /* Fixed */));
+            constraint.spacingMode = dragonBones.DataParser._getSpacingMode(ObjectDataParser._getNumber(rawData, dragonBones.DataParser.SPACING_MODE, 1 /* Fixed */));
+            constraint.rotateMode = dragonBones.DataParser._getRotateMode(ObjectDataParser._getNumber(rawData, dragonBones.DataParser.ROTATE_MODE, 0 /* Tangent */));
             constraint.position = ObjectDataParser._getNumber(rawData, dragonBones.DataParser.POSITION, 0);
             constraint.spacing = ObjectDataParser._getNumber(rawData, dragonBones.DataParser.SPACING, 0);
             constraint.rotateOffset = ObjectDataParser._getNumber(rawData, dragonBones.DataParser.ROTATE_OFFSET, 0);
@@ -14451,6 +14627,19 @@ var dragonBones;
                         pathConstraint.init(constraintData, armature);
                         armature._addConstraint(pathConstraint);
                         break;
+                    case 2 /* Transform */:
+                        const transformConstraintData = constraintData;
+                        if (transformConstraintData.bones && transformConstraintData.bones.length > 0) {
+                            for (let i = 0, l = transformConstraintData.bones.length; i < l; ++i) {
+                                const bone = transformConstraintData.bones[i];
+                                if (bone) {
+                                    const transformConstraint = dragonBones.BaseObject.borrowObject(dragonBones.TransformConstraint);
+                                    transformConstraint.index = i;
+                                    transformConstraint.init(constraintData, armature);
+                                }
+                            }
+                        }
+                        break;
                     default:
                         const constraint = dragonBones.BaseObject.borrowObject(dragonBones.IKConstraint);
                         constraint.init(constraintData, armature);
@@ -15730,6 +15919,8 @@ var dragonBones;
                         const normalDisplay = this._renderDisplay;
                         normalDisplay.texture = renderTexture;
                         if (this._mask) {
+                            // pixi 的遮罩效果比较奇怪，详情见 https://ithelp.ithome.com.tw/articles/10191374
+                            // 为了让遮罩效果统一，这里统一处理成灰阶
                             const colorMatrix = new PIXI.filters.ColorMatrixFilter();
                             colorMatrix.matrix = [
                                 1, 0, 0, 0, 1,

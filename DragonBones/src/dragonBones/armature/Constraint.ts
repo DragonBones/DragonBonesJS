@@ -224,6 +224,108 @@ namespace dragonBones {
         }
     }
 
+        /**
+     * @internal
+     */
+    export class TransformConstraint extends Constraint {
+        public static toString(): string {
+            return "[class dragonBones.TransformConstraint]";
+        }
+
+        public _dirty: boolean = true;
+
+        public index: number = -1;
+
+        /**
+         * - For timeline state.
+         * @internal
+         */
+        public _rotateWeight : number;
+        /**
+         * - For timeline state.
+         * @internal
+         */
+        public _scaleWeight : number;
+        /**
+         * - For timeline state.
+         * @internal
+         */
+        public _translateWeight : number;
+
+        protected _onClear(): void {
+            super._onClear();
+
+            this._constraintData = null as any;
+            this.index = -1;
+        }
+
+        public init(constraintData: ConstraintData, armature: Armature): void {
+            if (this._constraintData !== null) {
+                return;
+            }
+
+            if (this.index < 0) {
+                return;
+            }
+            this._constraintData = constraintData;
+            this._armature = armature;
+            this._target = this._armature.getBone(this._constraintData.target.name) as any;
+            const transformConstraintData = this._constraintData as TransformConstraintData;
+            const boneName = transformConstraintData.bones[this.index].name;
+            this._bone = this._armature.getBone(boneName);
+            if (!this._bone) {
+                return;
+            }
+            this._rotateWeight = transformConstraintData.rotateWeight;
+            this._scaleWeight = transformConstraintData.scaleWeight;
+            this._translateWeight = transformConstraintData.translateWeight;
+
+            this._root = this._bone;
+            this._root._transformConstraint = this;
+            this._target._targetTransformConstraint = this;
+        }
+
+        public update(): void {
+            if (!this._dirty) {
+                return;
+            }
+            if (!this._root || !this._target || !this._bone) {
+                return;
+            }
+
+            if (this._bone !== null) {
+                
+                this._compute();
+            }
+            this._dirty = false;
+        }
+
+        private _compute(): void {
+            if (this._target && this._root) {
+                const transformConstraintData = this._constraintData as TransformConstraintData;
+                const {offsetX, offsetY, offsetRotation, offsetScaleX, offsetScaleY, local, relative} = transformConstraintData;
+                
+                const globalTransformMatrix = this._root.globalTransformMatrix;
+                if(local) {
+
+                }
+                else {
+                    this._root.global.x = this._root.global.x * (1 - this._translateWeight) + this._target.global.x * this._translateWeight + offsetX;
+                    this._root.global.y = this._root.global.y * (1 - this._translateWeight) + this._target.global.y * this._translateWeight + offsetY;
+                    this._root.global.rotation = this._root.global.rotation * (1 - this._rotateWeight) + this._target.global.rotation * this._rotateWeight + offsetRotation;
+                    this._root.global.scaleX = this._root.global.scaleX * (1 - this._scaleWeight) + this._target.global.scaleX * this._scaleWeight + offsetScaleX;
+                    this._root.global.scaleY = this._root.global.scaleY * (1 - this._scaleWeight) + this._target.global.scaleY * this._scaleWeight + offsetScaleY;
+                    this._root.global.toMatrix(globalTransformMatrix);
+                }
+            }
+        }
+
+        public invalidUpdate(): void {
+            if (this._root) {
+                this._root.invalidUpdate();
+            }
+        }
+    }
     /**
      * @internal
      */
