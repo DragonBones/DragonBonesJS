@@ -232,6 +232,9 @@ namespace dragonBones {
             return "[class dragonBones.TransformConstraint]";
         }
 
+        private _helpMatrix1: Matrix = new Matrix();
+        private _helpMatrix2: Matrix = new Matrix();
+        private _helpTransform: Transform = new Transform();
         public _dirty: boolean = true;
 
         public index: number = -1;
@@ -307,7 +310,20 @@ namespace dragonBones {
                 
                 const globalTransformMatrix = this._root.globalTransformMatrix;
                 if(local) {
-
+                    const parentMatrix = this._target.globalTransformMatrix;
+                    const localMatrix = this._helpMatrix1.copyFrom(parentMatrix);
+                    if(this._target.parent) {
+                        const grandMatrix = this._helpMatrix2.copyFrom(this._target.parent.globalTransformMatrix);
+                        const p = grandMatrix.invert();
+                        localMatrix.concat(p);
+                    }
+                    const localTransform = this._helpTransform.fromMatrix(localMatrix);
+                    this._root.global.x = this._root.global.x * (1 - this._translateWeight) + localTransform.x * this._translateWeight + offsetX;
+                    this._root.global.y = this._root.global.y * (1 - this._translateWeight) + localTransform.y * this._translateWeight + offsetY;
+                    this._root.global.rotation = this._root.global.rotation * (1 - this._rotateWeight) + localTransform.rotation * this._rotateWeight + offsetRotation;
+                    this._root.global.scaleX = this._root.global.scaleX * (1 - this._scaleWeight) + localTransform.scaleX * this._scaleWeight + offsetScaleX;
+                    this._root.global.scaleY = this._root.global.scaleY * (1 - this._scaleWeight) + localTransform.scaleY * this._scaleWeight + offsetScaleY;
+                    this._root.global.toMatrix(globalTransformMatrix);
                 }
                 else {
                     this._root.global.x = this._root.global.x * (1 - this._translateWeight) + this._target.global.x * this._translateWeight + offsetX;
