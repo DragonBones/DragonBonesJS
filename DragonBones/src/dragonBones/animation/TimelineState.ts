@@ -954,6 +954,106 @@ namespace dragonBones {
             }
         }
     }
+
+    export class PathTimelineState extends MutilpleValueTimelineState {
+        public static toString(): string {
+            return "[class dragonBones.PathTimelineState]";
+        }
+
+        public displayFrame: DisplayFrame;
+
+        private _deformCount: number;
+        private _deformOffset: number;
+        private _sameValueOffset: number;
+
+        protected _onClear(): void {
+            super._onClear();
+
+            this.displayFrame = null as any;
+
+            this._deformCount = 0;
+            this._deformOffset = 0;
+            this._sameValueOffset = 0;
+        }
+
+        public init(armature: Armature, animationState: AnimationState, timelineData: TimelineData | null): void {
+            super.init(armature, animationState, timelineData);
+
+            if (this._timelineData !== null) {
+                const frameIntOffset = this._animationData.frameIntOffset + this._timelineArray[this._timelineData.offset + BinaryOffset.TimelineFrameValueCount];
+                const dragonBonesData = this._animationData.parent.parent;
+                const frameIntArray = dragonBonesData.frameIntArray;
+
+                this._valueOffset = this._animationData.frameFloatOffset;
+                this._valueCount = frameIntArray[frameIntOffset + BinaryOffset.DeformValueCount];
+                this._deformCount = frameIntArray[frameIntOffset + BinaryOffset.DeformCount];
+                this._deformOffset = frameIntArray[frameIntOffset + BinaryOffset.DeformValueOffset];
+                this._sameValueOffset = frameIntArray[frameIntOffset + BinaryOffset.DeformFloatOffset];
+                
+                if (this._sameValueOffset < 0) {
+                    this._sameValueOffset += 65536; // Fixed out of bounds bug. 
+                }
+
+                this._sameValueOffset += this._animationData.frameFloatOffset
+
+                this._valueScale = this._armature.armatureData.scale;
+                this._valueArray = dragonBonesData.frameFloatArray;
+                this._rd.length = this._valueCount * 2;
+            }
+            else {
+                this._deformCount = this.displayFrame.deformVertices.length;
+            }
+        }
+
+        public blend(isDirty: boolean): void {
+            const blendState = this.target as BlendState;
+            const slot = blendState.target as Slot;
+            const blendWeight = blendState.blendWeight;
+            const result = this.displayFrame.deformVertices;
+            const valueArray = this._valueArray;
+
+            if (valueArray !== null) {
+                const valueCount = this._valueCount;
+                const deformOffset = this._deformOffset;
+                const sameValueOffset = this._sameValueOffset;
+                const rd = this._rd;
+
+                for (let i = 0; i < this._deformCount; ++i) {
+                    let value = 0.0;
+
+                    if (i < deformOffset) {
+                        value = valueArray[sameValueOffset + i];
+                    }
+                    else if (i < deformOffset + valueCount) {
+                        value = rd[i - deformOffset];
+                    }
+                    else {
+                        value = valueArray[sameValueOffset + i - valueCount];
+                    }
+
+                    if (blendState.dirty > 1) {
+                        result[i] += value * blendWeight;
+                    }
+                    else {
+                        result[i] = value * blendWeight;
+                    }
+                }
+            }
+            else if (blendState.dirty === 1) {
+                for (let i = 0; i < this._deformCount; ++i) {
+                    result[i] = 0.0;
+                }
+            }
+
+            if (isDirty || this.dirty) {
+                this.dirty = false;
+
+                if (slot._geometryData === this.displayFrame.getGeometryData()) {
+                    slot._verticesDirty = true;
+                }
+            }
+        }
+    }
     /**
      * @internal
      */

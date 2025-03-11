@@ -331,7 +331,6 @@ namespace dragonBones {
                     break;
 
                 case DisplayType.Shape: {
-                    const shapeDisplayData = displayData as ShapeDisplayData;
                     display = slot.shapeDisplay;
                     break;
                 }

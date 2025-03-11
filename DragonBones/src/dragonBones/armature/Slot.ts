@@ -108,8 +108,9 @@ namespace dragonBones {
 
             let rawVerticesData: number[] | undefined = undefined;
             if (this.rawDisplayData.type === DisplayType.Shape) {
-                if ((this.rawDisplayData as ShapeDisplayData).shape) {
-                    rawVerticesData = (this.rawDisplayData as ShapeDisplayData).shape.vertices;
+                const shape = (this.rawDisplayData as ShapeDisplayData).shape;
+                if (shape) {
+                    rawVerticesData = shape.vertices;
                 }
             }
             else {

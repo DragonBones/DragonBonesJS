@@ -153,6 +153,7 @@ declare namespace dragonBones {
         SlotZIndex = 23,
         SlotAlpha = 24,
         SlotShape = 25,
+        SlotPath = 26,
         IKConstraint = 30,
         PathConstraintPosition = 31,
         PathConstraintSpacing = 32,
@@ -1445,7 +1446,7 @@ declare namespace dragonBones {
         /**
         * @private
         */
-        getShape(skinName: string, slotName: string, shapeName: string): ShapeDisplayData | null;
+        getDisplay(skinName: string, slotName: string, shapeName: string): DisplayData | null;
         /**
          * - Get a specific animation data.
          * @param animationName - The animation animationName.
@@ -3674,9 +3675,6 @@ declare namespace dragonBones {
         protected _animationDisplayIndex: number;
         protected _cachedFrameIndex: number;
         protected readonly _localMatrix: Matrix;
-        _shapeData: ShapeData | null;
-        protected _mask: boolean;
-        protected _maskRange: number;
         protected _boundingBoxData: BoundingBoxData | null;
         protected _textureData: TextureData | null;
         protected _rawDisplay: any;
@@ -3696,7 +3694,6 @@ declare namespace dragonBones {
         protected abstract _replaceDisplay(value: any): void;
         protected abstract _removeDisplay(): void;
         protected abstract _updateZOrder(): void;
-        protected abstract _updateMask(): void;
         protected abstract _updateBlendMode(): void;
         protected abstract _updateColor(): void;
         protected abstract _updateFrame(): void;
@@ -5132,6 +5129,16 @@ declare namespace dragonBones {
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 declare namespace dragonBones {
+    class PathTimelineState extends MutilpleValueTimelineState {
+        static toString(): string;
+        displayFrame: DisplayFrame;
+        private _deformCount;
+        private _deformOffset;
+        private _sameValueOffset;
+        protected _onClear(): void;
+        init(armature: Armature, animationState: AnimationState, timelineData: TimelineData | null): void;
+        blend(isDirty: boolean): void;
+    }
     class ShapeTimelineState extends MutilpleValueTimelineState {
         static toString(): string;
         displayFrame: DisplayFrame;
@@ -5737,6 +5744,7 @@ declare namespace dragonBones {
         protected _skin: SkinData;
         protected _mesh: MeshDisplayData;
         protected _shape: ShapeDisplayData;
+        protected _path: PathDisplayData;
         protected _animation: AnimationData;
         protected _timeline: TimelineData;
         protected _rawTextureAtlases: Array<any> | null;
@@ -5805,6 +5813,7 @@ declare namespace dragonBones {
         protected _parseSlotDisplayFrame(rawData: any, frameStart: number, frameCount: number): number;
         protected _parseSlotColorFrame(rawData: any, frameStart: number, frameCount: number): number;
         protected _parseSlotDeformFrame(rawData: any, frameStart: number, frameCount: number): number;
+        protected _parseSlotPathFrame(rawData: any, frameStart: number, frameCount: number): number;
         protected _parseSlotShapeFrame(rawData: any, frameStart: number, frameCount: number): number;
         protected _parseIKConstraintFrame(rawData: any, frameStart: number, frameCount: number): number;
         protected _parsePathConstraintPositionFrame(rawData: any, frameStart: number, frameCount: number): number;

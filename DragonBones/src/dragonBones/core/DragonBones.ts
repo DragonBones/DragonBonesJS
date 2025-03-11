@@ -161,6 +161,7 @@ namespace dragonBones {
         SlotZIndex = 23,
         SlotAlpha = 24,
         SlotShape = 25,
+        SlotPath = 26,
 
         IKConstraint = 30,
         PathConstraintPosition = 31,

@@ -467,13 +467,13 @@ namespace dragonBones {
          /**
          * @private
          */
-         public getShape(skinName: string, slotName: string, shapeName: string): ShapeDisplayData | null {
+         public getDisplay(skinName: string, slotName: string, shapeName: string): DisplayData | null {
             const skin = this.getSkin(skinName);
             if (skin === null) {
                 return null;
             }
 
-            return skin.getDisplay(slotName, shapeName) as ShapeDisplayData | null;
+            return skin.getDisplay(slotName, shapeName) as DisplayData | null;
         }
         /**
          * - Get a specific animation data.

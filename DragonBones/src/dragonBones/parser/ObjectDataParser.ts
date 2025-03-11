@@ -101,6 +101,7 @@ namespace dragonBones {
         protected _skin: SkinData = null as any; //
         protected _mesh: MeshDisplayData = null as any; //
         protected _shape: ShapeDisplayData = null as any; //
+        protected _path: PathDisplayData = null as any; //
         protected _animation: AnimationData = null as any; //
         protected _timeline: TimelineData = null as any; //
         protected _rawTextureAtlases: Array<any> | null = null;
@@ -1104,19 +1105,34 @@ namespace dragonBones {
                     }
 
                     this._slot = this._armature.getSlot(slotName) as any;
-                    this._shape = this._armature.getShape(skinName, slotName, displayName) as any;
+                    this._shape = this._armature.getDisplay(skinName, slotName, displayName) as any;
                     if (this._slot === null || this._shape === null) {
                         continue;
                     }
-                    const timeline = this._parseTimeline(
-                        rawTimeline, null, DataParser.FRAME, TimelineType.SlotShape,
-                        FrameValueType.Float, 0,
-                        this._parseSlotShapeFrame
-                    );
-
-                    if (timeline !== null) {
-                        this._animation.addSlotTimeline(slotName, timeline);
+                    if (this._shape.type === DisplayType.Shape) {
+                        const timeline = this._parseTimeline(
+                            rawTimeline, null, DataParser.FRAME, TimelineType.SlotShape,
+                            FrameValueType.Float, 0,
+                            this._parseSlotShapeFrame
+                        );
+    
+                        if (timeline !== null) {
+                            this._animation.addSlotTimeline(slotName, timeline);
+                        }
                     }
+                    else if (this._shape.type === DisplayType.Path) {
+                        // 解析path的变形动画
+                        this._path = (this._shape  as any) as PathDisplayData;
+                        const timeline = this._parseTimeline(
+                            rawTimeline, null, DataParser.FRAME, TimelineType.SlotPath,
+                            FrameValueType.Float, 0,
+                            this._parseSlotPathFrame
+                        );
+                        if (timeline !== null) {
+                            this._animation.addSlotTimeline(slotName, timeline);
+                        }
+                    }
+                    
                     this._slot = null as any; //
                     this._shape = null as any; //
                 }
@@ -2098,6 +2114,94 @@ namespace dragonBones {
                 const frameIntOffset = this._frameIntArray.length;
                 this._frameIntArray.length += 1 + 1 + 1 + 1 + 1;
                 this._frameIntArray[frameIntOffset + BinaryOffset.DeformVertexOffset] = this._mesh.geometry.offset;
+                this._frameIntArray[frameIntOffset + BinaryOffset.DeformCount] = this._frameFloatArray.length - frameFloatOffset;
+                this._frameIntArray[frameIntOffset + BinaryOffset.DeformValueCount] = this._frameFloatArray.length - frameFloatOffset;
+                this._frameIntArray[frameIntOffset + BinaryOffset.DeformValueOffset] = 0;
+                this._frameIntArray[frameIntOffset + BinaryOffset.DeformFloatOffset] = frameFloatOffset - this._animation.frameFloatOffset;
+                this._timelineArray[this._timeline.offset + BinaryOffset.TimelineFrameValueCount] = frameIntOffset - this._animation.frameIntOffset;
+            }
+
+            return frameOffset;
+        }
+
+        protected _parseSlotPathFrame(rawData: any, frameStart: number, frameCount: number): number {
+            const frameFloatOffset = this._frameFloatArray.length;
+            const frameOffset = this._parseTweenFrame(rawData, frameStart, frameCount);
+            const rawVertices = DataParser.VERTICES in rawData ? rawData[DataParser.VERTICES] as Array<number> : null;
+            const offset = ObjectDataParser._getNumber(rawData, DataParser.OFFSET, 0); // uint
+            const vertexCount = this._intArray[this._path.geometry.offset + BinaryOffset.GeometryVertexCount];
+            const pathName = this._path.parent.name + "_" + this._slot.name + "_" + this._path.name;
+            const weight = this._path.geometry.weight;
+
+            let x = 0.0;
+            let y = 0.0;
+            let iB = 0;
+            let iV = 0;
+            if (weight !== null) {
+                // TODO: path可以被像mesh一样被骨骼绑定
+                const rawSlotPose = this._weightSlotPose[pathName];
+                this._helpMatrixA.copyFromArray(rawSlotPose, 0);
+                this._frameFloatArray.length += weight.count * 2;
+                iB = weight.offset + BinaryOffset.WeigthBoneIndices + weight.bones.length;
+            }
+            else {
+                this._frameFloatArray.length += vertexCount * 2;
+            }
+
+            for (
+                let i = 0;
+                i < vertexCount * 2;
+                i += 2
+            ) {
+                if (rawVertices === null) { // Fill 0.
+                    x = 0.0;
+                    y = 0.0;
+                }
+                else {
+                    if (i < offset || i - offset >= rawVertices.length) {
+                        x = 0.0;
+                    }
+                    else {
+                        x = rawVertices[i - offset];
+                    }
+
+                    if (i + 1 < offset || i + 1 - offset >= rawVertices.length) {
+                        y = 0.0;
+                    }
+                    else {
+                        y = rawVertices[i + 1 - offset];
+                    }
+                }
+
+                if (weight !== null) { // If path is skinned, transform point by bone bind pose.
+                    // TODO: path可以被像mesh一样被骨骼绑定
+                    const rawBonePoses = this._weightBonePoses[pathName];
+                    const vertexBoneCount = this._intArray[iB++];
+
+                    this._helpMatrixA.transformPoint(x, y, this._helpPoint, true);
+                    x = this._helpPoint.x;
+                    y = this._helpPoint.y;
+
+                    for (let j = 0; j < vertexBoneCount; ++j) {
+                        const boneIndex = this._intArray[iB++];
+                        this._helpMatrixB.copyFromArray(rawBonePoses, boneIndex * 7 + 1);
+                        this._helpMatrixB.invert();
+                        this._helpMatrixB.transformPoint(x, y, this._helpPoint, true);
+
+                        this._frameFloatArray[frameFloatOffset + iV++] = this._helpPoint.x;
+                        this._frameFloatArray[frameFloatOffset + iV++] = this._helpPoint.y;
+                    }
+                }
+                else {
+                    this._frameFloatArray[frameFloatOffset + i] = x;
+                    this._frameFloatArray[frameFloatOffset + i + 1] = y;
+                }
+            }
+
+            if (frameStart === 0) {
+                const frameIntOffset = this._frameIntArray.length;
+                this._frameIntArray.length += 1 + 1 + 1 + 1 + 1;
+                this._frameIntArray[frameIntOffset + BinaryOffset.DeformVertexOffset] = this._path.geometry.offset;
                 this._frameIntArray[frameIntOffset + BinaryOffset.DeformCount] = this._frameFloatArray.length - frameFloatOffset;
                 this._frameIntArray[frameIntOffset + BinaryOffset.DeformValueCount] = this._frameFloatArray.length - frameFloatOffset;
                 this._frameIntArray[frameIntOffset + BinaryOffset.DeformValueOffset] = 0;

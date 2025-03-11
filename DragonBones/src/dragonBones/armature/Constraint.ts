@@ -306,7 +306,7 @@ namespace dragonBones {
         private _compute(): void {
             if (this._target && this._root) {
                 const transformConstraintData = this._constraintData as TransformConstraintData;
-                const {offsetX, offsetY, offsetRotation, offsetScaleX, offsetScaleY, local, relative} = transformConstraintData;
+                const {offsetX, offsetY, offsetRotation, offsetScaleX, offsetScaleY, local} = transformConstraintData;
                 
                 const globalTransformMatrix = this._root.globalTransformMatrix;
                 if(local) {
@@ -778,7 +778,7 @@ namespace dragonBones {
             this._pathGlobalVertices.length = 0;
         }
 
-        protected _updatePathVertices(verticesData: GeometryData): void {
+        protected _updatePathVertices(verticesData: GeometryData, displayFrame: DisplayFrame | null): void {
             //计算曲线的节点数据
             const armature = this._armature;
             const dragonBonesData = armature.armatureData.parent;
@@ -799,22 +799,39 @@ namespace dragonBones {
                 parentBone.updateByConstraint();
 
                 const matrix = parentBone.globalTransformMatrix;
-
-                for (let i = 0, iV = pathVertexOffset; i < pathVertexCount * 2; i += 2) {
-                    const vx = floatArray[iV++] * scale;
-                    const vy = floatArray[iV++] * scale;
-
-                    const x = matrix.a * vx + matrix.c * vy + matrix.tx;
-                    const y = matrix.b * vx + matrix.d * vy + matrix.ty;
-
-                    //
-                    this._pathGlobalVertices[i] = x;
-                    this._pathGlobalVertices[i + 1] = y;
+                if (displayFrame && displayFrame.deformVertices) {
+                    // 有path形变动画
+                    const deformVertices = (displayFrame).deformVertices;
+                    for (let i = 0, iV = pathVertexOffset; i < pathVertexCount * 2; i += 2) {
+                        const vx = (floatArray[iV++] + deformVertices[i]) * scale;
+                        const vy = (floatArray[iV++] + deformVertices[i+1]) * scale;
+    
+                        const x = matrix.a * vx + matrix.c * vy + matrix.tx;
+                        const y = matrix.b * vx + matrix.d * vy + matrix.ty;
+    
+                        //
+                        this._pathGlobalVertices[i] = x;
+                        this._pathGlobalVertices[i + 1] = y;
+                    }
                 }
+                else {
+                    for (let i = 0, iV = pathVertexOffset; i < pathVertexCount * 2; i += 2) {
+                        const vx = floatArray[iV++] * scale;
+                        const vy = floatArray[iV++] * scale;
+    
+                        const x = matrix.a * vx + matrix.c * vy + matrix.tx;
+                        const y = matrix.b * vx + matrix.d * vy + matrix.ty;
+    
+                        //
+                        this._pathGlobalVertices[i] = x;
+                        this._pathGlobalVertices[i + 1] = y;
+                    }
+                }
+                
                 return;
             }
 
-            //有骨骼约束我,那我的节点受骨骼权重控制
+            // TODO: path 可以被骨骼绑定。有骨骼约束我,那我的节点受骨骼权重控制
             const bones = this._pathSlot._geometryBones;
             const weightBoneCount = weightData.bones.length;
 
@@ -1274,11 +1291,11 @@ namespace dragonBones {
             //曲线节点数据改变:父亲bone改变，权重bones改变，变形顶点改变
             let isPathVerticeDirty = false;
             if (this._root._childrenTransformDirty) {
-                this._updatePathVertices(pathSlot._geometryData);
+                this._updatePathVertices(pathSlot._geometryData, pathSlot._displayFrame);
                 isPathVerticeDirty = true;
             }
             else if (pathSlot._verticesDirty || pathSlot._isBonesUpdate()) {
-                this._updatePathVertices(pathSlot._geometryData);
+                this._updatePathVertices(pathSlot._geometryData, pathSlot._displayFrame);
                 pathSlot._verticesDirty = false;
                 isPathVerticeDirty = true;
             }
