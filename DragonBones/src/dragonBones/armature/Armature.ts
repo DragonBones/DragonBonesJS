@@ -78,6 +78,10 @@ namespace dragonBones {
         /**
          * @internal
          */
+        public _maskDirty: boolean;
+        /**
+         * @internal
+         */
         public _alphaDirty: boolean;
         private _flipX: boolean;
         private _flipY: boolean;
@@ -332,7 +336,7 @@ namespace dragonBones {
             // Sort slots.
             if (this._slotsDirty || this._zIndexDirty) {
                 this._slots.sort(Armature._onSortSlots);
-
+                this._maskDirty = true;
                 if (this._zIndexDirty) {
                     for (let i = 0, l = this._slots.length; i < l; ++i) {
                         this._slots[i]._setZOrder(i); // 
@@ -364,6 +368,16 @@ namespace dragonBones {
 
                 for (i = 0, l = this._slots.length; i < l; ++i) {
                     this._slots[i].update(this._cacheFrameIndex);
+                }
+            }
+            if (this._maskDirty) {
+                this._maskDirty = false;
+                let i = 0, l = 0;
+                for (i = 0, l = this._slots.length; i < l; ++i) {
+                    const slot = this._slots[i];
+                    if (slot._mask && slot._maskRange > 0) {
+                        slot._updateMask();
+                    }
                 }
             }
             // Do actions.

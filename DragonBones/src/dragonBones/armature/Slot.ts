@@ -285,9 +285,18 @@ namespace dragonBones {
          * @internal
          */
         public _geometryData: GeometryData | null;
+        /**
+         * @internal
+         */
         public _shapeData: ShapeData | null;
-        protected _mask:boolean;
-        protected _maskRange:number;
+        /**
+         * @internal
+         */
+        public _mask:boolean;
+        /**
+         * @internal
+         */
+        public _maskRange:number;
         protected _boundingBoxData: BoundingBoxData | null;
         protected _textureData: TextureData | null;
         protected _rawDisplay: any = null; // Initial value.
@@ -387,7 +396,10 @@ namespace dragonBones {
         protected abstract _replaceDisplay(value: any): void;
         protected abstract _removeDisplay(): void;
         protected abstract _updateZOrder(): void;
-        protected abstract _updateMask(): void;
+        /**
+         * @internal
+         */
+        public abstract _updateMask(): void;
         /**
          * @internal
          */

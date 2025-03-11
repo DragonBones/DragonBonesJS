@@ -255,9 +255,6 @@ namespace dragonBones {
                                 normalDisplay.texture = texture;
                                 normalDisplay.filters = [];
                             }
-                            if(this._maskRange > 0) {
-                                this._updateMask();
-                            }
                         }
                     }
 
@@ -439,10 +436,9 @@ namespace dragonBones {
                 }
                 
             }
-            this._updateMask();
         }
 
-        protected _updateMask() {
+        public _updateMask() {
             if(this._mask && this._maskRange > 0) {
                 const container = this._armature.display as PixiArmatureDisplay;
                 // clear mask

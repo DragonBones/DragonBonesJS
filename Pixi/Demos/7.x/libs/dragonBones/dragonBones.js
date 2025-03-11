@@ -3631,6 +3631,7 @@ var dragonBones;
             // Sort slots.
             if (this._slotsDirty || this._zIndexDirty) {
                 this._slots.sort(Armature._onSortSlots);
+                this._maskDirty = true;
                 if (this._zIndexDirty) {
                     for (let i = 0, l = this._slots.length; i < l; ++i) {
                         this._slots[i]._setZOrder(i); // 
@@ -3658,6 +3659,16 @@ var dragonBones;
                 }
                 for (i = 0, l = this._slots.length; i < l; ++i) {
                     this._slots[i].update(this._cacheFrameIndex);
+                }
+            }
+            if (this._maskDirty) {
+                this._maskDirty = false;
+                let i = 0, l = 0;
+                for (i = 0, l = this._slots.length; i < l; ++i) {
+                    const slot = this._slots[i];
+                    if (slot._mask && slot._maskRange > 0) {
+                        slot._updateMask();
+                    }
                 }
             }
             // Do actions.
@@ -16392,9 +16403,6 @@ var dragonBones;
                                 normalDisplay.texture = texture;
                                 normalDisplay.filters = [];
                             }
-                            if (this._maskRange > 0) {
-                                this._updateMask();
-                            }
                         }
                     }
                     this._visibleDirty = true;
@@ -16543,7 +16551,6 @@ var dragonBones;
                     shapeDisplay.endFill();
                 }
             }
-            this._updateMask();
         }
         _updateMask() {
             if (this._mask && this._maskRange > 0) {
