@@ -24,6 +24,7 @@ class DebugDragonBones extends BaseDemo {
         this.transformConstraint = false;
         this.physics             = false;
         this.vine                = true;
+        this.test                = false;
         if (this.mask) {
             this._resources.push("resource/debug/dragonbones-mask.json");
             this._resources.push("resource/debug/dragonbones-mask_tex.json");
@@ -39,6 +40,11 @@ class DebugDragonBones extends BaseDemo {
             this._resources.push("resource/debug/vine.json");
             this._resources.push("resource/debug/vine_tex.json");
             this._resources.push("resource/debug/vine_tex.png");
+        }
+        if (this.test) {
+            this._resources.push("resource/debug/test.json");
+            this._resources.push("resource/debug/test_tex.json");
+            this._resources.push("resource/debug/test_tex.png");
         }
     }
     _onStart() {
@@ -61,7 +67,7 @@ class DebugDragonBones extends BaseDemo {
             // factory.parseTextureAtlasData(this._pixiResources["resource/debug/dragonbones-mask_tex.json"], 
             //                               this._pixiResources["resource/debug/dragonbones-mask_tex.png"]);
             factory.pixiApp = this;
-            const armatureDisplay = factory.buildArmatureDisplay("armature1");
+            const armatureDisplay = factory.buildArmatureDisplay("newArmature");
             armatureDisplay.debugDraw = true;
             armatureDisplay.animation.play("newAnimation", 1);
             armatureDisplay.x = -200.0;
@@ -83,12 +89,26 @@ class DebugDragonBones extends BaseDemo {
             this.addChild(armatureDisplay);  
         }
         if (this.vine) {
-            console.log('aaaaa', )
+            console.log('vine', )
             factory.parseDragonBonesData(this._pixiResources["resource/debug/vine.json"]);
             factory.parseTextureAtlasData(this._pixiResources["resource/debug/vine_tex.json"], 
                                           this._pixiResources["resource/debug/vine_tex.png"]);
             factory.pixiApp = this;
             const armatureDisplay = factory.buildArmatureDisplay("vine");
+            armatureDisplay.debugDraw = true;
+            armatureDisplay.animation.play("newAnimation", 1);
+            armatureDisplay.x = -200.0;
+            armatureDisplay.y = 200.0;
+            armatureDisplay.scale.set(0.3);
+            this.addChild(armatureDisplay);
+        }
+        if (this.test) {
+            console.log('test', )
+            factory.parseDragonBonesData(this._pixiResources["resource/debug/test.json"]);
+            factory.parseTextureAtlasData(this._pixiResources["resource/debug/test_tex.json"], 
+                                          this._pixiResources["resource/debug/test_tex.png"]);
+            factory.pixiApp = this;
+            const armatureDisplay = factory.buildArmatureDisplay("newArmature");
             armatureDisplay.debugDraw = true;
             armatureDisplay.animation.play("newAnimation", 1);
             armatureDisplay.x = -200.0;

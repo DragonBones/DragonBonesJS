@@ -799,7 +799,7 @@ namespace dragonBones {
                 parentBone.updateByConstraint();
 
                 const matrix = parentBone.globalTransformMatrix;
-                if (displayFrame && displayFrame.deformVertices) {
+                if (displayFrame && displayFrame.deformVertices && displayFrame.deformVertices.length === pathVertexCount * 2) {
                     // 有path形变动画
                     const deformVertices = (displayFrame).deformVertices;
                     for (let i = 0, iV = pathVertexOffset; i < pathVertexCount * 2; i += 2) {

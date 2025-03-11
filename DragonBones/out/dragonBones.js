@@ -7598,7 +7598,7 @@ var dragonBones;
                 var parentBone = this._pathSlot.parent;
                 parentBone.updateByConstraint();
                 var matrix = parentBone.globalTransformMatrix;
-                if (displayFrame && displayFrame.deformVertices) {
+                if (displayFrame && displayFrame.deformVertices && displayFrame.deformVertices.length === pathVertexCount * 2) {
                     // 有path形变动画
                     var deformVertices = (displayFrame).deformVertices;
                     for (var i = 0, iV_1 = pathVertexOffset; i < pathVertexCount * 2; i += 2) {
