@@ -6858,6 +6858,7 @@ var dragonBones;
             return false;
         }
         update() {
+            console.log('physics update', this._sleeping);
             if (this._sleeping) {
                 return;
             }
@@ -6892,7 +6893,7 @@ var dragonBones;
                     }
                     else {
                         // console.log('physics update', delta, this._sleeping)
-                        const armatureReferenceScale = 1;
+                        const armatureReferenceScale = 100;
                         const armatureScaleX = 1;
                         const armatureScaleY = 1;
                         const armatureYDown = dragonBones.DragonBones.yDown;
@@ -6931,7 +6932,7 @@ var dragonBones;
                                         this._xVelocity *= damping;
                                     }
                                     if (hasY) {
-                                        this._yVelocity -= (g + this._yOffset * this._strength) * this._massInverse * this._fpsTime;
+                                        this._yVelocity += (g + this._yOffset * this._strength) * this._massInverse * this._fpsTime;
                                         this._yOffset += this._yVelocity * this._fpsTime;
                                         this._yVelocity *= damping;
                                     }
@@ -6940,22 +6941,22 @@ var dragonBones;
                             }
                             if (hasX) {
                                 // 偏移要乘以物理的权重，再乘以x的权重
-                                if (Math.abs(this._xOffset) > physicsData.limit) {
+                                let offsetX = this._xOffset * this._weight * physicsData.x;
+                                if (Math.abs(offsetX) > physicsData.limit) {
                                     // 防止过大
-                                    this._xOffset = this._xOffset > 0 ? physicsData.limit : -physicsData.limit;
+                                    offsetX = offsetX > 0 ? physicsData.limit : -physicsData.limit;
                                 }
-                                const offsetX = this._xOffset * this._weight * physicsData.x;
                                 bone.global.x += offsetX;
                                 if (!this.isNumberEqual(offsetX, 0)) {
                                     this._sleeping = false;
                                 }
                             }
                             if (hasY) {
-                                if (Math.abs(this._yOffset) > physicsData.limit) {
+                                let offsetY = this._yOffset * this._weight * physicsData.y;
+                                if (Math.abs(offsetY) > physicsData.limit) {
                                     // 防止过大
-                                    this._yOffset = this._yOffset > 0 ? physicsData.limit : -physicsData.limit;
+                                    offsetY = offsetY > 0 ? physicsData.limit : -physicsData.limit;
                                 }
-                                const offsetY = this._yOffset * this._weight * physicsData.y;
                                 bone.global.y += offsetY;
                                 if (!this.isNumberEqual(offsetY, 0)) {
                                     this._sleeping = false;
@@ -7015,7 +7016,7 @@ var dragonBones;
                                 const mass = this._massInverse * this._fpsTime;
                                 const strength = this._strength;
                                 const wind = this._wind;
-                                const gravity = (armatureYDown ? -this._gravity : this._gravity);
+                                const gravity = (armatureYDown ? this._gravity : -this._gravity);
                                 const boneLen = boneLength / armatureScale;
                                 while (true) {
                                     remaining -= this._fpsTime;

@@ -22,9 +22,10 @@ class DebugDragonBones extends BaseDemo {
         super();
         this.mask                = false;
         this.transformConstraint = false;
-        this.physics             = false;
-        this.vine                = true;
+        this.physics             = true;
+        this.vine                = false;
         this.test                = false;
+        this.coin                = false;
         if (this.mask) {
             this._resources.push("resource/debug/dragonbones-mask.json");
             this._resources.push("resource/debug/dragonbones-mask_tex.json");
@@ -45,6 +46,11 @@ class DebugDragonBones extends BaseDemo {
             this._resources.push("resource/debug/test.json");
             this._resources.push("resource/debug/test_tex.json");
             this._resources.push("resource/debug/test_tex.png");
+        }
+        if (this.coin) {
+            this._resources.push("resource/debug/coin.json");
+            this._resources.push("resource/debug/coin_tex.json");
+            this._resources.push("resource/debug/coin_tex.png");
         }
     }
     _onStart() {
@@ -109,6 +115,20 @@ class DebugDragonBones extends BaseDemo {
                                           this._pixiResources["resource/debug/test_tex.png"]);
             factory.pixiApp = this;
             const armatureDisplay = factory.buildArmatureDisplay("newArmature");
+            armatureDisplay.debugDraw = true;
+            armatureDisplay.animation.play("newAnimation", 1);
+            armatureDisplay.x = -200.0;
+            armatureDisplay.y = 200.0;
+            armatureDisplay.scale.set(0.3);
+            this.addChild(armatureDisplay);
+        }
+        if (this.coin) {
+            console.log('coin', )
+            factory.parseDragonBonesData(this._pixiResources["resource/debug/coin.json"]);
+            factory.parseTextureAtlasData(this._pixiResources["resource/debug/coin_tex.json"], 
+                                          this._pixiResources["resource/debug/coin_tex.png"]);
+            factory.pixiApp = this;
+            const armatureDisplay = factory.buildArmatureDisplay("coin");
             armatureDisplay.debugDraw = true;
             armatureDisplay.animation.play("newAnimation", 1);
             armatureDisplay.x = -200.0;
