@@ -278,7 +278,8 @@ declare namespace dragonBones {
     const enum RotateMode {
         Tangent = 0,
         Chain = 1,
-        ChainScale = 2
+        ChainScale = 2,
+        Snip = 3
     }
     /**
      * @private

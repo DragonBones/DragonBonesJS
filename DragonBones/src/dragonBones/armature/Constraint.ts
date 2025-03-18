@@ -415,8 +415,7 @@ namespace dragonBones {
         private _cy: number = 0;
         private _tx: number = 0;
         private _ty: number = 0;
-        private PI = 3.1415927;
-        private PI2 = this.PI * 2;
+        private PI2 = Transform.PI_D;
         private PI1_2 = 1 / this.PI2;
         protected _onClear(): void {
             super._onClear();

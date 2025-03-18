@@ -276,6 +276,8 @@ namespace dragonBones {
                 case RotateMode.ChainScale:
                     return RotateMode.ChainScale;
 
+                case RotateMode.Snip:
+                    return RotateMode.Snip;
                 default:
                     return RotateMode.Tangent;
             }

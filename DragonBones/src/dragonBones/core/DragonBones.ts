@@ -288,7 +288,8 @@ namespace dragonBones {
     export const enum RotateMode {
         Tangent,
         Chain,
-        ChainScale
+        ChainScale,
+        Snip
     }
     /**
      * @private

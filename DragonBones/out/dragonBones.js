@@ -7236,8 +7236,7 @@ var dragonBones;
             _this._cy = 0;
             _this._tx = 0;
             _this._ty = 0;
-            _this.PI = 3.1415927;
-            _this.PI2 = _this.PI * 2;
+            _this.PI2 = dragonBones.Transform.PI_D;
             _this.PI1_2 = 1 / _this.PI2;
             return _this;
         }
@@ -12816,6 +12815,8 @@ var dragonBones;
                     return 1 /* Chain */;
                 case 2 /* ChainScale */:
                     return 2 /* ChainScale */;
+                case 3 /* Snip */:
+                    return 3 /* Snip */;
                 default:
                     return 0 /* Tangent */;
             }
