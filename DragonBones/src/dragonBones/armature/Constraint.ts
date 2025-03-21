@@ -376,6 +376,13 @@ namespace dragonBones {
          * @internal
          */
         public _wind: number;
+
+        /**
+         * - For timeline state.
+         * @internal
+         */
+        public _windDisturbance: number;
+
         /**
          * - For timeline state.
          * @internal
@@ -440,6 +447,7 @@ namespace dragonBones {
             this._damping = physicsData.damping;
             this._mass = physicsData.mass;
             this._wind = physicsData.wind;
+            this._windDisturbance = physicsData.windDisturbance || 0;
             this._gravity = physicsData.gravity;
             this._weight = physicsData.weight;
 
@@ -468,6 +476,7 @@ namespace dragonBones {
                 const hasRotate = physicsData.rotate > 0 || physicsData.shearX > 0;
                 const hasScaleX = physicsData.scaleX > 0;
                 const boneLength = bone.boneData.length;
+                const windDisturbance = (Math.random() * 2 - 1) * this._windDisturbance;
                 if(this._reset) {
                     this.reset();
                     this._reset = false;
@@ -520,7 +529,7 @@ namespace dragonBones {
                             }
                             if (remaining >= this._fpsTime) {
                                 damping = this._dump;
-                                const w = this._wind * armatureScale * armatureScaleX;
+                                const w = (this._wind + windDisturbance) * armatureScale * armatureScaleX;
                                 const g = this._gravity * armatureScale * armatureScaleY;
                                 do {
                                     //物理fps
@@ -616,7 +625,7 @@ namespace dragonBones {
                                 }
                                 const mass = this._massInverse * this._fpsTime;
                                 const strength = this._strength;
-                                const wind = this._wind;
+                                const wind = this._wind + windDisturbance;
                                 const gravity = (armatureYDown ? this._gravity : -this._gravity);
                                 const boneLen = boneLength / armatureScale;
                                 while (true) {

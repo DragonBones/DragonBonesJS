@@ -5682,6 +5682,7 @@ declare namespace dragonBones {
         protected static readonly DAMPING: string;
         protected static readonly MASS: string;
         protected static readonly WIND: string;
+        protected static readonly WIND_DISTURBANCE: string;
         protected static readonly GRAVITY: string;
         protected static _getArmatureType(value: string): ArmatureType;
         protected static _getBoneType(value: string): BoneType;

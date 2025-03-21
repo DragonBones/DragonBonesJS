@@ -1952,6 +1952,7 @@ var dragonBones;
             this.damping = 0;
             this.mass = 0;
             this.wind = 0;
+            this.windDisturbance = 0;
             this.gravity = 0;
             this.weight = 0;
             this.type = 3 /* Physics */;
@@ -7263,6 +7264,7 @@ var dragonBones;
             this._damping = physicsData.damping;
             this._mass = physicsData.mass;
             this._wind = physicsData.wind;
+            this._windDisturbance = physicsData.windDisturbance || 0;
             this._gravity = physicsData.gravity;
             this._weight = physicsData.weight;
             this._fpsTime = 1 / physicsData.fps;
@@ -7289,6 +7291,7 @@ var dragonBones;
                 var hasRotate = physicsData.rotate > 0 || physicsData.shearX > 0;
                 var hasScaleX = physicsData.scaleX > 0;
                 var boneLength = bone.boneData.length;
+                var windDisturbance = (Math.random() * 2 - 1) * this._windDisturbance;
                 if (this._reset) {
                     this.reset();
                     this._reset = false;
@@ -7338,7 +7341,7 @@ var dragonBones;
                             }
                             if (remaining >= this._fpsTime) {
                                 damping = this._dump;
-                                var w = this._wind * armatureScale * armatureScaleX;
+                                var w = (this._wind + windDisturbance) * armatureScale * armatureScaleX;
                                 var g = this._gravity * armatureScale * armatureScaleY;
                                 do {
                                     //物理fps
@@ -7434,7 +7437,7 @@ var dragonBones;
                                 }
                                 var mass = this._massInverse * this._fpsTime;
                                 var strength = this._strength;
-                                var wind = this._wind;
+                                var wind = this._wind + windDisturbance;
                                 var gravity = (armatureYDown ? this._gravity : -this._gravity);
                                 var boneLen = boneLength / armatureScale;
                                 while (true) {
@@ -13070,6 +13073,7 @@ var dragonBones;
         DataParser.DAMPING = "damping";
         DataParser.MASS = "mass";
         DataParser.WIND = "wind";
+        DataParser.WIND_DISTURBANCE = "windDisturbance";
         DataParser.GRAVITY = "gravity";
         return DataParser;
     }());
@@ -13635,6 +13639,7 @@ var dragonBones;
             constraint.damping = ObjectDataParser._getNumber(rawData, dragonBones.DataParser.DAMPING, 0.0);
             constraint.mass = ObjectDataParser._getNumber(rawData, dragonBones.DataParser.MASS, 0.0);
             constraint.wind = ObjectDataParser._getNumber(rawData, dragonBones.DataParser.WIND, 0.0);
+            constraint.windDisturbance = ObjectDataParser._getNumber(rawData, dragonBones.DataParser.WIND_DISTURBANCE, 0.0);
             constraint.gravity = ObjectDataParser._getNumber(rawData, dragonBones.DataParser.GRAVITY, 0.0);
             constraint.weight = ObjectDataParser._getNumber(rawData, dragonBones.DataParser.WEIGHT, 0.0);
             return constraint;

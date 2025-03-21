@@ -205,6 +205,7 @@ namespace dragonBones {
         protected static readonly DAMPING: string = "damping";
         protected static readonly MASS: string = "mass";
         protected static readonly WIND: string = "wind";
+        protected static readonly WIND_DISTURBANCE: string = "windDisturbance";
         protected static readonly GRAVITY: string = "gravity";
 
         protected static _getArmatureType(value: string): ArmatureType {

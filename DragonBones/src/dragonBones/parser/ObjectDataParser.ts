@@ -628,6 +628,7 @@ namespace dragonBones {
             constraint.damping = ObjectDataParser._getNumber(rawData, DataParser.DAMPING, 0.0);
             constraint.mass = ObjectDataParser._getNumber(rawData, DataParser.MASS, 0.0);
             constraint.wind = ObjectDataParser._getNumber(rawData, DataParser.WIND, 0.0);
+            constraint.windDisturbance = ObjectDataParser._getNumber(rawData, DataParser.WIND_DISTURBANCE, 0.0);
             constraint.gravity = ObjectDataParser._getNumber(rawData, DataParser.GRAVITY, 0.0);
             constraint.weight = ObjectDataParser._getNumber(rawData, DataParser.WEIGHT, 0.0);
 

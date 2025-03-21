@@ -122,6 +122,7 @@ namespace dragonBones {
         public damping: number;
         public mass: number; 
         public wind: number;
+        public windDisturbance: number;
         public gravity: number;
         public weight: number;
 
@@ -140,6 +141,7 @@ namespace dragonBones {
             this.damping = 0;
             this.mass = 0;
             this.wind = 0;
+            this.windDisturbance = 0;
             this.gravity = 0;
             this.weight = 0;
             this.type = ConstraintType.Physics;
