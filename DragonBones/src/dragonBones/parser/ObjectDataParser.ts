@@ -875,6 +875,14 @@ namespace dragonBones {
 
         protected _parsePath(rawData: any, display: PathDisplayData) {
             this._parseGeometry(rawData, display.geometry);
+
+            if (DataParser.WEIGHTS in rawData) { // Cache pose data.
+                const rawSlotPose = rawData[DataParser.SLOT_POSE] as Array<number>;
+                const rawBonePoses = rawData[DataParser.BONE_POSE] as Array<number>;
+                const pathName = this._skin.name + "_" + this._slot.name + "_" + display.name;
+                this._weightSlotPose[pathName] = rawSlotPose;
+                this._weightBonePoses[pathName] = rawBonePoses;
+            }
         }
 
         protected _parsePivot(rawData: any, display: ImageDisplayData): void {
@@ -2585,6 +2593,7 @@ namespace dragonBones {
                     const rawBonePoses = rawData[DataParser.BONE_POSE] as Array<number>;
                     const weightBoneIndices = new Array<number>();
 
+                    // 7 表示 7个数表示一个骨骼的pose， 0是骨骼索引， 1-6是matrix
                     weightBoneCount = Math.floor(rawBonePoses.length / 7); // uint
                     weightBoneIndices.length = weightBoneCount;
 
@@ -2613,6 +2622,7 @@ namespace dragonBones {
                         x = this._helpPoint.x;
                         y = this._helpPoint.y;
 
+                        // 把一个点分解成绑定骨骼的数量个点，每个点有一个骨骼和一个权重
                         for (let j = 0; j < vertexBoneCount; ++j) {
                             const rawBoneIndex = rawWeights[iW++]; // uint
                             const boneIndex = weightBoneIndices.indexOf(rawBoneIndex);
@@ -2627,6 +2637,7 @@ namespace dragonBones {
                     }
                 }
                 else {
+                    // 没有bonePose，只有bones
                     const rawBones = rawData[DataParser.BONES] as Array<number>;
                     weightBoneCount = rawBones.length;
 

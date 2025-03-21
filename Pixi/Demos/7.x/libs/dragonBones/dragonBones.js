@@ -1851,6 +1851,7 @@ var dragonBones;
             this.damping = 0;
             this.mass = 0;
             this.wind = 0;
+            this.windDisturbance = 0;
             this.gravity = 0;
             this.weight = 0;
             this.type = 3 /* Physics */;
@@ -6817,8 +6818,7 @@ var dragonBones;
             this._cy = 0;
             this._tx = 0;
             this._ty = 0;
-            this.PI = 3.1415927;
-            this.PI2 = this.PI * 2;
+            this.PI2 = dragonBones.Transform.PI_D;
             this.PI1_2 = 1 / this.PI2;
         }
         static toString() {
@@ -6844,6 +6844,7 @@ var dragonBones;
             this._damping = physicsData.damping;
             this._mass = physicsData.mass;
             this._wind = physicsData.wind;
+            this._windDisturbance = physicsData.windDisturbance || 0;
             this._gravity = physicsData.gravity;
             this._weight = physicsData.weight;
             this._fpsTime = 1 / physicsData.fps;
@@ -6858,7 +6859,6 @@ var dragonBones;
             return false;
         }
         update() {
-            console.log('physics update', this._sleeping);
             if (this._sleeping) {
                 return;
             }
@@ -6870,6 +6870,7 @@ var dragonBones;
                 const hasRotate = physicsData.rotate > 0 || physicsData.shearX > 0;
                 const hasScaleX = physicsData.scaleX > 0;
                 const boneLength = bone.boneData.length;
+                const windDisturbance = (Math.random() * 2 - 1) * this._windDisturbance;
                 if (this._reset) {
                     this.reset();
                     this._reset = false;
@@ -6919,7 +6920,7 @@ var dragonBones;
                             }
                             if (remaining >= this._fpsTime) {
                                 damping = this._dump;
-                                const w = this._wind * armatureScale * armatureScaleX;
+                                const w = (this._wind + windDisturbance) * armatureScale * armatureScaleX;
                                 const g = this._gravity * armatureScale * armatureScaleY;
                                 do {
                                     //物理fps
@@ -7015,7 +7016,7 @@ var dragonBones;
                                 }
                                 const mass = this._massInverse * this._fpsTime;
                                 const strength = this._strength;
-                                const wind = this._wind;
+                                const wind = this._wind + windDisturbance;
                                 const gravity = (armatureYDown ? this._gravity : -this._gravity);
                                 const boneLen = boneLength / armatureScale;
                                 while (true) {
@@ -7201,32 +7202,41 @@ var dragonBones;
                 }
                 return;
             }
-            // TODO: path 可以被骨骼绑定。有骨骼约束我,那我的节点受骨骼权重控制
-            const bones = this._pathSlot._geometryBones;
-            const weightBoneCount = weightData.bones.length;
-            const weightOffset = weightData.offset;
-            const floatOffset = intArray[weightOffset + 1 /* WeigthFloatOffset */];
-            let iV = floatOffset;
-            let iB = weightOffset + 2 /* WeigthBoneIndices */ + weightBoneCount;
-            for (let i = 0, iW = 0; i < pathVertexCount; i++) {
-                const vertexBoneCount = intArray[iB++]; //
-                let xG = 0.0, yG = 0.0;
-                for (let ii = 0, ll = vertexBoneCount; ii < ll; ii++) {
-                    const boneIndex = intArray[iB++];
-                    const bone = bones[boneIndex];
-                    if (bone === null) {
-                        continue;
+            else {
+                // TODO: path 可以被骨骼绑定。有骨骼约束我,那我的节点受骨骼权重控制
+                const bones = this._pathSlot._geometryBones;
+                const weightBoneCount = weightData.bones.length;
+                const deformVertices = displayFrame && displayFrame.deformVertices;
+                const hasDeform = deformVertices && deformVertices.length > 0;
+                const weightOffset = weightData.offset;
+                const floatOffset = intArray[weightOffset + 1 /* WeigthFloatOffset */];
+                let iV = floatOffset;
+                let iB = weightOffset + 2 /* WeigthBoneIndices */ + weightBoneCount;
+                let iF = 0;
+                for (let i = 0, iW = 0; i < pathVertexCount; i++) {
+                    const vertexBoneCount = intArray[iB++]; //
+                    let xG = 0.0, yG = 0.0;
+                    for (let ii = 0, ll = vertexBoneCount; ii < ll; ii++) {
+                        const boneIndex = intArray[iB++];
+                        const bone = bones[boneIndex];
+                        if (bone === null) {
+                            continue;
+                        }
+                        bone.updateByConstraint();
+                        const matrix = bone.globalTransformMatrix;
+                        const weight = floatArray[iV++];
+                        let vx = floatArray[iV++] * scale;
+                        let vy = floatArray[iV++] * scale;
+                        if (hasDeform) {
+                            vx += deformVertices[iF++];
+                            vy += deformVertices[iF++];
+                        }
+                        xG += (matrix.a * vx + matrix.c * vy + matrix.tx) * weight;
+                        yG += (matrix.b * vx + matrix.d * vy + matrix.ty) * weight;
                     }
-                    bone.updateByConstraint();
-                    const matrix = bone.globalTransformMatrix;
-                    const weight = floatArray[iV++];
-                    const vx = floatArray[iV++] * scale;
-                    const vy = floatArray[iV++] * scale;
-                    xG += (matrix.a * vx + matrix.c * vy + matrix.tx) * weight;
-                    yG += (matrix.b * vx + matrix.d * vy + matrix.ty) * weight;
+                    this._pathGlobalVertices[iW++] = xG;
+                    this._pathGlobalVertices[iW++] = yG;
                 }
-                this._pathGlobalVertices[iW++] = xG;
-                this._pathGlobalVertices[iW++] = yG;
             }
         }
         _computeVertices(start, count, offset, out) {
@@ -12103,6 +12113,8 @@ var dragonBones;
                     return 1 /* Chain */;
                 case 2 /* ChainScale */:
                     return 2 /* ChainScale */;
+                case 3 /* Snip */:
+                    return 3 /* Snip */;
                 default:
                     return 0 /* Tangent */;
             }
@@ -12357,6 +12369,7 @@ var dragonBones;
     DataParser.DAMPING = "damping";
     DataParser.MASS = "mass";
     DataParser.WIND = "wind";
+    DataParser.WIND_DISTURBANCE = "windDisturbance";
     DataParser.GRAVITY = "gravity";
     dragonBones.DataParser = DataParser;
 })(dragonBones || (dragonBones = {}));
@@ -12904,6 +12917,7 @@ var dragonBones;
             constraint.damping = ObjectDataParser._getNumber(rawData, dragonBones.DataParser.DAMPING, 0.0);
             constraint.mass = ObjectDataParser._getNumber(rawData, dragonBones.DataParser.MASS, 0.0);
             constraint.wind = ObjectDataParser._getNumber(rawData, dragonBones.DataParser.WIND, 0.0);
+            constraint.windDisturbance = ObjectDataParser._getNumber(rawData, dragonBones.DataParser.WIND_DISTURBANCE, 0.0);
             constraint.gravity = ObjectDataParser._getNumber(rawData, dragonBones.DataParser.GRAVITY, 0.0);
             constraint.weight = ObjectDataParser._getNumber(rawData, dragonBones.DataParser.WEIGHT, 0.0);
             return constraint;
@@ -13113,6 +13127,13 @@ var dragonBones;
         }
         _parsePath(rawData, display) {
             this._parseGeometry(rawData, display.geometry);
+            if (dragonBones.DataParser.WEIGHTS in rawData) { // Cache pose data.
+                const rawSlotPose = rawData[dragonBones.DataParser.SLOT_POSE];
+                const rawBonePoses = rawData[dragonBones.DataParser.BONE_POSE];
+                const pathName = this._skin.name + "_" + this._slot.name + "_" + display.name;
+                this._weightSlotPose[pathName] = rawSlotPose;
+                this._weightBonePoses[pathName] = rawBonePoses;
+            }
         }
         _parsePivot(rawData, display) {
             if (dragonBones.DataParser.PIVOT in rawData) {
@@ -14467,6 +14488,7 @@ var dragonBones;
                     const rawSlotPose = rawData[dragonBones.DataParser.SLOT_POSE];
                     const rawBonePoses = rawData[dragonBones.DataParser.BONE_POSE];
                     const weightBoneIndices = new Array();
+                    // 7 表示 7个数表示一个骨骼的pose， 0是骨骼索引， 1-6是matrix
                     weightBoneCount = Math.floor(rawBonePoses.length / 7); // uint
                     weightBoneIndices.length = weightBoneCount;
                     for (let i = 0; i < weightBoneCount; ++i) {
@@ -14486,6 +14508,7 @@ var dragonBones;
                         this._helpMatrixA.transformPoint(x, y, this._helpPoint);
                         x = this._helpPoint.x;
                         y = this._helpPoint.y;
+                        // 把一个点分解成绑定骨骼的数量个点，每个点有一个骨骼和一个权重
                         for (let j = 0; j < vertexBoneCount; ++j) {
                             const rawBoneIndex = rawWeights[iW++]; // uint
                             const boneIndex = weightBoneIndices.indexOf(rawBoneIndex);
@@ -14500,6 +14523,7 @@ var dragonBones;
                     }
                 }
                 else {
+                    // 没有bonePose，只有bones
                     const rawBones = rawData[dragonBones.DataParser.BONES];
                     weightBoneCount = rawBones.length;
                     for (let i = 0; i < weightBoneCount; i++) {

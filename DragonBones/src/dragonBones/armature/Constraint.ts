@@ -839,40 +839,48 @@ namespace dragonBones {
                 
                 return;
             }
+            else {
+                // TODO: path 可以被骨骼绑定。有骨骼约束我,那我的节点受骨骼权重控制
+                const bones = this._pathSlot._geometryBones;
+                const weightBoneCount = weightData.bones.length;
+                const deformVertices = displayFrame && displayFrame.deformVertices;
+                const hasDeform = deformVertices && deformVertices.length > 0;
+                const weightOffset = weightData.offset;
+                const floatOffset = intArray[weightOffset + BinaryOffset.WeigthFloatOffset];
 
-            // TODO: path 可以被骨骼绑定。有骨骼约束我,那我的节点受骨骼权重控制
-            const bones = this._pathSlot._geometryBones;
-            const weightBoneCount = weightData.bones.length;
+                let iV = floatOffset;
+                let iB = weightOffset + BinaryOffset.WeigthBoneIndices + weightBoneCount;
+                let iF = 0;
+                for (let i = 0, iW = 0; i < pathVertexCount; i++) {
+                    const vertexBoneCount = intArray[iB++]; //
 
-            const weightOffset = weightData.offset;
-            const floatOffset = intArray[weightOffset + BinaryOffset.WeigthFloatOffset];
+                    let xG = 0.0, yG = 0.0;
+                    for (let ii = 0, ll = vertexBoneCount; ii < ll; ii++) {
+                        const boneIndex = intArray[iB++];
+                        const bone = bones[boneIndex];
+                        if (bone === null) {
+                            continue;
+                        }
 
-            let iV = floatOffset;
-            let iB = weightOffset + BinaryOffset.WeigthBoneIndices + weightBoneCount;
-
-            for (let i = 0, iW = 0; i < pathVertexCount; i++) {
-                const vertexBoneCount = intArray[iB++]; //
-
-                let xG = 0.0, yG = 0.0;
-                for (let ii = 0, ll = vertexBoneCount; ii < ll; ii++) {
-                    const boneIndex = intArray[iB++];
-                    const bone = bones[boneIndex];
-                    if (bone === null) {
-                        continue;
+                        bone.updateByConstraint();
+                        const matrix = bone.globalTransformMatrix;
+                        const weight = floatArray[iV++];
+                        let vx = floatArray[iV++] * scale;
+                        let vy = floatArray[iV++] * scale;
+                        if (hasDeform) {
+                            vx += deformVertices[iF++];
+                            vy += deformVertices[iF++];
+                        }
+                        xG += (matrix.a * vx + matrix.c * vy + matrix.tx) * weight;
+                        yG += (matrix.b * vx + matrix.d * vy + matrix.ty) * weight;
                     }
-
-                    bone.updateByConstraint();
-                    const matrix = bone.globalTransformMatrix;
-                    const weight = floatArray[iV++];
-                    const vx = floatArray[iV++] * scale;
-                    const vy = floatArray[iV++] * scale;
-                    xG += (matrix.a * vx + matrix.c * vy + matrix.tx) * weight;
-                    yG += (matrix.b * vx + matrix.d * vy + matrix.ty) * weight;
+                    
+                    this._pathGlobalVertices[iW++] = xG;
+                    this._pathGlobalVertices[iW++] = yG;
                 }
-
-                this._pathGlobalVertices[iW++] = xG;
-                this._pathGlobalVertices[iW++] = yG;
             }
+
+            
         }
 
         protected _computeVertices(start: number, count: number, offset: number, out: Array<number>): void {

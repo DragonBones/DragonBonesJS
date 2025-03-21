@@ -22,10 +22,12 @@ class DebugDragonBones extends BaseDemo {
         super();
         this.mask                = false;
         this.transformConstraint = false;
-        this.physics             = true;
+        this.physics             = false;
         this.vine                = false;
         this.test                = false;
         this.coin                = false;
+        this.path_rigging        = true;
+
         if (this.mask) {
             this._resources.push("resource/debug/dragonbones-mask.json");
             this._resources.push("resource/debug/dragonbones-mask_tex.json");
@@ -51,6 +53,11 @@ class DebugDragonBones extends BaseDemo {
             this._resources.push("resource/debug/coin.json");
             this._resources.push("resource/debug/coin_tex.json");
             this._resources.push("resource/debug/coin_tex.png");
+        }
+        if (this.path_rigging) {
+            this._resources.push("resource/debug/path-rigging.json");
+            this._resources.push("resource/debug/path-rigging_tex.json");
+            this._resources.push("resource/debug/path-rigging_tex.png");
         }
     }
     _onStart() {
@@ -133,6 +140,20 @@ class DebugDragonBones extends BaseDemo {
             armatureDisplay.animation.play("newAnimation", 1);
             armatureDisplay.x = -200.0;
             armatureDisplay.y = 200.0;
+            armatureDisplay.scale.set(0.3);
+            this.addChild(armatureDisplay);
+        }
+        if (this.path_rigging) {
+            console.log('path_rigging', )
+            factory.parseDragonBonesData(this._pixiResources["resource/debug/path-rigging.json"]);
+            factory.parseTextureAtlasData(this._pixiResources["resource/debug/path-rigging_tex.json"], 
+                                          this._pixiResources["resource/debug/path-rigging_tex.png"]);
+            factory.pixiApp = this;
+            const armatureDisplay = factory.buildArmatureDisplay("armature1");
+            armatureDisplay.debugDraw = true;
+            armatureDisplay.animation.play("newAnimation", 1);
+            armatureDisplay.x = -400;
+            armatureDisplay.y = 0
             armatureDisplay.scale.set(0.3);
             this.addChild(armatureDisplay);
         }
