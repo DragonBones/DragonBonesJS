@@ -372,7 +372,7 @@ namespace dragonBones {
             const shapeData = this._shapeData as ShapeData;
             const shapeDisplay = this._renderDisplay as PIXI.Graphics;
             shapeDisplay.clear();
-            const shapeVertices = (this._displayFrame as DisplayFrame).shapeVertices;
+            const shapeVertices = (this._displayFrame as DisplayFrame).deformVertices;
             const hasMorph = shapeVertices && shapeVertices.length > 0;
             const pointValueCount = 6;
             const bones = this._geometryBones;

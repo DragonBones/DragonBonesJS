@@ -2230,6 +2230,16 @@ var dragonBones;
         return DisplayData;
     }(dragonBones.BaseObject));
     dragonBones.DisplayData = DisplayData;
+    var SkinnedDisplayData = /** @class */ (function (_super) {
+        __extends(SkinnedDisplayData, _super);
+        function SkinnedDisplayData() {
+            var _this = _super !== null && _super.apply(this, arguments) || this;
+            _this.geometry = new GeometryData();
+            return _this;
+        }
+        return SkinnedDisplayData;
+    }(DisplayData));
+    dragonBones.SkinnedDisplayData = SkinnedDisplayData;
     /**
      * @private
      */
@@ -2291,9 +2301,7 @@ var dragonBones;
     var MeshDisplayData = /** @class */ (function (_super) {
         __extends(MeshDisplayData, _super);
         function MeshDisplayData() {
-            var _this = _super !== null && _super.apply(this, arguments) || this;
-            _this.geometry = new GeometryData();
-            return _this;
+            return _super !== null && _super.apply(this, arguments) || this;
         }
         MeshDisplayData.toString = function () {
             return "[class dragonBones.MeshDisplayData]";
@@ -2305,7 +2313,7 @@ var dragonBones;
             this.texture = null;
         };
         return MeshDisplayData;
-    }(DisplayData));
+    }(SkinnedDisplayData));
     dragonBones.MeshDisplayData = MeshDisplayData;
     /**
      * @private
@@ -2338,7 +2346,6 @@ var dragonBones;
         __extends(PathDisplayData, _super);
         function PathDisplayData() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
-            _this.geometry = new GeometryData();
             _this.curveLengths = [];
             return _this;
         }
@@ -2354,7 +2361,7 @@ var dragonBones;
             this.curveLengths.length = 0;
         };
         return PathDisplayData;
-    }(DisplayData));
+    }(SkinnedDisplayData));
     dragonBones.PathDisplayData = PathDisplayData;
     /**
      * @private
@@ -2388,7 +2395,6 @@ var dragonBones;
         function ShapeDisplayData() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
             _this.shape = null; // Initial value.
-            _this.geometry = new GeometryData();
             return _this;
         }
         ShapeDisplayData.toString = function () {
@@ -2403,7 +2409,7 @@ var dragonBones;
             this.shape = null;
         };
         return ShapeDisplayData;
-    }(DisplayData));
+    }(SkinnedDisplayData));
     dragonBones.ShapeDisplayData = ShapeDisplayData;
 })(dragonBones || (dragonBones = {}));
 /**
@@ -5719,7 +5725,6 @@ var dragonBones;
         function DisplayFrame() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
             _this.deformVertices = [];
-            _this.shapeVertices = [];
             return _this;
         }
         DisplayFrame.toString = function () {
@@ -5731,18 +5736,19 @@ var dragonBones;
             this.textureData = null;
             this.display = null;
             this.deformVertices.length = 0;
-            this.shapeVertices.length = 0;
         };
         DisplayFrame.prototype.updateDeformVertices = function () {
             if (this.rawDisplayData === null || this.deformVertices.length !== 0) {
                 return;
             }
-            console.log("updateDeformVertices", this.rawDisplayData);
             var rawGeometryData;
             if (this.rawDisplayData.type === 2 /* Mesh */) {
                 rawGeometryData = this.rawDisplayData.geometry;
             }
             else if (this.rawDisplayData.type === 4 /* Path */) {
+                rawGeometryData = this.rawDisplayData.geometry;
+            }
+            else if (this.rawDisplayData.type === 5 /* Shape */) {
                 rawGeometryData = this.rawDisplayData.geometry;
             }
             else {
@@ -5784,26 +5790,6 @@ var dragonBones;
                 }
             }
             return null;
-        };
-        DisplayFrame.prototype.updateShapeVertices = function () {
-            if (this.rawDisplayData === null || this.shapeVertices.length !== 0) {
-                return;
-            }
-            var rawVerticesData = undefined;
-            if (this.rawDisplayData.type === 5 /* Shape */) {
-                var shape = this.rawDisplayData.shape;
-                if (shape) {
-                    rawVerticesData = shape.vertices;
-                }
-            }
-            else {
-                return;
-            }
-            var vertexCount = rawVerticesData ? rawVerticesData.length : 0;
-            this.shapeVertices.length = vertexCount;
-            for (var i = 0, l = this.shapeVertices.length; i < l; ++i) {
-                this.shapeVertices[i] = 0.0;
-            }
         };
         DisplayFrame.prototype.getShapeData = function () {
             if (this.displayData !== null && this.displayData.type === 5 /* Shape */) {
@@ -6326,8 +6312,8 @@ var dragonBones;
                 if (this._geometryData && this._geometryData.weight) {
                     isSkinned = true;
                 }
-                if (this._shapeDirty || this._shapeVerticesDirty || (isSkinned && this._isBonesUpdate())) {
-                    this._shapeVerticesDirty = false;
+                if (this._shapeDirty || this._verticesDirty || (isSkinned && this._isBonesUpdate())) {
+                    this._verticesDirty = false;
                     this._shapeDirty = false;
                     this._updateShape();
                 }
@@ -9798,13 +9784,13 @@ var dragonBones;
                                         var timelineArray = dragonBonesData.timelineArray;
                                         var frameIntOffset = this._animationData.frameIntOffset + timelineArray[timelineData.offset + 5 /* TimelineFrameValueCount */];
                                         var frameIntArray = dragonBonesData.frameIntArray;
-                                        var shapeVerticesOffset = frameIntArray[frameIntOffset + 0 /* ShapeVerticesOffset */];
+                                        var shapeVerticesOffset = frameIntArray[frameIntOffset + 0 /* DeformVertexOffset */];
                                         if (shapeVerticesOffset < 0) {
                                             shapeVerticesOffset += 65536; // Fixed out of bounds bug. 
                                         }
                                         for (var i = 0, l = slot.displayFrameCount; i < l; ++i) {
                                             var displayFrame = slot.getDisplayFrameAt(i);
-                                            var shapeData = displayFrame.getShapeData();
+                                            var shapeData = displayFrame.getGeometryData();
                                             if (shapeData === null) {
                                                 continue;
                                             }
@@ -9814,7 +9800,7 @@ var dragonBones;
                                                 timeline.displayFrame = displayFrame;
                                                 timeline.init(this._armature, this, timelineData);
                                                 this._slotBlendTimelines.push(timeline);
-                                                displayFrame.updateShapeVertices();
+                                                displayFrame.updateDeformVertices();
                                                 shapeFlags.push(shapeVerticesOffset);
                                                 break;
                                             }
@@ -12504,8 +12490,8 @@ var dragonBones;
         ShapeTimelineState.prototype._onClear = function () {
             _super.prototype._onClear.call(this);
             this.displayFrame = null;
-            this._shapeVerticesCount = 0;
-            this._shapeVerticesOffset = 0;
+            this._deformCount = 0;
+            this._deformOffset = 0;
             this._sameValueOffset = 0;
         };
         ShapeTimelineState.prototype.init = function (armature, animationState, timelineData) {
@@ -12515,10 +12501,10 @@ var dragonBones;
                 var dragonBonesData = this._animationData.parent.parent;
                 var frameIntArray = dragonBonesData.frameIntArray;
                 this._valueOffset = this._animationData.frameFloatOffset;
-                this._valueCount = frameIntArray[frameIntOffset + 2 /* ShapeVerticesValueCount */];
-                this._shapeVerticesCount = frameIntArray[frameIntOffset + 1 /* ShapeVerticesCount */];
-                this._shapeVerticesOffset = frameIntArray[frameIntOffset + 0 /* ShapeVerticesOffset */];
-                this._sameValueOffset = frameIntArray[frameIntOffset + 4 /* ShapeVerticesFloatOffset */];
+                this._valueCount = frameIntArray[frameIntOffset + 2 /* DeformValueCount */];
+                this._deformCount = frameIntArray[frameIntOffset + 1 /* DeformCount */];
+                this._deformOffset = frameIntArray[frameIntOffset + 3 /* DeformValueOffset */];
+                this._sameValueOffset = frameIntArray[frameIntOffset + 4 /* DeformFloatOffset */];
                 if (this._sameValueOffset < 0) {
                     this._sameValueOffset += 65536; // Fixed out of bounds bug. 
                 }
@@ -12528,27 +12514,27 @@ var dragonBones;
                 this._rd.length = this._valueCount * 2;
             }
             else {
-                this._shapeVerticesCount = this.displayFrame.shapeVertices.length;
+                this._deformCount = this.displayFrame.deformVertices.length;
             }
         };
         ShapeTimelineState.prototype.blend = function (isDirty) {
             var blendState = this.target;
             var slot = blendState.target;
             var blendWeight = blendState.blendWeight;
-            var result = this.displayFrame.shapeVertices;
+            var result = this.displayFrame.deformVertices;
             var valueArray = this._valueArray;
             if (valueArray !== null) {
                 var valueCount = this._valueCount;
-                var shapeVerticesOffset = this._shapeVerticesOffset;
+                var deformOffset = this._deformOffset;
                 var sameValueOffset = this._sameValueOffset;
                 var rd = this._rd;
-                for (var i = 0; i < this._shapeVerticesCount; ++i) {
+                for (var i = 0; i < this._deformCount; ++i) {
                     var value = 0.0;
-                    if (i < shapeVerticesOffset) {
+                    if (i < deformOffset) {
                         value = valueArray[sameValueOffset + i];
                     }
-                    else if (i < shapeVerticesOffset + valueCount) {
-                        value = rd[i - shapeVerticesOffset];
+                    else if (i < deformOffset + valueCount) {
+                        value = rd[i - deformOffset];
                     }
                     else {
                         value = valueArray[sameValueOffset + i - valueCount];
@@ -12562,14 +12548,14 @@ var dragonBones;
                 }
             }
             else if (blendState.dirty === 1) {
-                for (var i = 0; i < this._shapeVerticesCount; ++i) {
+                for (var i = 0; i < this._deformCount; ++i) {
                     result[i] = 0.0;
                 }
             }
             if (isDirty || this.dirty) {
                 this.dirty = false;
-                if (slot._shapeData === this.displayFrame.getShapeData()) {
-                    slot._shapeVerticesDirty = true;
+                if (slot._geometryData === this.displayFrame.getGeometryData()) {
+                    slot._verticesDirty = true;
                 }
             }
         };
@@ -14786,20 +14772,20 @@ var dragonBones;
             this._frameIntArray[frameIntOffset] = colorOffset;
             return frameOffset;
         };
-        ObjectDataParser.prototype._parseSlotDeformFrame = function (rawData, frameStart, frameCount) {
+        ObjectDataParser.prototype._parseSkinnedDeformFrame = function (rawData, frameStart, frameCount, skinnedDisplayData) {
             var frameFloatOffset = this._frameFloatArray.length;
             var frameOffset = this._parseTweenFrame(rawData, frameStart, frameCount);
             var rawVertices = dragonBones.DataParser.VERTICES in rawData ? rawData[dragonBones.DataParser.VERTICES] : null;
             var offset = ObjectDataParser._getNumber(rawData, dragonBones.DataParser.OFFSET, 0); // uint
-            var vertexCount = this._intArray[this._mesh.geometry.offset + 0 /* GeometryVertexCount */];
-            var meshName = this._mesh.parent.name + "_" + this._slot.name + "_" + this._mesh.name;
-            var weight = this._mesh.geometry.weight;
+            var vertexCount = this._intArray[skinnedDisplayData.geometry.offset + 0 /* GeometryVertexCount */];
+            var skinnedDisplayName = skinnedDisplayData.parent.name + "_" + this._slot.name + "_" + skinnedDisplayData.name;
+            var weight = skinnedDisplayData.geometry.weight;
             var x = 0.0;
             var y = 0.0;
             var iB = 0;
             var iV = 0;
             if (weight !== null) {
-                var rawSlotPose = this._weightSlotPose[meshName];
+                var rawSlotPose = this._weightSlotPose[skinnedDisplayName];
                 this._helpMatrixA.copyFromArray(rawSlotPose, 0);
                 this._frameFloatArray.length += weight.count * 2;
                 iB = weight.offset + 2 /* WeigthBoneIndices */ + weight.bones.length;
@@ -14827,7 +14813,7 @@ var dragonBones;
                     }
                 }
                 if (weight !== null) { // If mesh is skinned, transform point by bone bind pose.
-                    var rawBonePoses = this._weightBonePoses[meshName];
+                    var rawBonePoses = this._weightBonePoses[skinnedDisplayName];
                     var vertexBoneCount = this._intArray[iB++];
                     this._helpMatrixA.transformPoint(x, y, this._helpPoint, true);
                     x = this._helpPoint.x;
@@ -14849,7 +14835,7 @@ var dragonBones;
             if (frameStart === 0) {
                 var frameIntOffset = this._frameIntArray.length;
                 this._frameIntArray.length += 1 + 1 + 1 + 1 + 1;
-                this._frameIntArray[frameIntOffset + 0 /* DeformVertexOffset */] = this._mesh.geometry.offset;
+                this._frameIntArray[frameIntOffset + 0 /* DeformVertexOffset */] = skinnedDisplayData.geometry.offset;
                 this._frameIntArray[frameIntOffset + 1 /* DeformCount */] = this._frameFloatArray.length - frameFloatOffset;
                 this._frameIntArray[frameIntOffset + 2 /* DeformValueCount */] = this._frameFloatArray.length - frameFloatOffset;
                 this._frameIntArray[frameIntOffset + 3 /* DeformValueOffset */] = 0;
@@ -14857,153 +14843,15 @@ var dragonBones;
                 this._timelineArray[this._timeline.offset + 5 /* TimelineFrameValueCount */] = frameIntOffset - this._animation.frameIntOffset;
             }
             return frameOffset;
+        };
+        ObjectDataParser.prototype._parseSlotDeformFrame = function (rawData, frameStart, frameCount) {
+            return this._parseSkinnedDeformFrame(rawData, frameStart, frameCount, this._mesh);
         };
         ObjectDataParser.prototype._parseSlotPathFrame = function (rawData, frameStart, frameCount) {
-            var frameFloatOffset = this._frameFloatArray.length;
-            var frameOffset = this._parseTweenFrame(rawData, frameStart, frameCount);
-            var rawVertices = dragonBones.DataParser.VERTICES in rawData ? rawData[dragonBones.DataParser.VERTICES] : null;
-            var offset = ObjectDataParser._getNumber(rawData, dragonBones.DataParser.OFFSET, 0); // uint
-            var vertexCount = this._intArray[this._path.geometry.offset + 0 /* GeometryVertexCount */];
-            var pathName = this._path.parent.name + "_" + this._slot.name + "_" + this._path.name;
-            var weight = this._path.geometry.weight;
-            var x = 0.0;
-            var y = 0.0;
-            var iB = 0;
-            var iV = 0;
-            if (weight !== null) {
-                // TODO: path可以被像mesh一样被骨骼绑定
-                var rawSlotPose = this._weightSlotPose[pathName];
-                this._helpMatrixA.copyFromArray(rawSlotPose, 0);
-                this._frameFloatArray.length += weight.count * 2;
-                iB = weight.offset + 2 /* WeigthBoneIndices */ + weight.bones.length;
-            }
-            else {
-                this._frameFloatArray.length += vertexCount * 2;
-            }
-            for (var i = 0; i < vertexCount * 2; i += 2) {
-                if (rawVertices === null) { // Fill 0.
-                    x = 0.0;
-                    y = 0.0;
-                }
-                else {
-                    if (i < offset || i - offset >= rawVertices.length) {
-                        x = 0.0;
-                    }
-                    else {
-                        x = rawVertices[i - offset];
-                    }
-                    if (i + 1 < offset || i + 1 - offset >= rawVertices.length) {
-                        y = 0.0;
-                    }
-                    else {
-                        y = rawVertices[i + 1 - offset];
-                    }
-                }
-                if (weight !== null) { // If path is skinned, transform point by bone bind pose.
-                    // TODO: path可以被像mesh一样被骨骼绑定
-                    var rawBonePoses = this._weightBonePoses[pathName];
-                    var vertexBoneCount = this._intArray[iB++];
-                    this._helpMatrixA.transformPoint(x, y, this._helpPoint, true);
-                    x = this._helpPoint.x;
-                    y = this._helpPoint.y;
-                    for (var j = 0; j < vertexBoneCount; ++j) {
-                        var boneIndex = this._intArray[iB++];
-                        this._helpMatrixB.copyFromArray(rawBonePoses, boneIndex * 7 + 1);
-                        this._helpMatrixB.invert();
-                        this._helpMatrixB.transformPoint(x, y, this._helpPoint, true);
-                        this._frameFloatArray[frameFloatOffset + iV++] = this._helpPoint.x;
-                        this._frameFloatArray[frameFloatOffset + iV++] = this._helpPoint.y;
-                    }
-                }
-                else {
-                    this._frameFloatArray[frameFloatOffset + i] = x;
-                    this._frameFloatArray[frameFloatOffset + i + 1] = y;
-                }
-            }
-            if (frameStart === 0) {
-                var frameIntOffset = this._frameIntArray.length;
-                this._frameIntArray.length += 1 + 1 + 1 + 1 + 1;
-                this._frameIntArray[frameIntOffset + 0 /* DeformVertexOffset */] = this._path.geometry.offset;
-                this._frameIntArray[frameIntOffset + 1 /* DeformCount */] = this._frameFloatArray.length - frameFloatOffset;
-                this._frameIntArray[frameIntOffset + 2 /* DeformValueCount */] = this._frameFloatArray.length - frameFloatOffset;
-                this._frameIntArray[frameIntOffset + 3 /* DeformValueOffset */] = 0;
-                this._frameIntArray[frameIntOffset + 4 /* DeformFloatOffset */] = frameFloatOffset - this._animation.frameFloatOffset;
-                this._timelineArray[this._timeline.offset + 5 /* TimelineFrameValueCount */] = frameIntOffset - this._animation.frameIntOffset;
-            }
-            return frameOffset;
+            return this._parseSkinnedDeformFrame(rawData, frameStart, frameCount, this._path);
         };
         ObjectDataParser.prototype._parseSlotShapeFrame = function (rawData, frameStart, frameCount) {
-            var frameFloatOffset = this._frameFloatArray.length;
-            var frameOffset = this._parseTweenFrame(rawData, frameStart, frameCount);
-            var rawVertices = dragonBones.DataParser.VERTICES in rawData ? rawData[dragonBones.DataParser.VERTICES] : null;
-            var offset = ObjectDataParser._getNumber(rawData, dragonBones.DataParser.OFFSET, 0); // uint
-            var vertexCount = this._intArray[this._shape.geometry.offset + 0 /* GeometryVertexCount */];
-            var shapeName = this._shape.parent.name + "_" + this._slot.name + "_" + this._shape.name;
-            var weight = this._shape.geometry.weight;
-            var x = 0.0;
-            var y = 0.0;
-            var iB = 0;
-            var iV = 0;
-            if (weight !== null) {
-                var rawSlotPose = this._weightSlotPose[shapeName];
-                this._helpMatrixA.copyFromArray(rawSlotPose, 0);
-                this._frameFloatArray.length += weight.count * 2;
-                iB = weight.offset + 2 /* WeigthBoneIndices */ + weight.bones.length;
-            }
-            else {
-                this._frameFloatArray.length += vertexCount * 2;
-            }
-            for (var i = 0; i < vertexCount * 2; i += 2) {
-                if (rawVertices === null) { // Fill 0.
-                    x = 0.0;
-                    y = 0.0;
-                }
-                else {
-                    if (i < offset || i - offset >= rawVertices.length) {
-                        x = 0.0;
-                    }
-                    else {
-                        x = rawVertices[i - offset];
-                    }
-                    if (i + 1 < offset || i + 1 - offset >= rawVertices.length) {
-                        y = 0.0;
-                    }
-                    else {
-                        y = rawVertices[i + 1 - offset];
-                    }
-                }
-                if (weight !== null) { // If path is skinned, transform point by bone bind pose.
-                    // TODO: path可以被像mesh一样被骨骼绑定
-                    var rawBonePoses = this._weightBonePoses[shapeName];
-                    var vertexBoneCount = this._intArray[iB++];
-                    this._helpMatrixA.transformPoint(x, y, this._helpPoint, true);
-                    x = this._helpPoint.x;
-                    y = this._helpPoint.y;
-                    for (var j = 0; j < vertexBoneCount; ++j) {
-                        var boneIndex = this._intArray[iB++];
-                        this._helpMatrixB.copyFromArray(rawBonePoses, boneIndex * 7 + 1);
-                        this._helpMatrixB.invert();
-                        this._helpMatrixB.transformPoint(x, y, this._helpPoint, true);
-                        this._frameFloatArray[frameFloatOffset + iV++] = this._helpPoint.x;
-                        this._frameFloatArray[frameFloatOffset + iV++] = this._helpPoint.y;
-                    }
-                }
-                else {
-                    this._frameFloatArray[frameFloatOffset + i] = x;
-                    this._frameFloatArray[frameFloatOffset + i + 1] = y;
-                }
-            }
-            if (frameStart === 0) {
-                var frameIntOffset = this._frameIntArray.length;
-                this._frameIntArray.length += 1 + 1 + 1 + 1 + 1;
-                this._frameIntArray[frameIntOffset + 0 /* DeformVertexOffset */] = this._path.geometry.offset;
-                this._frameIntArray[frameIntOffset + 1 /* DeformCount */] = this._frameFloatArray.length - frameFloatOffset;
-                this._frameIntArray[frameIntOffset + 2 /* DeformValueCount */] = this._frameFloatArray.length - frameFloatOffset;
-                this._frameIntArray[frameIntOffset + 3 /* DeformValueOffset */] = 0;
-                this._frameIntArray[frameIntOffset + 4 /* DeformFloatOffset */] = frameFloatOffset - this._animation.frameFloatOffset;
-                this._timelineArray[this._timeline.offset + 5 /* TimelineFrameValueCount */] = frameIntOffset - this._animation.frameIntOffset;
-            }
-            return frameOffset;
+            return this._parseSkinnedDeformFrame(rawData, frameStart, frameCount, this._shape);
         };
         ObjectDataParser.prototype._parseIKConstraintFrame = function (rawData, frameStart, frameCount) {
             var frameOffset = this._parseTweenFrame(rawData, frameStart, frameCount);

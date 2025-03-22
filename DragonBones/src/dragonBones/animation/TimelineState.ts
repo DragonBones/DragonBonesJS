@@ -1283,8 +1283,8 @@ namespace dragonBones {
 
         public displayFrame: DisplayFrame;
 
-        private _shapeVerticesCount: number;
-        private _shapeVerticesOffset: number;
+        private _deformCount: number;
+        private _deformOffset: number;
         private _sameValueOffset: number;
 
         protected _onClear(): void {
@@ -1292,8 +1292,8 @@ namespace dragonBones {
 
             this.displayFrame = null as any;
 
-            this._shapeVerticesCount = 0;
-            this._shapeVerticesOffset = 0;
+            this._deformCount = 0;
+            this._deformOffset = 0;
             this._sameValueOffset = 0;
         }
 
@@ -1306,10 +1306,10 @@ namespace dragonBones {
                 const frameIntArray = dragonBonesData.frameIntArray;
 
                 this._valueOffset = this._animationData.frameFloatOffset;
-                this._valueCount = frameIntArray[frameIntOffset + BinaryOffset.ShapeVerticesValueCount];
-                this._shapeVerticesCount = frameIntArray[frameIntOffset + BinaryOffset.ShapeVerticesCount];
-                this._shapeVerticesOffset = frameIntArray[frameIntOffset + BinaryOffset.ShapeVerticesOffset];
-                this._sameValueOffset = frameIntArray[frameIntOffset + BinaryOffset.ShapeVerticesFloatOffset];
+                this._valueCount = frameIntArray[frameIntOffset + BinaryOffset.DeformValueCount];
+                this._deformCount = frameIntArray[frameIntOffset + BinaryOffset.DeformCount];
+                this._deformOffset = frameIntArray[frameIntOffset + BinaryOffset.DeformValueOffset];
+                this._sameValueOffset = frameIntArray[frameIntOffset + BinaryOffset.DeformFloatOffset];
                 
                 if (this._sameValueOffset < 0) {
                     this._sameValueOffset += 65536; // Fixed out of bounds bug. 
@@ -1322,7 +1322,7 @@ namespace dragonBones {
                 this._rd.length = this._valueCount * 2;
             }
             else {
-                this._shapeVerticesCount = this.displayFrame.shapeVertices.length;
+                this._deformCount = this.displayFrame.deformVertices.length;
             }
         }
 
@@ -1330,23 +1330,23 @@ namespace dragonBones {
             const blendState = this.target as BlendState;
             const slot = blendState.target as Slot;
             const blendWeight = blendState.blendWeight;
-            const result = this.displayFrame.shapeVertices;
+            const result = this.displayFrame.deformVertices;
             const valueArray = this._valueArray;
 
             if (valueArray !== null) {
                 const valueCount = this._valueCount;
-                const shapeVerticesOffset = this._shapeVerticesOffset;
+                const deformOffset = this._deformOffset;
                 const sameValueOffset = this._sameValueOffset;
                 const rd = this._rd;
 
-                for (let i = 0; i < this._shapeVerticesCount; ++i) {
+                for (let i = 0; i < this._deformCount; ++i) {
                     let value = 0.0;
 
-                    if (i < shapeVerticesOffset) {
+                    if (i < deformOffset) {
                         value = valueArray[sameValueOffset + i];
                     }
-                    else if (i < shapeVerticesOffset + valueCount) {
-                        value = rd[i - shapeVerticesOffset];
+                    else if (i < deformOffset + valueCount) {
+                        value = rd[i - deformOffset];
                     }
                     else {
                         value = valueArray[sameValueOffset + i - valueCount];
@@ -1361,16 +1361,16 @@ namespace dragonBones {
                 }
             }
             else if (blendState.dirty === 1) {
-                for (let i = 0; i < this._shapeVerticesCount; ++i) {
+                for (let i = 0; i < this._deformCount; ++i) {
                     result[i] = 0.0;
                 }
             }
 
             if (isDirty || this.dirty) {
-                this.dirty = false; 
+                this.dirty = false;
 
-                if (slot._shapeData === this.displayFrame.getShapeData()) {
-                    slot._shapeVerticesDirty = true;
+                if (slot._geometryData === this.displayFrame.getGeometryData()) {
+                    slot._verticesDirty = true;
                 }
             }
         }

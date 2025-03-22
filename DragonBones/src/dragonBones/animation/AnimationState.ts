@@ -666,28 +666,24 @@ namespace dragonBones {
 
                                         const frameIntOffset = this._animationData.frameIntOffset + timelineArray[timelineData.offset + BinaryOffset.TimelineFrameValueCount];
                                         const frameIntArray = dragonBonesData.frameIntArray;
-                                        let shapeVerticesOffset = frameIntArray[frameIntOffset + BinaryOffset.ShapeVerticesOffset];
+                                        let shapeVerticesOffset = frameIntArray[frameIntOffset + BinaryOffset.DeformVertexOffset];
 
                                         if (shapeVerticesOffset < 0) {
                                             shapeVerticesOffset += 65536; // Fixed out of bounds bug. 
                                         }
-
                                         for (let i = 0, l = slot.displayFrameCount; i < l; ++i) {
                                             const displayFrame = slot.getDisplayFrameAt(i);
-                                            const shapeData = displayFrame.getShapeData();
-
+                                            const shapeData = displayFrame.getGeometryData();
                                             if (shapeData === null) {
                                                 continue;
                                             }
-
                                             if (shapeData.offset === shapeVerticesOffset) {
                                                 const timeline = BaseObject.borrowObject(ShapeTimelineState);
                                                 timeline.target = this._armature.animation.getBlendState(BlendState.SLOT_SHAPE, displayFrame.rawDisplayData!.name, slot);
                                                 timeline.displayFrame = displayFrame;
                                                 timeline.init(this._armature, this, timelineData);
                                                 this._slotBlendTimelines.push(timeline);
-
-                                                displayFrame.updateShapeVertices();
+                                                displayFrame.updateDeformVertices();
                                                 shapeFlags.push(shapeVerticesOffset);
                                                 break;
                                             }

@@ -77,6 +77,9 @@ namespace dragonBones {
             this.parent = null as any; //
         }
     }
+    export abstract class SkinnedDisplayData extends DisplayData {
+        public readonly geometry: GeometryData = new GeometryData();
+    }
     /**
      * @private
      */
@@ -130,12 +133,11 @@ namespace dragonBones {
     /**
      * @private
      */
-    export class MeshDisplayData extends DisplayData {
+    export class MeshDisplayData extends SkinnedDisplayData {
         public static toString(): string {
             return "[class dragonBones.MeshDisplayData]";
         }
 
-        public readonly geometry: GeometryData = new GeometryData();
         public texture: TextureData | null;
 
         protected _onClear(): void {
@@ -170,13 +172,12 @@ namespace dragonBones {
     /**
      * @private
      */
-    export class PathDisplayData extends DisplayData {
+    export class PathDisplayData extends SkinnedDisplayData {
         public static toString(): string {
             return "[class dragonBones.PathDisplayData]";
         }
         public closed: boolean;
         public constantSpeed: boolean;
-        public readonly geometry: GeometryData = new GeometryData();
         public readonly curveLengths: Array<number> = [];
 
         protected _onClear(): void {
@@ -214,13 +215,12 @@ namespace dragonBones {
      /**
      * @private
      */
-     export class ShapeDisplayData extends DisplayData {
+     export class ShapeDisplayData extends SkinnedDisplayData {
         public static toString(): string {
             return "[class dragonBones.ShapeDisplayData]";
         }
 
         public shape: ShapeData | null = null; // Initial value.
-        public readonly geometry: GeometryData = new GeometryData();
         
         protected _onClear(): void {
             super._onClear();

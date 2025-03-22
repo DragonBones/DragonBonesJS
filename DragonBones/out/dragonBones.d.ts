@@ -49,12 +49,7 @@ declare namespace dragonBones {
         DeformCount = 1,
         DeformValueCount = 2,
         DeformValueOffset = 3,
-        DeformFloatOffset = 4,
-        ShapeVerticesOffset = 0,
-        ShapeVerticesCount = 1,
-        ShapeVerticesValueCount = 2,
-        ShapeVerticesValueOffset = 3,
-        ShapeVerticesFloatOffset = 4
+        DeformFloatOffset = 4
     }
     /**
      * @private
@@ -1794,6 +1789,9 @@ declare namespace dragonBones {
         maskRange: number;
         protected _onClear(): void;
     }
+    abstract class SkinnedDisplayData extends DisplayData {
+        readonly geometry: GeometryData;
+    }
     /**
      * @private
      */
@@ -1820,9 +1818,8 @@ declare namespace dragonBones {
     /**
      * @private
      */
-    class MeshDisplayData extends DisplayData {
+    class MeshDisplayData extends SkinnedDisplayData {
         static toString(): string;
-        readonly geometry: GeometryData;
         texture: TextureData | null;
         protected _onClear(): void;
     }
@@ -1837,11 +1834,10 @@ declare namespace dragonBones {
     /**
      * @private
      */
-    class PathDisplayData extends DisplayData {
+    class PathDisplayData extends SkinnedDisplayData {
         static toString(): string;
         closed: boolean;
         constantSpeed: boolean;
-        readonly geometry: GeometryData;
         readonly curveLengths: Array<number>;
         protected _onClear(): void;
     }
@@ -1859,10 +1855,9 @@ declare namespace dragonBones {
     /**
     * @private
     */
-    class ShapeDisplayData extends DisplayData {
+    class ShapeDisplayData extends SkinnedDisplayData {
         static toString(): string;
         shape: ShapeData | null;
-        readonly geometry: GeometryData;
         protected _onClear(): void;
     }
 }
@@ -3607,11 +3602,9 @@ declare namespace dragonBones {
         textureData: TextureData | null;
         display: any | Armature | null;
         readonly deformVertices: Array<number>;
-        readonly shapeVertices: Array<number>;
         protected _onClear(): void;
         updateDeformVertices(): void;
         getGeometryData(): GeometryData | null;
-        updateShapeVertices(): void;
         getShapeData(): ShapeData | null;
         getBoundingBox(): BoundingBoxData | null;
         getTextureData(): TextureData | null;
@@ -3669,7 +3662,6 @@ declare namespace dragonBones {
         protected _blendModeDirty: boolean;
         protected _zOrderDirty: boolean;
         protected _maskDirty: boolean;
-        _shapeVerticesDirty: boolean;
         protected _transformDirty: boolean;
         protected _visible: boolean;
         protected _blendMode: BlendMode;
@@ -5144,8 +5136,8 @@ declare namespace dragonBones {
     class ShapeTimelineState extends MutilpleValueTimelineState {
         static toString(): string;
         displayFrame: DisplayFrame;
-        private _shapeVerticesCount;
-        private _shapeVerticesOffset;
+        private _deformCount;
+        private _deformOffset;
         private _sameValueOffset;
         protected _onClear(): void;
         init(armature: Armature, animationState: AnimationState, timelineData: TimelineData | null): void;
@@ -5815,6 +5807,7 @@ declare namespace dragonBones {
         protected _parseBoneScaleFrame(rawData: any, frameStart: number, frameCount: number): number;
         protected _parseSlotDisplayFrame(rawData: any, frameStart: number, frameCount: number): number;
         protected _parseSlotColorFrame(rawData: any, frameStart: number, frameCount: number): number;
+        private _parseSkinnedDeformFrame;
         protected _parseSlotDeformFrame(rawData: any, frameStart: number, frameCount: number): number;
         protected _parseSlotPathFrame(rawData: any, frameStart: number, frameCount: number): number;
         protected _parseSlotShapeFrame(rawData: any, frameStart: number, frameCount: number): number;
