@@ -86,6 +86,10 @@ namespace dragonBones {
                 if (this.displayData.type === DisplayType.Path) {
                     return (this.displayData as PathDisplayData).geometry;
                 }
+                
+                if (this.displayData.type === DisplayType.Shape) {
+                    return (this.displayData as ShapeDisplayData).geometry;
+                }
             }
 
             if (this.rawDisplayData !== null) {
@@ -95,6 +99,10 @@ namespace dragonBones {
 
                 if (this.rawDisplayData.type === DisplayType.Path) {
                     return (this.rawDisplayData as PathDisplayData).geometry;
+                }
+
+                if (this.rawDisplayData.type === DisplayType.Shape) {
+                    return (this.rawDisplayData as ShapeDisplayData).geometry;
                 }
             }
 
@@ -825,7 +833,11 @@ namespace dragonBones {
                 }
             }
             if (this._shapeData !== null && this._display === this._shapeDisplay) {
-                if (this._shapeDirty || this._shapeVerticesDirty) {
+                let isSkinned = false;
+                if(this._geometryData && this._geometryData.weight){
+                    isSkinned = true;
+                }
+                if (this._shapeDirty || this._shapeVerticesDirty || (isSkinned && this._isBonesUpdate())) {
                     this._shapeVerticesDirty = false;
                     this._shapeDirty = false;
                     this._updateShape();

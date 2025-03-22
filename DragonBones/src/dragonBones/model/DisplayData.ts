@@ -220,7 +220,8 @@ namespace dragonBones {
         }
 
         public shape: ShapeData | null = null; // Initial value.
-
+        public readonly geometry: GeometryData = new GeometryData();
+        
         protected _onClear(): void {
             super._onClear();
 

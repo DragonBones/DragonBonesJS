@@ -375,67 +375,164 @@ namespace dragonBones {
             const shapeVertices = (this._displayFrame as DisplayFrame).shapeVertices;
             const hasMorph = shapeVertices && shapeVertices.length > 0;
             const pointValueCount = 6;
+            const bones = this._geometryBones;
+            const geometryData = this._geometryData as GeometryData;
+            const weightData = geometryData.weight;
+            
+            if (weightData !== null) {
+                // 保存所有计算完rigging的点的坐标
+                const riggingVertices: number[] = [];
+                const data = geometryData.data;
+                const intArray = data.intArray;
+                const floatArray = data.floatArray;
+                const vertexCount = intArray[geometryData.offset + BinaryOffset.GeometryVertexCount];
+                let weightFloatOffset = intArray[weightData.offset + BinaryOffset.WeigthFloatOffset];
 
-            for (let i = 0, len = shapeData.paths.length; i < len; i++) {
-                const path = shapeData.paths[i];
-                const { indexes, style } = path;
-                const { fill, stroke } = style;
-                if (indexes.length === 0) {
-                    continue;
+                if (weightFloatOffset < 0) {
+                    weightFloatOffset += 65536; // Fixed out of bouds bug. 
                 }
 
-                if (stroke) {
-                    shapeDisplay.lineStyle(stroke.width || 1, stroke.color || 0, stroke.opacity || 0);
-                }
-                else {
-                    shapeDisplay.lineStyle(0, 0, 0);
-                }
-                
-                if (fill) {
-                    shapeDisplay.beginFill(fill.color, fill.opacity);
-                }
-                for (let j = 0, jLen = indexes.length; j < jLen; j++) {
-                    const pointIndex = indexes[j] * pointValueCount;
-                    // TODO: 数据存到floatArray里面
-                    let x = shapeData.vertices[pointIndex + 0] * scale;
-                    let y = shapeData.vertices[pointIndex + 1] * scale;
-                    let c0x = shapeData.vertices[pointIndex + 2] * scale;
-                    let c0y = shapeData.vertices[pointIndex + 3] * scale;
+                for (
+                    let i = 0, iD = 0, iB = weightData.offset + BinaryOffset.WeigthBoneIndices + bones.length, iV = weightFloatOffset, iF = 0;
+                    i < vertexCount;
+                    ++i
+                ) {
+                    const boneCount = intArray[iB++];
+                    let xG = 0.0, yG = 0.0;
 
-                    if (hasMorph) {
-                        const morphIndex = pointIndex;
-                        x += shapeVertices[morphIndex];
-                        y += shapeVertices[morphIndex + 1];
-                        c0x += shapeVertices[morphIndex + 2];
-                        c0y += shapeVertices[morphIndex + 3];;
+                    for (let j = 0; j < boneCount; ++j) {
+                        const boneIndex = intArray[iB++];
+                        const bone = bones[boneIndex];
+
+                        if (bone !== null) {
+                            const matrix = bone.globalTransformMatrix;
+                            const weight = floatArray[iV++];
+                            let xL = floatArray[iV++] * scale;
+                            let yL = floatArray[iV++] * scale;
+
+                            if (hasMorph) {
+                                xL += shapeVertices[iF++];
+                                yL += shapeVertices[iF++];
+                            }
+
+                            xG += (matrix.a * xL + matrix.c * yL + matrix.tx) * weight;
+                            yG += (matrix.b * xL + matrix.d * yL + matrix.ty) * weight;
+                        }
                     }
-                    if(j === 0) {
-                        shapeDisplay.moveTo(x, y);
+
+                    riggingVertices[iD++] = xG;
+                    riggingVertices[iD++] = yG;
+                }
+
+                // 画图
+                for (let i = 0, len = shapeData.paths.length; i < len; i++) {
+                    const path = shapeData.paths[i];
+                    const { indexes, style } = path;
+                    const { fill, stroke } = style;
+                    if (indexes.length === 0) {
+                        continue;
+                    }
+    
+                    if (stroke) {
+                        shapeDisplay.lineStyle(stroke.width || 1, stroke.color || 0, stroke.opacity || 0);
                     }
                     else {
-                        const prevPointIndex = indexes[j - 1] * pointValueCount;
-                        let prevC1x = shapeData.vertices[prevPointIndex + 4] * scale;
-                        let prevC1y = shapeData.vertices[prevPointIndex + 5] * scale;
-                        if (hasMorph) {
-                            const morphIndex = prevPointIndex;
-                            prevC1x += shapeVertices[morphIndex + 4];
-                            prevC1y += shapeVertices[morphIndex + 5];
-                        }
-
-                        shapeDisplay.bezierCurveTo(
-                            prevC1x, prevC1y, 
-                            c0x, c0y, 
-                            x, y
-                        );
+                        shapeDisplay.lineStyle(0, 0, 0);
                     }
-
+                    
+                    if (fill) {
+                        shapeDisplay.beginFill(fill.color, fill.opacity);
+                    }
+                    for (let j = 0, jLen = indexes.length; j < jLen; j++) {
+                        const pointIndex = indexes[j] * pointValueCount;
+                        let x = riggingVertices[pointIndex + 2];
+                        let y = riggingVertices[pointIndex + 3];
+                        let c0x = riggingVertices[pointIndex + 0];
+                        let c0y = riggingVertices[pointIndex + 1];
+                        if(j === 0) {
+                            shapeDisplay.moveTo(x, y);
+                        }
+                        else {
+                            const prevPointIndex = indexes[j - 1] * pointValueCount;
+                            let prevC1x = riggingVertices[prevPointIndex + 4];
+                            let prevC1y = riggingVertices[prevPointIndex + 5];
+    
+                            shapeDisplay.bezierCurveTo(
+                                prevC1x, prevC1y, 
+                                c0x, c0y, 
+                                x, y
+                            );
+                        }
+    
+                    }
+                    if (fill) {
+                        shapeDisplay.endFill();
+                    }
                 }
-                
-                if (fill) {
-                    shapeDisplay.endFill();
-                }
-                
             }
+            else {
+                for (let i = 0, len = shapeData.paths.length; i < len; i++) {
+                    const path = shapeData.paths[i];
+                    const { indexes, style } = path;
+                    const { fill, stroke } = style;
+                    if (indexes.length === 0) {
+                        continue;
+                    }
+    
+                    if (stroke) {
+                        shapeDisplay.lineStyle(stroke.width || 1, stroke.color || 0, stroke.opacity || 0);
+                    }
+                    else {
+                        shapeDisplay.lineStyle(0, 0, 0);
+                    }
+                    
+                    if (fill) {
+                        shapeDisplay.beginFill(fill.color, fill.opacity);
+                    }
+                    for (let j = 0, jLen = indexes.length; j < jLen; j++) {
+                        const pointIndex = indexes[j] * pointValueCount;
+                        // TODO: 数据存到floatArray里面
+                        let x = shapeData.vertices[pointIndex + 2] * scale;
+                        let y = shapeData.vertices[pointIndex + 3] * scale;
+                        let c0x = shapeData.vertices[pointIndex + 0] * scale;
+                        let c0y = shapeData.vertices[pointIndex + 1] * scale;
+    
+                        if (hasMorph) {
+                            const morphIndex = pointIndex;
+                            x += shapeVertices[morphIndex + 2];
+                            y += shapeVertices[morphIndex + 3];
+                            c0x += shapeVertices[morphIndex + 0];
+                            c0y += shapeVertices[morphIndex + 1];;
+                        }
+                        if(j === 0) {
+                            shapeDisplay.moveTo(x, y);
+                        }
+                        else {
+                            const prevPointIndex = indexes[j - 1] * pointValueCount;
+                            let prevC1x = shapeData.vertices[prevPointIndex + 4] * scale;
+                            let prevC1y = shapeData.vertices[prevPointIndex + 5] * scale;
+                            if (hasMorph) {
+                                const morphIndex = prevPointIndex;
+                                prevC1x += shapeVertices[morphIndex + 4];
+                                prevC1y += shapeVertices[morphIndex + 5];
+                            }
+    
+                            shapeDisplay.bezierCurveTo(
+                                prevC1x, prevC1y, 
+                                c0x, c0y, 
+                                x, y
+                            );
+                        }
+    
+                    }
+                    
+                    if (fill) {
+                        shapeDisplay.endFill();
+                    }
+                    
+                }
+            }
+            
         }
 
         public _updateMask() {

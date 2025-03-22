@@ -1862,6 +1862,7 @@ declare namespace dragonBones {
     class ShapeDisplayData extends DisplayData {
         static toString(): string;
         shape: ShapeData | null;
+        readonly geometry: GeometryData;
         protected _onClear(): void;
     }
 }
@@ -5794,7 +5795,7 @@ declare namespace dragonBones {
         protected _parseMesh(rawData: any, mesh: MeshDisplayData): void;
         protected _parseBoundingBox(rawData: any): BoundingBoxData | null;
         protected _parsePolygonBoundingBox(rawData: any): PolygonBoundingBoxData;
-        protected _parseShape(rawData: any): ShapeData | null;
+        protected _parseShape(rawData: any, shapeDisplay: ShapeDisplayData): ShapeData | null;
         protected _parseAnimation(rawData: any): AnimationData;
         protected getTimelineDuration(frames: {
             duration: number;
@@ -5825,7 +5826,7 @@ declare namespace dragonBones {
         protected _parseDeformFrame(rawData: any, frameStart: number, frameCount: number): number;
         protected _parseTransform(rawData: any, transform: Transform, scale: number): void;
         protected _parseColorTransform(rawData: any, color: ColorTransform): void;
-        protected _parseGeometry(rawData: any, geometry: GeometryData): void;
+        protected _parseGeometry(rawData: any, riggingData: any, geometry: GeometryData): void;
         protected _parseArray(rawData: any): void;
         protected _modifyArray(): void;
         parseDragonBonesData(rawData: any, scale?: number): DragonBonesData | null;

@@ -867,7 +867,7 @@ namespace dragonBones {
                         const weight = floatArray[iV++];
                         let vx = floatArray[iV++] * scale;
                         let vy = floatArray[iV++] * scale;
-                        if (hasDeform) {
+                        if (hasDeform && deformVertices) {
                             vx += deformVertices[iF++];
                             vy += deformVertices[iF++];
                         }

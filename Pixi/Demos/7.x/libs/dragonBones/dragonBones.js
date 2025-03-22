@@ -2241,6 +2241,7 @@ var dragonBones;
         constructor() {
             super(...arguments);
             this.shape = null; // Initial value.
+            this.geometry = new GeometryData();
         }
         static toString() {
             return "[class dragonBones.ShapeDisplayData]";
@@ -5437,12 +5438,18 @@ var dragonBones;
                 if (this.displayData.type === 4 /* Path */) {
                     return this.displayData.geometry;
                 }
+                if (this.displayData.type === 5 /* Shape */) {
+                    return this.displayData.geometry;
+                }
             }
             if (this.rawDisplayData !== null) {
                 if (this.rawDisplayData.type === 2 /* Mesh */) {
                     return this.rawDisplayData.geometry;
                 }
                 if (this.rawDisplayData.type === 4 /* Path */) {
+                    return this.rawDisplayData.geometry;
+                }
+                if (this.rawDisplayData.type === 5 /* Shape */) {
                     return this.rawDisplayData.geometry;
                 }
             }
@@ -5976,7 +5983,11 @@ var dragonBones;
                 }
             }
             if (this._shapeData !== null && this._display === this._shapeDisplay) {
-                if (this._shapeDirty || this._shapeVerticesDirty) {
+                let isSkinned = false;
+                if (this._geometryData && this._geometryData.weight) {
+                    isSkinned = true;
+                }
+                if (this._shapeDirty || this._shapeVerticesDirty || (isSkinned && this._isBonesUpdate())) {
                     this._shapeVerticesDirty = false;
                     this._shapeDirty = false;
                     this._updateShape();
@@ -7227,7 +7238,7 @@ var dragonBones;
                         const weight = floatArray[iV++];
                         let vx = floatArray[iV++] * scale;
                         let vy = floatArray[iV++] * scale;
-                        if (hasDeform) {
+                        if (hasDeform && deformVertices) {
                             vx += deformVertices[iF++];
                             vy += deformVertices[iF++];
                         }
@@ -12822,7 +12833,7 @@ var dragonBones;
             surface.name = ObjectDataParser._getString(rawData, dragonBones.DataParser.NAME, "");
             surface.segmentX = ObjectDataParser._getNumber(rawData, dragonBones.DataParser.SEGMENT_X, 0);
             surface.segmentY = ObjectDataParser._getNumber(rawData, dragonBones.DataParser.SEGMENT_Y, 0);
-            this._parseGeometry(rawData, surface.geometry);
+            this._parseGeometry(rawData, rawData, surface.geometry);
             return surface;
         }
         _parseIKConstraint(rawData) {
@@ -13108,14 +13119,19 @@ var dragonBones;
                     break;
                 }
                 case 5 /* Shape */: {
-                    const shape = this._parseShape(rawData);
-                    if (shape !== null) {
-                        const shapeDisplay = display = dragonBones.BaseObject.borrowObject(dragonBones.ShapeDisplayData);
-                        shapeDisplay.name = name;
-                        shapeDisplay.path = path.length > 0 ? path : name;
-                        shapeDisplay.shape = shape;
-                        shapeDisplay.mask = ObjectDataParser._getBoolean(rawData, dragonBones.DataParser.MASK, false);
-                        shapeDisplay.maskRange = ObjectDataParser._getNumber(rawData, dragonBones.DataParser.MASK_RANGE, 0);
+                    const shapeDisplay = display = dragonBones.BaseObject.borrowObject(dragonBones.ShapeDisplayData);
+                    shapeDisplay.name = name;
+                    shapeDisplay.path = path.length > 0 ? path : name;
+                    shapeDisplay.mask = ObjectDataParser._getBoolean(rawData, dragonBones.DataParser.MASK, false);
+                    shapeDisplay.maskRange = ObjectDataParser._getNumber(rawData, dragonBones.DataParser.MASK_RANGE, 0);
+                    const shape = this._parseShape(rawData, shapeDisplay);
+                    shapeDisplay.shape = shape;
+                    if (dragonBones.DataParser.WEIGHTS in rawData) { // Cache pose data.
+                        const rawSlotPose = rawData[dragonBones.DataParser.SLOT_POSE];
+                        const rawBonePoses = rawData[dragonBones.DataParser.BONE_POSE];
+                        const shapeName = this._skin.name + "_" + this._slot.name + "_" + display.name;
+                        this._weightSlotPose[shapeName] = rawSlotPose;
+                        this._weightBonePoses[shapeName] = rawBonePoses;
                     }
                     break;
                 }
@@ -13126,7 +13142,7 @@ var dragonBones;
             return display;
         }
         _parsePath(rawData, display) {
-            this._parseGeometry(rawData, display.geometry);
+            this._parseGeometry(rawData, rawData, display.geometry);
             if (dragonBones.DataParser.WEIGHTS in rawData) { // Cache pose data.
                 const rawSlotPose = rawData[dragonBones.DataParser.SLOT_POSE];
                 const rawBonePoses = rawData[dragonBones.DataParser.BONE_POSE];
@@ -13147,7 +13163,7 @@ var dragonBones;
             }
         }
         _parseMesh(rawData, mesh) {
-            this._parseGeometry(rawData, mesh.geometry);
+            this._parseGeometry(rawData, rawData, mesh.geometry);
             if (dragonBones.DataParser.WEIGHTS in rawData) { // Cache pose data.
                 const rawSlotPose = rawData[dragonBones.DataParser.SLOT_POSE];
                 const rawBonePoses = rawData[dragonBones.DataParser.BONE_POSE];
@@ -13227,7 +13243,7 @@ var dragonBones;
             }
             return polygonBoundingBox;
         }
-        _parseShape(rawData) {
+        _parseShape(rawData, shapeDisplay) {
             let shape = null;
             shape = dragonBones.BaseObject.borrowObject(dragonBones.ShapeData);
             if (dragonBones.DataParser.SHAPE in rawData) {
@@ -13242,6 +13258,7 @@ var dragonBones;
                         shape.paths.push(shapeData.paths[i]);
                     }
                 }
+                this._parseGeometry(shapeData, rawData, shapeDisplay.geometry);
             }
             else {
                 console.warn("Data error.\n Please reexport DragonBones Data to fixed the bug.");
@@ -14175,28 +14192,28 @@ var dragonBones;
             const frameOffset = this._parseTweenFrame(rawData, frameStart, frameCount);
             const rawVertices = dragonBones.DataParser.VERTICES in rawData ? rawData[dragonBones.DataParser.VERTICES] : null;
             const offset = ObjectDataParser._getNumber(rawData, dragonBones.DataParser.OFFSET, 0); // uint
-            const vertexCount = this._shape.shape ? this._shape.shape.vertices.length / 6 : 0;
-            // TODO: 把shape的数据存到_intArray里,来兼容二进制数据
-            // const vertexCount = this._intArray[this._mesh.geometry.offset + BinaryOffset.GeometryVertexCount];
+            const vertexCount = this._intArray[this._shape.geometry.offset + 0 /* GeometryVertexCount */];
+            const shapeName = this._shape.parent.name + "_" + this._slot.name + "_" + this._shape.name;
+            const weight = this._shape.geometry.weight;
             let x = 0.0;
             let y = 0.0;
-            let c0X = 0.0;
-            let c0Y = 0.0;
-            let c1X = 0.0;
-            let c1Y = 0.0;
-            const vertexValueCount = 6; // 贝塞尔曲线3个点
-            this._frameFloatArray.length += vertexCount * vertexValueCount;
-            for (let i = 0; i < vertexCount * vertexValueCount; i += vertexValueCount) {
+            let iB = 0;
+            let iV = 0;
+            if (weight !== null) {
+                const rawSlotPose = this._weightSlotPose[shapeName];
+                this._helpMatrixA.copyFromArray(rawSlotPose, 0);
+                this._frameFloatArray.length += weight.count * 2;
+                iB = weight.offset + 2 /* WeigthBoneIndices */ + weight.bones.length;
+            }
+            else {
+                this._frameFloatArray.length += vertexCount * 2;
+            }
+            for (let i = 0; i < vertexCount * 2; i += 2) {
                 if (rawVertices === null) { // Fill 0.
                     x = 0.0;
                     y = 0.0;
-                    c0X = 0.0;
-                    c0Y = 0.0;
-                    c1X = 0.0;
-                    c1Y = 0.0;
                 }
                 else {
-                    // 这个offset表示数据前面省略了多少个0
                     if (i < offset || i - offset >= rawVertices.length) {
                         x = 0.0;
                     }
@@ -14209,46 +14226,36 @@ var dragonBones;
                     else {
                         y = rawVertices[i + 1 - offset];
                     }
-                    if (i + 2 < offset || i + 2 - offset >= rawVertices.length) {
-                        c0X = 0.0;
-                    }
-                    else {
-                        c0X = rawVertices[i + 2 - offset];
-                    }
-                    if (i + 3 < offset || i + 3 - offset >= rawVertices.length) {
-                        c0Y = 0.0;
-                    }
-                    else {
-                        c0Y = rawVertices[i + 3 - offset];
-                    }
-                    if (i + 4 < offset || i + 4 - offset >= rawVertices.length) {
-                        c1X = 0.0;
-                    }
-                    else {
-                        c1X = rawVertices[i + 4 - offset];
-                    }
-                    if (i + 5 < offset || i + 5 - offset >= rawVertices.length) {
-                        c1Y = 0.0;
-                    }
-                    else {
-                        c1Y = rawVertices[i + 5 - offset];
+                }
+                if (weight !== null) { // If path is skinned, transform point by bone bind pose.
+                    // TODO: path可以被像mesh一样被骨骼绑定
+                    const rawBonePoses = this._weightBonePoses[shapeName];
+                    const vertexBoneCount = this._intArray[iB++];
+                    this._helpMatrixA.transformPoint(x, y, this._helpPoint, true);
+                    x = this._helpPoint.x;
+                    y = this._helpPoint.y;
+                    for (let j = 0; j < vertexBoneCount; ++j) {
+                        const boneIndex = this._intArray[iB++];
+                        this._helpMatrixB.copyFromArray(rawBonePoses, boneIndex * 7 + 1);
+                        this._helpMatrixB.invert();
+                        this._helpMatrixB.transformPoint(x, y, this._helpPoint, true);
+                        this._frameFloatArray[frameFloatOffset + iV++] = this._helpPoint.x;
+                        this._frameFloatArray[frameFloatOffset + iV++] = this._helpPoint.y;
                     }
                 }
-                this._frameFloatArray[frameFloatOffset + i + 0] = x;
-                this._frameFloatArray[frameFloatOffset + i + 1] = y;
-                this._frameFloatArray[frameFloatOffset + i + 2] = c0X;
-                this._frameFloatArray[frameFloatOffset + i + 3] = c0Y;
-                this._frameFloatArray[frameFloatOffset + i + 4] = c1X;
-                this._frameFloatArray[frameFloatOffset + i + 5] = c1Y;
+                else {
+                    this._frameFloatArray[frameFloatOffset + i] = x;
+                    this._frameFloatArray[frameFloatOffset + i + 1] = y;
+                }
             }
             if (frameStart === 0) {
                 const frameIntOffset = this._frameIntArray.length;
                 this._frameIntArray.length += 1 + 1 + 1 + 1 + 1;
-                this._frameIntArray[frameIntOffset + 0 /* ShapeVerticesOffset */] = this._shape.shape ? this._shape.shape.offset : 0;
-                this._frameIntArray[frameIntOffset + 1 /* ShapeVerticesCount */] = this._frameFloatArray.length - frameFloatOffset;
-                this._frameIntArray[frameIntOffset + 2 /* ShapeVerticesValueCount */] = this._frameFloatArray.length - frameFloatOffset;
-                this._frameIntArray[frameIntOffset + 3 /* ShapeVerticesValueOffset */] = 0;
-                this._frameIntArray[frameIntOffset + 4 /* ShapeVerticesFloatOffset */] = frameFloatOffset - this._animation.frameFloatOffset;
+                this._frameIntArray[frameIntOffset + 0 /* DeformVertexOffset */] = this._path.geometry.offset;
+                this._frameIntArray[frameIntOffset + 1 /* DeformCount */] = this._frameFloatArray.length - frameFloatOffset;
+                this._frameIntArray[frameIntOffset + 2 /* DeformValueCount */] = this._frameFloatArray.length - frameFloatOffset;
+                this._frameIntArray[frameIntOffset + 3 /* DeformValueOffset */] = 0;
+                this._frameIntArray[frameIntOffset + 4 /* DeformFloatOffset */] = frameFloatOffset - this._animation.frameFloatOffset;
                 this._timelineArray[this._timeline.offset + 5 /* TimelineFrameValueCount */] = frameIntOffset - this._animation.frameIntOffset;
             }
             return frameOffset;
@@ -14434,7 +14441,7 @@ var dragonBones;
             color.greenOffset = ObjectDataParser._getNumber(rawData, dragonBones.DataParser.GREEN_OFFSET, 0);
             color.blueOffset = ObjectDataParser._getNumber(rawData, dragonBones.DataParser.BLUE_OFFSET, 0);
         }
-        _parseGeometry(rawData, geometry) {
+        _parseGeometry(rawData, riggingData, geometry) {
             const rawVertices = rawData[dragonBones.DataParser.VERTICES];
             const vertexCount = Math.floor(rawVertices.length / 2); // uint
             let triangleCount = 0;
@@ -14472,8 +14479,8 @@ var dragonBones;
                     this._floatArray[uvOffset + i] = rawUVs[i];
                 }
             }
-            if (dragonBones.DataParser.WEIGHTS in rawData) {
-                const rawWeights = rawData[dragonBones.DataParser.WEIGHTS];
+            if (dragonBones.DataParser.WEIGHTS in riggingData) {
+                const rawWeights = riggingData[dragonBones.DataParser.WEIGHTS];
                 const weightCount = Math.floor(rawWeights.length - vertexCount) / 2; // uint
                 const weightOffset = this._intArray.length;
                 const floatOffset = this._floatArray.length;
@@ -14484,9 +14491,9 @@ var dragonBones;
                 weight.offset = weightOffset;
                 this._intArray.length += 1 + 1 + weightBoneCount + vertexCount + weightCount;
                 this._intArray[weightOffset + 1 /* WeigthFloatOffset */] = floatOffset;
-                if (dragonBones.DataParser.BONE_POSE in rawData) {
-                    const rawSlotPose = rawData[dragonBones.DataParser.SLOT_POSE];
-                    const rawBonePoses = rawData[dragonBones.DataParser.BONE_POSE];
+                if (dragonBones.DataParser.BONE_POSE in riggingData) {
+                    const rawSlotPose = riggingData[dragonBones.DataParser.SLOT_POSE];
+                    const rawBonePoses = riggingData[dragonBones.DataParser.BONE_POSE];
                     const weightBoneIndices = new Array();
                     // 7 表示 7个数表示一个骨骼的pose， 0是骨骼索引， 1-6是matrix
                     weightBoneCount = Math.floor(rawBonePoses.length / 7); // uint
@@ -14524,7 +14531,7 @@ var dragonBones;
                 }
                 else {
                     // 没有bonePose，只有bones
-                    const rawBones = rawData[dragonBones.DataParser.BONES];
+                    const rawBones = riggingData[dragonBones.DataParser.BONES];
                     weightBoneCount = rawBones.length;
                     for (let i = 0; i < weightBoneCount; i++) {
                         const rawBoneIndex = rawBones[i];
@@ -16739,54 +16746,130 @@ var dragonBones;
             const shapeVertices = this._displayFrame.shapeVertices;
             const hasMorph = shapeVertices && shapeVertices.length > 0;
             const pointValueCount = 6;
-            for (let i = 0, len = shapeData.paths.length; i < len; i++) {
-                const path = shapeData.paths[i];
-                const { indexes, style } = path;
-                const { fill, stroke } = style;
-                if (indexes.length === 0) {
-                    continue;
+            const bones = this._geometryBones;
+            const geometryData = this._geometryData;
+            const weightData = geometryData.weight;
+            if (weightData !== null) {
+                // 保存所有计算完rigging的点的坐标
+                const riggingVertices = [];
+                const data = geometryData.data;
+                const intArray = data.intArray;
+                const floatArray = data.floatArray;
+                const vertexCount = intArray[geometryData.offset + 0 /* GeometryVertexCount */];
+                let weightFloatOffset = intArray[weightData.offset + 1 /* WeigthFloatOffset */];
+                if (weightFloatOffset < 0) {
+                    weightFloatOffset += 65536; // Fixed out of bouds bug. 
                 }
-                if (stroke) {
-                    shapeDisplay.lineStyle(stroke.width || 1, stroke.color || 0, stroke.opacity || 0);
-                }
-                else {
-                    shapeDisplay.lineStyle(0, 0, 0);
-                }
-                if (fill) {
-                    shapeDisplay.beginFill(fill.color, fill.opacity);
-                }
-                for (let j = 0, jLen = indexes.length; j < jLen; j++) {
-                    const pointIndex = indexes[j] * pointValueCount;
-                    // TODO: 数据存到floatArray里面
-                    let x = shapeData.vertices[pointIndex + 0] * scale;
-                    let y = shapeData.vertices[pointIndex + 1] * scale;
-                    let c0x = shapeData.vertices[pointIndex + 2] * scale;
-                    let c0y = shapeData.vertices[pointIndex + 3] * scale;
-                    if (hasMorph) {
-                        const morphIndex = pointIndex;
-                        x += shapeVertices[morphIndex];
-                        y += shapeVertices[morphIndex + 1];
-                        c0x += shapeVertices[morphIndex + 2];
-                        c0y += shapeVertices[morphIndex + 3];
-                        ;
+                for (let i = 0, iD = 0, iB = weightData.offset + 2 /* WeigthBoneIndices */ + bones.length, iV = weightFloatOffset, iF = 0; i < vertexCount; ++i) {
+                    const boneCount = intArray[iB++];
+                    let xG = 0.0, yG = 0.0;
+                    for (let j = 0; j < boneCount; ++j) {
+                        const boneIndex = intArray[iB++];
+                        const bone = bones[boneIndex];
+                        if (bone !== null) {
+                            const matrix = bone.globalTransformMatrix;
+                            const weight = floatArray[iV++];
+                            let xL = floatArray[iV++] * scale;
+                            let yL = floatArray[iV++] * scale;
+                            if (hasMorph) {
+                                xL += shapeVertices[iF++];
+                                yL += shapeVertices[iF++];
+                            }
+                            xG += (matrix.a * xL + matrix.c * yL + matrix.tx) * weight;
+                            yG += (matrix.b * xL + matrix.d * yL + matrix.ty) * weight;
+                        }
                     }
-                    if (j === 0) {
-                        shapeDisplay.moveTo(x, y);
+                    riggingVertices[iD++] = xG;
+                    riggingVertices[iD++] = yG;
+                }
+                // 画图
+                for (let i = 0, len = shapeData.paths.length; i < len; i++) {
+                    const path = shapeData.paths[i];
+                    const { indexes, style } = path;
+                    const { fill, stroke } = style;
+                    if (indexes.length === 0) {
+                        continue;
+                    }
+                    if (stroke) {
+                        shapeDisplay.lineStyle(stroke.width || 1, stroke.color || 0, stroke.opacity || 0);
                     }
                     else {
-                        const prevPointIndex = indexes[j - 1] * pointValueCount;
-                        let prevC1x = shapeData.vertices[prevPointIndex + 4] * scale;
-                        let prevC1y = shapeData.vertices[prevPointIndex + 5] * scale;
-                        if (hasMorph) {
-                            const morphIndex = prevPointIndex;
-                            prevC1x += shapeVertices[morphIndex + 4];
-                            prevC1y += shapeVertices[morphIndex + 5];
+                        shapeDisplay.lineStyle(0, 0, 0);
+                    }
+                    if (fill) {
+                        shapeDisplay.beginFill(fill.color, fill.opacity);
+                    }
+                    for (let j = 0, jLen = indexes.length; j < jLen; j++) {
+                        const pointIndex = indexes[j] * pointValueCount;
+                        let x = riggingVertices[pointIndex + 2];
+                        let y = riggingVertices[pointIndex + 3];
+                        let c0x = riggingVertices[pointIndex + 0];
+                        let c0y = riggingVertices[pointIndex + 1];
+                        if (j === 0) {
+                            shapeDisplay.moveTo(x, y);
                         }
-                        shapeDisplay.bezierCurveTo(prevC1x, prevC1y, c0x, c0y, x, y);
+                        else {
+                            const prevPointIndex = indexes[j - 1] * pointValueCount;
+                            let prevC1x = riggingVertices[prevPointIndex + 4];
+                            let prevC1y = riggingVertices[prevPointIndex + 5];
+                            shapeDisplay.bezierCurveTo(prevC1x, prevC1y, c0x, c0y, x, y);
+                        }
+                    }
+                    if (fill) {
+                        shapeDisplay.endFill();
                     }
                 }
-                if (fill) {
-                    shapeDisplay.endFill();
+            }
+            else {
+                for (let i = 0, len = shapeData.paths.length; i < len; i++) {
+                    const path = shapeData.paths[i];
+                    const { indexes, style } = path;
+                    const { fill, stroke } = style;
+                    if (indexes.length === 0) {
+                        continue;
+                    }
+                    if (stroke) {
+                        shapeDisplay.lineStyle(stroke.width || 1, stroke.color || 0, stroke.opacity || 0);
+                    }
+                    else {
+                        shapeDisplay.lineStyle(0, 0, 0);
+                    }
+                    if (fill) {
+                        shapeDisplay.beginFill(fill.color, fill.opacity);
+                    }
+                    for (let j = 0, jLen = indexes.length; j < jLen; j++) {
+                        const pointIndex = indexes[j] * pointValueCount;
+                        // TODO: 数据存到floatArray里面
+                        let x = shapeData.vertices[pointIndex + 2] * scale;
+                        let y = shapeData.vertices[pointIndex + 3] * scale;
+                        let c0x = shapeData.vertices[pointIndex + 0] * scale;
+                        let c0y = shapeData.vertices[pointIndex + 1] * scale;
+                        if (hasMorph) {
+                            const morphIndex = pointIndex;
+                            x += shapeVertices[morphIndex + 2];
+                            y += shapeVertices[morphIndex + 3];
+                            c0x += shapeVertices[morphIndex + 0];
+                            c0y += shapeVertices[morphIndex + 1];
+                            ;
+                        }
+                        if (j === 0) {
+                            shapeDisplay.moveTo(x, y);
+                        }
+                        else {
+                            const prevPointIndex = indexes[j - 1] * pointValueCount;
+                            let prevC1x = shapeData.vertices[prevPointIndex + 4] * scale;
+                            let prevC1y = shapeData.vertices[prevPointIndex + 5] * scale;
+                            if (hasMorph) {
+                                const morphIndex = prevPointIndex;
+                                prevC1x += shapeVertices[morphIndex + 4];
+                                prevC1y += shapeVertices[morphIndex + 5];
+                            }
+                            shapeDisplay.bezierCurveTo(prevC1x, prevC1y, c0x, c0y, x, y);
+                        }
+                    }
+                    if (fill) {
+                        shapeDisplay.endFill();
+                    }
                 }
             }
         }
