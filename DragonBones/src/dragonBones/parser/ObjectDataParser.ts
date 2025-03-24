@@ -390,7 +390,6 @@ namespace dragonBones {
                     }
                 }
             }
-            armature.sortBones();
 
             if (DataParser.SLOT in rawData) {
                 let zOrder = 0;
@@ -467,6 +466,7 @@ namespace dragonBones {
                 }
             }
 
+            armature.sortBones();
             // Clear helper.
             this._rawBones.length = 0;
             this._cacheRawMeshes.length = 0;

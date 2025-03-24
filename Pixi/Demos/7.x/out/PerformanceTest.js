@@ -5,7 +5,11 @@ class PerformanceTest extends BaseDemo {
         this._addingArmature = false;
         this._removingArmature = false;
         this._armatures = [];
-        this._resources.push("resource/mecha_1406/mecha_1406_ske.dbbin", "resource/mecha_1406/mecha_1406_tex.json", "resource/mecha_1406/mecha_1406_tex.png");
+        this._resources.push(
+            "resource/mecha_1406/mecha_1406_ske.dbbin", 
+            "resource/mecha_1406/mecha_1406_ske.json", 
+            "resource/mecha_1406/mecha_1406_tex.json", 
+            "resource/mecha_1406/mecha_1406_tex.png");
     }
     _onStart() {
         this.interactive = true;
@@ -58,7 +62,8 @@ class PerformanceTest extends BaseDemo {
     _addArmature() {
         const factory = dragonBones.PixiFactory.factory;
         if (this._armatures.length === 0) {
-            factory.parseDragonBonesData(this._pixiResources["resource/mecha_1406/mecha_1406_ske.dbbin"]);
+            // factory.parseDragonBonesData(this._pixiResources["resource/mecha_1406/mecha_1406_ske.dbbin"]);
+            factory.parseDragonBonesData(this._pixiResources["resource/mecha_1406/mecha_1406_ske.json"]);
             factory.parseTextureAtlasData(this._pixiResources["resource/mecha_1406/mecha_1406_tex.json"], this._pixiResources["resource/mecha_1406/mecha_1406_tex.png"]);
         }
         const armatureDisplay = dragonBones.PixiFactory.factory.buildArmatureDisplay("mecha_1406");

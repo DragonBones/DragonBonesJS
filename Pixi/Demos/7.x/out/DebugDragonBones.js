@@ -152,9 +152,9 @@ class DebugDragonBones extends BaseDemo {
             const armatureDisplay = factory.buildArmatureDisplay("armature1");
             armatureDisplay.debugDraw = true;
             armatureDisplay.animation.play("newAnimation", 1);
-            armatureDisplay.x = -400;
+            armatureDisplay.x = -200;
             armatureDisplay.y = 0
-            armatureDisplay.scale.set(0.3);
+            armatureDisplay.scale.set(0.75);
             this.addChild(armatureDisplay);
         }
        

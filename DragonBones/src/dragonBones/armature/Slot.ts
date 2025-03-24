@@ -817,6 +817,9 @@ namespace dragonBones {
                     this._shapeDirty = false;
                     this._updateShape();
                 }
+                if(isSkinned) {
+                    return;
+                }
             }
 
 

@@ -1486,6 +1486,38 @@ var dragonBones;
                         flag = true;
                         break;
                     }
+                    else if (constraint instanceof dragonBones.PathConstraintData) {
+                        var pathConstraint = constraint;
+                        if (pathConstraint.bones.indexOf(bone) >= 0) {
+                            var pathSlot = pathConstraint.pathSlot;
+                            var isSkinned = pathConstraint.pathDisplayData.geometry.weight;
+                            if (!isSkinned) {
+                                var parentBone = pathSlot.parent;
+                                if (this.sortedBones.indexOf(parentBone) < 0) {
+                                    flag = true;
+                                    break;
+                                }
+                            }
+                            else {
+                                var weight = pathConstraint.pathDisplayData.geometry.weight;
+                                if (weight && weight.bones) {
+                                    var noRiggingBone = false;
+                                    for (var i = 0, l = weight.bones.length; i < l; ++i) {
+                                        var bone_1 = weight.bones[i];
+                                        if (this.sortedBones.indexOf(bone_1) < 0) {
+                                            noRiggingBone = true;
+                                            break;
+                                        }
+                                    }
+                                    if (noRiggingBone) {
+                                        flag = true;
+                                        break;
+                                    }
+                                }
+                            }
+                            break;
+                        }
+                    }
                 }
                 if (flag) {
                     continue;
@@ -6317,6 +6349,9 @@ var dragonBones;
                     this._shapeDirty = false;
                     this._updateShape();
                 }
+                if (isSkinned) {
+                    return;
+                }
             }
             if (cacheFrameIndex >= 0 && this._cachedFrameIndices !== null) {
                 var cachedFrameIndex = this._cachedFrameIndices[cacheFrameIndex];
@@ -7643,7 +7678,6 @@ var dragonBones;
                         if (bone === null) {
                             continue;
                         }
-                        bone.updateByConstraint();
                         var matrix = bone.globalTransformMatrix;
                         var weight = floatArray[iV++];
                         var vx = floatArray[iV++] * scale;
@@ -13431,7 +13465,6 @@ var dragonBones;
                     }
                 }
             }
-            armature.sortBones();
             if (dragonBones.DataParser.SLOT in rawData) {
                 var zOrder = 0;
                 var rawSlots = rawData[dragonBones.DataParser.SLOT];
@@ -13502,6 +13535,7 @@ var dragonBones;
                     armature.addAction(action, false);
                 }
             }
+            armature.sortBones();
             // Clear helper.
             this._rawBones.length = 0;
             this._cacheRawMeshes.length = 0;

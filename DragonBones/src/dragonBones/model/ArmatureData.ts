@@ -255,6 +255,38 @@ namespace dragonBones {
                         flag = true;
                         break;
                     }
+                    else if(constraint instanceof PathConstraintData) {
+                        const pathConstraint = constraint as PathConstraintData;
+                        if(pathConstraint.bones.indexOf(bone) >= 0) {
+                            const pathSlot = pathConstraint.pathSlot;
+                            const isSkinned = pathConstraint.pathDisplayData.geometry.weight;
+                            if(!isSkinned) {
+                                const parentBone = pathSlot.parent;
+                                if (this.sortedBones.indexOf(parentBone) < 0) {
+                                    flag = true;
+                                    break;
+                                }
+                            }
+                            else {
+                                const weight = pathConstraint.pathDisplayData.geometry.weight;
+                                if (weight && weight.bones) {
+                                    let noRiggingBone = false;
+                                    for (let i = 0, l = weight.bones.length; i < l; ++i) {
+                                        const bone = weight.bones[i];
+                                        if (this.sortedBones.indexOf(bone) < 0) {
+                                            noRiggingBone = true;
+                                            break;
+                                        }
+                                    }
+                                    if (noRiggingBone) {
+                                        flag = true;
+                                        break;
+                                    }
+                                }
+                            }
+                            break;
+                        }
+                    }
                 }
 
                 if (flag) {
@@ -353,7 +385,6 @@ namespace dragonBones {
                 console.warn("Same constraint: " + value.name);
                 return;
             }
-
             this.constraints[value.name] = value;
         }
         /**

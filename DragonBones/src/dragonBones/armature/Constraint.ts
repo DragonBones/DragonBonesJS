@@ -861,8 +861,7 @@ namespace dragonBones {
                         if (bone === null) {
                             continue;
                         }
-
-                        bone.updateByConstraint();
+                        
                         const matrix = bone.globalTransformMatrix;
                         const weight = floatArray[iV++];
                         let vx = floatArray[iV++] * scale;

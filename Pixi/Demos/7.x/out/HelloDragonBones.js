@@ -20,14 +20,16 @@ class HelloDragonBones extends BaseDemo {
     constructor() {
         super();
         this._resources.push(
-        // "resource/mecha_1002_101d_show/mecha_1002_101d_show_ske.json",
-        "resource/mecha_1002_101d_show/mecha_1002_101d_show_ske.dbbin", "resource/mecha_1002_101d_show/mecha_1002_101d_show_tex.json", "resource/mecha_1002_101d_show/mecha_1002_101d_show_tex.png");
+        "resource/mecha_1002_101d_show/mecha_1002_101d_show_ske.json",
+        "resource/mecha_1002_101d_show/mecha_1002_101d_show_ske.dbbin", 
+        "resource/mecha_1002_101d_show/mecha_1002_101d_show_tex.json", 
+        "resource/mecha_1002_101d_show/mecha_1002_101d_show_tex.png");
     }
     _onStart() {
         const factory = dragonBones.PixiFactory.factory;
         console.log('skk', this._pixiResources);
-        // factory.parseDragonBonesData(this._pixiResources["resource/mecha_1002_101d_show/mecha_1002_101d_show_ske.json"]);
-        factory.parseDragonBonesData(this._pixiResources["resource/mecha_1002_101d_show/mecha_1002_101d_show_ske.dbbin"]);
+        factory.parseDragonBonesData(this._pixiResources["resource/mecha_1002_101d_show/mecha_1002_101d_show_ske.json"]);
+        // factory.parseDragonBonesData(this._pixiResources["resource/mecha_1002_101d_show/mecha_1002_101d_show_ske.dbbin"]);
         factory.parseTextureAtlasData(this._pixiResources["resource/mecha_1002_101d_show/mecha_1002_101d_show_tex.json"], this._pixiResources["resource/mecha_1002_101d_show/mecha_1002_101d_show_tex.png"]);
         const armatureDisplay = factory.buildArmatureDisplay("mecha_1002_101d", "mecha_1002_101d_show");
         armatureDisplay.animation.play("idle");
