@@ -1358,7 +1358,14 @@ namespace dragonBones {
             }
             else {
                 for (let i = 0; i < spacesCount; i++) {
-                    spaces[i] = spacing;
+                    if(spacingMode === SpacingMode.Percent) {
+                        if (i === 0) {
+                            spaces[0] = 0;
+                        }
+                        else {
+                            spaces[i] = (spacing * 0.01);
+                        }
+                    }
                 }
             }
 
