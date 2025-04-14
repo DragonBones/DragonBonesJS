@@ -427,13 +427,6 @@ namespace dragonBones {
                 }
             }
             else {
-                if (this._hasConstraint) { // Update constraints.
-                    for (const constraint of this._armature._constraints) {
-                        if (constraint._root === this) {
-                            constraint.update();
-                        }
-                    }
-                }
 
                 if (this._transformDirty || (this._parent !== null && this._parent._childrenTransformDirty)) { // Dirty.
                     cacheFrameIndex = -1;
@@ -467,6 +460,16 @@ namespace dragonBones {
 
             if(this._transformConstraint) {
                 this._transformConstraint.update();
+                // 防止ik约束再计算一遍globalTransformMatrix
+                this._localDirty = false;
+            }
+            // FIXME: 临时把ik的处理放这里，后面需要总和考虑
+            if (this._hasConstraint) { // Update constraints.
+                for (const constraint of this._armature._constraints) {
+                    if (constraint._root === this) {
+                        constraint.update();
+                    }
+                }
             }
             if(this._physicsConstraint && !this._physicsConstraint._sleeping) {
                 this._physicsConstraint.update();

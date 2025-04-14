@@ -149,9 +149,9 @@ class DebugDragonBones extends BaseDemo {
             factory.parseTextureAtlasData(this._pixiResources["resource/debug/path-rigging_tex.json"], 
                                           this._pixiResources["resource/debug/path-rigging_tex.png"]);
             factory.pixiApp = this;
-            const armatureDisplay = factory.buildArmatureDisplay("newArmature");
+            const armatureDisplay = factory.buildArmatureDisplay("zhujiang1");
             armatureDisplay.debugDraw = true;
-            armatureDisplay.animation.play("newAnimation", 1);
+            armatureDisplay.animation.play("idle", 1);
             armatureDisplay.x = -200;
             armatureDisplay.y = 200
             armatureDisplay.scale.set(0.55);

@@ -305,10 +305,14 @@ namespace dragonBones {
 
         private _compute(): void {
             if (this._target && this._root) {
+                if(this._scaleWeight === 0 && this._rotateWeight === 0 && this._translateWeight === 0) {
+                    return;
+                }
                 const transformConstraintData = this._constraintData as TransformConstraintData;
                 const {offsetX, offsetY, offsetRotation, offsetScaleX, offsetScaleY, local} = transformConstraintData;
                 
                 const globalTransformMatrix = this._root.globalTransformMatrix;
+                this._root.global.fromMatrix(globalTransformMatrix);
                 if(local) {
                     const parentMatrix = this._target.globalTransformMatrix;
                     const localMatrix = this._helpMatrix1.copyFrom(parentMatrix);
@@ -318,19 +322,33 @@ namespace dragonBones {
                         localMatrix.concat(p);
                     }
                     const localTransform = this._helpTransform.fromMatrix(localMatrix);
-                    this._root.global.x = this._root.global.x * (1 - this._translateWeight) + localTransform.x * this._translateWeight + offsetX;
-                    this._root.global.y = this._root.global.y * (1 - this._translateWeight) + localTransform.y * this._translateWeight + offsetY;
-                    this._root.global.rotation = this._root.global.rotation * (1 - this._rotateWeight) + localTransform.rotation * this._rotateWeight + offsetRotation;
-                    this._root.global.scaleX = this._root.global.scaleX * (1 - this._scaleWeight) + localTransform.scaleX * this._scaleWeight + offsetScaleX;
-                    this._root.global.scaleY = this._root.global.scaleY * (1 - this._scaleWeight) + localTransform.scaleY * this._scaleWeight + offsetScaleY;
+                    if(this._translateWeight !== 0) {
+                        this._root.global.x = this._root.global.x * (1 - this._translateWeight) + (localTransform.x + offsetX) * this._translateWeight;
+                        this._root.global.y = this._root.global.y * (1 - this._translateWeight) + (localTransform.y + offsetY) * this._translateWeight;
+                    }
+                    if (this._rotateWeight !== 0) {
+                        this._root.global.rotation = this._root.global.rotation * (1 - this._rotateWeight) + (localTransform.rotation + offsetRotation) * this._rotateWeight;
+                    }
+                    if (this._scaleWeight !== 0) {
+                        this._root.global.scaleX = this._root.global.scaleX * (1 - this._scaleWeight) + (localTransform.scaleX + offsetScaleX) * this._scaleWeight;
+                        this._root.global.scaleY = this._root.global.scaleY * (1 - this._scaleWeight) + (localTransform.scaleY + offsetScaleY) * this._scaleWeight;
+                    }
                     this._root.global.toMatrix(globalTransformMatrix);
                 }
                 else {
-                    this._root.global.x = this._root.global.x * (1 - this._translateWeight) + this._target.global.x * this._translateWeight + offsetX;
-                    this._root.global.y = this._root.global.y * (1 - this._translateWeight) + this._target.global.y * this._translateWeight + offsetY;
-                    this._root.global.rotation = this._root.global.rotation * (1 - this._rotateWeight) + this._target.global.rotation * this._rotateWeight + offsetRotation;
-                    this._root.global.scaleX = this._root.global.scaleX * (1 - this._scaleWeight) + this._target.global.scaleX * this._scaleWeight + offsetScaleX;
-                    this._root.global.scaleY = this._root.global.scaleY * (1 - this._scaleWeight) + this._target.global.scaleY * this._scaleWeight + offsetScaleY;
+                    
+                    const targetGlobalTransform = this._helpTransform.fromMatrix(this._target.globalTransformMatrix);
+                    if(this._translateWeight !== 0) {
+                        this._root.global.x = this._root.global.x * (1 - this._translateWeight) + (targetGlobalTransform.x + offsetX) * this._translateWeight;
+                        this._root.global.y = this._root.global.y * (1 - this._translateWeight) + (targetGlobalTransform.y + offsetY) * this._translateWeight;
+                    }
+                    if (this._rotateWeight !== 0) {
+                        this._root.global.rotation = this._root.global.rotation * (1 - this._rotateWeight) + (targetGlobalTransform.rotation + offsetRotation) * this._rotateWeight;
+                    }
+                    if (this._scaleWeight !== 0) {
+                        this._root.global.scaleX = this._root.global.scaleX * (1 - this._scaleWeight) + (targetGlobalTransform.scaleX + offsetScaleX) * this._scaleWeight;
+                        this._root.global.scaleY = this._root.global.scaleY * (1 - this._scaleWeight) + (targetGlobalTransform.scaleY + offsetScaleY) * this._scaleWeight;
+                    }
                     this._root.global.toMatrix(globalTransformMatrix);
                 }
             }
