@@ -4897,6 +4897,7 @@ var dragonBones;
                         }
                         if (isCache) {
                             global.fromMatrix(globalTransformMatrix);
+                            this._globalDirty = false;
                         }
                         else {
                             this._globalDirty = true;
@@ -5115,6 +5116,9 @@ var dragonBones;
                 this._localDirty = false;
                 if (this._transformDirty || (this._parent !== null && this._parent._childrenTransformDirty)) {
                     this._updateGlobalTransformMatrix(true);
+                }
+                else if (this._globalDirty) {
+                    this.global.fromMatrix(this.globalTransformMatrix);
                 }
                 this._transformDirty = true;
             }
@@ -7406,7 +7410,7 @@ var dragonBones;
                                         this._xVelocity *= damping;
                                     }
                                     if (hasY) {
-                                        this._yVelocity += (g + this._yOffset * this._strength) * this._massInverse * this._fpsTime;
+                                        this._yVelocity += (g - this._yOffset * this._strength) * this._massInverse * this._fpsTime;
                                         this._yOffset += this._yVelocity * this._fpsTime;
                                         this._yVelocity *= damping;
                                     }

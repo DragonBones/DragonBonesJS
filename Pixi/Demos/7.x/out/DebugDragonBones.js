@@ -26,7 +26,8 @@ class DebugDragonBones extends BaseDemo {
         this.vine                = false;
         this.test                = false;
         this.coin                = false;
-        this.path_rigging        = true;
+        this.path_rigging        = false;
+        this.bin                 = true;
 
         if (this.mask) {
             this._resources.push("resource/debug/dragonbones-mask.json");
@@ -58,6 +59,11 @@ class DebugDragonBones extends BaseDemo {
             this._resources.push("resource/debug/path-rigging.json");
             this._resources.push("resource/debug/path-rigging_tex.json");
             this._resources.push("resource/debug/path-rigging_tex.png");
+        }
+        if (this.bin) {
+            this._resources.push("resource/debug/dbbin-test/action1_1_ske.dbbin");
+            this._resources.push("resource/debug/dbbin-test/action1_1_tex.json");
+            this._resources.push("resource/debug/dbbin-test/action1_1_tex.png");
         }
     }
     _onStart() {
@@ -149,9 +155,23 @@ class DebugDragonBones extends BaseDemo {
             factory.parseTextureAtlasData(this._pixiResources["resource/debug/path-rigging_tex.json"], 
                                           this._pixiResources["resource/debug/path-rigging_tex.png"]);
             factory.pixiApp = this;
-            const armatureDisplay = factory.buildArmatureDisplay("zhujiang1");
+            const armatureDisplay = factory.buildArmatureDisplay("skeleton");
             armatureDisplay.debugDraw = true;
-            armatureDisplay.animation.play("idle", 1);
+            // armatureDisplay.animation.play("idle", 1);
+            armatureDisplay.x = -200;
+            armatureDisplay.y = 200
+            armatureDisplay.scale.set(0.55);
+            this.addChild(armatureDisplay);
+        }
+        if (this.bin) {
+            console.log('bin', )
+            factory.parseDragonBonesData(this._pixiResources["resource/debug/dbbin-test/action1_1_ske.dbbin"]);
+            factory.parseTextureAtlasData(this._pixiResources["resource/debug/dbbin-test/action1_1_tex.json"], 
+                                          this._pixiResources["resource/debug/dbbin-test/action1_1_tex.png"]);
+            factory.pixiApp = this;
+            const armatureDisplay = factory.buildArmatureDisplay("action1_1");
+            armatureDisplay.debugDraw = true;
+            armatureDisplay.animation.play("stand", 0);
             armatureDisplay.x = -200;
             armatureDisplay.y = 200
             armatureDisplay.scale.set(0.55);

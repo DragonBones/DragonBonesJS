@@ -243,6 +243,7 @@ namespace dragonBones {
 
                         if (isCache) {
                             global.fromMatrix(globalTransformMatrix);
+                            this._globalDirty = false;
                         }
                         else {
                             this._globalDirty = true;
@@ -485,6 +486,9 @@ namespace dragonBones {
 
                 if (this._transformDirty || (this._parent !== null && this._parent._childrenTransformDirty)) {
                     this._updateGlobalTransformMatrix(true);
+                }
+                else if(this._globalDirty) {
+                    this.global.fromMatrix(this.globalTransformMatrix);
                 }
 
                 this._transformDirty = true;

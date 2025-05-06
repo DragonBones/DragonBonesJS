@@ -560,7 +560,7 @@ namespace dragonBones {
                                         this._xVelocity *= damping;
                                     }
                                     if (hasY) {
-                                        this._yVelocity += (g + this._yOffset * this._strength) * this._massInverse * this._fpsTime;
+                                        this._yVelocity += (g - this._yOffset * this._strength) * this._massInverse * this._fpsTime;
                                         this._yOffset += this._yVelocity * this._fpsTime;
                                         this._yVelocity *= damping;
                                     }
