@@ -1,7 +1,8 @@
 # DragonBones JavaScript / TypeScript 运行时
 [README in English](./README.md)
 ## [DragonBones 公共库](./DragonBones/)
-## 强烈建议使用 [DragonBones Pro](http://www.dragonbones.com/) 制作动画。
+## 强烈建议使用 [LoongBones](http://www.loongbones.com/) 制作动画。
+## 强烈建议使用 [LoongBones] English:(http://www.loongbones.app/) 制作动画。
 
 ## 支持的引擎
 * [Egret](http://www.egret.com/) - [如何在 Egret 中使用 DragonBones](./Egret/)
@@ -11,7 +12,8 @@
 * [Cocos Creator](http://www.cocos.com/) - [如何在 Cocos Creator 中使用 DragonBones](./Cocos/) 
 
 ## 了解更多
-* [DragonBones 官网](http://www.dragonbones.com/)
+* [DragonBones 官网](http://www.loongbones.com/)
+* [Loongbones English](http://www.loongbones.app/)
 
 ## 在线示例
 [![PerformanceTest](https://dragonbones.github.io/demo/demos.jpg)](https://github.com/DragonBones/Demos)

@@ -55,7 +55,7 @@ var dragonBones;
             this._objects = [];
             this._eventManager = null;
             this._eventManager = eventManager;
-            console.info(`DragonBones: ${DragonBones.VERSION}\nWebsite: http://dragonbones.com/\nSource and Demo: https://github.com/DragonBones/`);
+            console.info(`DragonBones: ${DragonBones.VERSION}\nWebsite: http://www.loongbones.app/\nSource and Demo: https://github.com/DragonBones/`);
         }
         advanceTime(passedTime) {
             if (this._objects.length > 0) {
