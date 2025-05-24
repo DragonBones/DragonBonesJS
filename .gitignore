@@ -18,3 +18,5 @@ lib-cov
 *.out
 *.pid
 *.gz
+Pixi/Demos/*/resource/*/
+Pixi/Demos/*/resource/*.png

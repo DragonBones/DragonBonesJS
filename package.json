@@ -1,6 +1,6 @@
 {
   "name": "dragonbones-runtime",
-  "version": "5.6.200",
+  "version": "5.7.0",
   "description": "the tools to build dragonbones file for diffrent framework",
   "homepage": "https://github.com/DragonBones/DragonBonesJS",
   "license": "MIT",

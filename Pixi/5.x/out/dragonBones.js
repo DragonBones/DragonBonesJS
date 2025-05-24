@@ -15,7 +15,7 @@ var __extends = (this && this.__extends) || (function () {
 /**
  * The MIT License (MIT)
  *
- * Copyright (c) 2012-2018 DragonBones team and other contributors
+ * Copyright (c) 2012-2025 DragonBones team and other contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -148,7 +148,7 @@ else if (typeof global !== "undefined") {
 /**
  * The MIT License (MIT)
  *
- * Copyright (c) 2012-2018 DragonBones team and other contributors
+ * Copyright (c) 2012-2025 DragonBones team and other contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -331,7 +331,7 @@ var dragonBones;
 /**
  * The MIT License (MIT)
  *
- * Copyright (c) 2012-2018 DragonBones team and other contributors
+ * Copyright (c) 2012-2025 DragonBones team and other contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -594,7 +594,7 @@ var dragonBones;
 /**
  * The MIT License (MIT)
  *
- * Copyright (c) 2012-2018 DragonBones team and other contributors
+ * Copyright (c) 2012-2025 DragonBones team and other contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -785,7 +785,7 @@ var dragonBones;
 /**
  * The MIT License (MIT)
  *
- * Copyright (c) 2012-2018 DragonBones team and other contributors
+ * Copyright (c) 2012-2025 DragonBones team and other contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -849,7 +849,7 @@ var dragonBones;
 /**
  * The MIT License (MIT)
  *
- * Copyright (c) 2012-2018 DragonBones team and other contributors
+ * Copyright (c) 2012-2025 DragonBones team and other contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -921,7 +921,7 @@ var dragonBones;
 /**
  * The MIT License (MIT)
  *
- * Copyright (c) 2012-2018 DragonBones team and other contributors
+ * Copyright (c) 2012-2025 DragonBones team and other contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -997,7 +997,7 @@ var dragonBones;
 /**
  * The MIT License (MIT)
  *
- * Copyright (c) 2012-2018 DragonBones team and other contributors
+ * Copyright (c) 2012-2025 DragonBones team and other contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -1168,7 +1168,7 @@ var dragonBones;
 /**
  * The MIT License (MIT)
  *
- * Copyright (c) 2012-2018 DragonBones team and other contributors
+ * Copyright (c) 2012-2025 DragonBones team and other contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -1300,7 +1300,7 @@ var dragonBones;
 /**
  * The MIT License (MIT)
  *
- * Copyright (c) 2012-2018 DragonBones team and other contributors
+ * Copyright (c) 2012-2025 DragonBones team and other contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -1824,7 +1824,7 @@ var dragonBones;
 /**
  * The MIT License (MIT)
  *
- * Copyright (c) 2012-2018 DragonBones team and other contributors
+ * Copyright (c) 2012-2025 DragonBones team and other contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -1921,7 +1921,7 @@ var dragonBones;
 /**
  * The MIT License (MIT)
  *
- * Copyright (c) 2012-2018 DragonBones team and other contributors
+ * Copyright (c) 2012-2025 DragonBones team and other contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -1968,7 +1968,7 @@ var dragonBones;
 /**
  * The MIT License (MIT)
  *
- * Copyright (c) 2012-2018 DragonBones team and other contributors
+ * Copyright (c) 2012-2025 DragonBones team and other contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -2071,7 +2071,7 @@ var dragonBones;
 /**
  * The MIT License (MIT)
  *
- * Copyright (c) 2012-2018 DragonBones team and other contributors
+ * Copyright (c) 2012-2025 DragonBones team and other contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -2306,7 +2306,7 @@ var dragonBones;
 /**
  * The MIT License (MIT)
  *
- * Copyright (c) 2012-2018 DragonBones team and other contributors
+ * Copyright (c) 2012-2025 DragonBones team and other contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -2884,7 +2884,7 @@ var dragonBones;
 /**
  * The MIT License (MIT)
  *
- * Copyright (c) 2012-2018 DragonBones team and other contributors
+ * Copyright (c) 2012-2025 DragonBones team and other contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -3170,7 +3170,7 @@ var dragonBones;
 /**
  * The MIT License (MIT)
  *
- * Copyright (c) 2012-2018 DragonBones team and other contributors
+ * Copyright (c) 2012-2025 DragonBones team and other contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -3287,7 +3287,7 @@ var dragonBones;
 /**
  * The MIT License (MIT)
  *
- * Copyright (c) 2012-2018 DragonBones team and other contributors
+ * Copyright (c) 2012-2025 DragonBones team and other contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -3425,7 +3425,7 @@ var dragonBones;
 /**
  * The MIT License (MIT)
  *
- * Copyright (c) 2012-2018 DragonBones team and other contributors
+ * Copyright (c) 2012-2025 DragonBones team and other contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -4325,7 +4325,7 @@ var dragonBones;
 /**
  * The MIT License (MIT)
  *
- * Copyright (c) 2012-2018 DragonBones team and other contributors
+ * Copyright (c) 2012-2025 DragonBones team and other contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -4470,7 +4470,7 @@ var dragonBones;
 /**
  * The MIT License (MIT)
  *
- * Copyright (c) 2012-2018 DragonBones team and other contributors
+ * Copyright (c) 2012-2025 DragonBones team and other contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -4985,7 +4985,7 @@ var dragonBones;
 /**
  * The MIT License (MIT)
  *
- * Copyright (c) 2012-2018 DragonBones team and other contributors
+ * Copyright (c) 2012-2025 DragonBones team and other contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -5450,7 +5450,7 @@ var dragonBones;
 /**
  * The MIT License (MIT)
  *
- * Copyright (c) 2012-2018 DragonBones team and other contributors
+ * Copyright (c) 2012-2025 DragonBones team and other contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -6616,7 +6616,7 @@ var dragonBones;
 /**
  * The MIT License (MIT)
  *
- * Copyright (c) 2012-2018 DragonBones team and other contributors
+ * Copyright (c) 2012-2025 DragonBones team and other contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -7321,7 +7321,7 @@ var dragonBones;
 /**
  * The MIT License (MIT)
  *
- * Copyright (c) 2012-2018 DragonBones team and other contributors
+ * Copyright (c) 2012-2025 DragonBones team and other contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -7570,7 +7570,7 @@ var dragonBones;
 /**
  * The MIT License (MIT)
  *
- * Copyright (c) 2012-2018 DragonBones team and other contributors
+ * Copyright (c) 2012-2025 DragonBones team and other contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -8488,7 +8488,7 @@ var dragonBones;
 /**
  * The MIT License (MIT)
  *
- * Copyright (c) 2012-2018 DragonBones team and other contributors
+ * Copyright (c) 2012-2025 DragonBones team and other contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -9807,7 +9807,7 @@ var dragonBones;
 /**
  * The MIT License (MIT)
  *
- * Copyright (c) 2012-2018 DragonBones team and other contributors
+ * Copyright (c) 2012-2025 DragonBones team and other contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -10285,7 +10285,7 @@ var dragonBones;
 /**
  * The MIT License (MIT)
  *
- * Copyright (c) 2012-2018 DragonBones team and other contributors
+ * Copyright (c) 2012-2025 DragonBones team and other contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -11317,7 +11317,7 @@ var dragonBones;
 /**
  * The MIT License (MIT)
  *
- * Copyright (c) 2012-2018 DragonBones team and other contributors
+ * Copyright (c) 2012-2025 DragonBones team and other contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -11496,7 +11496,7 @@ var dragonBones;
 /**
  * The MIT License (MIT)
  *
- * Copyright (c) 2012-2018 DragonBones team and other contributors
+ * Copyright (c) 2012-2025 DragonBones team and other contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -11808,7 +11808,7 @@ var dragonBones;
 /**
  * The MIT License (MIT)
  *
- * Copyright (c) 2012-2018 DragonBones team and other contributors
+ * Copyright (c) 2012-2025 DragonBones team and other contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -13808,7 +13808,7 @@ var dragonBones;
 /**
  * The MIT License (MIT)
  *
- * Copyright (c) 2012-2018 DragonBones team and other contributors
+ * Copyright (c) 2012-2025 DragonBones team and other contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -14184,7 +14184,7 @@ var dragonBones;
 /**
  * The MIT License (MIT)
  *
- * Copyright (c) 2012-2018 DragonBones team and other contributors
+ * Copyright (c) 2012-2025 DragonBones team and other contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -15163,7 +15163,7 @@ var dragonBones;
 /**
  * The MIT License (MIT)
  *
- * Copyright (c) 2012-2018 DragonBones team and other contributors
+ * Copyright (c) 2012-2025 DragonBones team and other contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -15283,7 +15283,7 @@ var dragonBones;
 /**
  * The MIT License (MIT)
  *
- * Copyright (c) 2012-2018 DragonBones team and other contributors
+ * Copyright (c) 2012-2025 DragonBones team and other contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -15495,7 +15495,7 @@ var dragonBones;
 /**
  * The MIT License (MIT)
  *
- * Copyright (c) 2012-2018 DragonBones team and other contributors
+ * Copyright (c) 2012-2025 DragonBones team and other contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -15830,7 +15830,7 @@ var dragonBones;
 /**
  * The MIT License (MIT)
  *
- * Copyright (c) 2012-2018 DragonBones team and other contributors
+ * Copyright (c) 2012-2025 DragonBones team and other contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in

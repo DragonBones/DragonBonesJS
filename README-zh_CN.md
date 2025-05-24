@@ -37,4 +37,4 @@ taobao - https://registry.npm.taobao.org/
 cnpm - http://r.cnpmjs.org/
 ```
 
-Copyright (c) 2012-2018 The DragonBones team and other contributors.
+Copyright (c) 2012-2025 The DragonBones team and other contributors.
