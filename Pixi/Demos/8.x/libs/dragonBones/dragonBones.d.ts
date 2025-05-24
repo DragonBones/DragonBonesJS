@@ -6474,8 +6474,8 @@ declare namespace dragonBones {
          * @version DragonBones 3.0
          * @language zh_CN
          */
-        get renderTexture(): PIXI.BaseTexture | null;
-        set renderTexture(value: PIXI.BaseTexture | null);
+        get renderTexture(): PIXI.TextureSource | null;
+        set renderTexture(value: PIXI.TextureSource | null);
     }
 }
 /**
@@ -6668,7 +6668,7 @@ declare namespace dragonBones {
          * @inheritDoc
          */
         constructor(dataParser?: DataParser | null);
-        protected _buildTextureAtlasData(textureAtlasData: PixiTextureAtlasData | null, textureAtlas: PIXI.BaseTexture | null): PixiTextureAtlasData;
+        protected _buildTextureAtlasData(textureAtlasData: PixiTextureAtlasData | null, textureAtlas: PIXI.TextureSource | null): PixiTextureAtlasData;
         protected _buildArmature(dataPackage: BuildArmaturePackage): Armature;
         protected _buildSlot(_dataPackage: BuildArmaturePackage, slotData: SlotData, armature: Armature): Slot;
         /**
@@ -6737,10 +6737,9 @@ declare namespace dragonBones {
     }
 }
 declare class PixiDBBinParser implements PIXI.LoaderParser<ArrayBuffer> {
-    extension: {
-        type: string;
-        priority: number;
-    };
+    extension: PIXI.ExtensionMetadataDetails;
+    name: string;
+    constructor();
     test(url: string): boolean;
     load(url: string): Promise<ArrayBuffer>;
     parse(asset: ArrayBuffer): any;

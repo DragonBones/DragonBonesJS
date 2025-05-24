@@ -1,2 +1,0 @@
-
-//# sourceMappingURL=BitmapTextStyle.mjs.map

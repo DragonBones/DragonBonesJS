@@ -12,9 +12,11 @@
 		"experimentalDecorators": true,
 		"allowSyntheticDefaultImports": true,
 		"target": "es6",
+		"module": "system",
 		"outFile": "out/dragonBones.js",
 		"lib": [
 			"es5",
+			"es6",
 			"dom",
 			"es2015.promise"
 		]

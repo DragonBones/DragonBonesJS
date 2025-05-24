@@ -298,8 +298,8 @@ declare namespace dragonBones {
         advanceTime(passedTime: number): void;
         bufferEvent(value: EventObject): void;
         bufferObject(object: BaseObject): void;
-        get clock(): WorldClock;
-        get eventManager(): IEventDispatcher;
+        readonly clock: WorldClock;
+        readonly eventManager: IEventDispatcher;
     }
 }
 declare var __extends: any;
@@ -1773,8 +1773,8 @@ declare namespace dragonBones {
         weight: WeightData | null;
         clear(): void;
         shareFrom(value: GeometryData): void;
-        get vertexCount(): number;
-        get triangleCount(): number;
+        readonly vertexCount: number;
+        readonly triangleCount: number;
     }
     /**
      * @private
@@ -3123,8 +3123,7 @@ declare namespace dragonBones {
          * @version DragonBones 5.5
          * @language zh_CN
          */
-        get flipX(): boolean;
-        set flipX(value: boolean);
+        flipX: boolean;
         /**
          * - Whether to flip the armature vertically.
          * @version DragonBones 5.5
@@ -3135,8 +3134,7 @@ declare namespace dragonBones {
          * @version DragonBones 5.5
          * @language zh_CN
          */
-        get flipY(): boolean;
-        set flipY(value: boolean);
+        flipY: boolean;
         /**
          * - The animation cache frame rate, which turns on the animation cache when the set value is greater than 0.
          * There is a certain amount of memory overhead to improve performance by caching animation data in memory.
@@ -3165,8 +3163,7 @@ declare namespace dragonBones {
          * @version DragonBones 4.5
          * @language zh_CN
          */
-        get cacheFrameRate(): number;
-        set cacheFrameRate(value: number);
+        cacheFrameRate: number;
         /**
          * - The armature name.
          * @version DragonBones 3.0
@@ -3177,7 +3174,7 @@ declare namespace dragonBones {
          * @version DragonBones 3.0
          * @language zh_CN
          */
-        get name(): string;
+        readonly name: string;
         /**
          * - The armature data.
          * @see dragonBones.ArmatureData
@@ -3190,7 +3187,7 @@ declare namespace dragonBones {
          * @version DragonBones 4.5
          * @language zh_CN
          */
-        get armatureData(): ArmatureData;
+        readonly armatureData: ArmatureData;
         /**
          * - The animation player.
          * @see dragonBones.Animation
@@ -3203,11 +3200,11 @@ declare namespace dragonBones {
          * @version DragonBones 3.0
          * @language zh_CN
          */
-        get animation(): Animation;
+        readonly animation: Animation;
         /**
          * @pivate
          */
-        get proxy(): IArmatureProxy;
+        readonly proxy: IArmatureProxy;
         /**
          * - The EventDispatcher instance of the armature.
          * @version DragonBones 4.5
@@ -3218,7 +3215,7 @@ declare namespace dragonBones {
          * @version DragonBones 4.5
          * @language zh_CN
          */
-        get eventDispatcher(): IEventDispatcher;
+        readonly eventDispatcher: IEventDispatcher;
         /**
          * - The display container.
          * The display of the slot is displayed as the parent.
@@ -3233,17 +3230,15 @@ declare namespace dragonBones {
          * @version DragonBones 3.0
          * @language zh_CN
          */
-        get display(): any;
+        readonly display: any;
         /**
          * @private
          */
-        get replacedTexture(): any;
-        set replacedTexture(value: any);
+        replacedTexture: any;
         /**
          * @inheritDoc
          */
-        get clock(): WorldClock | null;
-        set clock(value: WorldClock | null);
+        clock: WorldClock | null;
         /**
          * - Get the parent slot which the armature belongs to.
          * @see dragonBones.Slot
@@ -3256,7 +3251,7 @@ declare namespace dragonBones {
          * @version DragonBones 4.5
          * @language zh_CN
          */
-        get parent(): Slot | null;
+        readonly parent: Slot | null;
         /**
          * - Deprecated, please refer to {@link #display}.
          * @deprecated
@@ -3392,7 +3387,7 @@ declare namespace dragonBones {
          * @version DragonBones 3.0
          * @language zh_CN
          */
-        get armature(): Armature;
+        readonly armature: Armature;
     }
 }
 /**
@@ -3510,7 +3505,7 @@ declare namespace dragonBones {
          * @version DragonBones 4.5
          * @language zh_CN
          */
-        get boneData(): BoneData;
+        readonly boneData: BoneData;
         /**
          * - The visible of all slots in the bone.
          * @default true
@@ -3525,8 +3520,7 @@ declare namespace dragonBones {
          * @version DragonBones 3.0
          * @language zh_CN
          */
-        get visible(): boolean;
-        set visible(value: boolean);
+        visible: boolean;
         /**
          * - The bone name.
          * @version DragonBones 3.0
@@ -3537,7 +3531,7 @@ declare namespace dragonBones {
          * @version DragonBones 3.0
          * @language zh_CN
          */
-        get name(): string;
+        readonly name: string;
         /**
          * - The parent bone to which it belongs.
          * @version DragonBones 3.0
@@ -3548,7 +3542,7 @@ declare namespace dragonBones {
          * @version DragonBones 3.0
          * @language zh_CN
          */
-        get parent(): Bone | null;
+        readonly parent: Bone | null;
     }
 }
 /**
@@ -3811,13 +3805,11 @@ declare namespace dragonBones {
          * @version DragonBones 5.6
          * @language zh_CN
          */
-        get visible(): boolean;
-        set visible(value: boolean);
+        visible: boolean;
         /**
          * @private
          */
-        get displayFrameCount(): number;
-        set displayFrameCount(value: number);
+        displayFrameCount: number;
         /**
          * - The index of the display object displayed in the display list.
          * @example
@@ -3840,8 +3832,7 @@ declare namespace dragonBones {
          * @version DragonBones 4.5
          * @language zh_CN
          */
-        get displayIndex(): number;
-        set displayIndex(value: number);
+        displayIndex: number;
         /**
          * - The slot name.
          * @see dragonBones.SlotData#name
@@ -3854,7 +3845,7 @@ declare namespace dragonBones {
          * @version DragonBones 3.0
          * @language zh_CN
          */
-        get name(): string;
+        readonly name: string;
         /**
          * - Contains a display list of display objects or child armatures.
          * @version DragonBones 3.0
@@ -3865,8 +3856,7 @@ declare namespace dragonBones {
          * @version DragonBones 3.0
          * @language zh_CN
          */
-        get displayList(): Array<any>;
-        set displayList(value: Array<any>);
+        displayList: Array<any>;
         /**
          * - The slot data.
          * @see dragonBones.SlotData
@@ -3879,7 +3869,7 @@ declare namespace dragonBones {
          * @version DragonBones 4.5
          * @language zh_CN
          */
-        get slotData(): SlotData;
+        readonly slotData: SlotData;
         /**
          * - The custom bounding box data for the slot at current time.
          * @version DragonBones 5.0
@@ -3890,19 +3880,19 @@ declare namespace dragonBones {
          * @version DragonBones 5.0
          * @language zh_CN
          */
-        get boundingBoxData(): BoundingBoxData | null;
+        readonly boundingBoxData: BoundingBoxData | null;
         /**
          * @private
          */
-        get rawDisplay(): any;
+        readonly rawDisplay: any;
         /**
          * @private
          */
-        get meshDisplay(): any;
+        readonly meshDisplay: any;
         /**
          * @private
          */
-        get shapeDisplay(): any;
+        readonly shapeDisplay: any;
         /**
          * - The display object that the slot displays at this time.
          * @example
@@ -3923,8 +3913,7 @@ declare namespace dragonBones {
          * @version DragonBones 3.0
          * @language zh_CN
          */
-        get display(): any;
-        set display(value: any);
+        display: any;
         /**
          * - The child armature that the slot displayed at current time.
          * @example
@@ -3954,8 +3943,7 @@ declare namespace dragonBones {
          * @version DragonBones 3.0
          * @language zh_CN
          */
-        get childArmature(): Armature | null;
-        set childArmature(value: Armature | null);
+        childArmature: Armature | null;
         /**
          * - The parent bone to which it belongs.
          * @version DragonBones 3.0
@@ -3966,7 +3954,7 @@ declare namespace dragonBones {
          * @version DragonBones 3.0
          * @language zh_CN
          */
-        get parent(): Bone;
+        readonly parent: Bone;
         /**
          * - Deprecated, please refer to {@link #display}.
          * @deprecated
@@ -4237,8 +4225,7 @@ declare namespace dragonBones {
         /**
          * @inheritDoc
          */
-        get clock(): WorldClock | null;
-        set clock(value: WorldClock | null);
+        clock: WorldClock | null;
     }
 }
 /**
@@ -4589,7 +4576,7 @@ declare namespace dragonBones {
          * @version DragonBones 3.0
          * @language zh_CN
          */
-        get isPlaying(): boolean;
+        readonly isPlaying: boolean;
         /**
          * - Check whether all the animation states' playing were finished.
          * @see dragonBones.AnimationState
@@ -4602,7 +4589,7 @@ declare namespace dragonBones {
          * @version DragonBones 3.0
          * @language zh_CN
          */
-        get isCompleted(): boolean;
+        readonly isCompleted: boolean;
         /**
          * - The name of the last playing animation state.
          * @see #lastAnimationState
@@ -4615,7 +4602,7 @@ declare namespace dragonBones {
          * @version DragonBones 3.0
          * @language zh_CN
          */
-        get lastAnimationName(): string;
+        readonly lastAnimationName: string;
         /**
          * - The name of all animation data
          * @version DragonBones 4.5
@@ -4626,7 +4613,7 @@ declare namespace dragonBones {
          * @version DragonBones 4.5
          * @language zh_CN
          */
-        get animationNames(): ReadonlyArray<string>;
+        readonly animationNames: ReadonlyArray<string>;
         /**
          * - All animation data.
          * @version DragonBones 4.5
@@ -4637,8 +4624,7 @@ declare namespace dragonBones {
          * @version DragonBones 4.5
          * @language zh_CN
          */
-        get animations(): Map<AnimationData>;
-        set animations(value: Map<AnimationData>);
+        animations: Map<AnimationData>;
         /**
          * - An AnimationConfig instance that can be used quickly.
          * @see dragonBones.AnimationConfig
@@ -4651,7 +4637,7 @@ declare namespace dragonBones {
          * @version DragonBones 5.0
          * @language zh_CN
          */
-        get animationConfig(): AnimationConfig;
+        readonly animationConfig: AnimationConfig;
         /**
          * - The last playing animation state
          * @see dragonBones.AnimationState
@@ -4664,7 +4650,7 @@ declare namespace dragonBones {
          * @version DragonBones 3.0
          * @language zh_CN
          */
-        get lastAnimationState(): AnimationState | null;
+        readonly lastAnimationState: AnimationState | null;
     }
 }
 /**
@@ -4984,7 +4970,7 @@ declare namespace dragonBones {
          * @version DragonBones 5.1
          * @language zh_CN
          */
-        get isFadeIn(): boolean;
+        readonly isFadeIn: boolean;
         /**
          * - Whether the animation state is fading out.
          * @version DragonBones 5.1
@@ -4995,7 +4981,7 @@ declare namespace dragonBones {
          * @version DragonBones 5.1
          * @language zh_CN
          */
-        get isFadeOut(): boolean;
+        readonly isFadeOut: boolean;
         /**
          * - Whether the animation state is fade completed.
          * @version DragonBones 5.1
@@ -5006,7 +4992,7 @@ declare namespace dragonBones {
          * @version DragonBones 5.1
          * @language zh_CN
          */
-        get isFadeComplete(): boolean;
+        readonly isFadeComplete: boolean;
         /**
          * - Whether the animation state is playing.
          * @version DragonBones 3.0
@@ -5017,7 +5003,7 @@ declare namespace dragonBones {
          * @version DragonBones 3.0
          * @language zh_CN
          */
-        get isPlaying(): boolean;
+        readonly isPlaying: boolean;
         /**
          * - Whether the animation state is play completed.
          * @version DragonBones 3.0
@@ -5028,7 +5014,7 @@ declare namespace dragonBones {
          * @version DragonBones 3.0
          * @language zh_CN
          */
-        get isCompleted(): boolean;
+        readonly isCompleted: boolean;
         /**
          * - The times has been played.
          * @version DragonBones 3.0
@@ -5039,7 +5025,7 @@ declare namespace dragonBones {
          * @version DragonBones 3.0
          * @language zh_CN
          */
-        get currentPlayTimes(): number;
+        readonly currentPlayTimes: number;
         /**
          * - The total time. (In seconds)
          * @version DragonBones 3.0
@@ -5050,7 +5036,7 @@ declare namespace dragonBones {
          * @version DragonBones 3.0
          * @language zh_CN
          */
-        get totalTime(): number;
+        readonly totalTime: number;
         /**
          * - The time is currently playing. (In seconds)
          * @version DragonBones 3.0
@@ -5061,8 +5047,7 @@ declare namespace dragonBones {
          * @version DragonBones 3.0
          * @language zh_CN
          */
-        get currentTime(): number;
-        set currentTime(value: number);
+        currentTime: number;
         /**
          * - The blend weight.
          * @default 1.0
@@ -5081,15 +5066,14 @@ declare namespace dragonBones {
          * @version DragonBones 3.0
          * @language en_US
          */
-        get weight(): number;
-        set weight(value: number);
+        weight: number;
         /**
          * - 动画数据。
          * @see dragonBones.AnimationData
          * @version DragonBones 3.0
          * @language zh_CN
          */
-        get animationData(): AnimationData;
+        readonly animationData: AnimationData;
     }
 }
 /**
@@ -6406,11 +6390,11 @@ declare namespace dragonBones {
          * @version DragonBones 5.7
          * @language zh_CN
          */
-        get clock(): WorldClock;
+        readonly clock: WorldClock;
         /**
          * @private
          */
-        get dragonBones(): DragonBones;
+        readonly dragonBones: DragonBones;
     }
     /**
      * @private
@@ -6422,326 +6406,4 @@ declare namespace dragonBones {
         armature: ArmatureData;
         skin: SkinData | null;
     }
-}
-/**
- * The MIT License (MIT)
- *
- * Copyright (c) 2012-2018 DragonBones team and other contributors
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy of
- * this software and associated documentation files (the "Software"), to deal in
- * the Software without restriction, including without limitation the rights to
- * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
- * the Software, and to permit persons to whom the Software is furnished to do so,
- * subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
- * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
- * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
- * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
- * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- */
-declare namespace dragonBones {
-    /**
-     * - The PixiJS texture atlas data.
-     * @version DragonBones 3.0
-     * @language en_US
-     */
-    /**
-     * - PixiJS 贴图集数据。
-     * @version DragonBones 3.0
-     * @language zh_CN
-     */
-    class PixiTextureAtlasData extends TextureAtlasData {
-        static toString(): string;
-        private _renderTexture;
-        protected _onClear(): void;
-        /**
-         * @inheritDoc
-         */
-        createTexture(): TextureData;
-        /**
-         * - The PixiJS texture.
-         * @version DragonBones 3.0
-         * @language en_US
-         */
-        /**
-         * - PixiJS 贴图。
-         * @version DragonBones 3.0
-         * @language zh_CN
-         */
-        get renderTexture(): PIXI.BaseTexture | null;
-        set renderTexture(value: PIXI.BaseTexture | null);
-    }
-}
-/**
- * The MIT License (MIT)
- *
- * Copyright (c) 2012-2018 DragonBones team and other contributors
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy of
- * this software and associated documentation files (the "Software"), to deal in
- * the Software without restriction, including without limitation the rights to
- * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
- * the Software, and to permit persons to whom the Software is furnished to do so,
- * subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
- * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
- * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
- * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
- * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- */
-declare namespace dragonBones {
-    /**
-     * @inheritDoc
-     */
-    class PixiArmatureDisplay extends PIXI.Sprite implements IArmatureProxy {
-        /**
-         * @private
-         */
-        debugDraw: boolean;
-        private _debugDraw;
-        private _armature;
-        private _debugDrawer;
-        pixiApp: PIXI.Application | null;
-        /**
-         * @inheritDoc
-         */
-        dbInit(armature: Armature): void;
-        /**
-         * @inheritDoc
-         */
-        dbClear(): void;
-        /**
-         * @inheritDoc
-         */
-        dbUpdate(): void;
-        /**
-         * @inheritDoc
-         */
-        dispose(disposeProxy?: boolean): void;
-        /**
-         * @inheritDoc
-         */
-        destroy(): void;
-        /**
-         * @private
-         */
-        dispatchDBEvent(type: EventStringType, eventObject: EventObject): void;
-        /**
-         * @inheritDoc
-         */
-        hasDBEventListener(type: EventStringType): boolean;
-        /**
-         * @inheritDoc
-         */
-        addDBEventListener(type: EventStringType, listener: (event: EventObject) => void, target: any): void;
-        /**
-         * @inheritDoc
-         */
-        removeDBEventListener(type: EventStringType, listener: (event: EventObject) => void, target: any): void;
-        /**
-         * @inheritDoc
-         */
-        get armature(): Armature;
-        /**
-         * @inheritDoc
-         */
-        get animation(): Animation;
-    }
-}
-/**
- * The MIT License (MIT)
- *
- * Copyright (c) 2012-2018 DragonBones team and other contributors
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy of
- * this software and associated documentation files (the "Software"), to deal in
- * the Software without restriction, including without limitation the rights to
- * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
- * the Software, and to permit persons to whom the Software is furnished to do so,
- * subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
- * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
- * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
- * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
- * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- */
-declare namespace dragonBones {
-    /**
-     * - The PixiJS slot.
-     * @version DragonBones 3.0
-     * @language en_US
-     */
-    /**
-     * - PixiJS 插槽。
-     * @version DragonBones 3.0
-     * @language zh_CN
-     */
-    class PixiSlot extends Slot {
-        static toString(): string;
-        private _textureScale;
-        private _renderDisplay;
-        protected _onClear(): void;
-        protected _initDisplay(value: any, isRetain: boolean): void;
-        protected _disposeDisplay(value: any, isRelease: boolean): void;
-        protected _onUpdateDisplay(): void;
-        protected _addDisplay(): void;
-        protected _replaceDisplay(value: any): void;
-        protected _removeDisplay(): void;
-        protected _updateZOrder(): void;
-        protected _updateBlendMode(): void;
-        protected _updateColor(): void;
-        protected _updateFrame(): void;
-        protected _updateMesh(): void;
-        protected _updateShape(): void;
-        _updateMask(): void;
-        protected _updateTransform(): void;
-        protected _updateTransformV3(): void;
-        protected _updateTransformV4(): void;
-        protected _identityTransform(): void;
-    }
-}
-/**
- * The MIT License (MIT)
- *
- * Copyright (c) 2012-2018 DragonBones team and other contributors
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy of
- * this software and associated documentation files (the "Software"), to deal in
- * the Software without restriction, including without limitation the rights to
- * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
- * the Software, and to permit persons to whom the Software is furnished to do so,
- * subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
- * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
- * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
- * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
- * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- */
-declare namespace dragonBones {
-    /**
-     * - The PixiJS factory.
-     * @version DragonBones 3.0
-     * @language en_US
-     */
-    /**
-     * - PixiJS 工厂。
-     * @version DragonBones 3.0
-     * @language zh_CN
-     */
-    class PixiFactory extends BaseFactory {
-        private static _dragonBonesInstance;
-        private static _factory;
-        private static _clockHandler;
-        /**
-         * - A global factory instance that can be used directly.
-         * @version DragonBones 4.7
-         * @language en_US
-         */
-        /**
-         * - 一个可以直接使用的全局工厂实例。
-         * @version DragonBones 4.7
-         * @language zh_CN
-         */
-        static get factory(): PixiFactory;
-        /**
-         * @inheritDoc
-         */
-        constructor(dataParser?: DataParser | null);
-        protected _buildTextureAtlasData(textureAtlasData: PixiTextureAtlasData | null, textureAtlas: PIXI.BaseTexture | null): PixiTextureAtlasData;
-        protected _buildArmature(dataPackage: BuildArmaturePackage): Armature;
-        protected _buildSlot(_dataPackage: BuildArmaturePackage, slotData: SlotData, armature: Armature): Slot;
-        /**
-         * - Create a armature from cached DragonBonesData instances and TextureAtlasData instances, then use the {@link #clock} to update it.
-         * The difference is that the armature created by {@link #buildArmature} is not WorldClock instance update.
-         * @param armatureName - The armature data name.
-         * @param dragonBonesName - The cached name of the DragonBonesData instance. (If not set, all DragonBonesData instances are retrieved, and when multiple DragonBonesData instances contain a the same name armature data, it may not be possible to accurately create a specific armature)
-         * @param skinName - The skin name, you can set a different ArmatureData name to share it's skin data. (If not set, use the default skin data)
-         * @returns The armature display container.
-         * @see dragonBones.IArmatureProxy
-         * @see dragonBones.BaseFactory#buildArmature
-         * @version DragonBones 4.5
-         * @example
-         * <pre>
-         *     let armatureDisplay = factory.buildArmatureDisplay("armatureName", "dragonBonesName");
-         * </pre>
-         * @language en_US
-         */
-        /**
-         * - 通过缓存的 DragonBonesData 实例和 TextureAtlasData 实例创建一个骨架，并用 {@link #clock} 更新该骨架。
-         * 区别在于由 {@link #buildArmature} 创建的骨架没有 WorldClock 实例驱动。
-         * @param armatureName - 骨架数据名称。
-         * @param dragonBonesName - DragonBonesData 实例的缓存名称。 （如果未设置，将检索所有的 DragonBonesData 实例，当多个 DragonBonesData 实例中包含同名的骨架数据时，可能无法准确的创建出特定的骨架）
-         * @param skinName - 皮肤名称，可以设置一个其他骨架数据名称来共享其皮肤数据。 （如果未设置，则使用默认的皮肤数据）
-         * @returns 骨架的显示容器。
-         * @see dragonBones.IArmatureProxy
-         * @see dragonBones.BaseFactory#buildArmature
-         * @version DragonBones 4.5
-         * @example
-         * <pre>
-         *     let armatureDisplay = factory.buildArmatureDisplay("armatureName", "dragonBonesName");
-         * </pre>
-         * @language zh_CN
-         */
-        buildArmatureDisplay(armatureName: string, dragonBonesName?: string, skinName?: string, textureAtlasName?: string): PixiArmatureDisplay | null;
-        /**
-         * - Create the display object with the specified texture.
-         * @param textureName - The texture data name.
-         * @param textureAtlasName - The texture atlas data name (Of not set, all texture atlas data will be searched)
-         * @version DragonBones 3.0
-         * @language en_US
-         */
-        /**
-         * - 创建带有指定贴图的显示对象。
-         * @param textureName - 贴图数据名称。
-         * @param textureAtlasName - 贴图集数据名称。 （如果未设置，将检索所有的贴图集数据）
-         * @version DragonBones 3.0
-         * @language zh_CN
-         */
-        getTextureDisplay(textureName: string, textureAtlasName?: string | null): PIXI.Sprite | null;
-        /**
-         * - A global sound event manager.
-         * Sound events can be listened to uniformly from the manager.
-         * @version DragonBones 4.5
-         * @language en_US
-         */
-        /**
-         * - 全局声音事件管理器。
-         * 声音事件可以从该管理器统一侦听。
-         * @version DragonBones 4.5
-         * @language zh_CN
-         */
-        get soundEventManager(): PixiArmatureDisplay;
-        private _app;
-        set pixiApp(app: PIXI.Application);
-    }
-}
-declare class PixiDBBinParser implements PIXI.LoaderParser<ArrayBuffer> {
-    extension: {
-        type: string;
-        priority: number;
-    };
-    test(url: string): boolean;
-    load(url: string): Promise<ArrayBuffer>;
-    parse(asset: ArrayBuffer): any;
 }

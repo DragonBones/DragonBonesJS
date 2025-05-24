@@ -24,7 +24,7 @@
     "dbr": "./builds/cli.js"
   },
   "dependencies": {
-    "typescript": "^2.4.2",
+    "typescript": "^5.8.3",
     "uglify-js": "^3.0.26",
     "lodash": "^4.17.4",
     "async": "^2.6.0",

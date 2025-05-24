@@ -1,9 +1,0 @@
-{
-    "extends": "dtslint/dt.json",
-    "rules": {
-        "no-namespace": false,
-        "file-name-casing": false,
-        "only-arrow-functions": false,
-        "interface-name": false
-    }
-}

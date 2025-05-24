@@ -1,6 +1,5 @@
 {
 	"compilerOptions": {
-		"watch": false,
 		"sourceMap": false,
 		"declaration": true,
         "stripInternal": true,
