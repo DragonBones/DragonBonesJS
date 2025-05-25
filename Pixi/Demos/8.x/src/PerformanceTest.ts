@@ -8,7 +8,7 @@ class PerformanceTest extends BaseDemo {
         super();
 
         this._resources.push(
-            "resource/mecha_1406/mecha_1406_ske.dbbin",
+            "resource/mecha_1406/mecha_1406_ske.json",
             "resource/mecha_1406/mecha_1406_tex.json",
             "resource/mecha_1406/mecha_1406_tex.png"
         );
@@ -74,7 +74,7 @@ class PerformanceTest extends BaseDemo {
     private _addArmature(): void {
         const factory = dragonBones.PixiFactory.factory;
         if (this._armatures.length === 0) {
-            factory.parseDragonBonesData(this._pixiResources["resource/mecha_1406/mecha_1406_ske.dbbin"]);
+            factory.parseDragonBonesData(this._pixiResources["resource/mecha_1406/mecha_1406_ske.json"]);
             factory.parseTextureAtlasData(this._pixiResources["resource/mecha_1406/mecha_1406_tex.json"], this._pixiResources["resource/mecha_1406/mecha_1406_tex.png"]);
         }
 

@@ -16,7 +16,7 @@ class PerformanceTest extends BaseDemo {
         PIXI.Ticker.shared.add(this._enterFrameHandler, this);
         //
         this._text = this.createText("");
-        for (let i = 0; i < 1; ++i) {
+        for (let i = 0; i < 300; ++i) {
             this._addArmature();
         }
         this._resetPosition();
@@ -62,16 +62,8 @@ class PerformanceTest extends BaseDemo {
             factory.parseTextureAtlasData(this._pixiResources["resource/mecha_1406/mecha_1406_tex.json"], this._pixiResources["resource/mecha_1406/mecha_1406_tex.png"]);
         }
         const armatureDisplay = dragonBones.PixiFactory.factory.buildArmatureDisplay("mecha_1406");
-        // armatureDisplay.armature.cacheFrameRate = 24;
-        armatureDisplay.animation.gotoAndStopByFrame("walk", 26);
-
-        let i = 0;
-        // setInterval(() => {
-
-        //     armatureDisplay.animation.gotoAndStopByFrame("walk", i);
-        //     i++
-        //     // console.log('skkk', i);
-        // }, 1000);
+        armatureDisplay.armature.cacheFrameRate = 24;
+        armatureDisplay.animation.play("walk", 0);
         armatureDisplay.scale.x = armatureDisplay.scale.y = 0.5;
         this.addChild(armatureDisplay);
         this._armatures.push(armatureDisplay);

@@ -1453,7 +1453,7 @@ namespace dragonBones {
                 let duration = 0;
                 for (let i = 0, l = frames.length; i < l; ++i) {
                     const frame = frames[i];
-                    duration += frame.duration >= 0 ? frame.duration : 0;
+                    duration += frame.duration === undefined ? 1 : frame.duration >= 0 ? frame.duration : 0;
                 }
                 return duration;
             }

@@ -298,8 +298,8 @@ declare namespace dragonBones {
         advanceTime(passedTime: number): void;
         bufferEvent(value: EventObject): void;
         bufferObject(object: BaseObject): void;
-        get clock(): WorldClock;
-        get eventManager(): IEventDispatcher;
+        readonly clock: WorldClock;
+        readonly eventManager: IEventDispatcher;
     }
 }
 declare var __extends: any;
@@ -1773,8 +1773,8 @@ declare namespace dragonBones {
         weight: WeightData | null;
         clear(): void;
         shareFrom(value: GeometryData): void;
-        get vertexCount(): number;
-        get triangleCount(): number;
+        readonly vertexCount: number;
+        readonly triangleCount: number;
     }
     /**
      * @private
@@ -3123,8 +3123,7 @@ declare namespace dragonBones {
          * @version DragonBones 5.5
          * @language zh_CN
          */
-        get flipX(): boolean;
-        set flipX(value: boolean);
+        flipX: boolean;
         /**
          * - Whether to flip the armature vertically.
          * @version DragonBones 5.5
@@ -3135,8 +3134,7 @@ declare namespace dragonBones {
          * @version DragonBones 5.5
          * @language zh_CN
          */
-        get flipY(): boolean;
-        set flipY(value: boolean);
+        flipY: boolean;
         /**
          * - The animation cache frame rate, which turns on the animation cache when the set value is greater than 0.
          * There is a certain amount of memory overhead to improve performance by caching animation data in memory.
@@ -3165,8 +3163,7 @@ declare namespace dragonBones {
          * @version DragonBones 4.5
          * @language zh_CN
          */
-        get cacheFrameRate(): number;
-        set cacheFrameRate(value: number);
+        cacheFrameRate: number;
         /**
          * - The armature name.
          * @version DragonBones 3.0
@@ -3177,7 +3174,7 @@ declare namespace dragonBones {
          * @version DragonBones 3.0
          * @language zh_CN
          */
-        get name(): string;
+        readonly name: string;
         /**
          * - The armature data.
          * @see dragonBones.ArmatureData
@@ -3190,7 +3187,7 @@ declare namespace dragonBones {
          * @version DragonBones 4.5
          * @language zh_CN
          */
-        get armatureData(): ArmatureData;
+        readonly armatureData: ArmatureData;
         /**
          * - The animation player.
          * @see dragonBones.Animation
@@ -3203,11 +3200,11 @@ declare namespace dragonBones {
          * @version DragonBones 3.0
          * @language zh_CN
          */
-        get animation(): Animation;
+        readonly animation: Animation;
         /**
          * @pivate
          */
-        get proxy(): IArmatureProxy;
+        readonly proxy: IArmatureProxy;
         /**
          * - The EventDispatcher instance of the armature.
          * @version DragonBones 4.5
@@ -3218,7 +3215,7 @@ declare namespace dragonBones {
          * @version DragonBones 4.5
          * @language zh_CN
          */
-        get eventDispatcher(): IEventDispatcher;
+        readonly eventDispatcher: IEventDispatcher;
         /**
          * - The display container.
          * The display of the slot is displayed as the parent.
@@ -3233,17 +3230,15 @@ declare namespace dragonBones {
          * @version DragonBones 3.0
          * @language zh_CN
          */
-        get display(): any;
+        readonly display: any;
         /**
          * @private
          */
-        get replacedTexture(): any;
-        set replacedTexture(value: any);
+        replacedTexture: any;
         /**
          * @inheritDoc
          */
-        get clock(): WorldClock | null;
-        set clock(value: WorldClock | null);
+        clock: WorldClock | null;
         /**
          * - Get the parent slot which the armature belongs to.
          * @see dragonBones.Slot
@@ -3256,7 +3251,7 @@ declare namespace dragonBones {
          * @version DragonBones 4.5
          * @language zh_CN
          */
-        get parent(): Slot | null;
+        readonly parent: Slot | null;
         /**
          * - Deprecated, please refer to {@link #display}.
          * @deprecated
@@ -3392,7 +3387,7 @@ declare namespace dragonBones {
          * @version DragonBones 3.0
          * @language zh_CN
          */
-        get armature(): Armature;
+        readonly armature: Armature;
     }
 }
 /**
@@ -3510,7 +3505,7 @@ declare namespace dragonBones {
          * @version DragonBones 4.5
          * @language zh_CN
          */
-        get boneData(): BoneData;
+        readonly boneData: BoneData;
         /**
          * - The visible of all slots in the bone.
          * @default true
@@ -3525,8 +3520,7 @@ declare namespace dragonBones {
          * @version DragonBones 3.0
          * @language zh_CN
          */
-        get visible(): boolean;
-        set visible(value: boolean);
+        visible: boolean;
         /**
          * - The bone name.
          * @version DragonBones 3.0
@@ -3537,7 +3531,7 @@ declare namespace dragonBones {
          * @version DragonBones 3.0
          * @language zh_CN
          */
-        get name(): string;
+        readonly name: string;
         /**
          * - The parent bone to which it belongs.
          * @version DragonBones 3.0
@@ -3548,7 +3542,7 @@ declare namespace dragonBones {
          * @version DragonBones 3.0
          * @language zh_CN
          */
-        get parent(): Bone | null;
+        readonly parent: Bone | null;
     }
 }
 /**
@@ -3811,13 +3805,11 @@ declare namespace dragonBones {
          * @version DragonBones 5.6
          * @language zh_CN
          */
-        get visible(): boolean;
-        set visible(value: boolean);
+        visible: boolean;
         /**
          * @private
          */
-        get displayFrameCount(): number;
-        set displayFrameCount(value: number);
+        displayFrameCount: number;
         /**
          * - The index of the display object displayed in the display list.
          * @example
@@ -3840,8 +3832,7 @@ declare namespace dragonBones {
          * @version DragonBones 4.5
          * @language zh_CN
          */
-        get displayIndex(): number;
-        set displayIndex(value: number);
+        displayIndex: number;
         /**
          * - The slot name.
          * @see dragonBones.SlotData#name
@@ -3854,7 +3845,7 @@ declare namespace dragonBones {
          * @version DragonBones 3.0
          * @language zh_CN
          */
-        get name(): string;
+        readonly name: string;
         /**
          * - Contains a display list of display objects or child armatures.
          * @version DragonBones 3.0
@@ -3865,8 +3856,7 @@ declare namespace dragonBones {
          * @version DragonBones 3.0
          * @language zh_CN
          */
-        get displayList(): Array<any>;
-        set displayList(value: Array<any>);
+        displayList: Array<any>;
         /**
          * - The slot data.
          * @see dragonBones.SlotData
@@ -3879,7 +3869,7 @@ declare namespace dragonBones {
          * @version DragonBones 4.5
          * @language zh_CN
          */
-        get slotData(): SlotData;
+        readonly slotData: SlotData;
         /**
          * - The custom bounding box data for the slot at current time.
          * @version DragonBones 5.0
@@ -3890,19 +3880,19 @@ declare namespace dragonBones {
          * @version DragonBones 5.0
          * @language zh_CN
          */
-        get boundingBoxData(): BoundingBoxData | null;
+        readonly boundingBoxData: BoundingBoxData | null;
         /**
          * @private
          */
-        get rawDisplay(): any;
+        readonly rawDisplay: any;
         /**
          * @private
          */
-        get meshDisplay(): any;
+        readonly meshDisplay: any;
         /**
          * @private
          */
-        get shapeDisplay(): any;
+        readonly shapeDisplay: any;
         /**
          * - The display object that the slot displays at this time.
          * @example
@@ -3923,8 +3913,7 @@ declare namespace dragonBones {
          * @version DragonBones 3.0
          * @language zh_CN
          */
-        get display(): any;
-        set display(value: any);
+        display: any;
         /**
          * - The child armature that the slot displayed at current time.
          * @example
@@ -3954,8 +3943,7 @@ declare namespace dragonBones {
          * @version DragonBones 3.0
          * @language zh_CN
          */
-        get childArmature(): Armature | null;
-        set childArmature(value: Armature | null);
+        childArmature: Armature | null;
         /**
          * - The parent bone to which it belongs.
          * @version DragonBones 3.0
@@ -3966,7 +3954,7 @@ declare namespace dragonBones {
          * @version DragonBones 3.0
          * @language zh_CN
          */
-        get parent(): Bone;
+        readonly parent: Bone;
         /**
          * - Deprecated, please refer to {@link #display}.
          * @deprecated
@@ -4237,8 +4225,7 @@ declare namespace dragonBones {
         /**
          * @inheritDoc
          */
-        get clock(): WorldClock | null;
-        set clock(value: WorldClock | null);
+        clock: WorldClock | null;
     }
 }
 /**
@@ -4589,7 +4576,7 @@ declare namespace dragonBones {
          * @version DragonBones 3.0
          * @language zh_CN
          */
-        get isPlaying(): boolean;
+        readonly isPlaying: boolean;
         /**
          * - Check whether all the animation states' playing were finished.
          * @see dragonBones.AnimationState
@@ -4602,7 +4589,7 @@ declare namespace dragonBones {
          * @version DragonBones 3.0
          * @language zh_CN
          */
-        get isCompleted(): boolean;
+        readonly isCompleted: boolean;
         /**
          * - The name of the last playing animation state.
          * @see #lastAnimationState
@@ -4615,7 +4602,7 @@ declare namespace dragonBones {
          * @version DragonBones 3.0
          * @language zh_CN
          */
-        get lastAnimationName(): string;
+        readonly lastAnimationName: string;
         /**
          * - The name of all animation data
          * @version DragonBones 4.5
@@ -4626,7 +4613,7 @@ declare namespace dragonBones {
          * @version DragonBones 4.5
          * @language zh_CN
          */
-        get animationNames(): ReadonlyArray<string>;
+        readonly animationNames: ReadonlyArray<string>;
         /**
          * - All animation data.
          * @version DragonBones 4.5
@@ -4637,8 +4624,7 @@ declare namespace dragonBones {
          * @version DragonBones 4.5
          * @language zh_CN
          */
-        get animations(): Map<AnimationData>;
-        set animations(value: Map<AnimationData>);
+        animations: Map<AnimationData>;
         /**
          * - An AnimationConfig instance that can be used quickly.
          * @see dragonBones.AnimationConfig
@@ -4651,7 +4637,7 @@ declare namespace dragonBones {
          * @version DragonBones 5.0
          * @language zh_CN
          */
-        get animationConfig(): AnimationConfig;
+        readonly animationConfig: AnimationConfig;
         /**
          * - The last playing animation state
          * @see dragonBones.AnimationState
@@ -4664,7 +4650,7 @@ declare namespace dragonBones {
          * @version DragonBones 3.0
          * @language zh_CN
          */
-        get lastAnimationState(): AnimationState | null;
+        readonly lastAnimationState: AnimationState | null;
     }
 }
 /**
@@ -4984,7 +4970,7 @@ declare namespace dragonBones {
          * @version DragonBones 5.1
          * @language zh_CN
          */
-        get isFadeIn(): boolean;
+        readonly isFadeIn: boolean;
         /**
          * - Whether the animation state is fading out.
          * @version DragonBones 5.1
@@ -4995,7 +4981,7 @@ declare namespace dragonBones {
          * @version DragonBones 5.1
          * @language zh_CN
          */
-        get isFadeOut(): boolean;
+        readonly isFadeOut: boolean;
         /**
          * - Whether the animation state is fade completed.
          * @version DragonBones 5.1
@@ -5006,7 +4992,7 @@ declare namespace dragonBones {
          * @version DragonBones 5.1
          * @language zh_CN
          */
-        get isFadeComplete(): boolean;
+        readonly isFadeComplete: boolean;
         /**
          * - Whether the animation state is playing.
          * @version DragonBones 3.0
@@ -5017,7 +5003,7 @@ declare namespace dragonBones {
          * @version DragonBones 3.0
          * @language zh_CN
          */
-        get isPlaying(): boolean;
+        readonly isPlaying: boolean;
         /**
          * - Whether the animation state is play completed.
          * @version DragonBones 3.0
@@ -5028,7 +5014,7 @@ declare namespace dragonBones {
          * @version DragonBones 3.0
          * @language zh_CN
          */
-        get isCompleted(): boolean;
+        readonly isCompleted: boolean;
         /**
          * - The times has been played.
          * @version DragonBones 3.0
@@ -5039,7 +5025,7 @@ declare namespace dragonBones {
          * @version DragonBones 3.0
          * @language zh_CN
          */
-        get currentPlayTimes(): number;
+        readonly currentPlayTimes: number;
         /**
          * - The total time. (In seconds)
          * @version DragonBones 3.0
@@ -5050,7 +5036,7 @@ declare namespace dragonBones {
          * @version DragonBones 3.0
          * @language zh_CN
          */
-        get totalTime(): number;
+        readonly totalTime: number;
         /**
          * - The time is currently playing. (In seconds)
          * @version DragonBones 3.0
@@ -5061,8 +5047,7 @@ declare namespace dragonBones {
          * @version DragonBones 3.0
          * @language zh_CN
          */
-        get currentTime(): number;
-        set currentTime(value: number);
+        currentTime: number;
         /**
          * - The blend weight.
          * @default 1.0
@@ -5081,15 +5066,14 @@ declare namespace dragonBones {
          * @version DragonBones 3.0
          * @language en_US
          */
-        get weight(): number;
-        set weight(value: number);
+        weight: number;
         /**
          * - 动画数据。
          * @see dragonBones.AnimationData
          * @version DragonBones 3.0
          * @language zh_CN
          */
-        get animationData(): AnimationData;
+        readonly animationData: AnimationData;
     }
 }
 /**
@@ -6406,11 +6390,11 @@ declare namespace dragonBones {
          * @version DragonBones 5.7
          * @language zh_CN
          */
-        get clock(): WorldClock;
+        readonly clock: WorldClock;
         /**
          * @private
          */
-        get dragonBones(): DragonBones;
+        readonly dragonBones: DragonBones;
     }
     /**
      * @private
@@ -6474,8 +6458,7 @@ declare namespace dragonBones {
          * @version DragonBones 3.0
          * @language zh_CN
          */
-        get renderTexture(): PIXI.BaseTexture | null;
-        set renderTexture(value: PIXI.BaseTexture | null);
+        renderTexture: PIXI.BaseTexture | null;
     }
 }
 /**
@@ -6552,11 +6535,11 @@ declare namespace dragonBones {
         /**
          * @inheritDoc
          */
-        get armature(): Armature;
+        readonly armature: Armature;
         /**
          * @inheritDoc
          */
-        get animation(): Animation;
+        readonly animation: Animation;
     }
 }
 /**
@@ -6663,7 +6646,7 @@ declare namespace dragonBones {
          * @version DragonBones 4.7
          * @language zh_CN
          */
-        static get factory(): PixiFactory;
+        static readonly factory: PixiFactory;
         /**
          * @inheritDoc
          */
@@ -6731,9 +6714,9 @@ declare namespace dragonBones {
          * @version DragonBones 4.5
          * @language zh_CN
          */
-        get soundEventManager(): PixiArmatureDisplay;
+        readonly soundEventManager: PixiArmatureDisplay;
         private _app;
-        set pixiApp(app: PIXI.Application);
+        pixiApp: PIXI.Application;
     }
 }
 declare class PixiDBBinParser implements PIXI.LoaderParser<ArrayBuffer> {
