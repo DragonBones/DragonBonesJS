@@ -35,7 +35,7 @@ Hilo: `dbr hilo@1.1.6`
 可用的 `register` 如下：
 ```
 npm - https://registry.npmjs.org/
-taobao - https://registry.npm.taobao.org/
+taobao - https://registry.npmmirror.com/
 cnpm - http://r.cnpmjs.org/
 ```
 
