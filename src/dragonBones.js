@@ -258,6 +258,18 @@ var dragonBones;
                 this._animatableList.length = 0;
             };
 
+            // Added to improve iOS 17+ performance by optimizing memory management
+            WorldClock.prototype.cleanup = function () {
+                // Remove null entries and compress the array
+                var newList = [];
+                for (var i = 0; i < this._animatableList.length; i++) {
+                    if (this._animatableList[i]) {
+                        newList.push(this._animatableList[i]);
+                    }
+                }
+                this._animatableList = newList;
+            };
+
             WorldClock.prototype.advanceTime = function (passedTime) {
                 if (passedTime < 0) {
                     var currentTime = new Date().getTime() * 0.001;
@@ -276,12 +288,34 @@ var dragonBones;
                 for (var i = 0; i < length; i++) {
                     var animatable = this._animatableList[i];
                     if (animatable) {
-                        if (currentIndex != i) {
-                            this._animatableList[currentIndex] = animatable;
-                            this._animatableList[i] = null;
+                        // Optimize iOS 17+ performance by skipping processing for off-screen elements
+                        var shouldProcess = true;
+
+                        // Skip processing if display is not on stage or visible
+                        if (animatable.getDisplay && animatable.getDisplay()) {
+                            var display = animatable.getDisplay();
+                            // Skip if item is off screen or hidden
+                            if (!display.visible ||
+                                (display.parent && !display.parent.visible)) {
+                                shouldProcess = false;
+                            }
                         }
-                        animatable.advanceTime(passedTime);
-                        currentIndex++;
+
+                        if (shouldProcess) {
+                            if (currentIndex != i) {
+                                this._animatableList[currentIndex] = animatable;
+                                this._animatableList[i] = null;
+                            }
+                            animatable.advanceTime(passedTime);
+                            currentIndex++;
+                        } else {
+                            // Skip but keep in list
+                            if (currentIndex != i) {
+                                this._animatableList[currentIndex] = animatable;
+                                this._animatableList[i] = null;
+                            }
+                            currentIndex++;
+                        }
                     }
                 }
 

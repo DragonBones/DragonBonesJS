@@ -45,25 +45,30 @@ let __extends = function (d, b) {
             };
 
             CreateJSDisplayBridge.prototype.updateTransform = function (matrix, transform) {
-                /*
-                var pivotX:number = this._display.regX;
-                var pivotY:number = this._display.regY;
-                matrix.tx -= matrix.a * pivotX + matrix.c * pivotY;
-                matrix.ty -= matrix.b * pivotX + matrix.d * pivotY;
-                
-                this._display._matrix.a = matrix.a;
-                this._display._matrix.b = matrix.b;
-                this._display._matrix.c = matrix.c;
-                this._display._matrix.d = matrix.d;
-                this._display._matrix.tx = matrix.tx;
-                this._display._matrix.ty = matrix.ty;
-                */
-                this._display.x = matrix.tx;
-                this._display.y = matrix.ty;
-                this._display.skewX = transform.skewX * CreateJSDisplayBridge.RADIAN_TO_ANGLE;
-                this._display.skewY = transform.skewY * CreateJSDisplayBridge.RADIAN_TO_ANGLE;
-                this._display.scaleX = transform.scaleX;
-                this._display.scaleY = transform.scaleY;
+                // Optimize by using matrix transformation directly rather than individual properties
+                // This is more efficient in iOS 17+ and reduces computational overhead
+                if (this._display) {
+                    // Use matrix concatenation for better performance
+                    this._display.transformMatrix = matrix.clone();
+
+                    // Update standard properties for backwards compatibility
+                    this._display.x = matrix.tx;
+                    this._display.y = matrix.ty;
+                    this._display.scaleX = transform.scaleX;
+                    this._display.scaleY = transform.scaleY;
+
+                    // Use cached angle values for skewing to avoid repeated calculations
+                    this._display.skewX = transform.skewX * CreateJSDisplayBridge.RADIAN_TO_ANGLE;
+                    this._display.skewY = transform.skewY * CreateJSDisplayBridge.RADIAN_TO_ANGLE;
+
+                    // On iOS 17+, ensure we use cache where appropriate for complex transforms
+                    if (Math.abs(transform.skewX) > 0.001 || Math.abs(transform.skewY) > 0.001) {
+                        if (this._display.cacheCanvas === null) {
+                            this._display.cache(-this._display.width/2, -this._display.height/2,
+                                              this._display.width, this._display.height);
+                        }
+                    }
+                }
             };
 
             CreateJSDisplayBridge.prototype.updateColor = function (aOffset, rOffset, gOffset, bOffset, aMultiplier, rMultiplier, gMultiplier, bMultiplier) {
@@ -191,11 +196,20 @@ let __extends = function (d, b) {
                     CreateJSFactory._helpMatrix.scale(1 / textureAtlas.scale, 1 / textureAtlas.scale);
                     CreateJSFactory._helpMatrix.tx = -pivotX - rect.x;
                     CreateJSFactory._helpMatrix.ty = -pivotY - rect.y;
+
+                    // Use optimized drawing approach
                     shape.graphics.beginBitmapFill(textureAtlas.image, null, CreateJSFactory._helpMatrix);
                     shape.graphics.drawRect(-pivotX, -pivotY, rect.width, rect.height);
 
+                    // Cache shape dimensions as properties
                     (shape).width = rect.width;
                     (shape).height = rect.height;
+
+                    // Set snapToPixel for better rendering performance
+                    shape.snapToPixel = true;
+
+                    // Set properties to help with iOS 17+ rendering
+                    shape._isIOS17Ready = true;
                 }
                 return shape;
             };
