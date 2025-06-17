@@ -2506,6 +2506,9 @@ namespace dragonBones {
 
                 geometry.weight = weight;
             }
+            else {
+                geometry.weight = null;
+            }
         }
 
         protected _parseArray(rawData: any): void {

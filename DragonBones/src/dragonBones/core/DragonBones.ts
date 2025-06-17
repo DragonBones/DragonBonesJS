@@ -309,7 +309,7 @@ namespace dragonBones {
         public constructor(eventManager: IEventDispatcher) {
             this._eventManager = eventManager;
 
-            console.info(`DragonBones: ${DragonBones.VERSION}\nWebsite: http://www.dragonbones.cn/\nSource and Demo: https://github.com/DragonBones/`);
+            console.info(`DragonBones: ${DragonBones.VERSION}\nWebsite: http://www.loongbones.app/\n http://www.loongbones.com/\nSource and Demo: https://github.com/DragonBones/`);
         }
 
         public advanceTime(passedTime: number): void {

@@ -43,7 +43,7 @@ var dragonBones;
             this._objects = [];
             this._eventManager = null;
             this._eventManager = eventManager;
-            console.info("DragonBones: " + DragonBones.VERSION + "\nWebsite: http://www.dragonbones.cn/\nSource and Demo: https://github.com/DragonBones/");
+            console.info("DragonBones: " + DragonBones.VERSION + "\nWebsite: http://www.loongbones.app/\n http://www.loongbones.com/\nSource and Demo: https://github.com/DragonBones/");
         }
         DragonBones.prototype.advanceTime = function (passedTime) {
             if (this._objects.length > 0) {
@@ -15218,6 +15218,9 @@ var dragonBones;
                     }
                 }
                 geometry.weight = weight;
+            }
+            else {
+                geometry.weight = null;
             }
         };
         ObjectDataParser.prototype._parseArray = function (rawData) {
