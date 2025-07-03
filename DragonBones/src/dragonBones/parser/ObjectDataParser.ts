@@ -778,6 +778,7 @@ namespace dragonBones {
                     imageDisplay.path = path.length > 0 ? path : name;
                     this._parsePivot(rawData, imageDisplay);
                     imageDisplay.mask = ObjectDataParser._getBoolean(rawData, DataParser.MASK, false);
+                    imageDisplay.maskUp = ObjectDataParser._getBoolean(rawData, DataParser.MASK_UP, false);
                     imageDisplay.maskRange = ObjectDataParser._getNumber(rawData, DataParser.MASK_RANGE, 0);
                     break;
                 }
@@ -858,6 +859,7 @@ namespace dragonBones {
                     shapeDisplay.name = name;
                     shapeDisplay.path = path.length > 0 ? path : name;
                     shapeDisplay.mask = ObjectDataParser._getBoolean(rawData, DataParser.MASK, false);
+                    shapeDisplay.maskUp = ObjectDataParser._getBoolean(rawData, DataParser.MASK_UP, false);
                     shapeDisplay.maskRange = ObjectDataParser._getNumber(rawData, DataParser.MASK_RANGE, 0);
 
                     const shape = this._parseShape(rawData, shapeDisplay);

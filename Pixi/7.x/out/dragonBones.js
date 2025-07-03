@@ -33,7 +33,7 @@ var dragonBones;
             this._objects = [];
             this._eventManager = null;
             this._eventManager = eventManager;
-            console.info(`DragonBones: ${DragonBones.VERSION}\nWebsite: http://www.dragonbones.cn/\nSource and Demo: https://github.com/DragonBones/`);
+            console.info(`DragonBones: ${DragonBones.VERSION}\nWebsite: http://www.loongbones.app/\n http://www.loongbones.com/\nSource and Demo: https://github.com/DragonBones/`);
         }
         advanceTime(passedTime) {
             if (this._objects.length > 0) {
@@ -5698,6 +5698,7 @@ var dragonBones;
                 this._textureData = this._displayFrame.getTextureData();
                 this._shapeData = this._displayFrame.getShapeData();
                 this._mask = rawDisplayData ? rawDisplayData.mask : false;
+                this._maskUp = rawDisplayData ? rawDisplayData.maskUp : false;
                 this._maskRange = rawDisplayData ? rawDisplayData.maskRange : 0;
             }
             if (this._displayFrame !== prevDisplayFrame ||
@@ -12357,6 +12358,7 @@ var dragonBones;
     DataParser.WEIGHT = "weight";
     DataParser.MASK = "mask";
     DataParser.MASK_RANGE = "maskRange";
+    DataParser.MASK_UP = "maskUp";
     DataParser.BLEND_TYPE = "blendType";
     DataParser.FADE_IN_TIME = "fadeInTime";
     DataParser.PLAY_TIMES = "playTimes";
@@ -13100,6 +13102,7 @@ var dragonBones;
                     imageDisplay.path = path.length > 0 ? path : name;
                     this._parsePivot(rawData, imageDisplay);
                     imageDisplay.mask = ObjectDataParser._getBoolean(rawData, dragonBones.DataParser.MASK, false);
+                    imageDisplay.maskUp = ObjectDataParser._getBoolean(rawData, dragonBones.DataParser.MASK_UP, false);
                     imageDisplay.maskRange = ObjectDataParser._getNumber(rawData, dragonBones.DataParser.MASK_RANGE, 0);
                     break;
                 }
@@ -13169,6 +13172,7 @@ var dragonBones;
                     shapeDisplay.name = name;
                     shapeDisplay.path = path.length > 0 ? path : name;
                     shapeDisplay.mask = ObjectDataParser._getBoolean(rawData, dragonBones.DataParser.MASK, false);
+                    shapeDisplay.maskUp = ObjectDataParser._getBoolean(rawData, dragonBones.DataParser.MASK_UP, false);
                     shapeDisplay.maskRange = ObjectDataParser._getNumber(rawData, dragonBones.DataParser.MASK_RANGE, 0);
                     const shape = this._parseShape(rawData, shapeDisplay);
                     shapeDisplay.shape = shape;
@@ -14464,6 +14468,9 @@ var dragonBones;
                     }
                 }
                 geometry.weight = weight;
+            }
+            else {
+                geometry.weight = null;
             }
         }
         _parseArray(rawData) {
@@ -16794,12 +16801,25 @@ var dragonBones;
                 }
                 // set mask
                 const index = container.getChildIndex(this._renderDisplay);
-                for (let i = 0; i < this._maskRange; i++) {
-                    let maskIndex = index + i + 1;
-                    if (maskIndex < length) {
-                        const child = container.getChildAt(maskIndex);
-                        if (child) {
-                            child.mask = this._renderDisplay;
+                if (this._maskUp) {
+                    for (let i = 0; i < this._maskRange; i++) {
+                        let maskIndex = index + i + 1;
+                        if (maskIndex < length) {
+                            const child = container.getChildAt(maskIndex);
+                            if (child) {
+                                child.mask = this._renderDisplay;
+                            }
+                        }
+                    }
+                }
+                else {
+                    for (let i = 0; i < this._maskRange; i++) {
+                        let maskIndex = index - i - 1;
+                        if (maskIndex >= 0) {
+                            const child = container.getChildAt(maskIndex);
+                            if (child) {
+                                child.mask = this._renderDisplay;
+                            }
                         }
                     }
                 }

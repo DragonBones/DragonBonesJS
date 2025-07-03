@@ -70,6 +70,7 @@ namespace dragonBones {
         public parent: SkinData;
         public mask: boolean;
         public maskRange: number;
+        public maskUp: boolean;
         protected _onClear(): void {
             this.name = "";
             this.path = "";

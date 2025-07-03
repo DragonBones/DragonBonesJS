@@ -280,6 +280,10 @@ namespace dragonBones {
         /**
          * @internal
          */
+        public _maskUp:boolean;
+        /**
+         * @internal
+         */
         public _maskRange:number;
         protected _boundingBoxData: BoundingBoxData | null;
         protected _textureData: TextureData | null;
@@ -453,6 +457,7 @@ namespace dragonBones {
                 this._textureData = this._displayFrame.getTextureData();
                 this._shapeData = this._displayFrame.getShapeData();
                 this._mask = rawDisplayData ? rawDisplayData.mask : false;
+                this._maskUp = rawDisplayData ? rawDisplayData.maskUp : false;
                 this._maskRange = rawDisplayData ? rawDisplayData.maskRange : 0;
             }
 

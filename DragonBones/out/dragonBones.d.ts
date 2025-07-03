@@ -1787,6 +1787,7 @@ declare namespace dragonBones {
         parent: SkinData;
         mask: boolean;
         maskRange: number;
+        maskUp: boolean;
         protected _onClear(): void;
     }
     abstract class SkinnedDisplayData extends DisplayData {
@@ -5607,6 +5608,7 @@ declare namespace dragonBones {
         protected static readonly WEIGHT: string;
         protected static readonly MASK: string;
         protected static readonly MASK_RANGE: string;
+        protected static readonly MASK_UP: string;
         protected static readonly BLEND_TYPE: string;
         protected static readonly FADE_IN_TIME: string;
         protected static readonly PLAY_TIMES: string;

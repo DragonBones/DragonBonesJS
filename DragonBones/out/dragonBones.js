@@ -6040,6 +6040,7 @@ var dragonBones;
                 this._textureData = this._displayFrame.getTextureData();
                 this._shapeData = this._displayFrame.getShapeData();
                 this._mask = rawDisplayData ? rawDisplayData.mask : false;
+                this._maskUp = rawDisplayData ? rawDisplayData.maskUp : false;
                 this._maskRange = rawDisplayData ? rawDisplayData.maskRange : 0;
             }
             if (this._displayFrame !== prevDisplayFrame ||
@@ -13075,6 +13076,7 @@ var dragonBones;
         DataParser.WEIGHT = "weight";
         DataParser.MASK = "mask";
         DataParser.MASK_RANGE = "maskRange";
+        DataParser.MASK_UP = "maskUp";
         DataParser.BLEND_TYPE = "blendType";
         DataParser.FADE_IN_TIME = "fadeInTime";
         DataParser.PLAY_TIMES = "playTimes";
@@ -13839,6 +13841,7 @@ var dragonBones;
                     imageDisplay.path = path.length > 0 ? path : name;
                     this._parsePivot(rawData, imageDisplay);
                     imageDisplay.mask = ObjectDataParser._getBoolean(rawData, dragonBones.DataParser.MASK, false);
+                    imageDisplay.maskUp = ObjectDataParser._getBoolean(rawData, dragonBones.DataParser.MASK_UP, false);
                     imageDisplay.maskRange = ObjectDataParser._getNumber(rawData, dragonBones.DataParser.MASK_RANGE, 0);
                     break;
                 }
@@ -13910,6 +13913,7 @@ var dragonBones;
                     shapeDisplay.name = name;
                     shapeDisplay.path = path.length > 0 ? path : name;
                     shapeDisplay.mask = ObjectDataParser._getBoolean(rawData, dragonBones.DataParser.MASK, false);
+                    shapeDisplay.maskUp = ObjectDataParser._getBoolean(rawData, dragonBones.DataParser.MASK_UP, false);
                     shapeDisplay.maskRange = ObjectDataParser._getNumber(rawData, dragonBones.DataParser.MASK_RANGE, 0);
                     var shape = this._parseShape(rawData, shapeDisplay);
                     shapeDisplay.shape = shape;

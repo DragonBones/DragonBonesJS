@@ -538,15 +538,29 @@ namespace dragonBones {
                 }
                 // set mask
                 const index = container.getChildIndex(this._renderDisplay);
-                for(let i = 0; i < this._maskRange; i++) {
-                    let maskIndex = index + i + 1;
-                    if(maskIndex < length) {
-                        const child: PIXI.Container = container.getChildAt(maskIndex);
-                        if(child) {
-                            child.mask = this._renderDisplay;
+                if(this._maskUp) {
+                    for(let i = 0; i < this._maskRange; i++) {
+                        let maskIndex = index + i + 1;
+                        if(maskIndex < length) {
+                            const child: PIXI.Container = container.getChildAt(maskIndex);
+                            if(child) {
+                                child.mask = this._renderDisplay;
+                            }
                         }
                     }
                 }
+                else {
+                    for(let i = 0; i < this._maskRange; i++) {
+                        let maskIndex = index - i - 1;
+                        if(maskIndex >= 0) {
+                            const child: PIXI.Container = container.getChildAt(maskIndex);
+                            if(child) {
+                                child.mask = this._renderDisplay;
+                            }
+                        }
+                    }
+                }
+                
             }
         }
         protected _updateTransform(): void {

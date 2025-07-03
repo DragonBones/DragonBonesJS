@@ -126,6 +126,7 @@ namespace dragonBones {
         protected static readonly WEIGHT: string = "weight";
         protected static readonly MASK: string = "mask";
         protected static readonly MASK_RANGE: string = "maskRange";
+        protected static readonly MASK_UP: string = "maskUp";
 
 
         protected static readonly BLEND_TYPE: string = "blendType";
