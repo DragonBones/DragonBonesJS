@@ -15670,8 +15670,13 @@ var dragonBones;
                         this._renderTexture = value;
                         for (var k in this.textures) {
                             var data = this.textures[k];
-                            var frame = this._renderTexture.add(k, 0, // all textures were added through `textures.addImage`, so their sourceIndex are all 0
-                            data.region.x, data.region.y, data.region.width, data.region.height);
+                            if(!this._renderTexture.frames[data.name]){
+								var frame = this._renderTexture.add(k, 0, // all textures were added through `textures.addImage`, so their sourceIndex are all 0
+                                data.region.x, data.region.y, data.region.width, data.region.height);
+                            }
+							else {
+								var frame = this._renderTexture.frames[data.name];
+							}
                             if (data.rotated) {
                                 frame.rotated = true;
                                 frame.updateUVsInverted();
