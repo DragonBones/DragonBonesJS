@@ -168,8 +168,8 @@ namespace dragonBones {
          * </pre>
          * @language zh_CN
          */
-        public buildArmatureDisplay(armatureName: string, dragonBonesName: string = "", skinName: string = "", textureAtlasName: string = ""): EgretArmatureDisplay | null {
-            const armature = this.buildArmature(armatureName, dragonBonesName || "", skinName || "", textureAtlasName || "");
+        public buildArmatureDisplay(armatureName: string, dragonBonesName: string = "", skinName: string = "", textureAtlasName: string = "", isUseTint: boolean = false): EgretArmatureDisplay | null {
+            const armature = this.buildArmature(armatureName, dragonBonesName || "", skinName || "", textureAtlasName || "", isUseTint);
             if (armature !== null) {
                 this._dragonBones.clock.add(armature);
 
