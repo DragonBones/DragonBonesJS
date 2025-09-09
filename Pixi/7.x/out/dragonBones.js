@@ -7023,7 +7023,7 @@ var dragonBones;
                             let s = 0;
                             let mr = 0;
                             let dx = this._cx - bone.global.x;
-                            let dy = this._cy - bone.global.y;
+                            let dy = -this._cy + bone.global.y;
                             if (dx > qx)
                                 dx = qx;
                             else if (dx < -qx) //

@@ -7449,7 +7449,7 @@ var dragonBones;
                             var s = 0;
                             var mr = 0;
                             var dx = this._cx - bone.global.x;
-                            var dy = this._cy - bone.global.y;
+                            var dy = -this._cy + bone.global.y;
                             if (dx > qx)
                                 dx = qx;
                             else if (dx < -qx) //
