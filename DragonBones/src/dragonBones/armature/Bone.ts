@@ -82,7 +82,7 @@ namespace dragonBones {
         /**
          * @internal
          */
-        public _targetTransformConstraint: TransformConstraint | null;
+        public _targetTransformConstraints: TransformConstraint[] | null;
          /**
          * @internal
          */
@@ -117,6 +117,9 @@ namespace dragonBones {
             this._boneData = null as any; //
             this._parent = null as any; //
             this._cachedFrameIndices = null;
+            this._transformConstraint = null;
+            this._targetTransformConstraints = null;
+            this._physicsConstraint = null;
         }
 
         protected _updateGlobalTransformMatrix(isCache: boolean): void {
@@ -344,11 +347,24 @@ namespace dragonBones {
             if (this._transformConstraint) {
                 this._transformConstraint._dirty = true;
             }
-            if (this._targetTransformConstraint) {
-                this._targetTransformConstraint._dirty = true;
+            if (this._targetTransformConstraints && this._targetTransformConstraints.length > 0) {
+                for (const constraint of this._targetTransformConstraints) {
+                    constraint._dirty = true;
+                }
             }
             if(this._physicsConstraint) {
                 this._physicsConstraint._sleeping = false;
+            }
+        }
+        /**
+         * @internal
+         */
+        public _addTargetTransformConstraint(constraint: TransformConstraint) {
+            if (!this._targetTransformConstraints) {
+                this._targetTransformConstraints = [];
+            }
+            if (this._targetTransformConstraints.indexOf(constraint) < 0) {
+                this._targetTransformConstraints.push(constraint);
             }
         }
         /**

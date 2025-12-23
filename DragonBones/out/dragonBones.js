@@ -4787,6 +4787,9 @@ var dragonBones;
             this._boneData = null; //
             this._parent = null; //
             this._cachedFrameIndices = null;
+            this._transformConstraint = null;
+            this._targetTransformConstraints = null;
+            this._physicsConstraint = null;
         };
         Bone.prototype._updateGlobalTransformMatrix = function (isCache) {
             // For typescript.
@@ -4983,11 +4986,25 @@ var dragonBones;
             if (this._transformConstraint) {
                 this._transformConstraint._dirty = true;
             }
-            if (this._targetTransformConstraint) {
-                this._targetTransformConstraint._dirty = true;
+            if (this._targetTransformConstraints && this._targetTransformConstraints.length > 0) {
+                for (var _i = 0, _a = this._targetTransformConstraints; _i < _a.length; _i++) {
+                    var constraint = _a[_i];
+                    constraint._dirty = true;
+                }
             }
             if (this._physicsConstraint) {
                 this._physicsConstraint._sleeping = false;
+            }
+        };
+        /**
+         * @internal
+         */
+        Bone.prototype._addTargetTransformConstraint = function (constraint) {
+            if (!this._targetTransformConstraints) {
+                this._targetTransformConstraints = [];
+            }
+            if (this._targetTransformConstraints.indexOf(constraint) < 0) {
+                this._targetTransformConstraints.push(constraint);
             }
         };
         /**
@@ -7196,7 +7213,7 @@ var dragonBones;
             this._translateWeight = transformConstraintData.translateWeight;
             this._root = this._bone;
             this._root._transformConstraint = this;
-            this._target._targetTransformConstraint = this;
+            this._target._addTargetTransformConstraint(this);
         };
         TransformConstraint.prototype.update = function () {
             if (!this._dirty) {
@@ -7244,8 +7261,19 @@ var dragonBones;
                 else {
                     var targetGlobalTransform = this._helpTransform.fromMatrix(this._target.globalTransformMatrix);
                     if (this._translateWeight !== 0) {
-                        this._root.global.x = this._root.global.x * (1 - this._translateWeight) + (targetGlobalTransform.x + offsetX) * this._translateWeight;
-                        this._root.global.y = this._root.global.y * (1 - this._translateWeight) + (targetGlobalTransform.y + offsetY) * this._translateWeight;
+                        if (offsetX !== 0 || offsetY !== 0) {
+                            this._helpMatrix1.copyFrom(this._target.globalTransformMatrix);
+                            this._helpMatrix2.identity();
+                            this._helpMatrix2.tx = offsetX;
+                            this._helpMatrix2.ty = offsetY;
+                            this._helpMatrix2.concat(this._helpMatrix1);
+                            this._root.global.x = this._root.global.x * (1 - this._translateWeight) + (this._helpMatrix2.tx) * this._translateWeight;
+                            this._root.global.y = this._root.global.y * (1 - this._translateWeight) + (this._helpMatrix2.ty) * this._translateWeight;
+                        }
+                        else {
+                            this._root.global.x = this._root.global.x * (1 - this._translateWeight) + (targetGlobalTransform.x + offsetX) * this._translateWeight;
+                            this._root.global.y = this._root.global.y * (1 - this._translateWeight) + (targetGlobalTransform.y + offsetY) * this._translateWeight;
+                        }
                     }
                     if (this._rotateWeight !== 0) {
                         this._root.global.rotation = this._root.global.rotation * (1 - this._rotateWeight) + (targetGlobalTransform.rotation + offsetRotation) * this._rotateWeight;

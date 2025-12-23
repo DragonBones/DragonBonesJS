@@ -285,7 +285,7 @@ namespace dragonBones {
 
             this._root = this._bone;
             this._root._transformConstraint = this;
-            this._target._targetTransformConstraint = this;
+            this._target._addTargetTransformConstraint(this);
         }
 
         public update(): void {
@@ -339,8 +339,19 @@ namespace dragonBones {
                     
                     const targetGlobalTransform = this._helpTransform.fromMatrix(this._target.globalTransformMatrix);
                     if(this._translateWeight !== 0) {
-                        this._root.global.x = this._root.global.x * (1 - this._translateWeight) + (targetGlobalTransform.x + offsetX) * this._translateWeight;
-                        this._root.global.y = this._root.global.y * (1 - this._translateWeight) + (targetGlobalTransform.y + offsetY) * this._translateWeight;
+                        if(offsetX !== 0 || offsetY !== 0) {
+                            this._helpMatrix1.copyFrom(this._target.globalTransformMatrix);
+                            this._helpMatrix2.identity();
+                            this._helpMatrix2.tx = offsetX;
+                            this._helpMatrix2.ty = offsetY;
+                            this._helpMatrix2.concat(this._helpMatrix1);
+                            this._root.global.x = this._root.global.x * (1 - this._translateWeight) + (this._helpMatrix2.tx) * this._translateWeight;
+                            this._root.global.y = this._root.global.y * (1 - this._translateWeight) + (this._helpMatrix2.ty) * this._translateWeight;
+                        }
+                        else {
+                            this._root.global.x = this._root.global.x * (1 - this._translateWeight) + (targetGlobalTransform.x + offsetX) * this._translateWeight;
+                            this._root.global.y = this._root.global.y * (1 - this._translateWeight) + (targetGlobalTransform.y + offsetY) * this._translateWeight;
+                        }
                     }
                     if (this._rotateWeight !== 0) {
                         this._root.global.rotation = this._root.global.rotation * (1 - this._rotateWeight) + (targetGlobalTransform.rotation + offsetRotation) * this._rotateWeight;
