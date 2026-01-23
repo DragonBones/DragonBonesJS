@@ -51,6 +51,29 @@ namespace dragonBones {
          */
         public autoSearch: boolean = false;
 
+        /**
+         * - The heartbeat mode features real-time and fixed fps options, with real-time set as the default.
+         * @version DragonBones 6.0
+         * @language en_US
+         */
+        /**
+         * - 心跳的模式，有实时和固定频率，默认是实时
+         * @version DragonBones 6.0
+         * @language zh_CN
+         */
+        public static tickMode: TickMode = TickMode.RealTime;
+        /**
+         * - Fixed frequency: the interval of each heartbeat, in seconds, default is 0.01667 seconds (60fps).
+         * @version DragonBones 6.0
+         * @language en_US
+         */
+        /**
+         * - 固定频率，每次心跳的间隔时间，单位是秒，默认是0.01667秒，60fps
+         * @version DragonBones 6.0
+         * @language zh_CN
+         */
+        public static fixedFPS: number = 0.01667;
+
         protected readonly _dragonBonesDataMap: Map<DragonBonesData> = {};
         protected readonly _textureAtlasDataMap: Map<Array<TextureAtlasData>> = {};
         protected _dragonBones: DragonBones = null as any;

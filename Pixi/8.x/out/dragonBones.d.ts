@@ -173,6 +173,15 @@ declare namespace dragonBones {
         Override = 2
     }
     /**
+     * - 偏移模式。
+     * @version DragonBones 5.5
+     * @language zh_CN
+     */
+    const enum TickMode {
+        RealTime = 0,
+        FixedFPS = 1
+    }
+    /**
      * - Animation fade out mode.
      * @version DragonBones 4.5
      * @language en_US
@@ -5968,6 +5977,28 @@ declare namespace dragonBones {
          * @private
          */
         autoSearch: boolean;
+        /**
+         * - The heartbeat mode features real-time and fixed fps options, with real-time set as the default.
+         * @version DragonBones 6.0
+         * @language en_US
+         */
+        /**
+         * - 心跳的模式，有实时和固定频率，默认是实时
+         * @version DragonBones 6.0
+         * @language zh_CN
+         */
+        static tickMode: TickMode;
+        /**
+         * - Fixed frequency: the interval of each heartbeat, in seconds, default is 0.01667 seconds (60fps).
+         * @version DragonBones 6.0
+         * @language en_US
+         */
+        /**
+         * - 固定频率，每次心跳的间隔时间，单位是秒，默认是0.01667秒，60fps
+         * @version DragonBones 6.0
+         * @language zh_CN
+         */
+        static fixedFPS: number;
         protected readonly _dragonBonesDataMap: Map<DragonBonesData>;
         protected readonly _textureAtlasDataMap: Map<Array<TextureAtlasData>>;
         protected _dragonBones: DragonBones;
@@ -6655,6 +6686,7 @@ declare namespace dragonBones {
         private static _dragonBonesInstance;
         private static _factory;
         private static _clockHandler;
+        private static _clockFixedHandler;
         /**
          * - A global factory instance that can be used directly.
          * @version DragonBones 4.7

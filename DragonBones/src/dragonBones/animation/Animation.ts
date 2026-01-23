@@ -569,6 +569,7 @@ namespace dragonBones {
             layer: number = 0, group: string | null = null, fadeOutMode: AnimationFadeOutMode = AnimationFadeOutMode.SameLayerAndGroup
         ): AnimationState | null {
             this._animationConfig.clear();
+            this._animationConfig.resetToPose = false;
             this._animationConfig.fadeOutMode = fadeOutMode;
             this._animationConfig.playTimes = playTimes;
             this._animationConfig.layer = layer;

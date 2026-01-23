@@ -4963,6 +4963,9 @@ var dragonBones;
             this._boneData = null; //
             this._parent = null; //
             this._cachedFrameIndices = null;
+            this._transformConstraint = null;
+            this._targetTransformConstraints = null;
+            this._physicsConstraint = null;
         }
         _updateGlobalTransformMatrix(isCache) {
             // For typescript.
@@ -5159,11 +5162,24 @@ var dragonBones;
             if (this._transformConstraint) {
                 this._transformConstraint._dirty = true;
             }
-            if (this._targetTransformConstraint) {
-                this._targetTransformConstraint._dirty = true;
+            if (this._targetTransformConstraints && this._targetTransformConstraints.length > 0) {
+                for (const constraint of this._targetTransformConstraints) {
+                    constraint._dirty = true;
+                }
             }
             if (this._physicsConstraint) {
                 this._physicsConstraint._sleeping = false;
+            }
+        }
+        /**
+         * @internal
+         */
+        _addTargetTransformConstraint(constraint) {
+            if (!this._targetTransformConstraints) {
+                this._targetTransformConstraints = [];
+            }
+            if (this._targetTransformConstraints.indexOf(constraint) < 0) {
+                this._targetTransformConstraints.push(constraint);
             }
         }
         /**
@@ -7324,7 +7340,7 @@ var dragonBones;
             this._translateWeight = transformConstraintData.translateWeight;
             this._root = this._bone;
             this._root._transformConstraint = this;
-            this._target._targetTransformConstraint = this;
+            this._target._addTargetTransformConstraint(this);
         }
         update() {
             if (!this._dirty) {
@@ -7372,8 +7388,19 @@ var dragonBones;
                 else {
                     const targetGlobalTransform = this._helpTransform.fromMatrix(this._target.globalTransformMatrix);
                     if (this._translateWeight !== 0) {
-                        this._root.global.x = this._root.global.x * (1 - this._translateWeight) + (targetGlobalTransform.x + offsetX) * this._translateWeight;
-                        this._root.global.y = this._root.global.y * (1 - this._translateWeight) + (targetGlobalTransform.y + offsetY) * this._translateWeight;
+                        if (offsetX !== 0 || offsetY !== 0) {
+                            this._helpMatrix1.copyFrom(this._target.globalTransformMatrix);
+                            this._helpMatrix2.identity();
+                            this._helpMatrix2.tx = offsetX;
+                            this._helpMatrix2.ty = offsetY;
+                            this._helpMatrix2.concat(this._helpMatrix1);
+                            this._root.global.x = this._root.global.x * (1 - this._translateWeight) + (this._helpMatrix2.tx) * this._translateWeight;
+                            this._root.global.y = this._root.global.y * (1 - this._translateWeight) + (this._helpMatrix2.ty) * this._translateWeight;
+                        }
+                        else {
+                            this._root.global.x = this._root.global.x * (1 - this._translateWeight) + (targetGlobalTransform.x + offsetX) * this._translateWeight;
+                            this._root.global.y = this._root.global.y * (1 - this._translateWeight) + (targetGlobalTransform.y + offsetY) * this._translateWeight;
+                        }
                     }
                     if (this._rotateWeight !== 0) {
                         this._root.global.rotation = this._root.global.rotation * (1 - this._rotateWeight) + (targetGlobalTransform.rotation + offsetRotation) * this._rotateWeight;
@@ -9127,6 +9154,7 @@ var dragonBones;
          */
         fadeIn(animationName, fadeInTime = -1.0, playTimes = -1, layer = 0, group = null, fadeOutMode = 3 /* AnimationFadeOutMode.SameLayerAndGroup */) {
             this._animationConfig.clear();
+            this._animationConfig.resetToPose = false;
             this._animationConfig.fadeOutMode = fadeOutMode;
             this._animationConfig.playTimes = playTimes;
             this._animationConfig.layer = layer;
@@ -16760,6 +16788,28 @@ var dragonBones;
     }
     BaseFactory._objectParser = null;
     BaseFactory._binaryParser = null;
+    /**
+     * - The heartbeat mode features real-time and fixed fps options, with real-time set as the default.
+     * @version DragonBones 6.0
+     * @language en_US
+     */
+    /**
+     * - 心跳的模式，有实时和固定频率，默认是实时
+     * @version DragonBones 6.0
+     * @language zh_CN
+     */
+    BaseFactory.tickMode = 0 /* TickMode.RealTime */;
+    /**
+     * - Fixed frequency: the interval of each heartbeat, in seconds, default is 0.01667 seconds (60fps).
+     * @version DragonBones 6.0
+     * @language en_US
+     */
+    /**
+     * - 固定频率，每次心跳的间隔时间，单位是秒，默认是0.01667秒，60fps
+     * @version DragonBones 6.0
+     * @language zh_CN
+     */
+    BaseFactory.fixedFPS = 0.01667;
     dragonBones.BaseFactory = BaseFactory;
     /**
      * @private
@@ -17774,6 +17824,10 @@ var dragonBones;
             const passedTime = ticker.deltaTime;
             this._dragonBonesInstance.advanceTime(PIXI.Ticker.shared.elapsedMS * passedTime * 0.001);
         }
+        static _clockFixedHandler() {
+            const fixedFPS = this.fixedFPS;
+            this._dragonBonesInstance.advanceTime(fixedFPS);
+        }
         /**
          * - A global factory instance that can be used directly.
          * @version DragonBones 4.7
@@ -17800,7 +17854,12 @@ var dragonBones;
                 PIXI.Assets.loader.parsers.push(new PixiDBBinParser());
                 const eventManager = new dragonBones.PixiArmatureDisplay();
                 PixiFactory._dragonBonesInstance = new dragonBones.DragonBones(eventManager);
-                PIXI.Ticker.shared.add(PixiFactory._clockHandler, PixiFactory);
+                if (PixiFactory.tickMode === 0 /* TickMode.RealTime */) {
+                    PIXI.Ticker.shared.add(PixiFactory._clockHandler, PixiFactory);
+                }
+                else {
+                    PIXI.Ticker.shared.add(PixiFactory._clockFixedHandler, PixiFactory);
+                }
             }
             this._dragonBones = PixiFactory._dragonBonesInstance;
         }

@@ -182,6 +182,15 @@ namespace dragonBones {
         Override,
     }
     /**
+     * - 偏移模式。
+     * @version DragonBones 5.5
+     * @language zh_CN
+     */
+    export const enum TickMode {
+        RealTime,
+        FixedFPS,
+    }
+    /**
      * - Animation fade out mode.
      * @version DragonBones 4.5
      * @language en_US

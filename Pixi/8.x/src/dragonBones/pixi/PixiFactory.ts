@@ -39,6 +39,10 @@ namespace dragonBones {
             const passedTime = ticker.deltaTime;
             this._dragonBonesInstance.advanceTime(PIXI.Ticker.shared.elapsedMS * passedTime * 0.001);
         }
+        private static _clockFixedHandler():void {
+            const fixedFPS = this.fixedFPS;
+            this._dragonBonesInstance.advanceTime(fixedFPS);
+        }
         /**
          * - A global factory instance that can be used directly.
          * @version DragonBones 4.7
@@ -66,7 +70,13 @@ namespace dragonBones {
                 PIXI.Assets.loader.parsers.push(new PixiDBBinParser());
                 const eventManager = new PixiArmatureDisplay();
                 PixiFactory._dragonBonesInstance = new DragonBones(eventManager);
-                PIXI.Ticker.shared.add(PixiFactory._clockHandler, PixiFactory);
+                if(PixiFactory.tickMode === TickMode.RealTime) {
+                    PIXI.Ticker.shared.add(PixiFactory._clockHandler, PixiFactory);
+                }
+                else {
+                    PIXI.Ticker.shared.add(PixiFactory._clockFixedHandler, PixiFactory);
+                }
+                
             }
 
             this._dragonBones = PixiFactory._dragonBonesInstance;
